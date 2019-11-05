@@ -70,7 +70,13 @@ Notes:
 #define RW_READ  true
 #define RW_WRITE false
 
-typedef enum CPU_6502_STATE {
+typedef enum CPU_6502_CYCLE {
+	CYCLE_BEGIN = 0,		// (1) in timing diagram
+	CYCLE_MIDDLE = 1,		// (2) in timing diagram
+	CYCLE_END = 2			// (3) in timing diagram
+} CPU_6502_CYCLE;
+
+typedef enum CPU_6503_STATE {
 	CS_INIT = 0,
 	CS_RUNNING = 1
 } CPU_6502_STATE;
@@ -83,6 +89,7 @@ typedef struct Cpu6502_private {
 	bool			internal_rw;			// internal rw latch
 	CPU_6502_STATE	state;
 	uint8_t			decode_cycle;			// instruction decode cycle
+	bool			active;
 } Cpu6502_private;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -102,56 +109,56 @@ static void process_end(Cpu6502 *cpu) {
 	PRIVATE(cpu)->prev_clock = *cpu->pin_clock;
 }
 
-static void execute_init(Cpu6502 *cpu) {
+static void execute_init(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 /* init sequence after reset: should be the same sequence as BRK/IRQ/NMI but always read */
 
 	switch(PRIVATE(cpu)->decode_cycle) {
 		case 0 :		// initialize stack pointer to zero
-			if (!*cpu->pin_clock) {
+			if (phase == CYCLE_BEGIN) {
 				cpu->reg_sp = 0;
 				PRIVATE(cpu)->internal_ab = 0x00ff;
 			}
 			break;
 		
 		case 1 :		// pull IR to zero
-			if (!*cpu->pin_clock) {
+			if (phase == CYCLE_BEGIN) {
 				cpu->reg_ir = 0;
 			}
 			break;
 
 		case 2 :		// "push" high byte of PC
-			if (!*cpu->pin_clock) {
+			if (phase == CYCLE_BEGIN) {
 				PRIVATE(cpu)->internal_ab = 0x100 + cpu->reg_ir;
 				--cpu->reg_ir;
 			}
 			break;
 
 		case 3 :		// "push" low byte of PC
-			if (!*cpu->pin_clock) {
+			if (phase == CYCLE_BEGIN) {
 				PRIVATE(cpu)->internal_ab = 0x100 + cpu->reg_ir;
 				--cpu->reg_ir;
 			}
 			break;
 
 		case 4 :		// "push" status register
-			if (!*cpu->pin_clock) {
+			if (phase == CYCLE_BEGIN) {
 				PRIVATE(cpu)->internal_ab = 0x100 + cpu->reg_ir;
 				--cpu->reg_ir;
 			}
 			break;
 
 		case 5 :		// read low byte of the reset vector
-			if (!*cpu->pin_clock) {
+			if (phase == CYCLE_BEGIN) {
 				PRIVATE(cpu)->internal_ab = 0xfffc;
-			} else {
+			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_LOBYTE(cpu->reg_pc, *cpu->bus_data);
 			}
 			break;
 
 		case 6 :		// read high byte of the reset vector
-			if (!*cpu->pin_clock) {
+			if (phase == CYCLE_BEGIN) {
 				PRIVATE(cpu)->internal_ab = 0xfffd;
-			} else {
+			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, *cpu->bus_data);
 				PRIVATE(cpu)->state = CS_RUNNING;
 				PRIVATE(cpu)->decode_cycle = 0;
@@ -163,22 +170,36 @@ static void execute_init(Cpu6502 *cpu) {
 			break;
 	}
 
-	if (*cpu->pin_clock && PRIVATE(cpu)->state == CS_INIT) {
+	if (phase == CYCLE_END && PRIVATE(cpu)->state == CS_INIT) {
 		++PRIVATE(cpu)->decode_cycle;
 	}
 
 }
 
-static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst) {
+static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst, CPU_6502_CYCLE phase) {
 	assert(cpu);
 	assert(dst);
 
-	if (!*cpu->pin_clock) {
-		PRIVATE(cpu)->internal_ab = cpu->reg_pc;
-	} else {
-		*dst = *cpu->bus_data;
-		++cpu->reg_pc;
+	switch (phase) {
+		case CYCLE_BEGIN : 
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END : 
+			*dst = *cpu->bus_data;
+			++cpu->reg_pc;
+			break;
 	}
+}
+
+static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	if (PRIVATE(cpu)->decode_cycle == 0) {
+		fetch_pc_memory(cpu, &cpu->reg_ir, phase);
+		return;
+	} 
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -213,6 +234,7 @@ void cpu_6502_process(Cpu6502 *cpu) {
 	if (!priv->prev_reset && *cpu->pin_reset) {
 		// reset was just asserted
 		priv->internal_ab = 0;
+
 		priv->internal_rw = RW_READ;
 		priv->prev_reset = cpu->pin_reset;
 	} else if (priv->prev_reset && !*cpu->pin_reset) {
@@ -220,6 +242,7 @@ void cpu_6502_process(Cpu6502 *cpu) {
 		priv->prev_reset = *cpu->pin_reset;
 		priv->state = CS_INIT;
 		priv->decode_cycle = 0;
+		priv->active = false;
 	}
 
 	// do nothing if reset is asserted or if not on the edge of a clock cycle
@@ -230,16 +253,28 @@ void cpu_6502_process(Cpu6502 *cpu) {
 	
 	// run initialization
 	if (priv->state == CS_INIT) {
-		execute_init(cpu);
+		if (*cpu->pin_clock == false && priv->active) {
+			execute_init(cpu, CYCLE_END);
+		}
+		
+		if (priv->state == CS_INIT) {
+			priv->active = true;
+			execute_init(cpu, (*cpu->pin_clock) ? CYCLE_MIDDLE : CYCLE_BEGIN);
+		} else {
+			// fetch the first instruction
+			fetch_pc_memory(cpu, &cpu->reg_ir, CYCLE_BEGIN);
+		}
+
 		process_end(cpu);
 		return;
 	}
-	
-	if (priv->decode_cycle == 0) {
-		// fetch next opcode
-		fetch_pc_memory(cpu, &cpu->reg_ir);
+
+	// run normal code
+	if (*cpu->pin_clock == false) {
+		decode_instruction(cpu, CYCLE_END);
+		decode_instruction(cpu, CYCLE_BEGIN);
 	} else {
-		// handle current opcode
+		decode_instruction(cpu, CYCLE_MIDDLE);
 	}
 
 	process_end(cpu);
