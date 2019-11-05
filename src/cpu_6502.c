@@ -8,6 +8,60 @@
 #include <stdlib.h>
 #include <string.h>
 
+/*
+
+Timing diagram for the 6502 microprocessor.
+
+   READ CYCLE
+   ----------
+
+_________ |                                      _________________________________  |
+CLK      \|          tPWL                      |/              tPWH                \|
+PHI2      |\__________________________________/|                                    |\______
+          |                                    |                                    |
+__________|  _____________________  ________________________________________________|  _____
+Address   |\/     Stabilization   \/ Address is valid                               |\/
+__________|/\_____________________/\________________________________________________|/\_____
+          |                                    |                                    |
+__________|  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  ______________|  _____
+Data      |\/                                                       \/  Data Valid  |\/
+__________|/\_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _/\______________|/\_____
+          |                                    |                                    |
+         (1)                                  (2)                                  (3)
+
+(1) CPU starts changing the address
+(2) Address is garantueed to be stable. Memory/IO operation can safely start.
+(3) CPU reads data.
+
+
+   WRITE CYCLE
+   -----------
+
+_________ |                                      _________________________________  |
+CLK      \|                                    |/                                  \|
+PHI2      |\__________________________________/|                                    |\______
+          |                                    |                                    |
+__________|  _____________________  ________________________________________________|  _____
+Address   |\/     Stabilization   \/ Address is valid                               |\/
+__________|/\_____________________/\________________________________________________|/\_____
+          |                                    |                                    |
+__________|  _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _________________  __________________|  _____
+Data      |\/                                    Stabilization  \/  Data Valid      |\/
+__________|/\_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _________________/\__________________|/\_____
+          |                                    |                                    |
+         (1)                                  (2)                                  (3)
+
+(1) CPU starts changing the address
+(2) Address is garantueed to be stable. CPU starts making data available on the bus.
+(3) Data is garantueed to be stable. Memory/IO operation should complete.
+
+
+Notes:
+- The 6502 keeps the previous address stable at the beginning of the clock 
+  cycle for at leat 10ns, depending on the operating frequency. (tAH/adress hold time)
+
+*/
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // internal data types
