@@ -15,4 +15,10 @@
 #define IS_POW2(x)  ((x) != 0 && ((x) & ((x)-1)) == 0)
 #define CLAMP(x, min, max)  (((x) < (min)) ? (min) : ((x) > (max)) ? (max) : (x))
 
+#define LOBYTE(x)		((x) & 0xff)					// low byte of a 16-bit word
+#define HIBYTE(x)		(((x) >> 8) & 0xff)				// high byte of a 16-bit word
+
+#define SET_LOBYTE(x,l)	(((x) & 0xff00) | (l))			// set low byte of a 16-bit word
+#define SET_HIBYTE(x,h) (((x) & 0x00ff) | ((h) << 8))	// set high byte of a 16-bit word
+
 #endif // DROMAIUS_TYPES_H

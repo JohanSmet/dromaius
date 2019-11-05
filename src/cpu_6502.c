@@ -6,12 +6,131 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// internal data types
+//
+
+#define RW_READ  true
+#define RW_WRITE false
+
+typedef enum CPU_6502_STATE {
+	CS_INIT = 0,
+	CS_RUNNING = 1
+} CPU_6502_STATE;
 
 typedef struct Cpu6502_private {
-	Cpu6502		intf;
-	bool		prev_reset;
-	uint16_t	internal_ab;			// internal address bus
+	Cpu6502			intf;
+	bool			prev_reset;
+	bool			prev_clock;
+	uint16_t		internal_ab;			// internal address bus
+	bool			internal_rw;			// internal rw latch
+	CPU_6502_STATE	state;
+	uint8_t			decode_cycle;			// instruction decode cycle
 } Cpu6502_private;
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// internal functions
+//
+
+#define PRIVATE(cpu)	((Cpu6502_private *) (cpu))
+
+static void process_end(Cpu6502 *cpu) {
+
+	// always write to the output pins that aren't tristate
+	*cpu->bus_address = PRIVATE(cpu)->internal_ab;
+	*cpu->pin_rw	  = PRIVATE(cpu)->internal_rw;
+
+	// store state of the clock pin
+	PRIVATE(cpu)->prev_clock = *cpu->pin_clock;
+}
+
+static void execute_init(Cpu6502 *cpu) {
+/* init sequence after reset: should be the same sequence as BRK/IRQ/NMI but always read */
+
+	switch(PRIVATE(cpu)->decode_cycle) {
+		case 0 :		// initialize stack pointer to zero
+			if (!*cpu->pin_clock) {
+				cpu->reg_sp = 0;
+				PRIVATE(cpu)->internal_ab = 0x00ff;
+			}
+			break;
+		
+		case 1 :		// pull IR to zero
+			if (!*cpu->pin_clock) {
+				cpu->reg_ir = 0;
+			}
+			break;
+
+		case 2 :		// "push" high byte of PC
+			if (!*cpu->pin_clock) {
+				PRIVATE(cpu)->internal_ab = 0x100 + cpu->reg_ir;
+				--cpu->reg_ir;
+			}
+			break;
+
+		case 3 :		// "push" low byte of PC
+			if (!*cpu->pin_clock) {
+				PRIVATE(cpu)->internal_ab = 0x100 + cpu->reg_ir;
+				--cpu->reg_ir;
+			}
+			break;
+
+		case 4 :		// "push" status register
+			if (!*cpu->pin_clock) {
+				PRIVATE(cpu)->internal_ab = 0x100 + cpu->reg_ir;
+				--cpu->reg_ir;
+			}
+			break;
+
+		case 5 :		// read low byte of the reset vector
+			if (!*cpu->pin_clock) {
+				PRIVATE(cpu)->internal_ab = 0xfffc;
+			} else {
+				cpu->reg_pc = SET_LOBYTE(cpu->reg_pc, *cpu->bus_data);
+			}
+			break;
+
+		case 6 :		// read high byte of the reset vector
+			if (!*cpu->pin_clock) {
+				PRIVATE(cpu)->internal_ab = 0xfffd;
+			} else {
+				cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, *cpu->bus_data);
+				PRIVATE(cpu)->state = CS_RUNNING;
+				PRIVATE(cpu)->decode_cycle = 0;
+			}
+			break;
+
+		default:
+			assert(0 && "invalid decode_cycle");
+			break;
+	}
+
+	if (*cpu->pin_clock && PRIVATE(cpu)->state == CS_INIT) {
+		++PRIVATE(cpu)->decode_cycle;
+	}
+
+}
+
+static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst) {
+	assert(cpu);
+	assert(dst);
+
+	if (!*cpu->pin_clock) {
+		PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+	} else {
+		*dst = *cpu->bus_data;
+		++cpu->reg_pc;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// interface functions
+//
 
 Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *clock, const bool *reset, bool *rw) {
 	assert(addres_bus);
@@ -21,6 +140,7 @@ Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *cl
 	assert(rw);
 
 	Cpu6502_private *cpu = (Cpu6502_private *) malloc(sizeof(Cpu6502_private));
+	memset(cpu, 0, sizeof(Cpu6502_private));
 
 	cpu->intf.bus_address = addres_bus;
 	cpu->intf.bus_data = data_bus;
@@ -35,17 +155,39 @@ void cpu_6502_process(Cpu6502 *cpu) {
 	assert(cpu);
 	Cpu6502_private *priv = (Cpu6502_private *) cpu;
 
-	// handle reset line
-	if (!priv->prev_reset && cpu->pin_reset) {
+	// check for changes in the reset line
+	if (!priv->prev_reset && *cpu->pin_reset) {
 		// reset was just asserted
 		priv->internal_ab = 0;
+		priv->internal_rw = RW_READ;
 		priv->prev_reset = cpu->pin_reset;
-	} else if (priv->prev_reset && !cpu->pin_reset) {
-		// reset was just deasserted
-		priv->internal_ab = 0;
-		priv->prev_reset = cpu->pin_reset;
+	} else if (priv->prev_reset && !*cpu->pin_reset) {
+		// reset was just deasserted - start initialization sequence
+		priv->prev_reset = *cpu->pin_reset;
+		priv->state = CS_INIT;
+		priv->decode_cycle = 0;
 	}
 
-	// always write to the output pins that aren't tristate
-	*cpu->bus_address = priv->internal_ab;
+	// do nothing if reset is asserted or if not on the edge of a clock cycle
+	if (*cpu->pin_reset || *cpu->pin_clock == priv->prev_clock) {
+		process_end(cpu);
+		return;
+	}
+	
+	// run initialization
+	if (priv->state == CS_INIT) {
+		execute_init(cpu);
+		process_end(cpu);
+		return;
+	}
+	
+	if (priv->decode_cycle == 0) {
+		// fetch next opcode
+		fetch_pc_memory(cpu, &cpu->reg_ir);
+	} else {
+		// handle current opcode
+	}
+
+	process_end(cpu);
+	return;
 }

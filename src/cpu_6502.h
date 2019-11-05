@@ -9,11 +9,21 @@
 
 // types
 typedef struct Cpu6502 {
+	// interface
 	uint16_t *	bus_address;		// 16-bit address bus
 	uint8_t	*	bus_data;			// 8-bit data bus
 	const bool *pin_clock;			// 1-bit clock-line (PHI2) - read-only
 	const bool *pin_reset;			// 1-bit reset-line (read-only)
-	bool *		pin_rw;				// 1-bit read-write line
+	bool *		pin_rw;				// 1-bit read-write line (true == reading, false == writing)
+
+	// registers
+	uint8_t		reg_a;				// accumulator
+	uint8_t		reg_x;				// x-index
+	uint8_t		reg_y;				// y-index
+	uint8_t		reg_sp;				// stack-pointer
+	uint8_t		reg_ir;				// instruction register
+	uint16_t	reg_pc;				// program counter
+	uint8_t		reg_p;				// processor status register
 } Cpu6502;
 
 // functions
