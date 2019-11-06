@@ -88,8 +88,7 @@ typedef struct Cpu6502_private {
 	uint16_t		internal_ab;			// internal address bus
 	bool			internal_rw;			// internal rw latch
 	CPU_6502_STATE	state;
-	uint8_t			decode_cycle;			// instruction decode cycle
-	bool			active;
+	int8_t			decode_cycle;			// instruction decode cycle
 } Cpu6502_private;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -161,7 +160,7 @@ static void execute_init(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, *cpu->bus_data);
 				PRIVATE(cpu)->state = CS_RUNNING;
-				PRIVATE(cpu)->decode_cycle = 0;
+				PRIVATE(cpu)->decode_cycle = -1;
 			}
 			break;
 
@@ -169,11 +168,6 @@ static void execute_init(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			assert(0 && "invalid decode_cycle");
 			break;
 	}
-
-	if (phase == CYCLE_END && PRIVATE(cpu)->state == CS_INIT) {
-		++PRIVATE(cpu)->decode_cycle;
-	}
-
 }
 
 static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst, CPU_6502_CYCLE phase) {
@@ -195,10 +189,22 @@ static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst, CPU_6502_CYCLE ph
 
 static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
+}
+
+static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	// initialization is treated seperately
+	if (PRIVATE(cpu)->state == CS_INIT) {
+		execute_init(cpu, phase);
+		return;
+	}
+	
+	// first cycle is always filling the instruction register with the new opcode
 	if (PRIVATE(cpu)->decode_cycle == 0) {
 		fetch_pc_memory(cpu, &cpu->reg_ir, phase);
-		return;
-	} 
+	} else {
+		decode_instruction(cpu, phase);
+	}
 
 }
 
@@ -222,6 +228,8 @@ Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *cl
 	cpu->intf.pin_clock = clock;
 	cpu->intf.pin_reset = reset;
 	cpu->intf.pin_rw = rw;
+	cpu->decode_cycle = -1;
+	cpu->state = CS_INIT;
 	
 	return &cpu->intf;
 }
@@ -241,8 +249,7 @@ void cpu_6502_process(Cpu6502 *cpu) {
 		// reset was just deasserted - start initialization sequence
 		priv->prev_reset = *cpu->pin_reset;
 		priv->state = CS_INIT;
-		priv->decode_cycle = 0;
-		priv->active = false;
+		priv->decode_cycle = -1;
 	}
 
 	// do nothing if reset is asserted or if not on the edge of a clock cycle
@@ -250,31 +257,18 @@ void cpu_6502_process(Cpu6502 *cpu) {
 		process_end(cpu);
 		return;
 	}
-	
-	// run initialization
-	if (priv->state == CS_INIT) {
-		if (*cpu->pin_clock == false && priv->active) {
-			execute_init(cpu, CYCLE_END);
-		}
-		
-		if (priv->state == CS_INIT) {
-			priv->active = true;
-			execute_init(cpu, (*cpu->pin_clock) ? CYCLE_MIDDLE : CYCLE_BEGIN);
-		} else {
-			// fetch the first instruction
-			fetch_pc_memory(cpu, &cpu->reg_ir, CYCLE_BEGIN);
-		}
 
-		process_end(cpu);
-		return;
-	}
-
-	// run normal code
 	if (*cpu->pin_clock == false) {
-		decode_instruction(cpu, CYCLE_END);
-		decode_instruction(cpu, CYCLE_BEGIN);
+		// a negative going clock ends the previous cycle and starts a new cycle
+		if (priv->decode_cycle >= 0) {
+			cpu_6502_execute_phase(cpu, CYCLE_END);
+		}
+
+		++priv->decode_cycle;
+		cpu_6502_execute_phase(cpu, CYCLE_BEGIN);
 	} else {
-		decode_instruction(cpu, CYCLE_MIDDLE);
+		// a positive going clock marks the halfway point of the cycle
+		cpu_6502_execute_phase(cpu, CYCLE_MIDDLE);
 	}
 
 	process_end(cpu);
