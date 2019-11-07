@@ -38,7 +38,17 @@ typedef enum OPCODES_6502_ {
 	OP_6502_LDA_ABSX	= 0xbd,
 	OP_6502_LDA_ABSY	= 0xb9,
 	OP_6502_LDA_INDX	= 0xa1,
-	OP_6502_LDA_INDY	= 0xb1
+	OP_6502_LDA_INDY	= 0xb1,
+
+	OP_6502_LDX_IMM		= 0xa2,
+	OP_6502_LDX_ZP		= 0xa6,
+	OP_6502_LDX_ZPY		= 0xb6,
+	OP_6502_LDX_ABS		= 0xae,
+	OP_6502_LDX_ABSY	= 0xbe,
+
+	OP_6502_TAX			= 0xaa,
+	OP_6502_TSX			= 0xba,
+
 } OPCODES_6502;
 
 #endif // DROMAIUS_CPU_6502_OPCODES_H

@@ -239,7 +239,7 @@ static inline bool fetch_operand_zeropage(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	return result;
 }
 
-static inline bool fetch_operand_zeropage_x(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+static inline bool fetch_operand_zeropage_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t index) {
 
 	bool result = false;
 
@@ -258,7 +258,7 @@ static inline bool fetch_operand_zeropage_x(Cpu6502 *cpu, CPU_6502_CYCLE phase) 
 					break;
 				case CYCLE_END:
 					// there is no page crossing in indexed zero page, a wrap-around occurs
-					PRIVATE(cpu)->adl += cpu->reg_x;
+					PRIVATE(cpu)->adl += index;
 					break;
 			};
 			break;
@@ -418,7 +418,7 @@ static inline bool fetch_operand_g1(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case ADDR_6502_G1_IMM:	return fetch_operand_immediate(cpu, phase);
 		case ADDR_6502_G1_ABS:	return fetch_operand_absolute(cpu, phase);
 		case ADDR_6502_G1_INDY: return fetch_operand_indirect_indexed(cpu, phase);
-		case ADDR_6502_G1_ZPX:	return fetch_operand_zeropage_x(cpu, phase);
+		case ADDR_6502_G1_ZPX:	return fetch_operand_zeropage_indexed(cpu, phase, cpu->reg_x);
 		case ADDR_6502_G1_ABSY:	return fetch_operand_absolute_indexed(cpu, phase, cpu->reg_y);
 		case ADDR_6502_G1_ABSX:	return fetch_operand_absolute_indexed(cpu, phase, cpu->reg_x);
 	};
@@ -435,11 +435,69 @@ static inline void decode_lda(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
+
+static inline void decode_ldx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+// also implements TAX and TSX
+
+	bool op_ready = false;
+	bool op_finished = false;
+
+	switch ((cpu->reg_ir & ADDR_6502_MASK) >> 2) {
+		case 0:		// immediate operand
+			op_ready = fetch_operand_immediate(cpu, phase);
+			break;
+		case 1:		// zeropage addressing
+			op_ready = fetch_operand_zeropage(cpu, phase);
+			break;
+		case 2:		// TAX: transfer accumulator to index-x
+			if (phase == CYCLE_BEGIN) {
+				PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			}
+			if (phase == CYCLE_END) {
+				cpu->reg_x = cpu->reg_a;
+				op_finished = true;
+			}
+			break;
+		case 3:		// absolute addressing
+			op_ready = fetch_operand_absolute(cpu, phase);
+			break;
+		// case 4:  not defined
+		case 5:		// zeropage, y indexed
+			op_ready = fetch_operand_zeropage_indexed(cpu, phase, cpu->reg_y);
+			break;
+		case 6:		// TSX: transfer stack pointer to index-x
+			if (phase == CYCLE_BEGIN) {
+				PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			}
+			if (phase == CYCLE_END) {
+				cpu->reg_x = cpu->reg_sp;
+				op_finished = true;
+			}
+		case 7:		// absolute, y-indexed
+			op_ready = fetch_operand_absolute_indexed(cpu, phase, cpu->reg_y);
+			break;
+	}
+
+	if (op_ready) {
+		cpu->reg_x = PRIVATE(cpu)->operand;
+		op_finished = true;
+	}
+
+	if (op_finished) {
+		cpu->p_zero_result = cpu->reg_x == 0;
+		cpu->p_negative_result = (cpu->reg_x & 0b10000000) >> 7;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (cpu->reg_ir & AC_6502_MASK) {
 		case AC_6502_LDA :
 			decode_lda(cpu, phase);
+			break;
+		case AC_6502_LDX :
+			decode_ldx(cpu, phase);
 			break;
 	};
 }
