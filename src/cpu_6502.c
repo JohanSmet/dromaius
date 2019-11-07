@@ -490,6 +490,53 @@ static inline void decode_ldx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_ldy(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+// also implements TAY 
+
+	bool op_ready = false;
+	bool op_finished = false;
+
+	switch ((cpu->reg_ir & ADDR_6502_MASK) >> 2) {
+		case 0:		// immediate operand
+			op_ready = fetch_operand_immediate(cpu, phase);
+			break;
+		case 1:		// zeropage addressing
+			op_ready = fetch_operand_zeropage(cpu, phase);
+			break;
+		case 2:		// TAY: transfer accumulator to index-y
+			if (phase == CYCLE_BEGIN) {
+				PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			}
+			if (phase == CYCLE_END) {
+				cpu->reg_y = cpu->reg_a;
+				op_finished = true;
+			}
+			break;
+		case 3:		// absolute addressing
+			op_ready = fetch_operand_absolute(cpu, phase);
+			break;
+		// case 4:  BCS - handled elsewhere
+		case 5:		// zeropage, x indexed
+			op_ready = fetch_operand_zeropage_indexed(cpu, phase, cpu->reg_x);
+			break;
+		// case 6 :	CLV - handled elsewhere
+		case 7:		// absolute, x-indexed
+			op_ready = fetch_operand_absolute_indexed(cpu, phase, cpu->reg_x);
+			break;
+	}
+
+	if (op_ready) {
+		cpu->reg_y = PRIVATE(cpu)->operand;
+		op_finished = true;
+	}
+
+	if (op_finished) {
+		cpu->p_zero_result = cpu->reg_y == 0;
+		cpu->p_negative_result = (cpu->reg_y & 0b10000000) >> 7;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (cpu->reg_ir & AC_6502_MASK) {
@@ -498,6 +545,16 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case AC_6502_LDX :
 			decode_ldx(cpu, phase);
+			break;
+		case AC_6502_LDY :
+			switch (cpu->reg_ir) {
+				case OP_6502_BCS : 
+					break;
+				case OP_6502_CLV :
+					break;
+				default : 
+					decode_ldy(cpu, phase);
+			};
 			break;
 	};
 }

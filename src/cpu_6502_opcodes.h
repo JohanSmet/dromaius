@@ -31,6 +31,9 @@
 
 // opcodes
 typedef enum OPCODES_6502_ {
+	OP_6502_BCS			= 0xb0,
+	OP_6502_CLV			= 0xb8,
+
 	OP_6502_LDA_IMM		= 0xa9,
 	OP_6502_LDA_ZP		= 0xa5,
 	OP_6502_LDA_ZPX		= 0xb5,
@@ -46,9 +49,17 @@ typedef enum OPCODES_6502_ {
 	OP_6502_LDX_ABS		= 0xae,
 	OP_6502_LDX_ABSY	= 0xbe,
 
+	OP_6502_LDY_IMM		= 0xa0,
+	OP_6502_LDY_ZP		= 0xa4,
+	OP_6502_LDY_ZPX		= 0xb4,
+	OP_6502_LDY_ABS		= 0xac,
+	OP_6502_LDY_ABSX	= 0xbc,
+
 	OP_6502_TAX			= 0xaa,
+	OP_6502_TAY			= 0xa8,
 	OP_6502_TSX			= 0xba,
 
 } OPCODES_6502;
+
 
 #endif // DROMAIUS_CPU_6502_OPCODES_H
