@@ -23,7 +23,19 @@ typedef struct Cpu6502 {
 	uint8_t		reg_sp;				// stack-pointer
 	uint8_t		reg_ir;				// instruction register
 	uint16_t	reg_pc;				// program counter
-	uint8_t		reg_p;				// processor status register
+	union {
+		uint8_t		reg_p;				// processor status register
+		struct {
+			int p_carry : 1;
+			int p_zero_result : 1;
+			int p_interrupt_disable : 1;
+			int p_decimal_mode : 1;
+			int p_break_command : 1;
+			int p_expension : 1;
+			int p_overflow : 1;
+			int p_negative_result : 1;
+		};
+	};
 } Cpu6502;
 
 // functions

@@ -21,4 +21,6 @@
 #define SET_LOBYTE(x,l)	(((x) & 0xff00) | (l))			// set low byte of a 16-bit word
 #define SET_HIBYTE(x,h) (((x) & 0x00ff) | ((h) << 8))	// set high byte of a 16-bit word
 
+#define IS_BIT_SET(x,b) (((x) & (1 << (b))) >> (b))
+
 #endif // DROMAIUS_TYPES_H
