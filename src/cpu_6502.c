@@ -196,6 +196,64 @@ static inline void fetch_memory(Cpu6502 *cpu, uint16_t addr, uint8_t *dst, CPU_6
 	}
 }
 
+static inline void fetch_zp_discard_add(Cpu6502 *cpu, uint8_t index, CPU_6502_CYCLE phase) {
+// utility function for indexed zero-page memory accesses
+//	- according to programming manual: cpu fetches data at base adress and discards it
+//  - there is no page crossing in indexed zero page, a wrap-around occurs
+
+	assert(cpu);
+
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->adh = 0;
+			PRIVATE(cpu)->internal_ab = PRIVATE(cpu)->addr;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END:
+			PRIVATE(cpu)->adl += index;
+			break;
+	};
+}
+
+static inline void fetch_high_byte_address_indexed(Cpu6502 *cpu, uint8_t index, CPU_6502_CYCLE phase) {
+// utility function for indexed absolute addressed memory accesses
+// fetch high byte of address while adding the offset to the low byte
+
+	assert(cpu);
+
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->adh = 0;
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			PRIVATE(cpu)->addr += index;
+			PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->adh > 0;
+			break;
+		case CYCLE_END:
+			PRIVATE(cpu)->adh = *cpu->bus_data;
+			++cpu->reg_pc;
+			break;
+	};
+}
+
+static inline bool fetch_memory_page_crossed(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	assert(cpu);
+
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = PRIVATE(cpu)->addr;
+			return false;
+		case CYCLE_MIDDLE:
+			PRIVATE(cpu)->adh += PRIVATE(cpu)->page_crossed;
+			return false;
+		case CYCLE_END:
+			PRIVATE(cpu)->operand = *cpu->bus_data;
+			return !PRIVATE(cpu)->page_crossed;
+	};
+}
+
 static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst, CPU_6502_CYCLE phase) {
 	assert(cpu);
 	assert(dst);
@@ -247,20 +305,8 @@ static inline bool fetch_operand_zeropage_indexed(Cpu6502 *cpu, CPU_6502_CYCLE p
 		case 1 :		// fetch address - low byte
 			fetch_pc_memory(cpu, &PRIVATE(cpu)->adl, phase);
 			break;
-		case 2 :		// fetch discarded data & add adl + reg_x
-			switch (phase) {
-				case CYCLE_BEGIN:
-					// according to programming manual: cpu fetches data at base adress and discards it
-					PRIVATE(cpu)->adh = 0;
-					PRIVATE(cpu)->internal_ab = PRIVATE(cpu)->addr;
-					break;
-				case CYCLE_MIDDLE:
-					break;
-				case CYCLE_END:
-					// there is no page crossing in indexed zero page, a wrap-around occurs
-					PRIVATE(cpu)->adl += index;
-					break;
-			};
+		case 2 :		// fetch discarded data & add adl + offset
+			fetch_zp_discard_add(cpu, index, phase);
 			break;
 		case 3 :		// fetch operand from memory
 			fetch_memory(cpu, PRIVATE(cpu)->addr, &PRIVATE(cpu)->operand, phase);
@@ -303,34 +349,10 @@ static inline bool fetch_operand_absolute_indexed(Cpu6502 *cpu, CPU_6502_CYCLE p
 			fetch_pc_memory(cpu, &PRIVATE(cpu)->adl, phase);
 			break;
 		case 2 :		// fetch address - high byte & add adl + index
-			switch (phase) {
-				case CYCLE_BEGIN:
-					PRIVATE(cpu)->adh = 0;
-					PRIVATE(cpu)->internal_ab = cpu->reg_pc;
-					break;
-				case CYCLE_MIDDLE:
-					PRIVATE(cpu)->addr += index;
-					PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->adh > 0;
-					break;
-				case CYCLE_END:
-					PRIVATE(cpu)->adh = *cpu->bus_data;
-					++cpu->reg_pc;
-					break;
-			};
+			fetch_high_byte_address_indexed(cpu, index, phase);
 			break;
 		case 3:			// fetch operand + add BAH + carry
-			switch (phase) {
-				case CYCLE_BEGIN:
-					PRIVATE(cpu)->internal_ab = PRIVATE(cpu)->addr;
-					break;
-				case CYCLE_MIDDLE:
-					PRIVATE(cpu)->adh += PRIVATE(cpu)->page_crossed;
-					break;
-				case CYCLE_END:
-					PRIVATE(cpu)->operand = *cpu->bus_data;
-					result = !PRIVATE(cpu)->page_crossed;
-					break;
-			};
+			result = fetch_memory_page_crossed(cpu, phase);
 			break;
 		case 4 :		// fetch operand from memory (only when page crossing occured)
 			fetch_memory(cpu, PRIVATE(cpu)->addr, &PRIVATE(cpu)->operand, phase);
