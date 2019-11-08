@@ -769,6 +769,27 @@ static inline void decode_stx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_sty(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	
+	bool op_ready = false;
+
+	switch (cpu->reg_ir) {
+		case OP_6502_STY_ZP :
+			op_ready = store_to_zeropage(cpu, phase, cpu->reg_y);
+			break;
+		case OP_6502_STY_ZPX :
+			op_ready = store_to_zeropage_indexed(cpu, phase, cpu->reg_y, cpu->reg_x);
+			break;
+		case OP_6502_STY_ABS :
+			op_ready = store_to_absolute(cpu, phase, cpu->reg_y);
+			break;
+	}
+
+	if (op_ready) {
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	/* some instruction are grouped by addressing mode and can easily be tested at once */
@@ -799,6 +820,11 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case OP_6502_STX_ZPY : 
 		case OP_6502_STX_ABS : 
 			decode_stx(cpu, phase);
+			break;
+		case OP_6502_STY_ZP : 
+		case OP_6502_STY_ZPX : 
+		case OP_6502_STY_ABS : 
+			decode_sty(cpu, phase);
 			break;
 	};
 }

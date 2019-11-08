@@ -68,6 +68,10 @@ typedef enum OPCODES_6502_ {
 	OP_6502_STX_ZPY		= 0x96,
 	OP_6502_STX_ABS		= 0x8e,
 
+	OP_6502_STY_ZP		= 0x84,
+	OP_6502_STY_ZPX		= 0x94,
+	OP_6502_STY_ABS		= 0x8c,
+
 	OP_6502_TAX			= 0xaa,
 	OP_6502_TAY			= 0xa8,
 	OP_6502_TSX			= 0xba,
