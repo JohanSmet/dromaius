@@ -1361,6 +1361,104 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_stx(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// STX: zero page addressing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_x = 0x51;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_STX_ZP;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_STX_ZP);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0xfe;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: store to memory
+	munit_assert_uint16(computer->bus_address, ==, 0x00fe);
+	munit_assert_false(computer->pin_rw);				// writing
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0x51);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// STX: zero page, y indexed
+	//
+
+	computer_reset(computer);
+
+	// force the value of the used registers
+	computer->cpu->reg_x = 0x53;
+	computer->cpu->reg_y = 0xf0;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_STX_ZPY;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_STX_ZPY);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x4a;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add addres and x-index
+	munit_assert_uint16(computer->bus_address, ==, 0x004a);
+	computer->bus_data = 0x21;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: store to memory
+	munit_assert_uint16(computer->bus_address, ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_false(computer->pin_rw);				// writing
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0x53);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// STX: absolute addressing
+	//
+
+	computer_reset(computer);
+
+	// force the value of the used registers
+	computer->cpu->reg_x = 0x55;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_STX_ABS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_STX_ABS);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: store to memory
+	munit_assert_uint16(computer->bus_address, ==, 0xc016);
+	munit_assert_false(computer->pin_rw);				// writing
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0x55);
+
+	return MUNIT_OK;
+}
 
 MunitTest cpu_6502_tests[] = {
 	{ "/reset", test_reset, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
@@ -1368,5 +1466,6 @@ MunitTest cpu_6502_tests[] = {
 	{ "/ldx", test_ldx, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ldy", test_ldy, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sta", test_sta, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/stx", test_stx, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
