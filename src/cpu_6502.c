@@ -631,6 +631,62 @@ static inline bool store_to_memory_g1(Cpu6502 *cpu, uint8_t value, CPU_6502_CYCL
 	}
 }
 
+static inline void decode_clc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END : 
+			cpu->p_carry = false;
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
+static inline void decode_cld(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END : 
+			cpu->p_decimal_mode = false;
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
+static inline void decode_cli(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END : 
+			cpu->p_interrupt_disable = false;
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
+static inline void decode_clv(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END : 
+			cpu->p_overflow = false;
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
 static inline void decode_lda(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
@@ -742,6 +798,48 @@ static inline void decode_ldy(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_sec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END:
+			cpu->p_carry = true;
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
+static inline void decode_sed(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END:
+			cpu->p_decimal_mode = true;
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
+static inline void decode_sei(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END:
+			cpu->p_interrupt_disable = true;
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
 static inline void decode_sta(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (store_to_memory_g1(cpu, cpu->reg_a, phase)) {
 		PRIVATE(cpu)->decode_cycle = -1;
@@ -801,13 +899,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			decode_ldx(cpu, phase);
 			return;
 		case AC_6502_LDY :
-			switch (cpu->reg_ir) {
-				case OP_6502_BCS : 
-					break;
-				case OP_6502_CLV :
-					break;
-				default : 
-					decode_ldy(cpu, phase);
+			if (cpu->reg_ir != OP_6502_BCS && cpu->reg_ir != OP_6502_CLV) {
+				decode_ldy(cpu, phase);
+				return;
 			};
 			break;
 		case AC_6502_STA :
@@ -816,6 +910,27 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	};
 
 	switch (cpu->reg_ir) {
+		case OP_6502_CLC :
+			decode_clc(cpu, phase);
+			break;
+		case OP_6502_CLD :
+			decode_cld(cpu, phase);
+			break;
+		case OP_6502_CLI :
+			decode_cli(cpu, phase);
+			break;
+		case OP_6502_CLV :
+			decode_clv(cpu, phase);
+			break;
+		case OP_6502_SEC :
+			decode_sec(cpu, phase);
+			break;
+		case OP_6502_SED :
+			decode_sed(cpu, phase);
+			break;
+		case OP_6502_SEI :
+			decode_sei(cpu, phase);
+			break;
 		case OP_6502_STX_ZP : 
 		case OP_6502_STX_ZPY : 
 		case OP_6502_STX_ABS : 

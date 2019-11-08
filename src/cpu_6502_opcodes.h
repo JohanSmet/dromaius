@@ -33,7 +33,11 @@
 // opcodes
 typedef enum OPCODES_6502_ {
 	OP_6502_BCS			= 0xb0,
-	OP_6502_CLV			= 0xb8,
+
+	OP_6502_CLC			= 0x18,		// clear carry  flag
+	OP_6502_CLD			= 0xd8,		// clear decimal mode
+	OP_6502_CLI			= 0x58,		// clear interrupt disable bit
+	OP_6502_CLV			= 0xb8,		// clear overflow flag
 
 	OP_6502_LDA_IMM		= 0xa9,
 	OP_6502_LDA_ZP		= 0xa5,
@@ -55,6 +59,10 @@ typedef enum OPCODES_6502_ {
 	OP_6502_LDY_ZPX		= 0xb4,
 	OP_6502_LDY_ABS		= 0xac,
 	OP_6502_LDY_ABSX	= 0xbc,
+
+	OP_6502_SEC			= 0x38,		// set cary flag
+	OP_6502_SED			= 0xf8,		// set decimal mode
+	OP_6502_SEI			= 0x78,		// set interrupt disable status
 
 	OP_6502_STA_ZP		= 0x85,
 	OP_6502_STA_ZPX		= 0x95,

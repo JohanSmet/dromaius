@@ -150,6 +150,114 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 	return MUNIT_OK;
 }
 
+MunitResult test_clc(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CLC: clear carry
+	//
+
+	// initialize registers
+	computer->cpu->reg_p = 0b11111111;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CLC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CLC);
+
+	// >> cycle 02: execute opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_carry);
+	munit_assert_uint8(computer->cpu->reg_p, ==, 0b11111110);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_cld(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CLC: clear decimal mode
+	//
+
+	// initialize registers
+	computer->cpu->reg_p = 0b11111111;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CLD;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CLD);
+
+	// >> cycle 02: execute opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_decimal_mode);
+	munit_assert_uint8(computer->cpu->reg_p, ==, 0b11110111);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_cli(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CLI: clear interrupt disable bit
+	//
+
+	// initialize registers
+	computer->cpu->reg_p = 0b11111111;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CLI;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CLI);
+
+	// >> cycle 02: execute opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_interrupt_disable);
+	munit_assert_uint8(computer->cpu->reg_p, ==, 0b11111011);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_clv(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CLV: clear overflow flag
+	//
+
+	// initialize registers
+	computer->cpu->reg_p = 0b11111111;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CLV;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CLV);
+
+	// >> cycle 02: execute opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_overflow);
+	munit_assert_uint8(computer->cpu->reg_p, ==, 0b10111111);
+
+	return MUNIT_OK;
+}
+
 MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Computer *computer = (Computer *) user_data_or_fixture;
@@ -1100,6 +1208,87 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_sec(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// SEC: set carry
+	//
+
+	// initialize registers
+	computer->cpu->reg_p = 0b00000000;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_SEC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_SEC);
+
+	// >> cycle 02: execute opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->cpu->p_carry);
+	munit_assert_uint8(computer->cpu->reg_p, ==, 0b00000001);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_sed(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// SED: set decimal flag
+	//
+
+	// initialize registers
+	computer->cpu->reg_p = 0b00000000;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_SED;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_SED);
+
+	// >> cycle 02: execute opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->cpu->p_decimal_mode);
+	munit_assert_uint8(computer->cpu->reg_p, ==, 0b00001000);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_sei(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// SEI: set interrupt disable status
+	//
+
+	// initialize registers
+	computer->cpu->reg_p = 0b00000000;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_SEI;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_SEI);
+
+	// >> cycle 02: execute opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->cpu->p_interrupt_disable);
+	munit_assert_uint8(computer->cpu->reg_p, ==, 0b00000100);
+
+	return MUNIT_OK;
+}
+
 MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Computer *computer = (Computer *) user_data_or_fixture;
@@ -1561,9 +1750,16 @@ MunitResult test_sty(const MunitParameter params[], void *user_data_or_fixture) 
 
 MunitTest cpu_6502_tests[] = {
 	{ "/reset", test_reset, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/clc", test_clc, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/cld", test_cld, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/cli", test_cli, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/clv", test_clv, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/lda", test_lda, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ldx", test_ldx, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ldy", test_ldy, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sec", test_sec, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sed", test_sed, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sei", test_sei, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sta", test_sta, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/stx", test_stx, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sty", test_sty, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
