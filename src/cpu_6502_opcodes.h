@@ -16,6 +16,7 @@
 #define AC_6502_LDA   0b10100001
 #define AC_6502_LDX   0b10100010
 #define AC_6502_LDY   0b10100000
+#define AC_6502_STA	  0b10000001
 
 //                        aaabbbcc
 #define ADDR_6502_MASK    0b00011100
@@ -55,10 +56,17 @@ typedef enum OPCODES_6502_ {
 	OP_6502_LDY_ABS		= 0xac,
 	OP_6502_LDY_ABSX	= 0xbc,
 
+	OP_6502_STA_ZP		= 0x85,
+	OP_6502_STA_ZPX		= 0x95,
+	OP_6502_STA_ABS		= 0x8D,
+	OP_6502_STA_ABSX	= 0x9D,
+	OP_6502_STA_ABSY	= 0x99,
+	OP_6502_STA_INDX	= 0x81,
+	OP_6502_STA_INDY	= 0x91,
+
 	OP_6502_TAX			= 0xaa,
 	OP_6502_TAY			= 0xa8,
 	OP_6502_TSX			= 0xba,
-
 } OPCODES_6502;
 
 

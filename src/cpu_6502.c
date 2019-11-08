@@ -196,6 +196,23 @@ static inline void fetch_memory(Cpu6502 *cpu, uint16_t addr, uint8_t *dst, CPU_6
 	}
 }
 
+static inline void store_memory(Cpu6502 *cpu, uint16_t addr, uint8_t value, CPU_6502_CYCLE phase) {
+	assert(cpu);
+
+	switch (phase) {
+		case CYCLE_BEGIN : 
+			PRIVATE(cpu)->internal_ab = addr;
+			PRIVATE(cpu)->internal_rw = RW_WRITE;
+			break;
+		case CYCLE_MIDDLE:
+			*cpu->bus_data = value;
+			break;
+		case CYCLE_END : 
+			PRIVATE(cpu)->internal_rw = RW_READ;
+			break;
+	}
+}
+
 static inline void fetch_zp_discard_add(Cpu6502 *cpu, uint8_t index, CPU_6502_CYCLE phase) {
 // utility function for indexed zero-page memory accesses
 //	- according to programming manual: cpu fetches data at base adress and discards it
@@ -448,6 +465,172 @@ static inline bool fetch_operand_g1(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	return false;
 }
 
+static inline bool store_to_zeropage(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t value) {
+	assert(cpu);
+
+	bool result = false;
+
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch address - low byte
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->adl, phase);
+			break;
+		case 2 :		// store value to memory
+			PRIVATE(cpu)->adh = 0;
+			store_memory(cpu, PRIVATE(cpu)->addr, value, phase);
+			result = phase == CYCLE_END;
+			break;
+	};
+
+	return result;
+}
+
+static inline bool store_to_zeropage_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t value, uint8_t index) {
+	assert(cpu);
+
+	bool result = false;
+
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch address - low byte
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->adl, phase);
+			break;
+		case 2 :		// fetch discarded data & add adl + offset
+			fetch_zp_discard_add(cpu, index, phase);
+			break;
+		case 3 :		// store value to memory
+			store_memory(cpu, PRIVATE(cpu)->addr, value, phase);
+			result = phase == CYCLE_END;
+			break;
+	};
+
+	return result;
+}
+
+static inline bool store_to_absolute(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t value) {
+
+	bool result = false;
+
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch address - low byte
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->adl, phase);
+			break;
+		case 2 :		// fetch address - high byte
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->adh, phase);
+			break;
+		case 3 :		// store value to memory
+			store_memory(cpu, PRIVATE(cpu)->addr, value, phase);
+			result = phase == CYCLE_END;
+			break;
+	};
+
+	return result;
+}
+
+static inline bool store_to_absolute_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t value, uint8_t index) {
+
+	bool result = false;
+
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch address - low byte
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->adl, phase);
+			break;
+		case 2 :		// fetch address - high byte & add adl + index
+			fetch_high_byte_address_indexed(cpu, index, phase);
+			break;
+		case 3:			// fetch operand + add BAH + carry
+			fetch_memory_page_crossed(cpu, phase);
+			break;
+		case 4 :		// store value to memory
+			store_memory(cpu, PRIVATE(cpu)->addr, value, phase);
+			result = phase == CYCLE_END;
+			break;
+	};
+
+	return result;
+}
+
+static inline bool store_to_indexed_indirect(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t value) {
+
+	bool result = false;
+
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch zero page address
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->operand, phase);
+			break;
+		case 2 :		// fetch discard memory & add zp + index-x
+			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->adl, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->operand += cpu->reg_x;
+			}
+			break;
+		case 3:			// fetch address - low byte & increment zp + index-x
+			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->adl, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->operand += 1;
+			}
+			break;
+		case 4:			// fetch address - high byte
+			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->adh, phase);
+			break;
+		case 5 :		// store value to memory
+			store_memory(cpu, PRIVATE(cpu)->addr, value, phase);
+			result = phase == CYCLE_END;
+			break;
+	}
+	
+	return result;
+}
+
+static inline bool store_to_indirect_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t value) {
+
+	bool result = false;
+
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch zero page address
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->operand, phase);
+			break;
+		case 2 :		// fetch address - low byte & increment zp
+			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->adl, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->operand += 1;
+			}
+			break;
+		case 3 :		// fetch address - high byte & add adl + y
+			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->adh, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->adl + cpu->reg_y > 255;
+				PRIVATE(cpu)->adl += cpu->reg_y;
+			}
+			break;
+		case 4 :
+			fetch_memory(cpu, PRIVATE(cpu)->addr, &PRIVATE(cpu)->operand, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->adh += PRIVATE(cpu)->page_crossed;
+			}
+			break;
+		case 5 :		// store value to memory
+			store_memory(cpu, PRIVATE(cpu)->addr, value, phase);
+			result = phase == CYCLE_END;
+			break;
+	}
+
+	return result;
+}
+
+static inline bool store_to_memory_g1(Cpu6502 *cpu, uint8_t value, CPU_6502_CYCLE phase) {
+
+	switch (cpu->reg_ir & ADDR_6502_MASK) {
+		case ADDR_6502_G1_INDX: return store_to_indexed_indirect(cpu, phase, value);
+		case ADDR_6502_G1_ZP:	return store_to_zeropage(cpu, phase, value);
+		// case ADDR_6502_G1_IMM : undefined
+		case ADDR_6502_G1_ABS:	return store_to_absolute(cpu, phase, value);
+		case ADDR_6502_G1_INDY: return store_to_indirect_indexed(cpu, phase, value);
+		case ADDR_6502_G1_ZPX:	return store_to_zeropage_indexed(cpu, phase, value, cpu->reg_x);
+		case ADDR_6502_G1_ABSY:	return store_to_absolute_indexed(cpu, phase, value, cpu->reg_y);
+		case ADDR_6502_G1_ABSX:	return store_to_absolute_indexed(cpu, phase, value, cpu->reg_x);
+		default:				return false;
+	}
+}
+
 static inline void decode_lda(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
@@ -559,6 +742,12 @@ static inline void decode_ldy(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_sta(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	if (store_to_memory_g1(cpu, cpu->reg_a, phase)) {
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (cpu->reg_ir & AC_6502_MASK) {
@@ -577,6 +766,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				default : 
 					decode_ldy(cpu, phase);
 			};
+			break;
+		case AC_6502_STA :
+			decode_sta(cpu, phase);
 			break;
 	};
 }
