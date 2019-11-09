@@ -631,6 +631,16 @@ static inline bool store_to_memory_g1(Cpu6502 *cpu, uint8_t value, CPU_6502_CYCL
 	}
 }
 
+static inline void decode_and(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	if (fetch_operand_g1(cpu, phase)) {
+		cpu->reg_a	= cpu->reg_a & PRIVATE(cpu)->operand;
+		cpu->p_zero_result = cpu->reg_a == 0;
+		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_clc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
@@ -892,6 +902,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	/* some instruction are grouped by addressing mode and can easily be tested at once */
 	switch (cpu->reg_ir & AC_6502_MASK) {
+		case AC_6502_AND :
+			decode_and(cpu, phase);
+			break;
 		case AC_6502_LDA :
 			decode_lda(cpu, phase);
 			return;

@@ -13,6 +13,7 @@
 
 //                      aaabbbcc
 #define AC_6502_MASK  0b11100011
+#define AC_6502_AND	  0b00100001
 #define AC_6502_LDA   0b10100001
 #define AC_6502_LDX   0b10100010
 #define AC_6502_LDY   0b10100000
@@ -32,6 +33,16 @@
 
 // opcodes
 typedef enum OPCODES_6502_ {
+
+	OP_6502_AND_IMM		= 0x29,
+	OP_6502_AND_ZP		= 0x25,
+	OP_6502_AND_ZPX		= 0x35,
+	OP_6502_AND_ABS		= 0x2d,
+	OP_6502_AND_ABSX	= 0x3d,
+	OP_6502_AND_ABSY	= 0x39,
+	OP_6502_AND_INDX	= 0x21,
+	OP_6502_AND_INDY	= 0x31,
+
 	OP_6502_BCS			= 0xb0,
 
 	OP_6502_CLC			= 0x18,		// clear carry  flag
