@@ -21,16 +21,25 @@
 #define AC_6502_ORA	  0b00000001
 #define AC_6502_STA	  0b10000001
 
-//                        aaabbbcc
+//                          aaabbbcc
 #define ADDR_6502_MASK    0b00011100
-#define ADDR_6502_G1_INDX 0b00000000
-#define ADDR_6502_G1_ZP   0b00000100
-#define ADDR_6502_G1_IMM  0b00001000
-#define ADDR_6502_G1_ABS  0b00001100
-#define ADDR_6502_G1_INDY 0b00010000
-#define ADDR_6502_G1_ZPX  0b00010100
-#define ADDR_6502_G1_ABSY 0b00011000
-#define ADDR_6502_G1_ABSX 0b00011100
+
+typedef enum ADDRESSING_MODE_6502_ {
+	
+	// the values of these first 8 modes correspond to the bbb-part of the opcodes for the "Group 1 instructions"
+	AM_6502_INDIRECT_X	= 0b0000,
+	AM_6502_ZEROPAGE	= 0b0001,
+	AM_6502_IMMEDIATE	= 0b0010,
+	AM_6502_ABSOLUTE	= 0b0011,
+	AM_6502_INDIRECT_Y	= 0b0100,
+	AM_6502_ZEROPAGE_X	= 0b0101,
+	AM_6502_ABSOLUTE_Y	= 0b0110,
+	AM_6502_ABSOLUTE_X	= 0b0111,
+
+	// other addressing modes not used for group-1 instructions
+	AM_6502_ZEROPAGE_Y	= 0b1000
+
+} ADDRESSING_MODE_6502;
 
 
 // opcodes
