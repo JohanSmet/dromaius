@@ -1767,58 +1767,6 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
-	// TAX: transfer accumulator to index X
-	//
-
-	computer_reset(computer);
-
-	// force values of the used registers
-	computer->cpu->reg_a = 0x27;
-	computer->cpu->reg_x = 0x00;
-
-	// >> cycle 01: fetch opcode
-	munit_assert_uint16(computer->bus_address, ==, 0x0801);
-	computer->bus_data = OP_6502_TAX;
-	computer_clock_cycle(computer);
-	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_TAX);
-
-	// >> cycle 02: execute 
-	munit_assert_uint16(computer->bus_address, ==, 0x0802);
-	computer->bus_data = 0xfc;
-	computer_clock_cycle(computer);
-	munit_assert_uint8(computer->cpu->reg_x, ==, 0x27);
-
-	munit_assert_false(computer->cpu->p_zero_result);
-	munit_assert_false(computer->cpu->p_negative_result);
-
-	/////////////////////////////////////////////////////////////////////////////
-	//
-	// TSX: transfer stack pointer to index X
-	//
-
-	computer_reset(computer);
-
-	// force values of the used registers
-	computer->cpu->reg_sp = 0x8e;
-	computer->cpu->reg_x = 0x00;
-
-	// >> cycle 01: fetch opcode
-	munit_assert_uint16(computer->bus_address, ==, 0x0801);
-	computer->bus_data = OP_6502_TSX;
-	computer_clock_cycle(computer);
-	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_TSX);
-
-	// >> cycle 02: execute 
-	munit_assert_uint16(computer->bus_address, ==, 0x0802);
-	computer->bus_data = 0xfc;
-	computer_clock_cycle(computer);
-	munit_assert_uint8(computer->cpu->reg_x, ==, 0x8e);
-
-	munit_assert_false(computer->cpu->p_zero_result);
-	munit_assert_true(computer->cpu->p_negative_result);
-
-	/////////////////////////////////////////////////////////////////////////////
-	//
 	// LDX: test interaction with flags
 	//
 
@@ -2044,32 +1992,6 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	computer->bus_data = 0x16;
 	computer_clock_cycle(computer);
 	munit_assert_uint8(computer->cpu->reg_y, ==, 0x16);
-
-	/////////////////////////////////////////////////////////////////////////////
-	//
-	// TAY: transfer accumulator to index Y
-	//
-
-	computer_reset(computer);
-
-	// force values of the used registers
-	computer->cpu->reg_a = 0x27;
-	computer->cpu->reg_y = 0x00;
-
-	// >> cycle 01: fetch opcode
-	munit_assert_uint16(computer->bus_address, ==, 0x0801);
-	computer->bus_data = OP_6502_TAY;
-	computer_clock_cycle(computer);
-	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_TAY);
-
-	// >> cycle 02: execute 
-	munit_assert_uint16(computer->bus_address, ==, 0x0802);
-	computer->bus_data = 0xfc;
-	computer_clock_cycle(computer);
-	munit_assert_uint8(computer->cpu->reg_y, ==, 0x27);
-
-	munit_assert_false(computer->cpu->p_zero_result);
-	munit_assert_false(computer->cpu->p_negative_result);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3237,6 +3159,104 @@ MunitResult test_sty(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_tax(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// TAX: transfer accumulator to index X
+	//
+
+	computer_reset(computer);
+
+	// force values of the used registers
+	computer->cpu->reg_a = 0x27;
+	computer->cpu->reg_x = 0x00;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_TAX;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_TAX);
+
+	// >> cycle 02: execute 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0xfc;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_x, ==, 0x27);
+
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_false(computer->cpu->p_negative_result);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_tsx(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// TSX: transfer stack pointer to index X
+	//
+
+	computer_reset(computer);
+
+	// force values of the used registers
+	computer->cpu->reg_sp = 0x8e;
+	computer->cpu->reg_x = 0x00;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_TSX;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_TSX);
+
+	// >> cycle 02: execute 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0xfc;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_x, ==, 0x8e);
+
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_true(computer->cpu->p_negative_result);
+	return MUNIT_OK;
+}
+
+MunitResult test_tay(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// TAY: transfer accumulator to index Y
+	//
+
+	computer_reset(computer);
+
+	// force values of the used registers
+	computer->cpu->reg_a = 0x27;
+	computer->cpu->reg_y = 0x00;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_TAY;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_TAY);
+
+	// >> cycle 02: execute 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0xfc;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_y, ==, 0x27);
+
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_false(computer->cpu->p_negative_result);
+
+	return MUNIT_OK;
+}
+
 MunitTest cpu_6502_tests[] = {
 	{ "/reset", test_reset, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/and", test_and, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -3255,5 +3275,8 @@ MunitTest cpu_6502_tests[] = {
 	{ "/sta", test_sta, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/stx", test_stx, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sty", test_sty, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/tax", test_tax, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/tay", test_tay, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/tsx", test_tsx, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

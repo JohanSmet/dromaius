@@ -24,6 +24,9 @@
 //                          aaabbbcc
 #define ADDR_6502_MASK    0b00011100
 
+#define EXTRACT_6502_ADRESSING_MODE(op)	\
+	(((op) & ADDR_6502_MASK) >> 2)
+
 typedef enum ADDRESSING_MODE_6502_ {
 	
 	// the values of these first 8 modes correspond to the bbb-part of the opcodes for the "Group 1 instructions"
