@@ -126,6 +126,9 @@ typedef enum OPCODES_6502_ {
 	OP_6502_TAX			= 0xaa,
 	OP_6502_TAY			= 0xa8,
 	OP_6502_TSX			= 0xba,
+	OP_6502_TXA			= 0x8a,
+	OP_6502_TXS			= 0x9a,
+	OP_6502_TYA			= 0x98,
 } OPCODES_6502;
 
 

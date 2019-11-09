@@ -832,6 +832,40 @@ static inline void decode_tsx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_txa(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	if (phase == CYCLE_BEGIN) {
+		PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+	}
+	if (phase == CYCLE_END) {
+		cpu->reg_a = cpu->reg_x;
+		cpu->p_zero_result = cpu->reg_a == 0;
+		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
+static inline void decode_txs(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	if (phase == CYCLE_BEGIN) {
+		PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+	}
+	if (phase == CYCLE_END) {
+		cpu->reg_sp = cpu->reg_x;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
+static inline void decode_tya(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	if (phase == CYCLE_BEGIN) {
+		PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+	}
+	if (phase == CYCLE_END) {
+		cpu->reg_a = cpu->reg_y;
+		cpu->p_zero_result = cpu->reg_a == 0;
+		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	/* some instruction are grouped by addressing mode and can easily be tested at once */
@@ -905,6 +939,15 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case OP_6502_TSX :
 			decode_tsx(cpu, phase);
+			break;
+		case OP_6502_TXA :
+			decode_txa(cpu, phase);
+			break;
+		case OP_6502_TXS:
+			decode_txs(cpu, phase);
+			break;
+		case OP_6502_TYA :
+			decode_tya(cpu, phase);
 			break;
 	};
 }
