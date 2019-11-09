@@ -17,6 +17,7 @@
 #define AC_6502_LDA   0b10100001
 #define AC_6502_LDX   0b10100010
 #define AC_6502_LDY   0b10100000
+#define AC_6502_ORA	  0b00000001
 #define AC_6502_STA	  0b10000001
 
 //                        aaabbbcc
@@ -70,6 +71,15 @@ typedef enum OPCODES_6502_ {
 	OP_6502_LDY_ZPX		= 0xb4,
 	OP_6502_LDY_ABS		= 0xac,
 	OP_6502_LDY_ABSX	= 0xbc,
+
+	OP_6502_ORA_IMM		= 0x09,
+	OP_6502_ORA_ZP		= 0x05,
+	OP_6502_ORA_ZPX		= 0x15,
+	OP_6502_ORA_ABS		= 0x0d,
+	OP_6502_ORA_ABSX	= 0x1d,
+	OP_6502_ORA_ABSY	= 0x19,
+	OP_6502_ORA_INDX	= 0x01,
+	OP_6502_ORA_INDY	= 0x11,
 
 	OP_6502_SEC			= 0x38,		// set cary flag
 	OP_6502_SED			= 0xf8,		// set decimal mode

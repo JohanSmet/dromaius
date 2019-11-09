@@ -808,6 +808,16 @@ static inline void decode_ldy(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_ora(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	if (fetch_operand_g1(cpu, phase)) {
+		cpu->reg_a	= cpu->reg_a | PRIVATE(cpu)->operand;
+		cpu->p_zero_result = cpu->reg_a == 0;
+		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_sec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
@@ -916,6 +926,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				decode_ldy(cpu, phase);
 				return;
 			};
+			break;
+		case AC_6502_ORA :
+			decode_ora(cpu, phase);
 			break;
 		case AC_6502_STA :
 			decode_sta(cpu, phase);
