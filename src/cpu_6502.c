@@ -697,6 +697,16 @@ static inline void decode_clv(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_eor(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	if (fetch_operand_g1(cpu, phase)) {
+		cpu->reg_a	= cpu->reg_a ^ PRIVATE(cpu)->operand;
+		cpu->p_zero_result = cpu->reg_a == 0;
+		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_lda(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
@@ -914,6 +924,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (cpu->reg_ir & AC_6502_MASK) {
 		case AC_6502_AND :
 			decode_and(cpu, phase);
+			break;
+		case AC_6502_EOR :
+			decode_eor(cpu, phase);
 			break;
 		case AC_6502_LDA :
 			decode_lda(cpu, phase);
