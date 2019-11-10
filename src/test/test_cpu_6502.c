@@ -3412,6 +3412,316 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// ROR: accumulator + effect on flags
+	//
+
+	computer_reset(computer);
+
+	// initialize used registers
+	computer->cpu->reg_a = 0b00000101;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_ROR_ACC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ROR_ACC);
+
+	// >> cycle 02: execute
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = OP_6502_ROR_ACC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_a, ==, 0b00000010);
+	munit_assert_true(computer->cpu->p_carry);
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_false(computer->cpu->p_negative_result);
+
+	// >> cycle 03: fetch operand
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = OP_6502_ROR_ACC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ROR_ACC);
+
+	// >> cycle 04: execute
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = OP_6502_ROR_ACC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_a, ==, 0b10000001);
+	munit_assert_false(computer->cpu->p_carry);
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_true(computer->cpu->p_negative_result);
+
+	// >> cycle 05: fetch operand
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = OP_6502_ROR_ACC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ROR_ACC);
+
+	// >> cycle 06: execute
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+	computer->bus_data = OP_6502_ROR_ACC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_a, ==, 0b01000000);
+	munit_assert_true(computer->cpu->p_carry);
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_false(computer->cpu->p_negative_result);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// ROR: zero-page addressing
+	//
+
+	computer_reset(computer);
+
+	// initialize used registers
+	computer->cpu->p_carry = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_ROR_ZP;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ROR_ZP);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x65;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch operand 
+	munit_assert_uint16(computer->bus_address, ==, 0x0065);
+	computer->bus_data = 0b10001010;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->pin_rw);
+
+	// >> cycle 04: perform rotate
+	munit_assert_uint16(computer->bus_address, ==, 0x0065);
+	computer_clock_cycle(computer);
+
+	// >> cycle 05: write result set flags
+	munit_assert_uint16(computer->bus_address, ==, 0x0065);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0b11000101);
+	munit_assert_false(computer->cpu->p_carry);
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_true(computer->cpu->p_negative_result);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// ROR: zero-page addressing, x indexed
+	//
+
+	computer_reset(computer);
+
+	// initialize used registers
+	computer->cpu->p_carry = false;
+	computer->cpu->reg_x = 0xf0;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_ROR_ZPX;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ROR_ZPX);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x4a;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add addres and x-index
+	munit_assert_uint16(computer->bus_address, ==, 0x004a);
+	computer->bus_data = 0x21;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch operand 
+	munit_assert_uint16(computer->bus_address, ==, 0x003a);
+	computer->bus_data = 0b01010011;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->pin_rw);
+
+	// >> cycle 05: perform rotate
+	munit_assert_uint16(computer->bus_address, ==, 0x003a);
+	computer_clock_cycle(computer);
+
+	// >> cycle 06: write result set flags
+	munit_assert_uint16(computer->bus_address, ==, 0x003a);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0b00101001);
+	munit_assert_true(computer->cpu->p_carry);
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_false(computer->cpu->p_negative_result);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// ROR: absolute addressing
+	//
+
+	computer_reset(computer);
+
+	// initialize used registers
+	computer->cpu->p_carry = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_ROR_ABS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ROR_ABS);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch operand 
+	munit_assert_uint16(computer->bus_address, ==, 0xc016);
+	computer->bus_data = 0b10000010;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->pin_rw);
+
+	// >> cycle 05: perform rotate
+	munit_assert_uint16(computer->bus_address, ==, 0xc016);
+	computer_clock_cycle(computer);
+
+	// >> cycle 06: write result set flags
+	munit_assert_uint16(computer->bus_address, ==, 0xc016);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0b01000001);
+	munit_assert_false(computer->cpu->p_carry);
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_false(computer->cpu->p_negative_result);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// ROR: absolute addressing x-indexed, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize used registers
+	computer->cpu->p_carry = false;
+	computer->cpu->reg_x = 0x02;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_ROR_ABSX;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ROR_ABSX);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: add carry
+	munit_assert_uint16(computer->bus_address, ==, 0xc018);
+	computer->bus_data = 0x10;
+	computer_clock_cycle(computer);
+
+	// >> cycle 05: fetch operand 
+	munit_assert_uint16(computer->bus_address, ==, 0xc018);
+	computer->bus_data = 0b00010000;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->pin_rw);
+
+	// >> cycle 06: perform rotate
+	munit_assert_uint16(computer->bus_address, ==, 0xc018);
+	computer_clock_cycle(computer);
+
+	// >> cycle 06: write result set flags
+	munit_assert_uint16(computer->bus_address, ==, 0xc018);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0b00001000);
+	munit_assert_false(computer->cpu->p_carry);
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_false(computer->cpu->p_negative_result);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// ROR: absolute addressing x-indexed, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize used registers
+	computer->cpu->p_carry = false;
+	computer->cpu->reg_x = 0xf2;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_ROR_ABSX;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ROR_ABSX);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: add carry
+	munit_assert_uint16(computer->bus_address, ==, 0xc008);
+	computer->bus_data = 0x10;
+	computer_clock_cycle(computer);
+
+	// >> cycle 05: fetch operand 
+	munit_assert_uint16(computer->bus_address, ==, 0xc108);
+	computer->bus_data = 0b01000001;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->pin_rw);
+
+	// >> cycle 06: perform rotate
+	munit_assert_uint16(computer->bus_address, ==, 0xc108);
+	computer_clock_cycle(computer);
+
+	// >> cycle 06: write result set flags
+	munit_assert_uint16(computer->bus_address, ==, 0xc108);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0b00100000);
+	munit_assert_true(computer->cpu->p_carry);
+	munit_assert_false(computer->cpu->p_zero_result);
+	munit_assert_false(computer->cpu->p_negative_result);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+
+	return MUNIT_OK;
+}
+
 MunitResult test_sec(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Computer *computer = (Computer *) user_data_or_fixture;
@@ -4280,6 +4590,7 @@ MunitTest cpu_6502_tests[] = {
 	{ "/lsr", test_lsr, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ora", test_ora, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/rol", test_rol, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/ror", test_ror, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sec", test_sec, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sed", test_sed, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sei", test_sei, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
