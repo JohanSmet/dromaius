@@ -26,14 +26,14 @@ typedef struct Cpu6502 {
 	union {
 		uint8_t		reg_p;				// processor status register
 		struct {
-			int p_carry : 1;
-			int p_zero_result : 1;
-			int p_interrupt_disable : 1;
-			int p_decimal_mode : 1;
-			int p_break_command : 1;
-			int p_expension : 1;
-			int p_overflow : 1;
-			int p_negative_result : 1;
+			unsigned int p_carry : 1;
+			unsigned int p_zero_result : 1;
+			unsigned int p_interrupt_disable : 1;
+			unsigned int p_decimal_mode : 1;
+			unsigned int p_break_command : 1;
+			unsigned int p_expension : 1;
+			unsigned int p_overflow : 1;
+			unsigned int p_negative_result : 1;
 		};
 	};
 } Cpu6502;
