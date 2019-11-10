@@ -474,40 +474,63 @@ static inline int8_t fetch_address_indirect_indexed(Cpu6502 *cpu, CPU_6502_CYCLE
 	return 5;
 }
 
-static inline bool fetch_operand(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
+static inline int8_t fetch_address_shortcut(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
 
-	int8_t memop_cycle = -1;
-	bool result = false;
+	switch (mode) {
+		case AM_6502_IMMEDIATE:
+			return fetch_address_immediate(cpu, phase);
+		case AM_6502_ZEROPAGE:
+			return fetch_address_zeropage(cpu, phase);
+		case AM_6502_ZEROPAGE_X:
+			return fetch_address_zeropage_indexed(cpu, phase, cpu->reg_x);
+		case AM_6502_ZEROPAGE_Y:
+			return fetch_address_zeropage_indexed(cpu, phase, cpu->reg_y);
+		case AM_6502_ABSOLUTE:
+			return fetch_address_absolute(cpu, phase);
+		case AM_6502_ABSOLUTE_X:
+			return fetch_address_absolute_indexed_shortcut(cpu, phase, cpu->reg_x);
+		case AM_6502_ABSOLUTE_Y:
+			return fetch_address_absolute_indexed_shortcut(cpu, phase, cpu->reg_y);
+		case AM_6502_INDIRECT_X:
+			return fetch_address_indexed_indirect(cpu, phase);
+		case AM_6502_INDIRECT_Y:
+			return fetch_address_indirect_indexed_shortcut(cpu, phase);
+		default:
+			return 0;
+	};
+}
+
+static inline int8_t fetch_address(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
 
 	switch (mode) {
 		case AM_6502_IMMEDIATE:	
-			memop_cycle = fetch_address_immediate(cpu, phase);
-			break;
+			return fetch_address_immediate(cpu, phase);
 		case AM_6502_ZEROPAGE:	
-			memop_cycle = fetch_address_zeropage(cpu, phase);
-			break;
+			return fetch_address_zeropage(cpu, phase);
 		case AM_6502_ZEROPAGE_X:	
-			memop_cycle = fetch_address_zeropage_indexed(cpu, phase, cpu->reg_x);
-			break;
+			return fetch_address_zeropage_indexed(cpu, phase, cpu->reg_x);
 		case AM_6502_ZEROPAGE_Y:	
-			memop_cycle = fetch_address_zeropage_indexed(cpu, phase, cpu->reg_y);
-			break;
+			return fetch_address_zeropage_indexed(cpu, phase, cpu->reg_y);
 		case AM_6502_ABSOLUTE:	
-			memop_cycle = fetch_address_absolute(cpu, phase);
-			break;
+			return fetch_address_absolute(cpu, phase);
 		case AM_6502_ABSOLUTE_X:	
-			memop_cycle = fetch_address_absolute_indexed_shortcut(cpu, phase, cpu->reg_x);
-			break;
+			return fetch_address_absolute_indexed(cpu, phase, cpu->reg_x);
 		case AM_6502_ABSOLUTE_Y:	
-			memop_cycle = fetch_address_absolute_indexed_shortcut(cpu, phase, cpu->reg_y);
-			break;
+			return fetch_address_absolute_indexed(cpu, phase, cpu->reg_y);
 		case AM_6502_INDIRECT_X: 
-			memop_cycle = fetch_address_indexed_indirect(cpu, phase);
-			break;
+			return fetch_address_indexed_indirect(cpu, phase);
 		case AM_6502_INDIRECT_Y: 
-			memop_cycle = fetch_address_indirect_indexed_shortcut(cpu, phase);
-			break;
+			return fetch_address_indirect_indexed(cpu, phase);
+		default:
+			return 0;
 	};
+}
+
+static inline bool fetch_operand(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
+
+	bool result = false;
+
+	int8_t memop_cycle = fetch_address_shortcut(cpu, mode, phase);
 
 	if (memop_cycle == PRIVATE(cpu)->decode_cycle) {
 		fetch_memory(cpu, PRIVATE(cpu)->addr, &PRIVATE(cpu)->operand, phase);
@@ -523,38 +546,9 @@ static inline bool fetch_operand_g1(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline bool store_to_memory(Cpu6502 *cpu, uint8_t value, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
 
-	int8_t memop_cycle = -1;
 	bool result = false;
 
-	switch (mode) {
-		case AM_6502_IMMEDIATE:	
-			memop_cycle = fetch_address_immediate(cpu, phase);
-			break;
-		case AM_6502_ZEROPAGE:	
-			memop_cycle = fetch_address_zeropage(cpu, phase);
-			break;
-		case AM_6502_ZEROPAGE_X:	
-			memop_cycle = fetch_address_zeropage_indexed(cpu, phase, cpu->reg_x);
-			break;
-		case AM_6502_ZEROPAGE_Y:	
-			memop_cycle = fetch_address_zeropage_indexed(cpu, phase, cpu->reg_y);
-			break;
-		case AM_6502_ABSOLUTE:	
-			memop_cycle = fetch_address_absolute(cpu, phase);
-			break;
-		case AM_6502_ABSOLUTE_X:	
-			memop_cycle = fetch_address_absolute_indexed(cpu, phase, cpu->reg_x);
-			break;
-		case AM_6502_ABSOLUTE_Y:	
-			memop_cycle = fetch_address_absolute_indexed(cpu, phase, cpu->reg_y);
-			break;
-		case AM_6502_INDIRECT_X: 
-			memop_cycle = fetch_address_indexed_indirect(cpu, phase);
-			break;
-		case AM_6502_INDIRECT_Y: 
-			memop_cycle = fetch_address_indirect_indexed(cpu, phase);
-			break;
-	};
+	int8_t memop_cycle = fetch_address(cpu, mode, phase);
 
 	if (memop_cycle == PRIVATE(cpu)->decode_cycle) {
 		store_memory(cpu, PRIVATE(cpu)->addr, value, phase);
