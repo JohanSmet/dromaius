@@ -572,6 +572,73 @@ static inline void decode_and(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	if (cpu->reg_ir == OP_6502_ASL_ACC) {
+		switch (phase) {
+			case CYCLE_BEGIN:
+				PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+				break;
+			case CYCLE_MIDDLE:
+				break;
+			case CYCLE_END:
+				cpu->p_carry = (cpu->reg_a & 0b10000000) >> 7;
+				cpu->reg_a <<= 1;
+				cpu->p_zero_result = cpu->reg_a == 0;
+				cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+				PRIVATE(cpu)->decode_cycle = -1;
+				break;
+		}
+		return;
+	}
+
+	static const int8_t AM_LUT[] = {
+		-1,						// 0
+		AM_6502_ZEROPAGE,		// 1
+		-1,						// 2
+		AM_6502_ABSOLUTE,		// 3
+		-1,						// 4
+		AM_6502_ZEROPAGE_X,		// 5
+		-1,						// 6
+		AM_6502_ABSOLUTE_X		// 7
+	};
+
+	uint8_t memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
+
+	switch (PRIVATE(cpu)->decode_cycle - memop_cycle) {
+		case 0:		// fetch operand
+			fetch_memory(cpu, PRIVATE(cpu)->addr, &PRIVATE(cpu)->operand, phase);
+			break;
+		case 1:		// perform rotate / turn on write
+			switch (phase) {
+				case CYCLE_BEGIN:
+					break;
+				case CYCLE_MIDDLE:
+					PRIVATE(cpu)->internal_rw = RW_WRITE;
+					break;
+				case CYCLE_END:
+					cpu->p_carry = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+					PRIVATE(cpu)->operand <<= 1;
+					break;
+			}
+			break;
+		case 2:		// store result + set flags
+			switch (phase) {
+				case CYCLE_BEGIN:
+					*cpu->bus_data = PRIVATE(cpu)->operand;
+					break;
+				case CYCLE_MIDDLE:
+					break;
+				case CYCLE_END:
+					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
+					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+					PRIVATE(cpu)->decode_cycle = -1;
+					break;
+			}
+			break;
+	}
+}
+
 static inline void decode_clc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
@@ -867,6 +934,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case AC_6502_AND :
 			decode_and(cpu, phase);
 			break;
+		case AC_6502_ASL :
+			decode_asl(cpu, phase);
+			break;
 		case AC_6502_EOR :
 			decode_eor(cpu, phase);
 			break;
@@ -999,7 +1069,7 @@ void cpu_6502_process(Cpu6502 *cpu) {
 		priv->internal_ab = 0;
 
 		priv->internal_rw = RW_READ;
-		priv->prev_reset = cpu->pin_reset;
+		priv->prev_reset = *cpu->pin_reset;
 	} else if (priv->prev_reset && !*cpu->pin_reset) {
 		// reset was just deasserted - start initialization sequence
 		priv->prev_reset = *cpu->pin_reset;

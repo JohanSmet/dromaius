@@ -14,6 +14,7 @@
 //                      aaabbbcc
 #define AC_6502_MASK  0b11100011
 #define AC_6502_AND	  0b00100001
+#define AC_6502_ASL	  0b00000010
 #define AC_6502_EOR	  0b01000001
 #define AC_6502_LDA   0b10100001
 #define AC_6502_LDX   0b10100010
@@ -56,6 +57,12 @@ typedef enum OPCODES_6502_ {
 	OP_6502_AND_ABSY	= 0x39,
 	OP_6502_AND_INDX	= 0x21,
 	OP_6502_AND_INDY	= 0x31,
+
+	OP_6502_ASL_ACC		= 0x0a,
+	OP_6502_ASL_ZP		= 0x06,
+	OP_6502_ASL_ZPX		= 0x16,
+	OP_6502_ASL_ABS		= 0x0e,
+	OP_6502_ASL_ABSX	= 0x1e,
 
 	OP_6502_BCS			= 0xb0,
 
