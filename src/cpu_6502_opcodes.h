@@ -67,8 +67,15 @@ typedef enum OPCODES_6502_ {
 	OP_6502_ASL_ZPX		= 0x16,
 	OP_6502_ASL_ABS		= 0x0e,
 	OP_6502_ASL_ABSX	= 0x1e,
-
-	OP_6502_BCS			= 0xb0,
+	
+	OP_6502_BCC			= 0x90,		// branch on carry clear (C = 0)
+	OP_6502_BCS			= 0xb0,		// branch on carry set (C = 1)
+	OP_6502_BEQ			= 0xf0,		// branch on result zero (Z = 1)
+	OP_6502_BMI			= 0x30,		// branch on result minus (N = 1)
+	OP_6502_BNE			= 0xd0,		// branch on result not zero (Z = 0)
+	OP_6502_BPL			= 0x10,		// branch on result plus (N = 0)
+	OP_6502_BVC			= 0x50,		// branch on overflow clear (V = 0)
+	OP_6502_BVS			= 0x70,		// branch on overflow set (V = 1)
 
 	OP_6502_CLC			= 0x18,		// clear carry  flag
 	OP_6502_CLD			= 0xd8,		// clear decimal mode

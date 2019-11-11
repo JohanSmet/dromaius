@@ -910,6 +910,718 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_bcc(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BCC: branch not taken
+	//
+
+	// initialize registers
+	computer->cpu->p_carry = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BCC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BCC);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BCC: branch taken, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_carry = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BCC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BCC);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0853);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BCC: branch taken, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_carry = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BCC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BCC);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = -0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: handle page crossing
+	munit_assert_uint16(computer->bus_address, ==, 0x08b3);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x07b3);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_bcs(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BCS: branch not taken
+	//
+
+	// initialize registers
+	computer->cpu->p_carry = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BCS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BCS);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BCS: branch taken, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_carry = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BCS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BCS);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0853);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BCS: branch taken, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_carry = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BCS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BCS);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = -0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: handle page crossing
+	munit_assert_uint16(computer->bus_address, ==, 0x08b3);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x07b3);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_beq(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BEQ: branch not taken
+	//
+
+	// initialize registers
+	computer->cpu->p_zero_result = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BEQ;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BEQ);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BEQ: branch taken, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_zero_result = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BEQ;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BEQ);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0853);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BEQ: branch taken, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_zero_result = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BEQ;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BEQ);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = -0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: handle page crossing
+	munit_assert_uint16(computer->bus_address, ==, 0x08b3);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x07b3);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_bmi(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BMI: branch not taken
+	//
+
+	// initialize registers
+	computer->cpu->p_negative_result = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BMI;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BMI);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BMI: branch taken, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_negative_result = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BMI;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BMI);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0853);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BMI: branch taken, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_negative_result = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BMI;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BMI);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = -0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: handle page crossing
+	munit_assert_uint16(computer->bus_address, ==, 0x08b3);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x07b3);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_bne(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BNE: branch not taken
+	//
+
+	// initialize registers
+	computer->cpu->p_zero_result = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BNE;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BNE);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BNE: branch taken, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_zero_result = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BNE;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BNE);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0853);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BNE: branch taken, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_zero_result = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BNE;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BNE);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = -0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: handle page crossing
+	munit_assert_uint16(computer->bus_address, ==, 0x08b3);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x07b3);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_bpl(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BPL: branch not taken
+	//
+
+	// initialize registers
+	computer->cpu->p_negative_result = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BPL;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BPL);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BPL: branch taken, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_negative_result = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BPL;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BPL);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0853);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BPL: branch taken, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_negative_result = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BPL;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BPL);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = -0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: handle page crossing
+	munit_assert_uint16(computer->bus_address, ==, 0x08b3);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x07b3);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_bvc(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BVC: branch not taken
+	//
+
+	// initialize registers
+	computer->cpu->p_overflow = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BVC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BVC);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BVC: branch taken, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_overflow = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BVC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BVC);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0853);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BVC: branch taken, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_overflow = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BVC;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BVC);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = -0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: handle page crossing
+	munit_assert_uint16(computer->bus_address, ==, 0x08b3);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x07b3);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_bvs(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BVS: branch not taken
+	//
+
+	// initialize registers
+	computer->cpu->p_overflow = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BVS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BVS);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BVS: branch taken, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_overflow = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BVS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BVS);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0853);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BVS: branch taken, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->p_overflow = true;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BVS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BVS);
+
+	// >> cycle 02: fetch relative address
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = -0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add offset
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: handle page crossing
+	munit_assert_uint16(computer->bus_address, ==, 0x08b3);
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x07b3);
+
+	return MUNIT_OK;
+}
+
 MunitResult test_clc(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Computer *computer = (Computer *) user_data_or_fixture;
@@ -4647,6 +5359,14 @@ MunitTest cpu_6502_tests[] = {
 	{ "/reset", test_reset, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/and", test_and, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/asl", test_asl, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/bcc", test_bcc, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/bcs", test_bcs, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/beq", test_beq, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/bmi", test_bmi, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/bne", test_bne, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/bpl", test_bpl, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/bvc", test_bvc, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/bvs", test_bvs, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/clc", test_clc, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/cld", test_cld, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/cli", test_cli, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },

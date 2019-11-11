@@ -590,6 +590,54 @@ static inline bool store_to_memory_g1(Cpu6502 *cpu, uint8_t value, CPU_6502_CYCL
 	return store_to_memory(cpu, value, (cpu->reg_ir & ADDR_6502_MASK) >> 2, phase);
 }
 
+static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t value, CPU_6502_CYCLE phase) {
+// the branching instructions follow the 6502's philosophy of doing the least amount of work possible
+// -> 2 cycles are always needed to fetch the opcode (before this function) and to fetch the offset (relative addressing)
+// -> if the branch isn't taken, the work ends there and the program continues with the next instruction (reg_pc)
+// -> if the branch is taken: the offset is added in the 3th cycle
+// -> only if a page boundary is crossed a 4th cycle is required
+
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1:		// fetch offset
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->i_addr.lo_byte, phase);
+			if (phase == CYCLE_END && IS_BIT_SET(cpu->reg_p, bit) != value) {
+				// check flags + stop if branch not taken
+				PRIVATE(cpu)->decode_cycle = -1;
+			}
+			break;
+		case 2:		// add relative address + check for page crossing
+			switch (phase) {
+				case CYCLE_BEGIN: 
+					PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+					PRIVATE(cpu)->i_addr.hi_byte = HIBYTE(cpu->reg_pc);
+					cpu->reg_pc += (int8_t) PRIVATE(cpu)->i_addr.lo_byte;
+					break;
+				case CYCLE_MIDDLE:
+					PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->i_addr.hi_byte != HIBYTE(cpu->reg_pc);
+					break;
+				case CYCLE_END:
+					if (!PRIVATE(cpu)->page_crossed) {
+						PRIVATE(cpu)->decode_cycle = -1;
+					}
+					break;
+			}
+			break;
+		case 3:		// extra cycle when page crossed to add carry to high address
+			switch (phase) {
+				case CYCLE_BEGIN:
+					PRIVATE(cpu)->i_addr.lo_byte = LOBYTE(cpu->reg_pc);
+					PRIVATE(cpu)->internal_ab = PRIVATE(cpu)->i_addr.full;
+					break;
+				case CYCLE_MIDDLE:
+					break;
+				case CYCLE_END:
+					PRIVATE(cpu)->decode_cycle = -1;
+					break;
+			}
+			break;
+	}
+}
+
 static inline void decode_and(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
@@ -665,6 +713,38 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			}
 			break;
 	}
+}
+
+static inline void decode_bcc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	decode_branch_instruction(cpu, 0, false, phase);
+}
+
+static inline void decode_bcs(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	decode_branch_instruction(cpu, 0, true, phase);
+}
+
+static inline void decode_beq(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	decode_branch_instruction(cpu, 1, true, phase);
+}
+
+static inline void decode_bmi(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	decode_branch_instruction(cpu, 7, true, phase);
+}
+
+static inline void decode_bne(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	decode_branch_instruction(cpu, 1, false, phase);
+}
+
+static inline void decode_bpl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	decode_branch_instruction(cpu, 7, false, phase);
+}
+
+static inline void decode_bvc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	decode_branch_instruction(cpu, 6, false, phase);
+}
+
+static inline void decode_bvs(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	decode_branch_instruction(cpu, 6, true, phase);
 }
 
 static inline void decode_clc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
@@ -1227,6 +1307,30 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	};
 
 	switch (cpu->reg_ir) {
+		case OP_6502_BCC :
+			decode_bcc(cpu, phase);
+			break;
+		case OP_6502_BCS :
+			decode_bcs(cpu, phase);
+			break;
+		case OP_6502_BEQ :
+			decode_beq(cpu, phase);
+			break;
+		case OP_6502_BMI :
+			decode_bmi(cpu, phase);
+			break;
+		case OP_6502_BNE :
+			decode_bne(cpu, phase);
+			break;
+		case OP_6502_BPL :
+			decode_bpl(cpu, phase);
+			break;
+		case OP_6502_BVC :
+			decode_bvc(cpu, phase);
+			break;
+		case OP_6502_BVS :
+			decode_bvs(cpu, phase);
+			break;
 		case OP_6502_CLC :
 			decode_clc(cpu, phase);
 			break;
