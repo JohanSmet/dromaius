@@ -44,7 +44,8 @@ typedef enum ADDRESSING_MODE_6502_ {
 	AM_6502_ABSOLUTE_X	= 0b0111,
 
 	// other addressing modes not used for group-1 instructions
-	AM_6502_ZEROPAGE_Y	= 0b1000
+	AM_6502_ZEROPAGE_Y	= 0b1000,
+	AM_6502_INDIRECT	= 0b1001
 
 } ADDRESSING_MODE_6502;
 
@@ -82,6 +83,9 @@ typedef enum OPCODES_6502_ {
 	OP_6502_EOR_ABSY	= 0x59,
 	OP_6502_EOR_INDX	= 0x41,
 	OP_6502_EOR_INDY	= 0x51,
+
+	OP_6502_JMP_ABS		= 0x4c,
+	OP_6502_JMP_IND		= 0x6c,
 
 	OP_6502_LDA_IMM		= 0xa9,
 	OP_6502_LDA_ZP		= 0xa5,

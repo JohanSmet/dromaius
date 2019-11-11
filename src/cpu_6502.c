@@ -100,6 +100,7 @@ typedef struct Cpu6502_private {
 	int8_t			decode_cycle;			// instruction decode cycle
 	uint8_t			operand;
 	addr_t			addr;
+	addr_t			i_addr;
 	bool			page_crossed;
 } Cpu6502_private;
 
@@ -390,6 +391,27 @@ static inline int8_t fetch_address_absolute_indexed(Cpu6502 *cpu, CPU_6502_CYCLE
 	return 4;
 }
 
+
+static inline int8_t fetch_address_indirect(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch indirect address - low byte
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->i_addr.lo_byte, phase);
+			break;
+		case 2 :		// fetch indirect address - high byte
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->i_addr.hi_byte, phase);
+			break;
+		case 3 :		// fetch jump address - low byte
+			fetch_memory(cpu, PRIVATE(cpu)->i_addr.full, &PRIVATE(cpu)->addr.lo_byte, phase);
+			break;
+		case 4 :		// fetch jump address - high byte
+			fetch_memory(cpu, PRIVATE(cpu)->i_addr.full + 1, &PRIVATE(cpu)->addr.hi_byte, phase);
+			break;
+	}
+
+	return 5;
+}
+
 static inline int8_t fetch_address_indexed_indirect(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (PRIVATE(cpu)->decode_cycle) {
@@ -493,6 +515,8 @@ static inline int8_t fetch_address_shortcut(Cpu6502 *cpu, ADDRESSING_MODE_6502 m
 			return fetch_address_absolute_indexed_shortcut(cpu, phase, cpu->reg_x);
 		case AM_6502_ABSOLUTE_Y:
 			return fetch_address_absolute_indexed_shortcut(cpu, phase, cpu->reg_y);
+		case AM_6502_INDIRECT:
+			return fetch_address_indirect(cpu, phase);
 		case AM_6502_INDIRECT_X:
 			return fetch_address_indexed_indirect(cpu, phase);
 		case AM_6502_INDIRECT_Y:
@@ -519,6 +543,8 @@ static inline int8_t fetch_address(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_
 			return fetch_address_absolute_indexed(cpu, phase, cpu->reg_x);
 		case AM_6502_ABSOLUTE_Y:	
 			return fetch_address_absolute_indexed(cpu, phase, cpu->reg_y);
+		case AM_6502_INDIRECT:
+			return fetch_address_indirect(cpu, phase);
 		case AM_6502_INDIRECT_X: 
 			return fetch_address_indexed_indirect(cpu, phase);
 		case AM_6502_INDIRECT_Y: 
@@ -703,6 +729,22 @@ static inline void decode_eor(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		cpu->reg_a	= cpu->reg_a ^ PRIVATE(cpu)->operand;
 		cpu->p_zero_result = cpu->reg_a == 0;
 		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
+static inline void decode_jmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	int8_t memop_cycle = 0;
+
+	if (cpu->reg_ir == OP_6502_JMP_ABS) {
+		memop_cycle = fetch_address_absolute(cpu, phase);
+	} else {
+		memop_cycle = fetch_address_indirect(cpu, phase);
+	}
+
+	if (PRIVATE(cpu)->decode_cycle == memop_cycle - 1 && phase == CYCLE_END) {
+		cpu->reg_pc = PRIVATE(cpu)->addr.full;
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1196,6 +1238,10 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case OP_6502_CLV :
 			decode_clv(cpu, phase);
+			break;
+		case OP_6502_JMP_ABS:
+		case OP_6502_JMP_IND:
+			decode_jmp(cpu, phase);
 			break;
 		case OP_6502_SEC :
 			decode_sec(cpu, phase);
