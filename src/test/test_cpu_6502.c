@@ -1730,6 +1730,461 @@ MunitResult test_clv(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: immediate operand
+	//
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_IMM;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_IMM);
+
+	// >> cycle 02: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 10;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_false(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_true(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: zero page addressing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_ZP;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_ZP);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0xfe;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x00fe);
+	computer->bus_data = 15;
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_true(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_false(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: zero page, x indexed
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// force the value of the x register
+	computer->cpu->reg_x = 0xf0;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_ZPX;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_ZPX);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x4a;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add addres and x-index
+	munit_assert_uint16(computer->bus_address, ==, 0x004a);
+	computer->bus_data = 0x21;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x003a);
+	computer->bus_data = 5;
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_false(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_true(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: absolute addressing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_ABS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_ABS);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0xc016);
+	computer->bus_data = 10;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_false(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_true(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: absolute addressing x-indexed, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// force the value of the x register
+	computer->cpu->reg_x = 0x02;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_ABSX;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_ABSX);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0xc018);
+	computer->bus_data = 16;
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_true(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_false(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: absolute addressing x-indexed, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// force the value of the x register
+	computer->cpu->reg_x = 0xf2;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_ABSX;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_ABSX);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: add carry
+	munit_assert_uint16(computer->bus_address, ==, 0xc008);
+	computer->bus_data = 0x10;
+	computer_clock_cycle(computer);
+
+	// >> cycle 05: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0xc108);
+	computer->bus_data = 5;
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_false(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_true(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: absolute addressing y-indexed, no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// force the value of the y register
+	computer->cpu->reg_y = 0x03;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_ABSY;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_ABSY);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0xc019);
+	computer->bus_data = 10;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_false(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_true(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: absolute addressing y-indexed, page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// force the value of the x register
+	computer->cpu->reg_y = 0xf3;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_ABSY;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_ABSY);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: add carry
+	munit_assert_uint16(computer->bus_address, ==, 0xc009);
+	computer->bus_data = 0x15;
+	computer_clock_cycle(computer);
+
+	// >> cycle 05: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0xc109);
+	computer->bus_data = 20;
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_true(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_false(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: indexed indirect addressing (index-x)
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// force the value of the x register
+	computer->cpu->reg_x = 0x10;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_INDX;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_INDX);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x4a;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: add zp + index
+	munit_assert_uint16(computer->bus_address, ==, 0x004a);
+	computer->bus_data = 0x11;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x005a);
+	computer->bus_data = 0x20;
+	computer_clock_cycle(computer);
+
+	// >> cycle 05: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x005b);
+	computer->bus_data = 0x21;
+	computer_clock_cycle(computer);
+
+	// >> cycle 06: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x2120);
+	computer->bus_data = 6;
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_false(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_true(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: indirect indexed addressing (index-y), no page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// force the value of the y register
+	computer->cpu->reg_y = 0x10;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_INDY;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_INDY);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x4a;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x004a);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch address high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x004b);
+	computer->bus_data = 0x30;
+	computer_clock_cycle(computer);
+
+	// >> cycle 05: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x3026);
+	computer->bus_data = 10;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_false(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_true(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// CMP: indirect indexed addressing (index-y), page crossing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 10;
+
+	// force the value of the y register
+	computer->cpu->reg_y = 0xf0;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_CMP_INDY;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_CMP_INDY);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x4a;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x004a);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch address high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x004b);
+	computer->bus_data = 0x30;
+	computer_clock_cycle(computer);
+
+	// >> cycle 05: add carry
+	munit_assert_uint16(computer->bus_address, ==, 0x3006);
+	computer->bus_data = 0x17;
+	computer_clock_cycle(computer);
+
+	// >> cycle 06: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x3106);
+	computer->bus_data = 11;
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_zero_result);			// set if equal
+	munit_assert_true(computer->cpu->p_negative_result);		// set if memory > reg-a
+	munit_assert_false(computer->cpu->p_carry);					// set if memory <= reg-a
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	return MUNIT_OK;
+}
 
 MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) {
 
@@ -5371,6 +5826,7 @@ MunitTest cpu_6502_tests[] = {
 	{ "/cld", test_cld, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/cli", test_cli, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/clv", test_clv, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/cmp", test_cmp, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/eor", test_eor, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/jmp", test_jmp, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/lda", test_lda, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },

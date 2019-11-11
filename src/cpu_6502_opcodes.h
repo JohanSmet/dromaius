@@ -15,6 +15,7 @@
 #define AC_6502_MASK  0b11100011
 #define AC_6502_AND	  0b00100001
 #define AC_6502_ASL	  0b00000010
+#define AC_6502_CMP	  0b11000001
 #define AC_6502_EOR	  0b01000001
 #define AC_6502_LDA   0b10100001
 #define AC_6502_LDX   0b10100010
@@ -81,6 +82,15 @@ typedef enum OPCODES_6502_ {
 	OP_6502_CLD			= 0xd8,		// clear decimal mode
 	OP_6502_CLI			= 0x58,		// clear interrupt disable bit
 	OP_6502_CLV			= 0xb8,		// clear overflow flag
+
+	OP_6502_CMP_IMM		= 0xc9,
+	OP_6502_CMP_ZP		= 0xc5,
+	OP_6502_CMP_ZPX		= 0xd5,
+	OP_6502_CMP_ABS		= 0xcd,
+	OP_6502_CMP_ABSX	= 0xdd,
+	OP_6502_CMP_ABSY	= 0xd9,
+	OP_6502_CMP_INDX	= 0xc1,
+	OP_6502_CMP_INDY	= 0xd1,
 
 	OP_6502_EOR_IMM		= 0x49,
 	OP_6502_EOR_ZP		= 0x45,

@@ -803,6 +803,16 @@ static inline void decode_clv(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_cmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	if (fetch_operand_g1(cpu, phase)) {
+		int8_t result = cpu->reg_a - PRIVATE(cpu)->operand;
+		cpu->p_zero_result = result == 0;
+		cpu->p_negative_result = (result & 0b10000000) >> 7;
+		cpu->p_carry = result >= 0;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_eor(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
@@ -1267,13 +1277,16 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (cpu->reg_ir & AC_6502_MASK) {
 		case AC_6502_AND :
 			decode_and(cpu, phase);
-			break;
+			return;
 		case AC_6502_ASL :
 			decode_asl(cpu, phase);
-			break;
+			return;
 		case AC_6502_EOR :
 			decode_eor(cpu, phase);
-			break;
+			return;
+		case AC_6502_CMP :
+			decode_cmp(cpu, phase);
+			return;
 		case AC_6502_LDA :
 			decode_lda(cpu, phase);
 			return;
@@ -1291,16 +1304,16 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case AC_6502_LSR :
 			decode_lsr(cpu, phase);
-			break;
+			return;
 		case AC_6502_ORA :
 			decode_ora(cpu, phase);
-			break;
+			return;
 		case AC_6502_ROL :
 			decode_rol(cpu, phase);
-			break;
+			return;
 		case AC_6502_ROR :
 			decode_ror(cpu, phase);
-			break;
+			return;
 		case AC_6502_STA :
 			decode_sta(cpu, phase);
 			return;
