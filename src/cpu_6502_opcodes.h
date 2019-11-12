@@ -18,6 +18,7 @@
 #define AC_6502_CMP	  0b11000001
 #define AC_6502_DEC   0b11000010
 #define AC_6502_EOR	  0b01000001
+#define AC_6502_INC   0b11100010
 #define AC_6502_LDA   0b10100001
 #define AC_6502_LDX   0b10100010
 #define AC_6502_LDY   0b10100000
@@ -120,6 +121,14 @@ typedef enum OPCODES_6502_ {
 	OP_6502_EOR_INDX	= 0x41,
 	OP_6502_EOR_INDY	= 0x51,
 
+	OP_6502_INC_ZP		= 0xe6,
+	OP_6502_INC_ZPX		= 0xf6,
+	OP_6502_INC_ABS		= 0xee,
+	OP_6502_INC_ABSX	= 0xfe,
+
+	OP_6502_INX			= 0xe8,
+	OP_6502_INY			= 0xc8,
+
 	OP_6502_JMP_ABS		= 0x4c,
 	OP_6502_JMP_IND		= 0x6c,
 
@@ -149,6 +158,8 @@ typedef enum OPCODES_6502_ {
 	OP_6502_LSR_ZPX		= 0x56,
 	OP_6502_LSR_ABS		= 0x4e,
 	OP_6502_LSR_ABSX	= 0x5e,
+
+	OP_6502_NOP			= 0xea,
 
 	OP_6502_ORA_IMM		= 0x09,
 	OP_6502_ORA_ZP		= 0x05,
