@@ -16,6 +16,7 @@
 #define AC_6502_AND	  0b00100001
 #define AC_6502_ASL	  0b00000010
 #define AC_6502_CMP	  0b11000001
+#define AC_6502_DEC   0b11000010
 #define AC_6502_EOR	  0b01000001
 #define AC_6502_LDA   0b10100001
 #define AC_6502_LDX   0b10100010
@@ -101,6 +102,14 @@ typedef enum OPCODES_6502_ {
 	OP_6502_CPY_IMM		= 0xc0,
 	OP_6502_CPY_ZP		= 0xc4,
 	OP_6502_CPY_ABS		= 0xcc,
+
+	OP_6502_DEC_ZP		= 0xc6,
+	OP_6502_DEC_ZPX		= 0xd6,
+	OP_6502_DEC_ABS		= 0xce,
+	OP_6502_DEC_ABSX	= 0xde,
+
+	OP_6502_DEX			= 0xca,
+	OP_6502_DEY			= 0x88,
 
 	OP_6502_EOR_IMM		= 0x49,
 	OP_6502_EOR_ZP		= 0x45,

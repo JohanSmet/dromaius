@@ -856,6 +856,86 @@ static inline void decode_cpx_cpy(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t re
 	}
 }
 
+static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	static const int8_t AM_LUT[] = {
+		-1,						// 0
+		AM_6502_ZEROPAGE,		// 1
+		-1,						// 2
+		AM_6502_ABSOLUTE,		// 3
+		-1,						// 4
+		AM_6502_ZEROPAGE_X,		// 5
+		-1,						// 6
+		AM_6502_ABSOLUTE_X		// 7
+	};
+
+	uint8_t memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
+
+	switch (PRIVATE(cpu)->decode_cycle - memop_cycle) {
+		case 0:		// fetch operand
+			fetch_memory(cpu, PRIVATE(cpu)->addr.full, &PRIVATE(cpu)->operand, phase);
+			break;
+		case 1:		// perform decrement / turn on write
+			switch (phase) {
+				case CYCLE_BEGIN:
+					break;
+				case CYCLE_MIDDLE:
+					PRIVATE(cpu)->internal_rw = RW_WRITE;
+					break;
+				case CYCLE_END:
+					PRIVATE(cpu)->operand -= 1;
+					break;
+			}
+			break;
+		case 2:		// store result + set flags
+			switch (phase) {
+				case CYCLE_BEGIN:
+					*cpu->bus_data = PRIVATE(cpu)->operand;
+					break;
+				case CYCLE_MIDDLE:
+					break;
+				case CYCLE_END:
+					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
+					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+					PRIVATE(cpu)->decode_cycle = -1;
+					break;
+			}
+			break;
+	}
+}
+
+static inline void decode_dex(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END : 
+			cpu->reg_x -= 1;
+			cpu->p_zero_result = cpu->reg_x == 0;
+			cpu->p_negative_result = (cpu->reg_x & 0b10000000) >> 7;
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
+static inline void decode_dey(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END : 
+			cpu->reg_y -= 1;
+			cpu->p_zero_result = cpu->reg_y == 0;
+			cpu->p_negative_result = (cpu->reg_y & 0b10000000) >> 7;
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
 static inline void decode_eor(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
@@ -1324,6 +1404,11 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case AC_6502_ASL :
 			decode_asl(cpu, phase);
 			return;
+		case AC_6502_DEC :
+			if (cpu->reg_ir != OP_6502_DEX) {
+				decode_dec(cpu, phase);
+			}
+			break;
 		case AC_6502_EOR :
 			decode_eor(cpu, phase);
 			return;
@@ -1412,6 +1497,12 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case OP_6502_CPY_ZP:
 		case OP_6502_CPY_ABS:
 			decode_cpx_cpy(cpu, phase, cpu->reg_y);
+			break;
+		case OP_6502_DEX:
+			decode_dex(cpu, phase);
+			break;
+		case OP_6502_DEY:
+			decode_dey(cpu, phase);
 			break;
 		case OP_6502_JMP_ABS:
 		case OP_6502_JMP_IND:
