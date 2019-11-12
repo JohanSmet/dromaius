@@ -71,6 +71,8 @@ typedef enum OPCODES_6502_ {
 	
 	OP_6502_BCC			= 0x90,		// branch on carry clear (C = 0)
 	OP_6502_BCS			= 0xb0,		// branch on carry set (C = 1)
+	OP_6502_BIT_ZP		= 0x24,		
+	OP_6502_BIT_ABS		= 0x2c,
 	OP_6502_BEQ			= 0xf0,		// branch on result zero (Z = 1)
 	OP_6502_BMI			= 0x30,		// branch on result minus (N = 1)
 	OP_6502_BNE			= 0xd0,		// branch on result not zero (Z = 0)

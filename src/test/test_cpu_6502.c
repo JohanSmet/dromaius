@@ -1177,6 +1177,83 @@ MunitResult test_beq(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_bit(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BIT: zero page addressing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 0b00000010;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BIT_ZP;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BIT_ZP);
+
+	// >> cycle 02: fetch zero page address 
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0xfe;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x00fe);
+	computer->bus_data = 0b01001111;
+	computer_clock_cycle(computer);
+	munit_assert_false(computer->cpu->p_negative_result);		// takes value of bit 7
+	munit_assert_true(computer->cpu->p_overflow);				// takes value of bit 6
+	munit_assert_false(computer->cpu->p_zero_result);			// set if memory & reg-a == 0
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BIT: absolute addressing
+	//
+
+	computer_reset(computer);
+
+	// initialize registers
+	computer->cpu->reg_a = 0b00100000;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BIT_ABS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BIT_ABS);
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0xc016);
+	computer->bus_data = 0b10011111;
+	computer_clock_cycle(computer);
+	munit_assert_true(computer->cpu->p_negative_result);		// takes value of bit 7
+	munit_assert_false(computer->cpu->p_overflow);				// takes value of bit 6
+	munit_assert_true(computer->cpu->p_zero_result);			// set if memory & reg-a == 0
+
+	// next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0804);
+
+	return MUNIT_OK;
+}
+
+
 MunitResult test_bmi(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Computer *computer = (Computer *) user_data_or_fixture;
@@ -5817,6 +5894,7 @@ MunitTest cpu_6502_tests[] = {
 	{ "/bcc", test_bcc, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/bcs", test_bcs, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/beq", test_beq, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/bit", test_bit, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/bmi", test_bmi, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/bne", test_bne, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/bpl", test_bpl, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },

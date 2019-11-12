@@ -727,6 +727,27 @@ static inline void decode_beq(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	decode_branch_instruction(cpu, 1, true, phase);
 }
 
+static inline void decode_bit(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	static const int8_t AM_LUT[] = {
+		-1,						// 0
+		AM_6502_ZEROPAGE,		// 1
+		-1,						// 2
+		AM_6502_ABSOLUTE,		// 3
+		-1,						// 4
+		-1,						// 5
+		-1,						// 6
+		-1						// 7
+	};
+
+	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
+		cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+		cpu->p_overflow = (PRIVATE(cpu)->operand & 0b01000000) >> 6;
+		cpu->p_zero_result = (PRIVATE(cpu)->operand & cpu->reg_a) == 0;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_bmi(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	decode_branch_instruction(cpu, 7, true, phase);
 }
@@ -1325,6 +1346,10 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case OP_6502_BCS :
 			decode_bcs(cpu, phase);
+			break;
+		case OP_6502_BIT_ZP :
+		case OP_6502_BIT_ABS:
+			decode_bit(cpu, phase);
 			break;
 		case OP_6502_BEQ :
 			decode_beq(cpu, phase);
