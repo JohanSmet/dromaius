@@ -94,6 +94,14 @@ typedef enum OPCODES_6502_ {
 	OP_6502_CMP_INDX	= 0xc1,
 	OP_6502_CMP_INDY	= 0xd1,
 
+	OP_6502_CPX_IMM		= 0xe0,
+	OP_6502_CPX_ZP		= 0xe4,
+	OP_6502_CPX_ABS		= 0xec,
+
+	OP_6502_CPY_IMM		= 0xc0,
+	OP_6502_CPY_ZP		= 0xc4,
+	OP_6502_CPY_ABS		= 0xcc,
+
 	OP_6502_EOR_IMM		= 0x49,
 	OP_6502_EOR_ZP		= 0x45,
 	OP_6502_EOR_ZPX		= 0x55,

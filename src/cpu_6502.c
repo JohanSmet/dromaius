@@ -834,6 +834,28 @@ static inline void decode_cmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_cpx_cpy(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t reg) {
+
+	static const int8_t AM_LUT[] = {
+		AM_6502_IMMEDIATE,		// 0
+		AM_6502_ZEROPAGE,		// 1
+		-1,						// 2
+		AM_6502_ABSOLUTE,		// 3
+		-1,						// 4
+		-1,						// 5
+		-1,						// 6
+		-1						// 7
+	};
+
+	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
+		int8_t result = reg - PRIVATE(cpu)->operand;
+		cpu->p_zero_result = result == 0;
+		cpu->p_negative_result = (result & 0b10000000) >> 7;
+		cpu->p_carry = result >= 0;
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_eor(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
@@ -1380,6 +1402,16 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case OP_6502_CLV :
 			decode_clv(cpu, phase);
+			break;
+		case OP_6502_CPX_IMM:
+		case OP_6502_CPX_ZP:
+		case OP_6502_CPX_ABS:
+			decode_cpx_cpy(cpu, phase, cpu->reg_x);
+			break;
+		case OP_6502_CPY_IMM:
+		case OP_6502_CPY_ZP:
+		case OP_6502_CPY_ABS:
+			decode_cpx_cpy(cpu, phase, cpu->reg_y);
 			break;
 		case OP_6502_JMP_ABS:
 		case OP_6502_JMP_IND:
