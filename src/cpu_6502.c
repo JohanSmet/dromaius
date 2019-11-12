@@ -1161,6 +1161,20 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_nop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = cpu->reg_pc;
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END : 
+			PRIVATE(cpu)->decode_cycle = -1;
+			break;
+	}
+}
+
+
 static inline void decode_ora(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
@@ -1598,6 +1612,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case OP_6502_JMP_ABS:
 		case OP_6502_JMP_IND:
 			decode_jmp(cpu, phase);
+			break;
+		case OP_6502_NOP:
+			decode_nop(cpu, phase);
 			break;
 		case OP_6502_SEC :
 			decode_sec(cpu, phase);
