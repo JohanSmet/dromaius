@@ -590,6 +590,40 @@ static inline bool store_to_memory_g1(Cpu6502 *cpu, uint8_t value, CPU_6502_CYCL
 	return store_to_memory(cpu, value, (cpu->reg_ir & ADDR_6502_MASK) >> 2, phase);
 }
 
+static inline void stack_push(Cpu6502 *cpu, uint8_t value, CPU_6502_CYCLE phase) {
+	switch (phase) {
+		case CYCLE_BEGIN:
+			PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+			PRIVATE(cpu)->internal_rw = RW_WRITE;
+			break;
+		case CYCLE_MIDDLE:
+			*cpu->bus_data = value;
+			break;
+		case CYCLE_END:
+			cpu->reg_sp -= 1;
+			PRIVATE(cpu)->internal_rw = RW_READ;
+			break;
+	}
+}
+
+static inline uint8_t stack_pop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	uint8_t result = 0;
+
+	switch (phase) {
+		case CYCLE_BEGIN:
+			cpu->reg_sp += 1;
+			PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+			break;
+		case CYCLE_MIDDLE:
+			break;
+		case CYCLE_END:
+			result = *cpu->bus_data;
+			break;
+	}
+
+	return result;
+}
+
 static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t value, CPU_6502_CYCLE phase) {
 // the branching instructions follow the 6502's philosophy of doing the least amount of work possible
 // -> 2 cycles are always needed to fetch the opcode (before this function) and to fetch the offset (relative addressing)
@@ -1042,6 +1076,33 @@ static inline void decode_jmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_jsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch address low byte (adl)
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			break;
+		case 2 :		// store adl in cpu, put stack pointer on address bus
+			if (phase == CYCLE_BEGIN) {
+				PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+			}
+			break;
+		case 3 :		// push program_counter - high byte
+			stack_push(cpu, HIBYTE(cpu->reg_pc), phase);
+			break;
+		case 4 :		// push program_counter - low byte
+			stack_push(cpu, LOBYTE(cpu->reg_pc), phase);
+			break;
+		case 5 :		// fetch address high byte (adh)
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.hi_byte, phase);
+			if (phase == CYCLE_END) {
+				cpu->reg_pc = PRIVATE(cpu)->addr.full;
+				PRIVATE(cpu)->decode_cycle = -1;
+			}
+			break;
+	}
+}
+
 static inline void decode_lda(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
@@ -1323,6 +1384,32 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
+			}
+			break;
+	}
+}
+
+static inline void decode_rts(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch discard data & decode rts
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			break;
+		case 2 :		// "increment stack pointer
+			if (phase == CYCLE_BEGIN) {
+				PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+			}
+			break;
+		case 3 :		// pop program_counter - low byte
+			cpu->reg_pc = SET_LOBYTE(cpu->reg_pc, stack_pop(cpu, phase));
+			break;
+		case 4 :		// pop program_counter - low byte
+			cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, stack_pop(cpu, phase));
+			break;
+		case 5 :		// increment program counter
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->operand, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->decode_cycle = -1;
 			}
 			break;
 	}
@@ -1613,8 +1700,14 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case OP_6502_JMP_IND:
 			decode_jmp(cpu, phase);
 			break;
+		case OP_6502_JSR:
+			decode_jsr(cpu, phase);
+			break;
 		case OP_6502_NOP:
 			decode_nop(cpu, phase);
+			break;
+		case OP_6502_RTS:
+			decode_rts(cpu, phase);
 			break;
 		case OP_6502_SEC :
 			decode_sec(cpu, phase);

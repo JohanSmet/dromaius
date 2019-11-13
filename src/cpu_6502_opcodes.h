@@ -132,6 +132,8 @@ typedef enum OPCODES_6502_ {
 	OP_6502_JMP_ABS		= 0x4c,
 	OP_6502_JMP_IND		= 0x6c,
 
+	OP_6502_JSR			= 0x20,
+
 	OP_6502_LDA_IMM		= 0xa9,
 	OP_6502_LDA_ZP		= 0xa5,
 	OP_6502_LDA_ZPX		= 0xb5,
@@ -181,6 +183,8 @@ typedef enum OPCODES_6502_ {
 	OP_6502_ROR_ZPX		= 0x76,
 	OP_6502_ROR_ABS		= 0x6e,
 	OP_6502_ROR_ABSX	= 0x7e,
+
+	OP_6502_RTS			= 0x60,
 
 	OP_6502_SEC			= 0x38,		// set cary flag
 	OP_6502_SED			= 0xf8,		// set decimal mode

@@ -3706,7 +3706,59 @@ MunitResult test_jmp(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(computer->bus_address, ==, 0x0951);
 
 	return MUNIT_OK;
+}
 
+MunitResult test_jsr(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// JSR
+	//
+
+	// init registers
+	computer->cpu->reg_sp = 0xff;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_JSR;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_JSR);
+
+	// >> cycle 02: fetch jump-address, low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x51;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: store address in cpu for later use
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: push program counter - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, 0x08);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfe);
+
+	// >> cycle 05: push program counter - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01fe);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, 0x03);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfd);
+
+	// >> cycle 06: fetch jump-address, high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	munit_assert_true(computer->pin_rw);
+	computer->bus_data = 0x09;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0951);
+
+	return MUNIT_OK;
 }
 
 MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) {
@@ -5982,6 +6034,55 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_rts(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// RTS
+	//
+
+	// init registers
+	computer->cpu->reg_sp = 0xfd;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_RTS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_RTS);
+
+	// >> cycle 02: fetch discard - decode rts
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x51;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: increment stack pointer
+	munit_assert_uint16(computer->bus_address, ==, 0x01fd);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_sp, ==, 0xfe);
+
+	// >> cycle 04: pop program counter - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01fe);
+	computer->bus_data = 0x51;
+	computer_clock_cycle(computer);
+
+	// >> cycle 05: pop program counter - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	computer->bus_data = 0x09;
+	computer_clock_cycle(computer);
+
+	// >> cycle 06: increment pc
+	munit_assert_uint16(computer->bus_address, ==, 0x0951);
+	computer->bus_data = 0x12;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0952);
+
+	return MUNIT_OK;
+}
+
 MunitResult test_sec(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Computer *computer = (Computer *) user_data_or_fixture;
@@ -6863,6 +6964,7 @@ MunitTest cpu_6502_tests[] = {
 	{ "/inx", test_inx, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/iny", test_iny, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/jmp", test_jmp, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/jsr", test_jsr, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/lda", test_lda, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ldx", test_ldx, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ldy", test_ldy, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -6871,6 +6973,7 @@ MunitTest cpu_6502_tests[] = {
 	{ "/ora", test_ora, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/rol", test_rol, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ror", test_ror, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/rts", test_rts, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sec", test_sec, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sed", test_sed, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sei", test_sei, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
