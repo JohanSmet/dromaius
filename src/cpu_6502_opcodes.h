@@ -76,6 +76,7 @@ typedef enum OPCODES_6502_ {
 	OP_6502_BIT_ZP		= 0x24,		
 	OP_6502_BIT_ABS		= 0x2c,
 	OP_6502_BEQ			= 0xf0,		// branch on result zero (Z = 1)
+	OP_6502_BRK			= 0x00,
 	OP_6502_BMI			= 0x30,		// branch on result minus (N = 1)
 	OP_6502_BNE			= 0xd0,		// branch on result not zero (Z = 0)
 	OP_6502_BPL			= 0x10,		// branch on result plus (N = 0)

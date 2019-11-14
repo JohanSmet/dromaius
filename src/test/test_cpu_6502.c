@@ -115,6 +115,7 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 	for (int i = 0; i < 5; ++i) {
 		computer.pin_clock = false;
 		cpu_6502_process(computer.cpu);
+		munit_assert_true(computer.pin_rw);
 
 		computer.pin_clock = true;
 		cpu_6502_process(computer.cpu);
@@ -1518,6 +1519,70 @@ MunitResult test_bpl(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// >> next instruction
 	munit_assert_uint16(computer->bus_address, ==, 0x07b3);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_brk(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// BRK: force interrupt
+	//
+
+	// initialize registers
+	computer->cpu->reg_p = 0;
+	computer->cpu->reg_sp = 0xff;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BRK;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BRK);
+
+	// >> cycle 02: force BRK instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_BRK;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BRK);
+
+	// >> cycle 03: push program counter - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, 0x08);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfe);
+
+	// >> cycle 04: push program counter - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01fe);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, 0x02);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfd);
+
+	// >> cycle 05: push processor satus
+	munit_assert_uint16(computer->bus_address, ==, 0x01fd);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, computer->cpu->reg_p);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfc);
+
+	// >> cycle 06: fetch vector low
+	munit_assert_uint16(computer->bus_address, ==, 0xfffe);
+	munit_assert_true(computer->pin_rw);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 07: fetch vector high
+	munit_assert_uint16(computer->bus_address, ==, 0xffff);
+	munit_assert_true(computer->pin_rw);
+	computer->bus_data = 0x00;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0050);
 
 	return MUNIT_OK;
 }
@@ -7103,6 +7168,7 @@ MunitTest cpu_6502_tests[] = {
 	{ "/bmi", test_bmi, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/bne", test_bne, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/bpl", test_bpl, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/brk", test_brk, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/bvc", test_bvc, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/bvs", test_bvs, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/clc", test_clc, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },

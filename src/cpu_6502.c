@@ -77,10 +77,17 @@ typedef enum CPU_6502_CYCLE {
 	CYCLE_END = 2			// (3) in timing diagram
 } CPU_6502_CYCLE;
 
-typedef enum CPU_6503_STATE {
+typedef enum CPU_6502_STATE {
 	CS_INIT = 0,
 	CS_RUNNING = 1
 } CPU_6502_STATE;
+
+typedef enum CPU_6502_INTERRUPT_TYPE {
+	INTR_RESET = 0,
+	INTR_BRK = 1,
+	INTR_IRQ = 2,
+	INTR_NMI = 3
+} CPU_6502_INTERRUPT_TYPE;
 
 typedef union addr_t {
 	uint16_t full;
@@ -121,66 +128,107 @@ static void process_end(Cpu6502 *cpu) {
 	PRIVATE(cpu)->prev_clock = *cpu->pin_clock;
 }
 
-static void execute_init(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
-/* init sequence after reset: should be the same sequence as BRK/IRQ/NMI but always read */
+static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTERRUPT_TYPE irq_type) {
+
+	static const bool FORCE_READ[] = {
+		true,		// reset
+		false,		// BRK-instruction
+		false,		// regular IRQ
+		false		// non-maskable IRQ
+	};
+
+	static const uint16_t VECTOR_LOW[] = {
+		0xfffc,		// reset
+		0xfffe,		// BRK-instruction
+		0xfffe,		// regular IRQ
+		0xfffa		// non-maskable IRQ
+	};
+
+	static const uint16_t VECTOR_HIGH[] = {
+		0xfffd,		// reset
+		0xffff,		// BRK-instruction
+		0xffff,		// regular IRQ
+		0xfffb		// non-maskable IRQ
+	};
 
 	switch(PRIVATE(cpu)->decode_cycle) {
-		case 0 :		// initialize stack pointer to zero
+		case 0 :		// finish previous operation
 			if (phase == CYCLE_BEGIN) {
-				cpu->reg_sp = 0;
-				PRIVATE(cpu)->internal_ab = 0x00ff;
+				PRIVATE(cpu)->internal_ab = cpu->reg_pc;
 			}
 			break;
-		
-		case 1 :		// pull IR to zero
+		case 1 :		// force a BRK instruction
 			if (phase == CYCLE_BEGIN) {
-				cpu->reg_ir = 0;
+				cpu->reg_ir = OP_6502_BRK;
 			}
 			break;
-
-		case 2 :		// "push" high byte of PC
-			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->internal_ab = 0x100 + cpu->reg_ir;
-				--cpu->reg_ir;
+		case 2 :		// push high byte of PC
+			switch (phase) {
+				case CYCLE_BEGIN:
+					PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+					PRIVATE(cpu)->internal_rw = RW_WRITE | FORCE_READ[irq_type];
+					break;
+				case CYCLE_MIDDLE:
+					*cpu->bus_data = HIBYTE(cpu->reg_pc);
+					break;
+				case CYCLE_END:
+					cpu->reg_sp -= 1;
+					PRIVATE(cpu)->internal_rw = RW_READ;
+					break;
 			}
 			break;
-
-		case 3 :		// "push" low byte of PC
-			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->internal_ab = 0x100 + cpu->reg_ir;
-				--cpu->reg_ir;
+		case 3 :		// push low byte of PC
+			switch (phase) {
+				case CYCLE_BEGIN:
+					PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+					PRIVATE(cpu)->internal_rw = RW_WRITE | FORCE_READ[irq_type];
+					break;
+				case CYCLE_MIDDLE:
+					*cpu->bus_data = LOBYTE(cpu->reg_pc);
+					break;
+				case CYCLE_END:
+					cpu->reg_sp -= 1;
+					PRIVATE(cpu)->internal_rw = RW_READ;
+					break;
 			}
 			break;
-
-		case 4 :		// "push" status register
-			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->internal_ab = 0x100 + cpu->reg_ir;
-				--cpu->reg_ir;
+		case 4 :		// push processor state
+			switch (phase) {
+				case CYCLE_BEGIN:
+					PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+					PRIVATE(cpu)->internal_rw = RW_WRITE | FORCE_READ[irq_type];
+					break;
+				case CYCLE_MIDDLE:
+					*cpu->bus_data = cpu->reg_p;
+					break;
+				case CYCLE_END:
+					cpu->reg_sp -= 1;
+					PRIVATE(cpu)->internal_rw = RW_READ;
+					break;
 			}
 			break;
-
 		case 5 :		// read low byte of the reset vector
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->internal_ab = 0xfffc;
+				PRIVATE(cpu)->internal_ab = VECTOR_LOW[irq_type];
 			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_LOBYTE(cpu->reg_pc, *cpu->bus_data);
 			}
 			break;
-
 		case 6 :		// read high byte of the reset vector
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->internal_ab = 0xfffd;
+				PRIVATE(cpu)->internal_ab = VECTOR_HIGH[irq_type];
 			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, *cpu->bus_data);
+				cpu->p_interrupt_disable = true;
 				PRIVATE(cpu)->state = CS_RUNNING;
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
 			break;
-
-		default:
-			assert(0 && "invalid decode_cycle");
-			break;
 	}
+}
+
+static void execute_init(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	interrupt_sequence(cpu, phase, INTR_RESET);
 }
 
 static inline void fetch_memory(Cpu6502 *cpu, uint16_t addr, uint8_t *dst, CPU_6502_CYCLE phase) {
@@ -792,6 +840,14 @@ static inline void decode_bne(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_bpl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	decode_branch_instruction(cpu, 7, false, phase);
+}
+
+static inline void decode_brk(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	if (PRIVATE(cpu)->decode_cycle == 1 && phase == CYCLE_BEGIN) {
+		cpu->p_break_command = true;
+	}
+
+	interrupt_sequence(cpu, phase, INTR_BRK);
 }
 
 static inline void decode_bvc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
@@ -1721,6 +1777,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case OP_6502_BPL :
 			decode_bpl(cpu, phase);
+			break;
+		case OP_6502_BRK :
+			decode_brk(cpu, phase);
 			break;
 		case OP_6502_BVC :
 			decode_bvc(cpu, phase);
