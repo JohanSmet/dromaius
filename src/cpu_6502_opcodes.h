@@ -190,6 +190,7 @@ typedef enum OPCODES_6502_ {
 	OP_6502_ROR_ABS		= 0x6e,
 	OP_6502_ROR_ABSX	= 0x7e,
 
+	OP_6502_RTI			= 0x40,
 	OP_6502_RTS			= 0x60,
 
 	OP_6502_SEC			= 0x38,		// set cary flag

@@ -6304,6 +6304,56 @@ MunitResult test_rts(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_rti(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// RTI
+	//
+
+	// init registers
+	computer->cpu->reg_sp = 0xfc;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_RTI;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_RTI);
+
+	// >> cycle 02: fetch discard - decode rts
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x51;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: increment stack pointer
+	munit_assert_uint16(computer->bus_address, ==, 0x01fc);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_sp, ==, 0xfd);
+
+	// >> cycle 05: pop processor status
+	munit_assert_uint16(computer->bus_address, ==, 0x01fd);
+	computer->bus_data = 0x00;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_p, ==, 0x00);
+
+	// >> cycle 05: pop program counter - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01fe);
+	computer->bus_data = 0x51;
+	computer_clock_cycle(computer);
+
+	// >> cycle 06: pop program counter - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	computer->bus_data = 0x09;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0951);
+
+	return MUNIT_OK;
+}
+
 MunitResult test_sec(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Computer *computer = (Computer *) user_data_or_fixture;
@@ -7200,6 +7250,7 @@ MunitTest cpu_6502_tests[] = {
 	{ "/rol", test_rol, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ror", test_ror, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/rts", test_rts, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/rti", test_rti, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sec", test_sec, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sed", test_sed, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/sei", test_sei, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },

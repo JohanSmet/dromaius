@@ -1537,6 +1537,35 @@ static inline void decode_rts(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_rti(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// decode RTI
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			break;
+		case 2 :		// "increment" stack pointer
+			if (phase == CYCLE_BEGIN) {
+				PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+			}
+			break;
+		case 3 :		// pop status register
+			cpu->reg_p = stack_pop(cpu, phase);
+			if (phase == CYCLE_END) {
+				cpu->p_break_command = false;
+			}
+			break;
+		case 4 :		// pop program_counter - low byte
+			cpu->reg_pc = SET_LOBYTE(cpu->reg_pc, stack_pop(cpu, phase));
+			break;
+		case 5 :		// pop program_counter - low byte
+			cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, stack_pop(cpu, phase));
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->decode_cycle = -1;
+			}
+			break;
+	}
+}
+
 static inline void decode_sec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
@@ -1842,6 +1871,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case OP_6502_PLP:
 			decode_plp(cpu, phase);
+			break;
+		case OP_6502_RTI:
+			decode_rti(cpu, phase);
 			break;
 		case OP_6502_RTS:
 			decode_rts(cpu, phase);
