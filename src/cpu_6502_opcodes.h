@@ -172,6 +172,11 @@ typedef enum OPCODES_6502_ {
 	OP_6502_ORA_INDX	= 0x01,
 	OP_6502_ORA_INDY	= 0x11,
 
+	OP_6502_PHA			= 0x48,		// push accumulator on stack
+	OP_6502_PHP			= 0x08,		// push processor status on stack
+	OP_6502_PLA			= 0x68,		// pull accumulator from stack
+	OP_6502_PLP			= 0x28,		// pull processor status from stack
+
 	OP_6502_ROL_ACC		= 0x2a,
 	OP_6502_ROL_ZP		= 0x26,
 	OP_6502_ROL_ZPX		= 0x36,

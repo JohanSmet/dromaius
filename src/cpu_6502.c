@@ -1235,6 +1235,72 @@ static inline void decode_nop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_pha(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch discard data & decode pha
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			break;
+		case 2 : 
+			stack_push(cpu, cpu->reg_a, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->decode_cycle = -1;
+			}
+			break;
+	}
+}
+
+static inline void decode_php(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch discard data & decode php
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			break;
+		case 2 : 
+			stack_push(cpu, cpu->reg_p, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->decode_cycle = -1;
+			}
+			break;
+	}
+}
+
+static inline void decode_pla(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch discard data & decode pla
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			break;
+		case 2 :		// read stack, 
+			if (phase == CYCLE_BEGIN) {
+				PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+			}
+			break;
+		case 3 :		// pop value from stack
+			cpu->reg_a = stack_pop(cpu, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->decode_cycle = -1;
+			}
+			break;
+	}
+}
+
+static inline void decode_plp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+	switch (PRIVATE(cpu)->decode_cycle) {
+		case 1 :		// fetch discard data & decode plp
+			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			break;
+		case 2 :		// read stack, 
+			if (phase == CYCLE_BEGIN) {
+				PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
+			}
+			break;
+		case 3 :		// pop value from stack
+			cpu->reg_p = stack_pop(cpu, phase);
+			if (phase == CYCLE_END) {
+				PRIVATE(cpu)->decode_cycle = -1;
+			}
+			break;
+	}
+}
+
 
 static inline void decode_ora(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
@@ -1705,6 +1771,18 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case OP_6502_NOP:
 			decode_nop(cpu, phase);
+			break;
+		case OP_6502_PHA:
+			decode_pha(cpu, phase);
+			break;
+		case OP_6502_PHP:
+			decode_php(cpu, phase);
+			break;
+		case OP_6502_PLA:
+			decode_pla(cpu, phase);
+			break;
+		case OP_6502_PLP:
+			decode_plp(cpu, phase);
 			break;
 		case OP_6502_RTS:
 			decode_rts(cpu, phase);

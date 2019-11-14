@@ -5414,6 +5414,162 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+MunitResult test_pha(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// PHA
+	//
+
+	// init registers
+	computer->cpu->reg_a  = 0x13;
+	computer->cpu->reg_p  = 0b10010101;
+	computer->cpu->reg_sp = 0xff;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_PHA;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_PHA);
+
+	// >> cycle 02: fetch discard - decode pha
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x51;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: write a on the stack
+	munit_assert_false(computer->pin_rw);
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0x13);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_php(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// PHP
+	//
+
+	// init registers
+	computer->cpu->reg_a  = 0x13;
+	computer->cpu->reg_p  = 0b10010101;
+	computer->cpu->reg_sp = 0xff;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_PHP;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_PHP);
+
+	// >> cycle 02: fetch discard - decode php
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x51;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: write a on the stack
+	munit_assert_false(computer->pin_rw);
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->bus_data, ==, 0b10010101);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_pla(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// PLA
+	//
+
+	// init registers
+	computer->cpu->reg_sp = 0xfe;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_PLA;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_PLA);
+
+	// >> cycle 02: fetch discard - decode pla
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x51;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: read stack - increment stack pointer
+	munit_assert_uint16(computer->bus_address, ==, 0x01fe);
+	computer->bus_data = 0x23;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_sp, ==, 0xff);
+
+	// >> cycle 04: fetch reg-a
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	computer->bus_data = 0x19;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_a, ==, 0x19);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_plp(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	/////////////////////////////////////////////////////////////////////////////
+	//
+	// PLP
+	//
+
+	// init registers
+	computer->cpu->reg_sp = 0xfe;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_PLP;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_PLP);
+
+	// >> cycle 02: fetch discard - decode plp
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x51;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: read stack - increment stack pointer
+	munit_assert_uint16(computer->bus_address, ==, 0x01fe);
+	computer->bus_data = 0x23;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_sp, ==, 0xff);
+
+	// >> cycle 04: fetch reg-a
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	computer->bus_data = 0x79;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_p, ==, 0x79);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+
+	return MUNIT_OK;
+}
+
 MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Computer *computer = (Computer *) user_data_or_fixture;
@@ -6971,6 +7127,10 @@ MunitTest cpu_6502_tests[] = {
 	{ "/lsr", test_lsr, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/nop", test_nop, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ora", test_ora, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/pha", test_pha, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/php", test_php, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/pla", test_pla, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/plp", test_plp, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/rol", test_rol, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/ror", test_ror, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/rts", test_rts, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
