@@ -15,6 +15,8 @@ typedef struct Cpu6502 {
 	const bool *pin_clock;			// 1-bit clock-line (PHI2) - read-only
 	const bool *pin_reset;			// 1-bit reset-line (read-only)
 	bool *		pin_rw;				// 1-bit read-write line (true == reading, false == writing)
+	const bool *pin_irq;			// 1-bit interrupt request line
+	const bool *pin_nmi;			// 1-bit non-maskable interrupt line
 
 	// registers
 	uint8_t		reg_a;				// accumulator
@@ -44,7 +46,9 @@ Cpu6502 *cpu_6502_create(
 		uint8_t *data_bus,			// 8-bit data bus
 		const bool *clock,			// 1-bit clock-line (PHI2) - read-only
 		const bool *reset,			// 1-bit reset-line (read-only)
-		bool *rw					// 1-bit read-write line
+		bool *rw,					// 1-bit read-write line
+		const bool *irq,			// 1-bit interrupt request line
+		const bool *nmi				// 1-bit non-maskable interrupt line
 );
 
 void cpu_6502_process(Cpu6502 *cpu);

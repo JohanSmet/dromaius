@@ -11,6 +11,8 @@ typedef struct Computer {
 	bool		pin_clock;
 	bool		pin_reset;
 	bool		pin_rw;
+	bool		pin_irq;
+	bool		pin_nmi;
 
 	Cpu6502 *	cpu;
 } Computer;
@@ -73,13 +75,17 @@ static void *cpu_6502_setup(const MunitParameter params[], void *user_data) {
 	computer->pin_clock = true;
 	computer->pin_reset = true;
 	computer->pin_rw = false;
+	computer->pin_irq = true;
+	computer->pin_nmi = true;
 
 	computer->cpu = cpu_6502_create(
 						&computer->bus_address, 
 						&computer->bus_data,
 						&computer->pin_clock,
 						&computer->pin_reset,
-						&computer->pin_rw);
+						&computer->pin_rw, 
+						&computer->pin_irq, 
+						&computer->pin_nmi);
 
 	// initialize the machine
 	computer_reset(computer);
@@ -96,14 +102,18 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 	
 	Computer computer = {
 		.pin_reset = true,
-		.pin_clock = true
+		.pin_clock = true,
+		.pin_irq = true,
+		.pin_nmi = true
 	};
 	computer.cpu = cpu_6502_create(
 						&computer.bus_address, 
 						&computer.bus_data,
 						&computer.pin_clock,
 						&computer.pin_reset,
-						&computer.pin_rw);
+						&computer.pin_rw,
+						&computer.pin_irq,
+						&computer.pin_nmi);
 
 	munit_assert_not_null(computer.cpu);
 
@@ -148,6 +158,165 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 
 	munit_assert_uint16(computer.cpu->reg_pc, ==, 0x0801);
 	munit_assert_uint16(computer.bus_address, ==, 0x0801);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_irq(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	// initialize registers
+	computer->cpu->reg_sp = 0xff;
+
+	// execute a random opcode
+	// -- fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_LDA_IMM;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_LDA_IMM);
+
+	// assert the irq-line while the cpu decodes the opcode
+	computer->pin_irq = false;
+
+	// -- fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x01;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_a, ==, 0x01);
+
+	// cpu should now execute the interrupt sequence
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = OP_6502_BRK;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BRK);
+
+	// >> cycle 02: force BRK instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = OP_6502_BRK;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BRK);
+
+	// >> cycle 03: push program counter - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, 0x08);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfe);
+
+	// >> cycle 04: push program counter - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01fe);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, 0x03);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfd);
+
+	// >> cycle 05: push processor satus
+	munit_assert_uint16(computer->bus_address, ==, 0x01fd);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, computer->cpu->reg_p);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfc);
+
+	// >> cycle 06: fetch vector low
+	munit_assert_uint16(computer->bus_address, ==, 0xfffe);
+	munit_assert_true(computer->pin_rw);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 07: fetch vector high
+	munit_assert_uint16(computer->bus_address, ==, 0xffff);
+	munit_assert_true(computer->pin_rw);
+	computer->bus_data = 0x00;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0050);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_nmi(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	// initialize registers
+	computer->cpu->reg_sp = 0xff;
+
+	// execute a random opcode
+	// -- fetch opcode (+ pulse the nmi line)
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_LDA_IMM;
+
+	computer->pin_nmi = false;
+
+	computer->pin_clock = true;
+	cpu_6502_process(computer->cpu);
+
+	computer->pin_nmi = true;
+
+	computer->pin_clock = false;
+	cpu_6502_process(computer->cpu);
+
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_LDA_IMM);
+
+	// -- fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x01;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_a, ==, 0x01);
+
+	// cpu should now execute the interrupt sequence
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = OP_6502_BRK;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BRK);
+
+	// >> cycle 02: force BRK instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = OP_6502_BRK;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_BRK);
+
+	// >> cycle 03: push program counter - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01ff);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, 0x08);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfe);
+
+	// >> cycle 04: push program counter - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x01fe);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, 0x03);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfd);
+
+	// >> cycle 05: push processor satus
+	munit_assert_uint16(computer->bus_address, ==, 0x01fd);
+	munit_assert_false(computer->pin_rw);
+	computer_clock_cycle(computer);
+	munit_assert_int8(computer->bus_data, ==, computer->cpu->reg_p);
+	munit_assert_int8(computer->cpu->reg_sp, ==, 0xfc);
+
+	// >> cycle 06: fetch vector low
+	munit_assert_uint16(computer->bus_address, ==, 0xfffa);
+	munit_assert_true(computer->pin_rw);
+	computer->bus_data = 0x50;
+	computer_clock_cycle(computer);
+
+	// >> cycle 07: fetch vector high
+	munit_assert_uint16(computer->bus_address, ==, 0xfffb);
+	munit_assert_true(computer->pin_rw);
+	computer->bus_data = 0x00;
+	computer_clock_cycle(computer);
+
+	// >> next instruction
+	munit_assert_uint16(computer->bus_address, ==, 0x0050);
 
 	return MUNIT_OK;
 }
@@ -7209,6 +7378,8 @@ MunitResult test_tya(const MunitParameter params[], void *user_data_or_fixture) 
 
 MunitTest cpu_6502_tests[] = {
 	{ "/reset", test_reset, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/irq", test_irq, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/nmi", test_nmi, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/and", test_and, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/asl", test_asl, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/bcc", test_bcc, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },

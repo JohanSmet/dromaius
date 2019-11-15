@@ -79,7 +79,9 @@ typedef enum CPU_6502_CYCLE {
 
 typedef enum CPU_6502_STATE {
 	CS_INIT = 0,
-	CS_RUNNING = 1
+	CS_RUNNING = 1,
+	CS_IN_IRQ = 2,
+	CS_IN_NMI = 3
 } CPU_6502_STATE;
 
 typedef enum CPU_6502_INTERRUPT_TYPE {
@@ -101,6 +103,7 @@ typedef struct Cpu6502_private {
 	Cpu6502			intf;
 	bool			prev_reset;
 	bool			prev_clock;
+	bool			prev_nmi;
 	uint16_t		internal_ab;			// internal address bus
 	bool			internal_rw;			// internal rw latch
 	CPU_6502_STATE	state;
@@ -109,6 +112,7 @@ typedef struct Cpu6502_private {
 	addr_t			addr;
 	addr_t			i_addr;
 	bool			page_crossed;
+	bool			nmi_triggered;
 } Cpu6502_private;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -150,6 +154,13 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 		0xffff,		// regular IRQ
 		0xfffb		// non-maskable IRQ
 	};
+
+/*	static const uint16_t PC_INC[] = {
+		1,			// reset
+		1,			// BRK-instruction
+		0,			// regular IRQ
+		0			// non-maskable IRQ
+	}; */
 
 	switch(PRIVATE(cpu)->decode_cycle) {
 		case 0 :		// finish previous operation
@@ -219,7 +230,7 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 				PRIVATE(cpu)->internal_ab = VECTOR_HIGH[irq_type];
 			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, *cpu->bus_data);
-				cpu->p_interrupt_disable = true;
+				cpu->p_interrupt_disable = irq_type != INTR_RESET;
 				PRIVATE(cpu)->state = CS_RUNNING;
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
@@ -1925,6 +1936,28 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		execute_init(cpu, phase);
 		return;
 	}
+
+	// check for interrupts between instructions
+	if (PRIVATE(cpu)->decode_cycle == 0 && phase == CYCLE_BEGIN) {
+		if (PRIVATE(cpu)->nmi_triggered) {
+			PRIVATE(cpu)->state = CS_IN_NMI;
+			PRIVATE(cpu)->nmi_triggered = false;
+		}
+		if (*cpu->pin_irq == false && !cpu->p_interrupt_disable) {
+			PRIVATE(cpu)->state = CS_IN_IRQ;
+		}
+	}
+
+	// irq starting sequence is handled seperately
+	if (PRIVATE(cpu)->state == CS_IN_IRQ) {
+		interrupt_sequence(cpu, phase, INTR_IRQ);
+		return;
+	}
+
+	if (PRIVATE(cpu)->state == CS_IN_NMI) {
+		interrupt_sequence(cpu, phase, INTR_NMI);
+		return;
+	}
 	
 	// first cycle is always filling the instruction register with the new opcode
 	if (PRIVATE(cpu)->decode_cycle == 0) {
@@ -1940,12 +1973,14 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 // interface functions
 //
 
-Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *clock, const bool *reset, bool *rw) {
+Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *clock, const bool *reset, bool *rw, const bool *irq, const bool *nmi) {
 	assert(addres_bus);
 	assert(data_bus);
 	assert(clock);
 	assert(reset);
 	assert(rw);
+	assert(irq);
+	assert(nmi);
 
 	Cpu6502_private *cpu = (Cpu6502_private *) malloc(sizeof(Cpu6502_private));
 	memset(cpu, 0, sizeof(Cpu6502_private));
@@ -1955,8 +1990,12 @@ Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *cl
 	cpu->intf.pin_clock = clock;
 	cpu->intf.pin_reset = reset;
 	cpu->intf.pin_rw = rw;
+	cpu->intf.pin_irq = irq;
+	cpu->intf.pin_nmi = nmi;
 	cpu->decode_cycle = -1;
 	cpu->state = CS_INIT;
+	cpu->nmi_triggered = false;
+	cpu->prev_nmi = true;
 	
 	return &cpu->intf;
 }
@@ -1985,6 +2024,13 @@ void cpu_6502_process(Cpu6502 *cpu) {
 		return;
 	}
 
+	// always check for an nmi request
+	if (*cpu->pin_nmi != priv->prev_nmi) {
+		priv->nmi_triggered = priv->nmi_triggered || !*cpu->pin_nmi;
+		priv->prev_nmi = *cpu->pin_nmi;
+	}
+
+	// normal processing
 	if (*cpu->pin_clock == false) {
 		// a negative going clock ends the previous cycle and starts a new cycle
 		if (priv->decode_cycle >= 0) {
