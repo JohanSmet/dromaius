@@ -683,6 +683,15 @@ static inline uint8_t stack_pop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	return result;
 }
 
+static inline void fix_bcd_accumulator(Cpu6502 *cpu) {
+
+	bool carry = (cpu->reg_a & 0x0f) > 9;
+	cpu->reg_a = cpu->reg_a - (10 * carry) + (carry << 4);
+
+	cpu->p_carry = (cpu->reg_a & 0xf0) > (9 << 4);
+	cpu->reg_a = cpu->reg_a - ((10 << 4) * cpu->p_carry);
+}
+
 static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t value, CPU_6502_CYCLE phase) {
 // the branching instructions follow the 6502's philosophy of doing the least amount of work possible
 // -> 2 cycles are always needed to fetch the opcode (before this function) and to fetch the offset (relative addressing)
@@ -728,6 +737,23 @@ static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t 
 					break;
 			}
 			break;
+	}
+}
+
+static inline void decode_adc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	if (fetch_operand_g1(cpu, phase)) {
+		int16_t s_result = (int8_t) cpu->reg_a + (int8_t) PRIVATE(cpu)->operand + cpu->p_carry;
+		uint16_t u_result = cpu->reg_a + PRIVATE(cpu)->operand + cpu->p_carry;
+		cpu->reg_a = u_result & 0x00ff;
+		cpu->p_carry = IS_BIT_SET(u_result, 8);
+		cpu->p_overflow = (s_result < -128) || (s_result > 127);
+		cpu->p_zero_result = cpu->reg_a == 0;
+		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		if (cpu->p_decimal_mode) {
+			fix_bcd_accumulator(cpu);
+		}
+		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
 
@@ -1741,6 +1767,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	/* some instruction are grouped by addressing mode and can easily be tested at once */
 	switch (cpu->reg_ir & AC_6502_MASK) {
+		case AC_6502_ADC :
+			decode_adc(cpu, phase);
+			return;
 		case AC_6502_AND :
 			decode_and(cpu, phase);
 			return;

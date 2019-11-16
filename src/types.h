@@ -23,6 +23,8 @@
 
 #define IS_BIT_SET(x,b) (((x) & (1 << (b))) >> (b))
 
-#define MAKE_WORD(h,l) (((h) << 8) | (l))
+#define MAKE_WORD(h,l)	(((h) << 8) | (l))
+
+#define BCD_BYTE(h,l)	((((h) & 0xf) << 4) | ((l) & 0xf))
 
 #endif // DROMAIUS_TYPES_H

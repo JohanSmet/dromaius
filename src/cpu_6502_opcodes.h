@@ -13,6 +13,7 @@
 
 //                      aaabbbcc
 #define AC_6502_MASK  0b11100011
+#define AC_6502_ADC	  0b01100001
 #define AC_6502_AND	  0b00100001
 #define AC_6502_ASL	  0b00000010
 #define AC_6502_CMP	  0b11000001
@@ -55,6 +56,15 @@ typedef enum ADDRESSING_MODE_6502_ {
 
 // opcodes
 typedef enum OPCODES_6502_ {
+
+	OP_6502_ADC_IMM		= 0x69,
+	OP_6502_ADC_ZP		= 0x65,
+	OP_6502_ADC_ZPX		= 0x75,
+	OP_6502_ADC_ABS		= 0x6d,
+	OP_6502_ADC_ABSX	= 0x7d,
+	OP_6502_ADC_ABSY	= 0x79,
+	OP_6502_ADC_INDX	= 0x61,
+	OP_6502_ADC_INDY	= 0x71,
 
 	OP_6502_AND_IMM		= 0x29,
 	OP_6502_AND_ZP		= 0x25,
