@@ -13,10 +13,10 @@ typedef struct Cpu6502 {
 	uint16_t *	bus_address;		// 16-bit address bus
 	uint8_t	*	bus_data;			// 8-bit data bus
 	const bool *pin_clock;			// 1-bit clock-line (PHI2) - read-only
-	const bool *pin_reset;			// 1-bit reset-line (read-only)
+	const bool *pin_reset_b;		// 1-bit reset-line (read-only)
 	bool *		pin_rw;				// 1-bit read-write line (true == reading, false == writing)
-	const bool *pin_irq;			// 1-bit interrupt request line
-	const bool *pin_nmi;			// 1-bit non-maskable interrupt line
+	const bool *pin_irq_b;			// 1-bit interrupt request line
+	const bool *pin_nmi_b;			// 1-bit non-maskable interrupt line
 
 	// registers
 	uint8_t		reg_a;				// accumulator

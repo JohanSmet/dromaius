@@ -2004,7 +2004,7 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			PRIVATE(cpu)->state = CS_IN_NMI;
 			PRIVATE(cpu)->nmi_triggered = false;
 		}
-		if (*cpu->pin_irq == false && !cpu->p_interrupt_disable) {
+		if (*cpu->pin_irq_b == false && !cpu->p_interrupt_disable) {
 			PRIVATE(cpu)->state = CS_IN_IRQ;
 		}
 	}
@@ -2049,10 +2049,10 @@ Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *cl
 	cpu->intf.bus_address = addres_bus;
 	cpu->intf.bus_data = data_bus;
 	cpu->intf.pin_clock = clock;
-	cpu->intf.pin_reset = reset;
+	cpu->intf.pin_reset_b = reset;
 	cpu->intf.pin_rw = rw;
-	cpu->intf.pin_irq = irq;
-	cpu->intf.pin_nmi = nmi;
+	cpu->intf.pin_irq_b = irq;
+	cpu->intf.pin_nmi_b = nmi;
 	cpu->decode_cycle = -1;
 	cpu->state = CS_INIT;
 	cpu->nmi_triggered = false;
@@ -2066,29 +2066,29 @@ void cpu_6502_process(Cpu6502 *cpu) {
 	Cpu6502_private *priv = (Cpu6502_private *) cpu;
 
 	// check for changes in the reset line
-	if (!priv->prev_reset && *cpu->pin_reset) {
+	if (!priv->prev_reset && *cpu->pin_reset_b) {
 		// reset was just asserted
 		priv->internal_ab = 0;
 
 		priv->internal_rw = RW_READ;
-		priv->prev_reset = *cpu->pin_reset;
-	} else if (priv->prev_reset && !*cpu->pin_reset) {
+		priv->prev_reset = *cpu->pin_reset_b;
+	} else if (priv->prev_reset && !*cpu->pin_reset_b) {
 		// reset was just deasserted - start initialization sequence
-		priv->prev_reset = *cpu->pin_reset;
+		priv->prev_reset = *cpu->pin_reset_b;
 		priv->state = CS_INIT;
 		priv->decode_cycle = -1;
 	}
 
 	// do nothing if reset is asserted or if not on the edge of a clock cycle
-	if (*cpu->pin_reset || *cpu->pin_clock == priv->prev_clock) {
+	if (*cpu->pin_reset_b || *cpu->pin_clock == priv->prev_clock) {
 		process_end(cpu);
 		return;
 	}
 
 	// always check for an nmi request
-	if (*cpu->pin_nmi != priv->prev_nmi) {
-		priv->nmi_triggered = priv->nmi_triggered || !*cpu->pin_nmi;
-		priv->prev_nmi = *cpu->pin_nmi;
+	if (*cpu->pin_nmi_b != priv->prev_nmi) {
+		priv->nmi_triggered = priv->nmi_triggered || !*cpu->pin_nmi_b;
+		priv->prev_nmi = *cpu->pin_nmi_b;
 	}
 
 	// normal processing
