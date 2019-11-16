@@ -683,13 +683,26 @@ static inline uint8_t stack_pop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	return result;
 }
 
-static inline void fix_bcd_accumulator(Cpu6502 *cpu) {
+static inline uint8_t sign_extend(uint8_t data, uint8_t width) {
+    return (uint8_t) ((int8_t) (data << (8 - width)) >> (8 - width));
+}
+
+static inline void fix_bcd_accumulator_add(Cpu6502 *cpu) {
 
 	bool carry = (cpu->reg_a & 0x0f) > 9;
 	cpu->reg_a = cpu->reg_a - (10 * carry) + (carry << 4);
 
 	cpu->p_carry = (cpu->reg_a & 0xf0) > (9 << 4);
 	cpu->reg_a = cpu->reg_a - ((10 << 4) * cpu->p_carry);
+}
+
+static inline void fix_bcd_accumulator_sub(Cpu6502 *cpu) {
+
+	bool carry = (int8_t) sign_extend(cpu->reg_a & 0x0f, 4) < 0;
+	cpu->reg_a = cpu->reg_a + (10 * carry) - (carry << 4);
+
+	cpu->p_carry = (int8_t) sign_extend((cpu->reg_a & 0xf0) >> 4, 4) < 0;
+	cpu->reg_a = cpu->reg_a + ((10 << 4) * cpu->p_carry);
 }
 
 static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t value, CPU_6502_CYCLE phase) {
@@ -751,7 +764,7 @@ static inline void decode_adc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		cpu->p_zero_result = cpu->reg_a == 0;
 		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
 		if (cpu->p_decimal_mode) {
-			fix_bcd_accumulator(cpu);
+			fix_bcd_accumulator_add(cpu);
 		}
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
@@ -1603,6 +1616,22 @@ static inline void decode_rti(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 }
 
+static inline void decode_sbc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+
+	if (fetch_operand_g1(cpu, phase)) {
+		int16_t result = cpu->reg_a + ~PRIVATE(cpu)->operand + cpu->p_carry;
+		cpu->reg_a = result & 0x00ff;
+		cpu->p_carry = result >= 0; 
+		cpu->p_overflow = (result < -128) || (result > 127);
+		cpu->p_zero_result = cpu->reg_a == 0;
+		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		if (cpu->p_decimal_mode) {
+			fix_bcd_accumulator_sub(cpu);
+		}
+		PRIVATE(cpu)->decode_cycle = -1;
+	}
+}
+
 static inline void decode_sec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
@@ -1818,6 +1847,9 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			return;
 		case AC_6502_ROR :
 			decode_ror(cpu, phase);
+			return;
+		case AC_6502_SBC :
+			decode_sbc(cpu, phase);
 			return;
 		case AC_6502_STA :
 			decode_sta(cpu, phase);

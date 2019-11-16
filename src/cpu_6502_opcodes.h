@@ -27,6 +27,7 @@
 #define AC_6502_ORA	  0b00000001
 #define AC_6502_ROL	  0b00100010
 #define AC_6502_ROR	  0b01100010
+#define AC_6502_SBC	  0b11100001
 #define AC_6502_STA	  0b10000001
 
 //                          aaabbbcc
@@ -202,6 +203,15 @@ typedef enum OPCODES_6502_ {
 
 	OP_6502_RTI			= 0x40,
 	OP_6502_RTS			= 0x60,
+
+	OP_6502_SBC_IMM		= 0xe9,
+	OP_6502_SBC_ZP		= 0xe5,
+	OP_6502_SBC_ZPX		= 0xf5,
+	OP_6502_SBC_ABS		= 0xed,
+	OP_6502_SBC_ABSX	= 0xfd,
+	OP_6502_SBC_ABSY	= 0xf9,
+	OP_6502_SBC_INDX	= 0xe1,
+	OP_6502_SBC_INDY	= 0xf1,
 
 	OP_6502_SEC			= 0x38,		// set cary flag
 	OP_6502_SED			= 0xf8,		// set decimal mode
