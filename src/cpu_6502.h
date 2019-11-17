@@ -18,6 +18,7 @@ typedef struct Cpu6502 {
 	const bool *pin_irq_b;			// 1-bit interrupt request line
 	const bool *pin_nmi_b;			// 1-bit non-maskable interrupt line
 	bool *      pin_sync;			// 1-bit output - signals opcode fetch cycle
+	const bool *pin_rdy;			// 1-bit ready signal - cpu only runs when asserted
 
 	// registers
 	uint8_t		reg_a;				// accumulator
@@ -50,7 +51,8 @@ Cpu6502 *cpu_6502_create(
 		bool *rw,					// 1-bit read-write line
 		const bool *irq,			// 1-bit interrupt request line
 		const bool *nmi,			// 1-bit non-maskable interrupt line
-		bool *sync					// 1-bit output - signals opcode fetch cycle
+		bool *sync,					// 1-bit output - signals opcode fetch cycle
+		const bool *rdy				// 1-bit ready signal - cpu only runs when asserted
 );
 
 void cpu_6502_process(Cpu6502 *cpu);

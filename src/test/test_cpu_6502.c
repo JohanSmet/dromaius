@@ -14,6 +14,7 @@ typedef struct Computer {
 	bool		pin_irq;
 	bool		pin_nmi;
 	bool		pin_sync;
+	bool		pin_rdy;
 
 	Cpu6502 *	cpu;
 } Computer;
@@ -78,6 +79,7 @@ static void *cpu_6502_setup(const MunitParameter params[], void *user_data) {
 	computer->pin_rw = false;
 	computer->pin_irq = true;
 	computer->pin_nmi = true;
+	computer->pin_rdy = true;
 
 	computer->cpu = cpu_6502_create(
 						&computer->bus_address, 
@@ -87,7 +89,8 @@ static void *cpu_6502_setup(const MunitParameter params[], void *user_data) {
 						&computer->pin_rw, 
 						&computer->pin_irq, 
 						&computer->pin_nmi,
-						&computer->pin_sync);
+						&computer->pin_sync,
+						&computer->pin_rdy);
 
 	// initialize the machine
 	computer_reset(computer);
@@ -106,7 +109,8 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 		.pin_reset = true,
 		.pin_clock = true,
 		.pin_irq = true,
-		.pin_nmi = true
+		.pin_nmi = true,
+		.pin_rdy = true
 	};
 	computer.cpu = cpu_6502_create(
 						&computer.bus_address, 
@@ -116,7 +120,8 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 						&computer.pin_rw,
 						&computer.pin_irq,
 						&computer.pin_nmi,
-						&computer.pin_sync);
+						&computer.pin_sync,
+						&computer.pin_rdy);
 
 	munit_assert_not_null(computer.cpu);
 
@@ -320,6 +325,58 @@ MunitResult test_nmi(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// >> next instruction
 	munit_assert_uint16(computer->bus_address, ==, 0x0050);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_rdy(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Computer *computer = (Computer *) user_data_or_fixture;
+
+	computer_reset(computer);
+
+	// initialize used registers
+	computer->cpu->reg_a = 254;
+	computer->cpu->p_carry = false;
+	computer->cpu->p_decimal_mode = false;
+
+	// >> cycle 01: fetch opcode
+	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	computer->bus_data = OP_6502_ADC_ABS;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ADC_ABS);
+
+	// deassert RDY - cpu should halt
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+
+	computer->pin_rdy = false;
+	computer_clock_cycle(computer);
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+
+	computer_clock_cycle(computer);
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+
+	// reassert RDY - cpu continues operation
+	computer->pin_rdy = true;
+
+	// >> cycle 02: fetch address - low byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
+	computer->bus_data = 0x16;
+	computer_clock_cycle(computer);
+
+	// >> cycle 03: fetch address - high byte
+	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	computer->bus_data = 0xc0;
+	computer_clock_cycle(computer);
+
+	// >> cycle 04: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0xc016);
+	computer->bus_data = 2;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_a, ==, 0);
+	munit_assert_true(computer->cpu->p_carry);
+	munit_assert_true(computer->cpu->p_zero_result);
+	munit_assert_false(computer->cpu->p_negative_result);
 
 	return MUNIT_OK;
 }
@@ -8381,6 +8438,7 @@ MunitTest cpu_6502_tests[] = {
 	{ "/reset", test_reset, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/irq", test_irq, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/nmi", test_nmi, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/rdy", test_rdy, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/adc", test_adc, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/and", test_and, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/asl", test_asl, cpu_6502_setup, cpu_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },

@@ -2035,7 +2035,16 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 // interface functions
 //
 
-Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *clock, const bool *reset, bool *rw, const bool *irq, const bool *nmi, bool *sync) {
+Cpu6502 *cpu_6502_create(
+		uint16_t *addres_bus,
+		uint8_t *data_bus,
+		const bool *clock,
+		const bool *reset,
+		bool *rw,
+		const bool *irq,
+		const bool *nmi,
+		bool *sync,
+		const bool *rdy) {
 	assert(addres_bus);
 	assert(data_bus);
 	assert(clock);
@@ -2044,6 +2053,7 @@ Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *cl
 	assert(irq);
 	assert(nmi);
 	assert(sync);
+	assert(rdy);
 
 	Cpu6502_private *cpu = (Cpu6502_private *) malloc(sizeof(Cpu6502_private));
 	memset(cpu, 0, sizeof(Cpu6502_private));
@@ -2056,6 +2066,7 @@ Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *cl
 	cpu->intf.pin_irq_b = irq;
 	cpu->intf.pin_nmi_b = nmi;
 	cpu->intf.pin_sync = sync;
+	cpu->intf.pin_rdy = rdy;
 	cpu->decode_cycle = -1;
 	cpu->state = CS_INIT;
 	cpu->nmi_triggered = false;
@@ -2082,8 +2093,11 @@ void cpu_6502_process(Cpu6502 *cpu) {
 		priv->decode_cycle = -1;
 	}
 
-	// do nothing if reset is asserted or if not on the edge of a clock cycle
-	if (*cpu->pin_reset_b || *cpu->pin_clock == priv->prev_clock) {
+	// do nothing:
+	//  - if reset is asserted or
+	//  - if rdy is not asserted or
+	//  - if not on the edge of a clock cycle
+	if (*cpu->pin_reset_b || !*cpu->pin_rdy || *cpu->pin_clock == priv->prev_clock) {
 		process_end(cpu);
 		return;
 	}
