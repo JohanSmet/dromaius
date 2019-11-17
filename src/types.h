@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-// some basic operation
+// some basic operations
 #define MIN(a,b)    ((a) <= (b) ? (a) : (b))
 #define MAX(a,b)    ((a) >= (b) ? (a) : (b))
 #define IS_POW2(x)  ((x) != 0 && ((x) & ((x)-1)) == 0)
@@ -26,5 +26,14 @@
 #define MAKE_WORD(h,l)	(((h) << 8) | (l))
 
 #define BCD_BYTE(h,l)	((((h) & 0xf) << 4) | ((l) & 0xf))
+
+#define ACTLO_ASSERTED(x) ((x) == false)
+#define ACTHI_ASSERTED(x) ((x) == true)
+
+#define ACTLO_ASSERT false
+#define ACTLO_DEASSERT true
+
+#define ACTHI_ASSERT true
+#define ACTHI_DEASSERT false
 
 #endif // DROMAIUS_TYPES_H

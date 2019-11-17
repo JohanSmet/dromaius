@@ -30,11 +30,11 @@ static inline void computer_clock_cycle(Computer *computer) {
 }
 
 static void computer_reset(Computer *computer) {
-	computer->pin_reset = true;
+	computer->pin_reset = ACTLO_ASSERT;
 	computer->pin_clock = true;
 	cpu_6502_process(computer->cpu);
 
-	computer->pin_reset = false;
+	computer->pin_reset = ACTLO_DEASSERT;
 
 	// ignore first 5 cycles 
 	for (int i = 0; i < 5; ++i) {
@@ -75,7 +75,7 @@ static void *cpu_6502_setup(const MunitParameter params[], void *user_data) {
 	computer->bus_address = 0;
 	computer->bus_data = 0;
 	computer->pin_clock = true;
-	computer->pin_reset = true;
+	computer->pin_reset = ACTLO_ASSERT;
 	computer->pin_rw = false;
 	computer->pin_irq = true;
 	computer->pin_nmi = true;
@@ -106,7 +106,7 @@ static void cpu_6502_teardown(void *fixture) {
 MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture) {
 	
 	Computer computer = {
-		.pin_reset = true,
+		.pin_reset = ACTLO_ASSERT,
 		.pin_clock = true,
 		.pin_irq = true,
 		.pin_nmi = true,
@@ -127,7 +127,7 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 
 	/* deassert reset */
 	cpu_6502_process(computer.cpu);
-	computer.pin_reset = false;
+	computer.pin_reset = ACTLO_DEASSERT;
 
 	/* ignore first 5 cycles */
 	for (int i = 0; i < 5; ++i) {

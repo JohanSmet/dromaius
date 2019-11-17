@@ -2071,6 +2071,7 @@ Cpu6502 *cpu_6502_create(
 	cpu->state = CS_INIT;
 	cpu->nmi_triggered = false;
 	cpu->prev_nmi = true;
+	cpu->prev_reset = ACTLO_DEASSERT;
 	
 	return &cpu->intf;
 }
@@ -2080,13 +2081,13 @@ void cpu_6502_process(Cpu6502 *cpu) {
 	Cpu6502_private *priv = (Cpu6502_private *) cpu;
 
 	// check for changes in the reset line
-	if (!priv->prev_reset && *cpu->pin_reset_b) {
+	if (!ACTLO_ASSERTED(priv->prev_reset) && ACTLO_ASSERTED(*cpu->pin_reset_b)) {
 		// reset was just asserted
 		priv->internal_ab = 0;
 
 		priv->internal_rw = RW_READ;
 		priv->prev_reset = *cpu->pin_reset_b;
-	} else if (priv->prev_reset && !*cpu->pin_reset_b) {
+	} else if (ACTLO_ASSERTED(priv->prev_reset) && !ACTLO_ASSERTED(*cpu->pin_reset_b)) {
 		// reset was just deasserted - start initialization sequence
 		priv->prev_reset = *cpu->pin_reset_b;
 		priv->state = CS_INIT;
@@ -2097,7 +2098,7 @@ void cpu_6502_process(Cpu6502 *cpu) {
 	//  - if reset is asserted or
 	//  - if rdy is not asserted or
 	//  - if not on the edge of a clock cycle
-	if (*cpu->pin_reset_b || !*cpu->pin_rdy || *cpu->pin_clock == priv->prev_clock) {
+	if (ACTLO_ASSERTED(*cpu->pin_reset_b) || !ACTHI_ASSERTED(*cpu->pin_rdy) || *cpu->pin_clock == priv->prev_clock) {
 		process_end(cpu);
 		return;
 	}
