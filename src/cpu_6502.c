@@ -127,6 +127,7 @@ static void process_end(Cpu6502 *cpu) {
 	// always write to the output pins that aren't tristate
 	*cpu->bus_address = PRIVATE(cpu)->internal_ab;
 	*cpu->pin_rw	  = PRIVATE(cpu)->internal_rw;
+	*cpu->pin_sync	  = PRIVATE(cpu)->decode_cycle == 0;
 
 	// store state of the clock pin
 	PRIVATE(cpu)->prev_clock = *cpu->pin_clock;
@@ -2034,7 +2035,7 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 // interface functions
 //
 
-Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *clock, const bool *reset, bool *rw, const bool *irq, const bool *nmi) {
+Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *clock, const bool *reset, bool *rw, const bool *irq, const bool *nmi, bool *sync) {
 	assert(addres_bus);
 	assert(data_bus);
 	assert(clock);
@@ -2042,6 +2043,7 @@ Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *cl
 	assert(rw);
 	assert(irq);
 	assert(nmi);
+	assert(sync);
 
 	Cpu6502_private *cpu = (Cpu6502_private *) malloc(sizeof(Cpu6502_private));
 	memset(cpu, 0, sizeof(Cpu6502_private));
@@ -2053,6 +2055,7 @@ Cpu6502 *cpu_6502_create(uint16_t *addres_bus, uint8_t *data_bus, const bool *cl
 	cpu->intf.pin_rw = rw;
 	cpu->intf.pin_irq_b = irq;
 	cpu->intf.pin_nmi_b = nmi;
+	cpu->intf.pin_sync = sync;
 	cpu->decode_cycle = -1;
 	cpu->state = CS_INIT;
 	cpu->nmi_triggered = false;

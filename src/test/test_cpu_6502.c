@@ -13,6 +13,7 @@ typedef struct Computer {
 	bool		pin_rw;
 	bool		pin_irq;
 	bool		pin_nmi;
+	bool		pin_sync;
 
 	Cpu6502 *	cpu;
 } Computer;
@@ -85,7 +86,8 @@ static void *cpu_6502_setup(const MunitParameter params[], void *user_data) {
 						&computer->pin_reset,
 						&computer->pin_rw, 
 						&computer->pin_irq, 
-						&computer->pin_nmi);
+						&computer->pin_nmi,
+						&computer->pin_sync);
 
 	// initialize the machine
 	computer_reset(computer);
@@ -113,7 +115,8 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 						&computer.pin_reset,
 						&computer.pin_rw,
 						&computer.pin_irq,
-						&computer.pin_nmi);
+						&computer.pin_nmi,
+						&computer.pin_sync);
 
 	munit_assert_not_null(computer.cpu);
 
@@ -339,9 +342,11 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(computer->bus_address, ==, 0x0801);
+	munit_assert_true(computer->pin_sync);
 	computer->bus_data = OP_6502_ADC_IMM;
 	computer_clock_cycle(computer);
 	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ADC_IMM);
+	munit_assert_false(computer->pin_sync);
 
 	// >> cycle 02: fetch operand + execute
 	munit_assert_uint16(computer->bus_address, ==, 0x0802);
