@@ -5,10 +5,17 @@
 #include "munit/munit.h"
 
 extern MunitTest cpu_6502_tests[];
+extern MunitTest ram_8d16a_tests[];
 
 static MunitSuite extern_suites[] = {
 	{	.prefix = "/cpu_6502",
 		.tests = cpu_6502_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
+	{	.prefix = "/ram_8d16a",
+		.tests = ram_8d16a_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE

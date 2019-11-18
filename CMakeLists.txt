@@ -34,6 +34,8 @@ target_sources(${LIB_TARGET}
 	PRIVATE
 		src/cpu_6502.c
 		src/cpu_6502.h
+		src/ram_8d_16a.c
+		src/ram_8d_16a.h
 )
 
 # unit tests
@@ -46,6 +48,7 @@ target_sources(${TEST_TARGET}
 	PRIVATE
 		src/test/test_main.c
 		src/test/test_cpu_6502.c
+		src/test/test_ram_8d_16a.c
 		libs/munit/munit.c
 		libs/munit/munit.h
 )
