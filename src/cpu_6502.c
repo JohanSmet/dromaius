@@ -2076,6 +2076,11 @@ Cpu6502 *cpu_6502_create(
 	return &cpu->intf;
 }
 
+void cpu_6502_destroy(Cpu6502 *cpu) {
+	assert(cpu);
+	free((Cpu6502_private *) cpu);
+}
+
 void cpu_6502_process(Cpu6502 *cpu) {
 	assert(cpu);
 	Cpu6502_private *priv = (Cpu6502_private *) cpu;

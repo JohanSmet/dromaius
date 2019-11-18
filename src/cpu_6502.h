@@ -55,6 +55,7 @@ Cpu6502 *cpu_6502_create(
 		const bool *rdy				// 1-bit ready signal - cpu only runs when asserted
 );
 
+void cpu_6502_destroy(Cpu6502 *cpu);
 void cpu_6502_process(Cpu6502 *cpu);
 
 
