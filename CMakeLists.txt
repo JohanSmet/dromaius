@@ -36,6 +36,8 @@ target_sources(${LIB_TARGET}
 		src/cpu_6502.h
 		src/ram_8d_16a.c
 		src/ram_8d_16a.h
+		src/rom_8d_16a.c
+		src/rom_8d_16a.h
 		src/utils.c
 		src/utils.h
 )
@@ -51,6 +53,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_main.c
 		src/test/test_cpu_6502.c
 		src/test/test_ram_8d_16a.c
+		src/test/test_rom_8d_16a.c
 		libs/munit/munit.c
 		libs/munit/munit.h
 )

@@ -6,6 +6,7 @@
 
 extern MunitTest cpu_6502_tests[];
 extern MunitTest ram_8d16a_tests[];
+extern MunitTest rom_8d16a_tests[];
 
 static MunitSuite extern_suites[] = {
 	{	.prefix = "/cpu_6502",
@@ -16,6 +17,12 @@ static MunitSuite extern_suites[] = {
 	},
 	{	.prefix = "/ram_8d16a",
 		.tests = ram_8d16a_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
+	{	.prefix = "/rom_8d16a",
+		.tests = rom_8d16a_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE
