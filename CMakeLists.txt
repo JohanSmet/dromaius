@@ -8,6 +8,24 @@ set(CMAKE_C_STANDARD 11)
 # export a JSON compilation database for clangd
 set (CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
+# check system libraries
+include(CheckSymbolExists)
+
+# >> some platform require an extra link-libraries for math functions and others do not
+check_symbol_exists("floor" "math.h" HAVE_FLOOR)
+if (NOT HAVE_FLOOR)
+	unset(HAVE_FLOOR CACHE)
+	list(APPEND CMAKE_REQUIRED_LIBRARIES m)
+	check_symbol_exists("floor" "math.h" HAVE_FLOOR)
+	if (NOT HAVE_FLOOR)
+		message(FATAL_ERROR "Unable to find math functions")
+	else()
+		list(APPEND LIBS_MATH m)
+		unset(HAVE_FLOOR CACHE)
+	endif()
+endif()
+
+
 # simulator library
 set (LIB_TARGET dromaius)
 
@@ -33,6 +51,7 @@ target_sources(${TEST_TARGET}
 )
 target_include_directories(${TEST_TARGET} PRIVATE libs src)
 target_link_libraries(${TEST_TARGET} PRIVATE ${LIB_TARGET})
+target_link_libraries(${TEST_TARGET} PRIVATE ${LIBS_MATH})
 
 add_test(NAME unittests COMMAND ${TEST_TARGET})
 
