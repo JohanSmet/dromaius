@@ -36,6 +36,8 @@ target_sources(${LIB_TARGET}
 		src/cpu_6502.h
 		src/ram_8d_16a.c
 		src/ram_8d_16a.h
+		src/utils.c
+		src/utils.h
 )
 
 # unit tests
