@@ -25,6 +25,14 @@ if (NOT HAVE_FLOOR)
 	endif()
 endif()
 
+# external libraries
+set (STB_TARGET stb)
+add_library(${STB_TARGET} STATIC)
+target_sources(${STB_TARGET}
+	PRIVATE
+		libs/stb/stb_ds.h
+		libs/stb/stb_impl.c
+)
 
 # simulator library
 set (LIB_TARGET dromaius)
@@ -41,6 +49,7 @@ target_sources(${LIB_TARGET}
 		src/utils.c
 		src/utils.h
 )
+target_include_directories(${LIB_TARGET} PRIVATE libs)
 
 # unit tests
 enable_testing()
@@ -59,6 +68,7 @@ target_sources(${TEST_TARGET}
 )
 target_include_directories(${TEST_TARGET} PRIVATE libs src)
 target_link_libraries(${TEST_TARGET} PRIVATE ${LIB_TARGET})
+target_link_libraries(${TEST_TARGET} PRIVATE ${STB_TARGET})
 target_link_libraries(${TEST_TARGET} PRIVATE ${LIBS_MATH})
 
 add_test(NAME unittests COMMAND ${TEST_TARGET})
