@@ -42,6 +42,8 @@ target_sources(${LIB_TARGET}
 	PRIVATE
 		src/cpu_6502.c
 		src/cpu_6502.h
+		src/dev_minimal_6502.c
+		src/dev_minimal_6502.h
 		src/ram_8d_16a.c
 		src/ram_8d_16a.h
 		src/rom_8d_16a.c
@@ -61,6 +63,7 @@ target_sources(${TEST_TARGET}
 	PRIVATE
 		src/test/test_main.c
 		src/test/test_cpu_6502.c
+		src/test/test_dev_minimal_6502.c
 		src/test/test_ram_8d_16a.c
 		src/test/test_rom_8d_16a.c
 		libs/munit/munit.c
