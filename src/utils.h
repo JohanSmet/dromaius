@@ -5,6 +5,6 @@
 
 #include "types.h"
 
-size_t file_load_binary(const char *filename, uint8_t *buffer, size_t max_len);
+size_t file_load_binary_fixed(const char *filename, uint8_t **buffer, size_t max_len);
 
 #endif // DROMAIUS_UTILS_H
