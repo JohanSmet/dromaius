@@ -21,11 +21,12 @@ if (NOT HAVE_FLOOR)
 		message(FATAL_ERROR "Unable to find math functions")
 	else()
 		list(APPEND LIBS_MATH m)
+		list(REMOVE_ITEM CMAKE_REQUIRED_LIBRARIES m)
 		unset(HAVE_FLOOR CACHE)
 	endif()
 endif()
 
-# external libraries
+# external library - stb
 set (STB_TARGET stb)
 add_library(${STB_TARGET} STATIC)
 target_sources(${STB_TARGET}
@@ -34,6 +35,12 @@ target_sources(${STB_TARGET}
 		libs/stb/stb_impl.c
 )
 
+# external library - glfw
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+add_subdirectory(libs/glfw)
 # simulator library
 set (LIB_TARGET dromaius)
 
