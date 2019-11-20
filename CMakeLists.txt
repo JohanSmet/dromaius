@@ -66,6 +66,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_dev_minimal_6502.c
 		src/test/test_ram_8d_16a.c
 		src/test/test_rom_8d_16a.c
+		src/test/test_utils.c
 		libs/munit/munit.c
 		libs/munit/munit.h
 )
