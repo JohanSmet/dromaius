@@ -1,3 +1,7 @@
 [submodule "libs/munit"]
 	path = libs/munit
 	url = https://github.com/nemequ/munit.git
+[submodule "libs/glfw"]
+	path = libs/glfw
+	url = https://github.com/glfw/glfw.git
+	branch = 3.3-stable
