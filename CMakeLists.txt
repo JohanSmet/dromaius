@@ -41,6 +41,28 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(libs/glfw)
+
+# external library - OpenGL
+find_package(OpenGL REQUIRED)
+
+# external library - nuklear
+set (NUKLEAR_TARGET nuklear)
+add_library(${NUKLEAR_TARGET} STATIC)
+target_sources(${NUKLEAR_TARGET}
+	PRIVATE
+		libs/nuklear/GL/gl3w.c
+		libs/nuklear/GL/gl3w.h
+		libs/nuklear/GL/glcorearb.h
+		libs/nuklear/main.c
+		libs/nuklear/nuklear.h
+		libs/nuklear/nuklear_glfw_gl3.h
+)
+
+target_include_directories(${NUKLEAR_TARGET} PRIVATE libs/nuklear)
+target_include_directories(${NUKLEAR_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
+target_link_libraries(${NUKLEAR_TARGET} PRIVATE glfw)
+target_link_libraries(${NUKLEAR_TARGET} PRIVATE ${OPENGL_LIBRARIES})
+
 # simulator library
 set (LIB_TARGET dromaius)
 
