@@ -94,7 +94,7 @@ target_sources(${GUI_TARGET}
 	PRIVATE
 		src/gui/main_gui.c
 )
-target_include_directories(${GUI_TARGET} PRIVATE libs)
+target_include_directories(${GUI_TARGET} PRIVATE libs src)
 target_link_libraries(${GUI_TARGET} PRIVATE ${NUKLEAR_TARGET})
 target_link_libraries(${GUI_TARGET} PRIVATE ${LIB_TARGET})
 
