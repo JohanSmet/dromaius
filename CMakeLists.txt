@@ -83,6 +83,8 @@ target_sources(${LIB_TARGET}
 		src/utils.h
 )
 target_include_directories(${LIB_TARGET} PRIVATE libs)
+target_link_libraries(${LIB_TARGET} PRIVATE ${STB_TARGET})
+target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
 
 # unit tests
 enable_testing()
@@ -104,8 +106,6 @@ target_sources(${TEST_TARGET}
 )
 target_include_directories(${TEST_TARGET} PRIVATE libs src)
 target_link_libraries(${TEST_TARGET} PRIVATE ${LIB_TARGET})
-target_link_libraries(${TEST_TARGET} PRIVATE ${STB_TARGET})
-target_link_libraries(${TEST_TARGET} PRIVATE ${LIBS_MATH})
 
 add_test(NAME unittests COMMAND ${TEST_TARGET})
 
