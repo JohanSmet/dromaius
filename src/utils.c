@@ -18,7 +18,7 @@ size_t file_load_binary_fixed(const char *filename, uint8_t **buffer, size_t max
 
 	arrsetcap(*buffer, max_len);
 
-	size_t read = fread(*buffer, max_len, 1, fp);
+	size_t read = fread(*buffer, 1, max_len, fp);
 	arrsetlen(*buffer, read);
 
 	fclose(fp);
