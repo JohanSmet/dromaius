@@ -86,6 +86,18 @@ target_include_directories(${LIB_TARGET} PRIVATE libs)
 target_link_libraries(${LIB_TARGET} PRIVATE ${STB_TARGET})
 target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
 
+# gui
+set (GUI_TARGET dromaius_gui)
+
+add_executable(${GUI_TARGET})
+target_sources(${GUI_TARGET}
+	PRIVATE
+		src/gui/main_gui.c
+)
+target_include_directories(${GUI_TARGET} PRIVATE libs)
+target_link_libraries(${GUI_TARGET} PRIVATE ${NUKLEAR_TARGET})
+target_link_libraries(${GUI_TARGET} PRIVATE ${LIB_TARGET})
+
 # unit tests
 enable_testing()
 
