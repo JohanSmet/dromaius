@@ -96,6 +96,8 @@ target_sources(${GUI_TARGET}
 		src/gui/main_gui.c
 		src/gui/panel_memory_disasm.c
 		src/gui/panel_memory_disasm.h
+		src/gui/panel_memory_raw.c
+		src/gui/panel_memory_raw.h
 )
 target_include_directories(${GUI_TARGET} PRIVATE libs src)
 target_link_libraries(${GUI_TARGET} PRIVATE ${NUKLEAR_TARGET})
