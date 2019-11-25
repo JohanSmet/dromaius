@@ -94,6 +94,8 @@ add_executable(${GUI_TARGET})
 target_sources(${GUI_TARGET}
 	PRIVATE
 		src/gui/main_gui.c
+		src/gui/panel_control.c
+		src/gui/panel_control.h
 		src/gui/panel_cpu_6502.c
 		src/gui/panel_cpu_6502.h
 		src/gui/panel_memory_disasm.c
