@@ -55,6 +55,7 @@ target_sources(${NUKLEAR_TARGET}
 		libs/nuklear/GL/glcorearb.h
 		libs/nuklear/main.c
 		libs/nuklear/nuklear.h
+		libs/nuklear/nuklear_std.h
 		libs/nuklear/nuklear_glfw_gl3.h
 )
 
