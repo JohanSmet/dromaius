@@ -8,11 +8,8 @@
 #include "utils.h"
 #include <stb/stb_ds.h>
 
-typedef struct UIContext {
-	DevMinimal6502 *device;
-	uint8_t *rom_data;
+#include "ui_context.h"
 
-} UIContext;
 
 UIContext ui_context;
 
