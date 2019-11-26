@@ -22,18 +22,18 @@ MunitResult test_address_mask(const MunitParameter params[], void *user_data_or_
 
 	// >> 2 address lines
 	Ram8d16a *ram_2a = ram_8d16a_create(2);
-	munit_assert_uint16(ram_1a->msk_address, ==, 0x0003);
-	ram_8d16a_destroy(ram_1a);
+	munit_assert_uint16(ram_2a->msk_address, ==, 0x0003);
+	ram_8d16a_destroy(ram_2a);
 
 	// >> 8 address lines
 	Ram8d16a *ram_8a = ram_8d16a_create(8);
-	munit_assert_uint16(ram_1a->msk_address, ==, 0x00ff);
-	ram_8d16a_destroy(ram_1a);
+	munit_assert_uint16(ram_8a->msk_address, ==, 0x00ff);
+	ram_8d16a_destroy(ram_8a);
 
 	// >> 16 address lines
 	Ram8d16a *ram_16a = ram_8d16a_create(16);
-	munit_assert_uint16(ram_1a->msk_address, ==, 0xffff);
-	ram_8d16a_destroy(ram_1a);
+	munit_assert_uint16(ram_16a->msk_address, ==, 0xffff);
+	ram_8d16a_destroy(ram_16a);
 
 	return MUNIT_OK;
 }
