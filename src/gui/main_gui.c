@@ -5,6 +5,7 @@
 #include "dev_minimal_6502.h"
 #include "filt_6502_asm.h"
 
+#include "panel_clock.h"
 #include "panel_cpu_6502.h"
 #include "panel_memory_raw.h"
 #include "panel_memory_disasm.h"
@@ -41,5 +42,6 @@ void nuklear_gui(struct nk_context *ctx) {
 	panel_memory_raw(ctx, (struct nk_vec2) {300, 100}, "ROM", ui_context.device->rom->data_array, 0x8000, 0x8000);
 	panel_memory_raw(ctx, (struct nk_vec2) {750, 100}, "RAM", ui_context.device->ram->data_array, 0x8000, 0x0000);
 	panel_cpu_6502(ctx, (struct nk_vec2) {300, 400}, ui_context.device->cpu);
+	panel_clock(ctx, ui_context.device->clock, (struct nk_vec2) {20, 400});
 }
 

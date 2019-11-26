@@ -13,11 +13,14 @@
 DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DevMinimal6502 *device = (DevMinimal6502 *) malloc(sizeof(DevMinimal6502));
 
+	// clock
+	device->clock = clock_create(0);	// FIXME: in reality 1 MHz
+
 	// cpu
 	device->cpu = cpu_6502_create(
 						&device->bus_address,
 						&device->bus_data,
-						&device->clock,
+						&device->clock->pin_clock,
 						&device->line_reset_b,
 						&device->line_cpu_rw,
 						&device->line_cpu_irq,
@@ -31,9 +34,6 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	// rom
 	device->rom = rom_8d16a_create(15);
 	memcpy(device->rom->data_array, rom_data, arrlen(rom_data));
-
-	// clock
-	device->clock = true;
 
 	// init data lines
 	device->bus_address = 0;
@@ -54,6 +54,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	assert(device);
 
+	clock_destroy(device->clock);
 	cpu_6502_destroy(device->cpu);
 	ram_8d16a_destroy(device->ram);
 	rom_8d16a_destroy(device->rom);
@@ -64,7 +65,7 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	assert(device);
 
 	// clock tick
-	device->clock = !device->clock;
+	clock_process(device->clock);
 	
 	// cpu
 	cpu_6502_process(device->cpu);

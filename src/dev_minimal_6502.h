@@ -8,6 +8,7 @@
 #include "cpu_6502.h"
 #include "ram_8d_16a.h"
 #include "rom_8d_16a.h"
+#include "clock.h"
 
 // types 
 typedef struct DevMinimal6502 {
@@ -15,7 +16,7 @@ typedef struct DevMinimal6502 {
 	Cpu6502 *	cpu;
 	Ram8d16a *	ram;
 	Rom8d16a *	rom;
-	bool		clock;
+	Clock *		clock;
 
 	// data lines
 	uint16_t	bus_address;

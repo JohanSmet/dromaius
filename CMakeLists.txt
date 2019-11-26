@@ -8,6 +8,10 @@ set(CMAKE_C_STANDARD 11)
 # export a JSON compilation database for clangd
 set (CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
+# platform detection
+string(TOUPPER ${CMAKE_SYSTEM_NAME} PLATFORM_NAME)
+string(CONCAT PLATFORM_DEF "PLATFORM_" ${PLATFORM_NAME})
+
 # check system libraries
 include(CheckSymbolExists)
 
@@ -70,6 +74,8 @@ set (LIB_TARGET dromaius)
 add_library(${LIB_TARGET} STATIC)
 target_sources(${LIB_TARGET}
 	PRIVATE
+		src/clock.c
+		src/clock.h
 		src/cpu_6502.c
 		src/cpu_6502.h
 		src/dev_minimal_6502.c
@@ -86,6 +92,7 @@ target_sources(${LIB_TARGET}
 target_include_directories(${LIB_TARGET} PRIVATE libs)
 target_link_libraries(${LIB_TARGET} PRIVATE ${STB_TARGET})
 target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
+target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
 
 # gui
 set (GUI_TARGET dromaius_gui)
@@ -94,6 +101,8 @@ add_executable(${GUI_TARGET})
 target_sources(${GUI_TARGET}
 	PRIVATE
 		src/gui/main_gui.c
+		src/gui/panel_clock.c
+		src/gui/panel_clock.h
 		src/gui/panel_control.c
 		src/gui/panel_control.h
 		src/gui/panel_cpu_6502.c
@@ -117,6 +126,7 @@ add_executable(${TEST_TARGET})
 target_sources(${TEST_TARGET}
 	PRIVATE
 		src/test/test_main.c
+		src/test/test_clock.c
 		src/test/test_cpu_6502.c
 		src/test/test_dev_minimal_6502.c
 		src/test/test_filt_6502_asm.c

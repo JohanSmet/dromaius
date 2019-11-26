@@ -4,6 +4,7 @@
 
 #include "munit/munit.h"
 
+extern MunitTest clock_tests[];
 extern MunitTest cpu_6502_tests[];
 extern MunitTest dev_minimal_6502_tests[];
 extern MunitTest ram_8d16a_tests[];
@@ -26,6 +27,12 @@ static MunitSuite extern_suites[] = {
 	},
 	{	.prefix = "/rom_8d16a",
 		.tests = rom_8d16a_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
+	{	.prefix = "/clock",
+		.tests = clock_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE
