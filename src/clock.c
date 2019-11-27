@@ -46,7 +46,7 @@ static inline int64_t timestamp_current(void) {
 
 static inline void process_update(Clock *clock, int64_t cur_time) {
 	// FIXME: smoothing would be nice (probably)
-	clock->real_frequency = 1e9 / (cur_time - PRIVATE(clock)->time_last_change);
+	clock->real_frequency = 1e9 / ((cur_time - PRIVATE(clock)->time_last_change) * 2);
 
 	PRIVATE(clock)->time_last_change = cur_time;
 	PRIVATE(clock)->time_next_change = cur_time + clock->conf_half_period_ns;
