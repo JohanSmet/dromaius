@@ -4,6 +4,7 @@
 #define DROMAIUS_GUI_CONTEXT_H
 
 typedef struct UIContext {
+	struct DmsContext *dms_ctx;
 	struct DevMinimal6502 *device;
 } UIContext;
 

@@ -12,6 +12,7 @@
 #include "panel_control.h"
 
 #include "ui_context.h"
+#include "context.h"
 
 #include "utils.h"
 #include <stb/stb_ds.h>
@@ -34,6 +35,12 @@ void nuklear_on_start(struct nk_context *ctx) {
 	ui_context.device->line_reset_b = ACTLO_DEASSERT;
 
 	arrfree(rom_data);
+
+	// create dromaius context
+	ui_context.dms_ctx = dms_create_context();
+	dms_set_device(ui_context.dms_ctx, ui_context.device);
+	
+	dms_start_execution(ui_context.dms_ctx);
 }
 
 void nuklear_gui(struct nk_context *ctx) {

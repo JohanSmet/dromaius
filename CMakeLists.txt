@@ -76,6 +76,8 @@ target_sources(${LIB_TARGET}
 	PRIVATE
 		src/clock.c
 		src/clock.h
+		src/context.c
+		src/context.h
 		src/cpu_6502.c
 		src/cpu_6502.h
 		src/dev_minimal_6502.c
