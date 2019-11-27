@@ -14,6 +14,6 @@ struct UIContext;
 
 // functions
 void panel_memory_disasm(struct nk_context *nk_ctx, struct UIContext *ui_ctx, struct nk_vec2 pos, const char *title, 
-						 uint8_t *data, size_t data_size, size_t data_offset);
+						 uint8_t *data, size_t data_size, size_t data_offset, uint64_t pc);
 
 #endif // DROMAIUS_GUI_PANEL_MEMORY_DISASM_H
