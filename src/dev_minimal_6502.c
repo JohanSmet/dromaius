@@ -75,7 +75,7 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	device->ram->bus_data = device->bus_data;
 	device->ram->pin_ce_b = (device->bus_address & 0x8000) >> 15;
 	device->ram->pin_oe_b = !device->line_cpu_rw;
-	device->ram->pin_we_b = device->line_cpu_rw;
+	device->ram->pin_we_b = device->line_cpu_rw || !device->clock->pin_clock;
 
 	ram_8d16a_process(device->ram);
 
