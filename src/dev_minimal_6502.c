@@ -14,7 +14,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DevMinimal6502 *device = (DevMinimal6502 *) malloc(sizeof(DevMinimal6502));
 
 	// clock
-	device->clock = clock_create(0);	// FIXME: in reality 1 MHz
+	device->clock = clock_create(10);
 
 	// cpu
 	device->cpu = cpu_6502_create(
