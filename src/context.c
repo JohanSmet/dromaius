@@ -18,6 +18,7 @@ typedef enum DMS_STATE {
 	DS_SINGLE_STEP = 1,
 	DS_SINGLE_INSTRUCTION = 2,
 	DS_RUN = 3,
+	DS_RESET = 98,
 	DS_EXIT = 99
 } _Atomic DMS_STATE;
 
@@ -62,6 +63,10 @@ static int context_execution(DmsContext *dms) {
 				break;
 			case DS_RUN :
 				// TODO: check for breakpoints
+				break;
+			case DS_RESET:
+				dev_minimal_6502_reset(dms->device);
+				dms->state = DS_WAIT;
 				break;
 			case DS_EXIT:
 				return 0;
@@ -147,3 +152,9 @@ void dms_pause(DmsContext *dms) {
 	}
 }
 
+void dms_reset(DmsContext *dms) {
+	assert(dms);
+
+	dms->state = DS_RESET;
+	cnd_signal(&dms->cnd_wait);
+}

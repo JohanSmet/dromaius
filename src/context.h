@@ -21,5 +21,6 @@ void dms_single_step(struct DmsContext *dms);
 void dms_single_instruction(struct DmsContext *dms);
 void dms_run(struct DmsContext *dms);
 void dms_pause(struct DmsContext *dms);
+void dms_reset(struct DmsContext *dms);
 
 #endif // DROMAIUS_CONTEXT_H

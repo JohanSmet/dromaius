@@ -13,13 +13,13 @@ void panel_control(struct nk_context *nk_ctx, UIContext *ui_ctx, struct nk_vec2 
 	const struct nk_rect panel_bounds = {
 		.x = pos.x,
 		.y = pos.y,
-		.w = 260,
+		.w = 320,
 		.h = 76
 	};
 	static const nk_flags panel_flags = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_SCALABLE | NK_WINDOW_TITLE | NK_WINDOW_NO_SCROLLBAR;
 
 	if (nk_begin(nk_ctx, panel_title, panel_bounds, panel_flags)) {
-		nk_layout_row_static(nk_ctx, 25, 56, 4);
+		nk_layout_row_static(nk_ctx, 25, 56, 5);
 
 		if (nk_button_label(nk_ctx, "Single")) {
 			dms_single_step(ui_ctx->dms_ctx);
@@ -35,6 +35,10 @@ void panel_control(struct nk_context *nk_ctx, UIContext *ui_ctx, struct nk_vec2 
 
 		if (nk_button_label(nk_ctx, "Pause")) {
 			dms_pause(ui_ctx->dms_ctx);
+		}
+
+		if (nk_button_label(nk_ctx, "Reset")) {
+			dms_reset(ui_ctx->dms_ctx);
 		}
 	}
 	nk_end(nk_ctx);
