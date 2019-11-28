@@ -47,7 +47,11 @@ void nuklear_on_start(struct nk_context *ctx) {
 	// create dromaius context
 	ui_context.dms_ctx = dms_create_context();
 	dms_set_device(ui_context.dms_ctx, ui_context.device);
+
+	// reset device
+	dev_minimal_6502_reset(ui_context.device);
 	
+	// start dromaius context
 	dms_start_execution(ui_context.dms_ctx);
 }
 
