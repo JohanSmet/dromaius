@@ -7,8 +7,7 @@
 
 #include "panel_clock.h"
 #include "panel_cpu_6502.h"
-#include "panel_memory_raw.h"
-#include "panel_memory_disasm.h"
+#include "panel_memory.h"
 #include "panel_control.h"
 
 #include "ui_context.h"
@@ -18,6 +17,8 @@
 #include <stb/stb_ds.h>
 
 UIContext ui_context;
+struct PanelMemory *pnl_ram;
+struct PanelMemory *pnl_rom;
 
 void panel_control(struct nk_context *nk_ctx, UIContext *ui_ctx, struct nk_vec2 pos);
 
@@ -37,6 +38,12 @@ void nuklear_on_start(struct nk_context *ctx) {
 
 	arrfree(rom_data);
 
+	// create UI panels
+	pnl_ram = panel_memory_init(ctx, (struct nk_vec2) {300, 100}, "RAM",
+								ui_context.device->ram->data_array, 0x8000, 0x0000);
+	pnl_rom = panel_memory_init(ctx, (struct nk_vec2) {750, 100}, "ROM",
+								ui_context.device->rom->data_array, 0x8000, 0x8000);
+
 	// create dromaius context
 	ui_context.dms_ctx = dms_create_context();
 	dms_set_device(ui_context.dms_ctx, ui_context.device);
@@ -50,11 +57,10 @@ void nuklear_gui(struct nk_context *ctx) {
 	}
 
 	panel_control(ctx, &ui_context, (struct nk_vec2) {20,20});
-	panel_memory_disasm(ctx, &ui_context, (struct nk_vec2) {20, 100}, "ROM - DisAsm", 
-						ui_context.device->rom->data_array, 0x8000, 0x8000, ui_context.last_pc);
-	panel_memory_raw(ctx, (struct nk_vec2) {300, 100}, "ROM", ui_context.device->rom->data_array, 0x8000, 0x8000);
-	panel_memory_raw(ctx, (struct nk_vec2) {750, 100}, "RAM", ui_context.device->ram->data_array, 0x8000, 0x0000);
 	panel_cpu_6502(ctx, (struct nk_vec2) {300, 400}, ui_context.device->cpu);
+	panel_memory_display(pnl_ram, ui_context.last_pc);
+	panel_memory_display(pnl_rom, ui_context.last_pc);
 	panel_clock(ctx, ui_context.device->clock, (struct nk_vec2) {20, 400});
+
 }
 
