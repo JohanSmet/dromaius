@@ -83,6 +83,7 @@ void clock_set_frequency(Clock *clock, uint32_t frequency) {
 
 	clock->conf_frequency = frequency;
 	clock->conf_half_period_ns = (frequency != 0) ? 1e9 / (frequency * 2) : 0;
+	PRIVATE(clock)->time_next_change = PRIVATE(clock)->time_last_change + clock->conf_half_period_ns;
 }
 
 void clock_process(Clock *clock) {

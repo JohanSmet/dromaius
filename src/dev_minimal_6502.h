@@ -33,5 +33,6 @@ typedef struct DevMinimal6502 {
 DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data);
 void dev_minimal_6502_destroy(DevMinimal6502 *device);
 void dev_minimal_6502_process(DevMinimal6502 *device);
+void dev_minimal_6502_reset(DevMinimal6502 *device);
 
 #endif // DROMAIUS_DEV_MINIMAL_6502_H

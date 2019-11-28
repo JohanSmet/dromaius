@@ -95,3 +95,29 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	}
 }
 
+void dev_minimal_6502_reset(DevMinimal6502 *device) {
+
+	// override clock frequency
+	uint32_t save_frequency = device->clock->conf_frequency;
+	clock_set_frequency(device->clock, 0);
+
+	// assert reset
+	device->line_reset_b = ACTLO_ASSERT;
+
+	// run for a few cycles while reset is asserted
+	for (int i = 0; i < 4; ++i) {
+		dev_minimal_6502_process(device);
+	}
+
+	// deassert reset
+	device->line_reset_b = ACTLO_DEASSERT;
+
+	// run CPU init cycle
+	for (int i = 0; i < 15; ++i) {
+		dev_minimal_6502_process(device);
+	}
+
+	// restore clock
+	device->clock->cycle_count = 0;
+	clock_set_frequency(device->clock, save_frequency);
+}
