@@ -7,6 +7,9 @@
 
 typedef struct UIContext {
 	struct DmsContext *dms_ctx;
+	struct PanelMemory *pnl_ram;
+	struct PanelMemory *pnl_rom;
+	struct PanelControl *pnl_control;
 	struct DevMinimal6502 *device;
 	uint64_t	last_pc;
 } UIContext;
