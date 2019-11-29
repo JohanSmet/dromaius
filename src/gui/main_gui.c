@@ -13,9 +13,12 @@
 #include "ui_context.h"
 #include "context.h"
 
+#include <stdlib.h>
+
 UIContext ui_context;
 struct PanelMemory *pnl_ram;
 struct PanelMemory *pnl_rom;
+struct PanelControl *pnl_control;
 
 void panel_control(struct nk_context *nk_ctx, UIContext *ui_ctx, struct nk_vec2 pos);
 
@@ -30,8 +33,9 @@ void nuklear_on_start(struct nk_context *ctx) {
 	ui_context.device->line_reset_b = ACTLO_DEASSERT;
 	ui_context.last_pc = 0;
 
-	dev_minimal_6502_rom_from_file(ui_context.device, "runtime/minimal_6502/rom_test.bin");
-
+	// create dromaius context
+	ui_context.dms_ctx = dms_create_context();
+	dms_set_device(ui_context.dms_ctx, ui_context.device);
 
 	// create UI panels
 	pnl_ram = panel_memory_init(ctx, (struct nk_vec2) {300, 100}, "RAM",
@@ -39,9 +43,10 @@ void nuklear_on_start(struct nk_context *ctx) {
 	pnl_rom = panel_memory_init(ctx, (struct nk_vec2) {750, 100}, "ROM",
 								ui_context.device->rom->data_array, 0x8000, 0x8000);
 
-	// create dromaius context
-	ui_context.dms_ctx = dms_create_context();
-	dms_set_device(ui_context.dms_ctx, ui_context.device);
+	pnl_control = panel_control_init(ctx, nk_vec2(20, 20), ui_context.dms_ctx, "runtime/minimal_6502");
+
+	// load default rom
+	panel_control_select_rom(pnl_control, 0);
 
 	// reset device
 	dev_minimal_6502_reset(ui_context.device);
@@ -55,11 +60,10 @@ void nuklear_gui(struct nk_context *ctx) {
 		ui_context.last_pc = ui_context.device->cpu->reg_pc;
 	}
 
-	panel_control(ctx, &ui_context, (struct nk_vec2) {20,20});
+	panel_control_display(pnl_control);
 	panel_cpu_6502(ctx, (struct nk_vec2) {300, 400}, ui_context.device->cpu);
 	panel_memory_display(pnl_ram, ui_context.last_pc);
 	panel_memory_display(pnl_rom, ui_context.last_pc);
 	panel_clock(ctx, ui_context.device->clock, (struct nk_vec2) {20, 400});
-
 }
 

@@ -10,9 +10,14 @@
 // forward declarations
 struct nk_context;
 struct nk_vec2;
-struct UIContext;
+struct DmsContext;
 
 // functions
-void panel_control(struct nk_context *nk_ctx, struct UIContext *ui_ctx, struct nk_vec2 pos);
+struct PanelControl *panel_control_init(struct nk_context *nk_ctx, struct nk_vec2 pos, struct DmsContext *dms_ctx, const char *data_path);
+void panel_control_release(struct PanelControl *pnl);
+void panel_control_display(struct PanelControl *pnl);
+
+void panel_control_select_rom(struct PanelControl *pnl, int index);
+void panel_control_select_ram(struct PanelControl *pnl, int index);
 
 #endif // DROMAIUS_GUI_PANEL_CONTROL_H

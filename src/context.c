@@ -97,6 +97,11 @@ void dms_set_device(DmsContext *dms, DevMinimal6502 *device) {
 	dms->device = device;
 }
 
+struct DevMinimal6502 *dms_get_device(struct DmsContext *dms) {
+	assert(dms);
+	return dms->device;
+}
+
 void dms_start_execution(DmsContext *dms) {
 	assert(dms);
 	assert(dms->device);

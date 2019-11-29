@@ -36,5 +36,6 @@ void dev_minimal_6502_process(DevMinimal6502 *device);
 void dev_minimal_6502_reset(DevMinimal6502 *device);
 
 void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename);
+void dev_minimal_6502_ram_from_file(DevMinimal6502 *device, const char *filename);
 
 #endif // DROMAIUS_DEV_MINIMAL_6502_H
