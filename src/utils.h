@@ -5,7 +5,7 @@
 
 #include "types.h"
 
-size_t file_load_binary_fixed(const char *filename, uint8_t **buffer, size_t max_len);
+size_t file_load_binary_fixed(const char *filename, uint8_t *buffer, size_t max_len);
 
 char *arr__printf(char *array, const char *fmt, ...);
 #define arr_printf(a, ...) (a) = arr__printf((a), __VA_ARGS__)

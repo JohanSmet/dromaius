@@ -7,7 +7,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-size_t file_load_binary_fixed(const char *filename, uint8_t **buffer, size_t max_len) {
+size_t file_load_binary_fixed(const char *filename, uint8_t *buffer, size_t max_len) {
 	assert(filename);
 	
 	FILE *fp = fopen(filename, "rb");
@@ -16,11 +16,7 @@ size_t file_load_binary_fixed(const char *filename, uint8_t **buffer, size_t max
 		return 0;
 	}
 
-	arrsetcap(*buffer, max_len);
-
-	size_t read = fread(*buffer, 1, max_len, fp);
-	arrsetlen(*buffer, read);
-
+	size_t read = fread(buffer, 1, max_len, fp);
 	fclose(fp);
 
 	return read;

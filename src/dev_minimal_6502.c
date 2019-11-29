@@ -33,7 +33,9 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// rom
 	device->rom = rom_8d16a_create(15);
-	memcpy(device->rom->data_array, rom_data, arrlen(rom_data));
+	if (rom_data) {
+		memcpy(device->rom->data_array, rom_data, arrlen(rom_data));
+	}
 
 	// init data lines
 	device->bus_address = 0;
@@ -120,4 +122,8 @@ void dev_minimal_6502_reset(DevMinimal6502 *device) {
 	// restore clock
 	device->clock->cycle_count = 0;
 	clock_set_frequency(device->clock, save_frequency);
+}
+
+void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename) {
+	file_load_binary_fixed(filename, device->rom->data_array, device->rom->data_size);
 }

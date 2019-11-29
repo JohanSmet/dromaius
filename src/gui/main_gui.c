@@ -13,9 +13,6 @@
 #include "ui_context.h"
 #include "context.h"
 
-#include "utils.h"
-#include <stb/stb_ds.h>
-
 UIContext ui_context;
 struct PanelMemory *pnl_ram;
 struct PanelMemory *pnl_rom;
@@ -27,16 +24,14 @@ char *nuklear_config_window_title(void) {
 }
 
 void nuklear_on_start(struct nk_context *ctx) {
-	// load ROM
-	uint8_t *rom_data = NULL;
-	file_load_binary_fixed("runtime/minimal_6502/rom_test.bin", &rom_data, 1 << 15);
 
 	// create device
-	ui_context.device = dev_minimal_6502_create(rom_data);
+	ui_context.device = dev_minimal_6502_create(NULL);
 	ui_context.device->line_reset_b = ACTLO_DEASSERT;
 	ui_context.last_pc = 0;
 
-	arrfree(rom_data);
+	dev_minimal_6502_rom_from_file(ui_context.device, "runtime/minimal_6502/rom_test.bin");
+
 
 	// create UI panels
 	pnl_ram = panel_memory_init(ctx, (struct nk_vec2) {300, 100}, "RAM",
