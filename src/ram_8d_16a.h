@@ -20,7 +20,8 @@ typedef struct Ram8d16a {
 	bool		pin_oe_b;		// 1-bit output enable (active low)
 
 	// data
-	uint8_t	*	data_array;
+	size_t		data_size;
+	uint8_t		data_array[];
 
 } Ram8d16a;
 

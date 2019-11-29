@@ -5,7 +5,6 @@
 #include "ram_8d_16a.h"
 
 #include <assert.h>
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -16,24 +15,24 @@
 
 Ram8d16a *ram_8d16a_create(uint8_t num_address_lines) {
 	assert(num_address_lines > 0 && num_address_lines <= 16);
+	
+	size_t data_size = 1 << num_address_lines;
 
-	Ram8d16a *ram = (Ram8d16a *) malloc(sizeof(Ram8d16a));
-	memset(ram, 0, sizeof(Ram8d16a));
+	Ram8d16a *ram = (Ram8d16a *) malloc(sizeof(Ram8d16a) + data_size);
+	memset(ram, 0, sizeof(Ram8d16a));	// on purpose, don't initialize the RAM memory
 
 	ram->pin_ce_b = ACTLO_DEASSERT;
 	ram->pin_we_b = ACTLO_DEASSERT;
 	ram->pin_oe_b = ACTLO_DEASSERT;
 
-	ram->msk_address = (1 << num_address_lines) - 1;
-	ram->data_array = (uint8_t *) malloc(pow(2, num_address_lines));
+	ram->msk_address = data_size - 1;
+	ram->data_size = data_size;
 
 	return ram;
 }
 
 void ram_8d16a_destroy(Ram8d16a *ram) {
 	assert(ram);
-
-	free(ram->data_array);
 	free(ram);
 }
 
