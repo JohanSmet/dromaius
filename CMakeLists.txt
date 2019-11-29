@@ -30,11 +30,13 @@ if (NOT HAVE_FLOOR)
 	endif()
 endif()
 
-# external library - stb
-set (STB_TARGET stb)
-add_library(${STB_TARGET} STATIC)
-target_sources(${STB_TARGET}
+# external library - single-file libraries
+set (SFL_TARGET stb)
+add_library(${SFL_TARGET} STATIC)
+target_sources(${SFL_TARGET}
 	PRIVATE
+		libs/cute/cute_files.c
+		libs/cute/cute_files.h
 		libs/stb/stb_ds.h
 		libs/stb/stb_impl.c
 )
@@ -92,7 +94,7 @@ target_sources(${LIB_TARGET}
 		src/utils.h
 )
 target_include_directories(${LIB_TARGET} PRIVATE libs)
-target_link_libraries(${LIB_TARGET} PRIVATE ${STB_TARGET})
+target_link_libraries(${LIB_TARGET} PRIVATE ${SFL_TARGET})
 target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
 target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
 
