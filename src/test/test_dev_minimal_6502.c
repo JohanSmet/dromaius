@@ -34,6 +34,7 @@ static void *dev_minimal_6502_setup(const MunitParameter params[], void *user_da
 	rom[0xffff - 0x8000] = 0xfe;		// IRQ vector - high
 
 	DevMinimal6502 *dev = dev_minimal_6502_create(rom);
+	clock_set_frequency(dev->clock, 0);
 	return dev;
 }
 
