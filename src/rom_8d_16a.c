@@ -5,7 +5,6 @@
 #include "rom_8d_16a.h"
 
 #include <assert.h>
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -17,14 +16,14 @@
 Rom8d16a *rom_8d16a_create(uint8_t num_address_lines) {
 	assert(num_address_lines > 0 && num_address_lines <= 16);
 
-	uint32_t data_size = pow(2, num_address_lines);
+	size_t data_size = 1 << num_address_lines;
 
 	Rom8d16a *rom = (Rom8d16a *) malloc(sizeof(Rom8d16a) + data_size);
 	memset(rom, 0, sizeof(Rom8d16a) + data_size);
 
 	rom->pin_ce_b = ACTLO_DEASSERT;
-
-	rom->msk_address = (1 << num_address_lines) - 1;
+	rom->data_size = data_size;
+	rom->msk_address = data_size - 1;
 	
 	return rom;
 }

@@ -18,6 +18,7 @@ typedef struct Rom8d16a {
 	bool		pin_ce_b;		// 1-bit chip enable (active low)
 
 	// data
+	size_t		data_size;
 	uint8_t		data_array[];
 
 } Rom8d16a;
