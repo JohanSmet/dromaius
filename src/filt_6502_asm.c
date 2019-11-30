@@ -153,3 +153,18 @@ int filt_6502_asm_line(const uint8_t *binary, size_t bin_size, size_t bin_index,
 	return 1 + arg_size;
 }
 
+int filt_6502_asm_count_instruction(const uint8_t *binary, size_t bin_size, size_t from, size_t until) {
+	assert(binary);
+	assert(from < bin_size);
+	assert(until <= bin_size);
+
+	int count = 0;
+
+	for (size_t i = from; i < until; i += 1) {
+		int arg_size = ADDRESS_MODE_LEN[OPCODE_ADDRESS_MODES[binary[i]]];
+		i += arg_size;
+		++count;
+	}
+
+	return count;
+}
