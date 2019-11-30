@@ -1362,7 +1362,9 @@ static inline void decode_php(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			fetch_memory(cpu, cpu->reg_pc, &PRIVATE(cpu)->addr.lo_byte, phase);
 			break;
 		case 2 : 
-			stack_push(cpu, cpu->reg_p, phase);
+			// apparently the break bit is also set by PHP
+			// (I didn't see that mentioned in the programming manual, or I missed it, but several only resources mention this.)
+			stack_push(cpu, cpu->reg_p | 0b00010000, phase);
 			if (phase == CYCLE_END) {
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
@@ -1383,6 +1385,8 @@ static inline void decode_pla(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 3 :		// pop value from stack
 			cpu->reg_a = stack_pop(cpu, phase);
 			if (phase == CYCLE_END) {
+				cpu->p_zero_result = cpu->reg_a == 0;
+				cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
 			break;
@@ -1394,13 +1398,14 @@ static inline void decode_plp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 1 :		// fetch discard data & decode plp
 			fetch_memory(cpu, cpu->reg_pc, &PRIVATE(cpu)->addr.lo_byte, phase);
 			break;
-		case 2 :		// read stack, 
+		case 2 :		// read stack
 			if (phase == CYCLE_BEGIN) {
 				PRIVATE(cpu)->internal_ab = MAKE_WORD(0x01, cpu->reg_sp);
 			}
 			break;
 		case 3 :		// pop value from stack
 			cpu->reg_p = stack_pop(cpu, phase);
+			cpu->p_expension = true;		// reserved bit is always set
 			if (phase == CYCLE_END) {
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
