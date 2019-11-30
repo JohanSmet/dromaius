@@ -113,6 +113,8 @@ target_sources(${GUI_TARGET}
 		src/gui/panel_cpu_6502.h
 		src/gui/panel_memory.c
 		src/gui/panel_memory.h
+		src/gui/panel_monitor.c
+		src/gui/panel_monitor.h
 		src/gui/ui_context.h
 )
 target_include_directories(${GUI_TARGET} PRIVATE libs src)

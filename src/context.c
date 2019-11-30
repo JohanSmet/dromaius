@@ -5,8 +5,14 @@
 
 #include <assert.h>
 #include <stdatomic.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <threads.h>
+
+#include "utils.h"
+
+#include "dev_minimal_6502.h"
+#include "clock.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -162,4 +168,40 @@ void dms_reset(DmsContext *dms) {
 
 	dms->state = DS_RESET;
 	cnd_signal(&dms->cnd_wait);
+}
+
+void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
+	assert(dms);
+	assert(cmd);
+
+	if (cmd[0] == 'g') {		// "g"oto address
+		int64_t addr;
+		if (sscanf(cmd + 1, "%lx", &addr) == 1) {
+			DevMinimal6502 *dev = dms_get_device(dms);
+
+			// change clock toggle each time _process is called
+			int32_t save_freq = dev->clock->conf_frequency;
+			clock_set_frequency(dev->clock, 0);
+
+			// run cpu until current instruction is done
+			while (dev->line_cpu_sync) {		// while still in address decoding
+				dev_minimal_6502_process(dev);
+			}
+			while (!dev->line_cpu_sync) {		// until it starts decoding next instruction
+				dev_minimal_6502_process(dev);
+			}
+
+			// force cpu to the new address
+			dms->device->cpu->reg_pc = addr;
+
+			// restore clock frequency
+			clock_set_frequency(dev->clock, save_freq);
+
+			arr_printf(*reply, "OK: pc changed to 0x%lx", addr);
+		} else {
+			arr_printf(*reply, "NOK: invalid address specified");
+		}
+	} else {
+		arr_printf(*reply, "NOK: invalid command");
+	}
 }

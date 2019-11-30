@@ -25,4 +25,6 @@ void dms_run(struct DmsContext *dms);
 void dms_pause(struct DmsContext *dms);
 void dms_reset(struct DmsContext *dms);
 
+void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply);
+
 #endif // DROMAIUS_CONTEXT_H

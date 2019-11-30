@@ -9,6 +9,7 @@
 #include "panel_cpu_6502.h"
 #include "panel_memory.h"
 #include "panel_control.h"
+#include "panel_monitor.h"
 
 #include "ui_context.h"
 #include "context.h"
@@ -42,6 +43,8 @@ void nuklear_on_start(struct nk_context *ctx) {
 
 	ui_context.pnl_control = panel_control_init(ctx, nk_vec2(20, 20), ui_context.dms_ctx, "runtime/minimal_6502");
 
+	ui_context.pnl_monitor = panel_monitor_init(ctx, nk_vec2(750, 400), ui_context.dms_ctx);
+
 	// load default rom
 	panel_control_select_rom(ui_context.pnl_control, 0);
 
@@ -62,5 +65,6 @@ void nuklear_gui(struct nk_context *ctx) {
 	panel_memory_display(ui_context.pnl_ram, ui_context.last_pc);
 	panel_memory_display(ui_context.pnl_rom, ui_context.last_pc);
 	panel_clock(ctx, ui_context.device->clock, (struct nk_vec2) {20, 400});
+	panel_monitor_display(ui_context.pnl_monitor);
 }
 
