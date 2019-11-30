@@ -33,6 +33,8 @@ typedef struct PanelMemory {
 	size_t				mem_offset;
 
 	int					display_type;
+	int					follow_pc;
+	uint64_t			last_pc;
 } PanelMemory;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -97,7 +99,19 @@ static inline void memory_display_disasm_6502(PanelMemory *pnl, int width, int h
 	static const char *symbols[] = {"", ">"};
 	const struct nk_color colors[] = { pnl->nk_ctx->style.text.color, nk_rgb(255,255,0)};
 
-	nk_layout_row_static(pnl->nk_ctx, height, width - 10, 1);
+	const int lbl_h = 18;
+	const int row_h = lbl_h + pnl->nk_ctx->style.window.spacing.y;
+
+	if (pnl->follow_pc && pnl->last_pc != current_pc &&
+		current_pc > pnl->mem_offset && current_pc < pnl->mem_offset + pnl->mem_size) {
+		pnl->last_pc = current_pc;
+		int lines = filt_6502_asm_count_instruction(pnl->mem, pnl->mem_size, 0, current_pc - pnl->mem_offset);
+		int offset = row_h * lines - ((height - 30) >> 1);
+		nk_uint y_ofs = (offset > 0) ? offset : 0;
+		nk_group_set_scroll(pnl->nk_ctx, "client", 0, y_ofs);
+	}
+
+	nk_layout_row_static(pnl->nk_ctx, height - 24, width - 10, 1);
 
 	if (nk_group_begin(pnl->nk_ctx, "client", 0)) {
 
@@ -109,13 +123,16 @@ static inline void memory_display_disasm_6502(PanelMemory *pnl, int width, int h
 
 			index += filt_6502_asm_line(pnl->mem, pnl->mem_size, index, pnl->mem_offset, &line);
 
-			nk_layout_row(pnl->nk_ctx, NK_STATIC, 18, 2, (float[]) {6, 200});
+			nk_layout_row(pnl->nk_ctx, NK_STATIC, lbl_h, 2, (float[]) {6, 200});
 			nk_label_colored(pnl->nk_ctx, symbols[is_current], NK_TEXT_RIGHT, colors[is_current]);
 			nk_label_colored(pnl->nk_ctx, line, NK_TEXT_LEFT, colors[is_current]);
 			arrsetlen(line, 0);
 		}
 		nk_group_end(pnl->nk_ctx);
 	}
+
+	nk_layout_row(pnl->nk_ctx, NK_STATIC, 20, 1, (float[]) {60});
+	nk_checkbox_label(pnl->nk_ctx, "Follow PC", &pnl->follow_pc);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -138,6 +155,8 @@ struct PanelMemory *panel_memory_init(
 	pnl->mem_offset = data_offset;
 
 	pnl->display_type = DT_RAW;
+	pnl->follow_pc = true;
+	pnl->last_pc = 0;
 
 	return pnl;
 }
