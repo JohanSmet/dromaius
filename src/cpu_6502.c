@@ -1345,7 +1345,7 @@ static inline void decode_nop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_pha(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch discard data & decode pha
-			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			fetch_memory(cpu, cpu->reg_pc, &PRIVATE(cpu)->addr.lo_byte, phase);
 			break;
 		case 2 : 
 			stack_push(cpu, cpu->reg_a, phase);
@@ -1359,7 +1359,7 @@ static inline void decode_pha(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_php(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch discard data & decode php
-			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			fetch_memory(cpu, cpu->reg_pc, &PRIVATE(cpu)->addr.lo_byte, phase);
 			break;
 		case 2 : 
 			stack_push(cpu, cpu->reg_p, phase);
@@ -1373,7 +1373,7 @@ static inline void decode_php(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_pla(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch discard data & decode pla
-			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			fetch_memory(cpu, cpu->reg_pc, &PRIVATE(cpu)->addr.lo_byte, phase);
 			break;
 		case 2 :		// read stack, 
 			if (phase == CYCLE_BEGIN) {
@@ -1392,7 +1392,7 @@ static inline void decode_pla(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_plp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch discard data & decode plp
-			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
+			fetch_memory(cpu, cpu->reg_pc, &PRIVATE(cpu)->addr.lo_byte, phase);
 			break;
 		case 2 :		// read stack, 
 			if (phase == CYCLE_BEGIN) {

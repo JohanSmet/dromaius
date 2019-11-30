@@ -6247,7 +6247,7 @@ MunitResult test_pha(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(computer->bus_data, ==, 0x13);
 
 	// >> next instruction
-	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
 
 	return MUNIT_OK;
 }
@@ -6284,7 +6284,7 @@ MunitResult test_php(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(computer->bus_data, ==, 0b10010101);
 
 	// >> next instruction
-	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
 
 	return MUNIT_OK;
 }
@@ -6325,7 +6325,7 @@ MunitResult test_pla(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(computer->cpu->reg_a, ==, 0x19);
 
 	// >> next instruction
-	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
 
 	return MUNIT_OK;
 }
@@ -6366,7 +6366,7 @@ MunitResult test_plp(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(computer->cpu->reg_p, ==, 0x79);
 
 	// >> next instruction
-	munit_assert_uint16(computer->bus_address, ==, 0x0803);
+	munit_assert_uint16(computer->bus_address, ==, 0x0802);
 
 	return MUNIT_OK;
 }
