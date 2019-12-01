@@ -885,6 +885,22 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_true(computer->cpu->p_carry);
 	munit_assert_false(computer->cpu->p_zero_result);
 
+	// >> cycle 01: fetch opcode
+	computer->cpu->reg_a = BCD_BYTE(9, 9); 
+	computer->cpu->p_carry = false;
+	munit_assert_uint16(computer->bus_address, ==, 0x0805);
+	computer->bus_data = OP_6502_ADC_IMM;
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_ADC_IMM);
+
+	// >> cycle 02: fetch operand + execute
+	munit_assert_uint16(computer->bus_address, ==, 0x0806);
+	computer->bus_data = BCD_BYTE(9, 9);
+	computer_clock_cycle(computer);
+	munit_assert_uint8(computer->cpu->reg_a, ==, BCD_BYTE(9, 8));
+	munit_assert_true(computer->cpu->p_carry);
+	munit_assert_false(computer->cpu->p_zero_result);
+
 	return MUNIT_OK;
 }
 
@@ -7605,7 +7621,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	computer->bus_data = BCD_BYTE(2, 9);
 	computer_clock_cycle(computer);
 	munit_assert_uint8(computer->cpu->reg_a, ==, BCD_BYTE(1, 5));
-	munit_assert_false(computer->cpu->p_carry);
+	munit_assert_true(computer->cpu->p_carry);
 	munit_assert_false(computer->cpu->p_zero_result);
 
 	return MUNIT_OK;

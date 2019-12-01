@@ -688,24 +688,6 @@ static inline uint8_t sign_extend(uint8_t data, uint8_t width) {
     return (uint8_t) ((int8_t) (data << (8 - width)) >> (8 - width));
 }
 
-static inline void fix_bcd_accumulator_add(Cpu6502 *cpu) {
-
-	bool carry = (cpu->reg_a & 0x0f) > 9;
-	cpu->reg_a = cpu->reg_a - (10 * carry) + (carry << 4);
-
-	cpu->p_carry = (cpu->reg_a & 0xf0) > (9 << 4);
-	cpu->reg_a = cpu->reg_a - ((10 << 4) * cpu->p_carry);
-}
-
-static inline void fix_bcd_accumulator_sub(Cpu6502 *cpu) {
-
-	bool carry = (int8_t) sign_extend(cpu->reg_a & 0x0f, 4) < 0;
-	cpu->reg_a = cpu->reg_a + (10 * carry) - (carry << 4);
-
-	cpu->p_carry = (int8_t) sign_extend((cpu->reg_a & 0xf0) >> 4, 4) < 0;
-	cpu->reg_a = cpu->reg_a + ((10 << 4) * cpu->p_carry);
-}
-
 static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t value, CPU_6502_CYCLE phase) {
 // the branching instructions follow the 6502's philosophy of doing the least amount of work possible
 // -> 2 cycles are always needed to fetch the opcode (before this function) and to fetch the offset (relative addressing)
@@ -756,19 +738,27 @@ static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t 
 
 static inline void decode_adc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
-	if (fetch_operand_g1(cpu, phase)) {
+	if (!fetch_operand_g1(cpu, phase)) {
+		return;
+	}
+
+	if (!cpu->p_decimal_mode) {
 		int16_t s_result = (int8_t) cpu->reg_a + (int8_t) PRIVATE(cpu)->operand + cpu->p_carry;
 		uint16_t u_result = cpu->reg_a + PRIVATE(cpu)->operand + cpu->p_carry;
 		cpu->reg_a = u_result & 0x00ff;
 		cpu->p_carry = IS_BIT_SET(u_result, 8);
 		cpu->p_overflow = (s_result < -128) || (s_result > 127);
-		cpu->p_zero_result = cpu->reg_a == 0;
 		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
-		if (cpu->p_decimal_mode) {
-			fix_bcd_accumulator_add(cpu);
-		}
-		PRIVATE(cpu)->decode_cycle = -1;
+	} else {
+		uint8_t lo_nbl = (cpu->reg_a & 0x0f) + (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry;
+		bool lo_carry = lo_nbl > 0x09;
+		uint16_t hi_nbl = (cpu->reg_a & 0xf0) + (PRIVATE(cpu)->operand & 0xf0) + (lo_carry * 0x10);
+		cpu->p_carry = hi_nbl > 0x90;
+		cpu->reg_a = ((hi_nbl - (cpu->p_carry * 0xa0)) & 0xf0) | ((lo_nbl - (lo_carry * 0x0a)) & 0x0f);
 	}
+
+	cpu->p_zero_result = cpu->reg_a == 0;
+	PRIVATE(cpu)->decode_cycle = -1;
 }
 
 static inline void decode_and(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
@@ -1630,7 +1620,11 @@ static inline void decode_rti(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_sbc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
-	if (fetch_operand_g1(cpu, phase)) {
+	if (!fetch_operand_g1(cpu, phase)) {
+		return;
+	}
+
+	if (!cpu->p_decimal_mode) {
 		uint16_t result = cpu->reg_a + (uint8_t) ~PRIVATE(cpu)->operand + cpu->p_carry;
 		int16_t s_result = (int8_t) cpu->reg_a - (int8_t) PRIVATE(cpu)->operand - !cpu->p_carry;
 		cpu->reg_a = result & 0x00ff;
@@ -1638,11 +1632,20 @@ static inline void decode_sbc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		cpu->p_overflow = (s_result < -128) || (s_result > 127);
 		cpu->p_zero_result = cpu->reg_a == 0;
 		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
-		if (cpu->p_decimal_mode) {
-			fix_bcd_accumulator_sub(cpu);
+	} else {
+		int8_t lo_nbl = (int8_t) (cpu->reg_a & 0x0f) - (int8_t) (PRIVATE(cpu)->operand & 0x0f) - !cpu->p_carry;
+		int8_t hi_nbl = (int8_t) ((cpu->reg_a & 0xf0) >> 4) - (int8_t) ((PRIVATE(cpu)->operand & 0xf0) >> 4);
+		if (lo_nbl < 0) {
+			lo_nbl += 10;
+			hi_nbl -= 1;
 		}
-		PRIVATE(cpu)->decode_cycle = -1;
+		cpu->p_carry = hi_nbl >= 0;
+		hi_nbl += 10 * !cpu->p_carry;
+		cpu->reg_a = ((hi_nbl << 4) & 0xf0) | (lo_nbl & 0x0f);
 	}
+
+	cpu->p_zero_result = cpu->reg_a == 0;
+	PRIVATE(cpu)->decode_cycle = -1;
 }
 
 static inline void decode_sec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
