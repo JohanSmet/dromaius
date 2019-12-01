@@ -839,6 +839,7 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_MIDDLE:
 					break;
 				case CYCLE_END:
+					PRIVATE(cpu)->internal_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
 					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1036,6 +1037,7 @@ static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_MIDDLE:
 					break;
 				case CYCLE_END:
+					PRIVATE(cpu)->internal_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
 					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1126,6 +1128,7 @@ static inline void decode_inc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_MIDDLE:
 					break;
 				case CYCLE_END:
+					PRIVATE(cpu)->internal_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
 					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1320,6 +1323,7 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_MIDDLE:
 					break;
 				case CYCLE_END:
+					PRIVATE(cpu)->internal_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
 					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1486,6 +1490,7 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_MIDDLE:
 					break;
 				case CYCLE_END:
+					PRIVATE(cpu)->internal_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
 					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1558,6 +1563,7 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_MIDDLE:
 					break;
 				case CYCLE_END:
+					PRIVATE(cpu)->internal_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
 					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
 					PRIVATE(cpu)->decode_cycle = -1;
