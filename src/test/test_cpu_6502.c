@@ -7343,7 +7343,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	computer_clock_cycle(computer);
 	munit_assert_uint8(computer->cpu->reg_a, ==, 126);
 	munit_assert_true(computer->cpu->p_carry);
-	munit_assert_false(computer->cpu->p_overflow);
+	munit_assert_true(computer->cpu->p_overflow);
 	munit_assert_false(computer->cpu->p_zero_result);
 	munit_assert_false(computer->cpu->p_negative_result);
 
@@ -7384,7 +7384,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	computer_clock_cycle(computer);
 	munit_assert_uint8(computer->cpu->reg_a, ==, 8);
 	munit_assert_false(computer->cpu->p_carry);
-	munit_assert_true(computer->cpu->p_overflow);
+	munit_assert_false(computer->cpu->p_overflow);
 	munit_assert_false(computer->cpu->p_zero_result);
 	munit_assert_false(computer->cpu->p_negative_result);
 
@@ -7430,7 +7430,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	computer_clock_cycle(computer);
 	munit_assert_uint8(computer->cpu->reg_a, ==, 12);
 	munit_assert_false(computer->cpu->p_carry);
-	munit_assert_true(computer->cpu->p_overflow);
+	munit_assert_false(computer->cpu->p_overflow);
 	munit_assert_false(computer->cpu->p_zero_result);
 	munit_assert_false(computer->cpu->p_negative_result);
 
@@ -7527,7 +7527,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	computer_clock_cycle(computer);
 	munit_assert_uint8(computer->cpu->reg_a, ==, 125);
 	munit_assert_true(computer->cpu->p_carry);
-	munit_assert_false(computer->cpu->p_overflow);
+	munit_assert_true(computer->cpu->p_overflow);
 	munit_assert_false(computer->cpu->p_zero_result);
 	munit_assert_false(computer->cpu->p_negative_result);
 

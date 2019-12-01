@@ -1631,10 +1631,11 @@ static inline void decode_rti(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_sbc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
-		int16_t result = cpu->reg_a + ~PRIVATE(cpu)->operand + cpu->p_carry;
+		uint16_t result = cpu->reg_a + (uint8_t) ~PRIVATE(cpu)->operand + cpu->p_carry;
+		int16_t s_result = (int8_t) cpu->reg_a - (int8_t) PRIVATE(cpu)->operand - !cpu->p_carry;
 		cpu->reg_a = result & 0x00ff;
-		cpu->p_carry = result >= 0; 
-		cpu->p_overflow = (result < -128) || (result > 127);
+		cpu->p_carry = IS_BIT_SET(result, 8);
+		cpu->p_overflow = (s_result < -128) || (s_result > 127);
 		cpu->p_zero_result = cpu->reg_a == 0;
 		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
 		if (cpu->p_decimal_mode) {
