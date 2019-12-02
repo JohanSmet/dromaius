@@ -108,6 +108,7 @@ typedef struct Cpu6502_private {
 	bool			internal_rw;			// internal rw latch
 	CPU_6502_STATE	state;
 	int8_t			decode_cycle;			// instruction decode cycle
+	uint16_t		override_pc;			// != 0: fetch next instruction from this location, overruling the current pc
 	uint8_t			operand;
 	addr_t			addr;
 	addr_t			i_addr;
@@ -2043,6 +2044,10 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		if (*cpu->pin_irq_b == false && !cpu->p_interrupt_disable) {
 			PRIVATE(cpu)->state = CS_IN_IRQ;
 		}
+		if (PRIVATE(cpu)->override_pc) {
+			cpu->reg_pc = PRIVATE(cpu)->override_pc;
+			PRIVATE(cpu)->override_pc = 0;
+		}
 	}
 
 	// irq starting sequence is handled seperately
@@ -2107,6 +2112,7 @@ Cpu6502 *cpu_6502_create(
 	cpu->nmi_triggered = false;
 	cpu->prev_nmi = true;
 	cpu->prev_reset = ACTLO_DEASSERT;
+	cpu->override_pc = 0;
 	
 	return &cpu->intf;
 }
@@ -2165,4 +2171,9 @@ void cpu_6502_process(Cpu6502 *cpu) {
 
 	process_end(cpu);
 	return;
+}
+
+void cpu_6502_override_next_instruction_address(Cpu6502 *cpu, uint16_t pc) {
+	assert(cpu);
+	PRIVATE(cpu)->override_pc = pc;
 }

@@ -57,6 +57,6 @@ Cpu6502 *cpu_6502_create(
 
 void cpu_6502_destroy(Cpu6502 *cpu);
 void cpu_6502_process(Cpu6502 *cpu);
-
+void cpu_6502_override_next_instruction_address(Cpu6502 *cpu, uint16_t pc);
 
 #endif // DROMAIUS_CPU_6502_H

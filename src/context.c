@@ -213,16 +213,13 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 			int32_t save_freq = dev->clock->conf_frequency;
 			clock_set_frequency(dev->clock, 0);
 
-			// run cpu until current instruction is done
-			while (dev->line_cpu_sync) {		// while still in address decoding
-				dev_minimal_6502_process(dev);
-			}
-			while (!dev->line_cpu_sync) {		// until it starts decoding next instruction
-				dev_minimal_6502_process(dev);
-			}
+			// tell the cpu to override the location of the next instruction
+			cpu_6502_override_next_instruction_address(dev->cpu, addr);
 
-			// force cpu to the new address
-			dms->device->cpu->reg_pc = addr;
+			// run computer until current instruction is finished
+			while (!(dev->line_cpu_sync && dev->cpu->reg_pc == addr)) {
+				dev_minimal_6502_process(dev);
+			}
 
 			// restore clock frequency
 			clock_set_frequency(dev->clock, save_freq);
