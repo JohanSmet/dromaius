@@ -42,13 +42,13 @@ void panel_cpu_6502(struct nk_context *nk_ctx, struct nk_vec2 pos, struct Cpu650
 		.x = pos.x,
 		.y = pos.y,
 		.w = 410,
-		.h = 200
+		.h = 220
 	};
 	static const nk_flags panel_flags = NK_WINDOW_BORDER | NK_WINDOW_MOVABLE | NK_WINDOW_TITLE | NK_WINDOW_NO_SCROLLBAR;
 
 	if (nk_begin(nk_ctx, panel_title, panel_bounds, panel_flags)) {
 
-		nk_layout_row_dynamic(nk_ctx, 160, 2);
+		nk_layout_row_dynamic(nk_ctx, 180, 2);
 			
 		if (nk_group_begin(nk_ctx, "col_left", 0)) {
 		
@@ -59,6 +59,8 @@ void panel_cpu_6502(struct nk_context *nk_ctx, struct nk_vec2 pos, struct Cpu650
 			ui_cpu_register_16bit(nk_ctx, "Program Counter", cpu->reg_pc);
 			ui_cpu_register_8bit(nk_ctx, "Instruction", cpu->reg_ir);
 			ui_cpu_register_8bit(nk_ctx, "Processor Status", cpu->reg_p);
+			ui_cpu_register_16bit(nk_ctx, "Address Bus", *cpu->bus_address);
+			ui_cpu_register_8bit(nk_ctx, "Data Bus", *cpu->bus_data);
 
 			nk_group_end(nk_ctx);
 		}
