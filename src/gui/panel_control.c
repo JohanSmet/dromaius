@@ -87,8 +87,8 @@ PanelControl *panel_control_init(struct nk_context *nk_ctx, struct nk_vec2 pos, 
 	dir_list_files(pnl->data_path, ".bin", "rom_", &pnl->rom_files);
 	dir_list_files(pnl->data_path, ".bin", "ram_", &pnl->ram_files);
 
-	pnl->current_rom = -1;
-	pnl->current_ram = -1;
+	pnl->current_rom = 0;
+	pnl->current_ram = 0;
 	
 	return pnl;
 }
