@@ -4,7 +4,6 @@
 #include "dev_minimal_6502.h"
 
 #include <assert.h>
-#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <threads.h>

@@ -3,7 +3,6 @@
 #include "munit/munit.h"
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
-#include <bits/stdint-uintn.h>
 
 typedef struct Computer {
 	uint16_t	bus_address;
