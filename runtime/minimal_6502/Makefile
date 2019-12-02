@@ -1,7 +1,12 @@
+all: rom_test.bin rom_dayofweek.bin
+
 rom_test.bin: rom_test.s
-	cl65 rom_test.s -o rom_test.bin -C simple.cfg -m rom_test.map
+	cl65 rom_test.s -o rom_test.bin -C simple.cfg 
+
+rom_dayofweek.bin: rom_dayofweek.s
+	cl65 rom_dayofweek.s -o rom_dayofweek.bin -C simple.cfg 
 
 clean:
-	$(RM) *.o *.bin
+	$(RM) *.o rom_test.bin rom_dayofweek.bin
 
-.PHONY: clean
+.PHONY: all clean
