@@ -10,6 +10,7 @@
 #include <threads.h>
 
 #include "utils.h"
+#include <stb/stb_ds.h>
 
 #include "dev_minimal_6502.h"
 #include "clock.h"
@@ -35,12 +36,24 @@ typedef struct DmsContext {
 	DMS_STATE		state;
 	mtx_t			mtx_wait;
 	cnd_t			cnd_wait;
+
+	uint64_t *		breakpoints;
 } DmsContext;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // internal functions
 //
+
+static inline int breakpoint_index(DmsContext *dms, uint64_t addr) {
+	for (int i = 0; i < arrlen(dms->breakpoints); ++i) {
+		if (dms->breakpoints[i] == addr) { 
+			return i;
+		}
+	}
+
+	return -1;
+}
 
 static int context_execution(DmsContext *dms) {
 
@@ -68,7 +81,10 @@ static int context_execution(DmsContext *dms) {
 				}
 				break;
 			case DS_RUN :
-				// TODO: check for breakpoints
+				// check for breakpoints
+				if (dms->device->line_cpu_sync && breakpoint_index(dms, dms->device->cpu->reg_pc) >= 0) {
+					dms->state = DS_WAIT;
+				}
 				break;
 			case DS_RESET:
 				dev_minimal_6502_reset(dms->device);
@@ -90,6 +106,7 @@ static int context_execution(DmsContext *dms) {
 DmsContext *dms_create_context(void) {
 	DmsContext *ctx = (DmsContext *) malloc(sizeof(DmsContext));
 	ctx->device = NULL;
+	ctx->breakpoints = NULL;
 	return ctx;
 }
 
@@ -170,6 +187,19 @@ void dms_reset(DmsContext *dms) {
 	cnd_signal(&dms->cnd_wait);
 }
 
+
+bool dms_toggle_breakpoint(DmsContext *dms, uint64_t addr) {
+	int idx = breakpoint_index(dms, addr);
+
+	if (idx < 0) {
+		arrpush(dms->breakpoints, addr);
+		return true;
+	} else {
+		arrdelswap(dms->breakpoints, idx);
+		return false;
+	}
+}
+
 void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 	assert(dms);
 	assert(cmd);
@@ -198,6 +228,15 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 			clock_set_frequency(dev->clock, save_freq);
 
 			arr_printf(*reply, "OK: pc changed to 0x%lx", addr);
+		} else {
+			arr_printf(*reply, "NOK: invalid address specified");
+		}
+	} else if (cmd[0] == 'b') {		// toggle "b"reak-point
+		int64_t addr;
+		if (sscanf(cmd + 1, "%lx", &addr) == 1) {
+			static const char *disp_break[] = {"unset", "set"};
+			bool set = dms_toggle_breakpoint(dms, addr);
+			arr_printf(*reply, "OK: breakpoint at 0x%lx %s", addr, disp_break[set]);
 		} else {
 			arr_printf(*reply, "NOK: invalid address specified");
 		}
