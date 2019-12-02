@@ -684,10 +684,6 @@ static inline uint8_t stack_pop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	return result;
 }
 
-static inline uint8_t sign_extend(uint8_t data, uint8_t width) {
-    return (uint8_t) ((int8_t) (data << (8 - width)) >> (8 - width));
-}
-
 static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t value, CPU_6502_CYCLE phase) {
 // the branching instructions follow the 6502's philosophy of doing the least amount of work possible
 // -> 2 cycles are always needed to fetch the opcode (before this function) and to fetch the offset (relative addressing)
@@ -736,6 +732,32 @@ static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t 
 	}
 }
 
+static inline void calculate_adc_decimal(Cpu6502 *cpu) {
+/* ADC (and SBC) effect the C/N/V/Z-flags, even in decimal mode. On a 6502 only the carry is supported and valid.
+   But the other flags are still affected, we do are best to emulate this behaviour.
+   Many thanks go to Bruce Clark, for his excellent explanation of the decimal mode of the 6502 (see: http://www.6502.org/tutorials/decimal_mode.html)
+   and the accompanying test program.
+*/
+	uint16_t bin_result = cpu->reg_a + PRIVATE(cpu)->operand + cpu->p_carry;
+
+	uint16_t al = (cpu->reg_a & 0x0f) + (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry;
+	if (al >= 0x0a) {
+		al = ((al + 0x06) & 0x0f) + 0x10;
+	}
+	uint16_t a_seq1 = (cpu->reg_a & 0xf0) + (PRIVATE(cpu)->operand & 0xf0) + al;
+	if (a_seq1 >= 0xa0) {
+		a_seq1 += 0x60;
+	}
+
+	int16_t a_seq2 = (int8_t) (cpu->reg_a & 0xf0) + (int8_t) (PRIVATE(cpu)->operand & 0xf0) + al;
+
+	cpu->reg_a = a_seq1 & 0x00ff;
+	cpu->p_carry = (a_seq1 >= 0x0100);
+	cpu->p_negative_result = IS_BIT_SET(a_seq2, 7);
+	cpu->p_overflow = (a_seq2 < -128) || (a_seq2 > 127);
+	cpu->p_zero_result = (bin_result & 0xff) == 0x00;
+}
+
 static inline void decode_adc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (!fetch_operand_g1(cpu, phase)) {
@@ -748,16 +770,12 @@ static inline void decode_adc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		cpu->reg_a = u_result & 0x00ff;
 		cpu->p_carry = IS_BIT_SET(u_result, 8);
 		cpu->p_overflow = (s_result < -128) || (s_result > 127);
+		cpu->p_zero_result = cpu->reg_a == 0;
 		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
 	} else {
-		uint8_t lo_nbl = (cpu->reg_a & 0x0f) + (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry;
-		bool lo_carry = lo_nbl > 0x09;
-		uint16_t hi_nbl = (cpu->reg_a & 0xf0) + (PRIVATE(cpu)->operand & 0xf0) + (lo_carry * 0x10);
-		cpu->p_carry = hi_nbl > 0x90;
-		cpu->reg_a = ((hi_nbl - (cpu->p_carry * 0xa0)) & 0xf0) | ((lo_nbl - (lo_carry * 0x0a)) & 0x0f);
+		calculate_adc_decimal(cpu);
 	}
 
-	cpu->p_zero_result = cpu->reg_a == 0;
 	PRIVATE(cpu)->decode_cycle = -1;
 }
 
@@ -1624,27 +1642,29 @@ static inline void decode_sbc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		return;
 	}
 
+	// on a 6502 the C/N/V/Z-flags are set using the binary mode computation.
+	uint16_t u_result = cpu->reg_a + (uint8_t) ~PRIVATE(cpu)->operand + cpu->p_carry;
+	int16_t s_result = (int8_t) cpu->reg_a - (int8_t) PRIVATE(cpu)->operand - !cpu->p_carry;
+
 	if (!cpu->p_decimal_mode) {
-		uint16_t result = cpu->reg_a + (uint8_t) ~PRIVATE(cpu)->operand + cpu->p_carry;
-		int16_t s_result = (int8_t) cpu->reg_a - (int8_t) PRIVATE(cpu)->operand - !cpu->p_carry;
-		cpu->reg_a = result & 0x00ff;
-		cpu->p_carry = IS_BIT_SET(result, 8);
-		cpu->p_overflow = (s_result < -128) || (s_result > 127);
-		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		cpu->reg_a = u_result & 0x00ff;
 	} else {
-		int8_t lo_nbl = (int8_t) (cpu->reg_a & 0x0f) - (int8_t) (PRIVATE(cpu)->operand & 0x0f) - !cpu->p_carry;
-		int8_t hi_nbl = (int8_t) ((cpu->reg_a & 0xf0) >> 4) - (int8_t) ((PRIVATE(cpu)->operand & 0xf0) >> 4);
-		if (lo_nbl < 0) {
-			lo_nbl += 10;
-			hi_nbl -= 1;
+		int16_t al = (cpu->reg_a & 0x0f) - (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry - 1;
+		if (al < 0) {
+			al = ((al - 0x06) & 0x0f) - 0x10;
 		}
-		cpu->p_carry = hi_nbl >= 0;
-		hi_nbl += 10 * !cpu->p_carry;
-		cpu->reg_a = ((hi_nbl << 4) & 0xf0) | (lo_nbl & 0x0f);
+		int16_t a_seq3 = (cpu->reg_a & 0xf0) - (PRIVATE(cpu)->operand & 0xf0) + al;
+		if (a_seq3 < 0) {
+			a_seq3 -= 0x60;
+		}
+		cpu->reg_a = a_seq3 & 0x00ff;
 	}
 
-	cpu->p_zero_result = cpu->reg_a == 0;
+	cpu->p_carry = IS_BIT_SET(u_result, 8);
+	cpu->p_overflow = (s_result < -128) || (s_result > 127);
+	cpu->p_zero_result = (u_result & 0x00ff) == 0;
+	cpu->p_negative_result = (u_result & 0b10000000) >> 7;
+
 	PRIVATE(cpu)->decode_cycle = -1;
 }
 
