@@ -56,16 +56,16 @@ set (NUKLEAR_TARGET nuklear)
 add_library(${NUKLEAR_TARGET} STATIC)
 target_sources(${NUKLEAR_TARGET}
 	PRIVATE
-		libs/nuklear/GL/gl3w.c
-		libs/nuklear/GL/gl3w.h
-		libs/nuklear/GL/glcorearb.h
+		libs/glad/glad.c
+		libs/glad/glad.h
+		libs/glad/KHR/khrplatform.h
 		libs/nuklear/main.c
 		libs/nuklear/nuklear.h
 		libs/nuklear/nuklear_std.h
 		libs/nuklear/nuklear_glfw_gl3.h
 )
 
-target_include_directories(${NUKLEAR_TARGET} PRIVATE libs/nuklear)
+target_include_directories(${NUKLEAR_TARGET} PRIVATE libs libs/nuklear)
 target_include_directories(${NUKLEAR_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_link_libraries(${NUKLEAR_TARGET} PRIVATE glfw)
 target_link_libraries(${NUKLEAR_TARGET} PRIVATE ${OPENGL_LIBRARIES})

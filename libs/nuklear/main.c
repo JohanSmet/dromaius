@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include <GL/gl3w.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #define NK_INCLUDE_FIXED_TYPES
@@ -75,8 +75,8 @@ int main(void)
     glfwGetWindowSize(win, &width, &height);
 
     /* OpenGL */
-	if (gl3wInit() != 0) {
-        fprintf(stderr, "Failed to setup gl3w\n");
+	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+        fprintf(stderr, "Failed to setup glad\n");
         exit(1);
 	}
 
