@@ -19,7 +19,7 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines) {
 	size_t data_size = 1 << num_address_lines;
 
 	Ram8d16a *ram = (Ram8d16a *) malloc(sizeof(Ram8d16a) + data_size);
-	memset(ram, 0, sizeof(Ram8d16a));	// on purpose, don't initialize the RAM memory
+	memset(ram, 0, sizeof(Ram8d16a) + data_size);
 
 	ram->pin_ce_b = ACTLO_DEASSERT;
 	ram->pin_we_b = ACTLO_DEASSERT;
