@@ -76,6 +76,8 @@ set (LIB_TARGET dromaius)
 add_library(${LIB_TARGET} STATIC)
 target_sources(${LIB_TARGET}
 	PRIVATE
+		src/sys/threads.c
+		src/sys/threads.h
 		src/clock.c
 		src/clock.h
 		src/context.c

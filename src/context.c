@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <threads.h>
+#include "sys/threads.h"
 
 #include "utils.h"
 #include <stb/stb_ds.h>
@@ -31,10 +31,10 @@ typedef enum DMS_STATE {
 typedef struct DmsContext {
 	DevMinimal6502 *device;	
 
-	thrd_t			thr_id;
+	thread_t		thread;
 	DMS_STATE		state;
-	mtx_t			mtx_wait;
-	cnd_t			cnd_wait;
+	mutex_t			mtx_wait;
+	cond_t			cnd_wait;
 
 	uint64_t *		breakpoints;
 } DmsContext;
@@ -54,16 +54,16 @@ static inline int breakpoint_index(DmsContext *dms, uint64_t addr) {
 	return -1;
 }
 
-static int context_execution(DmsContext *dms) {
+static void *context_execution(DmsContext *dms) {
 
 	while (true) {
 
 		while (dms->state == DS_WAIT) {
-			mtx_lock(&dms->mtx_wait);
-			cnd_wait(&dms->cnd_wait, &dms->mtx_wait);
+			mutex_lock(&dms->mtx_wait);
+			cond_wait(&dms->cnd_wait, &dms->mtx_wait);
 		}
 
-		mtx_unlock(&dms->mtx_wait);
+		mutex_unlock(&dms->mtx_wait);
 		
 		bool prev_sync = dms->device->line_cpu_sync;
 
@@ -90,11 +90,11 @@ static int context_execution(DmsContext *dms) {
 				dms->state = DS_WAIT;
 				break;
 			case DS_EXIT:
-				return 0;
+				return NULL;
 		}
 	}
 
-	return 0;
+	return NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -129,9 +129,9 @@ void dms_start_execution(DmsContext *dms) {
 	assert(dms->device);
 	
 	dms->state = DS_WAIT;
-	mtx_init(&dms->mtx_wait, mtx_plain);
-	cnd_init(&dms->cnd_wait);
-	thrd_create(&dms->thr_id, (int(*)(void *)) context_execution, dms);
+	mutex_init_plain(&dms->mtx_wait);
+	cond_init(&dms->cnd_wait);
+	thread_create_joinable(&dms->thread, (int(*)(void*)) context_execution, dms);
 }
 
 void dms_stop_execution(DmsContext *dms) {
@@ -140,7 +140,7 @@ void dms_stop_execution(DmsContext *dms) {
 	dms->state = DS_EXIT;
 
 	int thread_res;
-	thrd_join(dms->thr_id, &thread_res);
+	thread_join(dms->thread, &thread_res);
 }
 
 void dms_single_step(DmsContext *dms) {
@@ -148,7 +148,7 @@ void dms_single_step(DmsContext *dms) {
 	
 	if (dms->state == DS_WAIT) {
 		dms->state = DS_SINGLE_STEP;
-		cnd_signal(&dms->cnd_wait);
+		cond_signal(&dms->cnd_wait);
 	}
 }
 
@@ -157,7 +157,7 @@ void dms_single_instruction(DmsContext *dms) {
 	
 	if (dms->state == DS_WAIT) {
 		dms->state = DS_SINGLE_INSTRUCTION;
-		cnd_signal(&dms->cnd_wait);
+		cond_signal(&dms->cnd_wait);
 	}
 }
 
@@ -166,7 +166,7 @@ void dms_run(DmsContext *dms) {
 	
 	if (dms->state == DS_WAIT) {
 		dms->state = DS_RUN;
-		cnd_signal(&dms->cnd_wait);
+		cond_signal(&dms->cnd_wait);
 	}
 }
 
@@ -175,7 +175,7 @@ void dms_pause(DmsContext *dms) {
 	
 	if (dms->state == DS_RUN) {
 		dms->state = DS_WAIT;
-		cnd_signal(&dms->cnd_wait);
+		cond_signal(&dms->cnd_wait);
 	}
 }
 
@@ -183,7 +183,7 @@ void dms_reset(DmsContext *dms) {
 	assert(dms);
 
 	dms->state = DS_RESET;
-	cnd_signal(&dms->cnd_wait);
+	cond_signal(&dms->cnd_wait);
 }
 
 
