@@ -23,3 +23,22 @@ bool thread_join(thread_t thread, int *thread_res) {
 
 #endif // DMS_THREADS_C11
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// posix threads
+//
+
+#ifdef DMS_THREADS_POSIX
+
+bool thread_create_joinable(thread_t *thread, thread_func_t func, void *arg) {
+	int res = pthread_create(thread, NULL, (void *(*)(void *)) func, arg);
+	return res == 0;
+}
+
+bool thread_join(thread_t thread, int *thread_res) {
+	int res = pthread_join(thread, (void **) thread_res);
+	return res == 0;
+}
+
+#endif // DMS_THREADS_POSIX
+
