@@ -7,9 +7,9 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#ifdef PLATFORM_LINUX
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_EMSCRIPTEN)
 	#include <time.h>
-#endif // PLATFORM_LINUX
+#endif // PLATFORM_LINUX or PLATFORM_EMSCRIPTEN
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -29,7 +29,7 @@ typedef struct Clock_private {
 
 #define PRIVATE(clock)	((Clock_private *) (clock))
 
-#ifdef PLATFORM_LINUX
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_EMSCRIPTEN)
 
 static inline int64_t timespec_to_int(struct timespec t) {
 	return t.tv_sec * 1000000000 + t.tv_nsec;
@@ -42,7 +42,7 @@ static inline int64_t timestamp_current(void) {
 	return timespec_to_int(ts);
 }
 
-#endif // PLATFORM_LINUX
+#endif // PLATFORM_LINUX or PLATFORM_EMSCRIPTEN
 
 static inline void process_update(Clock *clock, int64_t cur_time) {
 	// FIXME: smoothing would be nice (probably)

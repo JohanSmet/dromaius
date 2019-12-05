@@ -5,6 +5,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif // __EMSCRIPTEN__
+
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
 #define NK_INCLUDE_STANDARD_VARARGS
@@ -50,13 +54,15 @@ static void error_callback(int e, const char *d) {
 	printf("GLFW Error %d: %s\n", e, d);
 }
 
+/* Platform */
+static GLFWwindow *win;
+static struct nk_context *ctx;
+
+void main_loop(void *arg);
+
 int main(void)
 {
-    /* Platform */
-    static GLFWwindow *win;
     int width = 0, height = 0;
-    struct nk_context *ctx;
-    struct nk_colorf bg;
 
     /* GLFW */
     glfwSetErrorCallback(error_callback);
@@ -64,18 +70,30 @@ int main(void)
         fprintf(stdout, "[GFLW] failed to init!\n");
         exit(1);
     }
+
+#ifdef __EMSCRIPTEN__
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+    glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+#else
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	#ifdef __APPLE__
+		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	#endif
 #endif
     win = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, nuklear_config_window_title(), NULL, NULL);
     glfwMakeContextCurrent(win);
     glfwGetWindowSize(win, &width, &height);
 
     /* OpenGL */
+#ifdef __EMSCRIPTEN__
+	if (!gladLoadGLES2Loader((GLADloadproc) glfwGetProcAddress)) {
+#else
 	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+#endif
         fprintf(stderr, "Failed to setup glad\n");
         exit(1);
 	}
@@ -106,31 +124,42 @@ int main(void)
 
 	nuklear_on_start(ctx);
 
-    bg.r = 0.10f, bg.g = 0.18f, bg.b = 0.24f, bg.a = 1.0f;
-    while (!glfwWindowShouldClose(win))
-    {
-        /* Input */
-        glfwPollEvents();
-        nk_glfw3_new_frame();
-
-        /* GUI */
-		nuklear_gui(ctx);
-
-        /* Draw */
-        glfwGetWindowSize(win, &width, &height);
-        glViewport(0, 0, width, height);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glClearColor(bg.r, bg.g, bg.b, bg.a);
-        /* IMPORTANT: `nk_glfw_render` modifies some global OpenGL state
-         * with blending, scissor, face culling, depth test and viewport and
-         * defaults everything back into a default state.
-         * Make sure to either a.) save and restore or b.) reset your own state after
-         * rendering the UI. */
-        nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
-        glfwSwapBuffers(win);
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop_arg(main_loop, NULL, 0, 1);
+#else 
+    while (!glfwWindowShouldClose(win)) {
+		main_loop(NULL);
     }
     nk_glfw3_shutdown();
     glfwTerminate();
+#endif
     return 0;
+
+}
+
+void main_loop(void *arg) {
+
+    struct nk_colorf bg = {.r = 0.10f, .g = 0.18f, .b = 0.24f, .a = 1.0f};
+    int width = 0, height = 0;
+
+	/* Input */
+	glfwPollEvents();
+	nk_glfw3_new_frame();
+
+	/* GUI */
+	nuklear_gui(ctx);
+
+	/* Draw */
+	glfwGetWindowSize(win, &width, &height);
+	glViewport(0, 0, width, height);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(bg.r, bg.g, bg.b, bg.a);
+	/* IMPORTANT: `nk_glfw_render` modifies some global OpenGL state
+	 * with blending, scissor, face culling, depth test and viewport and
+	 * defaults everything back into a default state.
+	 * Make sure to either a.) save and restore or b.) reset your own state after
+	 * rendering the UI. */
+	nk_glfw3_render(NK_ANTI_ALIASING_ON, MAX_VERTEX_BUFFER, MAX_ELEMENT_BUFFER);
+	glfwSwapBuffers(win);
 }
 

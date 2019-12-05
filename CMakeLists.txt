@@ -42,14 +42,18 @@ target_sources(${SFL_TARGET}
 )
 
 # external library - glfw
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+if (NOT EMSCRIPTEN)
+	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(libs/glfw)
+	add_subdirectory(libs/glfw)
+endif()
 
 # external library - OpenGL
-find_package(OpenGL REQUIRED)
+if (NOT EMSCRIPTEN)
+	find_package(OpenGL REQUIRED)
+endif()
 
 # external library - nuklear
 set (NUKLEAR_TARGET nuklear)
@@ -122,6 +126,32 @@ target_sources(${GUI_TARGET}
 target_include_directories(${GUI_TARGET} PRIVATE libs src)
 target_link_libraries(${GUI_TARGET} PRIVATE ${NUKLEAR_TARGET})
 target_link_libraries(${GUI_TARGET} PRIVATE ${LIB_TARGET})
+
+if (EMSCRIPTEN) 
+	target_link_libraries(${GUI_TARGET} PRIVATE 
+		"-s USE_GLFW=3" 
+		"-s USE_PTHREADS=1"
+		"-s WASM=1"
+		"-s ALLOW_MEMORY_GROWTH=1"
+		"-s WASM_MEM_MAX=128MB"
+		"-s BINARYEN_TRAP_MODE=clamp"
+		"-s ASSERTIONS=2"
+		"-s USE_WEBGL2=1"
+		"-s FULL_ES3=1"
+		"--no-heap-copy"
+	)
+	target_link_libraries(${GUI_TARGET} PRIVATE
+		"--shell-file ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/emscripten_minimal.html"
+		"-o dromaius.html"
+	)
+	target_link_libraries(${GUI_TARGET} PRIVATE
+		"--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/runtime@/runtime"
+			"--exclude-file *Makefile"
+			"--exclude-file *.gitignore"
+			"--exclude-file *.s"
+			"--exclude-file *.cfg"
+	)
+endif()
 
 # unit tests
 enable_testing()

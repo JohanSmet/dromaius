@@ -1,7 +1,8 @@
 /*
  * Nuklear - 1.32.0 - public domain
  * no warrenty implied; use at your own risk.
- * authored from 2015-2016 by Micha Mettke
+ * authored from 2015-2017 by Micha Mettke
+ * emscripten from 2016 by Chris Willcocks
  */
 /*
  * ==============================================================
@@ -91,10 +92,14 @@ static struct nk_glfw {
     struct nk_vec2 double_click_pos;
 } glfw;
 
+#ifdef __EMSCRIPTEN__
+  #define NK_SHADER_VERSION "#version 100\n"
+#else
 #ifdef __APPLE__
   #define NK_SHADER_VERSION "#version 150\n"
 #else
   #define NK_SHADER_VERSION "#version 300 es\n"
+#endif
 #endif
 
 NK_API void
@@ -104,11 +109,19 @@ nk_glfw3_device_create(void)
     static const GLchar *vertex_shader =
         NK_SHADER_VERSION
         "uniform mat4 ProjMtx;\n"
+#ifdef __EMSCRIPTEN__
+        "attribute vec2 Position;\n"
+        "attribute vec2 TexCoord;\n"
+        "attribute vec4 Color;\n"
+        "varying vec2 Frag_UV;\n"
+        "varying vec4 Frag_Color;\n"
+#else
         "in vec2 Position;\n"
         "in vec2 TexCoord;\n"
         "in vec4 Color;\n"
         "out vec2 Frag_UV;\n"
         "out vec4 Frag_Color;\n"
+#endif
         "void main() {\n"
         "   Frag_UV = TexCoord;\n"
         "   Frag_Color = Color;\n"
@@ -118,11 +131,20 @@ nk_glfw3_device_create(void)
         NK_SHADER_VERSION
         "precision mediump float;\n"
         "uniform sampler2D Texture;\n"
+#ifdef __EMSCRIPTEN__
+        "varying vec2 Frag_UV;\n"
+        "varying vec4 Frag_Color;\n"
+#else
         "in vec2 Frag_UV;\n"
         "in vec4 Frag_Color;\n"
         "out vec4 Out_Color;\n"
+#endif
         "void main(){\n"
+#ifdef __EMSCRIPTEN__
+        "   gl_FragColor = Frag_Color * texture2D(Texture, Frag_UV);\n"
+#else
         "   Out_Color = Frag_Color * texture(Texture, Frag_UV.st);\n"
+#endif
         "}\n";
 
     struct nk_glfw_device *dev = &glfw.ogl;
@@ -177,7 +199,9 @@ nk_glfw3_device_create(void)
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#ifndef __EMSCRIPTEN__
     glBindVertexArray(0);
+#endif
 }
 
 NK_INTERN void
@@ -211,7 +235,6 @@ NK_API void
 nk_glfw3_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element_buffer)
 {
     struct nk_glfw_device *dev = &glfw.ogl;
-    struct nk_buffer vbuf, ebuf;
     GLfloat ortho[4][4] = {
         {2.0f, 0.0f, 0.0f, 0.0f},
         {0.0f,-2.0f, 0.0f, 0.0f},
@@ -250,8 +273,13 @@ nk_glfw3_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, max_element_buffer, NULL, GL_STREAM_DRAW);
 
         /* load draw vertices & elements directly into vertex + element buffer */
+#ifndef __EMSCRIPTEN__
         vertices = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
         elements = glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+#else
+        vertices = malloc((size_t)max_vertex_buffer);
+        elements = malloc((size_t)max_element_buffer);
+#endif
         {
             /* fill convert configuration */
             struct nk_convert_config config;
@@ -274,12 +302,20 @@ nk_glfw3_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element
             config.line_AA = AA;
 
             /* setup buffers to load vertices and elements */
+            {struct nk_buffer vbuf, ebuf;
             nk_buffer_init_fixed(&vbuf, vertices, (size_t)max_vertex_buffer);
             nk_buffer_init_fixed(&ebuf, elements, (size_t)max_element_buffer);
-            nk_convert(&glfw.ctx, &dev->cmds, &vbuf, &ebuf, &config);
+            nk_convert(&glfw.ctx, &dev->cmds, &vbuf, &ebuf, &config);}
         }
+#ifdef __EMSCRIPTEN__
+        glBufferSubData(GL_ARRAY_BUFFER, 0, (size_t)max_vertex_buffer, vertices);
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, (size_t)max_element_buffer, elements);
+        free(vertices);
+        free(elements);
+#else
         glUnmapBuffer(GL_ARRAY_BUFFER);
         glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+#endif
 
         /* iterate over and execute each draw command */
         nk_draw_foreach(cmd, &glfw.ctx, &dev->cmds)
@@ -301,7 +337,9 @@ nk_glfw3_render(enum nk_anti_aliasing AA, int max_vertex_buffer, int max_element
     glUseProgram(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+#ifndef __EMSCRIPTEN__
     glBindVertexArray(0);
+#endif
     glDisable(GL_BLEND);
     glDisable(GL_SCISSOR_TEST);
 }
@@ -332,14 +370,14 @@ nk_glfw3_mouse_button_callback(GLFWwindow* window, int button, int action, int m
         double dt = glfwGetTime() - glfw.last_button_click;
         if (dt > NK_GLFW_DOUBLE_CLICK_LO && dt < NK_GLFW_DOUBLE_CLICK_HI) {
             glfw.is_double_click_down = nk_true;
-            glfw.double_click_pos = nk_vec2((float)x, (float)y);
+            glfw.double_click_pos = nk_vec2(x, y);
         }
         glfw.last_button_click = glfwGetTime();
     } else glfw.is_double_click_down = nk_false;
 }
 
 NK_INTERN void
-nk_glfw3_clipboard_paste(nk_handle usr, struct nk_text_edit *edit)
+nk_glfw3_clipbard_paste(nk_handle usr, struct nk_text_edit *edit)
 {
     const char *text = glfwGetClipboardString(glfw.win);
     if (text) nk_textedit_paste(edit, text, nk_strlen(text));
@@ -347,7 +385,7 @@ nk_glfw3_clipboard_paste(nk_handle usr, struct nk_text_edit *edit)
 }
 
 NK_INTERN void
-nk_glfw3_clipboard_copy(nk_handle usr, const char *text, int len)
+nk_glfw3_clipbard_copy(nk_handle usr, const char *text, int len)
 {
     char *str = 0;
     (void)usr;
@@ -370,8 +408,8 @@ nk_glfw3_init(GLFWwindow *win, enum nk_glfw_init_state init_state)
         glfwSetMouseButtonCallback(win, nk_glfw3_mouse_button_callback);
     }
     nk_init_default(&glfw.ctx, 0);
-    glfw.ctx.clip.copy = nk_glfw3_clipboard_copy;
-    glfw.ctx.clip.paste = nk_glfw3_clipboard_paste;
+    glfw.ctx.clip.copy = nk_glfw3_clipbard_copy;
+    glfw.ctx.clip.paste = nk_glfw3_clipbard_paste;
     glfw.ctx.clip.userdata = nk_handle_ptr(0);
     glfw.last_button_click = 0;
     nk_glfw3_device_create();
@@ -418,7 +456,7 @@ nk_glfw3_new_frame(void)
     for (i = 0; i < glfw.text_len; ++i)
         nk_input_unicode(ctx, glfw.text[i]);
 
-#ifdef NK_GLFW_GL3_MOUSE_GRABBING
+#if NK_GLFW_GL3_MOUSE_GRABBING
     /* optional grabbing behavior */
     if (ctx->input.mouse.grab)
         glfwSetInputMode(glfw.win, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -463,7 +501,7 @@ nk_glfw3_new_frame(void)
 
     glfwGetCursorPos(win, &x, &y);
     nk_input_motion(ctx, (int)x, (int)y);
-#ifdef NK_GLFW_GL3_MOUSE_GRABBING
+#if NK_GLFW_GL3_MOUSE_GRABBING
     if (ctx->input.mouse.grabbed) {
         glfwSetCursorPos(glfw.win, ctx->input.mouse.prev.x, ctx->input.mouse.prev.y);
         ctx->input.mouse.pos.x = ctx->input.mouse.prev.x;
@@ -473,7 +511,7 @@ nk_glfw3_new_frame(void)
     nk_input_button(ctx, NK_BUTTON_LEFT, (int)x, (int)y, glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS);
     nk_input_button(ctx, NK_BUTTON_MIDDLE, (int)x, (int)y, glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_MIDDLE) == GLFW_PRESS);
     nk_input_button(ctx, NK_BUTTON_RIGHT, (int)x, (int)y, glfwGetMouseButton(win, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
-    nk_input_button(ctx, NK_BUTTON_DOUBLE, (int)glfw.double_click_pos.x, (int)glfw.double_click_pos.y, glfw.is_double_click_down);
+    nk_input_button(ctx, NK_BUTTON_DOUBLE, glfw.double_click_pos.x, glfw.double_click_pos.y, glfw.is_double_click_down);
     nk_input_scroll(ctx, glfw.scroll);
     nk_input_end(&glfw.ctx);
     glfw.text_len = 0;
