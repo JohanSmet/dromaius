@@ -11,6 +11,9 @@
 #elif defined(PLATFORM_EMSCRIPTEN)
 	#undef DMS_THREADS_C11
 	#define DMS_THREADS_POSIX
+#elif defined(PLATFORM_DARWIN)
+	#undef DMS_THREADS_C11
+	#define DMS_THREADS_POSIX
 #endif // (platform detection)
 
 //////////////////////////////////////////////////////////////////////////////

@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_EMSCRIPTEN)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_EMSCRIPTEN) || defined(PLATFORM_DARWIN)
 	#include <time.h>
 #endif // PLATFORM_LINUX or PLATFORM_EMSCRIPTEN
 
@@ -29,7 +29,7 @@ typedef struct Clock_private {
 
 #define PRIVATE(clock)	((Clock_private *) (clock))
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_EMSCRIPTEN)
+#if defined(PLATFORM_LINUX) || defined(PLATFORM_EMSCRIPTEN) || defined(PLATFORM_DARWIN)
 
 static inline int64_t timespec_to_int(struct timespec t) {
 	return t.tv_sec * 1000000000 + t.tv_nsec;

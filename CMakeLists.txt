@@ -69,7 +69,7 @@ target_sources(${NUKLEAR_TARGET}
 		libs/nuklear/nuklear_glfw_gl3.h
 )
 
-target_include_directories(${NUKLEAR_TARGET} PRIVATE libs libs/nuklear)
+target_include_directories(${NUKLEAR_TARGET} PRIVATE libs libs/nuklear libs/glad)
 target_include_directories(${NUKLEAR_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_link_libraries(${NUKLEAR_TARGET} PRIVATE glfw)
 target_link_libraries(${NUKLEAR_TARGET} PRIVATE ${OPENGL_LIBRARIES})
