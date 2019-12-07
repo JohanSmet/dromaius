@@ -35,15 +35,15 @@ void nuklear_on_start(struct nk_context *ctx) {
 
 	// create UI panels
 	ui_context.pnl_ram = panel_memory_init(
-							ctx, (struct nk_vec2) {300, 100}, "RAM",
+							ctx, (struct nk_vec2) {20, 170}, "RAM",
 							ui_context.device->ram->data_array, 0x8000, 0x0000);
 	ui_context.pnl_rom = panel_memory_init(
-							ctx, (struct nk_vec2) {750, 100}, "ROM",
+							ctx, (struct nk_vec2) {480, 170}, "ROM",
 							ui_context.device->rom->data_array, 0x8000, 0x8000);
 
 	ui_context.pnl_control = panel_control_init(ctx, nk_vec2(20, 20), ui_context.dms_ctx, "runtime/minimal_6502");
 
-	ui_context.pnl_monitor = panel_monitor_init(ctx, nk_vec2(750, 400), ui_context.dms_ctx);
+	ui_context.pnl_monitor = panel_monitor_init(ctx, nk_vec2(480, 400), ui_context.dms_ctx);
 
 	// load default rom
 	panel_control_select_rom(ui_context.pnl_control, 0);
@@ -61,10 +61,10 @@ void nuklear_gui(struct nk_context *ctx) {
 	}
 
 	panel_control_display(ui_context.pnl_control);
-	panel_cpu_6502(ctx, (struct nk_vec2) {300, 400}, ui_context.device->cpu);
+	panel_cpu_6502(ctx, (struct nk_vec2) {20, 400}, ui_context.device->cpu);
 	panel_memory_display(ui_context.pnl_ram, ui_context.last_pc);
 	panel_memory_display(ui_context.pnl_rom, ui_context.last_pc);
-	panel_clock(ctx, ui_context.device->clock, (struct nk_vec2) {20, 400});
+	panel_clock(ctx, ui_context.device->clock, (struct nk_vec2) {400, 20});
 	panel_monitor_display(ui_context.pnl_monitor);
 }
 
