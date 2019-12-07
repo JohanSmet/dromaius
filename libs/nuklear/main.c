@@ -62,7 +62,8 @@ void main_loop(void *arg);
 
 int main(void)
 {
-    int width = 0, height = 0;
+    int width = WINDOW_WIDTH;
+	int height = WINDOW_HEIGHT;
 
     /* GLFW */
     glfwSetErrorCallback(error_callback);
@@ -76,6 +77,8 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	width = EM_ASM_INT_V(return window.innerWidth);
+	height = EM_ASM_INT_V(return window.innerHeight);
 #else
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -84,8 +87,10 @@ int main(void)
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	#endif
 #endif
-    win = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, nuklear_config_window_title(), NULL, NULL);
+    win = glfwCreateWindow(width, height, nuklear_config_window_title(), NULL, NULL);
     glfwMakeContextCurrent(win);
+
+	/* get width & height of the content area */
     glfwGetWindowSize(win, &width, &height);
 
     /* OpenGL */
@@ -98,7 +103,9 @@ int main(void)
         exit(1);
 	}
 
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+	printf("%dx%d\n", width, height);
+
+    glViewport(0, 0, width, height);
 
     ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
     /* Load Fonts: if none of these are loaded a default font will be used  */
