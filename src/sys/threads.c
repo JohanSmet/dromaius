@@ -42,3 +42,70 @@ bool thread_join(thread_t thread, int *thread_res) {
 
 #endif // DMS_THREADS_POSIX
 
+//////////////////////////////////////////////////////////////////////////////
+//
+// win32 threads
+//
+
+#ifdef DMS_THREADS_WIN32
+
+
+bool thread_create_joinable(thread_t* thread, thread_func_t func, void* arg) {
+	*thread = CreateThread(NULL, 0, func, arg, 0, NULL);
+	return *thread != 0;
+}
+
+bool thread_join(thread_t thread, int* thread_res) {
+	if (WaitForSingleObject(thread, INFINITE) == WAIT_FAILED) {
+		return false;
+	}
+
+	if (thread_res != NULL) {
+		if (!GetExitCodeThread(thread, thread_res)) {
+			return false;
+		}
+	}
+
+	CloseHandle(thread);
+	return false;
+}
+
+bool mutex_init_plain(mutex_t* mutex) {
+	InitializeCriticalSection(mutex);
+	return true;
+}
+
+bool mutex_destroy(mutex_t* mutex) {
+	DeleteCriticalSection(mutex);
+	return true;
+}
+
+bool mutex_lock(mutex_t* mutex) {
+	EnterCriticalSection(mutex);
+	return true;
+}
+
+bool mutex_unlock(mutex_t* mutex) {
+	LeaveCriticalSection(mutex);
+	return true;
+}
+
+bool cond_init(cond_t* cond) {
+	InitializeConditionVariable(cond);
+	return true;
+}
+
+bool cond_destroy(cond_t* cond) {
+	return true;
+}
+
+bool cond_wait(cond_t* cond, mutex_t* mutex) {
+	return SleepConditionVariableCS(cond, mutex, INFINITE) != FALSE;
+}
+
+bool cond_signal(cond_t* cond) {
+	WakeConditionVariable(cond);
+	return true;
+}
+
+#endif // DMS_THREADS_WIN32

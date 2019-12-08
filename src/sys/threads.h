@@ -5,15 +5,18 @@
 #ifndef DROMAIUS_SYS_THREADS_H
 #define DROMAIUS_SYS_THREADS_H
 
+#undef DMS_THREADS_C11
+#undef DMS_THREADS_POSIX
+#undef DMS_THREADS_WIN32
+
 #ifdef PLATFORM_LINUX
 	#define DMS_THREADS_C11
-	#undef DMS_THREADS_POSIX
 #elif defined(PLATFORM_EMSCRIPTEN)
-	#undef DMS_THREADS_C11
 	#define DMS_THREADS_POSIX
 #elif defined(PLATFORM_DARWIN)
-	#undef DMS_THREADS_C11
 	#define DMS_THREADS_POSIX
+#elif defined(PLATFORM_WINDOWS)
+	#define DMS_THREADS_WIN32
 #endif // (platform detection)
 
 //////////////////////////////////////////////////////////////////////////////
@@ -73,5 +76,42 @@ bool thread_join(thread_t thread, int *thread_res);
 #define cond_signal(c)			pthread_cond_signal((c))
 
 #endif // DMS_THREADS_POSIX
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Win32 threads
+//
+
+#ifdef DMS_THREADS_WIN32
+
+#include <stdbool.h>
+
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
+typedef void *				thread_t;
+typedef CRITICAL_SECTION	mutex_t;
+typedef CONDITION_VARIABLE	cond_t;
+
+typedef int (*thread_func_t)(void *);
+
+bool thread_create_joinable(thread_t *thread, thread_func_t func, void *arg);
+bool thread_join(thread_t thread, int *thread_res);
+
+bool mutex_init_plain(mutex_t *mutex);
+bool mutex_destroy(mutex_t *mutex);
+bool mutex_lock(mutex_t *mutex);
+bool mutex_unlock(mutex_t *mutex);
+
+bool cond_init(cond_t *cond);
+bool cond_destroy(cond_t* cond);
+bool cond_wait(cond_t* cond, mutex_t* mutex);
+bool cond_signal(cond_t* cond);
+
+#define _Atomic
+
+
+#endif // DMS_THREADS_WIN32
+
 
 #endif // DROMAIUS_SYS_THREADS_H
