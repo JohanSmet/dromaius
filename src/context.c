@@ -211,7 +211,8 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 
 	if (cmd[0] == 'g') {		// "g"oto address
 		int64_t addr;
-		if (sscanf(cmd + 1, "%lx", &addr) == 1) {
+
+		if (string_to_hexint(cmd + 1, &addr)) {
 			DevMinimal6502 *dev = dms_get_device(dms);
 
 			// change clock toggle each time _process is called
@@ -235,7 +236,7 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 		}
 	} else if (cmd[0] == 'b') {		// toggle "b"reak-point
 		int64_t addr;
-		if (sscanf(cmd + 1, "%lx", &addr) == 1) {
+		if (string_to_hexint(cmd + 1, &addr)) {
 			static const char *disp_break[] = {"unset", "set"};
 			bool set = dms_toggle_breakpoint(dms, addr);
 			arr_printf(*reply, "OK: breakpoint at 0x%lx %s", addr, disp_break[set]);

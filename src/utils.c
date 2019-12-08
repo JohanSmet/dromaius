@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
 
 size_t file_load_binary_fixed(const char *filename, uint8_t *buffer, size_t max_len) {
 	assert(filename);
@@ -74,3 +75,10 @@ char *arr__printf(char *array, const char *fmt, ...) {
 	arrsetlen(array, arrlen(array) + n - 1);
     return array;
 }
+
+bool string_to_hexint(const char* str, int64_t* val) {
+	errno = 0;
+	*val = strtoll(str, NULL, 16);
+	return errno == 0;
+}
+

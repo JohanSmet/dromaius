@@ -12,5 +12,6 @@ void dir_list_files(const char *path, const char *ext, const char *prefix, const
 char *arr__printf(char *array, const char *fmt, ...);
 #define arr_printf(a, ...) (a) = arr__printf((a), __VA_ARGS__)
 
+bool string_to_hexint(const char* str, int64_t* val);
 
 #endif // DROMAIUS_UTILS_H
