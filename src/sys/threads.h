@@ -108,9 +108,6 @@ bool cond_destroy(cond_t* cond);
 bool cond_wait(cond_t* cond, mutex_t* mutex);
 bool cond_signal(cond_t* cond);
 
-#define _Atomic
-
-
 #endif // DMS_THREADS_WIN32
 
 

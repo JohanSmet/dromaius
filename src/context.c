@@ -26,7 +26,7 @@ typedef enum DMS_STATE {
 	DS_RUN = 3,
 	DS_RESET = 98,
 	DS_EXIT = 99
-} _Atomic DMS_STATE;
+} DMS_STATE;
 
 typedef struct DmsContext {
 	DevMinimal6502 *device;	
@@ -58,19 +58,17 @@ static void *context_execution(DmsContext *dms) {
 
 	while (true) {
 
+		mutex_lock(&dms->mtx_wait);
+
 		while (dms->state == DS_WAIT) {
-			mutex_lock(&dms->mtx_wait);
 			cond_wait(&dms->cnd_wait, &dms->mtx_wait);
 		}
 
-		mutex_unlock(&dms->mtx_wait);
-		
 		bool prev_sync = dms->device->line_cpu_sync;
 
 		dev_minimal_6502_process(dms->device);
 
-		int cur_state = dms->state;
-		switch (cur_state) {
+		switch (dms->state) {
 			case DS_SINGLE_STEP :
 				dms->state = DS_WAIT;
 				break;
@@ -92,9 +90,17 @@ static void *context_execution(DmsContext *dms) {
 			case DS_EXIT:
 				return NULL;
 		}
+
+		mutex_unlock(&dms->mtx_wait);
 	}
 
 	return NULL;
+}
+
+static inline void change_state(DmsContext *context, DMS_STATE new_state) {
+	mutex_lock(&context->mtx_wait);
+	context->state = new_state;
+	mutex_unlock(&context->mtx_wait);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -137,7 +143,7 @@ void dms_start_execution(DmsContext *dms) {
 void dms_stop_execution(DmsContext *dms) {
 	assert(dms);
 
-	dms->state = DS_EXIT;
+	change_state(dms, DS_EXIT);
 
 	int thread_res;
 	thread_join(dms->thread, &thread_res);
@@ -147,7 +153,7 @@ void dms_single_step(DmsContext *dms) {
 	assert(dms);
 	
 	if (dms->state == DS_WAIT) {
-		dms->state = DS_SINGLE_STEP;
+		change_state(dms, DS_SINGLE_STEP);
 		cond_signal(&dms->cnd_wait);
 	}
 }
@@ -156,7 +162,7 @@ void dms_single_instruction(DmsContext *dms) {
 	assert(dms);
 	
 	if (dms->state == DS_WAIT) {
-		dms->state = DS_SINGLE_INSTRUCTION;
+		change_state(dms, DS_SINGLE_INSTRUCTION);
 		cond_signal(&dms->cnd_wait);
 	}
 }
@@ -165,7 +171,7 @@ void dms_run(DmsContext *dms) {
 	assert(dms);
 	
 	if (dms->state == DS_WAIT) {
-		dms->state = DS_RUN;
+		change_state(dms, DS_RUN);
 		cond_signal(&dms->cnd_wait);
 	}
 }
@@ -174,7 +180,7 @@ void dms_pause(DmsContext *dms) {
 	assert(dms);
 	
 	if (dms->state == DS_RUN) {
-		dms->state = DS_WAIT;
+		change_state(dms, DS_WAIT);
 		cond_signal(&dms->cnd_wait);
 	}
 }
@@ -182,7 +188,7 @@ void dms_pause(DmsContext *dms) {
 void dms_reset(DmsContext *dms) {
 	assert(dms);
 
-	dms->state = DS_RESET;
+	change_state(dms, DS_RESET);
 	cond_signal(&dms->cnd_wait);
 }
 
