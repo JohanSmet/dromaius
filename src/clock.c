@@ -7,9 +7,29 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_EMSCRIPTEN) || defined(PLATFORM_DARWIN)
+#if defined(PLATFORM_LINUX) 
+	#define DMS_TIMER_POSIX
+	#undef DMS_TIMER_WIN32
+#elif defined(PLATFORM_EMSCRIPTEN) 
+	#define DMS_TIMER_POSIX
+	#undef DMS_TIMER_WIN32
+#elif defined(PLATFORM_DARWIN)
+	#define DMS_TIMER_POSIX
+	#undef DMS_TIMER_WIN32
+#elif defined(PLATFORM_WINDOWS)
+	#undef DMS_TIMER_POSIX
+	#define DMS_TIMER_WIN32
+#endif // platform detection
+
+#ifdef DMS_TIMER_POSIX
 	#include <time.h>
-#endif // PLATFORM_LINUX or PLATFORM_EMSCRIPTEN
+#endif // DMS_TIMER_POSIX
+
+#ifdef DMS_TIMER_WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif // DMS_TIMER_WIN32
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -29,7 +49,10 @@ typedef struct Clock_private {
 
 #define PRIVATE(clock)	((Clock_private *) (clock))
 
-#if defined(PLATFORM_LINUX) || defined(PLATFORM_EMSCRIPTEN) || defined(PLATFORM_DARWIN)
+#ifdef DMS_TIMER_POSIX
+
+static inline void timer_init(void) {
+}
 
 static inline int64_t timespec_to_int(struct timespec t) {
 	return t.tv_sec * 1000000000 + t.tv_nsec;
@@ -42,11 +65,32 @@ static inline int64_t timestamp_current(void) {
 	return timespec_to_int(ts);
 }
 
-#endif // PLATFORM_LINUX or PLATFORM_EMSCRIPTEN
+#endif // DMS_TIMER_POSIX
+
+#ifdef DMS_TIMER_WIN32
+
+static LARGE_INTEGER qpc_ticks_per_second = { 0 };
+
+static inline void timer_init(void) {
+	if (qpc_ticks_per_second.QuadPart == 0 && !QueryPerformanceFrequency(&qpc_ticks_per_second)) {
+		// FIXME: error reporting
+	}
+}
+
+static inline int64_t timestamp_current(void) {
+	LARGE_INTEGER count;
+
+	QueryPerformanceCounter(&count);
+	return (count.QuadPart * 1000000000) / qpc_ticks_per_second.QuadPart;
+}
+
+#endif // DMS_TIMER_WIN32
+
 
 static inline void process_update(Clock *clock, int64_t cur_time) {
 	// FIXME: smoothing would be nice (probably)
-	clock->real_frequency = 1e9 / ((cur_time - PRIVATE(clock)->time_last_change) * 2);
+	
+	clock->real_frequency = 1000000000 / ((cur_time - PRIVATE(clock)->time_last_change) * 2);
 
 	PRIVATE(clock)->time_last_change = cur_time;
 	PRIVATE(clock)->time_next_change = cur_time + clock->conf_half_period_ns;
@@ -60,6 +104,8 @@ static inline void process_update(Clock *clock, int64_t cur_time) {
 //
 
 Clock *clock_create(uint32_t frequency) {
+	timer_init();
+
 	Clock_private *clock = (Clock_private *) malloc(sizeof(Clock_private));
 	
 	clock->intf.pin_clock = true;
@@ -82,7 +128,7 @@ void clock_set_frequency(Clock *clock, uint32_t frequency) {
 	assert(clock);
 
 	clock->conf_frequency = frequency;
-	clock->conf_half_period_ns = (frequency != 0) ? 1e9 / (frequency * 2) : 0;
+	clock->conf_half_period_ns = (frequency != 0) ? 1000000000 / (frequency * 2) : 0;
 	PRIVATE(clock)->time_next_change = PRIVATE(clock)->time_last_change + clock->conf_half_period_ns;
 }
 
