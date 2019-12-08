@@ -16,7 +16,7 @@
 Ram8d16a *ram_8d16a_create(uint8_t num_address_lines) {
 	assert(num_address_lines > 0 && num_address_lines <= 16);
 	
-	size_t data_size = 1 << num_address_lines;
+	size_t data_size = 1ll << num_address_lines;
 
 	Ram8d16a *ram = (Ram8d16a *) malloc(sizeof(Ram8d16a) + data_size);
 	memset(ram, 0, sizeof(Ram8d16a) + data_size);
@@ -25,7 +25,7 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines) {
 	ram->pin_we_b = ACTLO_DEASSERT;
 	ram->pin_oe_b = ACTLO_DEASSERT;
 
-	ram->msk_address = data_size - 1;
+	ram->msk_address = (data_size - 1) & 0xffff;
 	ram->data_size = data_size;
 
 	return ram;

@@ -136,7 +136,7 @@ void panel_control_display(struct PanelControl *pnl) {
 
 		nk_layout_row(pnl->nk_ctx, NK_STATIC, 25, 3, (float[]) {80, 200, 56});
 		nk_labelf(pnl->nk_ctx, NK_TEXT_RIGHT, "ROM-image: ");
-		pnl->current_rom = nk_combo(pnl->nk_ctx, pnl->rom_files, arrlen(pnl->rom_files), pnl->current_rom, 25, nk_vec2(200,200));
+		pnl->current_rom = nk_combo(pnl->nk_ctx, pnl->rom_files, (int) arrlen(pnl->rom_files), pnl->current_rom, 25, nk_vec2(200,200));
 		if (nk_button_label(pnl->nk_ctx, "Load")) {
 			load_current_rom(pnl);
 		}
@@ -144,7 +144,7 @@ void panel_control_display(struct PanelControl *pnl) {
 		nk_layout_row(pnl->nk_ctx, NK_STATIC, 25, 3, (float[]) {80, 200, 56});
 		nk_labelf(pnl->nk_ctx, NK_TEXT_RIGHT, "RAM-image: ");
 		if (pnl->ram_files != NULL) {
-			pnl->current_ram = nk_combo(pnl->nk_ctx, pnl->ram_files, arrlen(pnl->ram_files), pnl->current_ram, 25, nk_vec2(200,200));
+			pnl->current_ram = nk_combo(pnl->nk_ctx, pnl->ram_files, (int) arrlen(pnl->ram_files), pnl->current_ram, 25, nk_vec2(200,200));
 			if (nk_button_label(pnl->nk_ctx, "Load")) {
 				load_current_ram(pnl);
 			}

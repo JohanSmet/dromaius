@@ -220,7 +220,7 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 			clock_set_frequency(dev->clock, 0);
 
 			// tell the cpu to override the location of the next instruction
-			cpu_6502_override_next_instruction_address(dev->cpu, addr);
+			cpu_6502_override_next_instruction_address(dev->cpu, addr & 0xffff);
 
 			// run computer until current instruction is finished
 			while (!(dev->line_cpu_sync && dev->cpu->reg_pc == addr)) {

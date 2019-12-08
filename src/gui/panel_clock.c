@@ -38,7 +38,7 @@ void panel_clock(struct nk_context *nk_ctx, Clock *clock, struct nk_vec2 pos) {
 
 		// configured frequency
 		int unit_idx = 0;
-		float value = clock->conf_frequency;
+		float value = (float) clock->conf_frequency;
 
 		if (value >= 1000000) {
 			value /= 1000000;
@@ -53,7 +53,7 @@ void panel_clock(struct nk_context *nk_ctx, Clock *clock, struct nk_vec2 pos) {
 		nk_combobox(nk_ctx, units, NK_LEN(units), &unit_idx, 25, nk_vec2(60,200));
 
 		if (clock->conf_frequency != value * factor[unit_idx]) {
-			clock_set_frequency(clock, value * factor[unit_idx]);
+			clock_set_frequency(clock, (uint32_t) (value * factor[unit_idx]));
 		}
 
 		// real frequency

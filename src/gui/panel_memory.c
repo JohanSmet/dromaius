@@ -43,13 +43,13 @@ typedef struct PanelMemory {
 //
 
 static inline void ui_spacer(struct nk_context *nk_ctx, int width) {
-	nk_layout_row_push(nk_ctx, width);
+	nk_layout_row_push(nk_ctx, (float) width);
 	nk_label(nk_ctx, "", NK_TEXT_LEFT);
 }
 
 static inline void ui_static(struct nk_context *nk_ctx, int width, const char *fmt, ...) {
     va_list args;
-	nk_layout_row_push(nk_ctx, width);
+	nk_layout_row_push(nk_ctx, (float) width);
     va_start(args, fmt);
     nk_labelfv(nk_ctx, NK_TEXT_LEFT, fmt, args);
     va_end(args);
@@ -58,7 +58,7 @@ static inline void ui_static(struct nk_context *nk_ctx, int width, const char *f
 static inline void memory_display_raw(PanelMemory *pnl, int width, int height) {
 	int index = 0;
 
-	nk_layout_row_static(pnl->nk_ctx, height, width - 10, 1);
+	nk_layout_row_static(pnl->nk_ctx, (float) height, width - 10, 1);
 
 	if (nk_group_begin(pnl->nk_ctx, "client", 0)) {
 
@@ -100,7 +100,7 @@ static inline void memory_display_disasm_6502(PanelMemory *pnl, int width, int h
 	const struct nk_color colors[] = { pnl->nk_ctx->style.text.color, nk_rgb(255,255,0)};
 
 	const int lbl_h = 18;
-	const int row_h = lbl_h + pnl->nk_ctx->style.window.spacing.y;
+	const int row_h = lbl_h + (int) pnl->nk_ctx->style.window.spacing.y;
 
 	if (pnl->follow_pc && pnl->last_pc != current_pc &&
 		current_pc > pnl->mem_offset && current_pc < pnl->mem_offset + pnl->mem_size) {
@@ -111,7 +111,7 @@ static inline void memory_display_disasm_6502(PanelMemory *pnl, int width, int h
 		nk_group_set_scroll(pnl->nk_ctx, "client", 0, y_ofs);
 	}
 
-	nk_layout_row_static(pnl->nk_ctx, height - 24, width - 10, 1);
+	nk_layout_row_static(pnl->nk_ctx, (float) height - 24, width - 10, 1);
 
 	if (nk_group_begin(pnl->nk_ctx, "client", 0)) {
 
@@ -123,7 +123,7 @@ static inline void memory_display_disasm_6502(PanelMemory *pnl, int width, int h
 
 			index += filt_6502_asm_line(pnl->mem, pnl->mem_size, index, pnl->mem_offset, &line);
 
-			nk_layout_row(pnl->nk_ctx, NK_STATIC, lbl_h, 2, (float[]) {6, 200});
+			nk_layout_row(pnl->nk_ctx, NK_STATIC, (float) lbl_h, 2, (float[]) {6, 200});
 			nk_label_colored(pnl->nk_ctx, symbols[is_current], NK_TEXT_RIGHT, colors[is_current]);
 			nk_label_colored(pnl->nk_ctx, line, NK_TEXT_LEFT, colors[is_current]);
 			arrsetlen(line, 0);
@@ -172,8 +172,8 @@ void panel_memory_display(struct PanelMemory *pnl, uint64_t current_pc) {
 		nk_label(pnl->nk_ctx, "Display type: ", NK_TEXT_RIGHT);
 		pnl->display_type = nk_combo(pnl->nk_ctx, display_types, NK_LEN(display_types), pnl->display_type, 24, nk_vec2(200,200));
 		
-		int w = nk_window_get_width(pnl->nk_ctx) - 16;
-		int h = nk_window_get_height(pnl->nk_ctx) - 24 - 56;
+		int w = (int) nk_window_get_width(pnl->nk_ctx) - 16;
+		int h = (int) nk_window_get_height(pnl->nk_ctx) - 24 - 56;
 
 		switch (pnl->display_type) {
 			case DT_RAW:
