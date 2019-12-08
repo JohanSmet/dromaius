@@ -107,7 +107,7 @@ target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
 # gui
 set (GUI_TARGET dromaius_gui)
 
-add_executable(${GUI_TARGET})
+add_executable(${GUI_TARGET} WIN32)
 target_sources(${GUI_TARGET}
 	PRIVATE
 		src/gui/main_gui.c
@@ -126,6 +126,10 @@ target_sources(${GUI_TARGET}
 target_include_directories(${GUI_TARGET} PRIVATE libs src)
 target_link_libraries(${GUI_TARGET} PRIVATE ${NUKLEAR_TARGET})
 target_link_libraries(${GUI_TARGET} PRIVATE ${LIB_TARGET})
+
+if (WIN32)
+	target_link_options(${GUI_TARGET} PRIVATE "/ENTRY:mainCRTStartup")
+endif()
 
 if (EMSCRIPTEN) 
 	target_link_libraries(${GUI_TARGET} PRIVATE 
