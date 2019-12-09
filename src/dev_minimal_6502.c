@@ -99,10 +99,6 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 
 void dev_minimal_6502_reset(DevMinimal6502 *device) {
 
-	// override clock frequency
-	uint32_t save_frequency = device->clock->conf_frequency;
-	clock_set_frequency(device->clock, 0);
-
 	// assert reset
 	device->line_reset_b = ACTLO_ASSERT;
 
@@ -119,9 +115,8 @@ void dev_minimal_6502_reset(DevMinimal6502 *device) {
 		dev_minimal_6502_process(device);
 	}
 
-	// restore clock
+	// reset clock
 	device->clock->cycle_count = 0;
-	clock_set_frequency(device->clock, save_frequency);
 }
 
 void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename) {

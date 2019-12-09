@@ -38,8 +38,9 @@
 
 typedef struct Clock_private {
 	Clock		intf;
-	int64_t		time_next_change;
 	int64_t		time_last_change;
+	int64_t		time_marked;
+	uint64_t	last_cycle_count;
 } Clock_private;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -86,18 +87,6 @@ static inline int64_t timestamp_current(void) {
 
 #endif // DMS_TIMER_WIN32
 
-
-static inline void process_update(Clock *clock, int64_t cur_time) {
-	// FIXME: smoothing would be nice (probably)
-	
-	clock->real_frequency = 1000000000 / ((cur_time - PRIVATE(clock)->time_last_change) * 2);
-
-	PRIVATE(clock)->time_last_change = cur_time;
-	PRIVATE(clock)->time_next_change = cur_time + clock->conf_half_period_ns;
-	clock->cycle_count += clock->pin_clock;
-	clock->pin_clock = !clock->pin_clock;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
@@ -112,9 +101,9 @@ Clock *clock_create(uint32_t frequency) {
 	clock_set_frequency(&clock->intf, frequency);
 	clock->intf.real_frequency = 0;
 	clock->intf.cycle_count = 0;
+	clock->last_cycle_count = 0;
 	
 	clock->time_last_change = timestamp_current();
-	clock->time_next_change = clock->time_last_change + clock->intf.conf_half_period_ns;
 
 	return (Clock *) clock;
 }
@@ -126,41 +115,45 @@ void clock_destroy(Clock *clock) {
 
 void clock_set_frequency(Clock *clock, uint32_t frequency) {
 	assert(clock);
+	assert(frequency > 0);
 
 	clock->conf_frequency = frequency;
-	clock->conf_half_period_ns = (frequency != 0) ? 1000000000 / (frequency * 2) : 0;
-	PRIVATE(clock)->time_next_change = PRIVATE(clock)->time_last_change + clock->conf_half_period_ns;
+	clock->conf_half_period_ns = 1000000000 / (frequency * 2);
+}
+
+void clock_mark(Clock *clock) {
+	assert(clock);
+
+	int64_t last_marked = PRIVATE(clock)->time_marked;
+	PRIVATE(clock)->time_marked = timestamp_current();
+
+	// try to calculate real frequency of the clock
+	int64_t time_delta = PRIVATE(clock)->time_marked - last_marked;
+	int64_t cycle_delta = clock->cycle_count - PRIVATE(clock)->last_cycle_count;
+
+	if (time_delta > 0 && cycle_delta > 0) {
+		clock->real_frequency = (cycle_delta * 1000000000) / time_delta;
+	} else {
+		clock->real_frequency = clock->conf_frequency;
+	}
+
+	PRIVATE(clock)->last_cycle_count = clock->cycle_count;
+}
+
+bool clock_is_caught_up(Clock *clock) {
+	return PRIVATE(clock)->time_last_change + clock->conf_half_period_ns > PRIVATE(clock)->time_marked;
 }
 
 void clock_process(Clock *clock) {
 	assert(clock);
 
-	// check if it is time to toggle the output
-	int64_t cur_time = timestamp_current();
-
-	if (cur_time >= PRIVATE(clock)->time_next_change) {
-		process_update(clock, cur_time);
-	}
+	PRIVATE(clock)->time_last_change += clock->conf_half_period_ns;
+	clock->cycle_count += clock->pin_clock;
+	clock->pin_clock = !clock->pin_clock;
 }
 
 void clock_wait_for_change(Clock *clock) {
 	assert(clock);
-
-	// conf_frequency == 0 means always toggle
-	if (clock->conf_frequency == 0) {
-		clock->pin_clock = !clock->pin_clock;
-		clock->cycle_count += clock->pin_clock;
-		return;
-	}
-
-	// check if it is time to toggle the output
-	int64_t cur_time = timestamp_current();
-
-	while (cur_time < PRIVATE(clock)->time_next_change) {
-		// FIXME: try to sleep?
-		cur_time = timestamp_current();
-	}
-
-	process_update(clock, cur_time);
+	assert(false && "not implemented yet");
 }
 
