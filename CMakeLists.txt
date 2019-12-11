@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.12)
 
 project(dromaius)
 
+# options
+option (NO_THREADING "Disable multithreading in the Dromaius context" OFF)
+
 # force C11 for all targets
 set(CMAKE_C_STANDARD 11)
 
@@ -103,6 +106,9 @@ target_include_directories(${LIB_TARGET} PRIVATE libs)
 target_link_libraries(${LIB_TARGET} PRIVATE ${SFL_TARGET})
 target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
 target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
+if (NO_THREADING)
+	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_NO_THREADING)
+endif()
 
 # gui
 set (GUI_TARGET dromaius_gui)

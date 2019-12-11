@@ -16,8 +16,12 @@ void dms_release_context(struct DmsContext *dms);
 void dms_set_device(struct DmsContext *dms, struct DevMinimal6502 *device);
 struct DevMinimal6502 *dms_get_device(struct DmsContext *dms);
 
+#ifndef DMS_NO_THREADING
 void dms_start_execution(struct DmsContext *dms);
 void dms_stop_execution(struct DmsContext *dms);
+#else
+void dms_execute(struct DmsContext *dms);
+#endif // DMS_NO_THREADING
 
 void dms_single_step(struct DmsContext *dms);
 void dms_single_instruction(struct DmsContext *dms);

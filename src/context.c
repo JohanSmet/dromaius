@@ -1,4 +1,7 @@
 // context.c - Johan Smet - BSD-3-Clause (see LICENSE)
+//
+// main external interface for others to control a Dromaius instance
+// define DMS_NO_THREADING to disable multithreading
 
 #include "context.h"
 #include "dev_minimal_6502.h"
@@ -30,13 +33,14 @@ typedef enum DMS_STATE {
 
 typedef struct DmsContext {
 	DevMinimal6502 *device;	
-
-	thread_t		thread;
 	DMS_STATE		state;
+	uint64_t *		breakpoints;
+
+#ifndef DMS_NO_THREADING
+	thread_t		thread;
 	mutex_t			mtx_wait;
 	cond_t			cnd_wait;
-
-	uint64_t *		breakpoints;
+#endif // DMS_NO_THREADING
 } DmsContext;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -91,6 +95,8 @@ static bool context_execute(DmsContext *dms) {
 	return true;
 }
 
+#ifndef DMS_NO_THREADING
+
 static void *context_background_thread(DmsContext *dms) {
 
 	bool keep_running = true;
@@ -118,6 +124,14 @@ static inline void change_state(DmsContext *context, DMS_STATE new_state) {
 	cond_signal(&context->cnd_wait);
 }
 
+#else
+
+static inline void change_state(DmsContext *context, DMS_STATE new_state) {
+	context->state = new_state;
+}
+
+#endif // DMS_NO_THREADING
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
@@ -127,6 +141,7 @@ DmsContext *dms_create_context(void) {
 	DmsContext *ctx = (DmsContext *) malloc(sizeof(DmsContext));
 	ctx->device = NULL;
 	ctx->breakpoints = NULL;
+	ctx->state = DS_WAIT;
 	return ctx;
 }
 
@@ -144,6 +159,8 @@ struct DevMinimal6502 *dms_get_device(struct DmsContext *dms) {
 	assert(dms);
 	return dms->device;
 }
+
+#ifndef DMS_NO_THREADING
 
 void dms_start_execution(DmsContext *dms) {
 	assert(dms);
@@ -163,6 +180,14 @@ void dms_stop_execution(DmsContext *dms) {
 	int thread_res;
 	thread_join(dms->thread, &thread_res);
 }
+
+#else
+
+void dms_execute(DmsContext *dms) {
+	context_execute(dms);
+}
+
+#endif // DMS_NO_THREADING
 
 void dms_single_step(DmsContext *dms) {
 	assert(dms);

@@ -50,12 +50,18 @@ void nuklear_on_start(struct nk_context *ctx) {
 
 	// reset device
 	dev_minimal_6502_reset(ui_context.device);
-	
+
+#ifndef DMS_NO_THREADING
 	// start dromaius context
 	dms_start_execution(ui_context.dms_ctx);
+#endif // DMS_NO_THREADING
 }
 
 void nuklear_gui(struct nk_context *ctx) {
+#ifdef DMS_NO_THREADING
+	dms_execute(ui_context.dms_ctx);
+#endif // DMS_NO_THREADING
+
 	if (ui_context.device->line_cpu_sync) {
 		ui_context.last_pc = ui_context.device->cpu->reg_pc;
 	}
