@@ -103,8 +103,6 @@ int main(void)
         exit(1);
 	}
 
-	printf("%dx%d\n", width, height);
-
     glViewport(0, 0, width, height);
 
     ctx = nk_glfw3_init(win, NK_GLFW3_INSTALL_CALLBACKS);
