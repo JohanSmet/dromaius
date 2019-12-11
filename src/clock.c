@@ -56,7 +56,7 @@ static inline void timer_init(void) {
 }
 
 static inline int64_t timespec_to_int(struct timespec t) {
-	return t.tv_sec * 1000000000 + t.tv_nsec;
+	return (int64_t) t.tv_sec * 1000000000 + t.tv_nsec;
 }
 
 static inline int64_t timestamp_current(void) {
