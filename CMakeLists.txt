@@ -106,7 +106,7 @@ target_include_directories(${LIB_TARGET} PRIVATE libs)
 target_link_libraries(${LIB_TARGET} PRIVATE ${SFL_TARGET})
 target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
 target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
-if (NO_THREADING)
+if (NO_THREADING OR EMSCRIPTEN)
 	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_NO_THREADING)
 endif()
 
@@ -140,10 +140,8 @@ endif()
 if (EMSCRIPTEN) 
 	target_link_libraries(${GUI_TARGET} PRIVATE 
 		"-s USE_GLFW=3" 
-		"-s USE_PTHREADS=1"
 		"-s WASM=1"
 		"-s ALLOW_MEMORY_GROWTH=1"
-		"-s WASM_MEM_MAX=128MB"
 		"-s BINARYEN_TRAP_MODE=clamp"
 		"-s ASSERTIONS=2"
 		"-s USE_WEBGL2=1"
