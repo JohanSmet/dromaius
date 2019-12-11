@@ -54,47 +54,56 @@ static inline int breakpoint_index(DmsContext *dms, uint64_t addr) {
 	return -1;
 }
 
-static void *context_execution(DmsContext *dms) {
+static bool context_execute(DmsContext *dms) {
 
-	while (true) {
+	clock_mark(dms->device->clock);
+
+	while (dms->state != DS_WAIT && !clock_is_caught_up(dms->device->clock)) {
+
+		bool prev_sync = dms->device->line_cpu_sync;
+
+		dev_minimal_6502_process(dms->device);
+
+		switch (dms->state) {
+			case DS_SINGLE_STEP :
+				dms->state = DS_WAIT;
+				break;
+			case DS_SINGLE_INSTRUCTION :
+				if (!prev_sync && dms->device->line_cpu_sync) {
+					dms->state = DS_WAIT;
+				}
+				break;
+			case DS_RUN :
+				// check for breakpoints
+				if (dms->device->line_cpu_sync && breakpoint_index(dms, dms->device->cpu->reg_pc) >= 0) {
+					dms->state = DS_WAIT;
+				}
+				break;
+			case DS_RESET:
+				dev_minimal_6502_reset(dms->device);
+				dms->state = DS_WAIT;
+				break;
+			case DS_EXIT:
+				return false;
+		}
+	}
+
+	return true;
+}
+
+static void *context_background_thread(DmsContext *dms) {
+
+	bool keep_running = true;
+
+	while (keep_running) {
 
 		mutex_lock(&dms->mtx_wait);
 
 		while (dms->state == DS_WAIT) {
 			cond_wait(&dms->cnd_wait, &dms->mtx_wait);
 		}
-
-		clock_mark(dms->device->clock);
-
-		while (dms->state != DS_WAIT && !clock_is_caught_up(dms->device->clock)) {
-
-			bool prev_sync = dms->device->line_cpu_sync;
-
-			dev_minimal_6502_process(dms->device);
-
-			switch (dms->state) {
-				case DS_SINGLE_STEP :
-					dms->state = DS_WAIT;
-					break;
-				case DS_SINGLE_INSTRUCTION :
-					if (!prev_sync && dms->device->line_cpu_sync) {
-						dms->state = DS_WAIT;
-					}
-					break;
-				case DS_RUN :
-					// check for breakpoints
-					if (dms->device->line_cpu_sync && breakpoint_index(dms, dms->device->cpu->reg_pc) >= 0) {
-						dms->state = DS_WAIT;
-					}
-					break;
-				case DS_RESET:
-					dev_minimal_6502_reset(dms->device);
-					dms->state = DS_WAIT;
-					break;
-				case DS_EXIT:
-					return NULL;
-			}
-		}
+		
+		keep_running = context_execute(dms);
 
 		mutex_unlock(&dms->mtx_wait);
 	}
@@ -143,7 +152,7 @@ void dms_start_execution(DmsContext *dms) {
 	dms->state = DS_WAIT;
 	mutex_init_plain(&dms->mtx_wait);
 	cond_init(&dms->cnd_wait);
-	thread_create_joinable(&dms->thread, (int(*)(void*)) context_execution, dms);
+	thread_create_joinable(&dms->thread, (int(*)(void*)) context_background_thread, dms);
 }
 
 void dms_stop_execution(DmsContext *dms) {
