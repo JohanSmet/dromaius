@@ -152,7 +152,7 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 	computer.pin_clock = false;
 	cpu_6502_process(computer.cpu);
 
-	munit_assert_uint8(LOBYTE(computer.cpu->reg_pc), ==, 0x01);
+	munit_assert_uint8(LO_BYTE(computer.cpu->reg_pc), ==, 0x01);
 	munit_assert_uint16(computer.bus_address, ==, 0xfffd);
 	computer.bus_data = 0x08;
 

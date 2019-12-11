@@ -182,7 +182,7 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 					PRIVATE(cpu)->internal_rw = RW_WRITE | FORCE_READ[irq_type];
 					break;
 				case CYCLE_MIDDLE:
-					*cpu->bus_data = HIBYTE(cpu->reg_pc);
+					*cpu->bus_data = HI_BYTE(cpu->reg_pc);
 					break;
 				case CYCLE_END:
 					cpu->reg_sp -= 1;
@@ -197,7 +197,7 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 					PRIVATE(cpu)->internal_rw = RW_WRITE | FORCE_READ[irq_type];
 					break;
 				case CYCLE_MIDDLE:
-					*cpu->bus_data = LOBYTE(cpu->reg_pc);
+					*cpu->bus_data = LO_BYTE(cpu->reg_pc);
 					break;
 				case CYCLE_END:
 					cpu->reg_sp -= 1;
@@ -224,14 +224,14 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 			if (phase == CYCLE_BEGIN) {
 				PRIVATE(cpu)->internal_ab = VECTOR_LOW[irq_type];
 			} else if (phase == CYCLE_END) {
-				cpu->reg_pc = SET_LOBYTE(cpu->reg_pc, *cpu->bus_data);
+				cpu->reg_pc = SET_LO_BYTE(cpu->reg_pc, *cpu->bus_data);
 			}
 			break;
 		case 6 :		// read high byte of the reset vector
 			if (phase == CYCLE_BEGIN) {
 				PRIVATE(cpu)->internal_ab = VECTOR_HIGH[irq_type];
 			} else if (phase == CYCLE_END) {
-				cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, *cpu->bus_data);
+				cpu->reg_pc = SET_HI_BYTE(cpu->reg_pc, *cpu->bus_data);
 				cpu->p_interrupt_disable = irq_type != INTR_RESET;
 				PRIVATE(cpu)->state = CS_RUNNING;
 				PRIVATE(cpu)->decode_cycle = -1;
@@ -704,11 +704,11 @@ static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t 
 			switch (phase) {
 				case CYCLE_BEGIN: 
 					PRIVATE(cpu)->internal_ab = cpu->reg_pc;
-					PRIVATE(cpu)->i_addr.hi_byte = HIBYTE(cpu->reg_pc);
+					PRIVATE(cpu)->i_addr.hi_byte = HI_BYTE(cpu->reg_pc);
 					cpu->reg_pc += (int8_t) PRIVATE(cpu)->i_addr.lo_byte;
 					break;
 				case CYCLE_MIDDLE:
-					PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->i_addr.hi_byte != HIBYTE(cpu->reg_pc);
+					PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->i_addr.hi_byte != HI_BYTE(cpu->reg_pc);
 					break;
 				case CYCLE_END:
 					if (!PRIVATE(cpu)->page_crossed) {
@@ -720,7 +720,7 @@ static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t 
 		case 3:		// extra cycle when page crossed to add carry to high address
 			switch (phase) {
 				case CYCLE_BEGIN:
-					PRIVATE(cpu)->i_addr.lo_byte = LOBYTE(cpu->reg_pc);
+					PRIVATE(cpu)->i_addr.lo_byte = LO_BYTE(cpu->reg_pc);
 					PRIVATE(cpu)->internal_ab = PRIVATE(cpu)->i_addr.full;
 					break;
 				case CYCLE_MIDDLE:
@@ -1207,10 +1207,10 @@ static inline void decode_jsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			}
 			break;
 		case 3 :		// push program_counter - high byte
-			stack_push(cpu, HIBYTE(cpu->reg_pc), phase);
+			stack_push(cpu, HI_BYTE(cpu->reg_pc), phase);
 			break;
 		case 4 :		// push program_counter - low byte
-			stack_push(cpu, LOBYTE(cpu->reg_pc), phase);
+			stack_push(cpu, LO_BYTE(cpu->reg_pc), phase);
 			break;
 		case 5 :		// fetch address high byte (adh)
 			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.hi_byte, phase);
@@ -1594,10 +1594,10 @@ static inline void decode_rts(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			}
 			break;
 		case 3 :		// pop program_counter - low byte
-			cpu->reg_pc = SET_LOBYTE(cpu->reg_pc, stack_pop(cpu, phase));
+			cpu->reg_pc = SET_LO_BYTE(cpu->reg_pc, stack_pop(cpu, phase));
 			break;
 		case 4 :		// pop program_counter - low byte
-			cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, stack_pop(cpu, phase));
+			cpu->reg_pc = SET_HI_BYTE(cpu->reg_pc, stack_pop(cpu, phase));
 			break;
 		case 5 :		// increment program counter
 			fetch_pc_memory(cpu, &PRIVATE(cpu)->operand, phase);
@@ -1626,10 +1626,10 @@ static inline void decode_rti(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			}
 			break;
 		case 4 :		// pop program_counter - low byte
-			cpu->reg_pc = SET_LOBYTE(cpu->reg_pc, stack_pop(cpu, phase));
+			cpu->reg_pc = SET_LO_BYTE(cpu->reg_pc, stack_pop(cpu, phase));
 			break;
 		case 5 :		// pop program_counter - low byte
-			cpu->reg_pc = SET_HIBYTE(cpu->reg_pc, stack_pop(cpu, phase));
+			cpu->reg_pc = SET_HI_BYTE(cpu->reg_pc, stack_pop(cpu, phase));
 			if (phase == CYCLE_END) {
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
