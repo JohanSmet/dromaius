@@ -106,6 +106,7 @@ static inline void change_state(DmsContext *context, DMS_STATE new_state) {
 	mutex_lock(&context->mtx_wait);
 	context->state = new_state;
 	mutex_unlock(&context->mtx_wait);
+	cond_signal(&context->cnd_wait);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -159,7 +160,6 @@ void dms_single_step(DmsContext *dms) {
 	
 	if (dms->state == DS_WAIT) {
 		change_state(dms, DS_SINGLE_STEP);
-		cond_signal(&dms->cnd_wait);
 	}
 }
 
@@ -168,7 +168,6 @@ void dms_single_instruction(DmsContext *dms) {
 	
 	if (dms->state == DS_WAIT) {
 		change_state(dms, DS_SINGLE_INSTRUCTION);
-		cond_signal(&dms->cnd_wait);
 	}
 }
 
@@ -177,7 +176,6 @@ void dms_run(DmsContext *dms) {
 	
 	if (dms->state == DS_WAIT) {
 		change_state(dms, DS_RUN);
-		cond_signal(&dms->cnd_wait);
 	}
 }
 
@@ -186,7 +184,6 @@ void dms_pause(DmsContext *dms) {
 	
 	if (dms->state == DS_RUN) {
 		change_state(dms, DS_WAIT);
-		cond_signal(&dms->cnd_wait);
 	}
 }
 
@@ -194,7 +191,6 @@ void dms_reset(DmsContext *dms) {
 	assert(dms);
 
 	change_state(dms, DS_RESET);
-	cond_signal(&dms->cnd_wait);
 }
 
 
