@@ -22,6 +22,9 @@ typedef struct Chip6520_private {
 	bool			prev_clock;
 } Chip6520_private;
 
+#define RW_READ  true
+#define RW_WRITE false
+
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -30,7 +33,69 @@ typedef struct Chip6520_private {
 
 #define PRIVATE(pia)	((Chip6520_private *) (pia))
 
-void process_end(Chip6520 *pia) {
+static inline void write_register(Chip6520 *pia, uint8_t data) {
+	int reg_addr = (SIGNAL_BOOL(rs1) << 1) | SIGNAL_BOOL(rs0);
+
+	switch (reg_addr) {
+		case 0:
+			if (pia->reg_cra.bf_ddr_or_select) {
+				pia->reg_ora = data;
+			} else {
+				pia->reg_ddra = data;
+			}
+			break;
+		case 1:
+			pia->reg_cra.reg = data;
+			break;
+		case 2:
+			if (pia->reg_crb.bf_ddr_or_select) {
+				pia->reg_orb = data;
+			} else {
+				pia->reg_ddrb = data;
+			}
+			break;
+		case 3:
+			pia->reg_crb.reg = data;
+			break;
+	}
+}
+
+static inline uint8_t read_register(Chip6520 *pia) {
+	int reg_addr = (SIGNAL_BOOL(rs1) << 1) | SIGNAL_BOOL(rs0);
+
+	switch (reg_addr) {
+		case 0:
+			if (pia->reg_cra.bf_ddr_or_select) {
+				return SIGNAL_UINT8(port_a);
+			} else {
+				return pia->reg_ddra;
+			}
+		case 1:
+			return pia->reg_cra.reg;
+		case 2:
+			if (pia->reg_crb.bf_ddr_or_select) {
+				return SIGNAL_UINT8(port_b);
+			} else {
+				return pia->reg_ddrb;
+			}
+		case 3:
+			return pia->reg_crb.reg;
+	}
+}
+
+static inline void process_positive_clock_edge(Chip6520 *pia) {
+
+}
+
+void process_negative_clock_edge(Chip6520 *pia) {
+	if (SIGNAL_BOOL(rw) == RW_WRITE) {
+		write_register(pia, SIGNAL_UINT8(bus_data));
+	} else {
+		SIGNAL_SET_UINT8(bus_data, read_register(pia));
+	}
+}
+
+static inline void process_end(Chip6520 *pia) {
 
 	// store state of the clock pin
 	PRIVATE(pia)->prev_clock = SIGNAL_BOOL(clock);
@@ -96,10 +161,16 @@ void chip_6520_process(Chip6520 *pia) {
 	bool clock = SIGNAL_BOOL(clock);
 
 	if (ACTLO_ASSERTED(SIGNAL_BOOL(reset_b)) ||
-		ACTHI_ASSERTED(SIGNAL_BOOL(cs0)) || ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) || ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b)) ||
+		!ACTHI_ASSERTED(SIGNAL_BOOL(cs0)) || !ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) || !ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b)) ||
 		clock == PRIVATE(pia)->prev_clock) {
 		process_end(pia);
 		return;
+	}
+
+	if (clock) {
+		process_positive_clock_edge(pia);
+	} else {
+		process_negative_clock_edge(pia);
 	}
 
 	process_end(pia);
