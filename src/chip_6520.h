@@ -12,9 +12,20 @@
 typedef union ctrl_reg_t {
 	uint8_t		reg;
 	struct {
-		unsigned int bf_cl1_control : 2;
+		unsigned int bf_irq1_enable : 1;
+		unsigned int bf_irq1_pos_transition : 1;
 		unsigned int bf_ddr_or_select : 1;
-		unsigned int bf_cl2_control : 3;
+		union {
+			struct {
+				unsigned int bf_irq2_enable : 1;
+				unsigned int bf_irq2_pos_transition : 1;
+			};
+			struct {
+				unsigned int bf_cl2_restore : 1;
+				unsigned int bf_cl2_output : 1;
+			};
+		};
+		unsigned int bf_cl2_mode_select : 1;
 		unsigned int bf_irq2 : 1;
 		unsigned int bf_irq1 : 1;
 	};

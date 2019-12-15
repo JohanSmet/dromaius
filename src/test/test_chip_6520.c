@@ -349,6 +349,53 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 	return MUNIT_OK;
 }
 
+static MunitResult test_irqa(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_cra.reg = 0b00001001;	// irqa1 & irqa2 enable on a negative transition
+
+	// check initial state (irq not asserted)
+	munit_assert_true(SIGNAL_BOOL(irqa_b));
+	munit_assert_false(SIGNAL_BOOL(ca1));
+	munit_assert_false(SIGNAL_BOOL(ca2));
+
+	// transition ca1&ca2 to high - nothing should happen
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_false(pia->reg_cra.bf_irq1);
+	munit_assert_false(pia->reg_cra.bf_irq2);
+
+	// transition ca1 to low - triggers irq1
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_true(pia->reg_cra.bf_irq1);
+	munit_assert_false(pia->reg_cra.bf_irq2);
+
+	// transition ca2 to low - triggers irq2
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_true(pia->reg_cra.bf_irq1);
+	munit_assert_true(pia->reg_cra.bf_irq2);
+
+	// read port-A - should reset the irq
+
+
+	return MUNIT_OK;
+}
+
 MunitTest chip_6520_tests[] = {
 	{ "/reset", test_reset, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_ora", test_write_ora, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -357,5 +404,6 @@ MunitTest chip_6520_tests[] = {
 	{ "/write_orb", test_write_orb, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_ddrb", test_write_ddrb, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_crb", test_write_crb, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/irqa", test_irqa, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
