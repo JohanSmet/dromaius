@@ -67,3 +67,44 @@ jobs:
               shell: bash
               working-directory: ${{runner.workspace}}/_build
               run: ctest -C $BUILD_TYPE
+
+    build_emscripten:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v1
+              with:
+                  submodules: true
+
+            - uses: lovasoa/setup-emscripten@master
+              with:
+                  emscripten-version: '1.38.48'
+
+            - name: Create build directory
+              run: cmake -E make_directory ${{runner.workspace}}/_build
+
+            - name: Run CMake
+              shell: bash
+              working-directory: ${{runner.workspace}}/_build
+              run: emcmake cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+            - name: Build
+              shell: bash
+              working-directory: ${{runner.workspace}}/_build
+              run: cmake --build . --config $BUILD_TYPE
+
+            - name: Prepare artifacts
+              shell: bash
+              working-directory: ${{runner.workspace}}/_build
+              run: |
+                  mkdir _arch
+                  cp dromaius.data _arch
+                  cp dromaius.js _arch
+                  cp dromaius.html _arch/index.html
+                  cp dromaius.wasm _arch
+
+            - name: Archive build
+              uses: actions/upload-artifact@v1
+              with:
+                  name: dist
+                  path: ${{runner.workspace}}/_build/_arch
