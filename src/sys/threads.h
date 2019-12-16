@@ -10,7 +10,11 @@
 #undef DMS_THREADS_WIN32
 
 #ifdef PLATFORM_LINUX
-	#define DMS_THREADS_C11
+	#ifdef __STDC_NO_THREADS__
+		#define DMS_THREADS_POSIX
+	#else
+		#define DMS_THREADS_C11
+	#endif
 #elif defined(PLATFORM_EMSCRIPTEN)
 	#define DMS_THREADS_POSIX
 #elif defined(PLATFORM_DARWIN)
