@@ -17,6 +17,10 @@ Cycle-accurate in this case meaning that every opcode takes the same amount of c
 
 The 6502 passes the functional tests for 6502/65C02 type processors by Klaus Dorman ([GitHub repo](https://github.com/Klaus2m5/6502_65C02_functional_tests)). With exception of the BRK-instruction because the current test setup doesn't allow the interrupt vectors to be changed.
 
+## More information
+- [Building](docs/building.md) Dromaius from source.
+- [Todo](docs/todo.md). Dromaius is very much a work-in-progress.
+
 ## License
 Code and documentation in this repository is provided under the 3-clause BSD license unless stated otherwise.
 
