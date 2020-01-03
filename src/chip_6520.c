@@ -19,7 +19,7 @@
 typedef struct Chip6520_private {
 	Chip6520		intf;
 
-	bool			prev_clock;
+	bool			prev_enable;
 	bool			prev_ca1;
 	bool			prev_ca2;
 	bool			prev_cb1;
@@ -111,11 +111,11 @@ static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, 
 	reg_ctrl->bf_irq2 = reg_ctrl->bf_irq2 | cl2_act_trans;
 }
 
-static inline void process_positive_clock_edge(Chip6520 *pia) {
+static inline void process_positive_enable_edge(Chip6520 *pia) {
 
 }
 
-void process_negative_clock_edge(Chip6520 *pia) {
+void process_negative_enable_edge(Chip6520 *pia) {
 	// read/write internal register
 	if (SIGNAL_BOOL(rw) == RW_WRITE) {
 		write_register(pia, SIGNAL_UINT8(bus_data));
@@ -160,8 +160,8 @@ static inline void process_end(Chip6520 *pia) {
 	SIGNAL_SET_BOOL(irqa_b, PRIVATE(pia)->out_irqa_b);
 	SIGNAL_SET_BOOL(irqb_b, PRIVATE(pia)->out_irqb_b);
 
-	// store state of the clock pin
-	PRIVATE(pia)->prev_clock = SIGNAL_BOOL(clock);
+	// store state of the enable pin
+	PRIVATE(pia)->prev_enable = SIGNAL_BOOL(enable);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ Chip6520 *chip_6520_create(SignalPool *signal_pool, Chip6520Signals signals) {
 	SIGNAL_DEFINE_BOOL(rs0,		1, ACTHI_DEASSERT);
 	SIGNAL_DEFINE_BOOL(rs1,		1, ACTHI_DEASSERT);
 	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(clock,	1, true);
+	SIGNAL_DEFINE_BOOL(enable,	1, true);
 	SIGNAL_DEFINE_BOOL(cs0,		1, ACTHI_DEASSERT);
 	SIGNAL_DEFINE_BOOL(cs1,		1, ACTHI_DEASSERT);
 	SIGNAL_DEFINE_BOOL(cs2_b,	1, ACTLO_DEASSERT);
@@ -224,19 +224,19 @@ void chip_6520_process(Chip6520 *pia) {
 	//	- if reset is asserted or 
 	//	- if cs0/cs1/cs2_b are not asserted
 	//  - if not on the edge of a clock cycle
-	bool clock = SIGNAL_BOOL(clock);
+	bool enable = SIGNAL_BOOL(enable);
 
 	if (ACTLO_ASSERTED(SIGNAL_BOOL(reset_b)) ||
 		!ACTHI_ASSERTED(SIGNAL_BOOL(cs0)) || !ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) || !ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b)) ||
-		clock == PRIVATE(pia)->prev_clock) {
+		enable == PRIVATE(pia)->prev_enable) {
 		process_end(pia);
 		return;
 	}
 
-	if (clock) {
-		process_positive_clock_edge(pia);
+	if (enable) {
+		process_positive_enable_edge(pia);
 	} else {
-		process_negative_clock_edge(pia);
+		process_negative_enable_edge(pia);
 	}
 
 	process_end(pia);

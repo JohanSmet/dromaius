@@ -17,7 +17,7 @@
 static void *chip_6520_setup(const MunitParameter params[], void *user_data) {
 	Chip6520 *pia = chip_6520_create(signal_pool_create(), (Chip6520Signals) {0});
 
-	SIGNAL_SET_BOOL(clock, false);
+	SIGNAL_SET_BOOL(enable, false);
 	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
 	signal_pool_cycle(pia->signal_pool);
 	chip_6520_process(pia);
@@ -35,7 +35,7 @@ static inline void strobe_pia(Chip6520 *pia, bool strobe) {
 }
 
 static inline void half_clock_cycle(Chip6520 *pia) {
-	SIGNAL_SET_BOOL(clock, !SIGNAL_BOOL(clock));
+	SIGNAL_SET_BOOL(enable, !SIGNAL_BOOL(enable));
 	signal_pool_cycle(pia->signal_pool);
 	chip_6520_process(pia);
 }

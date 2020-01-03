@@ -44,7 +44,7 @@ typedef struct Chip6520Signals {
 	Signal		rs0;			// 1-bit register select 0 (In)
 	Signal		rs1;			// 1-bit register select 1 (In)
 	Signal		reset_b;		// 1-bit reset-line (In)
-	Signal		clock;			// 1-bit clock-line (PHI2) (In)
+	Signal		enable;			// 1-bit clock-line (PHI2) (In)
 	Signal		cs0;			// 1-bit chip select 0 (In)
 	Signal		cs1;			// 1-bit chip select 1 (In)
 	Signal		cs2_b;			// 1-bit chip select 2 (In)
