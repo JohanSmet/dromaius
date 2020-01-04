@@ -183,7 +183,7 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0x7f);
+	munit_assert_uint8(pia->reg_cra.reg, ==, 0x3f);		// top two bits controlled by pia
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
 	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
@@ -201,7 +201,7 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0x7f);
+	munit_assert_uint8(pia->reg_cra.reg, ==, 0x3f);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
 	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
@@ -325,7 +325,7 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0x7f);
+	munit_assert_uint8(pia->reg_crb.reg, ==, 0x3f);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// disable pia
@@ -343,7 +343,7 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0x7f);
+	munit_assert_uint8(pia->reg_crb.reg, ==, 0x3f);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	return MUNIT_OK;

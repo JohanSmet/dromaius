@@ -52,7 +52,7 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			}
 			break;
 		case 1:
-			pia->reg_cra.reg = data;
+			pia->reg_cra.reg = (pia->reg_cra.reg & 0b11000000) | (data & 0b00111111);
 			break;
 		case 2:
 			if (pia->reg_crb.bf_ddr_or_select) {
@@ -62,7 +62,7 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			}
 			break;
 		case 3:
-			pia->reg_crb.reg = data;
+			pia->reg_crb.reg = (pia->reg_crb.reg & 0b11000000) | (data & 0b00111111);
 			break;
 	}
 }
