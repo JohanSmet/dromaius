@@ -69,6 +69,177 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 	return MUNIT_OK;
 }
 
+static MunitResult test_read_ddra(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_ddra = 0xa5;
+	pia->reg_cra.bf_ddr_or_select = ACTHI_DEASSERT;
+
+	// read the DDRA register
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_uint8(pia->reg_ddra, ==, 0xa5);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xa5);
+
+	// try reading again from a disabled pia, bus_data shouldn't change
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_uint8(pia->reg_ddra, ==, 0xa5);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_read_cra(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_cra.reg = 0x5a;
+
+	// read the CRA register
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_uint8(pia->reg_cra.reg, ==, 0x5a);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x5a);
+
+	// try reading again from a disabled pia, output shouldn't change
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_uint8(pia->reg_cra.reg, ==, 0x5a);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_read_porta(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_cra.bf_ddr_or_select = ACTHI_ASSERT;
+
+	// read port-A
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(port_a, 0xaa);
+		SIGNAL_SET_UINT8(port_b, 0x55);
+	PIA_CYCLE_END
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xaa);
+
+	// disable pia
+	strobe_pia(pia, false);
+
+	// try reading again from a disabled pia, output shouldn't change
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(port_a, 0xaa);
+		SIGNAL_SET_UINT8(port_b, 0x55);
+	PIA_CYCLE_END
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_read_ddrb(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_ddrb = 0xa5;
+	pia->reg_crb.bf_ddr_or_select = ACTHI_DEASSERT;
+
+	// read the DDRB register
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_uint8(pia->reg_ddrb, ==, 0xa5);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xa5);
+
+	// try reading again from a disabled pia, output shouldn't change
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_uint8(pia->reg_ddrb, ==, 0xa5);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_read_crb(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_crb.reg = 0x5a;
+
+	// read the CRB register
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_uint8(pia->reg_crb.reg, ==, 0x5a);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x5a);
+
+	// try reading again from a disabled pia, output shouldn't change
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_uint8(pia->reg_crb.reg, ==, 0x5a);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_read_portb(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_crb.bf_ddr_or_select = ACTHI_ASSERT;
+
+	// read port-B
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(port_a, 0xaa);
+		SIGNAL_SET_UINT8(port_b, 0x55);
+	PIA_CYCLE_END
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x55);
+
+	// try reading again from a disabled pia, output shouldn't change
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(port_a, 0xaa);
+		SIGNAL_SET_UINT8(port_b, 0x55);
+	PIA_CYCLE_END
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+
+	return MUNIT_OK;
+}
+
 static MunitResult test_write_ora(const MunitParameter params[], void *user_data_or_fixture) {
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
@@ -633,6 +804,12 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 
 MunitTest chip_6520_tests[] = {
 	{ "/reset", test_reset, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_ddra", test_read_ddra, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_cra", test_read_cra, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_porta", test_read_porta, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_ddrb", test_read_ddrb, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_crb", test_read_crb, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_portb", test_read_portb, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_ora", test_write_ora, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_ddra", test_write_ddra, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_cra", test_write_cra, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
