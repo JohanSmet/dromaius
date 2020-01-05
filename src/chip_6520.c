@@ -164,6 +164,10 @@ static inline void process_end(Chip6520 *pia) {
 	SIGNAL_SET_BOOL(irqa_b, PRIVATE(pia)->out_irqa_b);
 	SIGNAL_SET_BOOL(irqb_b, PRIVATE(pia)->out_irqb_b);
 
+	// output on the ports
+	signal_write_uint8_masked(pia->signal_pool, SIGNAL(port_a), pia->reg_ora, pia->reg_ddra);
+	signal_write_uint8_masked(pia->signal_pool, SIGNAL(port_b), pia->reg_orb, pia->reg_ddrb);
+
 	// store state of the enable pin
 	PRIVATE(pia)->prev_enable = SIGNAL_BOOL(enable);
 }

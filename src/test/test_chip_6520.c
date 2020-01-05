@@ -802,6 +802,75 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 	return MUNIT_OK;
 }
 
+static MunitResult test_porta_out(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_ora = 0xf5;
+	pia->reg_ddra = 0xff;		// all pins configured as output
+
+	// cycle clock ; entire ora-register should have been written to port-A
+	PIA_CYCLE_START
+		SIGNAL_SET_UINT8(port_a, 0x12);
+	PIA_CYCLE_END
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_a), ==, 0xf5);
+
+	// reconfigure ddra, upper nibble = output, lower nibble = input + peripheral active on lower nibble
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0xf0);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+
+	// cycle clock
+	PIA_CYCLE_START
+		SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
+	PIA_CYCLE_END
+	chip_6520_process(pia);
+	munit_assert_uint8(pia->reg_ddra, ==, 0xf0);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_a), ==, 0xf9);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_portb_out(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_orb = 0xf5;
+	pia->reg_ddrb = 0xff;		// all pins configured as output
+
+	// cycle clock ; entire ora-register should have been written to port-B
+	PIA_CYCLE_START
+		SIGNAL_SET_UINT8(port_b, 0x12);
+	PIA_CYCLE_END
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_b), ==, 0xf5);
+
+	// reconfigure ddrb, upper nibble = output, lower nibble = input + peripheral active on lower nibble
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0xf0);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+
+	// cycle clock
+	PIA_CYCLE_START
+		SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
+	PIA_CYCLE_END
+	chip_6520_process(pia);
+	munit_assert_uint8(pia->reg_ddrb, ==, 0xf0);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_b), ==, 0xf9);
+
+	return MUNIT_OK;
+}
+
+
 MunitTest chip_6520_tests[] = {
 	{ "/reset", test_reset, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_ddra", test_read_ddra, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -820,5 +889,7 @@ MunitTest chip_6520_tests[] = {
 	{ "/irqa_pos", test_irqa_pos, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/irqb_neg", test_irqb_neg, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/irqb_pos", test_irqb_pos, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/porta_out", test_porta_out, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/portb_out", test_portb_out, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
