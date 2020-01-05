@@ -103,7 +103,7 @@ static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, 
 	// >> a read of the peripheral A I/O port resets both irq flags in reg_cra
 	if (read_port) {
 		reg_ctrl->bf_irq1 = ACTHI_DEASSERT;
-		reg_ctrl->bf_irq1 = ACTHI_DEASSERT;
+		reg_ctrl->bf_irq2 = ACTHI_DEASSERT;
 	}
 
 	// >> an active transition of the ca1/ca2-lines sets the irq-flags in reg_cra

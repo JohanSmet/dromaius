@@ -349,7 +349,7 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 	return MUNIT_OK;
 }
 
-static MunitResult test_irqa(const MunitParameter params[], void *user_data_or_fixture) {
+static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_or_fixture) {
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
@@ -390,8 +390,254 @@ static MunitResult test_irqa(const MunitParameter params[], void *user_data_or_f
 	munit_assert_true(pia->reg_cra.bf_irq1);
 	munit_assert_true(pia->reg_cra.bf_irq2);
 
-	// read port-A - should reset the irq
+	// change CRA to enable read from port-A
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8(bus_data, 0b00001101);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_true(pia->reg_cra.bf_irq1);
+	munit_assert_true(pia->reg_cra.bf_irq2);
+	munit_assert_true(pia->reg_cra.bf_ddr_or_select);
 
+	// read port-A - should reset the irq
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_false(pia->reg_cra.bf_irq1);
+	munit_assert_false(pia->reg_cra.bf_irq2);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+
+	pia->reg_cra.reg = 0b00011011;	// irqa1 & irqa2 enable on a positive transition
+
+	// check initial state (irq not asserted)
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_true(SIGNAL_BOOL(ca1));
+	munit_assert_true(SIGNAL_BOOL(ca2));
+	munit_assert_true(pia->reg_cra.bf_irq1_pos_transition);
+	munit_assert_true(pia->reg_cra.bf_irq2_pos_transition);
+
+	// transition ca1&ca2 to low - nothing should happen
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_false(pia->reg_cra.bf_irq1);
+	munit_assert_false(pia->reg_cra.bf_irq2);
+
+	// transition ca1 to high - triggers irq1
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_true(pia->reg_cra.bf_irq1);
+	munit_assert_false(pia->reg_cra.bf_irq2);
+
+	// transition ca2 to high - triggers irq2
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_true(pia->reg_cra.bf_irq1);
+	munit_assert_true(pia->reg_cra.bf_irq2);
+
+	// change CRA to enable read from port-A
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8(bus_data, 0b00011111);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_true(pia->reg_cra.bf_irq1);
+	munit_assert_true(pia->reg_cra.bf_irq2);
+	munit_assert_true(pia->reg_cra.bf_ddr_or_select);
+
+	// read port-A - should reset the irq
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
+	munit_assert_false(pia->reg_cra.bf_irq1);
+	munit_assert_false(pia->reg_cra.bf_irq2);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_crb.reg = 0b00001001;	// irqa1 & irqa2 enable on a negative transition
+
+	// check initial state (irq not asserted)
+	munit_assert_true(SIGNAL_BOOL(irqb_b));
+	munit_assert_false(SIGNAL_BOOL(cb1));
+	munit_assert_false(SIGNAL_BOOL(cb2));
+
+	// transition cb1&cb2 to high - nothing should happen
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_false(pia->reg_crb.bf_irq1);
+	munit_assert_false(pia->reg_crb.bf_irq2);
+
+	// transition cb1 to low - triggers irq1
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_true(pia->reg_crb.bf_irq1);
+	munit_assert_false(pia->reg_crb.bf_irq2);
+
+	// transition cb2 to low - triggers irq2
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_true(pia->reg_crb.bf_irq1);
+	munit_assert_true(pia->reg_crb.bf_irq2);
+
+	// change CRB to enable read from port-B
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8(bus_data, 0b00001101);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_true(pia->reg_crb.bf_irq1);
+	munit_assert_true(pia->reg_crb.bf_irq2);
+	munit_assert_true(pia->reg_crb.bf_ddr_or_select);
+
+	// read port-B - should reset the irq
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_false(pia->reg_crb.bf_irq1);
+	munit_assert_false(pia->reg_crb.bf_irq2);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	pia->reg_crb.reg = 0b00011011;	// irqb1 & irqb2 enable on a positive transition
+
+	// check initial state (irq not asserted)
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_true(SIGNAL_BOOL(cb1));
+	munit_assert_true(SIGNAL_BOOL(cb2));
+	munit_assert_true(pia->reg_crb.bf_irq1_pos_transition);
+	munit_assert_true(pia->reg_crb.bf_irq2_pos_transition);
+
+	// transition cb1&cb2 to low - nothing should happen
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_false(pia->reg_crb.bf_irq1);
+	munit_assert_false(pia->reg_crb.bf_irq2);
+
+	// transition cb1 to high - triggers irq1
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_true(pia->reg_crb.bf_irq1);
+	munit_assert_false(pia->reg_crb.bf_irq2);
+
+	// transition cb2 to high - triggers irq2
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_true(pia->reg_crb.bf_irq1);
+	munit_assert_true(pia->reg_crb.bf_irq2);
+
+	// change CRB to enable read from port-B
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8(bus_data, 0b00011111);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_true(pia->reg_crb.bf_irq1);
+	munit_assert_true(pia->reg_crb.bf_irq2);
+	munit_assert_true(pia->reg_crb.bf_ddr_or_select);
+
+	// read port-B - should reset the irq
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
+	munit_assert_false(pia->reg_crb.bf_irq1);
+	munit_assert_false(pia->reg_crb.bf_irq2);
 
 	return MUNIT_OK;
 }
@@ -404,6 +650,9 @@ MunitTest chip_6520_tests[] = {
 	{ "/write_orb", test_write_orb, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_ddrb", test_write_ddrb, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_crb", test_write_crb, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
-	{ "/irqa", test_irqa, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/irqa_neg", test_irqa_neg, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/irqa_pos", test_irqa_pos, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/irqb_neg", test_irqb_neg, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/irqb_pos", test_irqb_pos, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
