@@ -19,6 +19,7 @@
 typedef struct Chip6520_private {
 	Chip6520		intf;
 
+	bool			strobe;
 	bool			prev_enable;
 	bool			prev_ca1;
 	bool			prev_ca2;
@@ -100,13 +101,13 @@ static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, 
 	bool cl2_act_trans = (cl2 && !prev_cl2 && reg_ctrl->bf_irq2_pos_transition) ||
 	                     (!cl2 && prev_cl2 && !reg_ctrl->bf_irq2_pos_transition);
 
-	// >> a read of the peripheral A I/O port resets both irq flags in reg_cra
+	// >> a read of the peripheral I/O port resets both irq flags in reg_ctrl
 	if (read_port) {
 		reg_ctrl->bf_irq1 = ACTHI_DEASSERT;
 		reg_ctrl->bf_irq2 = ACTHI_DEASSERT;
 	}
 
-	// >> an active transition of the ca1/ca2-lines sets the irq-flags in reg_cra
+	// >> an active transition of the cl1/cl2-lines sets the irq-flags in reg_ctrl
 	reg_ctrl->bf_irq1 = reg_ctrl->bf_irq1 | cl1_act_trans;
 	reg_ctrl->bf_irq2 = reg_ctrl->bf_irq2 | cl2_act_trans;
 }
@@ -116,16 +117,19 @@ static inline void process_positive_enable_edge(Chip6520 *pia) {
 }
 
 void process_negative_enable_edge(Chip6520 *pia) {
-	// read/write internal register
-	if (SIGNAL_BOOL(rw) == RW_WRITE) {
-		write_register(pia, SIGNAL_UINT8(bus_data));
-	} else {
-		SIGNAL_SET_UINT8(bus_data, read_register(pia));
+
+	if (PRIVATE(pia)->strobe) {
+		// read/write internal register
+		if (SIGNAL_BOOL(rw) == RW_WRITE) {
+			write_register(pia, SIGNAL_UINT8(bus_data));
+		} else {
+			SIGNAL_SET_UINT8(bus_data, read_register(pia));
+		}
 	}
 
 	// check if the output-ports are being read
-	bool read_porta = SIGNAL_BOOL(rw) == RW_READ && !SIGNAL_BOOL(rs0) && !SIGNAL_BOOL(rs1) && pia->reg_cra.bf_ddr_or_select;
-	bool read_portb = SIGNAL_BOOL(rw) == RW_READ && !SIGNAL_BOOL(rs0) && SIGNAL_BOOL(rs1) && pia->reg_crb.bf_ddr_or_select;
+	bool read_porta = PRIVATE(pia)->strobe && SIGNAL_BOOL(rw) == RW_READ && !SIGNAL_BOOL(rs0) && !SIGNAL_BOOL(rs1) && pia->reg_cra.bf_ddr_or_select;
+	bool read_portb = PRIVATE(pia)->strobe && SIGNAL_BOOL(rw) == RW_READ && !SIGNAL_BOOL(rs0) && SIGNAL_BOOL(rs1) && pia->reg_crb.bf_ddr_or_select;
 
 	// irq-A routine (FIXME pin_ca2 output mode)
 	control_register_irq_routine(
@@ -219,19 +223,17 @@ void chip_6520_process(Chip6520 *pia) {
 		PRIVATE(pia)->out_irqb_b = ACTLO_DEASSERT;
 	}
 
-	// FIXME: this isn't correct - IRQ handling should still occur even if chip is not selected (csX)
 	// do nothing:
 	//	- if reset is asserted or 
-	//	- if cs0/cs1/cs2_b are not asserted
 	//  - if not on the edge of a clock cycle
 	bool enable = SIGNAL_BOOL(enable);
 
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(reset_b)) ||
-		!ACTHI_ASSERTED(SIGNAL_BOOL(cs0)) || !ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) || !ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b)) ||
-		enable == PRIVATE(pia)->prev_enable) {
+	if (ACTLO_ASSERTED(SIGNAL_BOOL(reset_b)) || enable == PRIVATE(pia)->prev_enable) {
 		process_end(pia);
 		return;
 	}
+
+	PRIVATE(pia)->strobe = ACTHI_ASSERTED(SIGNAL_BOOL(cs0)) && ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) && ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b));
 
 	if (enable) {
 		process_positive_enable_edge(pia);

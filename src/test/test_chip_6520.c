@@ -362,7 +362,6 @@ static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_
 
 	// transition ca1&ca2 to high - nothing should happen
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
 	PIA_CYCLE_END
@@ -372,7 +371,6 @@ static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_
 
 	// transition ca1 to low - triggers irq1
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
 	PIA_CYCLE_END
@@ -430,7 +428,6 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 
 	// check initial state (irq not asserted)
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
 	PIA_CYCLE_END
@@ -442,7 +439,6 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 
 	// transition ca1&ca2 to low - nothing should happen
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
@@ -452,7 +448,6 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 
 	// transition ca1 to high - triggers irq1
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
@@ -509,7 +504,6 @@ static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_
 
 	// transition cb1&cb2 to high - nothing should happen
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
 	PIA_CYCLE_END
@@ -519,7 +513,6 @@ static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_
 
 	// transition cb1 to low - triggers irq1
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
 	PIA_CYCLE_END
@@ -568,7 +561,6 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 
 	// initialize registers
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
 	PIA_CYCLE_END
@@ -576,7 +568,6 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 
 	// check initial state (irq not asserted)
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
 	PIA_CYCLE_END
@@ -588,7 +579,6 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 
 	// transition cb1&cb2 to low - nothing should happen
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
@@ -598,7 +588,6 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 
 	// transition cb1 to high - triggers irq1
 	PIA_CYCLE_START
-		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
