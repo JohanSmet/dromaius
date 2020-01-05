@@ -11,23 +11,21 @@
 // types
 typedef union ctrl_reg_t {
 	uint8_t		reg;
-	struct {
+	struct {		// bitfield for cl2 == input (and common fields for cl2 == output)
 		unsigned int bf_irq1_enable : 1;
 		unsigned int bf_irq1_pos_transition : 1;
 		unsigned int bf_ddr_or_select : 1;
-		union {
-			struct {
-				unsigned int bf_irq2_enable : 1;
-				unsigned int bf_irq2_pos_transition : 1;
-			};
-			struct {
-				unsigned int bf_cl2_restore : 1;
-				unsigned int bf_cl2_output : 1;
-			};
-		};
+		unsigned int bf_irq2_enable : 1;
+		unsigned int bf_irq2_pos_transition : 1;
 		unsigned int bf_cl2_mode_select : 1;
 		unsigned int bf_irq2 : 1;
 		unsigned int bf_irq1 : 1;
+	};
+	struct {		// bitfield for cl2 == output (only differences)
+		unsigned int spacer1 : 3;
+		unsigned int bf_cl2_restore : 1;
+		unsigned int bf_cl2_output : 1;
+		unsigned int spacer2 : 3;
 	};
 } ctrl_reg_t;
 
