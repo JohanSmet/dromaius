@@ -35,6 +35,7 @@ typedef struct Chip6520_private {
 	Chip6520_pstate	state_b;
 
 	bool			internal_ca2;
+	bool			internal_cb2;
 
 	bool			out_irqa_b;
 	bool			out_irqb_b;
@@ -79,6 +80,9 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			break;
 		case 3:
 			pia->reg_crb.reg = (pia->reg_crb.reg & 0b11000000) | (data & 0b00111111);
+			if (pia->reg_crb.bf_cl2_mode_select == 1 && pia->reg_crb.bf_cl2_output == 0) {
+				PRIVATE(pia)->internal_cb2 = true;
+			}
 			break;
 	}
 }
@@ -157,7 +161,7 @@ void process_negative_enable_edge(Chip6520 *pia) {
 			SIGNAL_BOOL(ca1), SIGNAL_BOOL(ca2),
 			&PRIVATE(pia)->state_a);
 
-	// irq-B routine (FIXME pin_cb2 output mode)
+	// irq-B routine
 	control_register_irq_routine(
 			&pia->reg_crb, 
 			SIGNAL_BOOL(cb1), SIGNAL_BOOL(cb2),
@@ -185,6 +189,23 @@ void process_negative_enable_edge(Chip6520 *pia) {
 			PRIVATE(pia)->internal_ca2 = PRIVATE(pia)->internal_ca2 | PRIVATE(pia)->state_a.act_trans_cl1;
 		}
 	}
+
+	// pin_cb2 output mode
+	if (pia->reg_crb.bf_cl2_mode_select == 1) {
+		if (pia->reg_crb.bf_cl2_output == 1) {
+			// cb2 follows the value written to bit 3 of crb (cb2 restore)
+			PRIVATE(pia)->internal_cb2 = pia->reg_crb.bf_cl2_restore == 1;
+		} else if (PRIVATE(pia)->state_b.write_port) {
+			// ca2 goes low when port-B is written, returning high depends on cb2-restore
+			PRIVATE(pia)->internal_cb2 = 0;
+		} else if (pia->reg_crb.bf_cl2_restore == 1) {
+			// return high on the next cycle
+			PRIVATE(pia)->internal_cb2 = 1;
+		} else {
+			// return high on next active CA1 transition
+			PRIVATE(pia)->internal_cb2 = PRIVATE(pia)->internal_cb2 | PRIVATE(pia)->state_b.act_trans_cl1;
+		}
+	}
 }
 
 static inline void process_end(Chip6520 *pia) {
@@ -200,6 +221,11 @@ static inline void process_end(Chip6520 *pia) {
 	// output on ca2 if in output mode
 	if (pia->reg_cra.bf_cl2_mode_select) {
 		SIGNAL_SET_BOOL(ca2, PRIVATE(pia)->internal_ca2);
+	}
+
+	// output on cb2 if in output mode
+	if (pia->reg_crb.bf_cl2_mode_select) {
+		SIGNAL_SET_BOOL(cb2, PRIVATE(pia)->internal_cb2);
 	}
 
 	// store state of the enable pin
