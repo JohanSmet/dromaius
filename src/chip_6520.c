@@ -16,12 +16,14 @@
 // internal types
 //
 
-typedef struct Chip6520_iipcl {			// interrupt input/peripheral control lines helper
+typedef struct Chip6520_pstate {			// port state
 	bool			prev_cl1;
 	bool			prev_cl2;
 	bool			act_trans_cl1;
 	bool			act_trans_cl2;
-} Chip6520_iipcl;
+	bool			read_port;
+	bool			write_port;
+} Chip6520_pstate;
 
 typedef struct Chip6520_private {
 	Chip6520		intf;
@@ -29,8 +31,8 @@ typedef struct Chip6520_private {
 	bool			strobe;
 	bool			prev_enable;
 
-	Chip6520_iipcl	state_a;
-	Chip6520_iipcl	state_b;
+	Chip6520_pstate	state_a;
+	Chip6520_pstate	state_b;
 
 	bool			internal_ca2;
 
@@ -56,6 +58,7 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 		case 0:
 			if (pia->reg_cra.bf_ddr_or_select) {
 				pia->reg_ora = data;
+				PRIVATE(pia)->state_a.write_port = true;
 			} else {
 				pia->reg_ddra = data;
 			}
@@ -69,6 +72,7 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 		case 2:
 			if (pia->reg_crb.bf_ddr_or_select) {
 				pia->reg_orb = data;
+				PRIVATE(pia)->state_b.write_port = true;
 			} else {
 				pia->reg_ddrb = data;
 			}
@@ -85,6 +89,7 @@ static inline uint8_t read_register(Chip6520 *pia) {
 	switch (reg_addr) {
 		case 0:
 			if (pia->reg_cra.bf_ddr_or_select) {
+				PRIVATE(pia)->state_a.read_port = true;
 				return SIGNAL_UINT8(port_a);
 			} else {
 				return pia->reg_ddra;
@@ -93,6 +98,7 @@ static inline uint8_t read_register(Chip6520 *pia) {
 			return pia->reg_cra.reg;
 		case 2:
 			if (pia->reg_crb.bf_ddr_or_select) {
+				PRIVATE(pia)->state_b.read_port = true;
 				return SIGNAL_UINT8(port_b);
 			} else {
 				return pia->reg_ddrb;
@@ -104,7 +110,7 @@ static inline uint8_t read_register(Chip6520 *pia) {
 	return 0;
 }
 
-static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, bool cl2, Chip6520_iipcl *state, bool read_port) {
+static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, bool cl2, Chip6520_pstate *state) {
 
 	// check for active transition of the control lines
 	state->act_trans_cl1 = (cl1 && !state->prev_cl1 && reg_ctrl->bf_irq1_pos_transition) ||
@@ -114,7 +120,7 @@ static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, 
 	                        (!cl2 && state->prev_cl2 && !reg_ctrl->bf_irq2_pos_transition));
 
 	// a read of the peripheral I/O port resets both irq flags in reg_ctrl
-	if (read_port) {
+	if (state->read_port) {
 		reg_ctrl->bf_irq1 = ACTHI_DEASSERT;
 		reg_ctrl->bf_irq2 = ACTHI_DEASSERT;
 	}
@@ -145,23 +151,17 @@ void process_negative_enable_edge(Chip6520 *pia) {
 		}
 	}
 
-	// check if the output-ports are being read
-	bool read_porta = PRIVATE(pia)->strobe && SIGNAL_BOOL(rw) == RW_READ && !SIGNAL_BOOL(rs0) && !SIGNAL_BOOL(rs1) && pia->reg_cra.bf_ddr_or_select;
-	bool read_portb = PRIVATE(pia)->strobe && SIGNAL_BOOL(rw) == RW_READ && !SIGNAL_BOOL(rs0) && SIGNAL_BOOL(rs1) && pia->reg_crb.bf_ddr_or_select;
-
-	// irq-A routine
+	// irq-A routine 
 	control_register_irq_routine(
 			&pia->reg_cra, 
 			SIGNAL_BOOL(ca1), SIGNAL_BOOL(ca2),
-			&PRIVATE(pia)->state_a,
-			read_porta);
+			&PRIVATE(pia)->state_a);
 
 	// irq-B routine (FIXME pin_cb2 output mode)
 	control_register_irq_routine(
 			&pia->reg_crb, 
 			SIGNAL_BOOL(cb1), SIGNAL_BOOL(cb2),
-			&PRIVATE(pia)->state_b,
-			read_portb);
+			&PRIVATE(pia)->state_b);
 
 	// irq output lines
 	PRIVATE(pia)->out_irqa_b = !((pia->reg_cra.bf_irq1 && pia->reg_cra.bf_irq1_enable) ||
@@ -174,7 +174,7 @@ void process_negative_enable_edge(Chip6520 *pia) {
 		if (pia->reg_cra.bf_cl2_output == 1) {
 			// ca2 follows the value written to bit 3 of cra (ca2 restore)
 			PRIVATE(pia)->internal_ca2 = pia->reg_cra.bf_cl2_restore == 1;
-		} else if (read_porta) {
+		} else if (PRIVATE(pia)->state_a.read_port) {
 			// ca2 goes low when porta is read, returning high depends on ca2-restore
 			PRIVATE(pia)->internal_ca2 = 0;
 		} else if (pia->reg_cra.bf_cl2_restore == 1) {
@@ -248,6 +248,12 @@ void chip_6520_process(Chip6520 *pia) {
 	assert(pia);
 
 	bool reset_b = SIGNAL_BOOL(reset_b);
+
+	// reset flags
+	PRIVATE(pia)->state_a.read_port = false;
+	PRIVATE(pia)->state_a.write_port = false;
+	PRIVATE(pia)->state_b.read_port = false;
+	PRIVATE(pia)->state_b.write_port = false;
 
 	if (ACTLO_ASSERTED(reset_b)) {
 		// reset is asserted - clear registers
