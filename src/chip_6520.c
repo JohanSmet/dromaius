@@ -113,7 +113,9 @@ static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, 
 }
 
 static inline void process_positive_enable_edge(Chip6520 *pia) {
-
+	if (PRIVATE(pia)->strobe && SIGNAL_BOOL(rw) == RW_READ) {
+		SIGNAL_SET_UINT8(bus_data, read_register(pia));
+	}
 }
 
 void process_negative_enable_edge(Chip6520 *pia) {
