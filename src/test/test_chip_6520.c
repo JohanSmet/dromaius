@@ -14,6 +14,10 @@
 		half_clock_cycle(pia);		\
 	}
 
+#define PIA_CYCLE()					\
+	PIA_CYCLE_START					\
+	PIA_CYCLE_END
+
 static void *chip_6520_setup(const MunitParameter params[], void *user_data) {
 	Chip6520 *pia = chip_6520_create(signal_pool_create(), (Chip6520Signals) {0});
 
@@ -350,11 +354,11 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 		strobe_pia(pia, true);				
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x7f);
+		SIGNAL_SET_UINT8(bus_data, 0x5f);
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0x3f);		// top two bits controlled by pia
+	munit_assert_uint8(pia->reg_cra.reg, ==, 0x1f);		// top two bits controlled by pia
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
 	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
@@ -372,7 +376,7 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0x3f);
+	munit_assert_uint8(pia->reg_cra.reg, ==, 0x1f);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
 	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
@@ -870,6 +874,165 @@ static MunitResult test_portb_out(const MunitParameter params[], void *user_data
 	return MUNIT_OK;
 }
 
+static MunitResult test_ca2_out_manual(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_cra.reg = 0b00110011;	// ca2 = output, output control = 1, irqa1 enabled on positive transition
+
+	// assert initial condition
+	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+
+	// change nothing, ca2 low
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+
+	// write 1 to bit 3 of cra: ca2 goes high
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8(bus_data, 0b00111011);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// change nothing, ca2 still high
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// disable pia, ca2 still high
+	PIA_CYCLE()
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// re-enable pia, ca2 still high
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// write 0 to bit 3 of cra: ca2 low
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8(bus_data, 0b00110011);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_ca2_out_pulse(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize registers
+	pia->reg_cra.reg = 0b00101011;	// ca2 = output, output control = 0, restore control = 1, irqa1 enabled on positive transition
+
+	// read ddra, ca2 high 
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// change cra to switch from ddr to port-a, ca2 still high
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8(bus_data, 0b00101111);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// read port-A, ca2 low (for one clock-cycle)
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+
+	// cycle clock, don't read port-A, ca2 returns to high
+	PIA_CYCLE();
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_ca2_out_handshake(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+
+	// initialize CRA
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8(bus_data, 0b00100011); // ca2 = output, output control = 0, restore control = 0, irqa1 enabled on positive transition
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// read ddra, ca2 high 
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// change cra to switch from ddr to port-a, ca2 still high
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_UINT8(bus_data, 0b00100111); 
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, false);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// read port-A, ca2 low (until active transition on ca1)
+	PIA_CYCLE_START
+		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+
+	// cycle clock, don't read port-A, ca2 stays low
+	PIA_CYCLE()
+	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+
+	// cycle clock, don't read port-A, ca2 stays low
+	PIA_CYCLE()
+	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+
+	// assert ca1, ca2 goes high
+	PIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// deassert ca1, ca2 stays high
+	PIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+	PIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	// cycle clock, don't read port-A, ca2 stays high
+	PIA_CYCLE();
+	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+
+	return MUNIT_OK;
+}
+
 
 MunitTest chip_6520_tests[] = {
 	{ "/reset", test_reset, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -891,5 +1054,8 @@ MunitTest chip_6520_tests[] = {
 	{ "/irqb_pos", test_irqb_pos, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/porta_out", test_porta_out, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/portb_out", test_portb_out, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/ca2_out_manual", test_ca2_out_manual, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/ca2_out_pulse", test_ca2_out_pulse, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/ca2_out_handshake", test_ca2_out_handshake, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

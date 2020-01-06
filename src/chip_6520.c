@@ -16,15 +16,23 @@
 // internal types
 //
 
+typedef struct Chip6520_iipcl {			// interrupt input/peripheral control lines helper
+	bool			prev_cl1;
+	bool			prev_cl2;
+	bool			act_trans_cl1;
+	bool			act_trans_cl2;
+} Chip6520_iipcl;
+
 typedef struct Chip6520_private {
 	Chip6520		intf;
 
 	bool			strobe;
 	bool			prev_enable;
-	bool			prev_ca1;
-	bool			prev_ca2;
-	bool			prev_cb1;
-	bool			prev_cb2;
+
+	Chip6520_iipcl	state_a;
+	Chip6520_iipcl	state_b;
+
+	bool			internal_ca2;
 
 	bool			out_irqa_b;
 	bool			out_irqb_b;
@@ -54,6 +62,9 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			break;
 		case 1:
 			pia->reg_cra.reg = (pia->reg_cra.reg & 0b11000000) | (data & 0b00111111);
+			if (pia->reg_cra.bf_cl2_mode_select == 1 && pia->reg_cra.bf_cl2_output == 0) {
+				PRIVATE(pia)->internal_ca2 = true;
+			}
 			break;
 		case 2:
 			if (pia->reg_crb.bf_ddr_or_select) {
@@ -93,23 +104,28 @@ static inline uint8_t read_register(Chip6520 *pia) {
 	return 0;
 }
 
-static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, bool cl2, bool prev_cl1, bool prev_cl2, bool read_port) {
+static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, bool cl2, Chip6520_iipcl *state, bool read_port) {
 
-	// >> check for active transition of the control lines
-	bool cl1_act_trans = (cl1 && !prev_cl1 && reg_ctrl->bf_irq1_pos_transition) ||
-	                     (!cl1 && prev_cl1 && !reg_ctrl->bf_irq1_pos_transition);
-	bool cl2_act_trans = (cl2 && !prev_cl2 && reg_ctrl->bf_irq2_pos_transition) ||
-	                     (!cl2 && prev_cl2 && !reg_ctrl->bf_irq2_pos_transition);
+	// check for active transition of the control lines
+	state->act_trans_cl1 = (cl1 && !state->prev_cl1 && reg_ctrl->bf_irq1_pos_transition) ||
+	                       (!cl1 && state->prev_cl1 && !reg_ctrl->bf_irq1_pos_transition);
+	state->act_trans_cl2 = reg_ctrl->bf_cl2_mode_select == 0 &&
+						   ((cl2 && !state->prev_cl2 && reg_ctrl->bf_irq2_pos_transition) ||
+	                        (!cl2 && state->prev_cl2 && !reg_ctrl->bf_irq2_pos_transition));
 
-	// >> a read of the peripheral I/O port resets both irq flags in reg_ctrl
+	// a read of the peripheral I/O port resets both irq flags in reg_ctrl
 	if (read_port) {
 		reg_ctrl->bf_irq1 = ACTHI_DEASSERT;
 		reg_ctrl->bf_irq2 = ACTHI_DEASSERT;
 	}
 
-	// >> an active transition of the cl1/cl2-lines sets the irq-flags in reg_ctrl
-	reg_ctrl->bf_irq1 = reg_ctrl->bf_irq1 | cl1_act_trans;
-	reg_ctrl->bf_irq2 = reg_ctrl->bf_irq2 | cl2_act_trans;
+	// an active transition of the cl1/cl2-lines sets the irq-flags in reg_ctrl
+	reg_ctrl->bf_irq1 = reg_ctrl->bf_irq1 | state->act_trans_cl1;
+	reg_ctrl->bf_irq2 = reg_ctrl->bf_irq2 | state->act_trans_cl2;
+
+	// store state of interrupt input/peripheral control lines
+	state->prev_cl1 = cl1;
+	state->prev_cl2 = cl2;
 }
 
 static inline void process_positive_enable_edge(Chip6520 *pia) {
@@ -133,18 +149,18 @@ void process_negative_enable_edge(Chip6520 *pia) {
 	bool read_porta = PRIVATE(pia)->strobe && SIGNAL_BOOL(rw) == RW_READ && !SIGNAL_BOOL(rs0) && !SIGNAL_BOOL(rs1) && pia->reg_cra.bf_ddr_or_select;
 	bool read_portb = PRIVATE(pia)->strobe && SIGNAL_BOOL(rw) == RW_READ && !SIGNAL_BOOL(rs0) && SIGNAL_BOOL(rs1) && pia->reg_crb.bf_ddr_or_select;
 
-	// irq-A routine (FIXME pin_ca2 output mode)
+	// irq-A routine
 	control_register_irq_routine(
-			&pia->reg_cra,
+			&pia->reg_cra, 
 			SIGNAL_BOOL(ca1), SIGNAL_BOOL(ca2),
-			PRIVATE(pia)->prev_ca1, PRIVATE(pia)->prev_ca2,
+			&PRIVATE(pia)->state_a,
 			read_porta);
 
 	// irq-B routine (FIXME pin_cb2 output mode)
 	control_register_irq_routine(
-			&pia->reg_crb,
+			&pia->reg_crb, 
 			SIGNAL_BOOL(cb1), SIGNAL_BOOL(cb2),
-			PRIVATE(pia)->prev_cb1, PRIVATE(pia)->prev_cb2,
+			&PRIVATE(pia)->state_b,
 			read_portb);
 
 	// irq output lines
@@ -153,11 +169,22 @@ void process_negative_enable_edge(Chip6520 *pia) {
 	PRIVATE(pia)->out_irqb_b = !((pia->reg_crb.bf_irq1 && pia->reg_crb.bf_irq1_enable) ||
 							     (pia->reg_crb.bf_irq2 && pia->reg_crb.bf_irq2_enable));
 
-	// store state of interrupt input/peripheral control lines
-	PRIVATE(pia)->prev_ca1 = SIGNAL_BOOL(ca1);
-	PRIVATE(pia)->prev_ca2 = SIGNAL_BOOL(ca2);
-	PRIVATE(pia)->prev_cb1 = SIGNAL_BOOL(cb1);
-	PRIVATE(pia)->prev_cb2 = SIGNAL_BOOL(cb2);
+	// pin_ca2 output mode
+	if (pia->reg_cra.bf_cl2_mode_select == 1) {
+		if (pia->reg_cra.bf_cl2_output == 1) {
+			// ca2 follows the value written to bit 3 of cra (ca2 restore)
+			PRIVATE(pia)->internal_ca2 = pia->reg_cra.bf_cl2_restore == 1;
+		} else if (read_porta) {
+			// ca2 goes low when porta is read, returning high depends on ca2-restore
+			PRIVATE(pia)->internal_ca2 = 0;
+		} else if (pia->reg_cra.bf_cl2_restore == 1) {
+			// return high on the next cycle
+			PRIVATE(pia)->internal_ca2 = 1;
+		} else {
+			// return high on next active CA1 transition
+			PRIVATE(pia)->internal_ca2 = PRIVATE(pia)->internal_ca2 | PRIVATE(pia)->state_a.act_trans_cl1;
+		}
+	}
 }
 
 static inline void process_end(Chip6520 *pia) {
@@ -169,6 +196,11 @@ static inline void process_end(Chip6520 *pia) {
 	// output on the ports
 	signal_write_uint8_masked(pia->signal_pool, SIGNAL(port_a), pia->reg_ora, pia->reg_ddra);
 	signal_write_uint8_masked(pia->signal_pool, SIGNAL(port_b), pia->reg_orb, pia->reg_ddrb);
+
+	// output on ca2 if in output mode
+	if (pia->reg_cra.bf_cl2_mode_select) {
+		SIGNAL_SET_BOOL(ca2, PRIVATE(pia)->internal_ca2);
+	}
 
 	// store state of the enable pin
 	PRIVATE(pia)->prev_enable = SIGNAL_BOOL(enable);
