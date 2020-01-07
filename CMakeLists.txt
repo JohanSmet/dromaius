@@ -132,6 +132,7 @@ target_sources(${GUI_TARGET}
 		src/gui/panel_monitor.c
 		src/gui/panel_monitor.h
 		src/gui/ui_context.h
+		src/gui/widgets.h
 )
 target_include_directories(${GUI_TARGET} PRIVATE libs src)
 target_link_libraries(${GUI_TARGET} PRIVATE ${NUKLEAR_TARGET})
