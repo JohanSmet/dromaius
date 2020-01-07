@@ -2,10 +2,10 @@ BINARIES = rom_test.bin rom_dayofweek.bin
 
 all: $(BINARIES)
 
-rom_test.bin: rom_test.s
+rom_test.bin: rom_test.s simple.cfg
 	cl65 rom_test.s -o rom_test.bin -C simple.cfg 
 
-rom_dayofweek.bin: rom_dayofweek.s
+rom_dayofweek.bin: rom_dayofweek.s simple.cfg
 	cl65 rom_dayofweek.s -o rom_dayofweek.bin -C simple.cfg 
 
 clean:
