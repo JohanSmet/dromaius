@@ -39,7 +39,7 @@ void nuklear_on_start(struct nk_context *ctx) {
 							ui_context.device->ram->data_array, 0x8000, 0x0000);
 	ui_context.pnl_rom = panel_memory_init(
 							ctx, (struct nk_vec2) {480, 170}, "ROM",
-							ui_context.device->rom->data_array, 0x8000, 0x8000);
+							ui_context.device->rom->data_array, 0x4000, 0xC000);
 
 	ui_context.pnl_control = panel_control_init(ctx, nk_vec2(20, 20), ui_context.dms_ctx, "runtime/minimal_6502");
 

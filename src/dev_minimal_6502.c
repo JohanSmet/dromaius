@@ -1,6 +1,6 @@
 // dev_minimal_6502.c - Johan Smet - BSD-3-Clause (see LICENSE)
 //
-// Emulates a minimal MOS-6502 based system, with 32kb of RAM and a 32kb system ROM.
+// Emulates a minimal MOS-6502 based system, with 32kb of RAM and a 16kb system ROM.
 
 #include "dev_minimal_6502.h"
 
@@ -30,6 +30,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	SIGNAL_DEFINE_BOOL(cpu_rdy, 1, ACTHI_ASSERT);
 
 	device->signals.a15 = signal_split(SIGNAL(bus_address), 15, 1);
+	device->signals.a14 = signal_split(SIGNAL(bus_address), 14, 1);
 
 	// clock
 	device->clock = clock_create(10, device->signal_pool, (ClockSignals){
@@ -57,8 +58,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	});
 
 	// rom
-	device->rom = rom_8d16a_create(15, device->signal_pool, (Rom8d16aSignals) {
-										.bus_address = signal_split(device->signals.bus_address, 0, 15),
+	device->rom = rom_8d16a_create(14, device->signal_pool, (Rom8d16aSignals) {
+										.bus_address = signal_split(device->signals.bus_address, 0, 14),
 										.bus_data = SIGNAL(bus_data),
 	});
 
@@ -114,8 +115,8 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 		ram_8d16a_process(device->ram);
 
 		// rom
-		//  - ce_b: assert when the top bit of the address is set
-		SIGNAL_SET_BOOL(rom_ce_b, !SIGNAL_NEXT_BOOL(a15));
+		//  - ce_b: assert when the top 2 bits of the address is set
+		SIGNAL_SET_BOOL(rom_ce_b, !(SIGNAL_NEXT_BOOL(a15) & SIGNAL_NEXT_BOOL(a14)));
 
 		rom_8d16a_process(device->rom);
 

@@ -17,21 +17,21 @@ static void *dev_minimal_6502_setup(const MunitParameter params[], void *user_da
 	arrput(rom, 0x61);
 	arrput(rom, OP_6502_BRK);
 
-	// >> make sure the buffer is the full 32k
-	arrsetlen(rom, 1 << 15);
+	// >> make sure the buffer is the full 16k
+	arrsetlen(rom, 1 << 14);
 
 	// >> IRQ / NMI handlers
-	rom[0xfe00 - 0x8000] = OP_6502_JMP_ABS;
-	rom[0xfe01 - 0x8000] = 0x00;
-	rom[0xfe02 - 0x8000] = 0xfe;
+	rom[0xfe00 - 0xC000] = OP_6502_JMP_ABS;
+	rom[0xfe01 - 0xC000] = 0x00;
+	rom[0xfe02 - 0xC000] = 0xfe;
 
 	// >> VECTORS
-	rom[0xfffa - 0x8000] = 0x00;		// NMI vector - low
-	rom[0xfffb - 0x8000] = 0xfe;		// NMI vector - high
-	rom[0xfffc - 0x8000] = 0x00;		// reset vector - low
-	rom[0xfffd - 0x8000] = 0x80;		// reset vector - high
-	rom[0xfffe - 0x8000] = 0x00;		// IRQ vector - low
-	rom[0xffff - 0x8000] = 0xfe;		// IRQ vector - high
+	rom[0xfffa - 0xC000] = 0x00;		// NMI vector - low
+	rom[0xfffb - 0xC000] = 0xfe;		// NMI vector - high
+	rom[0xfffc - 0xC000] = 0x00;		// reset vector - low
+	rom[0xfffd - 0xC000] = 0xc0;		// reset vector - high
+	rom[0xfffe - 0xC000] = 0x00;		// IRQ vector - low
+	rom[0xffff - 0xC000] = 0xfe;		// IRQ vector - high
 
 	DevMinimal6502 *dev = dev_minimal_6502_create(rom);
 	return dev;

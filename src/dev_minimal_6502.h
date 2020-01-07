@@ -1,6 +1,6 @@
 // dev_minimal_6502.h - Johan Smet - BSD-3-Clause (see LICENSE)
 //
-// Emulates a minimal MOS-6502 based system, with 32kb of RAM and a 32kb system ROM.
+// Emulates a minimal MOS-6502 based system, with 32kb of RAM and a 16kb system ROM.
 
 #ifndef DROMAIUS_DEV_MINIMAL_6502_H
 #define DROMAIUS_DEV_MINIMAL_6502_H
@@ -30,6 +30,7 @@ typedef struct DevMinimal6502Signals {
 	Signal		rom_ce_b;			// 1-bit
 
 	Signal		a15;				// 1-bit - top bit of the address bus
+	Signal		a14;				// 1-bit - second most significat bit of the address bus
 } DevMinimal6502Signals;
 
 typedef struct DevMinimal6502 {
