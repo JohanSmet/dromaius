@@ -121,6 +121,8 @@ add_executable(${GUI_TARGET} WIN32)
 target_sources(${GUI_TARGET}
 	PRIVATE
 		src/gui/main_gui.c
+		src/gui/panel_chip_6520.c
+		src/gui/panel_chip_6520.h
 		src/gui/panel_clock.c
 		src/gui/panel_clock.h
 		src/gui/panel_control.c
