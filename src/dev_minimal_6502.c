@@ -48,7 +48,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->line_cpu_rdy = ACTHI_ASSERT;
 
 	// run CPU for at least one cycle while reset is asserted
-	cpu_6502_process(device->cpu);
+	cpu_6502_process(device->cpu, false);
 
 	return device;
 }
@@ -63,16 +63,7 @@ void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	free(device);
 }
 
-void dev_minimal_6502_process(DevMinimal6502 *device) {
-	assert(device);
-
-	// clock tick
-	clock_process(device->clock);
-	
-	// cpu
-	cpu_6502_process(device->cpu);
-	
-	// ram
+static inline void process_ram(DevMinimal6502 *device) {
 	device->ram->bus_address = device->bus_address;
 	device->ram->bus_data = device->bus_data;
 	device->ram->pin_ce_b = (device->bus_address & 0x8000) >> 15;
@@ -84,8 +75,9 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	if (device->ram->upd_data) {
 		device->bus_data = device->ram->bus_data;
 	}
+}
 
-	// rom
+static inline void process_rom(DevMinimal6502 *device) {
 	device->rom->bus_address = device->bus_address;
 	device->rom->bus_data = device->bus_data;
 	device->rom->pin_ce_b = !((device->bus_address & 0x8000) >> 15);
@@ -95,6 +87,35 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	if (device->rom->upd_data) {
 		device->bus_data = device->rom->bus_data;
 	}
+}
+
+void dev_minimal_6502_process(DevMinimal6502 *device) {
+	assert(device);
+
+	// clock tick
+	clock_process(device->clock);
+
+	///////////////////////////////////////////////////////////////////////////
+	//
+	// processing on the clock edge
+	//
+
+	// cpu
+	cpu_6502_process(device->cpu, false);
+
+	// ram
+	process_ram(device);
+
+	// rom
+	process_rom(device);
+
+	///////////////////////////////////////////////////////////////////////////
+	//
+	// processing after the clock edge (i.e. after the address hold time)
+	//
+
+	// cpu
+	cpu_6502_process(device->cpu, true);
 }
 
 void dev_minimal_6502_reset(DevMinimal6502 *device) {

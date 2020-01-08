@@ -60,7 +60,10 @@ __________|/\_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _________________/\______________
 Notes:
 - The 6502 keeps the previous address stable at the beginning of the clock 
   cycle for at leat 10ns, depending on the operating frequency. (tAH/adress hold time)
-
+- To allow synchronization between devices processing of (1) and (2) is not done in 
+  the same cpu_6502_process call. The function is called twice for each clock change,
+  the first time with parameter "delayed" set to false (execute (1)) and the second
+  time with "delayed" set to true (execute (2)).
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2122,7 +2125,7 @@ void cpu_6502_destroy(Cpu6502 *cpu) {
 	free((Cpu6502_private *) cpu);
 }
 
-void cpu_6502_process(Cpu6502 *cpu) {
+void cpu_6502_process(Cpu6502 *cpu, bool delayed) {
 	assert(cpu);
 	Cpu6502_private *priv = (Cpu6502_private *) cpu;
 
@@ -2142,9 +2145,8 @@ void cpu_6502_process(Cpu6502 *cpu) {
 
 	// do nothing:
 	//  - if reset is asserted or
-	//  - if rdy is not asserted or
-	//  - if not on the edge of a clock cycle
-	if (ACTLO_ASSERTED(*cpu->pin_reset_b) || !ACTHI_ASSERTED(*cpu->pin_rdy) || *cpu->pin_clock == priv->prev_clock) {
+	//  - if rdy is not asserted
+	if (ACTLO_ASSERTED(*cpu->pin_reset_b) || !ACTHI_ASSERTED(*cpu->pin_rdy)) {
 		process_end(cpu);
 		return;
 	}
@@ -2158,15 +2160,19 @@ void cpu_6502_process(Cpu6502 *cpu) {
 	// normal processing
 	if (*cpu->pin_clock == false) {
 		// a negative going clock ends the previous cycle and starts a new cycle
-		if (priv->decode_cycle >= 0) {
+		if (priv->decode_cycle >= 0 && !delayed) {
 			cpu_6502_execute_phase(cpu, CYCLE_END);
 		}
 
-		++priv->decode_cycle;
-		cpu_6502_execute_phase(cpu, CYCLE_BEGIN);
+		if (delayed) {
+			++priv->decode_cycle;
+			cpu_6502_execute_phase(cpu, CYCLE_BEGIN);
+		}
 	} else {
 		// a positive going clock marks the halfway point of the cycle
-		cpu_6502_execute_phase(cpu, CYCLE_MIDDLE);
+		if (!delayed) {
+			cpu_6502_execute_phase(cpu, CYCLE_MIDDLE);
+		}
 	}
 
 	process_end(cpu);

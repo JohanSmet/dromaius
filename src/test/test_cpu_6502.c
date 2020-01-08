@@ -18,53 +18,58 @@ typedef struct Computer {
 	Cpu6502 *	cpu;
 } Computer;
 
+static inline void cpu_process_entire_edge(Cpu6502 *cpu) {
+	cpu_6502_process(cpu, false);
+	cpu_6502_process(cpu, true);
+}
+
 static inline void computer_clock_cycle(Computer *computer) {
 	munit_assert_not_null(computer);
 
 	computer->pin_clock = true;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 
 	computer->pin_clock = false;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 }
 
 static void computer_reset(Computer *computer) {
 	computer->pin_reset = ACTLO_ASSERT;
 	computer->pin_clock = true;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 
 	computer->pin_reset = ACTLO_DEASSERT;
 
 	// ignore first 5 cycles 
 	for (int i = 0; i < 5; ++i) {
 		computer->pin_clock = false;
-		cpu_6502_process(computer->cpu);
+		cpu_process_entire_edge(computer->cpu);
 
 		computer->pin_clock = true;
-		cpu_6502_process(computer->cpu);
+		cpu_process_entire_edge(computer->cpu);
 	}
 
 	// cpu should now read address 0xfffc - low byte of reset vector 
 	computer->pin_clock = false;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 
 	computer->bus_data = 0x01;
 
 	computer->pin_clock = true;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 
 	// cpu should now read address 0xfffd - high byte of reset vector
 	computer->pin_clock = false;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 
 	computer->bus_data = 0x08;
 
 	computer->pin_clock = true;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 
 	// end last init cycle - start fetch of first instruction 
 	computer->pin_clock = false;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 }
 
 static void *cpu_6502_setup(const MunitParameter params[], void *user_data) {
@@ -125,43 +130,43 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 	munit_assert_not_null(computer.cpu);
 
 	/* deassert reset */
-	cpu_6502_process(computer.cpu);
+	cpu_process_entire_edge(computer.cpu);
 	computer.pin_reset = ACTLO_DEASSERT;
 
 	/* ignore first 5 cycles */
 	for (int i = 0; i < 5; ++i) {
 		computer.pin_clock = false;
-		cpu_6502_process(computer.cpu);
+		cpu_process_entire_edge(computer.cpu);
 		munit_assert_true(computer.pin_rw);
 
 		computer.pin_clock = true;
-		cpu_6502_process(computer.cpu);
+		cpu_process_entire_edge(computer.cpu);
 	}
 
 	/* cpu should now read address 0xfffc - low byte of reset vector */
 	computer.pin_clock = false;
-	cpu_6502_process(computer.cpu);
+	cpu_process_entire_edge(computer.cpu);
 
 	munit_assert_uint16(computer.bus_address, ==, 0xfffc);
 	computer.bus_data = 0x01;
 
 	computer.pin_clock = true;
-	cpu_6502_process(computer.cpu);
+	cpu_process_entire_edge(computer.cpu);
 
 	/* cpu should now read address 0xfffd - high byte of reset vector */
 	computer.pin_clock = false;
-	cpu_6502_process(computer.cpu);
+	cpu_process_entire_edge(computer.cpu);
 
 	munit_assert_uint8(LO_BYTE(computer.cpu->reg_pc), ==, 0x01);
 	munit_assert_uint16(computer.bus_address, ==, 0xfffd);
 	computer.bus_data = 0x08;
 
 	computer.pin_clock = true;
-	cpu_6502_process(computer.cpu);
+	cpu_process_entire_edge(computer.cpu);
 
 	/* cpu should now read from address 0x0801 */
 	computer.pin_clock = false;
-	cpu_6502_process(computer.cpu);
+	cpu_process_entire_edge(computer.cpu);
 
 	munit_assert_uint16(computer.cpu->reg_pc, ==, 0x0801);
 	munit_assert_uint16(computer.bus_address, ==, 0x0801);
@@ -260,12 +265,12 @@ MunitResult test_nmi(const MunitParameter params[], void *user_data_or_fixture) 
 	computer->pin_nmi = false;
 
 	computer->pin_clock = true;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 
 	computer->pin_nmi = true;
 
 	computer->pin_clock = false;
-	cpu_6502_process(computer->cpu);
+	cpu_process_entire_edge(computer->cpu);
 
 	munit_assert_uint8(computer->cpu->reg_ir, ==, OP_6502_LDA_IMM);
 
