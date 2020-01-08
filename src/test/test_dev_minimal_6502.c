@@ -6,16 +6,47 @@
 
 #include "stb/stb_ds.h"
 
-static void *dev_minimal_6502_setup(const MunitParameter params[], void *user_data) {
+static DevMinimal6502 *dev_minimal_6502_setup(int program) {
+
 	// build ROM image
 	uint8_t *rom = NULL;
 	
 	// >> a simple program
-	arrput(rom, OP_6502_LDA_IMM);
-	arrput(rom, 10);
-	arrput(rom, OP_6502_STA_ZP);
-	arrput(rom, 0x61);
-	arrput(rom, OP_6502_BRK);
+	if (program == 0) {
+		arrput(rom, OP_6502_LDA_IMM);
+		arrput(rom, 10);
+		arrput(rom, OP_6502_STA_ZP);
+		arrput(rom, 0x61);
+		arrput(rom, OP_6502_BRK);
+	} else if (program == 1) {
+		arrput(rom, OP_6502_LDA_IMM);
+		arrput(rom, 0xff);
+		arrput(rom, OP_6502_STA_ABS);		// write the PIA - DDRA
+		arrput(rom, 0x00);
+		arrput(rom, 0x80);
+		arrput(rom, OP_6502_STA_ABS);		// write the PIA - DDRB
+		arrput(rom, 0x02);
+		arrput(rom, 0x80);
+		arrput(rom, OP_6502_LDA_IMM);
+		arrput(rom, 0b00000100);
+		arrput(rom, OP_6502_STA_ABS);		// write the PIA - CRA (select ORA instead of DDRA)
+		arrput(rom, 0x01);
+		arrput(rom, 0x80);
+		arrput(rom, OP_6502_STA_ABS);		// write the PIA - CRB (select ORA instead of DDRB)
+		arrput(rom, 0x03);
+		arrput(rom, 0x80);
+		arrput(rom, OP_6502_LDA_IMM);
+		arrput(rom, 0x55);
+		arrput(rom, OP_6502_STA_ABS);		// write the PIA - ORA
+		arrput(rom, 0x00);
+		arrput(rom, 0x80);
+		arrput(rom, OP_6502_STA_ABS);		// write the PIA - ORB
+		arrput(rom, 0x02);
+		arrput(rom, 0x80);
+		arrput(rom, OP_6502_BRK);
+	} else {
+		arrput(rom, OP_6502_BRK);
+	}
 
 	// >> make sure the buffer is the full 16k
 	arrsetlen(rom, 1 << 14);
@@ -44,7 +75,7 @@ static void dev_minimal_6502_teardown(void *fixture) {
 
 MunitResult test_program(const MunitParameter params[], void *user_data_or_fixture) {
 
-	DevMinimal6502 *dev = (DevMinimal6502 *) user_data_or_fixture;
+	DevMinimal6502 *dev = dev_minimal_6502_setup(0);
 
 	// initialize the memory that is used by the program
 	dev->ram->data_array[0x61] = 0;
@@ -64,10 +95,43 @@ MunitResult test_program(const MunitParameter params[], void *user_data_or_fixtu
 	munit_assert_uint8(dev->cpu->reg_a, ==, 10);
 	munit_assert_uint8(dev->ram->data_array[0x61], ==, 10);
 
+	dev_minimal_6502_teardown(dev);
+
+	return MUNIT_OK;
+}
+
+MunitResult test_pia(const MunitParameter params[], void *user_data_or_fixture) {
+
+	DevMinimal6502 *dev = dev_minimal_6502_setup(1);
+
+	// run the computer until the program counter reaches the IRQ-handler
+	signal_write_bool(dev->signal_pool, dev->signals.reset_b, ACTLO_DEASSERT);
+
+	int limit = 1000;
+
+	while (limit > 0 && dev->cpu->reg_pc != 0xfe00) {
+		dev_minimal_6502_process(dev);
+		--limit;
+	}
+
+	// check some things - not an exhaustive test
+	munit_assert_int(limit, >, 0);
+	munit_assert_uint8(dev->pia->reg_ddra, ==, 0xff);
+	munit_assert_uint8(dev->pia->reg_ddrb, ==, 0xff);
+	munit_assert_uint8(dev->pia->reg_cra.reg, ==, 0x04);
+	munit_assert_uint8(dev->pia->reg_crb.reg, ==, 0x04);
+	munit_assert_uint8(dev->pia->reg_ora, ==, 0x55);
+	munit_assert_uint8(dev->pia->reg_orb, ==, 0x55);
+	munit_assert_uint8(signal_read_uint8(dev->signal_pool, dev->pia->signals.port_a), ==, 0x55);
+	munit_assert_uint8(signal_read_uint8(dev->signal_pool, dev->pia->signals.port_b), ==, 0x55);
+
+	dev_minimal_6502_teardown(dev);
+
 	return MUNIT_OK;
 }
 
 MunitTest dev_minimal_6502_tests[] = {
-	{ "/run_program", test_program, dev_minimal_6502_setup, dev_minimal_6502_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/run_program", test_program, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/pia", test_pia, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

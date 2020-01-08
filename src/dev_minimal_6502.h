@@ -2,12 +2,24 @@
 //
 // Emulates a minimal MOS-6502 based system, with 32kb of RAM and a 16kb system ROM.
 
+/* Address space:
+   0x0000 - 0x7fff (32kb) : RAM
+   0x8000 - 0x800f (16)   : PIA (6520 - Peripheral Interface Adapter)
+		0x8000 = DDRA/Port-A	(Data Direction Register for port-A / port-A)
+		0x8001 = CRA			(Control Register for port-A)
+		0x8002 = DDRB/Port-B	(Data Direction Register for port-B / port-B)
+		0x8003 = CRB			(Control Register for port-B)
+   0x8010 - 0xbfff        : (free)
+   0xc000 - 0xffff (16kb) : ROM
+*/
+
 #ifndef DROMAIUS_DEV_MINIMAL_6502_H
 #define DROMAIUS_DEV_MINIMAL_6502_H
 
 #include "cpu_6502.h"
 #include "ram_8d_16a.h"
 #include "rom_8d_16a.h"
+#include "chip_6520.h"
 #include "clock.h"
 
 // types 
@@ -29,8 +41,13 @@ typedef struct DevMinimal6502Signals {
 
 	Signal		rom_ce_b;			// 1-bit
 
+	Signal		pia_cs2_b;			// 1-bit
+
 	Signal		a15;				// 1-bit - top bit of the address bus
 	Signal		a14;				// 1-bit - second most significat bit of the address bus
+
+	Signal		high;				// 1-bit - always high
+	Signal		low;				// 1-bit - always low
 } DevMinimal6502Signals;
 
 typedef struct DevMinimal6502 {
@@ -38,6 +55,7 @@ typedef struct DevMinimal6502 {
 	Cpu6502 *	cpu;
 	Ram8d16a *	ram;
 	Rom8d16a *	rom;
+	Chip6520 *	pia;
 	Clock *		clock;
 
 	// signals

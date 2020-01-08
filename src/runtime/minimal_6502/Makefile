@@ -1,4 +1,4 @@
-BINARIES = rom_test.bin rom_dayofweek.bin
+BINARIES = rom_test.bin rom_dayofweek.bin rom_test_pia.bin
 
 all: $(BINARIES)
 
@@ -7,6 +7,9 @@ rom_test.bin: rom_test.s simple.cfg
 
 rom_dayofweek.bin: rom_dayofweek.s simple.cfg
 	cl65 rom_dayofweek.s -o rom_dayofweek.bin -C simple.cfg 
+
+rom_test_pia.bin: rom_test_pia.s simple.cfg
+	cl65 rom_test_pia.s -o rom_test_pia.bin -C simple.cfg 
 
 clean:
 	$(RM) *.o *.bin 

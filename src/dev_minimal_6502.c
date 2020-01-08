@@ -29,6 +29,9 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	SIGNAL_DEFINE(cpu_sync, 1);
 	SIGNAL_DEFINE_BOOL(cpu_rdy, 1, ACTHI_ASSERT);
 
+	SIGNAL_DEFINE_BOOL(low, 1, false);
+	SIGNAL_DEFINE_BOOL(high, 1, true);
+
 	device->signals.a15 = signal_split(SIGNAL(bus_address), 15, 1);
 	device->signals.a14 = signal_split(SIGNAL(bus_address), 14, 1);
 
@@ -67,10 +70,23 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 		memcpy(device->rom->data_array, rom_data, arrlen(rom_data));
 	}
 
+	// pia
+	device->pia = chip_6520_create(device->signal_pool, (Chip6520Signals) {
+										.bus_data = SIGNAL(bus_data),
+										.enable = SIGNAL(clock),
+										.reset_b = SIGNAL(reset_b),
+										.rw = SIGNAL(cpu_rw),
+										.cs0 = SIGNAL(a15),
+										.cs1 = SIGNAL(high),
+										.rs0 = signal_split(SIGNAL(bus_address), 0, 1),
+										.rs1 = signal_split(SIGNAL(bus_address), 1, 1),
+	});
+
 	// copy some signals for easy access
 	SIGNAL(ram_oe_b) = device->ram->signals.oe_b;
 	SIGNAL(ram_we_b) = device->ram->signals.we_b;
 	SIGNAL(rom_ce_b) = device->rom->signals.ce_b;
+	SIGNAL(pia_cs2_b) = device->pia->signals.cs2_b;
 
 	// run CPU for at least one cycle while reset is asserted
 	signal_write_bool(device->signal_pool, SIGNAL(reset_b), ACTLO_ASSERT);
@@ -87,6 +103,9 @@ void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	ram_8d16a_destroy(device->ram);
 	rom_8d16a_destroy(device->rom);
 	free(device);
+}
+
+static inline void process_pia(DevMinimal6502 *device) {
 }
 
 void dev_minimal_6502_process(DevMinimal6502 *device) {
@@ -119,6 +138,16 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 		SIGNAL_SET_BOOL(rom_ce_b, !(SIGNAL_NEXT_BOOL(a15) & SIGNAL_NEXT_BOOL(a14)));
 
 		rom_8d16a_process(device->rom);
+
+		// pia
+		//  - no peripheral connected, irq lines not connected
+		//	- cs0: assert when top bit of address is set (copy of a15)
+		//	- cs1: always asserted
+		//  - cs2_b: assert when bits 4-14 are zero
+		uint16_t bus_address = SIGNAL_UINT16(bus_address);
+		SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
+
+		chip_6520_process(device->pia);
 
 		// make the clock output it's signal again
 		clock_refresh(device->clock);
