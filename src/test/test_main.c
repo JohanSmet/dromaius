@@ -4,6 +4,7 @@
 
 #include "munit/munit.h"
 
+extern MunitTest signal_tests[];
 extern MunitTest clock_tests[];
 extern MunitTest cpu_6502_tests[];
 extern MunitTest dev_minimal_6502_tests[];
@@ -13,6 +14,12 @@ extern MunitTest utils_tests[];
 extern MunitTest filt_6502_asm_tests[];
 
 static MunitSuite extern_suites[] = {
+	{	.prefix = "/signal",
+		.tests = signal_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
 	{	.prefix = "/cpu_6502",
 		.tests = cpu_6502_tests,
 		.suites = NULL,

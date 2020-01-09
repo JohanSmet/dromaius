@@ -99,6 +99,8 @@ target_sources(${LIB_TARGET}
 		src/ram_8d_16a.h
 		src/rom_8d_16a.c
 		src/rom_8d_16a.h
+		src/signal.c
+		src/signal.h
 		src/utils.c
 		src/utils.h
 )
@@ -176,6 +178,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_filt_6502_asm.c
 		src/test/test_ram_8d_16a.c
 		src/test/test_rom_8d_16a.c
+		src/test/test_signal.c
 		src/test/test_utils.c
 		libs/munit/munit.c
 		libs/munit/munit.h
