@@ -24,6 +24,11 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->sig_cpu_sync = signal_create(device->signal_pool, 1);
 	device->sig_cpu_rdy = signal_create(device->signal_pool, 1);
 
+	signal_default_bool(device->signal_pool, device->sig_cpu_irq, ACTLO_DEASSERT);
+	signal_default_bool(device->signal_pool, device->sig_cpu_nmi, ACTLO_DEASSERT);
+	signal_default_bool(device->signal_pool, device->sig_cpu_rdy, ACTHI_ASSERT);
+	signal_default_bool(device->signal_pool, device->sig_reset_b, ACTLO_DEASSERT);
+
 	// clock
 	device->clock = clock_create(10);
 
@@ -143,9 +148,6 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	//
 
 	signal_pool_cycle(device->signal_pool);
-	signal_write_bool(device->signal_pool, device->sig_cpu_irq, ACTLO_DEASSERT);
-	signal_write_bool(device->signal_pool, device->sig_cpu_nmi, ACTLO_DEASSERT);
-	signal_write_bool(device->signal_pool, device->sig_cpu_rdy, ACTHI_ASSERT);
 
 	// cpu
 	process_cpu(device, false);
@@ -156,16 +158,12 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	// rom
 	process_rom(device);
 
-
 	///////////////////////////////////////////////////////////////////////////
 	//
 	// processing after the clock edge (i.e. after the address hold time)
 	//
 
 	signal_pool_cycle(device->signal_pool);
-	signal_write_bool(device->signal_pool, device->sig_cpu_irq, ACTLO_DEASSERT);
-	signal_write_bool(device->signal_pool, device->sig_cpu_nmi, ACTLO_DEASSERT);
-	signal_write_bool(device->signal_pool, device->sig_cpu_rdy, ACTHI_ASSERT);
 
 	// cpu
 	process_cpu(device, true);

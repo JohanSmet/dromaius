@@ -14,6 +14,7 @@ typedef struct Signal {
 typedef struct SignalPool {
 	bool *		signals_read;
 	bool *		signals_write;
+	bool *		signals_default;
 } SignalPool;
 
 // functions
@@ -23,6 +24,10 @@ void signal_pool_cycle(SignalPool *pool);
 
 Signal signal_create(SignalPool *pool, size_t size);
 Signal signal_split(Signal src, size_t start, size_t size);
+
+void signal_default_bool(SignalPool *pool, Signal signal, bool value);
+void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value);
+void signal_default_uint16(SignalPool *pool, Signal signal, uint16_t value);
 
 bool signal_read_bool(SignalPool *pool, Signal signal);
 uint8_t signal_read_uint8(SignalPool *pool, Signal signal);
