@@ -7,6 +7,24 @@
 #include <assert.h>
 #include <stdlib.h>
 
+static inline uint8_t read_uint8(bool *src, int len) {
+	uint8_t result = 0;
+	for (int i = 0; i < len; ++i) {
+		result |= src[i] << i;
+	}
+
+	return result;
+}
+
+static inline uint16_t read_uint16(bool *src, int len) {
+	uint16_t result = 0;
+	for (int i = 0; i < len; ++i) {
+		result |= src[i] << i;
+	}
+
+	return result;
+}
+
 SignalPool *signal_pool_create(void) {
 	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool));
 	return pool;
@@ -15,30 +33,30 @@ SignalPool *signal_pool_create(void) {
 void signal_pool_destroy(SignalPool *pool) {
 	assert(pool);
 
-	arrfree(pool->signals_read);
-	arrfree(pool->signals_write);
+	arrfree(pool->signals_curr);
+	arrfree(pool->signals_next);
 	arrfree(pool->signals_default);
 	free(pool);
 }
 
 void signal_pool_cycle(SignalPool *pool) {
 	assert(pool);
-	assert(arrlen(pool->signals_read) == arrlen(pool->signals_write));
-	assert(arrlen(pool->signals_default) == arrlen(pool->signals_write));
+	assert(arrlen(pool->signals_curr) == arrlen(pool->signals_next));
+	assert(arrlen(pool->signals_default) == arrlen(pool->signals_next));
 
-	memcpy(pool->signals_read, pool->signals_write, arrlen(pool->signals_write));
-	memcpy(pool->signals_write, pool->signals_default, arrlen(pool->signals_default));
+	memcpy(pool->signals_curr, pool->signals_next, arrlen(pool->signals_next));
+	memcpy(pool->signals_next, pool->signals_default, arrlen(pool->signals_default));
 }
 
 Signal signal_create(SignalPool *pool, size_t size) {
 	assert(pool);
 	assert(size > 0);
 
-	Signal result = {arrlen(pool->signals_read), size};
+	Signal result = {arrlen(pool->signals_curr), size};
 	
 	for (int i = 0; i < size; ++i) {
-		arrpush(pool->signals_read, false);
-		arrpush(pool->signals_write, false);
+		arrpush(pool->signals_curr, false);
+		arrpush(pool->signals_next, false);
 		arrpush(pool->signals_default, false);
 	}
 
@@ -57,7 +75,7 @@ void signal_default_bool(SignalPool *pool, Signal signal, bool value) {
 	assert(signal.count == 1);
 
 	pool->signals_default[signal.start] = value;
-	pool->signals_write[signal.start] = value;
+	pool->signals_next[signal.start] = value;
 }
 
 void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value) {
@@ -66,7 +84,7 @@ void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value) {
 
 	for (int i = 0; i < signal.count; ++i) {
 		pool->signals_default[signal.start + i] = value & 1;
-		pool->signals_write[signal.start + i] = value & 1;
+		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}
 }
@@ -77,7 +95,7 @@ void signal_default_uint16(SignalPool *pool, Signal signal, uint16_t value) {
 
 	for (int i = 0; i < signal.count; ++i) {
 		pool->signals_default[signal.start + i] = value & 1;
-		pool->signals_write[signal.start + i] = value & 1;
+		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}
 }
@@ -86,37 +104,27 @@ bool signal_read_bool(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count == 1);
 
-	return pool->signals_read[signal.start];
+	return pool->signals_curr[signal.start];
 }
 
 uint8_t signal_read_uint8(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count <= 8);
 
-	uint8_t result = 0;
-	for (int i = 0; i < signal.count; ++i) {
-		result |= pool->signals_read[signal.start+i] << i;
-	}
-
-	return result;
+	return read_uint8(pool->signals_curr + signal.start, signal.count);
 }
 
 uint16_t signal_read_uint16(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count <= 16);
 
-	uint16_t result = 0;
-	for (int i = 0; i < signal.count; ++i) {
-		result |= pool->signals_read[signal.start+i] << i;
-	}
-
-	return result;
+	return read_uint16(pool->signals_curr + signal.start, signal.count);
 }
 
 void signal_write_bool(SignalPool *pool, Signal signal, bool value) {
 	assert(pool);
 	assert(signal.count == 1);
-	pool->signals_write[signal.start] = value;
+	pool->signals_next[signal.start] = value;
 }
 
 void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t value) {
@@ -124,7 +132,7 @@ void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t value) {
 	assert(signal.count <= 8);
 
 	for (int i = 0; i < signal.count; ++i) {
-		pool->signals_write[signal.start + i] = value & 1;
+		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}
 }
@@ -134,7 +142,7 @@ void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t value) {
 	assert(signal.count <= 16);
 
 	for (int i = 0; i < signal.count; ++i) {
-		pool->signals_write[signal.start + i] = value & 1;
+		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}
 }
@@ -146,7 +154,7 @@ void signal_write_uint8_masked(SignalPool *pool, Signal signal, uint8_t value, u
 	for (int i = 0; i < signal.count; ++i) {
 		bool b = mask & 1;
 
-		pool->signals_write[signal.start + i] = (pool->signals_read[signal.start + i] & ~b) | (value & b);
+		pool->signals_next[signal.start + i] = (pool->signals_curr[signal.start + i] & ~b) | (value & b);
 		mask >>= 1;
 		value >>= 1;
 	}
@@ -159,8 +167,29 @@ void signal_write_uint16_masked(SignalPool *pool, Signal signal, uint16_t value,
 	for (int i = 0; i < signal.count; ++i) {
 		bool b = mask & 1;
 
-		pool->signals_write[signal.start + i] = (pool->signals_read[signal.start + i] & ~b) | (value & b);
+		pool->signals_next[signal.start + i] = (pool->signals_curr[signal.start + i] & ~b) | (value & b);
 		mask >>= 1;
 		value >>= 1;
 	}
+}
+
+bool signal_read_next_bool(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count == 1);
+
+	return pool->signals_next[signal.start];
+}
+
+uint8_t signal_read_next_uint8(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count <= 8);
+
+	return read_uint8(pool->signals_next + signal.start, signal.count);
+}
+
+uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count <= 16);
+
+	return read_uint16(pool->signals_next + signal.start, signal.count);
 }

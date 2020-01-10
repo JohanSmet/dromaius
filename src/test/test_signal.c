@@ -18,32 +18,32 @@ static MunitResult test_create(const MunitParameter params[], void* user_data_or
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
 
 	// pre-condition
-	munit_assert_size(arrlen(pool->signals_read), ==, 0);
-	munit_assert_size(arrlen(pool->signals_write), ==, 0);
+	munit_assert_size(arrlen(pool->signals_curr), ==, 0);
+	munit_assert_size(arrlen(pool->signals_next), ==, 0);
 
 	// 1-bit signal
 	Signal sig1 = signal_create(pool, 1);
 	munit_assert_uint32(sig1.count, ==, 1);
-	munit_assert_size(arrlen(pool->signals_read), ==, 1);
-	munit_assert_size(arrlen(pool->signals_write), ==, 1);
+	munit_assert_size(arrlen(pool->signals_curr), ==, 1);
+	munit_assert_size(arrlen(pool->signals_next), ==, 1);
 
 	// 8-bit signal 
 	Signal sig2 = signal_create(pool, 8);
 	munit_assert_uint32(sig2.count, ==, 8);
-	munit_assert_size(arrlen(pool->signals_read), ==, 9);
-	munit_assert_size(arrlen(pool->signals_write), ==, 9);
+	munit_assert_size(arrlen(pool->signals_curr), ==, 9);
+	munit_assert_size(arrlen(pool->signals_next), ==, 9);
 
 	// 16-bit signal
 	Signal sig3 = signal_create(pool, 16);
 	munit_assert_uint32(sig3.count, ==, 16);
-	munit_assert_size(arrlen(pool->signals_read), ==, 25);
-	munit_assert_size(arrlen(pool->signals_write), ==, 25);
+	munit_assert_size(arrlen(pool->signals_curr), ==, 25);
+	munit_assert_size(arrlen(pool->signals_next), ==, 25);
 
 	// 12-bit signal
 	Signal sig4 = signal_create(pool, 12);
 	munit_assert_uint32(sig4.count, ==, 12);
-	munit_assert_size(arrlen(pool->signals_read), ==, 37);
-	munit_assert_size(arrlen(pool->signals_write), ==, 37);
+	munit_assert_size(arrlen(pool->signals_curr), ==, 37);
+	munit_assert_size(arrlen(pool->signals_next), ==, 37);
 
     return MUNIT_OK;
 }
@@ -54,8 +54,8 @@ static MunitResult test_read_bool(const MunitParameter params[], void* user_data
 	// setup
 	Signal sig_a = signal_create(pool, 1);
 	Signal sig_b = signal_create(pool, 1);
-	pool->signals_read[0] = true;
-	pool->signals_read[1] = false;
+	pool->signals_curr[0] = true;
+	pool->signals_curr[1] = false;
 
 	// test
 	munit_assert_true(signal_read_bool(pool, sig_a));
@@ -70,8 +70,8 @@ static MunitResult test_read_uint8(const MunitParameter params[], void* user_dat
 	// setup
 	Signal sig_a = signal_create(pool, 8);
 	for (int i = 0; i < 4; ++i) {
-		pool->signals_read[(i*2)+0] = true;
-		pool->signals_read[(i*2)+1] = false;
+		pool->signals_curr[(i*2)+0] = true;
+		pool->signals_curr[(i*2)+1] = false;
 	}
 
 	// test
@@ -86,8 +86,8 @@ static MunitResult test_read_uint16(const MunitParameter params[], void* user_da
 	// setup
 	Signal sig_a = signal_create(pool, 16);
 	for (int i = 0; i < 8; ++i) {
-		pool->signals_read[(i*2)+0] = false;
-		pool->signals_read[(i*2)+1] = true;
+		pool->signals_curr[(i*2)+0] = false;
+		pool->signals_curr[(i*2)+1] = true;
 	}
 
 	// test
@@ -105,29 +105,29 @@ static MunitResult test_write_bool(const MunitParameter params[], void* user_dat
 	Signal sig_c = signal_create(pool, 1);
 
 	// test pre-condition
-	munit_assert_false(pool->signals_write[0]);
-	munit_assert_false(pool->signals_write[1]);
-	munit_assert_false(pool->signals_write[2]);
-	munit_assert_false(pool->signals_read[0]);
-	munit_assert_false(pool->signals_read[1]);
-	munit_assert_false(pool->signals_read[2]);
+	munit_assert_false(pool->signals_next[0]);
+	munit_assert_false(pool->signals_next[1]);
+	munit_assert_false(pool->signals_next[2]);
+	munit_assert_false(pool->signals_curr[0]);
+	munit_assert_false(pool->signals_curr[1]);
+	munit_assert_false(pool->signals_curr[2]);
 
 	// test
 	signal_write_bool(pool, sig_b, true);
-	munit_assert_false(pool->signals_write[0]);
-	munit_assert_true(pool->signals_write[1]);
-	munit_assert_false(pool->signals_write[2]);
-	munit_assert_false(pool->signals_read[0]);
-	munit_assert_false(pool->signals_read[1]);
-	munit_assert_false(pool->signals_read[2]);
+	munit_assert_false(pool->signals_next[0]);
+	munit_assert_true(pool->signals_next[1]);
+	munit_assert_false(pool->signals_next[2]);
+	munit_assert_false(pool->signals_curr[0]);
+	munit_assert_false(pool->signals_curr[1]);
+	munit_assert_false(pool->signals_curr[2]);
 
 	signal_write_bool(pool, sig_b, false);
-	munit_assert_false(pool->signals_write[0]);
-	munit_assert_false(pool->signals_write[1]);
-	munit_assert_false(pool->signals_write[2]);
-	munit_assert_false(pool->signals_read[0]);
-	munit_assert_false(pool->signals_read[1]);
-	munit_assert_false(pool->signals_read[2]);
+	munit_assert_false(pool->signals_next[0]);
+	munit_assert_false(pool->signals_next[1]);
+	munit_assert_false(pool->signals_next[2]);
+	munit_assert_false(pool->signals_curr[0]);
+	munit_assert_false(pool->signals_curr[1]);
+	munit_assert_false(pool->signals_curr[2]);
 
     return MUNIT_OK;
 }
@@ -141,71 +141,71 @@ static MunitResult test_write_uint8(const MunitParameter params[], void* user_da
 	Signal sig_c = signal_create(pool, 1);
 
 	// test pre-condition
-	munit_assert_false(pool->signals_write[0]);
-	munit_assert_false(pool->signals_write[1]);
-	munit_assert_false(pool->signals_write[2]);
-	munit_assert_false(pool->signals_write[3]);
-	munit_assert_false(pool->signals_write[4]);
-	munit_assert_false(pool->signals_write[5]);
-	munit_assert_false(pool->signals_write[6]);
-	munit_assert_false(pool->signals_write[7]);
-	munit_assert_false(pool->signals_write[8]);
-	munit_assert_false(pool->signals_write[9]);
-	munit_assert_false(pool->signals_read[0]);
-	munit_assert_false(pool->signals_read[1]);
-	munit_assert_false(pool->signals_read[2]);
-	munit_assert_false(pool->signals_read[3]);
-	munit_assert_false(pool->signals_read[4]);
-	munit_assert_false(pool->signals_read[5]);
-	munit_assert_false(pool->signals_read[6]);
-	munit_assert_false(pool->signals_read[7]);
-	munit_assert_false(pool->signals_read[8]);
-	munit_assert_false(pool->signals_read[9]);
+	munit_assert_false(pool->signals_next[0]);
+	munit_assert_false(pool->signals_next[1]);
+	munit_assert_false(pool->signals_next[2]);
+	munit_assert_false(pool->signals_next[3]);
+	munit_assert_false(pool->signals_next[4]);
+	munit_assert_false(pool->signals_next[5]);
+	munit_assert_false(pool->signals_next[6]);
+	munit_assert_false(pool->signals_next[7]);
+	munit_assert_false(pool->signals_next[8]);
+	munit_assert_false(pool->signals_next[9]);
+	munit_assert_false(pool->signals_curr[0]);
+	munit_assert_false(pool->signals_curr[1]);
+	munit_assert_false(pool->signals_curr[2]);
+	munit_assert_false(pool->signals_curr[3]);
+	munit_assert_false(pool->signals_curr[4]);
+	munit_assert_false(pool->signals_curr[5]);
+	munit_assert_false(pool->signals_curr[6]);
+	munit_assert_false(pool->signals_curr[7]);
+	munit_assert_false(pool->signals_curr[8]);
+	munit_assert_false(pool->signals_curr[9]);
 
 	// test
 	signal_write_uint8(pool, sig_b, 0xff);
-	munit_assert_false(pool->signals_write[0]);
-	munit_assert_true(pool->signals_write[1]);
-	munit_assert_true(pool->signals_write[2]);
-	munit_assert_true(pool->signals_write[3]);
-	munit_assert_true(pool->signals_write[4]);
-	munit_assert_true(pool->signals_write[5]);
-	munit_assert_true(pool->signals_write[6]);
-	munit_assert_true(pool->signals_write[7]);
-	munit_assert_true(pool->signals_write[8]);
-	munit_assert_false(pool->signals_write[9]);
-	munit_assert_false(pool->signals_read[0]);
-	munit_assert_false(pool->signals_read[1]);
-	munit_assert_false(pool->signals_read[2]);
-	munit_assert_false(pool->signals_read[3]);
-	munit_assert_false(pool->signals_read[4]);
-	munit_assert_false(pool->signals_read[5]);
-	munit_assert_false(pool->signals_read[6]);
-	munit_assert_false(pool->signals_read[7]);
-	munit_assert_false(pool->signals_read[8]);
-	munit_assert_false(pool->signals_read[9]);
+	munit_assert_false(pool->signals_next[0]);
+	munit_assert_true(pool->signals_next[1]);
+	munit_assert_true(pool->signals_next[2]);
+	munit_assert_true(pool->signals_next[3]);
+	munit_assert_true(pool->signals_next[4]);
+	munit_assert_true(pool->signals_next[5]);
+	munit_assert_true(pool->signals_next[6]);
+	munit_assert_true(pool->signals_next[7]);
+	munit_assert_true(pool->signals_next[8]);
+	munit_assert_false(pool->signals_next[9]);
+	munit_assert_false(pool->signals_curr[0]);
+	munit_assert_false(pool->signals_curr[1]);
+	munit_assert_false(pool->signals_curr[2]);
+	munit_assert_false(pool->signals_curr[3]);
+	munit_assert_false(pool->signals_curr[4]);
+	munit_assert_false(pool->signals_curr[5]);
+	munit_assert_false(pool->signals_curr[6]);
+	munit_assert_false(pool->signals_curr[7]);
+	munit_assert_false(pool->signals_curr[8]);
+	munit_assert_false(pool->signals_curr[9]);
 
 	signal_write_uint8(pool, sig_b, 0x0a);
-	munit_assert_false(pool->signals_write[0]);
-	munit_assert_false(pool->signals_write[1]);
-	munit_assert_true(pool->signals_write[2]);
-	munit_assert_false(pool->signals_write[3]);
-	munit_assert_true(pool->signals_write[4]);
-	munit_assert_false(pool->signals_write[5]);
-	munit_assert_false(pool->signals_write[6]);
-	munit_assert_false(pool->signals_write[7]);
-	munit_assert_false(pool->signals_write[8]);
-	munit_assert_false(pool->signals_write[9]);
-	munit_assert_false(pool->signals_read[0]);
-	munit_assert_false(pool->signals_read[1]);
-	munit_assert_false(pool->signals_read[2]);
-	munit_assert_false(pool->signals_read[3]);
-	munit_assert_false(pool->signals_read[4]);
-	munit_assert_false(pool->signals_read[5]);
-	munit_assert_false(pool->signals_read[6]);
-	munit_assert_false(pool->signals_read[7]);
-	munit_assert_false(pool->signals_read[8]);
-	munit_assert_false(pool->signals_read[9]);
+	munit_assert_false(pool->signals_next[0]);
+	munit_assert_false(pool->signals_next[1]);
+	munit_assert_true(pool->signals_next[2]);
+	munit_assert_false(pool->signals_next[3]);
+	munit_assert_true(pool->signals_next[4]);
+	munit_assert_false(pool->signals_next[5]);
+	munit_assert_false(pool->signals_next[6]);
+	munit_assert_false(pool->signals_next[7]);
+	munit_assert_false(pool->signals_next[8]);
+	munit_assert_false(pool->signals_next[9]);
+	munit_assert_false(pool->signals_curr[0]);
+	munit_assert_false(pool->signals_curr[1]);
+	munit_assert_false(pool->signals_curr[2]);
+	munit_assert_false(pool->signals_curr[3]);
+	munit_assert_false(pool->signals_curr[4]);
+	munit_assert_false(pool->signals_curr[5]);
+	munit_assert_false(pool->signals_curr[6]);
+	munit_assert_false(pool->signals_curr[7]);
+	munit_assert_false(pool->signals_curr[8]);
+	munit_assert_false(pool->signals_curr[9]);
 
     return MUNIT_OK;
 }
@@ -220,24 +220,72 @@ static MunitResult test_write_uint16(const MunitParameter params[], void* user_d
 
 	// test
 	signal_write_uint16(pool, sig_b, 0x5a);
-	munit_assert_false(pool->signals_write[0]);
-	munit_assert_false(pool->signals_write[1]);
-	munit_assert_true(pool->signals_write[2]);
-	munit_assert_false(pool->signals_write[3]);
-	munit_assert_true(pool->signals_write[4]);
-	munit_assert_true(pool->signals_write[5]);
-	munit_assert_false(pool->signals_write[6]);
-	munit_assert_true(pool->signals_write[7]);
-	munit_assert_false(pool->signals_write[8]);
-	munit_assert_false(pool->signals_write[9]);
-	munit_assert_false(pool->signals_write[10]);
-	munit_assert_false(pool->signals_write[11]);
-	munit_assert_false(pool->signals_write[12]);
-	munit_assert_false(pool->signals_write[13]);
-	munit_assert_false(pool->signals_write[14]);
-	munit_assert_false(pool->signals_write[15]);
-	munit_assert_false(pool->signals_write[16]);
-	munit_assert_false(pool->signals_write[17]);
+	munit_assert_false(pool->signals_next[0]);
+	munit_assert_false(pool->signals_next[1]);
+	munit_assert_true(pool->signals_next[2]);
+	munit_assert_false(pool->signals_next[3]);
+	munit_assert_true(pool->signals_next[4]);
+	munit_assert_true(pool->signals_next[5]);
+	munit_assert_false(pool->signals_next[6]);
+	munit_assert_true(pool->signals_next[7]);
+	munit_assert_false(pool->signals_next[8]);
+	munit_assert_false(pool->signals_next[9]);
+	munit_assert_false(pool->signals_next[10]);
+	munit_assert_false(pool->signals_next[11]);
+	munit_assert_false(pool->signals_next[12]);
+	munit_assert_false(pool->signals_next[13]);
+	munit_assert_false(pool->signals_next[14]);
+	munit_assert_false(pool->signals_next[15]);
+	munit_assert_false(pool->signals_next[16]);
+	munit_assert_false(pool->signals_next[17]);
+
+    return MUNIT_OK;
+}
+
+static MunitResult test_read_next_bool(const MunitParameter params[], void* user_data_or_fixture) {
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	// setup
+	Signal sig_a = signal_create(pool, 1);
+
+	// test
+	signal_write_bool(pool, sig_a, true);
+	munit_assert_false(signal_read_bool(pool, sig_a));
+	munit_assert_true(signal_read_next_bool(pool, sig_a));
+
+    return MUNIT_OK;
+}
+
+static MunitResult test_read_next_uint8(const MunitParameter params[], void* user_data_or_fixture) {
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	// setup
+	Signal sig_a = signal_create(pool, 8);
+
+	// test
+	signal_write_uint8(pool, sig_a, 0xaa);
+	signal_pool_cycle(pool);
+	signal_write_uint8(pool, sig_a, 0x55);
+
+	munit_assert_uint8(signal_read_uint8(pool, sig_a), ==, 0xaa);
+	munit_assert_uint8(signal_read_next_uint8(pool, sig_a), ==, 0x55);
+
+    return MUNIT_OK;
+}
+
+static MunitResult test_read_next_uint16(const MunitParameter params[], void* user_data_or_fixture) {
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	// setup
+	Signal sig_a = signal_create(pool, 16);
+
+	// test
+	signal_write_uint16(pool, sig_a, 0xaabb);
+	signal_pool_cycle(pool);
+	signal_write_uint16(pool, sig_a, 0x5566);
+
+	munit_assert_uint16(signal_read_uint16(pool, sig_a), ==, 0xaabb);
+	munit_assert_uint16(signal_read_next_uint16(pool, sig_a), ==, 0x5566);
 
     return MUNIT_OK;
 }
@@ -407,6 +455,9 @@ MunitTest signal_tests[] = {
     { "/write_bool", test_write_bool, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/write_uint8", test_write_uint8, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/write_uint16", test_write_uint8, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
+    { "/read_next_bool", test_read_next_bool, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
+    { "/read_next_uint8", test_read_next_uint8, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
+    { "/read_next_uint16", test_read_next_uint16, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/cycle", test_cycle, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/split", test_split, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/write_uint8_masked", test_write_uint8_masked, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },

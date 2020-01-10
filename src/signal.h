@@ -12,8 +12,8 @@ typedef struct Signal {
 } Signal;
 
 typedef struct SignalPool {
-	bool *		signals_read;
-	bool *		signals_write;
+	bool *		signals_curr;
+	bool *		signals_next;
 	bool *		signals_default;
 } SignalPool;
 
@@ -39,5 +39,9 @@ void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t value);
 
 void signal_write_uint8_masked(SignalPool *pool, Signal signal, uint8_t value, uint8_t mask);
 void signal_write_uint16_masked(SignalPool *pool, Signal signal, uint16_t value, uint16_t mask);
+
+bool signal_read_next_bool(SignalPool *pool, Signal signal);
+uint8_t signal_read_next_uint8(SignalPool *pool, Signal signal);
+uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal);
 
 #endif //  DROMAIUS_SIGNAL_H
