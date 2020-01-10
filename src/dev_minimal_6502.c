@@ -24,6 +24,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->sig_cpu_sync = signal_create(device->signal_pool, 1);
 	device->sig_cpu_rdy = signal_create(device->signal_pool, 1);
 
+	device->sig_a15 = signal_split(device->sig_address, 15, 1);
+
 	signal_default_bool(device->signal_pool, device->sig_cpu_irq, ACTLO_DEASSERT);
 	signal_default_bool(device->signal_pool, device->sig_cpu_nmi, ACTLO_DEASSERT);
 	signal_default_bool(device->signal_pool, device->sig_cpu_rdy, ACTHI_ASSERT);
@@ -48,7 +50,11 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->ram = ram_8d16a_create(15);
 
 	// rom
-	device->rom = rom_8d16a_create(15);
+	device->rom = rom_8d16a_create(15, device->signal_pool, (Rom8d16aSignals) {
+										.bus_address = signal_split(device->sig_address, 0, 15),
+										.bus_data = device->sig_data
+	});
+
 	if (rom_data) {
 		memcpy(device->rom->data_array, rom_data, arrlen(rom_data));
 	}
@@ -125,15 +131,11 @@ static inline void process_ram(DevMinimal6502 *device) {
 }
 
 static inline void process_rom(DevMinimal6502 *device) {
-	device->rom->bus_address = signal_read_uint16(device->signal_pool, device->sig_address);
-	device->rom->bus_data = signal_read_uint8(device->signal_pool, device->sig_data);
-	device->rom->pin_ce_b = !((device->rom->bus_address & 0x8000) >> 15);
+	// enable ROM when the top bit of the address is set
+	signal_write_bool(device->signal_pool, device->rom->signals.ce_b, 
+					 !signal_read_next_bool(device->signal_pool, device->sig_a15));
 
 	rom_8d16a_process(device->rom);
-
-	if (device->rom->upd_data) {
-		signal_write_uint8(device->signal_pool, device->sig_data, device->rom->bus_data);
-	}
 }
 
 void dev_minimal_6502_process(DevMinimal6502 *device) {

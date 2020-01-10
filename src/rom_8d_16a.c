@@ -8,23 +8,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define SIGNAL_POOL			rom->signal_pool
+#define SIGNAL_COLLECTION	rom->signals
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
 //
 
-Rom8d16a *rom_8d16a_create(uint8_t num_address_lines) {
-	assert(num_address_lines > 0 && num_address_lines <= 16);
+Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Rom8d16aSignals signals) {
 
 	size_t data_size = 1ll << num_address_lines;
-
 	Rom8d16a *rom = (Rom8d16a *) malloc(sizeof(Rom8d16a) + data_size);
-	memset(rom, 0, sizeof(Rom8d16a) + data_size);
 
-	rom->pin_ce_b = ACTLO_DEASSERT;
+	memset(rom, 0, sizeof(Rom8d16a) + data_size);
+	rom->signal_pool = signal_pool;
 	rom->data_size = data_size;
-	rom->msk_address = (data_size - 1) & 0xffff;
-	
+
+	memcpy(&rom->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(bus_address, 16);
+	SIGNAL_DEFINE(bus_data, 8);
+	SIGNAL_DEFINE(ce_b, 1);
+
 	return rom;
 }
 
@@ -36,13 +41,10 @@ void rom_8d16a_destroy(Rom8d16a *rom) {
 void rom_8d16a_process(Rom8d16a *rom) {
 	assert(rom);
 
-	rom->upd_data = false;
-
-	if (!ACTLO_ASSERTED(rom->pin_ce_b)) {
+	if (!ACTLO_ASSERTED(SIGNAL_BOOL(ce_b))) {
 		return;
 	}
 
-	rom->bus_address = rom->bus_address & rom->msk_address;
-	rom->bus_data = rom->data_array[rom->bus_address];
-	rom->upd_data = true;
+	uint16_t address = SIGNAL_UINT16(bus_address);
+	SIGNAL_SET_UINT8(bus_data, rom->data_array[address]);
 }

@@ -3,17 +3,22 @@
 #include "munit/munit.h"
 #include "rom_8d_16a.h"
 
+#define SIGNAL_POOL			rom->signal_pool
+#define SIGNAL_COLLECTION	rom->signals
+
 static void *rom_8d16a_setup(const MunitParameter params[], void *user_data) {
-	Rom8d16a *rom = rom_8d16a_create(16);
+	SignalPool *pool = signal_pool_create();
+	Rom8d16a *rom = rom_8d16a_create(16, pool, (Rom8d16aSignals) {});
 
 	for (uint32_t i = 0; i <= 0xffff; ++i) {
 		rom->data_array[i] = i & 0xff;
 	}
-	return rom;
+	return rom; 
 }
 
 static void rom_8d16a_teardown(void *fixture) {
 	Rom8d16a *rom = (Rom8d16a *) fixture;
+	signal_pool_destroy(rom->signal_pool);
 	rom_8d16a_destroy(rom);
 }
 
@@ -21,13 +26,15 @@ static MunitResult test_read(const MunitParameter params[], void *user_data_or_f
 
 	Rom8d16a *rom = (Rom8d16a *) user_data_or_fixture;
 
-	rom->pin_ce_b = ACTLO_ASSERT;
-
 	for (uint32_t i = 0; i <= 0xffff; ++i) {
-		rom->bus_address = i;
+		SIGNAL_SET_BOOL(ce_b, ACTLO_ASSERT);
+		SIGNAL_SET_UINT16(bus_address, i);
+		signal_pool_cycle(rom->signal_pool);
+
 		rom_8d16a_process(rom);
-		munit_assert_true(rom->upd_data);
-		munit_assert_uint8(rom->bus_data, ==, i & 0xff);
+
+		signal_pool_cycle(rom->signal_pool);
+		munit_assert_uint8(SIGNAL_UINT8(bus_data), ==, i & 0xff);
 	}
 
 	return MUNIT_OK;
@@ -37,21 +44,25 @@ static MunitResult test_ce(const MunitParameter params[], void *user_data_or_fix
 
 	Rom8d16a *rom = (Rom8d16a *) user_data_or_fixture;
 	
-	rom->pin_ce_b = ACTLO_DEASSERT;
-	rom->bus_address = 0x1635;
+	SIGNAL_SET_BOOL(ce_b, ACTLO_DEASSERT);
+	SIGNAL_SET_UINT16(bus_address, 0x1635);
+	signal_pool_cycle(rom->signal_pool);
 	rom_8d16a_process(rom);
-	munit_assert_false(rom->upd_data);
+	signal_pool_cycle(rom->signal_pool);
+	munit_assert_uint8(SIGNAL_UINT8(bus_data), ==, 0);
 
-	rom->pin_ce_b = ACTLO_ASSERT;
+	SIGNAL_SET_BOOL(ce_b, ACTLO_ASSERT);
+	SIGNAL_SET_UINT16(bus_address, 0x1635);
+	signal_pool_cycle(rom->signal_pool);
 	rom_8d16a_process(rom);
-	munit_assert_true(rom->upd_data);
-	munit_assert_uint8(rom->bus_data, ==, 0x35);
+	signal_pool_cycle(rom->signal_pool);
+	munit_assert_uint8(SIGNAL_UINT8(bus_data), ==, 0x35);
 	
-	rom->pin_ce_b = ACTLO_DEASSERT;
-	rom->bus_address = 0x12AF;
+	SIGNAL_SET_BOOL(ce_b, ACTLO_DEASSERT);
+	SIGNAL_SET_UINT16(bus_address, 0x12AF);
+	signal_pool_cycle(rom->signal_pool);
 	rom_8d16a_process(rom);
-	munit_assert_false(rom->upd_data);
-	munit_assert_uint8(rom->bus_data, ==, 0x35);
+	munit_assert_uint8(SIGNAL_UINT8(bus_data), ==, 0);
 
 	return MUNIT_OK;
 }

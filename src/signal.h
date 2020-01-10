@@ -44,4 +44,24 @@ bool signal_read_next_bool(SignalPool *pool, Signal signal);
 uint8_t signal_read_next_uint8(SignalPool *pool, Signal signal);
 uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal);
 
+// macros to make working with signal a little prettier
+//	define SIGNAL_POOL and SIGNAL_COLLECTION in your source file
+
+#define SIGNAL_DEFINE(sig,cnt)										\
+	if (SIGNAL_COLLECTION.sig.count == 0) {							\
+		SIGNAL_COLLECTION.sig = signal_create(SIGNAL_POOL, (cnt));	\
+	}
+
+#define SIGNAL_BOOL(sig)	signal_read_bool(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
+#define SIGNAL_UINT8(sig)	signal_read_uint8(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
+#define SIGNAL_UINT16(sig)	signal_read_uint16(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
+
+#define SIGNAL_NEXT_BOOL(sig)	signal_read_next_bool(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
+#define SIGNAL_NEXT_UINT8(sig)	signal_read_next_uint8(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
+#define SIGNAL_NEXT_UINT16(sig)	signal_read_next_uint16(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
+
+#define SIGNAL_SET_BOOL(sig,v)		signal_write_bool(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v))
+#define SIGNAL_SET_UINT8(sig,v)		signal_write_uint8(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v))
+#define SIGNAL_SET_UINT16(sig,v)	signal_write_uint16(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v))
+
 #endif //  DROMAIUS_SIGNAL_H

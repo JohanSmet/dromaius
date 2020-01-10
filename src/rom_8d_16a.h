@@ -6,16 +6,20 @@
 #define DROMAIUS_ROM_8D_16A_H
 
 #include "types.h"
+#include "signal.h"
 
 // types
+typedef struct Rom8d16aSignals {
+	struct Signal bus_address;		// 16-bit address bus
+	struct Signal bus_data;			// 8-bit data bus
+	struct Signal ce_b;				// 1-bit chip enable (active low)
+} Rom8d16aSignals;
+
+
 typedef struct Rom8d16a {
 	// interface
-	uint16_t	bus_address;	// 16-bit address bus
-	uint16_t	msk_address;	//	mask for the enabled address lines
-	uint8_t		bus_data;		// 8-bit data bus
-	bool		upd_data;		// bus_data was updated
-	
-	bool		pin_ce_b;		// 1-bit chip enable (active low)
+	SignalPool *		signal_pool;
+	Rom8d16aSignals		signals;
 
 	// data
 	size_t		data_size;
@@ -25,7 +29,7 @@ typedef struct Rom8d16a {
 
 
 // functions
-Rom8d16a *rom_8d16a_create(uint8_t num_address_lines);
+Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Rom8d16aSignals signals);
 void rom_8d16a_destroy(Rom8d16a *rom);
 void rom_8d16a_process(Rom8d16a *rom);
 

@@ -39,6 +39,8 @@ typedef struct DevMinimal6502 {
 	Signal		sig_cpu_nmi;		// 1-bit
 	Signal		sig_cpu_sync;		// 1-bit
 	Signal		sig_cpu_rdy;		// 1-bit
+
+	Signal		sig_a15;			// 1-bit
 } DevMinimal6502;
 
 // functions
