@@ -47,7 +47,11 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 						&device->line_cpu_rdy);
 	
 	// ram
-	device->ram = ram_8d16a_create(15);
+	device->ram = ram_8d16a_create(15, device->signal_pool, (Ram8d16aSignals) {
+										.bus_address = signal_split(device->sig_address, 0, 15),
+										.bus_data = device->sig_data,
+										.ce_b = device->sig_a15
+	});
 
 	// rom
 	device->rom = rom_8d16a_create(15, device->signal_pool, (Rom8d16aSignals) {
@@ -117,17 +121,12 @@ static inline void process_cpu(DevMinimal6502 *device, bool delayed) {
 }
 
 static inline void process_ram(DevMinimal6502 *device) {
-	device->ram->bus_address = signal_read_uint16(device->signal_pool, device->sig_address);
-	device->ram->bus_data = signal_read_uint8(device->signal_pool, device->sig_data);
-	device->ram->pin_ce_b = (device->ram->bus_address & 0x8000) >> 15;
-	device->ram->pin_oe_b = !signal_read_bool(device->signal_pool, device->sig_cpu_rw);
-	device->ram->pin_we_b = signal_read_bool(device->signal_pool, device->sig_cpu_rw) || !device->clock->pin_clock;
+	bool next_rw = signal_read_next_bool(device->signal_pool, device->sig_cpu_rw);
+
+	signal_write_bool(device->signal_pool, device->ram->signals.oe_b, !next_rw);
+	signal_write_bool(device->signal_pool, device->ram->signals.we_b, next_rw || !device->clock->pin_clock);
 
 	ram_8d16a_process(device->ram);
-
-	if (device->ram->upd_data) {
-		signal_write_uint8(device->signal_pool, device->sig_data, device->ram->bus_data);
-	}
 }
 
 static inline void process_rom(DevMinimal6502 *device) {
