@@ -15,14 +15,14 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// signals
 	device->signal_pool = signal_pool_create();
-	device->sig_address = signal_create(device->signal_pool, 16);
-	device->sig_data = signal_create(device->signal_pool, 8);
-	device->sig_reset_b = signal_create(device->signal_pool, 1);
-	device->sig_cpu_rw = signal_create(device->signal_pool, 1);
-	device->sig_cpu_irq = signal_create(device->signal_pool, 1);
-	device->sig_cpu_nmi = signal_create(device->signal_pool, 1);
-	device->sig_cpu_sync = signal_create(device->signal_pool, 1);
-	device->sig_cpu_rdy = signal_create(device->signal_pool, 1);
+	device->sig_address		= signal_create(device->signal_pool, 16);
+	device->sig_data		= signal_create(device->signal_pool, 8);
+	device->sig_reset_b		= signal_create(device->signal_pool, 1);
+	device->sig_cpu_rw		= signal_create(device->signal_pool, 1);
+	device->sig_cpu_irq		= signal_create(device->signal_pool, 1);
+	device->sig_cpu_nmi		= signal_create(device->signal_pool, 1);
+	device->sig_cpu_sync	= signal_create(device->signal_pool, 1);
+	device->sig_cpu_rdy		= signal_create(device->signal_pool, 1);
 
 	device->sig_a15 = signal_split(device->sig_address, 15, 1);
 
@@ -35,17 +35,17 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->clock = clock_create(10);
 
 	// cpu
-	device->cpu = cpu_6502_create(
-						&device->bus_address,
-						&device->bus_data,
-						&device->clock->pin_clock,
-						&device->line_reset_b,
-						&device->line_cpu_rw,
-						&device->line_cpu_irq,
-						&device->line_cpu_nmi,
-						&device->line_cpu_sync,
-						&device->line_cpu_rdy);
-	
+	device->cpu = cpu_6502_create(device->signal_pool, (Cpu6502Signals) {
+										.bus_address = device->sig_address,
+										.bus_data = device->sig_data,
+										.reset_b = device->sig_reset_b,
+										.rw = device->sig_cpu_rw,
+										.irq_b = device->sig_cpu_irq,
+										.nmi_b = device->sig_cpu_nmi,
+										.sync = device->sig_cpu_sync,
+										.rdy = device->sig_cpu_rdy,
+	});
+
 	// ram
 	device->ram = ram_8d16a_create(15, device->signal_pool, (Ram8d16aSignals) {
 										.bus_address = signal_split(device->sig_address, 0, 15),
@@ -63,24 +63,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 		memcpy(device->rom->data_array, rom_data, arrlen(rom_data));
 	}
 
-	// init data lines
-	device->bus_address = 0;
-	device->bus_data = 0;
-	device->line_reset_b = ACTLO_ASSERT;
-	device->line_cpu_rw = ACTHI_ASSERT;
-	device->line_cpu_irq = ACTLO_DEASSERT;
-	device->line_cpu_nmi = ACTLO_DEASSERT;
-	device->line_cpu_sync = ACTHI_DEASSERT;
-	device->line_cpu_rdy = ACTHI_ASSERT;
-
-	signal_write_bool(device->signal_pool, device->sig_reset_b, ACTLO_ASSERT);
-	signal_write_bool(device->signal_pool, device->sig_cpu_rw, ACTHI_ASSERT);
-	signal_write_bool(device->signal_pool, device->sig_cpu_irq, ACTLO_DEASSERT);
-	signal_write_bool(device->signal_pool, device->sig_cpu_nmi, ACTLO_DEASSERT);
-	signal_write_bool(device->signal_pool, device->sig_cpu_sync, ACTHI_DEASSERT);
-	signal_write_bool(device->signal_pool, device->sig_cpu_rdy, ACTHI_ASSERT);
-
 	// run CPU for at least one cycle while reset is asserted
+	signal_write_bool(device->signal_pool, device->sig_reset_b, ACTLO_ASSERT);
 	cpu_6502_process(device->cpu, false);
 
 	return device;
@@ -96,98 +80,48 @@ void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	free(device);
 }
 
-static inline void process_cpu(DevMinimal6502 *device, bool delayed) {
-	device->bus_address = signal_read_uint16(device->signal_pool, device->sig_address);
-	device->bus_data = signal_read_uint8(device->signal_pool, device->sig_data);
-	device->line_reset_b = signal_read_bool(device->signal_pool, device->sig_reset_b);
-	device->line_cpu_rw = signal_read_bool(device->signal_pool, device->sig_cpu_rw);
-	device->line_cpu_irq = signal_read_bool(device->signal_pool, device->sig_cpu_irq);
-	device->line_cpu_nmi = signal_read_bool(device->signal_pool, device->sig_cpu_nmi);
-	device->line_cpu_sync = signal_read_bool(device->signal_pool, device->sig_cpu_sync);
-	device->line_cpu_rdy = signal_read_bool(device->signal_pool, device->sig_reset_b);
-
-	int8_t prev_data = device->bus_data;
-
-	cpu_6502_process(device->cpu, delayed);
-
-	signal_write_uint16(device->signal_pool, device->sig_address, device->bus_address);
-	signal_write_bool(device->signal_pool, device->sig_cpu_rw, device->line_cpu_rw);
-	signal_write_bool(device->signal_pool, device->sig_cpu_sync, device->line_cpu_sync);
-	signal_write_bool(device->signal_pool, device->sig_reset_b, device->line_reset_b);
-
-	if (prev_data != device->bus_data || !device->line_cpu_rw) {
-		signal_write_uint8(device->signal_pool, device->sig_data, device->bus_data);
-	}
-}
-
-static inline void process_ram(DevMinimal6502 *device) {
-	bool next_rw = signal_read_next_bool(device->signal_pool, device->sig_cpu_rw);
-
-	signal_write_bool(device->signal_pool, device->ram->signals.oe_b, !next_rw);
-	signal_write_bool(device->signal_pool, device->ram->signals.we_b, next_rw || !device->clock->pin_clock);
-
-	ram_8d16a_process(device->ram);
-}
-
-static inline void process_rom(DevMinimal6502 *device) {
-	// enable ROM when the top bit of the address is set
-	signal_write_bool(device->signal_pool, device->rom->signals.ce_b, 
-					 !signal_read_next_bool(device->signal_pool, device->sig_a15));
-
-	rom_8d16a_process(device->rom);
-}
-
 void dev_minimal_6502_process(DevMinimal6502 *device) {
 	assert(device);
 
 	// clock tick
 	clock_process(device->clock);
 
-	///////////////////////////////////////////////////////////////////////////
-	//
-	// processing on the clock edge
-	//
+	// run process twice, once at the time of the clock edge and once slightly later (after the address hold time)
+	for (int time = 0; time < 2; ++time) {
 
-	signal_pool_cycle(device->signal_pool);
+		signal_write_bool(device->signal_pool, device->cpu->signals.clock, device->clock->pin_clock);
+		signal_pool_cycle(device->signal_pool);
 
-	// cpu
-	process_cpu(device, false);
+		// cpu
+		cpu_6502_process(device->cpu, time & 1);
 
-	// ram
-	process_ram(device);
+		// ram
+		//  - ce_b: assert when top bit of address isn't set (copy of a15)
+		//	- oe_b: assert when cpu_rw is high
+		//	- we_b: assert when cpu_rw is low and clock is low
+		bool next_rw = signal_read_next_bool(device->signal_pool, device->sig_cpu_rw);
 
-	// rom
-	process_rom(device);
+		signal_write_bool(device->signal_pool, device->ram->signals.oe_b, !next_rw);
+		signal_write_bool(device->signal_pool, device->ram->signals.we_b, next_rw || !device->clock->pin_clock);
 
-	///////////////////////////////////////////////////////////////////////////
-	//
-	// processing after the clock edge (i.e. after the address hold time)
-	//
+		ram_8d16a_process(device->ram);
 
-	signal_pool_cycle(device->signal_pool);
+		// rom
+		//  - ce_b: assert when the top bit of the address is set
+		signal_write_bool(device->signal_pool, device->rom->signals.ce_b, 
+						 !signal_read_next_bool(device->signal_pool, device->sig_a15));
 
-	// cpu
-	process_cpu(device, true);
-
-	// ram
-	process_ram(device);
-
-	// rom
-	process_rom(device);
+		rom_8d16a_process(device->rom);
+	}
 }
 
 void dev_minimal_6502_reset(DevMinimal6502 *device) {
 
-	// assert reset
-	signal_write_bool(device->signal_pool, device->sig_reset_b, ACTLO_ASSERT);
-
 	// run for a few cycles while reset is asserted
 	for (int i = 0; i < 4; ++i) {
+		signal_write_bool(device->signal_pool, device->sig_reset_b, ACTLO_ASSERT);
 		dev_minimal_6502_process(device);
 	}
-
-	// deassert reset
-	signal_write_bool(device->signal_pool, device->sig_reset_b, ACTLO_DEASSERT);
 
 	// run CPU init cycle
 	for (int i = 0; i < 15; ++i) {

@@ -6,19 +6,25 @@
 #define DROMAIUS_CPU_6502_H
 
 #include "types.h"
+#include "signal.h"
 
 // types
+typedef struct Cpu6502Signals {
+	Signal 	bus_address;	// 16-bit address bus
+	Signal	bus_data;		// 8-bit data bus
+	Signal	clock;			// 1-bit clock-line (PHI2) - read-only
+	Signal	reset_b;		// 1-bit reset-line (read-only)
+	Signal	rw;				// 1-bit read-write line (true == reading, false == writing)
+	Signal	irq_b;			// 1-bit interrupt request line
+	Signal	nmi_b;			// 1-bit non-maskable interrupt line
+	Signal  sync;			// 1-bit output - signals opcode fetch cycle
+	Signal	rdy;			// 1-bit ready signal - cpu only runs when asserted
+} Cpu6502Signals;
+
 typedef struct Cpu6502 {
 	// interface
-	uint16_t *	bus_address;		// 16-bit address bus
-	uint8_t	*	bus_data;			// 8-bit data bus
-	const bool *pin_clock;			// 1-bit clock-line (PHI2) - read-only
-	const bool *pin_reset_b;		// 1-bit reset-line (read-only)
-	bool *		pin_rw;				// 1-bit read-write line (true == reading, false == writing)
-	const bool *pin_irq_b;			// 1-bit interrupt request line
-	const bool *pin_nmi_b;			// 1-bit non-maskable interrupt line
-	bool *      pin_sync;			// 1-bit output - signals opcode fetch cycle
-	const bool *pin_rdy;			// 1-bit ready signal - cpu only runs when asserted
+	SignalPool *	signal_pool;
+	Cpu6502Signals	signals;
 
 	// registers
 	uint8_t		reg_a;				// accumulator
@@ -43,18 +49,7 @@ typedef struct Cpu6502 {
 } Cpu6502;
 
 // functions
-Cpu6502 *cpu_6502_create(
-		uint16_t *addres_bus,		// 16-bit address bus
-		uint8_t *data_bus,			// 8-bit data bus
-		const bool *clock,			// 1-bit clock-line (PHI2) - read-only
-		const bool *reset,			// 1-bit reset-line (read-only)
-		bool *rw,					// 1-bit read-write line
-		const bool *irq,			// 1-bit interrupt request line
-		const bool *nmi,			// 1-bit non-maskable interrupt line
-		bool *sync,					// 1-bit output - signals opcode fetch cycle
-		const bool *rdy				// 1-bit ready signal - cpu only runs when asserted
-);
-
+Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals);
 void cpu_6502_destroy(Cpu6502 *cpu);
 void cpu_6502_process(Cpu6502 *cpu, bool delayed);
 void cpu_6502_override_next_instruction_address(Cpu6502 *cpu, uint16_t pc);

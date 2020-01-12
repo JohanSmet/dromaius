@@ -8,6 +8,9 @@
 #include "cpu_6502.h"
 #include "nuklear/nuklear.h"
 
+#define SIGNAL_POOL			cpu->signal_pool
+#define SIGNAL_COLLECTION	cpu->signals
+
 static inline void ui_cpu_register_8bit(struct nk_context *nk_ctx, const char *name, uint8_t value) {
 	nk_layout_row_begin(nk_ctx, NK_STATIC, 14, 2);
 	nk_layout_row_push(nk_ctx, 128);
@@ -32,7 +35,7 @@ static inline void ui_cpu_signal(struct nk_context *nk_ctx, const char *name, bo
 	nk_layout_row_push(nk_ctx, 48);
 	nk_labelf(nk_ctx, NK_TEXT_LEFT, "%s: ", name);
 	nk_layout_row_push(nk_ctx, 32);
-	nk_label_colored(nk_ctx, STR_VALUE[value], NK_TEXT_LEFT, SIG_COLOR[asserted]);
+	nk_label_colored(nk_ctx, STR_VALUE[value], NK_TEXT_LEFT, SIG_COLOR[value == asserted]);
 }
 
 void panel_cpu_6502(struct nk_context *nk_ctx, struct nk_vec2 pos, struct Cpu6502 *cpu) {
@@ -59,8 +62,8 @@ void panel_cpu_6502(struct nk_context *nk_ctx, struct nk_vec2 pos, struct Cpu650
 			ui_cpu_register_16bit(nk_ctx, "Program Counter", cpu->reg_pc);
 			ui_cpu_register_8bit(nk_ctx, "Instruction", cpu->reg_ir);
 			ui_cpu_register_8bit(nk_ctx, "Processor Status", cpu->reg_p);
-			ui_cpu_register_16bit(nk_ctx, "Address Bus", *cpu->bus_address);
-			ui_cpu_register_8bit(nk_ctx, "Data Bus", *cpu->bus_data);
+			ui_cpu_register_16bit(nk_ctx, "Address Bus", SIGNAL_NEXT_UINT16(bus_address));
+			ui_cpu_register_8bit(nk_ctx, "Data Bus", SIGNAL_NEXT_UINT8(bus_data));
 
 			nk_group_end(nk_ctx);
 		}
@@ -87,12 +90,12 @@ void panel_cpu_6502(struct nk_context *nk_ctx, struct nk_vec2 pos, struct Cpu650
 			nk_labelf(nk_ctx, NK_TEXT_CENTERED, "%d", cpu->p_zero_result);
 			nk_labelf(nk_ctx, NK_TEXT_CENTERED, "%d", cpu->p_carry);
 
-			ui_cpu_signal(nk_ctx, "/RES", *cpu->pin_reset_b, ACTLO_ASSERTED(*cpu->pin_reset_b));
-			ui_cpu_signal(nk_ctx, "/IRQ", *cpu->pin_irq_b, ACTLO_ASSERTED(*cpu->pin_irq_b));
-			ui_cpu_signal(nk_ctx, "/NMI", *cpu->pin_nmi_b, ACTLO_ASSERTED(*cpu->pin_nmi_b));
-			ui_cpu_signal(nk_ctx, "RDY", *cpu->pin_rdy, ACTHI_ASSERTED(*cpu->pin_rdy));
-			ui_cpu_signal(nk_ctx, "SYNC", *cpu->pin_sync, ACTHI_ASSERTED(*cpu->pin_sync));
-			ui_cpu_signal(nk_ctx, "R/W", *cpu->pin_rw, ACTHI_ASSERTED(*cpu->pin_rw));
+			ui_cpu_signal(nk_ctx, "/RES", SIGNAL_NEXT_BOOL(reset_b), ACTLO_ASSERT);
+			ui_cpu_signal(nk_ctx, "/IRQ", SIGNAL_NEXT_BOOL(irq_b), ACTLO_ASSERT);
+			ui_cpu_signal(nk_ctx, "/NMI", SIGNAL_NEXT_BOOL(nmi_b), ACTLO_ASSERT);
+			ui_cpu_signal(nk_ctx, "RDY",  SIGNAL_NEXT_BOOL(rdy), ACTHI_ASSERT);
+			ui_cpu_signal(nk_ctx, "SYNC", SIGNAL_NEXT_BOOL(sync), ACTHI_ASSERT);
+			ui_cpu_signal(nk_ctx, "R/W",  SIGNAL_NEXT_BOOL(rw), ACTHI_ASSERT);
 
 			nk_group_end(nk_ctx);
 		}

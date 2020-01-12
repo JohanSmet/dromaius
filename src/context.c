@@ -64,22 +64,23 @@ static bool context_execute(DmsContext *dms) {
 
 	while (dms->state != DS_WAIT && !clock_is_caught_up(dms->device->clock)) {
 
-		bool prev_sync = dms->device->line_cpu_sync;
-
 		dev_minimal_6502_process(dms->device);
+
+		bool prev_sync = signal_read_bool(dms->device->signal_pool, dms->device->sig_cpu_sync);
+		bool cpu_sync  = signal_read_next_bool(dms->device->signal_pool, dms->device->sig_cpu_sync);
 
 		switch (dms->state) {
 			case DS_SINGLE_STEP :
 				dms->state = DS_WAIT;
 				break;
 			case DS_SINGLE_INSTRUCTION :
-				if (!prev_sync && dms->device->line_cpu_sync) {
+				if (!prev_sync && cpu_sync) {
 					dms->state = DS_WAIT;
 				}
 				break;
 			case DS_RUN :
 				// check for breakpoints
-				if (dms->device->line_cpu_sync && breakpoint_index(dms, dms->device->cpu->reg_pc) >= 0) {
+				if (cpu_sync && breakpoint_index(dms, dms->device->cpu->reg_pc) >= 0) {
 					dms->state = DS_WAIT;
 				}
 				break;
@@ -254,8 +255,11 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 			cpu_6502_override_next_instruction_address(dev->cpu, addr & 0xffff);
 
 			// run computer until current instruction is finished
-			while (!(dev->line_cpu_sync && dev->cpu->reg_pc == addr)) {
+			bool cpu_sync  = signal_read_next_bool(dms->device->signal_pool, dms->device->sig_cpu_sync);
+
+			while (!(cpu_sync && dev->cpu->reg_pc == addr)) {
 				dev_minimal_6502_process(dev);
+				cpu_sync  = signal_read_next_bool(dms->device->signal_pool, dms->device->sig_cpu_sync);
 			}
 
 			arr_printf(*reply, "OK: pc changed to 0x%lx", addr);

@@ -20,16 +20,6 @@ typedef struct DevMinimal6502 {
 	Rom8d16a *	rom;
 	Clock *		clock;
 
-	// data lines
-	uint16_t	bus_address;
-	uint8_t		bus_data;
-	bool		line_reset_b;
-	bool		line_cpu_rw;
-	bool		line_cpu_irq;
-	bool		line_cpu_nmi;
-	bool		line_cpu_sync;
-	bool		line_cpu_rdy;
-
 	// signals
 	Signal		sig_address;		// 16-bit
 	Signal		sig_data;			// 8-bit

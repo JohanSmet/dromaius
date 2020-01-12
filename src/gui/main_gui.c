@@ -26,7 +26,7 @@ void nuklear_on_start(struct nk_context *ctx) {
 
 	// create device
 	ui_context.device = dev_minimal_6502_create(NULL);
-	ui_context.device->line_reset_b = ACTLO_DEASSERT;
+	//ui_context.device->line_reset_b = ACTLO_DEASSERT;
 	ui_context.last_pc = 0;
 
 	// create dromaius context
@@ -62,7 +62,7 @@ void nuklear_gui(struct nk_context *ctx) {
 	dms_execute(ui_context.dms_ctx);
 #endif // DMS_NO_THREADING
 
-	if (ui_context.device->line_cpu_sync) {
+	if (signal_read_next_bool(ui_context.device->signal_pool, ui_context.device->sig_cpu_sync)) {
 		ui_context.last_pc = ui_context.device->cpu->reg_pc;
 	}
 
