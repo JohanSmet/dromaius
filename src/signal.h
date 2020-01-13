@@ -58,6 +58,8 @@ uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal);
 		signal_default_bool(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (def));		\
 	}
 
+#define SIGNAL(sig)		SIGNAL_COLLECTION.sig
+
 #define SIGNAL_BOOL(sig)	signal_read_bool(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
 #define SIGNAL_UINT8(sig)	signal_read_uint8(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
 #define SIGNAL_UINT16(sig)	signal_read_uint16(SIGNAL_POOL, SIGNAL_COLLECTION.sig)

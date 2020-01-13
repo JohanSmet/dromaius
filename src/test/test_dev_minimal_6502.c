@@ -50,7 +50,7 @@ MunitResult test_program(const MunitParameter params[], void *user_data_or_fixtu
 	dev->ram->data_array[0x61] = 0;
 
 	// run the computer until the program counter reaches the IRQ-handler
-	signal_write_bool(dev->signal_pool, dev->sig_reset_b, ACTLO_DEASSERT);
+	signal_write_bool(dev->signal_pool, dev->signals.reset_b, ACTLO_DEASSERT);
 
 	int limit = 1000;
 

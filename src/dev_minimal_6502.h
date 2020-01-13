@@ -5,32 +5,43 @@
 #ifndef DROMAIUS_DEV_MINIMAL_6502_H
 #define DROMAIUS_DEV_MINIMAL_6502_H
 
-#include "signal.h"
 #include "cpu_6502.h"
 #include "ram_8d_16a.h"
 #include "rom_8d_16a.h"
 #include "clock.h"
 
 // types 
+typedef struct DevMinimal6502Signals {
+	Signal		bus_address;		// 16-bit address bus
+	Signal		bus_data;			// 8-bit data bus
+
+	Signal		reset_b;			// 1-bit
+	Signal		clock;				// 1-bit
+
+	Signal		cpu_rw;				// 1-bit
+	Signal		cpu_irq_b;			// 1-bit
+	Signal		cpu_nmi_b;			// 1-bit
+	Signal		cpu_sync;			// 1-bit
+	Signal		cpu_rdy;			// 1-bit
+
+	Signal		ram_oe_b;			// 1-bit
+	Signal		ram_we_b;			// 1-bit
+
+	Signal		rom_ce_b;			// 1-bit
+
+	Signal		a15;				// 1-bit - top bit of the address bus
+} DevMinimal6502Signals;
+
 typedef struct DevMinimal6502 {
 	// components
-	SignalPool *signal_pool;
 	Cpu6502 *	cpu;
 	Ram8d16a *	ram;
 	Rom8d16a *	rom;
 	Clock *		clock;
 
 	// signals
-	Signal		sig_address;		// 16-bit
-	Signal		sig_data;			// 8-bit
-	Signal		sig_reset_b;		// 1-bit
-	Signal		sig_cpu_rw;			// 1-bit
-	Signal		sig_cpu_irq;		// 1-bit
-	Signal		sig_cpu_nmi;		// 1-bit
-	Signal		sig_cpu_sync;		// 1-bit
-	Signal		sig_cpu_rdy;		// 1-bit
-
-	Signal		sig_a15;			// 1-bit
+	SignalPool *			signal_pool;
+	DevMinimal6502Signals	signals;
 } DevMinimal6502;
 
 // functions
