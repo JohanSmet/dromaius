@@ -62,7 +62,7 @@ void nuklear_gui(struct nk_context *ctx) {
 	dms_execute(ui_context.dms_ctx);
 #endif // DMS_NO_THREADING
 
-	if (signal_read_next_bool(ui_context.device->signal_pool, ui_context.device->sig_cpu_sync)) {
+	if (cpu_6502_at_start_of_instruction(ui_context.device->cpu)) {
 		ui_context.last_pc = ui_context.device->cpu->reg_pc;
 	}
 

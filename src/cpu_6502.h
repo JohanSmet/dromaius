@@ -52,6 +52,8 @@ typedef struct Cpu6502 {
 Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals);
 void cpu_6502_destroy(Cpu6502 *cpu);
 void cpu_6502_process(Cpu6502 *cpu, bool delayed);
+
 void cpu_6502_override_next_instruction_address(Cpu6502 *cpu, uint16_t pc);
+bool cpu_6502_at_start_of_instruction(Cpu6502 *cpu);
 
 #endif // DROMAIUS_CPU_6502_H

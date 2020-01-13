@@ -2192,3 +2192,8 @@ void cpu_6502_override_next_instruction_address(Cpu6502 *cpu, uint16_t pc) {
 	assert(cpu);
 	PRIVATE(cpu)->override_pc = pc;
 }
+
+bool cpu_6502_at_start_of_instruction(Cpu6502 *cpu) {
+	assert(cpu);
+	return SIGNAL_NEXT_BOOL(sync);
+}

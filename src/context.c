@@ -64,10 +64,11 @@ static bool context_execute(DmsContext *dms) {
 
 	while (dms->state != DS_WAIT && !clock_is_caught_up(dms->device->clock)) {
 
+		bool prev_sync = cpu_6502_at_start_of_instruction(dms->device->cpu);
+
 		dev_minimal_6502_process(dms->device);
 
-		bool prev_sync = signal_read_bool(dms->device->signal_pool, dms->device->sig_cpu_sync);
-		bool cpu_sync  = signal_read_next_bool(dms->device->signal_pool, dms->device->sig_cpu_sync);
+		bool cpu_sync = cpu_6502_at_start_of_instruction(dms->device->cpu);
 
 		switch (dms->state) {
 			case DS_SINGLE_STEP :
@@ -255,11 +256,11 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 			cpu_6502_override_next_instruction_address(dev->cpu, addr & 0xffff);
 
 			// run computer until current instruction is finished
-			bool cpu_sync  = signal_read_next_bool(dms->device->signal_pool, dms->device->sig_cpu_sync);
+			bool cpu_sync  = cpu_6502_at_start_of_instruction(dms->device->cpu);
 
 			while (!(cpu_sync && dev->cpu->reg_pc == addr)) {
 				dev_minimal_6502_process(dev);
-				cpu_sync  = signal_read_next_bool(dms->device->signal_pool, dms->device->sig_cpu_sync);
+				cpu_sync  = cpu_6502_at_start_of_instruction(dms->device->cpu);
 			}
 
 			arr_printf(*reply, "OK: pc changed to 0x%lx", addr);
