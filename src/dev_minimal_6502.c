@@ -32,12 +32,13 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	signal_default_bool(device->signal_pool, device->sig_reset_b, ACTLO_DEASSERT);
 
 	// clock
-	device->clock = clock_create(10);
+	device->clock = clock_create(10, device->signal_pool, (ClockSignals){});
 
 	// cpu
 	device->cpu = cpu_6502_create(device->signal_pool, (Cpu6502Signals) {
 										.bus_address = device->sig_address,
 										.bus_data = device->sig_data,
+										.clock = device->clock->signals.clock,
 										.reset_b = device->sig_reset_b,
 										.rw = device->sig_cpu_rw,
 										.irq_b = device->sig_cpu_irq,
@@ -89,7 +90,6 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	// run process twice, once at the time of the clock edge and once slightly later (after the address hold time)
 	for (int time = 0; time < 2; ++time) {
 
-		signal_write_bool(device->signal_pool, device->cpu->signals.clock, device->clock->pin_clock);
 		signal_pool_cycle(device->signal_pool);
 
 		// cpu
@@ -100,9 +100,10 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 		//	- oe_b: assert when cpu_rw is high
 		//	- we_b: assert when cpu_rw is low and clock is low
 		bool next_rw = signal_read_next_bool(device->signal_pool, device->sig_cpu_rw);
+		bool clock   = signal_read_next_bool(device->signal_pool, device->clock->signals.clock);
 
 		signal_write_bool(device->signal_pool, device->ram->signals.oe_b, !next_rw);
-		signal_write_bool(device->signal_pool, device->ram->signals.we_b, next_rw || !device->clock->pin_clock);
+		signal_write_bool(device->signal_pool, device->ram->signals.we_b, next_rw || !clock);
 
 		ram_8d16a_process(device->ram);
 
@@ -112,6 +113,9 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 						 !signal_read_next_bool(device->signal_pool, device->sig_a15));
 
 		rom_8d16a_process(device->rom);
+
+		// make the clock output it's signal again
+		clock_refresh(device->clock);
 	}
 }
 

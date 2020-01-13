@@ -5,6 +5,7 @@
 #include "clock.h"
 
 #include <assert.h>
+#include <string.h>
 #include <stdlib.h>
 
 #if defined(PLATFORM_LINUX) 
@@ -30,7 +31,6 @@
 #include <Windows.h>
 #endif // DMS_TIMER_WIN32
 
-
 //////////////////////////////////////////////////////////////////////////////
 //
 // internal data types
@@ -47,6 +47,9 @@ typedef struct Clock_private {
 //
 // internal functions
 //
+
+#define	SIGNAL_POOL			clock->signal_pool
+#define SIGNAL_COLLECTION	clock->signals
 
 #define PRIVATE(clock)	((Clock_private *) (clock))
 
@@ -92,20 +95,25 @@ static inline int64_t timestamp_current(void) {
 // interface functions
 //
 
-Clock *clock_create(uint32_t frequency) {
+Clock *clock_create(uint32_t frequency, SignalPool *signal_pool, ClockSignals signals) {
 	timer_init();
 
-	Clock_private *clock = (Clock_private *) malloc(sizeof(Clock_private));
-	
-	clock->intf.pin_clock = true;
-	clock_set_frequency(&clock->intf, frequency);
-	clock->intf.real_frequency = 0;
-	clock->intf.cycle_count = 0;
-	clock->last_cycle_count = 0;
-	
-	clock->time_last_change = timestamp_current();
+	Clock_private *priv = (Clock_private *) calloc(1, sizeof(Clock_private));
 
-	return (Clock *) clock;
+	Clock *clock = &priv->intf;
+	clock->signal_pool = signal_pool;
+	clock_set_frequency(clock, frequency);
+	clock->real_frequency = 0;
+	clock->cycle_count = 0;
+	clock->cycle_count = 0;
+	
+	priv->time_last_change = timestamp_current();
+
+	memcpy(&clock->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE_BOOL(clock, 1, true);
+
+
+	return clock;
 }
 
 void clock_destroy(Clock *clock) {
@@ -148,8 +156,17 @@ void clock_process(Clock *clock) {
 	assert(clock);
 
 	PRIVATE(clock)->time_last_change += clock->conf_half_period_ns;
-	clock->cycle_count += clock->pin_clock;
-	clock->pin_clock = !clock->pin_clock;
+
+	bool clock_value = SIGNAL_BOOL(clock);
+
+	clock->cycle_count += clock_value;
+	SIGNAL_SET_BOOL(clock, !clock_value);
+}
+
+void clock_refresh(Clock *clock) {
+	assert(clock);
+	bool clock_value = SIGNAL_BOOL(clock);
+	SIGNAL_SET_BOOL(clock, clock_value);
 }
 
 void clock_wait_for_change(Clock *clock) {

@@ -75,6 +75,7 @@ void signal_default_bool(SignalPool *pool, Signal signal, bool value) {
 	assert(signal.count == 1);
 
 	pool->signals_default[signal.start] = value;
+	pool->signals_curr[signal.start] = value;
 	pool->signals_next[signal.start] = value;
 }
 
@@ -84,6 +85,7 @@ void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value) {
 
 	for (int i = 0; i < signal.count; ++i) {
 		pool->signals_default[signal.start + i] = value & 1;
+		pool->signals_curr[signal.start + i] = value & 1;
 		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}
@@ -95,6 +97,7 @@ void signal_default_uint16(SignalPool *pool, Signal signal, uint16_t value) {
 
 	for (int i = 0; i < signal.count; ++i) {
 		pool->signals_default[signal.start + i] = value & 1;
+		pool->signals_curr[signal.start + i] = value & 1;
 		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}

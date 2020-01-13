@@ -6,11 +6,17 @@
 #define DROMAIUS_CLOCK_H
 
 #include "types.h"
+#include "signal.h"
 
 // types
+typedef struct ClockSignals {
+	Signal	clock;
+} ClockSignals;
+
 typedef struct Clock {
 	// interface
-	bool		pin_clock;
+	SignalPool *	signal_pool;
+	ClockSignals	signals;
 
 	// configuration
 	uint32_t	conf_frequency;
@@ -22,13 +28,14 @@ typedef struct Clock {
 } Clock;
 
 // functions
-Clock *clock_create(uint32_t frequency);
+Clock *clock_create(uint32_t frequency, SignalPool *signal_pool, ClockSignals signals);
 void clock_destroy(Clock *clock);
 void clock_set_frequency(Clock *clock, uint32_t frequency);
 
 void clock_mark(Clock *clock);
 bool clock_is_caught_up(Clock *clock);
 void clock_process(Clock *clock);
+void clock_refresh(Clock *clock);
 void clock_wait_for_change(Clock *clock);
 
 #endif // DROMAIUS_CLOCK_H

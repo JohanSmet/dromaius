@@ -7,6 +7,9 @@
 
 #include <nuklear/nuklear_std.h>
 
+#define	SIGNAL_POOL			clock->signal_pool
+#define SIGNAL_COLLECTION	clock->signals
+
 static inline void ui_frequency(struct nk_context *nk_ctx, const char *label, int64_t freq) {
 
 	nk_layout_row_begin(nk_ctx, NK_STATIC, 14, 2);
@@ -64,7 +67,7 @@ void panel_clock(struct nk_context *nk_ctx, Clock *clock, struct nk_vec2 pos) {
 		nk_layout_row_push(nk_ctx, 128);
 		nk_label(nk_ctx, "Output: ", NK_TEXT_RIGHT);
 		nk_layout_row_push(nk_ctx, 32);
-		nk_label(nk_ctx, (clock->pin_clock) ? "High" : "Low", NK_TEXT_LEFT);
+		nk_label(nk_ctx, SIGNAL_NEXT_BOOL(clock) ? "High" : "Low", NK_TEXT_LEFT);
 
 		// cycle count
 		nk_layout_row_begin(nk_ctx, NK_STATIC, 14, 2);
