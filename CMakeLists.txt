@@ -85,6 +85,8 @@ target_sources(${LIB_TARGET}
 	PRIVATE
 		src/sys/threads.c
 		src/sys/threads.h
+		src/chip_6520.c
+		src/chip_6520.h
 		src/clock.c
 		src/clock.h
 		src/context.c
