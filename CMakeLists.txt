@@ -173,6 +173,7 @@ add_executable(${TEST_TARGET})
 target_sources(${TEST_TARGET}
 	PRIVATE
 		src/test/test_main.c
+		src/test/test_chip_6520.c
 		src/test/test_clock.c
 		src/test/test_cpu_6502.c
 		src/test/test_dev_minimal_6502.c

@@ -19,7 +19,6 @@
 typedef struct Chip6520_private {
 	Chip6520		intf;
 
-	bool			prev_reset;
 	bool			prev_clock;
 } Chip6520_private;
 
@@ -78,24 +77,27 @@ void chip_6520_destroy(Chip6520 *pia) {
 void chip_6520_process(Chip6520 *pia) {
 	assert(pia);
 
-	// check for changes in the reset line
 	bool reset_b = SIGNAL_BOOL(reset_b);
 
-	if (!ACTLO_ASSERTED(PRIVATE(pia)->prev_reset) && ACTLO_ASSERTED(reset_b)) {
-		// reset was just asserted
-
-		PRIVATE(pia)->prev_reset = reset_b;
-	} else if (ACTLO_ASSERTED(PRIVATE(pia)->prev_reset) && !ACTLO_ASSERTED(reset_b)) {
-		// reset was just deasserted
-
-		PRIVATE(pia)->prev_reset = reset_b;
+	if (ACTLO_ASSERTED(reset_b)) {
+		// reset is asserted - clear registers
+		pia->reg_ddra = 0;
+		pia->reg_cra.reg = 0;
+		pia->reg_ora = 0;
+		pia->reg_ddrb = 0;
+		pia->reg_crb.reg = 0;
+		pia->reg_orb = 0;
 	}
 
 	// do nothing:
-	//	- if reset is asserted or
-	//	- cs0/cs1/cs2_b are not asserted
+	//	- if reset is asserted or 
+	//	- if cs0/cs1/cs2_b are not asserted
+	//  - if not on the edge of a clock cycle
+	bool clock = SIGNAL_BOOL(clock);
+
 	if (ACTLO_ASSERTED(SIGNAL_BOOL(reset_b)) ||
-		ACTHI_ASSERTED(SIGNAL_BOOL(cs0)) || ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) || ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b))) {
+		ACTHI_ASSERTED(SIGNAL_BOOL(cs0)) || ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) || ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b)) ||
+		clock == PRIVATE(pia)->prev_clock) {
 		process_end(pia);
 		return;
 	}
