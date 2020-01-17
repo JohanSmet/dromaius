@@ -100,9 +100,9 @@ static MunitResult test_write_bool(const MunitParameter params[], void* user_dat
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
 	
 	// setup
-	Signal sig_a = signal_create(pool, 1);
-	Signal sig_b = signal_create(pool, 1);
-	Signal sig_c = signal_create(pool, 1);
+	signal_create(pool, 1);
+	Signal sig = signal_create(pool, 1);
+	signal_create(pool, 1);
 
 	// test pre-condition
 	munit_assert_false(pool->signals_next[0]);
@@ -113,7 +113,7 @@ static MunitResult test_write_bool(const MunitParameter params[], void* user_dat
 	munit_assert_false(pool->signals_curr[2]);
 
 	// test
-	signal_write_bool(pool, sig_b, true);
+	signal_write_bool(pool, sig, true);
 	munit_assert_false(pool->signals_next[0]);
 	munit_assert_true(pool->signals_next[1]);
 	munit_assert_false(pool->signals_next[2]);
@@ -121,7 +121,7 @@ static MunitResult test_write_bool(const MunitParameter params[], void* user_dat
 	munit_assert_false(pool->signals_curr[1]);
 	munit_assert_false(pool->signals_curr[2]);
 
-	signal_write_bool(pool, sig_b, false);
+	signal_write_bool(pool, sig, false);
 	munit_assert_false(pool->signals_next[0]);
 	munit_assert_false(pool->signals_next[1]);
 	munit_assert_false(pool->signals_next[2]);
@@ -136,9 +136,9 @@ static MunitResult test_write_uint8(const MunitParameter params[], void* user_da
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
 	
 	// setup
-	Signal sig_a = signal_create(pool, 1);
-	Signal sig_b = signal_create(pool, 8);
-	Signal sig_c = signal_create(pool, 1);
+	signal_create(pool, 1);
+	Signal sig = signal_create(pool, 8);
+	signal_create(pool, 1);
 
 	// test pre-condition
 	munit_assert_false(pool->signals_next[0]);
@@ -163,7 +163,7 @@ static MunitResult test_write_uint8(const MunitParameter params[], void* user_da
 	munit_assert_false(pool->signals_curr[9]);
 
 	// test
-	signal_write_uint8(pool, sig_b, 0xff);
+	signal_write_uint8(pool, sig, 0xff);
 	munit_assert_false(pool->signals_next[0]);
 	munit_assert_true(pool->signals_next[1]);
 	munit_assert_true(pool->signals_next[2]);
@@ -185,7 +185,7 @@ static MunitResult test_write_uint8(const MunitParameter params[], void* user_da
 	munit_assert_false(pool->signals_curr[8]);
 	munit_assert_false(pool->signals_curr[9]);
 
-	signal_write_uint8(pool, sig_b, 0x0a);
+	signal_write_uint8(pool, sig, 0x0a);
 	munit_assert_false(pool->signals_next[0]);
 	munit_assert_false(pool->signals_next[1]);
 	munit_assert_true(pool->signals_next[2]);
@@ -214,12 +214,12 @@ static MunitResult test_write_uint16(const MunitParameter params[], void* user_d
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
 	
 	// setup
-	Signal sig_a = signal_create(pool, 1);
-	Signal sig_b = signal_create(pool, 16);
-	Signal sig_c = signal_create(pool, 1);
+	signal_create(pool, 1);
+	Signal sig = signal_create(pool, 16);
+	signal_create(pool, 1);
 
 	// test
-	signal_write_uint16(pool, sig_b, 0x5a);
+	signal_write_uint16(pool, sig, 0x5a);
 	munit_assert_false(pool->signals_next[0]);
 	munit_assert_false(pool->signals_next[1]);
 	munit_assert_true(pool->signals_next[2]);
