@@ -6,7 +6,7 @@
 #define DROMAIUS_RAM_8D_16A_H
 
 #include "types.h"
-#include "signal.h"
+#include "signal_line.h"
 
 // types
 typedef struct Ram8d16aSignals {

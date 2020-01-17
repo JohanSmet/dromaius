@@ -2,7 +2,7 @@
 
 #include "munit/munit.h"
 
-#include "signal.h"
+#include "signal_line.h"
 #include "stb/stb_ds.h"
 
 static void *signal_setup(const MunitParameter params[], void *user_data) {

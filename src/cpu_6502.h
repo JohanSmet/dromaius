@@ -6,7 +6,7 @@
 #define DROMAIUS_CPU_6502_H
 
 #include "types.h"
-#include "signal.h"
+#include "signal_line.h"
 
 // types
 typedef struct Cpu6502Signals {

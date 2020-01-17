@@ -1,6 +1,6 @@
-// signal.c - Johan Smet - BSD-3-Clause (see LICENSE)
+// signal_line.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#include "signal.h"
+#include "signal_line.h"
 
 #include <stb/stb_ds.h>
 

@@ -1,7 +1,7 @@
-// signal.h - Johan Smet - BSD-3-Clause (see LICENSE)
+// signal_line.h - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#ifndef DROMAIUS_SIGNAL_H
-#define DROMAIUS_SIGNAL_H
+#ifndef DROMAIUS_SIGNAL_LINE_H
+#define DROMAIUS_SIGNAL_LINE_H
 
 #include "types.h"
 
@@ -72,4 +72,4 @@ uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal);
 #define SIGNAL_SET_UINT8(sig,v)		signal_write_uint8(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v))
 #define SIGNAL_SET_UINT16(sig,v)	signal_write_uint16(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v))
 
-#endif //  DROMAIUS_SIGNAL_H
+#endif // DROMAIUS_SIGNAL_LINE_H
