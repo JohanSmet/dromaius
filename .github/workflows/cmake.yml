@@ -78,7 +78,7 @@ jobs:
 
             - uses: lovasoa/setup-emscripten@master
               with:
-                  emscripten-version: '1.38.48'
+                  emscripten-version: '1.39.6'
 
             - name: Create build directory
               run: cmake -E make_directory ${{runner.workspace}}/_build

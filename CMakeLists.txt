@@ -144,7 +144,6 @@ if (EMSCRIPTEN)
 		"-s USE_GLFW=3" 
 		"-s WASM=1"
 		"-s ALLOW_MEMORY_GROWTH=1"
-		"-s BINARYEN_TRAP_MODE=clamp"
 		"-s ASSERTIONS=2"
 		"-s USE_WEBGL2=1"
 		"-s FULL_ES3=1"
