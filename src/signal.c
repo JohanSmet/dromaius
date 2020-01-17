@@ -154,8 +154,8 @@ void signal_write_uint8_masked(SignalPool *pool, Signal signal, uint8_t value, u
 	assert(pool);
 	assert(signal.count <= 8);
 
-		bool b = mask & 1;
 	for (uint32_t i = 0; i < signal.count; ++i) {
+		uint8_t b = mask & 1;
 
 		pool->signals_next[signal.start + i] = (pool->signals_curr[signal.start + i] & ~b) | (value & b);
 		mask >>= 1;
@@ -167,8 +167,8 @@ void signal_write_uint16_masked(SignalPool *pool, Signal signal, uint16_t value,
 	assert(pool);
 	assert(signal.count <= 16);
 
-		bool b = mask & 1;
 	for (uint32_t i = 0; i < signal.count; ++i) {
+		uint8_t b = mask & 1;
 
 		pool->signals_next[signal.start + i] = (pool->signals_curr[signal.start + i] & ~b) | (value & b);
 		mask >>= 1;
