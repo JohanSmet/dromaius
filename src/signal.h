@@ -22,8 +22,8 @@ SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
 void signal_pool_cycle(SignalPool *pool);
 
-Signal signal_create(SignalPool *pool, size_t size);
-Signal signal_split(Signal src, size_t start, size_t size);
+Signal signal_create(SignalPool *pool, uint32_t size);
+Signal signal_split(Signal src, uint32_t start, uint32_t size);
 
 void signal_default_bool(SignalPool *pool, Signal signal, bool value);
 void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value);
