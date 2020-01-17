@@ -5,7 +5,7 @@
 #include "clock.h"
 
 static void *clock_setup(const MunitParameter params[], void *user_data) {
-	return clock_create(10, signal_pool_create(), (ClockSignals) {});
+	return clock_create(10, signal_pool_create(), (ClockSignals) {0});
 }
 
 static void clock_teardown(void *fixture) {

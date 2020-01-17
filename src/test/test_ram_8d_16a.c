@@ -8,7 +8,7 @@
 
 static void *ram_8d16a_setup(const MunitParameter params[], void *user_data) {
 	SignalPool *pool = signal_pool_create();
-	Ram8d16a *ram = ram_8d16a_create(16, pool, (Ram8d16aSignals){});
+	Ram8d16a *ram = ram_8d16a_create(16, pool, (Ram8d16aSignals){0});
 	return ram;
 }
 

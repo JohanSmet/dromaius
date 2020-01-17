@@ -8,7 +8,7 @@
 
 static void *rom_8d16a_setup(const MunitParameter params[], void *user_data) {
 	SignalPool *pool = signal_pool_create();
-	Rom8d16a *rom = rom_8d16a_create(16, pool, (Rom8d16aSignals) {});
+	Rom8d16a *rom = rom_8d16a_create(16, pool, (Rom8d16aSignals) {0});
 
 	for (uint32_t i = 0; i <= 0xffff; ++i) {
 		rom->data_array[i] = i & 0xff;
