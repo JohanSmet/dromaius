@@ -87,6 +87,8 @@ target_sources(${LIB_TARGET}
 		src/sys/threads.h
 		src/chip_6520.c
 		src/chip_6520.h
+		src/chip_hd44780.c
+		src/chip_hd44780.h
 		src/clock.c
 		src/clock.h
 		src/context.c
@@ -177,6 +179,7 @@ target_sources(${TEST_TARGET}
 	PRIVATE
 		src/test/test_main.c
 		src/test/test_chip_6520.c
+		src/test/test_chip_hd44780.c
 		src/test/test_clock.c
 		src/test/test_cpu_6502.c
 		src/test/test_dev_minimal_6502.c
