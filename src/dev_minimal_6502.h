@@ -20,6 +20,7 @@
 #include "ram_8d_16a.h"
 #include "rom_8d_16a.h"
 #include "chip_6520.h"
+#include "chip_hd44780.h"
 #include "clock.h"
 
 // types 
@@ -52,11 +53,12 @@ typedef struct DevMinimal6502Signals {
 
 typedef struct DevMinimal6502 {
 	// components
-	Cpu6502 *	cpu;
-	Ram8d16a *	ram;
-	Rom8d16a *	rom;
-	Chip6520 *	pia;
-	Clock *		clock;
+	Cpu6502 *		cpu;
+	Ram8d16a *		ram;
+	Rom8d16a *		rom;
+	Chip6520 *		pia;
+	ChipHd44780 *	lcd;
+	Clock *			clock;
 
 	// signals
 	SignalPool *			signal_pool;

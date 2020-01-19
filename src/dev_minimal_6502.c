@@ -82,6 +82,14 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										.rs1 = signal_split(SIGNAL(bus_address), 1, 1),
 	});
 
+	// lcd-module
+	device->lcd = chip_hd44780_create(device->signal_pool, (ChipHd44780Signals) {
+										.bus_data = device->pia->signals.port_a,
+										.rs = signal_split(device->pia->signals.port_b, 7, 1),
+										.rw = signal_split(device->pia->signals.port_b, 6, 1),
+										.enable = signal_split(device->pia->signals.port_b, 5, 1),
+	});
+
 	// copy some signals for easy access
 	SIGNAL(ram_oe_b) = device->ram->signals.oe_b;
 	SIGNAL(ram_we_b) = device->ram->signals.we_b;
@@ -148,6 +156,9 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 		SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
 
 		chip_6520_process(device->pia);
+
+		// lcd
+		chip_hd44780_process(device->lcd);
 
 		// make the clock output it's signal again
 		clock_refresh(device->clock);
