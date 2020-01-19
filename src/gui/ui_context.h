@@ -12,6 +12,7 @@ typedef struct UIContext {
 	struct PanelControl *pnl_control;
 	struct PanelMonitor *pnl_monitor;
 	struct PanelChip6520 *pnl_pia;
+	struct PanelChipHd44780 *pnl_lcd;
 	struct DevMinimal6502 *device;
 	uint64_t	last_pc;
 } UIContext;

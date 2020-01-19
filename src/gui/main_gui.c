@@ -11,6 +11,7 @@
 #include "panel_control.h"
 #include "panel_monitor.h"
 #include "panel_chip_6520.h"
+#include "panel_chip_hd44780.h"
 
 #include "ui_context.h"
 #include "context.h"
@@ -48,6 +49,8 @@ void nuklear_on_start(struct nk_context *ctx) {
 
 	ui_context.pnl_pia = panel_chip_6520_init(ctx, nk_vec2(700, 400), ui_context.dms_ctx, ui_context.device->pia);
 
+	ui_context.pnl_lcd = panel_chip_hd44780_init(ctx, nk_vec2(700, 200), ui_context.dms_ctx, ui_context.device->lcd);
+
 	// load default rom
 	panel_control_select_rom(ui_context.pnl_control, 0);
 
@@ -76,5 +79,6 @@ void nuklear_gui(struct nk_context *ctx) {
 	panel_clock(ctx, ui_context.device->clock, (struct nk_vec2) {400, 20});
 	panel_monitor_display(ui_context.pnl_monitor);
 	panel_chip_6520_display(ui_context.pnl_pia);
+	panel_chip_hd44780_display(ui_context.pnl_lcd);
 }
 
