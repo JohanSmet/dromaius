@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <stb/stb_ds.h>
+
 #define SIGNAL_POOL			lcd->signal_pool
 #define SIGNAL_COLLECTION	lcd->signals
 
@@ -33,8 +35,12 @@ typedef struct ChipHd44780_private {
 	uint8_t			address_delta;
 	RamMode			ram_mode;
 	DataLen			data_len;
-	int				disp_lines;
+	bool			refresh_screen;
 } ChipHd44780_private;
+
+const static uint8_t rom_a00[256][16] = {
+	#include "chip_hd44780_a00.inc"
+};
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -58,21 +64,21 @@ static inline uint8_t read_register(ChipHd44780 *lcd) {
 	return 0;
 }
 
-static inline uint8_t ddram_physical_addr(ChipHd44780 *lcd) {
-	if (PRIVATE(lcd)->disp_lines == 1) {
-		return lcd->reg_ac;
+static inline uint8_t ddram_physical_addr(ChipHd44780 *lcd, uint8_t addr) {
+	if (lcd->display_height == 1) {
+		return addr;
 	} else {
-		if (lcd->reg_ac >= 64) {
+		if (addr >= 64) {
 			// there's a 'virtual' gap between the first and second line
-			return lcd->reg_ac - 24;
+			return addr - 24;
 		} else {
-			return lcd->reg_ac;
+			return addr;
 		}
 	}
 }
 
 static inline void ddram_fix_address(ChipHd44780 *lcd) {
-	if (PRIVATE(lcd)->disp_lines == 1) {
+	if (lcd->display_height == 1) {
 		lcd->reg_ac %= 80;
 	} else {
 		// first line from 0-40 (0x00-0x27) / second line from 64-103 (0x40-0x67)
@@ -90,7 +96,7 @@ static inline void cgram_fix_address(ChipHd44780 *lcd) {
 static inline void ddram_set_address(ChipHd44780 *lcd, uint8_t address) {
 	lcd->reg_ac = address;
 	ddram_fix_address(lcd);
-	lcd->reg_data = lcd->ddram[ddram_physical_addr(lcd)];
+	lcd->reg_data = lcd->ddram[ddram_physical_addr(lcd, lcd->reg_ac)];
 	PRIVATE(lcd)->ram_mode = RM_DDRAM;
 }
 
@@ -107,7 +113,7 @@ static inline void increment_decrement_addres(ChipHd44780 *lcd) {
 	switch (PRIVATE(lcd)->ram_mode) {
 		case RM_DDRAM:
 			ddram_fix_address(lcd);
-			lcd->reg_data = lcd->ddram[ddram_physical_addr(lcd)];
+			lcd->reg_data = lcd->ddram[ddram_physical_addr(lcd, lcd->reg_ac)];
 			break;
 		case RM_CGRAM:
 			cgram_fix_address(lcd);
@@ -123,8 +129,10 @@ static inline void execute_clear_display(ChipHd44780 *lcd) {
 	// - (TODO) return display to original status if it was shifted
 	// - set I/D of entry mode to 1 (increment) / S doesn't change
 	memset(lcd->ddram, 0x20, DDRAM_SIZE);
+	memset(lcd->display_data, 0, arrlenu(lcd->display_data));
 	ddram_set_address(lcd, 0);
 	PRIVATE(lcd)->address_delta = 1;
+	PRIVATE(lcd)->refresh_screen = true;
 }
 
 static inline void execute_return_home(ChipHd44780 *lcd) {
@@ -140,6 +148,7 @@ static inline void execute_entry_mode_set(ChipHd44780 *lcd, bool inc_or_dec, boo
 
 static inline void execute_display_on_off_control(ChipHd44780 *lcd, bool display, bool cursor, bool cursor_blink) {
 	lcd->display_enabled = display;
+	PRIVATE(lcd)->refresh_screen = true;
 	// (TODO) handle cursor and cursor_blink
 }
 
@@ -151,7 +160,13 @@ static inline void execute_function_set(ChipHd44780 *lcd, bool dl, bool n, bool 
 	//  n = 1: 2 lines, n = 0: 1 line
 	//  f = 1: 5 x 10 dots, f = 0: 5 x 8 dots
 	PRIVATE(lcd)->data_len = (dl) ? DL_8BIT : DL_4BIT;
-	PRIVATE(lcd)->disp_lines = (n) ? 2 : 1;
+
+	lcd->display_width = 16;
+	lcd->display_height = (n) ? 2 : 1;
+	lcd->char_width = 5;
+	lcd->char_height = (f) ? 10 : 8;
+	arrsetlen(lcd->display_data, lcd->display_width * lcd->display_height * lcd->char_width * lcd->char_height);
+	PRIVATE(lcd)->refresh_screen = true;
 
 	assert(PRIVATE(lcd)->data_len == DL_8BIT && "Only 8-bit interface mode supported");
 }
@@ -166,7 +181,7 @@ static inline void execute_set_ddram_address(ChipHd44780 *lcd, uint8_t addr) {
 
 static inline void decode_instruction(ChipHd44780 *lcd) {
 	if (IS_BIT_SET(lcd->reg_ir, 7)) {
-		execute_set_cgram_address(lcd, lcd->reg_ir & 0x7f);
+		execute_set_ddram_address(lcd, lcd->reg_ir & 0x7f);
 	} else if (IS_BIT_SET(lcd->reg_ir, 6)) {
 		execute_set_cgram_address(lcd, lcd->reg_ir & 0x3f);
 	} else if (IS_BIT_SET(lcd->reg_ir, 5)) {
@@ -196,11 +211,42 @@ static inline void store_data(ChipHd44780 *lcd) {
 			lcd->cgram[lcd->reg_ac] = lcd->reg_data;
 			break;
 		case RM_DDRAM:
-			lcd->ddram[ddram_physical_addr(lcd)] = lcd->reg_data;
+			lcd->ddram[ddram_physical_addr(lcd, lcd->reg_ac)] = lcd->reg_data;
+			PRIVATE(lcd)->refresh_screen = true;
 			break;
 	}
 
 	increment_decrement_addres(lcd);
+}
+
+static inline void draw_character(ChipHd44780 *lcd, uint8_t c, uint8_t x, uint8_t y) {
+	const uint8_t *src = rom_a00[c];
+	uint8_t *dst = lcd->display_data + (y * lcd->char_height * lcd->char_width * lcd->display_width) + (x * lcd->char_width);
+
+	for (int l = 0; l < lcd->char_height; ++l) {
+		dst[0] = (*src & 0x10) != 0;
+		dst[1] = (*src & 0x08) != 0;
+		dst[2] = (*src & 0x04) != 0;
+		dst[3] = (*src & 0x02) != 0;
+		dst[4] = (*src & 0x01) != 0;
+
+		dst += lcd->char_width * lcd->display_width;
+		src++;
+	}
+}
+
+static inline void refresh_screen(ChipHd44780 *lcd) {
+	if (!lcd->display_enabled) {
+		memset(lcd->display_data, 0, arrlenu(lcd->display_data));
+		return;
+	}
+
+	for (int l = 0; l < lcd->display_height; ++l) {
+		for (int i = 0; i < 16; ++i) {
+			uint8_t c = lcd->ddram[ddram_physical_addr(lcd, (0x40 * l) + i)];
+			draw_character(lcd, c, i, l);
+		}
+	}
 }
 
 static inline void process_positive_enable_edge(ChipHd44780 *lcd) {
@@ -231,6 +277,11 @@ static inline void process_negative_enable_edge(ChipHd44780 *lcd) {
 
 static void process_end(ChipHd44780 *lcd) {
 
+	// refresh screen if necessary
+	if (PRIVATE(lcd)->refresh_screen) {
+		refresh_screen(lcd);
+	}
+
 	// store state of the enable pin
 	PRIVATE(lcd)->prev_enable = SIGNAL_BOOL(enable);
 }
@@ -257,6 +308,7 @@ ChipHd44780 *chip_hd44780_create(SignalPool *signal_pool, ChipHd44780Signals sig
 	execute_function_set(lcd, 1, 0, 0);
 	execute_display_on_off_control(lcd, 0, 0, 0);
 	execute_entry_mode_set(lcd, 1, 0);
+	refresh_screen(lcd);
 
 	return lcd;
 }
@@ -267,6 +319,8 @@ void chip_hd44780_destroy(ChipHd44780 *lcd) {
 }
 
 void chip_hd44780_process(ChipHd44780 *lcd) {
+
+	PRIVATE(lcd)->refresh_screen = false;
 
 	// do nothing:
 	//	- if not on the edge of a clock cycle

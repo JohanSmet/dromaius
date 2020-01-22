@@ -32,8 +32,13 @@ typedef struct ChipHd44780 {
 	uint8_t		ddram[DDRAM_SIZE];	// 80 x 8-bit Display data RAM
 	uint8_t		cgram[CGRAM_SIZE];	// 64 bytes Character generator RAM
 
-	// display output
+	// output properties
 	bool		display_enabled;
+	uint8_t		display_width;		// in characters
+	uint8_t		display_height;		// in characters
+	uint8_t		char_width;			// width of one character cell (in pixels)
+	uint8_t		char_height;		// height of one character cell (in pixels);
+	uint8_t *	display_data;
 } ChipHd44780;
 
 // functions
