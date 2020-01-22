@@ -9,6 +9,9 @@ CRA = $8001
 PORTB = $8002
 CRB = $8003
 
+LMSG = $20
+HMSG = $21
+
 ; program entry
 vec_reset:
 		; initialize stack pointer
@@ -25,18 +28,24 @@ vec_reset:
 		sta CRA
 		sta CRB
 
+		; lcd: set two line mode
+		lda #%00111000
+		jsr lcd_write_cmd
+
 		; enable lcd output
 		lda #%00001100	; display on/off control: enable display - disable cursor + blinking
 		jsr lcd_write_cmd
 
 		; output message
-		ldx #$00
+		ldx #<msg1
+		ldy #>msg1
+		lda #$00
+		jsr lcd_write_string
 
-@loop:	lda msg,x
-		beq @end
-		jsr lcd_write_data
-		inx 
-		jmp @loop
+		ldx #<msg2
+		ldy #>msg2
+		lda #$40
+		jsr lcd_write_string
 
 @end:	jmp @end
 
@@ -57,6 +66,22 @@ lcd_write_cmd:
 		sta PORTB
 		rts
 
+lcd_write_string:
+		stx LMSG
+		sty HMSG
+		ldy #$00
+
+		ora #%10000000
+		jsr lcd_write_cmd
+
+@loop:	lda (LMSG),y
+		beq @end
+		jsr lcd_write_data
+		iny
+		jmp @loop
+
+@end:	rts
+
 ; non-maskable interrupt handler
 vec_nmi:
 		jmp vec_nmi
@@ -66,7 +91,8 @@ vec_irq:
 		jmp vec_irq
 
 ; data
-msg:	.asciiz "I CAN HAZ OUTPUT?"
+msg1:	.asciiz "I CAN HAZ OUTPUT"
+msg2:	.asciiz "YEZ YOU CAN!    "
 
 ; set vectors at the end of the ROM
 	.segment "VECTORS"
