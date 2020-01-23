@@ -47,6 +47,30 @@ vec_reset:
 		lda #$40
 		jsr lcd_write_string
 
+		; enable display shift
+		lda #%00000111
+		jsr lcd_write_cmd
+
+		; shift display left
+		ldx #10
+@sl:
+		lda #%00011000
+		jsr lcd_write_cmd
+		dex
+		bne @sl
+
+		; shift display right
+		ldx #20
+@sr:
+		lda #%00011100
+		jsr lcd_write_cmd
+		dex
+		bne @sr
+
+		; return home
+		lda #%00000010
+		jsr lcd_write_cmd
+
 @end:	jmp @end
 
 ; LCD routines
@@ -91,7 +115,7 @@ vec_irq:
 		jmp vec_irq
 
 ; data
-msg1:	.asciiz "I CAN HAZ OUTPUT"
+msg1:	.asciiz "I CAN HAZ OUTPUT <-->"
 msg2:	.asciiz "YEZ YOU CAN!    "
 
 ; set vectors at the end of the ROM

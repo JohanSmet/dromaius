@@ -36,6 +36,8 @@ typedef struct ChipHd44780_private {
 	RamMode			ram_mode;
 	DataLen			data_len;
 	bool			refresh_screen;
+	bool			shift_enabled;
+	int8_t			shift_delta;
 } ChipHd44780_private;
 
 const static uint8_t rom_a00[256][16] = {
@@ -126,24 +128,27 @@ static inline void increment_decrement_addres(ChipHd44780 *lcd) {
 static inline void execute_clear_display(ChipHd44780 *lcd) {
 	// - write 0x20 into all DDRAM address
 	// - set DDRAM address 0 into the address counter
-	// - (TODO) return display to original status if it was shifted
+	// - return display to original status if it was shifted
 	// - set I/D of entry mode to 1 (increment) / S doesn't change
 	memset(lcd->ddram, 0x20, DDRAM_SIZE);
 	memset(lcd->display_data, 0, arrlenu(lcd->display_data));
 	ddram_set_address(lcd, 0);
+	PRIVATE(lcd)->shift_delta = 0;
 	PRIVATE(lcd)->address_delta = 1;
 	PRIVATE(lcd)->refresh_screen = true;
 }
 
 static inline void execute_return_home(ChipHd44780 *lcd) {
 	// - set DDRAM address 0 into the address counter
-	// - (TODO) return display to original status if it was shifted
+	// - return display to original status if it was shifted
 	ddram_set_address(lcd, 0);
+	PRIVATE(lcd)->shift_delta = 0;
+	PRIVATE(lcd)->refresh_screen = true;
 }
 
 static inline void execute_entry_mode_set(ChipHd44780 *lcd, bool inc_or_dec, bool shift) {
 	PRIVATE(lcd)->address_delta = (inc_or_dec) ? 1 : -1;
-	// (TODO) handle display shift
+	PRIVATE(lcd)->shift_enabled = shift;
 }
 
 static inline void execute_display_on_off_control(ChipHd44780 *lcd, bool display, bool cursor, bool cursor_blink) {
@@ -153,6 +158,16 @@ static inline void execute_display_on_off_control(ChipHd44780 *lcd, bool display
 }
 
 static inline void execute_cursor_or_display_shift(ChipHd44780 *lcd, bool display_or_cursor, bool right_or_left) {
+	if (display_or_cursor) {
+		// display shift (TODO: how to handle overflow?)
+		if (PRIVATE(lcd)->shift_enabled) {
+			PRIVATE(lcd)->shift_delta += (right_or_left) ? -1 : 1;
+			PRIVATE(lcd)->shift_delta = (((int16_t) PRIVATE(lcd)->shift_delta + 80) % 160) - 80;
+		}
+	} else {
+		// (TODO) cursor shift
+	}
+	PRIVATE(lcd)->refresh_screen = true;
 }
 
 static inline void execute_function_set(ChipHd44780 *lcd, bool dl, bool n, bool f) {
@@ -241,9 +256,12 @@ static inline void refresh_screen(ChipHd44780 *lcd) {
 		return;
 	}
 
+	int limit = 80 / lcd->display_height;
+
 	for (int l = 0; l < lcd->display_height; ++l) {
 		for (int i = 0; i < 16; ++i) {
-			uint8_t c = lcd->ddram[ddram_physical_addr(lcd, (0x40 * l) + i)];
+			int pos = (i + PRIVATE(lcd)->shift_delta + limit) % limit;
+			uint8_t c = lcd->ddram[ddram_physical_addr(lcd, (0x40 * l) + pos)];
 			draw_character(lcd, c, i, l);
 		}
 	}
