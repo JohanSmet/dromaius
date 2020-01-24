@@ -36,8 +36,11 @@ typedef struct ChipHd44780_private {
 	RamMode			ram_mode;
 	DataLen			data_len;
 	bool			refresh_screen;
+
 	bool			shift_enabled;
 	int8_t			shift_delta;
+
+	bool			cursor_enabled;
 } ChipHd44780_private;
 
 const static uint8_t rom_a00[256][16] = {
@@ -153,19 +156,22 @@ static inline void execute_entry_mode_set(ChipHd44780 *lcd, bool inc_or_dec, boo
 
 static inline void execute_display_on_off_control(ChipHd44780 *lcd, bool display, bool cursor, bool cursor_blink) {
 	lcd->display_enabled = display;
+	PRIVATE(lcd)->cursor_enabled = cursor;
 	PRIVATE(lcd)->refresh_screen = true;
-	// (TODO) handle cursor and cursor_blink
+	// (TODO) handle cursor_blink
 }
 
 static inline void execute_cursor_or_display_shift(ChipHd44780 *lcd, bool display_or_cursor, bool right_or_left) {
 	if (display_or_cursor) {
-		// display shift (TODO: how to handle overflow?)
+		// display shift
 		if (PRIVATE(lcd)->shift_enabled) {
 			PRIVATE(lcd)->shift_delta += (right_or_left) ? -1 : 1;
 			PRIVATE(lcd)->shift_delta = (((int16_t) PRIVATE(lcd)->shift_delta + 80) % 160) - 80;
 		}
-	} else {
-		// (TODO) cursor shift
+	} else if (PRIVATE(lcd)->ram_mode == RM_DDRAM) {
+		// cursor shift
+		lcd->reg_ac += (right_or_left) ? 1 : -1;
+		ddram_fix_address(lcd);
 	}
 	PRIVATE(lcd)->refresh_screen = true;
 }
@@ -258,11 +264,32 @@ static inline void refresh_screen(ChipHd44780 *lcd) {
 
 	int limit = 80 / lcd->display_height;
 
+	// characters
 	for (int l = 0; l < lcd->display_height; ++l) {
 		for (int i = 0; i < 16; ++i) {
 			int pos = (i + PRIVATE(lcd)->shift_delta + limit) % limit;
 			uint8_t c = lcd->ddram[ddram_physical_addr(lcd, (0x40 * l) + pos)];
 			draw_character(lcd, c, i, l);
+		}
+	}
+
+	// cursor
+	if (PRIVATE(lcd)->cursor_enabled && PRIVATE(lcd)->ram_mode == RM_DDRAM) {
+		int cursor_x = lcd->reg_ac;
+		int cursor_y = 0;
+		if (lcd->display_height == 2 && cursor_x >= 0x40) {
+			cursor_x -= 0x40;
+			cursor_y = 1;
+		}
+		cursor_x -= PRIVATE(lcd)->shift_delta;
+
+		if (cursor_x >= 0 && cursor_x < lcd->display_width)  {
+			uint8_t *dst = lcd->display_data + ((cursor_y * lcd->char_height + lcd->char_height - 1) * lcd->char_width * lcd->display_width) + 
+												(cursor_x * lcd->char_width);
+
+			for (int i = 0; i < 5; ++i) {
+				*dst++ = 1;
+			}
 		}
 	}
 }
