@@ -12,6 +12,8 @@
 #define DDRAM_SIZE 80
 #define CGRAM_SIZE 64
 
+struct Clock;
+
 typedef struct ChipHd44780Signals {
 	Signal	bus_data;		// 8-bit data bus
 	Signal	rs;				// 1-bit register select
@@ -42,7 +44,7 @@ typedef struct ChipHd44780 {
 } ChipHd44780;
 
 // functions
-ChipHd44780 *chip_hd44780_create(SignalPool *signal_pool, ChipHd44780Signals signals);
+ChipHd44780 *chip_hd44780_create(struct Clock *clock, SignalPool *signal_pool, ChipHd44780Signals signals);
 void chip_hd44780_destroy(ChipHd44780 *lcd);
 void chip_hd44780_process(ChipHd44780 *lcd);
 

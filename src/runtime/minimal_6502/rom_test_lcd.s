@@ -33,7 +33,7 @@ vec_reset:
 		jsr lcd_write_cmd
 
 		; enable lcd output
-		lda #%00001110	; display on/off control: enable display - enable cursor - disable blinking
+		lda #%00001111	; display on/off control: enable display - enable cursor - enable blinking
 		jsr lcd_write_cmd
 
 		; shift cursor right

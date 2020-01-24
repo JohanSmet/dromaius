@@ -3,6 +3,7 @@
 // Partial emulation of the HD44780 Dot Matrix LCD Controller/Driver
 
 #include "chip_hd44780.h"
+#include "clock.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -30,6 +31,7 @@ typedef enum DataLen {
 
 typedef struct ChipHd44780_private {
 	ChipHd44780		intf;
+	Clock *			clock;
 
 	bool			prev_enable;
 	uint8_t			address_delta;
@@ -41,6 +43,9 @@ typedef struct ChipHd44780_private {
 	int8_t			shift_delta;
 
 	bool			cursor_enabled;
+	bool			cursor_blink;
+	bool			cursor_block;
+	uint64_t		cursor_time;
 } ChipHd44780_private;
 
 const static uint8_t rom_a00[256][16] = {
@@ -157,8 +162,8 @@ static inline void execute_entry_mode_set(ChipHd44780 *lcd, bool inc_or_dec, boo
 static inline void execute_display_on_off_control(ChipHd44780 *lcd, bool display, bool cursor, bool cursor_blink) {
 	lcd->display_enabled = display;
 	PRIVATE(lcd)->cursor_enabled = cursor;
+	PRIVATE(lcd)->cursor_blink = cursor_blink;
 	PRIVATE(lcd)->refresh_screen = true;
-	// (TODO) handle cursor_blink
 }
 
 static inline void execute_cursor_or_display_shift(ChipHd44780 *lcd, bool display_or_cursor, bool right_or_left) {
@@ -284,11 +289,22 @@ static inline void refresh_screen(ChipHd44780 *lcd) {
 		cursor_x -= PRIVATE(lcd)->shift_delta;
 
 		if (cursor_x >= 0 && cursor_x < lcd->display_width)  {
-			uint8_t *dst = lcd->display_data + ((cursor_y * lcd->char_height + lcd->char_height - 1) * lcd->char_width * lcd->display_width) + 
+			int line_stride = lcd->char_width * lcd->display_width;
+			int first_line = lcd->char_height - 1;
+			int num_lines = 1;
+			if (PRIVATE(lcd)->cursor_blink && PRIVATE(lcd)->cursor_block) {
+				first_line = 0;
+				num_lines = lcd->char_height;
+			}
+
+			uint8_t *dst = lcd->display_data + ((cursor_y * lcd->char_height + first_line) * line_stride) + 
 												(cursor_x * lcd->char_width);
 
-			for (int i = 0; i < 5; ++i) {
-				*dst++ = 1;
+			for (int l = 0; l < num_lines; ++l) {
+				for (int i = 0; i < 5; ++i) {
+					dst[i] = 1;
+				}
+				dst += line_stride;
 			}
 		}
 	}
@@ -336,9 +352,10 @@ static void process_end(ChipHd44780 *lcd) {
 // interface functions
 //
 
-ChipHd44780 *chip_hd44780_create(SignalPool *signal_pool, ChipHd44780Signals signals) {
+ChipHd44780 *chip_hd44780_create(struct Clock *clock, SignalPool *signal_pool, ChipHd44780Signals signals) {
 	ChipHd44780_private *priv = (ChipHd44780_private *) calloc(1, sizeof(ChipHd44780_private));
 	memset(priv, 0, sizeof(ChipHd44780_private));
+	priv->clock = clock;
 	ChipHd44780 *lcd = &priv->intf;
 
 	lcd->signal_pool = signal_pool;
@@ -366,6 +383,20 @@ void chip_hd44780_destroy(ChipHd44780 *lcd) {
 void chip_hd44780_process(ChipHd44780 *lcd) {
 
 	PRIVATE(lcd)->refresh_screen = false;
+
+	// cursor blink - this is a little sketchy
+	//	datasheet states the cursor blinks at a speed of 409.6 ms intervals when the input frequency is standard
+	//	we just assume this function gets called twice for each clock change (on and after the change) so the time passed is 
+	//  a quarter of the clock period. This should work reasonably well when stepping through the executable
+	static const uint64_t BLINK_INTERVAL = 410 * 1000000 * 2;
+	if (PRIVATE(lcd)->cursor_enabled && PRIVATE(lcd)->cursor_blink && PRIVATE(lcd)->clock) {
+		PRIVATE(lcd)->cursor_time += PRIVATE(lcd)->clock->conf_half_period_ns;
+		if (PRIVATE(lcd)->cursor_time > BLINK_INTERVAL) {
+			PRIVATE(lcd)->cursor_block = !PRIVATE(lcd)->cursor_block;
+			PRIVATE(lcd)->refresh_screen = true;
+			PRIVATE(lcd)->cursor_time -= BLINK_INTERVAL;
+		}
+	}
 
 	// do nothing:
 	//	- if not on the edge of a clock cycle

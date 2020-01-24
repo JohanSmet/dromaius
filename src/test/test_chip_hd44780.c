@@ -13,7 +13,7 @@
 	}
 
 static void *chip_hd44780_setup(const MunitParameter params[], void *user_data) {
-	ChipHd44780 *lcd = chip_hd44780_create(signal_pool_create(), (ChipHd44780Signals) {0});
+	ChipHd44780 *lcd = chip_hd44780_create(NULL, signal_pool_create(), (ChipHd44780Signals) {0});
 	return lcd;
 }
 
