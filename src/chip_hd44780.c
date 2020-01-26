@@ -203,6 +203,7 @@ static inline void execute_set_cgram_address(ChipHd44780 *lcd, uint8_t addr) {
 
 static inline void execute_set_ddram_address(ChipHd44780 *lcd, uint8_t addr) {
 	ddram_set_address(lcd, addr);
+	PRIVATE(lcd)->refresh_screen = true;
 }
 
 static inline void decode_instruction(ChipHd44780 *lcd) {
