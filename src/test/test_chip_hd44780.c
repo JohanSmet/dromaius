@@ -877,6 +877,154 @@ static MunitResult test_move_cursor_2l(const MunitParameter params[], void *user
 	return MUNIT_OK;
 }
 
+static MunitResult test_cgram_write(const MunitParameter params[], void *user_data_or_fixture) {
+
+	ChipHd44780 *lcd = (ChipHd44780 *) user_data_or_fixture;
+
+	// set cgram address 0, should direct next data write to cgram
+	lcd_write_cmd(lcd, 0b01000000);
+	munit_assert_uint8(lcd->reg_ac, ==, 0);
+
+	// write data
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_SET_UINT8(bus_data, 0x5f);
+	LCD_CYCLE_END
+
+	munit_assert_uint8(lcd->reg_ac, ==, 1);
+	munit_assert_uint8(lcd->reg_data, ==, 0x00);
+	munit_assert_uint8(lcd->ddram[0], ==, ' ');
+	munit_assert_uint8(lcd->cgram[0], ==, 0x5f);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_cgram_char(const MunitParameter params[], void *user_data_or_fixture) {
+
+	ChipHd44780 *lcd = (ChipHd44780 *) user_data_or_fixture;
+	static const uint8_t test_data[] = {0x1f, 0x15, 0x0a, 0x1f, 0x0a, 0x15, 0x1f, 0x00,
+										0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x00};
+
+	// init cgram
+	memcpy(lcd->cgram, test_data, 16);
+
+	// turn on display
+	lcd_write_cmd(lcd, 0b00001100);
+
+	// write character 1
+	lcd_write_char(lcd, 1);
+
+	LCD_5X8_CHECK_CELL(lcd->display_data, 0,
+		true,  false, false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	munit_assert_uint8(lcd->display_data[0], ==, 0);
+	munit_assert_uint8(lcd->display_data[1], ==, 0);
+	munit_assert_uint8(lcd->display_data[2], ==, 1);
+	munit_assert_uint8(lcd->display_data[3], ==, 0);
+	munit_assert_uint8(lcd->display_data[4], ==, 0);
+
+	munit_assert_uint8(lcd->display_data[80+0], ==, 0);
+	munit_assert_uint8(lcd->display_data[80+1], ==, 0);
+	munit_assert_uint8(lcd->display_data[80+2], ==, 1);
+	munit_assert_uint8(lcd->display_data[80+3], ==, 0);
+	munit_assert_uint8(lcd->display_data[80+4], ==, 0);
+
+	munit_assert_uint8(lcd->display_data[2*80+0], ==, 0);
+	munit_assert_uint8(lcd->display_data[2*80+1], ==, 0);
+	munit_assert_uint8(lcd->display_data[2*80+2], ==, 1);
+	munit_assert_uint8(lcd->display_data[2*80+3], ==, 0);
+	munit_assert_uint8(lcd->display_data[2*80+4], ==, 0);
+
+	munit_assert_uint8(lcd->display_data[3*80+0], ==, 0);
+	munit_assert_uint8(lcd->display_data[3*80+1], ==, 0);
+	munit_assert_uint8(lcd->display_data[3*80+2], ==, 1);
+	munit_assert_uint8(lcd->display_data[3*80+3], ==, 0);
+	munit_assert_uint8(lcd->display_data[3*80+4], ==, 0);
+
+	munit_assert_uint8(lcd->display_data[4*80+0], ==, 0);
+	munit_assert_uint8(lcd->display_data[4*80+1], ==, 0);
+	munit_assert_uint8(lcd->display_data[4*80+2], ==, 1);
+	munit_assert_uint8(lcd->display_data[4*80+3], ==, 0);
+	munit_assert_uint8(lcd->display_data[4*80+4], ==, 0);
+
+	munit_assert_uint8(lcd->display_data[5*80+0], ==, 0);
+	munit_assert_uint8(lcd->display_data[5*80+1], ==, 0);
+	munit_assert_uint8(lcd->display_data[5*80+2], ==, 1);
+	munit_assert_uint8(lcd->display_data[5*80+3], ==, 0);
+	munit_assert_uint8(lcd->display_data[5*80+4], ==, 0);
+
+	munit_assert_uint8(lcd->display_data[6*80+0], ==, 0);
+	munit_assert_uint8(lcd->display_data[6*80+1], ==, 0);
+	munit_assert_uint8(lcd->display_data[6*80+2], ==, 1);
+	munit_assert_uint8(lcd->display_data[6*80+3], ==, 0);
+	munit_assert_uint8(lcd->display_data[6*80+4], ==, 0);
+
+	munit_assert_uint8(lcd->display_data[7*80+0], ==, 0);
+	munit_assert_uint8(lcd->display_data[7*80+1], ==, 0);
+	munit_assert_uint8(lcd->display_data[7*80+2], ==, 0);
+	munit_assert_uint8(lcd->display_data[7*80+3], ==, 0);
+	munit_assert_uint8(lcd->display_data[7*80+4], ==, 0);
+
+	// write character 0
+	lcd_write_char(lcd, 0);
+
+	LCD_5X8_CHECK_CELL(lcd->display_data, 0,
+		true,  true, false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	munit_assert_uint8(lcd->display_data[5], ==, 1);
+	munit_assert_uint8(lcd->display_data[6], ==, 1);
+	munit_assert_uint8(lcd->display_data[7], ==, 1);
+	munit_assert_uint8(lcd->display_data[8], ==, 1);
+	munit_assert_uint8(lcd->display_data[9], ==, 1);
+
+	munit_assert_uint8(lcd->display_data[80+5], ==, 1);
+	munit_assert_uint8(lcd->display_data[80+6], ==, 0);
+	munit_assert_uint8(lcd->display_data[80+7], ==, 1);
+	munit_assert_uint8(lcd->display_data[80+8], ==, 0);
+	munit_assert_uint8(lcd->display_data[80+9], ==, 1);
+
+	munit_assert_uint8(lcd->display_data[2*80+5], ==, 0);
+	munit_assert_uint8(lcd->display_data[2*80+6], ==, 1);
+	munit_assert_uint8(lcd->display_data[2*80+7], ==, 0);
+	munit_assert_uint8(lcd->display_data[2*80+8], ==, 1);
+	munit_assert_uint8(lcd->display_data[2*80+9], ==, 0);
+
+	munit_assert_uint8(lcd->display_data[3*80+5], ==, 1);
+	munit_assert_uint8(lcd->display_data[3*80+6], ==, 1);
+	munit_assert_uint8(lcd->display_data[3*80+7], ==, 1);
+	munit_assert_uint8(lcd->display_data[3*80+8], ==, 1);
+	munit_assert_uint8(lcd->display_data[3*80+9], ==, 1);
+
+	munit_assert_uint8(lcd->display_data[4*80+5], ==, 0);
+	munit_assert_uint8(lcd->display_data[4*80+6], ==, 1);
+	munit_assert_uint8(lcd->display_data[4*80+7], ==, 0);
+	munit_assert_uint8(lcd->display_data[4*80+8], ==, 1);
+	munit_assert_uint8(lcd->display_data[4*80+9], ==, 0);
+
+	munit_assert_uint8(lcd->display_data[5*80+5], ==, 1);
+	munit_assert_uint8(lcd->display_data[5*80+6], ==, 0);
+	munit_assert_uint8(lcd->display_data[5*80+7], ==, 1);
+	munit_assert_uint8(lcd->display_data[5*80+8], ==, 0);
+	munit_assert_uint8(lcd->display_data[5*80+9], ==, 1);
+
+	munit_assert_uint8(lcd->display_data[6*80+5], ==, 1);
+	munit_assert_uint8(lcd->display_data[6*80+6], ==, 1);
+	munit_assert_uint8(lcd->display_data[6*80+7], ==, 1);
+	munit_assert_uint8(lcd->display_data[6*80+8], ==, 1);
+	munit_assert_uint8(lcd->display_data[6*80+9], ==, 1);
+
+	munit_assert_uint8(lcd->display_data[7*80+5], ==, 0);
+	munit_assert_uint8(lcd->display_data[7*80+6], ==, 0);
+	munit_assert_uint8(lcd->display_data[7*80+7], ==, 0);
+	munit_assert_uint8(lcd->display_data[7*80+8], ==, 0);
+	munit_assert_uint8(lcd->display_data[7*80+9], ==, 0);
+
+	return MUNIT_OK;
+}
+
 MunitTest chip_hd44780_tests[] = {
 	{ "/write_data", test_write_data, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_data", test_read_data, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -889,5 +1037,7 @@ MunitTest chip_hd44780_tests[] = {
 	{ "/shift_display_2l", test_shift_display_2l, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/move_cursor_1l", test_move_cursor_1l, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/move_cursor_2l", test_move_cursor_2l, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/cgram_write", test_cgram_write, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/cgram_char", test_cgram_char, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

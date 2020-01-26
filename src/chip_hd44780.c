@@ -34,6 +34,7 @@ typedef struct ChipHd44780_private {
 	Clock *			clock;
 
 	uint8_t			ddram_addr;				// continuous 0 - 79 even for two line displays (no gap between 1st & 2nd line)
+	uint8_t			cgram_mask;
 
 	bool			prev_enable;
 	uint8_t			address_delta;
@@ -208,6 +209,7 @@ static inline void execute_function_set(ChipHd44780 *lcd, bool dl, bool n, bool 
 	arrsetlen(lcd->display_data, lcd->display_width * lcd->display_height * lcd->char_width * lcd->char_height);
 
 	PRIVATE(lcd)->refresh_screen = true;
+	PRIVATE(lcd)->cgram_mask = (f) ? 0x03 : 0x07;
 
 	assert(PRIVATE(lcd)->data_len == DL_8BIT && "Only 8-bit interface mode supported");
 }
@@ -263,6 +265,10 @@ static inline void store_data(ChipHd44780 *lcd) {
 
 static inline void draw_character(ChipHd44780 *lcd, uint8_t c, uint8_t x, uint8_t y) {
 	const uint8_t *src = rom_a00[c];
+	if ((c & 0xf0) == 0) {
+		// get data from cgram instead of rom
+		src = lcd->cgram + ((c & PRIVATE(lcd)->cgram_mask) * lcd->char_height);
+	}
 	uint8_t *dst = lcd->display_data + (y * lcd->char_height * lcd->char_width * lcd->display_width) + (x * lcd->char_width);
 
 	for (int l = 0; l < lcd->char_height; ++l) {
