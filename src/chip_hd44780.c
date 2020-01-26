@@ -33,6 +33,8 @@ typedef struct ChipHd44780_private {
 	ChipHd44780		intf;
 	Clock *			clock;
 
+	uint8_t			ddram_addr;				// continuous 0 - 79 even for two line displays (no gap between 1st & 2nd line)
+
 	bool			prev_enable;
 	uint8_t			address_delta;
 	RamMode			ram_mode;
@@ -74,63 +76,75 @@ static inline uint8_t read_register(ChipHd44780 *lcd) {
 	return 0;
 }
 
-static inline uint8_t ddram_physical_addr(ChipHd44780 *lcd, uint8_t addr) {
+static inline uint8_t ddram_virtual_to_physical(ChipHd44780 *lcd, uint8_t addr) {
 	if (lcd->display_height == 1) {
 		return addr;
+	}
+
+	if (addr >= 64) {
+		// there's a 'virtual' gap between the first and second line
+		return addr - 24;
+	} else if (addr >= 40) {
+		// round up when in the gap between 1st and 2nd line
+		return 64;
 	} else {
-		if (addr >= 64) {
-			// there's a 'virtual' gap between the first and second line
-			return addr - 24;
-		} else {
-			return addr;
-		}
+		return addr;
 	}
 }
 
-static inline void ddram_fix_address(ChipHd44780 *lcd) {
+static inline uint8_t ddram_physical_to_virtual(ChipHd44780 *lcd, uint8_t addr) {
 	if (lcd->display_height == 1) {
-		lcd->reg_ac %= 80;
+		return addr;
+	}
+
+	return (addr >= 40) ? addr + 24 : addr;
+}
+
+static inline uint8_t ddram_valid_virtual_address(ChipHd44780 *lcd, uint8_t addr) {
+	if (lcd->display_height == 1) {
+		return ((int8_t) addr + 80) % 80;
 	} else {
 		// first line from 0-40 (0x00-0x27) / second line from 64-103 (0x40-0x67)
-		lcd->reg_ac %= 104;
-		if (lcd->reg_ac > 40 && lcd->reg_ac < 64) {
-			lcd->reg_ac = (PRIVATE(lcd)->address_delta > 0) ? 64 : 39;
-		}
+		uint8_t result = ((int8_t) addr + 104) % 104;
+		return (result >= 40 && result < 64) ? 64 : result;
 	}
 }
 
-static inline void cgram_fix_address(ChipHd44780 *lcd) {
-	lcd->reg_ac &= 0x3f;
+static inline uint8_t ddram_valid_physical_address(uint8_t addr) {
+	return ((int8_t) addr + 80) % 80;
+}
+
+static inline uint8_t cgram_valid_address(uint8_t addr) {
+	 return addr & 0x3f;
 }
 
 static inline void ddram_set_address(ChipHd44780 *lcd, uint8_t address) {
-	lcd->reg_ac = address;
-	ddram_fix_address(lcd);
-	lcd->reg_data = lcd->ddram[ddram_physical_addr(lcd, lcd->reg_ac)];
+	lcd->reg_ac = ddram_valid_virtual_address(lcd, address);
+
+	PRIVATE(lcd)->ddram_addr = ddram_virtual_to_physical(lcd, lcd->reg_ac);
+	lcd->reg_data = lcd->ddram[PRIVATE(lcd)->ddram_addr];
 	PRIVATE(lcd)->ram_mode = RM_DDRAM;
 }
 
 static inline void cgram_set_address(ChipHd44780 *lcd, uint8_t address) {
-	lcd->reg_ac = address;
-	cgram_fix_address(lcd);
-	lcd->reg_data = lcd->cgram[address];
+	lcd->reg_ac = cgram_valid_address(address);
+	lcd->reg_data = lcd->cgram[lcd->reg_ac];
 	PRIVATE(lcd)->ram_mode = RM_CGRAM;
 }
 
 static inline void increment_decrement_addres(ChipHd44780 *lcd) {
-	lcd->reg_ac += PRIVATE(lcd)->address_delta;
 
 	switch (PRIVATE(lcd)->ram_mode) {
 		case RM_DDRAM:
-			ddram_fix_address(lcd);
-			lcd->reg_data = lcd->ddram[ddram_physical_addr(lcd, lcd->reg_ac)];
+			PRIVATE(lcd)->ddram_addr = ddram_valid_physical_address(PRIVATE(lcd)->ddram_addr + PRIVATE(lcd)->address_delta);
+			lcd->reg_ac = ddram_physical_to_virtual(lcd, PRIVATE(lcd)->ddram_addr);
+			lcd->reg_data = lcd->ddram[PRIVATE(lcd)->ddram_addr];
 			break;
 		case RM_CGRAM:
-			cgram_fix_address(lcd);
+			lcd->reg_ac = cgram_valid_address(lcd->reg_ac + PRIVATE(lcd)->address_delta);
 			lcd->reg_data = lcd->cgram[lcd->reg_ac];
 			break;
 	}
-
 }
 
 static inline void execute_clear_display(ChipHd44780 *lcd) {
@@ -175,8 +189,8 @@ static inline void execute_cursor_or_display_shift(ChipHd44780 *lcd, bool displa
 		}
 	} else if (PRIVATE(lcd)->ram_mode == RM_DDRAM) {
 		// cursor shift
-		lcd->reg_ac += (right_or_left) ? 1 : -1;
-		ddram_fix_address(lcd);
+		PRIVATE(lcd)->ddram_addr = ddram_valid_physical_address(PRIVATE(lcd)->ddram_addr + (right_or_left ? 1 : -1));
+		lcd->reg_ac = ddram_physical_to_virtual(lcd, PRIVATE(lcd)->ddram_addr);
 	}
 	PRIVATE(lcd)->refresh_screen = true;
 }
@@ -192,6 +206,7 @@ static inline void execute_function_set(ChipHd44780 *lcd, bool dl, bool n, bool 
 	lcd->char_width = 5;
 	lcd->char_height = (f) ? 10 : 8;
 	arrsetlen(lcd->display_data, lcd->display_width * lcd->display_height * lcd->char_width * lcd->char_height);
+
 	PRIVATE(lcd)->refresh_screen = true;
 
 	assert(PRIVATE(lcd)->data_len == DL_8BIT && "Only 8-bit interface mode supported");
@@ -238,7 +253,7 @@ static inline void store_data(ChipHd44780 *lcd) {
 			lcd->cgram[lcd->reg_ac] = lcd->reg_data;
 			break;
 		case RM_DDRAM:
-			lcd->ddram[ddram_physical_addr(lcd, lcd->reg_ac)] = lcd->reg_data;
+			lcd->ddram[ddram_virtual_to_physical(lcd, lcd->reg_ac)] = lcd->reg_data;
 			PRIVATE(lcd)->refresh_screen = true;
 			break;
 	}
@@ -274,7 +289,7 @@ static inline void refresh_screen(ChipHd44780 *lcd) {
 	for (int l = 0; l < lcd->display_height; ++l) {
 		for (int i = 0; i < 16; ++i) {
 			int pos = (i + PRIVATE(lcd)->shift_delta + limit) % limit;
-			uint8_t c = lcd->ddram[ddram_physical_addr(lcd, (0x40 * l) + pos)];
+			uint8_t c = lcd->ddram[ddram_virtual_to_physical(lcd, (0x40 * l) + pos)];
 			draw_character(lcd, c, i, l);
 		}
 	}
@@ -298,7 +313,7 @@ static inline void refresh_screen(ChipHd44780 *lcd) {
 				num_lines = lcd->char_height;
 			}
 
-			uint8_t *dst = lcd->display_data + ((cursor_y * lcd->char_height + first_line) * line_stride) + 
+			uint8_t *dst = lcd->display_data + ((cursor_y * lcd->char_height + first_line) * line_stride) +
 												(cursor_x * lcd->char_width);
 
 			for (int l = 0; l < num_lines; ++l) {
@@ -387,7 +402,7 @@ void chip_hd44780_process(ChipHd44780 *lcd) {
 
 	// cursor blink - this is a little sketchy
 	//	datasheet states the cursor blinks at a speed of 409.6 ms intervals when the input frequency is standard
-	//	we just assume this function gets called twice for each clock change (on and after the change) so the time passed is 
+	//	we just assume this function gets called twice for each clock change (on and after the change) so the time passed is
 	//  a quarter of the clock period. This should work reasonably well when stepping through the executable
 	static const uint64_t BLINK_INTERVAL = 410 * 1000000 * 2;
 	if (PRIVATE(lcd)->cursor_enabled && PRIVATE(lcd)->cursor_blink && PRIVATE(lcd)->clock) {
