@@ -61,7 +61,7 @@ void panel_chip_hd44780_display(struct PanelChipHd44780 *pnl) {
 	if (nk_begin(pnl->nk_ctx, panel_title, pnl->bounds, panel_flags)) {
 
 		// lcd output
-		nk_layout_row(pnl->nk_ctx, NK_STATIC, 4 + (42 * pnl->lcd->display_height), 1, (float[]) {436});
+		nk_layout_row(pnl->nk_ctx, NK_STATIC, 4 + ((2 + (5 * pnl->lcd->char_height)) * pnl->lcd->display_height), 1, (float[]) {436});
 		struct nk_rect tl;
 		nk_widget(&tl, pnl->nk_ctx);
 		struct nk_command_buffer *canvas = nk_window_get_canvas(pnl->nk_ctx);
@@ -108,7 +108,7 @@ void panel_chip_hd44780_display(struct PanelChipHd44780 *pnl) {
 	}
 	nk_end(pnl->nk_ctx);
 
-	int height = 65 + (pnl->lcd->display_height * 50);
+	int height = 65 + (pnl->lcd->display_height * 60);
 	if (height != pnl->bounds.h) {
 		nk_window_set_size(pnl->nk_ctx, panel_title, nk_vec2(pnl->bounds.w, height));
 		pnl->bounds.h = height;
