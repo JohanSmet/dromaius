@@ -48,14 +48,6 @@
 	munit_assert_##ce(lcd_5x8_cursor_at_pos((mem), 14, (l), 80));										\
 	munit_assert_##cf(lcd_5x8_cursor_at_pos((mem), 15, (l), 80));
 
-static void *chip_hd44780_setup(const MunitParameter params[], void *user_data) {
-	ChipHd44780 *lcd = chip_hd44780_create(NULL, signal_pool_create(), (ChipHd44780Signals) {0});
-	return lcd;
-}
-
-static void chip_hd44780_teardown(void *fixture) {
-	chip_hd44780_destroy((ChipHd44780 *) fixture);
-}
 
 static inline void half_clock_cycle(ChipHd44780 *lcd) {
 	SIGNAL_SET_BOOL(enable, !SIGNAL_BOOL(enable));
@@ -108,6 +100,67 @@ static inline uint8_t lcd_read_data_8b(ChipHd44780 *lcd) {
 	LCD_CYCLE_END
 
 	return SIGNAL_NEXT_UINT8(bus_data);
+}
+
+static inline void lcd_write_char_4b(ChipHd44780 *lcd, char c) {
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_SET_UINT8(db4_7, ((uint8_t) c & 0xf0) >> 4);
+	LCD_CYCLE_END
+
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_SET_UINT8(db4_7, ((uint8_t) c & 0x0f));
+	LCD_CYCLE_END
+}
+
+static inline void lcd_write_cmd_4b(ChipHd44780 *lcd, uint8_t cmd) {
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(rs, false);
+		SIGNAL_SET_UINT8(db4_7, (cmd & 0xf0) >> 4);
+	LCD_CYCLE_END
+
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(rs, false);
+		SIGNAL_SET_UINT8(db4_7, (cmd & 0x0f));
+	LCD_CYCLE_END
+}
+
+static inline uint8_t lcd_read_data_4b(ChipHd44780 *lcd) {
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rs, true);
+	LCD_CYCLE_END
+
+	uint8_t data = SIGNAL_NEXT_UINT8(db4_7) << 4;
+
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rs, true);
+	LCD_CYCLE_END
+
+	data = data | (SIGNAL_NEXT_UINT8(db4_7) & 0x0f);
+
+	return data;
+}
+
+static void *chip_hd44780_setup(const MunitParameter params[], void *user_data) {
+	ChipHd44780 *lcd = chip_hd44780_create(NULL, signal_pool_create(), (ChipHd44780Signals) {0});
+	return lcd;
+}
+
+static void *chip_hd44780_setup_4b(const MunitParameter params[], void *user_data) {
+	ChipHd44780 *lcd = chip_hd44780_create(NULL, signal_pool_create(), (ChipHd44780Signals) {0});
+
+	// switch LCD to 4-bit interface mode
+	lcd_write_cmd_8b(lcd, 0b00100000);
+	return lcd;
+}
+
+static void chip_hd44780_teardown(void *fixture) {
+	chip_hd44780_destroy((ChipHd44780 *) fixture);
 }
 
 static MunitResult test_write_data_8b(const MunitParameter params[], void *user_data_or_fixture) {
@@ -1014,6 +1067,137 @@ static MunitResult test_cgram_char_8b(const MunitParameter params[], void *user_
 	return MUNIT_OK;
 }
 
+static MunitResult test_write_data_4b(const MunitParameter params[], void *user_data_or_fixture) {
+
+	ChipHd44780 *lcd = (ChipHd44780 *) user_data_or_fixture;
+
+	munit_assert_uint8(lcd->reg_ac, ==, 0);
+
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_SET_UINT8(db4_7, ((uint8_t) 'D' & 0xf0) >> 4);
+	LCD_CYCLE_END
+
+	munit_assert_uint8(lcd->reg_ac, ==, 0);
+
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_SET_UINT8(db4_7, (uint8_t) 'D' & 0x0f);
+	LCD_CYCLE_END
+
+	munit_assert_uint8(lcd->reg_ac, ==, 1);
+	munit_assert_uint8(lcd->ddram[0], ==, (uint8_t) 'D');
+	munit_assert_uint8(lcd->reg_data, ==, 0x20);
+
+	lcd_write_char_4b(lcd, 'R');
+	munit_assert_uint8(lcd->reg_ac, ==, 2);
+	munit_assert_uint8(lcd->ddram[0], ==, (uint8_t) 'D');
+	munit_assert_uint8(lcd->ddram[1], ==, (uint8_t) 'R');
+	munit_assert_uint8(lcd->reg_data, ==, 0x20);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_read_data_4b(const MunitParameter params[], void *user_data_or_fixture) {
+	ChipHd44780 *lcd = (ChipHd44780 *) user_data_or_fixture;
+
+	// setup test case
+	memcpy(lcd->ddram, " DROMAIUS", 9);
+
+	munit_assert_uint8(lcd->reg_ac, ==, 0);
+
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rs, true);
+	LCD_CYCLE_END
+
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(db4_7), ==, 0x02);
+	munit_assert_uint8(lcd->reg_ac, ==, 0);
+
+	LCD_CYCLE_START
+		SIGNAL_SET_BOOL(rs, true);
+	LCD_CYCLE_END
+
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(db4_7), ==, 0x00);
+	munit_assert_uint8(lcd->reg_ac, ==, 1);
+	munit_assert_uint8(lcd->reg_data, ==, 'D');
+
+	munit_assert_uint8(lcd_read_data_4b(lcd), ==, (uint8_t) 'D');
+	munit_assert_uint8(lcd->reg_ac, ==, 2);
+	munit_assert_uint8(lcd->reg_data, ==, 'R');
+
+	munit_assert_uint8(lcd_read_data_4b(lcd), ==, (uint8_t) 'R');
+	munit_assert_uint8(lcd->reg_ac, ==, 3);
+	munit_assert_uint8(lcd->reg_data, ==, 'O');
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_command_4b(const MunitParameter params[], void *user_data_or_fixture) {
+
+	ChipHd44780 *lcd = (ChipHd44780 *) user_data_or_fixture;
+
+	// screen starts out empty
+	LCD_5X8_CHECK_CELL(lcd->display_data, 0,
+		false, false, false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	// write character
+	lcd_write_char_4b(lcd, 'D');
+
+	// screen still empty because it's turned off
+	LCD_5X8_CHECK_CELL(lcd->display_data, 0,
+		false, false, false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	// turn on display
+	lcd_write_cmd_4b(lcd, 0b00001100);
+
+	// one character shown, no cursor
+	LCD_5X8_CHECK_CELL(lcd->display_data, 0,
+		true,  false, false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	LCD_5X8_CHECK_CURSOR(lcd->display_data, 0,
+		false, false, false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	// turn off display
+	lcd_write_cmd_4b(lcd, 0b00001000);
+
+	// screen empty
+	LCD_5X8_CHECK_CELL(lcd->display_data, 0,
+		false, false, false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	// turn on display and cursor
+	lcd_write_cmd_4b(lcd, 0b00001110);
+
+	// one character shown + cursor in the next position
+	LCD_5X8_CHECK_CELL(lcd->display_data, 0,
+		true,  true,  false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	LCD_5X8_CHECK_CURSOR(lcd->display_data, 0,
+		false, true,  false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	// turn off cursor
+	lcd_write_cmd_4b(lcd, 0b00001100);
+
+	// one character displayed, no cursor
+	LCD_5X8_CHECK_CELL(lcd->display_data, 0,
+		true,  false, false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	LCD_5X8_CHECK_CURSOR(lcd->display_data, 0,
+		false, false, false, false, false, false, false, false,
+		false, false, false, false, false, false, false, false);
+
+	return MUNIT_OK;
+}
+
 MunitTest chip_hd44780_tests[] = {
 	{ "/write_data_8b", test_write_data_8b, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_data_8b", test_read_data_8b, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -1028,5 +1212,8 @@ MunitTest chip_hd44780_tests[] = {
 	{ "/move_cursor_2l_8b", test_move_cursor_2l_8b, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/cgram_write_8b", test_cgram_write_8b, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/cgram_char_8b", test_cgram_char_8b, chip_hd44780_setup, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/write_data_4b", test_write_data_4b, chip_hd44780_setup_4b, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_data_4b", test_read_data_4b, chip_hd44780_setup_4b, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/command_4b", test_command_4b, chip_hd44780_setup_4b, chip_hd44780_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

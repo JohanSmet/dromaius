@@ -19,6 +19,8 @@ typedef struct ChipHd44780Signals {
 	Signal	rs;				// 1-bit register select
 	Signal	rw;				// 1-bit read/write selector
 	Signal  enable;			// 1-bit enable line
+
+	Signal	db4_7;			// upper 4-bits of the databus
 } ChipHd44780Signals;
 
 typedef struct ChipHd44780 {

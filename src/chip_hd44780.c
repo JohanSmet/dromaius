@@ -29,6 +29,13 @@ typedef enum DataLen {
 	DL_8BIT = 1
 } DataLen;
 
+typedef enum DataCycle {
+	DC_4BIT_HI = 0,
+	DC_4BIT_LO = 1,
+	DC_8BIT = 2
+} DataCycle;
+
+
 typedef struct ChipHd44780_private {
 	ChipHd44780		intf;
 	Clock *			clock;
@@ -39,7 +46,11 @@ typedef struct ChipHd44780_private {
 	bool			prev_enable;
 	uint8_t			address_delta;
 	RamMode			ram_mode;
+
 	DataLen			data_len;
+	DataCycle		data_cycle;
+	uint8_t			data_in;
+
 	bool			refresh_screen;
 
 	bool			shift_enabled;
@@ -64,17 +75,50 @@ const static uint8_t rom_a00[256][16] = {
 #define RW_READ			true
 #define RW_WRITE		false
 
-static inline uint8_t read_register(ChipHd44780 *lcd) {
+static inline bool output_register_to_databus(ChipHd44780 *lcd, bool final) {
+	// when rs = high: read data from CGRAM or DDRAM via the data register
+	// when rs = low:  read busy-flag and address (note: busy flag not implemented)
+	uint8_t data = SIGNAL_BOOL(rs) ? lcd->reg_data : lcd->reg_ac & 0x7f;
 
-	if (SIGNAL_BOOL(rs) == false) {
-		// read busy-flag and address (note: busy flag not implemented yet)
-		return lcd->reg_ac & 0x7f;
-	} else {
-		// read data from CGRAM or DDRAM via the data register
-		return lcd->reg_data;
+	switch (PRIVATE(lcd)->data_cycle) {
+		case DC_4BIT_HI :
+			SIGNAL_SET_UINT8(db4_7, (data & 0xf0) >> 4);
+			PRIVATE(lcd)->data_cycle += final;
+			return false;
+
+		case DC_4BIT_LO :
+			SIGNAL_SET_UINT8(db4_7, (data & 0x0f));
+			PRIVATE(lcd)->data_cycle -= final;
+			return true;
+
+		case DC_8BIT :
+			SIGNAL_SET_UINT8(bus_data, data);
+			return true;
+
+		default :
+			return false;
 	}
+}
 
-	return 0;
+static inline bool input_from_databus(ChipHd44780 *lcd) {
+	switch (PRIVATE(lcd)->data_cycle) {
+		case DC_4BIT_HI :
+			PRIVATE(lcd)->data_in = SIGNAL_UINT8(db4_7) << 4;
+			PRIVATE(lcd)->data_cycle = DC_4BIT_LO;
+			return false;
+
+		case DC_4BIT_LO :
+			PRIVATE(lcd)->data_in = PRIVATE(lcd)->data_in | (SIGNAL_UINT8(db4_7) & 0xf);
+			PRIVATE(lcd)->data_cycle = DC_4BIT_HI;
+			return true;
+
+		case DC_8BIT :
+			PRIVATE(lcd)->data_in = SIGNAL_UINT8(bus_data);
+			return true;
+
+		default :
+			return false;
+	}
 }
 
 static inline uint8_t ddram_virtual_to_physical(ChipHd44780 *lcd, uint8_t addr) {
@@ -201,6 +245,7 @@ static inline void execute_function_set(ChipHd44780 *lcd, bool dl, bool n, bool 
 	//  n = 1: 2 lines, n = 0: 1 line
 	//  f = 1: 5 x 10 dots, f = 0: 5 x 8 dots
 	PRIVATE(lcd)->data_len = (dl) ? DL_8BIT : DL_4BIT;
+	PRIVATE(lcd)->data_cycle = (dl) ? DC_8BIT : DC_4BIT_HI;
 
 	lcd->display_width = 16;
 	lcd->display_height = (n) ? 2 : 1;
@@ -210,8 +255,6 @@ static inline void execute_function_set(ChipHd44780 *lcd, bool dl, bool n, bool 
 
 	PRIVATE(lcd)->refresh_screen = true;
 	PRIVATE(lcd)->cgram_mask = (f) ? 0x03 : 0x07;
-
-	assert(PRIVATE(lcd)->data_len == DL_8BIT && "Only 8-bit interface mode supported");
 }
 
 static inline void execute_set_cgram_address(ChipHd44780 *lcd, uint8_t addr) {
@@ -334,27 +377,30 @@ static inline void refresh_screen(ChipHd44780 *lcd) {
 
 static inline void process_positive_enable_edge(ChipHd44780 *lcd) {
 	if (SIGNAL_BOOL(rw) == RW_READ) {
-		SIGNAL_SET_UINT8(bus_data, read_register(lcd));
+		output_register_to_databus(lcd, false);
 	}
 }
 
 static inline void process_negative_enable_edge(ChipHd44780 *lcd) {
 	// read mode
 	if (SIGNAL_BOOL(rw) == RW_READ) {
-		SIGNAL_SET_UINT8(bus_data, read_register(lcd));
-		increment_decrement_addres(lcd);
+		if (output_register_to_databus(lcd, true)) {
+			increment_decrement_addres(lcd);
+		}
 		return;
 	}
 
 	// write mode
-	if (SIGNAL_BOOL(rs) == false) {
-		// instruction
-		lcd->reg_ir = SIGNAL_UINT8(bus_data);
-		decode_instruction(lcd);
-	} else {
-		// data
-		lcd->reg_data = SIGNAL_UINT8(bus_data);
-		store_data(lcd);
+	if (input_from_databus(lcd)) {
+		if (SIGNAL_BOOL(rs) == false) {
+			// instruction
+			lcd->reg_ir = PRIVATE(lcd)->data_in;
+			decode_instruction(lcd);
+		} else {
+			// data
+			lcd->reg_data = PRIVATE(lcd)->data_in;
+			store_data(lcd);
+		}
 	}
 }
 
@@ -386,6 +432,8 @@ ChipHd44780 *chip_hd44780_create(struct Clock *clock, SignalPool *signal_pool, C
 	SIGNAL_DEFINE(rs, 1);
 	SIGNAL_DEFINE_BOOL(rw, 1, true);
 	SIGNAL_DEFINE_BOOL(enable, 1, false);
+
+	lcd->signals.db4_7 = signal_split(SIGNAL(bus_data), 4, 4);
 
 	// perform the internal reset circuit initialization procedure
 	execute_clear_display(lcd);
