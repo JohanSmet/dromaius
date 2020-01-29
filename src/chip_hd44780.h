@@ -1,6 +1,14 @@
 // chip_hd44780.h - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // Partial emulation of the HD44780 Dot Matrix LCD Controller/Driver
+//
+// Most features should be supported, although this was written with only the Hitachi HD44780U datasheet as a reference.
+// I haven't compared the functionality with real hardware (yet), simply because I don't own one ATM.
+// Overview of stuff that isn't implemented:
+//	- the busy flag - all operations complete on the negative edge of the enable signal 
+//	- only the A00 character rom is included
+//	- blinking cursor: timing is approximated
+//  - "limited" to 16x1 or 16x2 LCD output
 
 #ifndef DROMAIUS_CHIP_HD44780_H
 #define DROMAIUS_CHIP_HD44780_H

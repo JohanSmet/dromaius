@@ -35,31 +35,30 @@ typedef enum DataCycle {
 	DC_8BIT = 2
 } DataCycle;
 
-
 typedef struct ChipHd44780_private {
 	ChipHd44780		intf;
 	Clock *			clock;
 
 	uint8_t			ddram_addr;				// continuous 0 - 79 even for two line displays (no gap between 1st & 2nd line)
-	uint8_t			cgram_mask;
+	uint8_t			cgram_mask;				// address mask for the cgram character index
 
 	bool			prev_enable;
-	uint8_t			address_delta;
-	RamMode			ram_mode;
+	uint8_t			address_delta;			// increment or decrement on read/write
+	RamMode			ram_mode;				// accessing DDRAM or CGRAM ?
 
-	DataLen			data_len;
-	DataCycle		data_cycle;
-	uint8_t			data_in;
+	DataLen			data_len;				// width of the MPU interface
+	DataCycle		data_cycle;				// to distinguish the first and second nibble of a 4-bit MPU transfer
+	uint8_t			data_in;				// temp-storage for incoming data in 4-bit mode
 
-	bool			refresh_screen;
+	bool			refresh_screen;			// should the dot-matrix ouput be refreshed at the end of the processing function?
 
-	bool			shift_enabled;
-	int8_t			shift_delta;
+	bool			shift_enabled;			// display shift applied?
+	int8_t			shift_delta;			// number of characters to shift
 
-	bool			cursor_enabled;
-	bool			cursor_blink;
-	bool			cursor_block;
-	uint64_t		cursor_time;
+	bool			cursor_enabled;			// cursor enable
+	bool			cursor_blink;			// blinking cursor enabled (required cursor_enabled)
+	bool			cursor_block;			// current phase of the blinking cursor (full block or bottom line only)
+	uint64_t		cursor_time;			// last time phase of blinking cursor was changed
 } ChipHd44780_private;
 
 const static uint8_t rom_a00[256][16] = {
