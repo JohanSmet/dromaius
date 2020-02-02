@@ -8,6 +8,10 @@
 #include "types.h"
 #include "signal_line.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // types
 typedef union ctrl_reg_t {
 	uint8_t		reg;
@@ -71,5 +75,9 @@ typedef struct Chip6520 {
 Chip6520 *chip_6520_create(SignalPool *signal_pool, Chip6520Signals signals);
 void chip_6520_destroy(Chip6520 *pia);
 void chip_6520_process(Chip6520 *pia);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DROMAIUS_CHIP_6520_H

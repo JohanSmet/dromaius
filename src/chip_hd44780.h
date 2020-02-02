@@ -16,6 +16,10 @@
 #include "types.h"
 #include "signal_line.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // types
 #define DDRAM_SIZE 80
 #define CGRAM_SIZE 64
@@ -57,5 +61,9 @@ typedef struct ChipHd44780 {
 ChipHd44780 *chip_hd44780_create(struct Clock *clock, SignalPool *signal_pool, ChipHd44780Signals signals);
 void chip_hd44780_destroy(ChipHd44780 *lcd);
 void chip_hd44780_process(ChipHd44780 *lcd);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DROMAIUS_CHIP_HD44780_H

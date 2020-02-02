@@ -23,7 +23,11 @@
 #include "chip_hd44780.h"
 #include "clock.h"
 
-// types 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// types
 typedef struct DevMinimal6502Signals {
 	Signal		bus_address;		// 16-bit address bus
 	Signal		bus_data;			// 8-bit data bus
@@ -73,5 +77,9 @@ void dev_minimal_6502_reset(DevMinimal6502 *device);
 
 void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename);
 void dev_minimal_6502_ram_from_file(DevMinimal6502 *device, const char *filename);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DROMAIUS_DEV_MINIMAL_6502_H

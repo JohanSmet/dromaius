@@ -8,6 +8,10 @@
 #include "types.h"
 #include "signal_line.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // types
 typedef struct ClockSignals {
 	Signal	clock;
@@ -37,5 +41,9 @@ bool clock_is_caught_up(Clock *clock);
 void clock_process(Clock *clock);
 void clock_refresh(Clock *clock);
 void clock_wait_for_change(Clock *clock);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DROMAIUS_CLOCK_H

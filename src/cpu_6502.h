@@ -8,6 +8,10 @@
 #include "types.h"
 #include "signal_line.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // types
 typedef struct Cpu6502Signals {
 	Signal 	bus_address;	// 16-bit address bus
@@ -55,5 +59,9 @@ void cpu_6502_process(Cpu6502 *cpu, bool delayed);
 
 void cpu_6502_override_next_instruction_address(Cpu6502 *cpu, uint16_t pc);
 bool cpu_6502_at_start_of_instruction(Cpu6502 *cpu);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DROMAIUS_CPU_6502_H

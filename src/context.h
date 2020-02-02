@@ -5,6 +5,10 @@
 
 #include "types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // types
 struct DmsContext;
 struct DevMinimal6502;
@@ -30,5 +34,9 @@ void dms_pause(struct DmsContext *dms);
 void dms_reset(struct DmsContext *dms);
 
 void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DROMAIUS_CONTEXT_H

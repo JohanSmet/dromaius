@@ -8,6 +8,10 @@
 #include "types.h"
 #include "signal_line.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // types
 typedef struct Rom8d16aSignals {
 	struct Signal bus_address;		// 16-bit address bus
@@ -32,5 +36,9 @@ typedef struct Rom8d16a {
 Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Rom8d16aSignals signals);
 void rom_8d16a_destroy(Rom8d16a *rom);
 void rom_8d16a_process(Rom8d16a *rom);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DROMAIUS_ROM_8D_16A_H

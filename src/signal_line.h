@@ -5,6 +5,10 @@
 
 #include "types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // types
 typedef struct Signal {
 	uint32_t	start;
@@ -74,5 +78,9 @@ uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal);
 
 #define SIGNAL_SET_UINT8_MASKED(sig,v,m)	signal_write_uint8_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m))
 #define SIGNAL_SET_UINT16_MASKED(sig,v,m)	signal_write_uint16_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DROMAIUS_SIGNAL_LINE_H
