@@ -5,14 +5,8 @@
 #ifndef DROMAIUS_GUI_PANEL_CLOCK_H
 #define DROMAIUS_GUI_PANEL_CLOCK_H
 
-#include "types.h"
+#include "panel.h"
 
-// forward declarations
-struct nk_context;
-struct nk_vec2;
-struct Clock;
-
-// functions
-void panel_clock(struct nk_context *nk_ctx, struct Clock *clock, struct nk_vec2 pos);
+Panel::uptr_t panel_clock_create(struct UIContext *ctx, struct ImVec2 pos, struct Clock *clock);
 
 #endif // DROMAIUS_GUI_PANEL_CLOCK_H

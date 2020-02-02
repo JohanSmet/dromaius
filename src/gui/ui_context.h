@@ -4,17 +4,17 @@
 #define DROMAIUS_GUI_CONTEXT_H
 
 #include "types.h"
+#include "panel.h"
 
-typedef struct UIContext {
+#include <vector>
+
+struct UIContext {
 	struct DmsContext *dms_ctx;
-	struct PanelMemory *pnl_ram;
-	struct PanelMemory *pnl_rom;
-	struct PanelControl *pnl_control;
-	struct PanelMonitor *pnl_monitor;
-	struct PanelChip6520 *pnl_pia;
-	struct PanelChipHd44780 *pnl_lcd;
+
+	std::vector<Panel::uptr_t>	panels;
+
 	struct DevMinimal6502 *device;
 	uint64_t	last_pc;
-} UIContext;
+};
 
 #endif // DROMAIUS_GUI_CONTEXT_H

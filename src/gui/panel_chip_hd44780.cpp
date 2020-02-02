@@ -5,14 +5,98 @@
 #include "panel_chip_hd44780.h"
 #include "chip_hd44780.h"
 #include "context.h"
-#include "utils.h"
 #include "widgets.h"
 
-#include <assert.h>
-#include <stdlib.h>
+#define SIGNAL_POOL			lcd->signal_pool
+#define SIGNAL_COLLECTION	lcd->signals
 
-#define SIGNAL_POOL			pnl->lcd->signal_pool
-#define SIGNAL_COLLECTION	pnl->lcd->signals
+inline ImVec2 operator+(const ImVec2 &a, const ImVec2 &b) {
+	return {a.x + b.x, a.y + b.y};
+}
+
+class PanelChipHd44780 : public Panel {
+public:
+
+	PanelChipHd44780(UIContext *ctx, ImVec2 pos, ChipHd44780 *lcd) :
+		Panel(ctx),
+		position(pos),
+		lcd(lcd) {
+	}
+
+	void display() override {
+
+		constexpr ImU32 lcd_colors[2] = { IM_COL32(80, 80, 90, 255), IM_COL32(220, 220, 250, 255) };
+
+		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
+
+		auto cell_size = ImVec2(4,4);
+		auto spacing = ImVec2(1, 1);
+		auto lcd_size = ImVec2(
+				lcd->display_width * lcd->char_width * (cell_size.x + spacing.x) + ((lcd->display_width + 2) * spacing.x * 2),
+				lcd->display_height * lcd->char_height * (cell_size.y + spacing.y) + ((lcd->display_height + 2) * spacing.y * 2));
+
+		ImGui::SetNextWindowSizeConstraints(lcd_size + ImVec2(16, 56), ImVec2(1024, 1024));
+
+		if (ImGui::Begin(title)) {
+			auto draw_list = ImGui::GetWindowDrawList();
+
+			auto lcd_origin = ImGui::GetCursorScreenPos();
+
+			// >> background
+			draw_list->AddRectFilled(lcd_origin, lcd_origin + lcd_size, IM_COL32(0, 0, 200, 255));
+
+			// >> lcd cells
+			auto origin = lcd_origin + cell_size;
+			uint8_t *pixel = lcd->display_data;
+
+			for (int l = 0; l < lcd->display_height * lcd->char_height; ++l) {
+				for (int c = 0; c < lcd->display_width * lcd->char_width; ++c) {
+					draw_list->AddRectFilled(origin, origin + cell_size, lcd_colors[(*pixel++)]);
+					origin.x += cell_size.x + spacing.x;
+
+					if ((c+1) % lcd->char_width == 0) {
+						origin.x += spacing.x * 2;
+					}
+				}
+
+				origin.x = lcd_origin.x + cell_size.x;
+				origin.y += cell_size.y + spacing.y;
+
+				if ((l+1) % lcd->char_height == 0) {
+					origin.y += spacing.y * 2;
+				}
+			}
+
+			// signals
+			ImGui::SetCursorScreenPos({ImGui::GetCursorScreenPos().x, lcd_origin.y + lcd_size.y + 4});
+			ui_signal(0, "RS", SIGNAL_NEXT_BOOL(rs), ACTHI_ASSERT);
+			ImGui::SameLine();
+			ui_signal(150, "RW", SIGNAL_NEXT_BOOL(rw), ACTHI_ASSERT);
+			ImGui::SameLine();
+			ui_signal(300, "E", SIGNAL_NEXT_BOOL(enable), ACTHI_ASSERT);
+
+
+		}
+
+		ImGui::End();
+	}
+
+
+private:
+	ImVec2				position;
+	const ImVec2		size = {480, 0};
+	ChipHd44780 *		lcd;
+
+	constexpr static const char *title = "LCD - HD44780";
+};
+
+Panel::uptr_t panel_chip_hd44780_create(struct UIContext *ctx, struct ImVec2 pos, struct ChipHd44780 *lcd) {
+	return std::make_unique<PanelChipHd44780>(ctx, pos, lcd);
+}
+
+
+/*
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -114,3 +198,5 @@ void panel_chip_hd44780_display(struct PanelChipHd44780 *pnl) {
 		pnl->bounds.h = height;
 	}
 }
+
+*/

@@ -7,6 +7,7 @@ option (NO_THREADING "Disable multithreading in the Dromaius context" OFF)
 
 # force C11 for all targets
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # export a JSON compilation database for clangd
 set (CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
@@ -58,24 +59,32 @@ if (NOT EMSCRIPTEN)
 	find_package(OpenGL REQUIRED)
 endif()
 
-# external library - nuklear
-set (NUKLEAR_TARGET nuklear)
-add_library(${NUKLEAR_TARGET} STATIC)
-target_sources(${NUKLEAR_TARGET}
+# external library Dear Imgui
+set (IMGUI_TARGET imgui)
+add_library(${IMGUI_TARGET} STATIC)
+target_sources(${IMGUI_TARGET}
 	PRIVATE
 		libs/glad/glad.c
 		libs/glad/glad.h
 		libs/glad/KHR/khrplatform.h
-		libs/nuklear/main.c
-		libs/nuklear/nuklear.h
-		libs/nuklear/nuklear_std.h
-		libs/nuklear/nuklear_glfw_gl3.h
+		libs/imgui/imconfig.h
+		libs/imgui/imgui.cpp
+		libs/imgui/imgui.h
+		libs/imgui/imgui_draw.cpp
+		libs/imgui/imgui_internal.h
+		libs/imgui/imstb_rectpack.h
+		libs/imgui/imstb_textedit.h
+		libs/imgui/imstb_truetype.h
+		libs/imgui/imgui_widgets.cpp
+		libs/imgui/examples/imgui_impl_glfw.cpp
+		libs/imgui/examples/imgui_impl_glfw.h
+		libs/imgui/examples/imgui_impl_opengl3.cpp
+		libs/imgui/examples/imgui_impl_opengl3.h
 )
-
-target_include_directories(${NUKLEAR_TARGET} PRIVATE libs libs/nuklear libs/glad)
-target_include_directories(${NUKLEAR_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
-target_link_libraries(${NUKLEAR_TARGET} PRIVATE glfw)
-target_link_libraries(${NUKLEAR_TARGET} PRIVATE ${OPENGL_LIBRARIES})
+target_include_directories(${IMGUI_TARGET} PUBLIC libs libs/imgui)
+target_include_directories(${IMGUI_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
+target_link_libraries(${IMGUI_TARGET} PUBLIC glfw)
+target_link_libraries(${IMGUI_TARGET} PRIVATE ${OPENGL_LIBRARIES})
 
 # simulator library
 set (LIB_TARGET dromaius)
@@ -122,26 +131,30 @@ set (GUI_TARGET dromaius_gui)
 add_executable(${GUI_TARGET} WIN32)
 target_sources(${GUI_TARGET}
 	PRIVATE
-		src/gui/main_gui.c
-		src/gui/panel_chip_6520.c
+		src/gui/imgui_ex.cpp
+		src/gui/imgui_ex.h
+		src/gui/main.cpp
+		src/gui/main_gui.cpp
+		src/gui/panel.h
+		src/gui/panel_chip_6520.cpp
 		src/gui/panel_chip_6520.h
-		src/gui/panel_chip_hd44780.c
+		src/gui/panel_chip_hd44780.cpp
 		src/gui/panel_chip_hd44780.h
-		src/gui/panel_clock.c
+		src/gui/panel_clock.cpp
 		src/gui/panel_clock.h
-		src/gui/panel_control.c
+		src/gui/panel_control.cpp
 		src/gui/panel_control.h
-		src/gui/panel_cpu_6502.c
+		src/gui/panel_cpu_6502.cpp
 		src/gui/panel_cpu_6502.h
-		src/gui/panel_memory.c
+		src/gui/panel_memory.cpp
 		src/gui/panel_memory.h
-		src/gui/panel_monitor.c
+		src/gui/panel_monitor.cpp
 		src/gui/panel_monitor.h
 		src/gui/ui_context.h
 		src/gui/widgets.h
 )
 target_include_directories(${GUI_TARGET} PRIVATE libs src)
-target_link_libraries(${GUI_TARGET} PRIVATE ${NUKLEAR_TARGET})
+target_link_libraries(${GUI_TARGET} PRIVATE ${IMGUI_TARGET})
 target_link_libraries(${GUI_TARGET} PRIVATE ${LIB_TARGET})
 
 if (WIN32)

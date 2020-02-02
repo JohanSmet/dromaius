@@ -5,7 +5,7 @@
 #ifndef DROMAIUS_GUI_WIDGETS_H
 #define DROMAIUS_GUI_WIDGETS_H
 
-#include <nuklear/nuklear_std.h>
+#include "imgui_ex.h"
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -16,39 +16,43 @@ static const char *nibble_bit_string[16] = {
 	[12] = "1100", [13] = "1101", [14] = "1110", [15] = "1111"
 };
 
-static inline void ui_register_8bit(struct nk_context *nk_ctx, const char *name, uint8_t value) {
-	nk_layout_row_begin(nk_ctx, NK_STATIC, 14, 2);
-	nk_layout_row_push(nk_ctx, 128);
-	nk_labelf(nk_ctx, NK_TEXT_RIGHT, "%s: ", name);
-	nk_layout_row_push(nk_ctx, 32);
-	nk_labelf(nk_ctx, NK_TEXT_LEFT, "$%.2x", value);
+static inline void ui_register_8bit(float left, const char *name, uint8_t value) {
+	ImGui::SetCursorPos({left, ImGui::GetCursorPosY()});
+	ImGuiEx::Text(128, ImGuiEx::string_format("%s: ", name), ImGuiEx::TAH_RIGHT);
+	ImGuiEx::Text(32,  ImGuiEx::string_format("$%.2x", value), ImGuiEx::TAH_LEFT);
+	ImGui::NewLine();
 }
 
-static inline void ui_register_8bit_binary(struct nk_context *nk_ctx, const char *name, uint8_t value) {
-	nk_layout_row_begin(nk_ctx, NK_STATIC, 14, 2);
-	nk_layout_row_push(nk_ctx, 128);
-	nk_labelf(nk_ctx, NK_TEXT_RIGHT, "%s: ", name);
-	nk_layout_row_push(nk_ctx, 64);
-	nk_labelf(nk_ctx, NK_TEXT_LEFT, "%%%s%s", nibble_bit_string[value >> 4], nibble_bit_string[value & 0xf]);
+static inline void ui_register_8bit_binary(float left, const char *name, uint8_t value) {
+	ImGui::SetCursorPos({left, ImGui::GetCursorPosY()});
+	ImGuiEx::Text(128, ImGuiEx::string_format("%s: ", name), ImGuiEx::TAH_RIGHT);
+	ImGuiEx::Text(64,  ImGuiEx::string_format("%%%s%s", nibble_bit_string[value >> 4], nibble_bit_string[value & 0xf]), ImGuiEx::TAH_LEFT);
+	ImGui::NewLine();
 }
 
-static inline void ui_register_16bit(struct nk_context *nk_ctx, const char *name, uint16_t value) {
-	nk_layout_row_begin(nk_ctx, NK_STATIC, 14, 2);
-	nk_layout_row_push(nk_ctx, 128);
-	nk_labelf(nk_ctx, NK_TEXT_RIGHT, "%s: ", name);
-	nk_layout_row_push(nk_ctx, 32);
-	nk_labelf(nk_ctx, NK_TEXT_LEFT, "$%.4x", value);
+static inline void ui_register_16bit(float left, const char *name, uint16_t value) {
+	ImGui::SetCursorPos({left, ImGui::GetCursorPosY()});
+	ImGuiEx::Text(128, ImGuiEx::string_format("%s: ", name), ImGuiEx::TAH_RIGHT);
+	ImGuiEx::Text(32,  ImGuiEx::string_format("$%.4x", value), ImGuiEx::TAH_LEFT);
+	ImGui::NewLine();
 }
 
-static inline void ui_signal(struct nk_context *nk_ctx, const char *name, bool value, bool asserted) {
-	static const char *STR_VALUE[] = {"Low", "High"};
-	const struct nk_color SIG_COLOR[] = {{200, 0, 0, 255}, {0, 200, 0, 255}};
+static inline void ui_key_value(float left, const char *label, const char *value, float value_width) {
+	ImGui::SetCursorPos({left, ImGui::GetCursorPosY()});
+	ImGuiEx::Text(128, label, ImGuiEx::TAH_RIGHT);
+	ImGuiEx::Text(value_width, value, ImGuiEx::TAH_LEFT);
+	ImGui::NewLine();
+}
 
-	nk_layout_row_begin(nk_ctx, NK_STATIC, 14, 2);
-	nk_layout_row_push(nk_ctx, 48);
-	nk_labelf(nk_ctx, NK_TEXT_LEFT, "%s: ", name);
-	nk_layout_row_push(nk_ctx, 32);
-	nk_label_colored(nk_ctx, STR_VALUE[value], NK_TEXT_LEFT, SIG_COLOR[value == asserted]);
+static inline void ui_signal(float left, const char *name, bool value, bool asserted) {
+	constexpr const char *STR_VALUE[] = {"Low", "High"};
+	static const ImVec4 SIG_COLOR[] = { ImVec4(0.8f, 0.0f, 0.0f, 1.0f), ImVec4(0.0f, 0.8f, 0.0f, 1.0f)};
+
+	ImGui::SetCursorPos({left, ImGui::GetCursorPosY()});
+
+	ImGuiEx::Text(48, ImGuiEx::string_format("%s: ", name), ImGuiEx::TAH_RIGHT);
+	ImGuiEx::TextColored(SIG_COLOR[value == asserted], 32, STR_VALUE[value], ImGuiEx::TAH_LEFT);
+	ImGui::NewLine();
 }
 
 #endif // DROMAIUS_GUI_WIDGETS_H

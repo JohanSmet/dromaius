@@ -5,23 +5,8 @@
 #ifndef DROMAIUS_GUI_PANEL_CHIP_HD44780_H
 #define DROMAIUS_GUI_PANEL_CHIP_HD44780_H
 
-#include "types.h"
+#include "panel.h"
 
-// forward declarations
-struct nk_context;
-struct nk_vec2;
-struct DmsContext;
-
-struct PanelChipHd44780;
-struct ChipHd44780;
-
-// functions
-struct PanelChipHd44780 *panel_chip_hd44780_init(
-						struct nk_context *nk_ctx,
-						struct nk_vec2 pos,
-						struct DmsContext *dms_ctx,
-						struct ChipHd44780 *lcd);
-void panel_chip_hd44780_display(struct PanelChipHd44780 *pnl);
-void panel_chip_hd44780_release(struct PanelChipHd44780 *pnl);
+Panel::uptr_t panel_chip_hd44780_create(struct UIContext *ctx, struct ImVec2 pos, struct ChipHd44780 *lcd);
 
 #endif // DROMAIUS_GUI_PANEL_CHIP_HD44780_H

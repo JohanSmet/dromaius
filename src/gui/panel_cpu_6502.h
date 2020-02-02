@@ -5,12 +5,9 @@
 #ifndef DROMAIUS_GUI_PANEL_CPU_6502_H
 #define DROMAIUS_GUI_PANEL_CPU_6502_H
 
-// forward declarations
-struct nk_context;
-struct nk_vec2;
-struct Cpu6502;
+#include "panel.h"
 
 // functions
-void panel_cpu_6502(struct nk_context *nk_ctx, struct nk_vec2 pos, struct Cpu6502 *cpu);
+Panel::uptr_t panel_cpu_6502_create(struct UIContext *ctx, struct ImVec2 pos, struct Cpu6502 *cpu);
 
 #endif // DROMAIUS_GUI_PANEL_CPU_6502_H
