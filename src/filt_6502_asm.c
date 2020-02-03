@@ -158,6 +158,10 @@ size_t filt_6502_asm_count_instruction(const uint8_t *binary, size_t bin_size, s
 	assert(from < bin_size);
 	assert(until <= bin_size);
 
+	if (until > bin_size) {
+		until = bin_size;
+	}
+
 	size_t count = 0;
 
 	for (size_t i = from; i < until; i += 1) {

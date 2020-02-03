@@ -168,9 +168,3 @@ void clock_refresh(Clock *clock) {
 	bool clock_value = SIGNAL_BOOL(clock);
 	SIGNAL_SET_BOOL(clock, clock_value);
 }
-
-void clock_wait_for_change(Clock *clock) {
-	assert(clock);
-	assert(false && "not implemented yet");
-}
-
