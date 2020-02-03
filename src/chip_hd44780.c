@@ -43,7 +43,7 @@ typedef struct ChipHd44780_private {
 	uint8_t			cgram_mask;				// address mask for the cgram character index
 
 	bool			prev_enable;
-	uint8_t			address_delta;			// increment or decrement on read/write
+	int8_t			address_delta;			// increment or decrement on read/write
 	RamMode			ram_mode;				// accessing DDRAM or CGRAM ?
 
 	DataLen			data_len;				// width of the MPU interface
@@ -53,15 +53,15 @@ typedef struct ChipHd44780_private {
 	bool			refresh_screen;			// should the dot-matrix ouput be refreshed at the end of the processing function?
 
 	bool			shift_enabled;			// display shift applied?
-	int8_t			shift_delta;			// number of characters to shift
+	int				shift_delta;			// number of characters to shift
 
 	bool			cursor_enabled;			// cursor enable
 	bool			cursor_blink;			// blinking cursor enabled (required cursor_enabled)
 	bool			cursor_block;			// current phase of the blinking cursor (full block or bottom line only)
-	uint64_t		cursor_time;			// last time phase of blinking cursor was changed
+	int64_t			cursor_time;			// last time phase of blinking cursor was changed
 } ChipHd44780_private;
 
-const static uint8_t rom_a00[256][16] = {
+static const uint8_t rom_a00[256][16] = {
 	#include "chip_hd44780_a00.inc"
 };
 
@@ -102,12 +102,12 @@ static inline bool output_register_to_databus(ChipHd44780 *lcd, bool final) {
 static inline bool input_from_databus(ChipHd44780 *lcd) {
 	switch (PRIVATE(lcd)->data_cycle) {
 		case DC_4BIT_HI :
-			PRIVATE(lcd)->data_in = SIGNAL_UINT8(db4_7) << 4;
+			PRIVATE(lcd)->data_in = (uint8_t) (SIGNAL_UINT8(db4_7) << 4);
 			PRIVATE(lcd)->data_cycle = DC_4BIT_LO;
 			return false;
 
 		case DC_4BIT_LO :
-			PRIVATE(lcd)->data_in = PRIVATE(lcd)->data_in | (SIGNAL_UINT8(db4_7) & 0xf);
+			PRIVATE(lcd)->data_in = (uint8_t) (PRIVATE(lcd)->data_in | (SIGNAL_UINT8(db4_7) & 0xf));
 			PRIVATE(lcd)->data_cycle = DC_4BIT_HI;
 			return true;
 
@@ -120,19 +120,19 @@ static inline bool input_from_databus(ChipHd44780 *lcd) {
 	}
 }
 
-static inline uint8_t ddram_virtual_to_physical(ChipHd44780 *lcd, uint8_t addr) {
+static inline uint8_t ddram_virtual_to_physical(ChipHd44780 *lcd, int addr) {
 	if (lcd->display_height == 1) {
-		return addr;
+		return (uint8_t) addr;
 	}
 
 	if (addr >= 64) {
 		// there's a 'virtual' gap between the first and second line
-		return addr - 24;
+		return (uint8_t) (addr - 24);
 	} else if (addr >= 40) {
 		// round up when in the gap between 1st and 2nd line
 		return 64;
 	} else {
-		return addr;
+		return (uint8_t) addr;
 	}
 }
 
@@ -141,24 +141,24 @@ static inline uint8_t ddram_physical_to_virtual(ChipHd44780 *lcd, uint8_t addr) 
 		return addr;
 	}
 
-	return (addr >= 40) ? addr + 24 : addr;
+	return (uint8_t) ((addr >= 40) ? addr + 24 : addr);
 }
 
-static inline uint8_t ddram_valid_virtual_address(ChipHd44780 *lcd, uint8_t addr) {
+static inline uint8_t ddram_valid_virtual_address(ChipHd44780 *lcd, int addr) {
 	if (lcd->display_height == 1) {
-		return ((int8_t) addr + 80) % 80;
+		return (uint8_t) ((addr + 80) % 80);
 	} else {
 		// first line from 0-40 (0x00-0x27) / second line from 64-103 (0x40-0x67)
-		uint8_t result = ((int8_t) addr + 104) % 104;
+		uint8_t result = (uint8_t) ((addr + 104) % 104);
 		return (result >= 40 && result < 64) ? 64 : result;
 	}
 }
 
-static inline uint8_t ddram_valid_physical_address(uint8_t addr) {
-	return ((int8_t) addr + 80) % 80;
+static inline uint8_t ddram_valid_physical_address(int addr) {
+	return (uint8_t)((addr + 80) % 80);
 }
 
-static inline uint8_t cgram_valid_address(uint8_t addr) {
+static inline uint8_t cgram_valid_address(int addr) {
 	 return addr & 0x3f;
 }
 
@@ -250,7 +250,7 @@ static inline void execute_function_set(ChipHd44780 *lcd, bool dl, bool n, bool 
 	lcd->display_height = (n) ? 2 : 1;
 	lcd->char_width = 5;
 	lcd->char_height = (f) ? 10 : 8;
-	arrsetlen(lcd->display_data, lcd->display_width * lcd->display_height * lcd->char_width * lcd->char_height);
+	arrsetlen(lcd->display_data, (size_t) (lcd->display_width * lcd->display_height * lcd->char_width * lcd->char_height));
 
 	PRIVATE(lcd)->refresh_screen = true;
 	PRIVATE(lcd)->cgram_mask = (f) ? 0x03 : 0x07;
@@ -305,7 +305,7 @@ static inline void store_data(ChipHd44780 *lcd) {
 	increment_decrement_addres(lcd);
 }
 
-static inline void draw_character(ChipHd44780 *lcd, uint8_t c, uint8_t x, uint8_t y) {
+static inline void draw_character(ChipHd44780 *lcd, uint8_t c, int x, int y) {
 	const uint8_t *src = rom_a00[c];
 	if ((c & 0xf0) == 0) {
 		// get data from cgram instead of rom
@@ -457,7 +457,7 @@ void chip_hd44780_process(ChipHd44780 *lcd) {
 	//	datasheet states the cursor blinks at a speed of 409.6 ms intervals when the input frequency is standard
 	//	we just assume this function gets called twice for each clock change (on and after the change) so the time passed is
 	//  a quarter of the clock period. This should work reasonably well when stepping through the executable
-	static const uint64_t BLINK_INTERVAL = 410 * 1000000 * 2;
+	static const int64_t BLINK_INTERVAL = 410 * 1000000 * 2;
 	if (PRIVATE(lcd)->cursor_enabled && PRIVATE(lcd)->cursor_blink && PRIVATE(lcd)->clock) {
 		PRIVATE(lcd)->cursor_time += PRIVATE(lcd)->clock->conf_half_period_ns;
 		if (PRIVATE(lcd)->cursor_time > BLINK_INTERVAL) {

@@ -34,7 +34,7 @@ typedef enum DMS_STATE {
 typedef struct DmsContext {
 	DevMinimal6502 *device;	
 	DMS_STATE		state;
-	uint64_t *		breakpoints;
+	int64_t *		breakpoints;
 
 #ifndef DMS_NO_THREADING
 	thread_t		thread;
@@ -48,7 +48,7 @@ typedef struct DmsContext {
 // internal functions
 //
 
-static inline int breakpoint_index(DmsContext *dms, uint64_t addr) {
+static inline int breakpoint_index(DmsContext *dms, int64_t addr) {
 	for (int i = 0; i < arrlen(dms->breakpoints); ++i) {
 		if (dms->breakpoints[i] == addr) { 
 			return i;
@@ -91,6 +91,8 @@ static bool context_execute(DmsContext *dms) {
 				break;
 			case DS_EXIT:
 				return false;
+			case DS_WAIT:
+				break;
 		}
 	}
 
@@ -99,7 +101,7 @@ static bool context_execute(DmsContext *dms) {
 
 #ifndef DMS_NO_THREADING
 
-static void *context_background_thread(DmsContext *dms) {
+static int context_background_thread(DmsContext *dms) {
 
 	bool keep_running = true;
 
@@ -116,7 +118,7 @@ static void *context_background_thread(DmsContext *dms) {
 		mutex_unlock(&dms->mtx_wait);
 	}
 
-	return NULL;
+	return 0;
 }
 
 static inline void change_state(DmsContext *context, DMS_STATE new_state) {
@@ -171,7 +173,7 @@ void dms_start_execution(DmsContext *dms) {
 	dms->state = DS_WAIT;
 	mutex_init_plain(&dms->mtx_wait);
 	cond_init(&dms->cnd_wait);
-	thread_create_joinable(&dms->thread, (int(*)(void*)) context_background_thread, dms);
+	thread_create_joinable(&dms->thread, (thread_func_t) context_background_thread, dms);
 }
 
 void dms_stop_execution(DmsContext *dms) {
@@ -230,7 +232,7 @@ void dms_reset(DmsContext *dms) {
 }
 
 
-bool dms_toggle_breakpoint(DmsContext *dms, uint64_t addr) {
+bool dms_toggle_breakpoint(DmsContext *dms, int64_t addr) {
 	int idx = breakpoint_index(dms, addr);
 
 	if (idx < 0) {
@@ -253,7 +255,7 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 			DevMinimal6502 *dev = dms_get_device(dms);
 
 			// tell the cpu to override the location of the next instruction
-			cpu_6502_override_next_instruction_address(dev->cpu, addr & 0xffff);
+			cpu_6502_override_next_instruction_address(dev->cpu, (uint16_t) (addr & 0xffff));
 
 			// run computer until current instruction is finished
 			bool cpu_sync  = cpu_6502_at_start_of_instruction(dms->device->cpu);

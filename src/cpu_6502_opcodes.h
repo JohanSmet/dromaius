@@ -50,7 +50,9 @@ typedef enum ADDRESSING_MODE_6502_ {
 
 	// other addressing modes not used for group-1 instructions
 	AM_6502_ZEROPAGE_Y	= 0b1000,
-	AM_6502_INDIRECT	= 0b1001
+	AM_6502_INDIRECT	= 0b1001,
+
+	AM_6502_UNDEFINED	= 0b1111
 
 } ADDRESSING_MODE_6502;
 

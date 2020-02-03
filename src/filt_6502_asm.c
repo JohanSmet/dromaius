@@ -16,7 +16,7 @@
 //
 
 // opcode => string
-const static char OPCODE_NAMES[256][4] = {
+static const char OPCODE_NAMES[256][4] = {
 //	 00     01     02     03     04     05     06     07     08     09     0A     0B     0C     0D     0E     0F
 	"brk", "ora", "???", "???", "???", "ora", "asl", "???", "php", "ora", "asl", "???", "???", "ora", "asl", "???",
 	"bpl", "ora", "???", "???", "???", "ora", "asl", "???", "clc", "ora", "???", "???", "???", "ora", "asl", "???",
@@ -55,7 +55,7 @@ typedef enum ADDR_MODE {
 } ADDR_MODE;
 
 // opcode => addressing mode
-const static ADDR_MODE OPCODE_ADDRESS_MODES[256] = {
+static const ADDR_MODE OPCODE_ADDRESS_MODES[256] = {
 	IMPL,	XIND,	NONE,	NONE,	NONE,	ZP,		ZP,		NONE,	IMPL,	IMM,	ACC,	NONE,	NONE,	ABS,	ABS,	NONE,
 	REL,	INDY,	NONE,	NONE,	NONE,	ZPX,	ZPX,	NONE,	IMPL,	ABSY,	NONE,	NONE,	NONE,	ABSX,	ABSX,	NONE,
 	ABS,	XIND,	NONE,	NONE,	ZP,		ZP,		ZP,		NONE,	IMPL,	IMM,	ACC,	NONE,	ABS,	ABS,	ABS,	NONE,
@@ -75,7 +75,7 @@ const static ADDR_MODE OPCODE_ADDRESS_MODES[256] = {
 };
 
 // addressing mode => number of arguments
-const static int ADDRESS_MODE_LEN[14] = {
+static const unsigned int ADDRESS_MODE_LEN[14] = {
 	0,	// NONE
 	0,	// ACC
 	0,	// IMPL
@@ -97,7 +97,7 @@ const static int ADDRESS_MODE_LEN[14] = {
 // interface functions
 //
 
-int filt_6502_asm_line(const uint8_t *binary, size_t bin_size, size_t bin_index, size_t bin_offset, char **line) {
+size_t filt_6502_asm_line(const uint8_t *binary, size_t bin_size, size_t bin_index, size_t bin_offset, char **line) {
 	assert(binary);
 	assert(bin_index < bin_size);
 
@@ -107,7 +107,7 @@ int filt_6502_asm_line(const uint8_t *binary, size_t bin_size, size_t bin_index,
 	arr_printf(*line, "%.4x: %s", bin_index + bin_offset, OPCODE_NAMES[op]);
 
 	// argument
-	int arg_size = ADDRESS_MODE_LEN[OPCODE_ADDRESS_MODES[op]];
+	unsigned arg_size = ADDRESS_MODE_LEN[OPCODE_ADDRESS_MODES[op]];
 
 	if (bin_index + arg_size >= bin_size) {
 		arr_printf(*line, " (opcode incomplete)");
@@ -153,15 +153,15 @@ int filt_6502_asm_line(const uint8_t *binary, size_t bin_size, size_t bin_index,
 	return 1 + arg_size;
 }
 
-int filt_6502_asm_count_instruction(const uint8_t *binary, size_t bin_size, size_t from, size_t until) {
+size_t filt_6502_asm_count_instruction(const uint8_t *binary, size_t bin_size, size_t from, size_t until) {
 	assert(binary);
 	assert(from < bin_size);
 	assert(until <= bin_size);
 
-	int count = 0;
+	size_t count = 0;
 
 	for (size_t i = from; i < until; i += 1) {
-		int arg_size = ADDRESS_MODE_LEN[OPCODE_ADDRESS_MODES[binary[i]]];
+		unsigned arg_size = ADDRESS_MODE_LEN[OPCODE_ADDRESS_MODES[binary[i]]];
 		i += arg_size;
 		++count;
 	}

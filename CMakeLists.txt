@@ -16,6 +16,15 @@ set (CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 string(TOUPPER ${CMAKE_SYSTEM_NAME} PLATFORM_NAME)
 string(CONCAT PLATFORM_DEF "PLATFORM_" ${PLATFORM_NAME})
 
+# macro to turn on compiler warnings for a target
+macro(target_compile_warning target)
+	target_compile_options(${target} PRIVATE
+		$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
+		-Wall -Wextra -Wconversion -Wsign-conversion -Werror>
+		$<$<CXX_COMPILER_ID:MSVC>:
+			/W4>)
+endmacro()
+
 # check system libraries
 include(CheckSymbolExists)
 
@@ -124,6 +133,7 @@ target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
 if (NO_THREADING OR EMSCRIPTEN)
 	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_NO_THREADING)
 endif()
+target_compile_warning(${LIB_TARGET})
 
 # gui
 set (GUI_TARGET dromaius_gui)
@@ -161,9 +171,9 @@ if (WIN32)
 	target_link_options(${GUI_TARGET} PRIVATE "/ENTRY:mainCRTStartup")
 endif()
 
-if (EMSCRIPTEN) 
-	target_link_libraries(${GUI_TARGET} PRIVATE 
-		"-s USE_GLFW=3" 
+if (EMSCRIPTEN)
+	target_link_libraries(${GUI_TARGET} PRIVATE
+		"-s USE_GLFW=3"
 		"-s WASM=1"
 		"-s ALLOW_MEMORY_GROWTH=1"
 		"-s ASSERTIONS=2"

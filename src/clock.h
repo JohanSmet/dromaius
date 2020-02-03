@@ -23,18 +23,18 @@ typedef struct Clock {
 	ClockSignals	signals;
 
 	// configuration
-	uint32_t	conf_frequency;
-	uint64_t	conf_half_period_ns;
+	int32_t		conf_frequency;
+	int64_t		conf_half_period_ns;
 
 	// data
-	uint64_t	real_frequency;
-	uint64_t	cycle_count;
+	int64_t 	real_frequency;
+	int64_t		cycle_count;
 } Clock;
 
 // functions
-Clock *clock_create(uint32_t frequency, SignalPool *signal_pool, ClockSignals signals);
+Clock *clock_create(int32_t frequency, SignalPool *signal_pool, ClockSignals signals);
 void clock_destroy(Clock *clock);
-void clock_set_frequency(Clock *clock, uint32_t frequency);
+void clock_set_frequency(Clock *clock, int32_t frequency);
 
 void clock_mark(Clock *clock);
 bool clock_is_caught_up(Clock *clock);

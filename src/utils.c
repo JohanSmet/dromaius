@@ -49,10 +49,10 @@ void dir_list_files(const char *path, const char *ext, const char *prefix, const
 
 char *arr__printf(char *array, const char *fmt, ...) {
 	va_list args;
-	size_t avail = arrcap(array) - arrlen(array);
+	size_t avail = arrcap(array) - arrlenu(array);
 
 	va_start(args, fmt);
-    int result = vsnprintf(array + arrlen(array), avail, fmt, args);
+    int result = vsnprintf(array + arrlenu(array), avail, fmt, args);
     va_end(args);
 
     assert(result >= 0);
@@ -60,11 +60,11 @@ char *arr__printf(char *array, const char *fmt, ...) {
 
 	if (n > avail) {
 		// array too small, grow and print again
-		arrsetcap(array, arrlen(array) + n);
-		avail = arrcap(array) - arrlen(array);
+		arrsetcap(array, arrlenu(array) + n);
+		avail = arrcap(array) - arrlenu(array);
 
 		va_start(args, fmt);
-		result = vsnprintf(array + arrlen(array), avail, fmt, args);
+		result = vsnprintf(array + arrlenu(array), avail, fmt, args);
 		va_end(args);
 
 		assert(result >= 0);
@@ -72,7 +72,7 @@ char *arr__printf(char *array, const char *fmt, ...) {
     }
 
     // don't count zero-terminator in array length so it concatenates easily (terminator is always present!)
-	arrsetlen(array, arrlen(array) + n - 1);
+	arrsetlen(array, arrlenu(array) + n - 1);
     return array;
 }
 

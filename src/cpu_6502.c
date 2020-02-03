@@ -135,8 +135,8 @@ typedef struct Cpu6502_private {
 
 #define PRIVATE(cpu)	((Cpu6502_private *) (cpu))
 
-#define OUTPUT_DATA(d)				\
-	PRIVATE(cpu)->out_data = (d);	\
+#define OUTPUT_DATA(d)						\
+	PRIVATE(cpu)->out_data = (uint8_t) (d);	\
 	PRIVATE(cpu)->drv_data = true;
 
 static void process_end(Cpu6502 *cpu) {
@@ -203,7 +203,7 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 					OUTPUT_DATA(HI_BYTE(cpu->reg_pc));
 					break;
 				case CYCLE_END:
-					cpu->reg_sp -= 1;
+					cpu->reg_sp--;
 					PRIVATE(cpu)->out_rw = RW_READ;
 					break;
 			}
@@ -218,7 +218,7 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 					OUTPUT_DATA(LO_BYTE(cpu->reg_pc));
 					break;
 				case CYCLE_END:
-					cpu->reg_sp -= 1;
+					cpu->reg_sp--;
 					PRIVATE(cpu)->out_rw = RW_READ;
 					break;
 			}
@@ -233,7 +233,7 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 					OUTPUT_DATA(cpu->reg_p);
 					break;
 				case CYCLE_END:
-					cpu->reg_sp -= 1;
+					cpu->reg_sp--;
 					PRIVATE(cpu)->out_rw = RW_READ;
 					break;
 			}
@@ -310,7 +310,7 @@ static inline void fetch_zp_discard_add(Cpu6502 *cpu, uint8_t index, CPU_6502_CY
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END:
-			PRIVATE(cpu)->addr.lo_byte += index;
+			PRIVATE(cpu)->addr.lo_byte = (uint8_t) (PRIVATE(cpu)->addr.lo_byte + index);
 			break;
 	};
 }
@@ -327,7 +327,7 @@ static inline void fetch_high_byte_address_indexed(Cpu6502 *cpu, uint8_t index, 
 			PRIVATE(cpu)->out_address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
-			PRIVATE(cpu)->addr.full += index;
+			PRIVATE(cpu)->addr.full = (uint16_t) (PRIVATE(cpu)->addr.full + index);
 			PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->addr.hi_byte > 0;
 			break;
 		case CYCLE_END:
@@ -345,12 +345,14 @@ static inline bool fetch_memory_page_crossed(Cpu6502 *cpu, CPU_6502_CYCLE phase)
 			PRIVATE(cpu)->out_address = PRIVATE(cpu)->addr.full;
 			return false;
 		case CYCLE_MIDDLE:
-			PRIVATE(cpu)->addr.hi_byte += PRIVATE(cpu)->page_crossed;
+			PRIVATE(cpu)->addr.hi_byte = (uint8_t) (PRIVATE(cpu)->addr.hi_byte + PRIVATE(cpu)->page_crossed);
 			return false;
 		case CYCLE_END:
 			PRIVATE(cpu)->operand = PRIVATE(cpu)->in_data;
 			return !PRIVATE(cpu)->page_crossed;
 	};
+
+	return false;
 }
 
 static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst, CPU_6502_CYCLE phase) {
@@ -370,7 +372,7 @@ static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst, CPU_6502_CYCLE ph
 	}
 }
 
-static inline int8_t fetch_address_immediate(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+static inline int fetch_address_immediate(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	assert(cpu);
 
 	if (PRIVATE(cpu)->decode_cycle == 1) {
@@ -389,7 +391,7 @@ static inline int8_t fetch_address_immediate(Cpu6502 *cpu, CPU_6502_CYCLE phase)
 	return 1;
 }
 
-static inline int8_t fetch_address_zeropage(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+static inline int fetch_address_zeropage(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch address - low byte
@@ -401,7 +403,7 @@ static inline int8_t fetch_address_zeropage(Cpu6502 *cpu, CPU_6502_CYCLE phase) 
 	return 2;
 }
 
-static inline int8_t fetch_address_zeropage_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t index) {
+static inline int fetch_address_zeropage_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t index) {
 
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch address - low byte
@@ -415,9 +417,7 @@ static inline int8_t fetch_address_zeropage_indexed(Cpu6502 *cpu, CPU_6502_CYCLE
 	return 3;
 }
 
-static inline int8_t fetch_address_absolute(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
-
-	bool result = false;
+static inline int fetch_address_absolute(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch address - low byte
@@ -431,7 +431,7 @@ static inline int8_t fetch_address_absolute(Cpu6502 *cpu, CPU_6502_CYCLE phase) 
 	return 3;
 }
 
-static inline int8_t fetch_address_absolute_indexed_shortcut(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t index) {
+static inline int fetch_address_absolute_indexed_shortcut(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t index) {
 // cycle count depends on the value of the base adress and the index:
 //	- if a page boundary is crossed (low-byte of address + index > 0xff) then it takes 5 cycles
 //	- if no page boundary is crossed only 4 cycles are required
@@ -451,7 +451,7 @@ static inline int8_t fetch_address_absolute_indexed_shortcut(Cpu6502 *cpu, CPU_6
 	return 3 + PRIVATE(cpu)->page_crossed;
 }
 
-static inline int8_t fetch_address_absolute_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t index) {
+static inline int fetch_address_absolute_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t index) {
 // no lookup-ahead (or shortcut) when the indexing does not case page crossing
 //	used for operations that write to memory
 
@@ -471,7 +471,7 @@ static inline int8_t fetch_address_absolute_indexed(Cpu6502 *cpu, CPU_6502_CYCLE
 }
 
 
-static inline int8_t fetch_address_indirect(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+static inline int fetch_address_indirect(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch indirect address - low byte
@@ -482,16 +482,17 @@ static inline int8_t fetch_address_indirect(Cpu6502 *cpu, CPU_6502_CYCLE phase) 
 			break;
 		case 3 :		// fetch jump address - low byte
 			fetch_memory(cpu, PRIVATE(cpu)->i_addr.full, &PRIVATE(cpu)->addr.lo_byte, phase);
+			INC_UINT16(PRIVATE(cpu)->i_addr.full, (phase == CYCLE_END));
 			break;
 		case 4 :		// fetch jump address - high byte
-			fetch_memory(cpu, PRIVATE(cpu)->i_addr.full + 1, &PRIVATE(cpu)->addr.hi_byte, phase);
+			fetch_memory(cpu, PRIVATE(cpu)->i_addr.full, &PRIVATE(cpu)->addr.hi_byte, phase);
 			break;
 	}
 
 	return 5;
 }
 
-static inline int8_t fetch_address_indexed_indirect(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+static inline int fetch_address_indexed_indirect(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch zero page address
@@ -500,13 +501,13 @@ static inline int8_t fetch_address_indexed_indirect(Cpu6502 *cpu, CPU_6502_CYCLE
 		case 2 :		// fetch discard memory & add zp + index-x
 			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->addr.lo_byte, phase);
 			if (phase == CYCLE_END) {
-				PRIVATE(cpu)->operand += cpu->reg_x;
+				INC_UINT8(PRIVATE(cpu)->operand, cpu->reg_x);
 			}
 			break;
 		case 3:			// fetch address - low byte & increment zp + index-x
 			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->addr.lo_byte, phase);
 			if (phase == CYCLE_END) {
-				PRIVATE(cpu)->operand += 1;
+				PRIVATE(cpu)->operand++;
 			}
 			break;
 		case 4:			// fetch address - high byte
@@ -517,7 +518,7 @@ static inline int8_t fetch_address_indexed_indirect(Cpu6502 *cpu, CPU_6502_CYCLE
 	return 5;
 }
 
-static inline int8_t fetch_address_indirect_indexed_shortcut(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+static inline int fetch_address_indirect_indexed_shortcut(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch zero page address
@@ -526,20 +527,20 @@ static inline int8_t fetch_address_indirect_indexed_shortcut(Cpu6502 *cpu, CPU_6
 		case 2 :		// fetch address - low byte & increment zp
 			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->addr.lo_byte, phase);
 			if (phase == CYCLE_END) {
-				PRIVATE(cpu)->operand += 1;
+				PRIVATE(cpu)->operand++;
 			}
 			break;
 		case 3 :		// fetch address - high byte & add addr.lo_byte + y
 			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->addr.hi_byte, phase);
 			if (phase == CYCLE_END) {
 				PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->addr.lo_byte + cpu->reg_y > 255;
-				PRIVATE(cpu)->addr.lo_byte += cpu->reg_y;
+				INC_UINT8(PRIVATE(cpu)->addr.lo_byte, cpu->reg_y);
 			}
 			break;
 		case 4 :
 			fetch_memory(cpu, PRIVATE(cpu)->addr.full, &PRIVATE(cpu)->operand, phase);
 			if (phase == CYCLE_END) {
-				PRIVATE(cpu)->addr.hi_byte += PRIVATE(cpu)->page_crossed;
+				INC_UINT8(PRIVATE(cpu)->addr.hi_byte, PRIVATE(cpu)->page_crossed);
 			}
 			break;
 	}
@@ -547,7 +548,7 @@ static inline int8_t fetch_address_indirect_indexed_shortcut(Cpu6502 *cpu, CPU_6
 	return 4 + PRIVATE(cpu)->page_crossed;
 }
 
-static inline int8_t fetch_address_indirect_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
+static inline int fetch_address_indirect_indexed(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch zero page address
@@ -556,20 +557,20 @@ static inline int8_t fetch_address_indirect_indexed(Cpu6502 *cpu, CPU_6502_CYCLE
 		case 2 :		// fetch address - low byte & increment zp
 			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->addr.lo_byte, phase);
 			if (phase == CYCLE_END) {
-				PRIVATE(cpu)->operand += 1;
+				PRIVATE(cpu)->operand++;
 			}
 			break;
 		case 3 :		// fetch address - high byte & add addr.lo_byte + y
 			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->addr.hi_byte, phase);
 			if (phase == CYCLE_END) {
 				PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->addr.lo_byte + cpu->reg_y > 255;
-				PRIVATE(cpu)->addr.lo_byte += cpu->reg_y;
+				INC_UINT8(PRIVATE(cpu)->addr.lo_byte, cpu->reg_y);
 			}
 			break;
 		case 4 :
 			fetch_memory(cpu, PRIVATE(cpu)->addr.full, &PRIVATE(cpu)->operand, phase);
 			if (phase == CYCLE_END) {
-				PRIVATE(cpu)->addr.hi_byte += PRIVATE(cpu)->page_crossed;
+				INC_UINT8(PRIVATE(cpu)->addr.hi_byte, PRIVATE(cpu)->page_crossed);
 			}
 			break;
 	}
@@ -577,7 +578,7 @@ static inline int8_t fetch_address_indirect_indexed(Cpu6502 *cpu, CPU_6502_CYCLE
 	return 5;
 }
 
-static inline int8_t fetch_address_shortcut(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
+static inline int fetch_address_shortcut(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
 
 	switch (mode) {
 		case AM_6502_IMMEDIATE:
@@ -605,7 +606,7 @@ static inline int8_t fetch_address_shortcut(Cpu6502 *cpu, ADDRESSING_MODE_6502 m
 	};
 }
 
-static inline int8_t fetch_address(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
+static inline int fetch_address(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
 
 	switch (mode) {
 		case AM_6502_IMMEDIATE:	
@@ -637,7 +638,7 @@ static inline bool fetch_operand(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_65
 
 	bool result = false;
 
-	int8_t memop_cycle = fetch_address_shortcut(cpu, mode, phase);
+	int memop_cycle = fetch_address_shortcut(cpu, mode, phase);
 
 	if (memop_cycle == PRIVATE(cpu)->decode_cycle) {
 		fetch_memory(cpu, PRIVATE(cpu)->addr.full, &PRIVATE(cpu)->operand, phase);
@@ -655,7 +656,7 @@ static inline bool store_to_memory(Cpu6502 *cpu, uint8_t value, ADDRESSING_MODE_
 
 	bool result = false;
 
-	int8_t memop_cycle = fetch_address(cpu, mode, phase);
+	int memop_cycle = fetch_address(cpu, mode, phase);
 
 	if (memop_cycle == PRIVATE(cpu)->decode_cycle) {
 		store_memory(cpu, PRIVATE(cpu)->addr.full, value, phase);
@@ -679,7 +680,7 @@ static inline void stack_push(Cpu6502 *cpu, uint8_t value, CPU_6502_CYCLE phase)
 			OUTPUT_DATA(value);
 			break;
 		case CYCLE_END:
-			cpu->reg_sp -= 1;
+			cpu->reg_sp--;
 			PRIVATE(cpu)->out_rw = RW_READ;
 			break;
 	}
@@ -690,7 +691,7 @@ static inline uint8_t stack_pop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	switch (phase) {
 		case CYCLE_BEGIN:
-			cpu->reg_sp += 1;
+			cpu->reg_sp++;
 			PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
 			break;
 		case CYCLE_MIDDLE:
@@ -723,7 +724,7 @@ static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t 
 				case CYCLE_BEGIN: 
 					PRIVATE(cpu)->out_address = cpu->reg_pc;
 					PRIVATE(cpu)->i_addr.hi_byte = HI_BYTE(cpu->reg_pc);
-					cpu->reg_pc += (int8_t) PRIVATE(cpu)->i_addr.lo_byte;
+					INC_UINT16(cpu->reg_pc, (int8_t) PRIVATE(cpu)->i_addr.lo_byte);
 					break;
 				case CYCLE_MIDDLE:
 					PRIVATE(cpu)->page_crossed = PRIVATE(cpu)->i_addr.hi_byte != HI_BYTE(cpu->reg_pc);
@@ -757,20 +758,20 @@ static inline void calculate_adc_decimal(Cpu6502 *cpu) {
    Many thanks go to Bruce Clark, for his excellent explanation of the decimal mode of the 6502 (see: http://www.6502.org/tutorials/decimal_mode.html)
    and the accompanying test program.
 */
-	uint16_t bin_result = cpu->reg_a + PRIVATE(cpu)->operand + cpu->p_carry;
+	int bin_result = cpu->reg_a + PRIVATE(cpu)->operand + cpu->p_carry;
 
-	uint16_t al = (cpu->reg_a & 0x0f) + (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry;
+	int al = (cpu->reg_a & 0x0f) + (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry;
 	if (al >= 0x0a) {
 		al = ((al + 0x06) & 0x0f) + 0x10;
 	}
-	uint16_t a_seq1 = (cpu->reg_a & 0xf0) + (PRIVATE(cpu)->operand & 0xf0) + al;
+	int a_seq1 = (cpu->reg_a & 0xf0) + (PRIVATE(cpu)->operand & 0xf0) + al;
 	if (a_seq1 >= 0xa0) {
 		a_seq1 += 0x60;
 	}
 
-	int16_t a_seq2 = (int8_t) (cpu->reg_a & 0xf0) + (int8_t) (PRIVATE(cpu)->operand & 0xf0) + al;
+	int a_seq2 = (int8_t) (cpu->reg_a & 0xf0) + (int8_t) (PRIVATE(cpu)->operand & 0xf0) + al;
 
-	cpu->reg_a = a_seq1 & 0x00ff;
+	cpu->reg_a = (uint8_t) (a_seq1 & 0x00ff);
 	cpu->p_carry = (a_seq1 >= 0x0100);
 	cpu->p_negative_result = IS_BIT_SET(a_seq2, 7);
 	cpu->p_overflow = (a_seq2 < -128) || (a_seq2 > 127);
@@ -784,13 +785,13 @@ static inline void decode_adc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 
 	if (!cpu->p_decimal_mode) {
-		int16_t s_result = (int8_t) cpu->reg_a + (int8_t) PRIVATE(cpu)->operand + cpu->p_carry;
-		uint16_t u_result = cpu->reg_a + PRIVATE(cpu)->operand + cpu->p_carry;
-		cpu->reg_a = u_result & 0x00ff;
+		int s_result = (int8_t) cpu->reg_a + (int8_t) PRIVATE(cpu)->operand + cpu->p_carry;
+		int u_result = cpu->reg_a + PRIVATE(cpu)->operand + cpu->p_carry;
+		cpu->reg_a = (uint8_t) (u_result & 0x00ff);
 		cpu->p_carry = IS_BIT_SET(u_result, 8);
 		cpu->p_overflow = (s_result < -128) || (s_result > 127);
 		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 	} else {
 		calculate_adc_decimal(cpu);
 	}
@@ -803,7 +804,7 @@ static inline void decode_and(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (fetch_operand_g1(cpu, phase)) {
 		cpu->reg_a	= cpu->reg_a & PRIVATE(cpu)->operand;
 		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -818,28 +819,28 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			case CYCLE_MIDDLE:
 				break;
 			case CYCLE_END:
-				cpu->p_carry = (cpu->reg_a & 0b10000000) >> 7;
-				cpu->reg_a <<= 1;
+				cpu->p_carry = IS_BIT_SET(cpu->reg_a, 7);
+				cpu->reg_a = (uint8_t) (cpu->reg_a << 1);
 				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+				cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 				PRIVATE(cpu)->decode_cycle = -1;
 				break;
 		}
 		return;
 	}
 
-	static const int8_t AM_LUT[] = {
-		-1,						// 0
+	static const uint8_t AM_LUT[] = {
+		AM_6502_UNDEFINED,		// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,		// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
+		AM_6502_UNDEFINED,		// 4
 		AM_6502_ZEROPAGE_X,		// 5
-		-1,						// 6
+		AM_6502_UNDEFINED,		// 6
 		AM_6502_ABSOLUTE_X		// 7
 	};
 
-	uint8_t memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
+	int memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
 
 	switch (PRIVATE(cpu)->decode_cycle - memop_cycle) {
 		case 0:		// fetch operand
@@ -853,8 +854,8 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END:
-					cpu->p_carry = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
-					PRIVATE(cpu)->operand <<= 1;
+					cpu->p_carry = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
+					PRIVATE(cpu)->operand = (uint8_t) (PRIVATE(cpu)->operand << 1);
 					break;
 			}
 			break;
@@ -868,7 +869,7 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+					cpu->p_negative_result = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -890,20 +891,20 @@ static inline void decode_beq(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_bit(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
-	static const int8_t AM_LUT[] = {
-		-1,						// 0
+	static const uint8_t AM_LUT[] = {
+		AM_6502_UNDEFINED,		// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,		// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
-		-1,						// 5
-		-1,						// 6
-		-1						// 7
+		AM_6502_UNDEFINED,		// 4
+		AM_6502_UNDEFINED,		// 5
+		AM_6502_UNDEFINED,		// 6
+		AM_6502_UNDEFINED		// 7
 	};
 
 	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
-		cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
-		cpu->p_overflow = (PRIVATE(cpu)->operand & 0b01000000) >> 6;
+		cpu->p_negative_result = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
+		cpu->p_overflow = IS_BIT_SET(PRIVATE(cpu)->operand, 6);
 		cpu->p_zero_result = (PRIVATE(cpu)->operand & cpu->reg_a) == 0;
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
@@ -995,9 +996,9 @@ static inline void decode_clv(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_cmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (fetch_operand_g1(cpu, phase)) {
-		int8_t result = cpu->reg_a - PRIVATE(cpu)->operand;
+		int8_t result = (int8_t) (cpu->reg_a - PRIVATE(cpu)->operand);
 		cpu->p_zero_result = result == 0;
-		cpu->p_negative_result = (result & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(result, 7);
 		cpu->p_carry = result >= 0;
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
@@ -1005,21 +1006,21 @@ static inline void decode_cmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_cpx_cpy(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t reg) {
 
-	static const int8_t AM_LUT[] = {
+	static const uint8_t AM_LUT[] = {
 		AM_6502_IMMEDIATE,		// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,		// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
-		-1,						// 5
-		-1,						// 6
-		-1						// 7
+		AM_6502_UNDEFINED,		// 4
+		AM_6502_UNDEFINED,		// 5
+		AM_6502_UNDEFINED,		// 6
+		AM_6502_UNDEFINED		// 7
 	};
 
 	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
-		int8_t result = reg - PRIVATE(cpu)->operand;
+		int8_t result = (int8_t) (reg - PRIVATE(cpu)->operand);
 		cpu->p_zero_result = result == 0;
-		cpu->p_negative_result = (result & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(result, 7);
 		cpu->p_carry = result >= 0;
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
@@ -1027,18 +1028,18 @@ static inline void decode_cpx_cpy(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t re
 
 static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
-	static const int8_t AM_LUT[] = {
-		-1,						// 0
+	static const uint8_t AM_LUT[] = {
+		AM_6502_UNDEFINED,		// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,		// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
+		AM_6502_UNDEFINED,		// 4
 		AM_6502_ZEROPAGE_X,		// 5
-		-1,						// 6
+		AM_6502_UNDEFINED,		// 6
 		AM_6502_ABSOLUTE_X		// 7
 	};
 
-	uint8_t memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
+	int memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
 
 	switch (PRIVATE(cpu)->decode_cycle - memop_cycle) {
 		case 0:		// fetch operand
@@ -1052,7 +1053,7 @@ static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END:
-					PRIVATE(cpu)->operand -= 1;
+					PRIVATE(cpu)->operand--;
 					break;
 			}
 			break;
@@ -1066,7 +1067,7 @@ static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+					cpu->p_negative_result = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1082,9 +1083,9 @@ static inline void decode_dex(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END : 
-			cpu->reg_x -= 1;
+			cpu->reg_x--;
 			cpu->p_zero_result = cpu->reg_x == 0;
-			cpu->p_negative_result = (cpu->reg_x & 0b10000000) >> 7;
+			cpu->p_negative_result = IS_BIT_SET(cpu->reg_x, 7);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1098,9 +1099,9 @@ static inline void decode_dey(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END : 
-			cpu->reg_y -= 1;
+			cpu->reg_y--;
 			cpu->p_zero_result = cpu->reg_y == 0;
-			cpu->p_negative_result = (cpu->reg_y & 0b10000000) >> 7;
+			cpu->p_negative_result = IS_BIT_SET(cpu->reg_y, 7);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1111,25 +1112,25 @@ static inline void decode_eor(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (fetch_operand_g1(cpu, phase)) {
 		cpu->reg_a	= cpu->reg_a ^ PRIVATE(cpu)->operand;
 		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
 
 static inline void decode_inc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
-	static const int8_t AM_LUT[] = {
-		-1,						// 0
+	static const uint8_t AM_LUT[] = {
+		AM_6502_UNDEFINED,						// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,						// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
+		AM_6502_UNDEFINED,						// 4
 		AM_6502_ZEROPAGE_X,		// 5
-		-1,						// 6
+		AM_6502_UNDEFINED,						// 6
 		AM_6502_ABSOLUTE_X		// 7
 	};
 
-	uint8_t memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
+	int memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
 
 	switch (PRIVATE(cpu)->decode_cycle - memop_cycle) {
 		case 0:		// fetch operand
@@ -1143,7 +1144,7 @@ static inline void decode_inc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END:
-					PRIVATE(cpu)->operand += 1;
+					PRIVATE(cpu)->operand++;
 					break;
 			}
 			break;
@@ -1157,7 +1158,7 @@ static inline void decode_inc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+					cpu->p_negative_result = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1173,9 +1174,9 @@ static inline void decode_inx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END : 
-			cpu->reg_x += 1;
+			cpu->reg_x++;
 			cpu->p_zero_result = cpu->reg_x == 0;
-			cpu->p_negative_result = (cpu->reg_x & 0b10000000) >> 7;
+			cpu->p_negative_result = IS_BIT_SET(cpu->reg_x, 7);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1189,9 +1190,9 @@ static inline void decode_iny(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END : 
-			cpu->reg_y += 1;
+			cpu->reg_y++;
 			cpu->p_zero_result = cpu->reg_y == 0;
-			cpu->p_negative_result = (cpu->reg_y & 0b10000000) >> 7;
+			cpu->p_negative_result = IS_BIT_SET(cpu->reg_y, 7);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1199,7 +1200,7 @@ static inline void decode_iny(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_jmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
-	int8_t memop_cycle = 0;
+	int memop_cycle = 0;
 
 	if (cpu->reg_ir == OP_6502_JMP_ABS) {
 		memop_cycle = fetch_address_absolute(cpu, phase);
@@ -1245,49 +1246,49 @@ static inline void decode_lda(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (fetch_operand_g1(cpu, phase)) {
 		cpu->reg_a	= PRIVATE(cpu)->operand;
 		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
 
 static inline void decode_ldx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
-	static const int8_t AM_LUT[] = {
+	static const uint8_t AM_LUT[] = {
 		AM_6502_IMMEDIATE,		// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,		// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
+		AM_6502_UNDEFINED,		// 4
 		AM_6502_ZEROPAGE_Y,		// 5
-		-1,						// 6
+		AM_6502_UNDEFINED,		// 6
 		AM_6502_ABSOLUTE_Y		// 7
 	};
 
 	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
 		cpu->reg_x = PRIVATE(cpu)->operand;
 		cpu->p_zero_result = cpu->reg_x == 0;
-		cpu->p_negative_result = (cpu->reg_x & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_x, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
 
 static inline void decode_ldy(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
-	static const int8_t AM_LUT[] = {
+	static const uint8_t AM_LUT[] = {
 		AM_6502_IMMEDIATE,		// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,		// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
+		AM_6502_UNDEFINED,		// 4
 		AM_6502_ZEROPAGE_X,		// 5
-		-1,						// 6
+		AM_6502_UNDEFINED,		// 6
 		AM_6502_ABSOLUTE_X		// 7
 	};
 
 	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
 		cpu->reg_y = PRIVATE(cpu)->operand;
 		cpu->p_zero_result = cpu->reg_y == 0;
-		cpu->p_negative_result = (cpu->reg_y & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_y, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1302,28 +1303,28 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			case CYCLE_MIDDLE:
 				break;
 			case CYCLE_END:
-				cpu->p_carry = cpu->reg_a & 0b00000001;
+				cpu->p_carry = IS_BIT_SET(cpu->reg_a, 0);
 				cpu->reg_a >>= 1;
 				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+				cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 				PRIVATE(cpu)->decode_cycle = -1;
 				break;
 		}
 		return;
 	}
 
-	static const int8_t AM_LUT[] = {
-		-1,						// 0
+	static const uint8_t AM_LUT[] = {
+		AM_6502_UNDEFINED,		// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,		// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
+		AM_6502_UNDEFINED,		// 4
 		AM_6502_ZEROPAGE_X,		// 5
-		-1,						// 6
+		AM_6502_UNDEFINED,		// 6
 		AM_6502_ABSOLUTE_X		// 7
 	};
 
-	uint8_t memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
+	int memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
 
 	switch (PRIVATE(cpu)->decode_cycle - memop_cycle) {
 		case 0:		// fetch operand
@@ -1337,7 +1338,7 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END:
-					cpu->p_carry = PRIVATE(cpu)->operand & 0b00000001;
+					cpu->p_carry = IS_BIT_SET(PRIVATE(cpu)->operand, 0);
 					PRIVATE(cpu)->operand >>= 1;
 					break;
 			}
@@ -1352,7 +1353,7 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+					cpu->p_negative_result = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1417,7 +1418,7 @@ static inline void decode_pla(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			cpu->reg_a = stack_pop(cpu, phase);
 			if (phase == CYCLE_END) {
 				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+				cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
 			break;
@@ -1450,7 +1451,7 @@ static inline void decode_ora(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (fetch_operand_g1(cpu, phase)) {
 		cpu->reg_a	= cpu->reg_a | PRIVATE(cpu)->operand;
 		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1466,10 +1467,10 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				break;
 			case CYCLE_END: {
 				uint8_t carry = cpu->p_carry;
-				cpu->p_carry = (cpu->reg_a & 0b10000000) >> 7;
-				cpu->reg_a = (cpu->reg_a << 1) | carry;
+				cpu->p_carry = IS_BIT_SET(cpu->reg_a, 7);
+				cpu->reg_a = (uint8_t) ((cpu->reg_a << 1) | carry);
 				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+				cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 				PRIVATE(cpu)->decode_cycle = -1;
 				break;
 			}
@@ -1477,18 +1478,18 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		return;
 	}
 
-	static const int8_t AM_LUT[] = {
-		-1,						// 0
+	static const uint8_t AM_LUT[] = {
+		AM_6502_UNDEFINED,		// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,		// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
+		AM_6502_UNDEFINED,		// 4
 		AM_6502_ZEROPAGE_X,		// 5
-		-1,						// 6
+		AM_6502_UNDEFINED,		// 6
 		AM_6502_ABSOLUTE_X		// 7
 	};
 
-	uint8_t memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
+	int memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
 
 	switch (PRIVATE(cpu)->decode_cycle - memop_cycle) {
 		case 0:		// fetch operand
@@ -1503,8 +1504,8 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					break;
 				case CYCLE_END: {
 					uint8_t carry = cpu->p_carry;
-					cpu->p_carry = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
-					PRIVATE(cpu)->operand = (PRIVATE(cpu)->operand << 1) | carry;
+					cpu->p_carry = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
+					PRIVATE(cpu)->operand = (uint8_t) ((PRIVATE(cpu)->operand << 1) | carry);
 					break;
 				}
 			}
@@ -1519,7 +1520,7 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+					cpu->p_negative_result = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1538,11 +1539,11 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			case CYCLE_MIDDLE:
 				break;
 			case CYCLE_END: {
-				uint8_t carry = cpu->p_carry << 7;
-				cpu->p_carry = cpu->reg_a & 0b00000001;
+				uint8_t carry = (uint8_t) (cpu->p_carry << 7);
+				cpu->p_carry = IS_BIT_SET(cpu->reg_a, 0);
 				cpu->reg_a = (cpu->reg_a >> 1) | carry;
 				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+				cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 				PRIVATE(cpu)->decode_cycle = -1;
 				break;
 			}
@@ -1550,18 +1551,18 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		return;
 	}
 
-	static const int8_t AM_LUT[] = {
-		-1,						// 0
+	static const uint8_t AM_LUT[] = {
+		AM_6502_UNDEFINED,		// 0
 		AM_6502_ZEROPAGE,		// 1
-		-1,						// 2
+		AM_6502_UNDEFINED,		// 2
 		AM_6502_ABSOLUTE,		// 3
-		-1,						// 4
+		AM_6502_UNDEFINED,		// 4
 		AM_6502_ZEROPAGE_X,		// 5
-		-1,						// 6
+		AM_6502_UNDEFINED,		// 6
 		AM_6502_ABSOLUTE_X		// 7
 	};
 
-	uint8_t memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
+	int memop_cycle = fetch_address(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase);
 
 	switch (PRIVATE(cpu)->decode_cycle - memop_cycle) {
 		case 0:		// fetch operand
@@ -1575,8 +1576,8 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END: {
-					uint8_t carry = cpu->p_carry << 7;
-					cpu->p_carry = PRIVATE(cpu)->operand & 0b00000001;
+					uint8_t carry = (uint8_t) (cpu->p_carry << 7);
+					cpu->p_carry = IS_BIT_SET(PRIVATE(cpu)->operand, 0);
 					PRIVATE(cpu)->operand = (PRIVATE(cpu)->operand >> 1) | carry;
 					break;
 				}
@@ -1592,7 +1593,7 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
 					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = (PRIVATE(cpu)->operand & 0b10000000) >> 7;
+					cpu->p_negative_result = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1662,27 +1663,27 @@ static inline void decode_sbc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 
 	// on a 6502 the C/N/V/Z-flags are set using the binary mode computation.
-	uint16_t u_result = cpu->reg_a + (uint8_t) ~PRIVATE(cpu)->operand + cpu->p_carry;
-	int16_t s_result = (int8_t) cpu->reg_a - (int8_t) PRIVATE(cpu)->operand - !cpu->p_carry;
+	int u_result = cpu->reg_a + (uint8_t) ~PRIVATE(cpu)->operand + cpu->p_carry;
+	int s_result = (int8_t) cpu->reg_a - (int8_t) PRIVATE(cpu)->operand - !cpu->p_carry;
 
 	if (!cpu->p_decimal_mode) {
-		cpu->reg_a = u_result & 0x00ff;
+		cpu->reg_a = (uint8_t) (u_result & 0x00ff);
 	} else {
-		int16_t al = (cpu->reg_a & 0x0f) - (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry - 1;
+		int al = (cpu->reg_a & 0x0f) - (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry - 1;
 		if (al < 0) {
 			al = ((al - 0x06) & 0x0f) - 0x10;
 		}
-		int16_t a_seq3 = (cpu->reg_a & 0xf0) - (PRIVATE(cpu)->operand & 0xf0) + al;
+		int a_seq3 = (cpu->reg_a & 0xf0) - (PRIVATE(cpu)->operand & 0xf0) + al;
 		if (a_seq3 < 0) {
 			a_seq3 -= 0x60;
 		}
-		cpu->reg_a = a_seq3 & 0x00ff;
+		cpu->reg_a = (uint8_t) (a_seq3 & 0x00ff);
 	}
 
 	cpu->p_carry = IS_BIT_SET(u_result, 8);
 	cpu->p_overflow = (s_result < -128) || (s_result > 127);
 	cpu->p_zero_result = (u_result & 0x00ff) == 0;
-	cpu->p_negative_result = (u_result & 0b10000000) >> 7;
+	cpu->p_negative_result = IS_BIT_SET(u_result, 7);
 
 	PRIVATE(cpu)->decode_cycle = -1;
 }
@@ -1784,7 +1785,7 @@ static inline void decode_tax(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_END) {
 		cpu->reg_x = cpu->reg_a;
 		cpu->p_zero_result = cpu->reg_x == 0;
-		cpu->p_negative_result = (cpu->reg_x & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_x, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1796,7 +1797,7 @@ static inline void decode_tay(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_END) {
 		cpu->reg_y = cpu->reg_a;
 		cpu->p_zero_result = cpu->reg_y == 0;
-		cpu->p_negative_result = (cpu->reg_y & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_y, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1808,7 +1809,7 @@ static inline void decode_tsx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_END) {
 		cpu->reg_x = cpu->reg_sp;
 		cpu->p_zero_result = cpu->reg_x == 0;
-		cpu->p_negative_result = (cpu->reg_x & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_x, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1820,7 +1821,7 @@ static inline void decode_txa(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_END) {
 		cpu->reg_a = cpu->reg_x;
 		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1842,7 +1843,7 @@ static inline void decode_tya(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_END) {
 		cpu->reg_a = cpu->reg_y;
 		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = (cpu->reg_a & 0b10000000) >> 7;
+		cpu->p_negative_result = IS_BIT_SET(cpu->reg_a, 7);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }

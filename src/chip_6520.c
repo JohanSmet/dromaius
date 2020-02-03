@@ -1,4 +1,4 @@
-// chip_6520.c - Johan Smet - BSD-3-Clause (see LICENSE)
+// chip_6521.c - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // Emulation of the 6520 Peripheral Interface Adapter
 
@@ -65,7 +65,7 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			}
 			break;
 		case 1:
-			pia->reg_cra.reg = (pia->reg_cra.reg & 0b11000000) | (data & 0b00111111);
+			pia->reg_cra.reg = (uint8_t)((pia->reg_cra.reg & 0b11000011) | (data & 0b00111111));
 			if (pia->reg_cra.bf_cl2_mode_select == 1 && pia->reg_cra.bf_cl2_output == 0) {
 				PRIVATE(pia)->internal_ca2 = true;
 			}
@@ -79,7 +79,7 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			}
 			break;
 		case 3:
-			pia->reg_crb.reg = (pia->reg_crb.reg & 0b11000000) | (data & 0b00111111);
+			pia->reg_crb.reg = (uint8_t)((pia->reg_crb.reg & 0b11000000) | (data & 0b00111111));
 			if (pia->reg_crb.bf_cl2_mode_select == 1 && pia->reg_crb.bf_cl2_output == 0) {
 				PRIVATE(pia)->internal_cb2 = true;
 			}
@@ -130,8 +130,8 @@ static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, 
 	}
 
 	// an active transition of the cl1/cl2-lines sets the irq-flags in reg_ctrl
-	reg_ctrl->bf_irq1 = reg_ctrl->bf_irq1 | state->act_trans_cl1;
-	reg_ctrl->bf_irq2 = reg_ctrl->bf_irq2 | state->act_trans_cl2;
+	reg_ctrl->bf_irq1 = (bool) (reg_ctrl->bf_irq1 | state->act_trans_cl1);
+	reg_ctrl->bf_irq2 = (bool) (reg_ctrl->bf_irq2 | state->act_trans_cl2);
 
 	// store state of interrupt input/peripheral control lines
 	state->prev_cl1 = cl1;
@@ -155,15 +155,15 @@ void process_negative_enable_edge(Chip6520 *pia) {
 		}
 	}
 
-	// irq-A routine 
+	// irq-A routine
 	control_register_irq_routine(
-			&pia->reg_cra, 
+			&pia->reg_cra,
 			SIGNAL_BOOL(ca1), SIGNAL_BOOL(ca2),
 			&PRIVATE(pia)->state_a);
 
 	// irq-B routine
 	control_register_irq_routine(
-			&pia->reg_crb, 
+			&pia->reg_crb,
 			SIGNAL_BOOL(cb1), SIGNAL_BOOL(cb2),
 			&PRIVATE(pia)->state_b);
 
@@ -294,7 +294,7 @@ void chip_6520_process(Chip6520 *pia) {
 	}
 
 	// do nothing:
-	//	- if reset is asserted or 
+	//	- if reset is asserted or
 	//  - if not on the edge of a clock cycle
 	bool enable = SIGNAL_BOOL(enable);
 

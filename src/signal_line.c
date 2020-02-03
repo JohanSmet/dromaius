@@ -7,19 +7,19 @@
 #include <assert.h>
 #include <stdlib.h>
 
-static inline uint8_t read_uint8(bool *src, int len) {
+static inline uint8_t read_uint8(bool *src, size_t len) {
 	uint8_t result = 0;
-	for (int i = 0; i < len; ++i) {
-		result |= src[i] << i;
+	for (size_t i = 0; i < len; ++i) {
+		result |= (uint8_t) (src[i] << i);
 	}
 
 	return result;
 }
 
-static inline uint16_t read_uint16(bool *src, int len) {
+static inline uint16_t read_uint16(bool *src, size_t len) {
 	uint16_t result = 0;
-	for (int i = 0; i < len; ++i) {
-		result |= src[i] << i;
+	for (size_t i = 0; i < len; ++i) {
+		result |= (uint16_t) (src[i] << i);
 	}
 
 	return result;
@@ -41,18 +41,18 @@ void signal_pool_destroy(SignalPool *pool) {
 
 void signal_pool_cycle(SignalPool *pool) {
 	assert(pool);
-	assert(arrlen(pool->signals_curr) == arrlen(pool->signals_next));
-	assert(arrlen(pool->signals_default) == arrlen(pool->signals_next));
+	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
+	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
 
-	memcpy(pool->signals_curr, pool->signals_next, arrlen(pool->signals_next));
-	memcpy(pool->signals_next, pool->signals_default, arrlen(pool->signals_default));
+	memcpy(pool->signals_curr, pool->signals_next, arrlenu(pool->signals_next));
+	memcpy(pool->signals_next, pool->signals_default, arrlenu(pool->signals_default));
 }
 
 Signal signal_create(SignalPool *pool, uint32_t size) {
 	assert(pool);
 	assert(size > 0);
 
-	Signal result = {(uint32_t) arrlen(pool->signals_curr), size};
+	Signal result = {(uint32_t) arrlenu(pool->signals_curr), size};
 	
 	for (uint32_t i = 0; i < size; ++i) {
 		arrpush(pool->signals_curr, false);

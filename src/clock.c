@@ -40,7 +40,7 @@ typedef struct Clock_private {
 	Clock		intf;
 	int64_t		time_last_change;
 	int64_t		time_marked;
-	uint64_t	last_cycle_count;
+	int64_t		last_cycle_count;
 } Clock_private;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ static inline int64_t timestamp_current(void) {
 // interface functions
 //
 
-Clock *clock_create(uint32_t frequency, SignalPool *signal_pool, ClockSignals signals) {
+Clock *clock_create(int32_t frequency, SignalPool *signal_pool, ClockSignals signals) {
 	timer_init();
 
 	Clock_private *priv = (Clock_private *) calloc(1, sizeof(Clock_private));
@@ -121,7 +121,7 @@ void clock_destroy(Clock *clock) {
 	free(PRIVATE(clock));
 }
 
-void clock_set_frequency(Clock *clock, uint32_t frequency) {
+void clock_set_frequency(Clock *clock, int32_t frequency) {
 	assert(clock);
 	assert(frequency > 0);
 

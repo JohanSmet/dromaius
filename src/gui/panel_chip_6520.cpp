@@ -23,6 +23,7 @@ public:
 	}
 
 	void display() override {
+
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 		

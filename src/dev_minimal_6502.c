@@ -67,7 +67,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	});
 
 	if (rom_data) {
-		memcpy(device->rom->data_array, rom_data, arrlen(rom_data));
+		memcpy(device->rom->data_array, rom_data, arrlenu(rom_data));
 	}
 
 	// pia
@@ -111,9 +111,6 @@ void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	ram_8d16a_destroy(device->ram);
 	rom_8d16a_destroy(device->rom);
 	free(device);
-}
-
-static inline void process_pia(DevMinimal6502 *device) {
 }
 
 void dev_minimal_6502_process(DevMinimal6502 *device) {

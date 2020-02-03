@@ -11,8 +11,8 @@
 extern "C" {
 #endif
 
-int filt_6502_asm_line(const uint8_t *binary, size_t bin_size, size_t bin_index, size_t bin_offset, char **line);
-int filt_6502_asm_count_instruction(const uint8_t *binary, size_t bin_size, size_t from, size_t until);
+size_t filt_6502_asm_line(const uint8_t *binary, size_t bin_size, size_t bin_index, size_t bin_offset, char **line);
+size_t filt_6502_asm_count_instruction(const uint8_t *binary, size_t bin_size, size_t from, size_t until);
 
 #ifdef __cplusplus
 }
