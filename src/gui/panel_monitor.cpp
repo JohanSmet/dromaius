@@ -39,7 +39,7 @@ public:
 			}
 
 			// input
-			ImGui::SetNextItemWidth(region.x * 0.8);
+			ImGui::SetNextItemWidth(region.x * 0.8f);
 
 			if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) {
 				ImGui::SetKeyboardFocusHere(0);

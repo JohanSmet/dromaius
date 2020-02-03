@@ -92,7 +92,7 @@ int main(int, char**)
 #endif
 
     // Create window with graphics context
-    g_window = glfwCreateWindow(width, height, ui_config_window_title(), NULL, NULL);
+    g_window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), ui_config_window_title(), NULL, NULL);
     if (g_window == NULL)
         return 1;
     glfwMakeContextCurrent(g_window);
@@ -174,7 +174,7 @@ int main(int, char**)
     return 0;
 }
 
-void main_loop(void *arg) {
+void main_loop([[maybe_unused]] void *arg) {
 
     ImGuiIO& io = ImGui::GetIO();
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);

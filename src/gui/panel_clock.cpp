@@ -26,40 +26,38 @@ public:
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
 		if (ImGui::Begin(title)) {
-			auto origin = ImGui::GetCursorPos();
+			// configured frequency
+			int unit_idx = 0;
+			int value = clock->conf_frequency;
+
+			if (value >= 1000000) {
+				value /= 1000000;
+				unit_idx = 2;
+			} else if (value >= 1000) {
+				value /= 1000;
+				unit_idx = 1;
+			}
+
+
+			ImGui::SetNextItemWidth(160);
+			ImGui::DragInt("##target", &value, 1, 1, 999);
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(48);
+			ImGui::Combo("Target frequency", &unit_idx, units, sizeof(units) / sizeof(units[0]));
+
+			if (clock->conf_frequency != value * factor[unit_idx]) {
+				clock_set_frequency(clock, value * factor[unit_idx]);
+			}
+
+			// real frequency
+			ui_frequency("Real frequency: ", clock->real_frequency);
+
+			// state
+			ui_key_value(0, "Output: ", SIGNAL_NEXT_BOOL(clock) ? "High" : "Low", 64);
+
+			// cycle count
+			ui_key_value(0, "Cycle: ", ImGuiEx::string_format("%ld", clock->cycle_count).c_str(), 64);
 		}
-
-		// configured frequency
-		int unit_idx = 0;
-		int value = clock->conf_frequency;
-
-		if (value >= 1000000) {
-			value /= 1000000;
-			unit_idx = 2;
-		} else if (value >= 1000) {
-			value /= 1000;
-			unit_idx = 1;
-		}
-
-
-		ImGui::SetNextItemWidth(160);
-		ImGui::DragInt("##target", &value, 1, 1, 999);
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(48);
-		ImGui::Combo("Target frequency", &unit_idx, units, sizeof(units) / sizeof(units[0]));
-
-		if (clock->conf_frequency != value * factor[unit_idx]) {
-			clock_set_frequency(clock, value * factor[unit_idx]);
-		}
-
-		// real frequency
-		ui_frequency("Real frequency: ", clock->real_frequency);
-
-		// state
-		ui_key_value(0, "Output: ", SIGNAL_NEXT_BOOL(clock) ? "High" : "Low", 64);
-
-		// cycle count
-		ui_key_value(0, "Cycle: ", ImGuiEx::string_format("%ld", clock->cycle_count).c_str(), 64);
 
 		ImGui::End();
 
@@ -68,9 +66,9 @@ public:
 	void ui_frequency(const char *label, int64_t freq) {
 
 		if (freq > 1000000) {
-			ui_key_value(0, label, ImGuiEx::string_format("%3.f MHz", freq / 1000000.0f).c_str(), 64);
+			ui_key_value(0, label, ImGuiEx::string_format("%3.f MHz", static_cast<float>(freq) / 1000000.0f).c_str(), 64);
 		} else if (freq > 1000) {
-			ui_key_value(0, label, ImGuiEx::string_format("%3.f KHz", freq / 1000.0f).c_str(), 64);
+			ui_key_value(0, label, ImGuiEx::string_format("%3.f KHz", static_cast<float>(freq) / 1000.0f).c_str(), 64);
 		} else {
 			ui_key_value(0, label, ImGuiEx::string_format("%ld Hz", freq).c_str(), 64);
 		}

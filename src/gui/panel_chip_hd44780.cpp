@@ -33,8 +33,8 @@ public:
 		auto cell_size = ImVec2(4,4);
 		auto spacing = ImVec2(1, 1);
 		auto lcd_size = ImVec2(
-				lcd->display_width * lcd->char_width * (cell_size.x + spacing.x) + ((lcd->display_width + 2) * spacing.x * 2),
-				lcd->display_height * lcd->char_height * (cell_size.y + spacing.y) + ((lcd->display_height + 2) * spacing.y * 2));
+				static_cast<float>(lcd->display_width) * lcd->char_width * (cell_size.x + spacing.x) + ((lcd->display_width + 2.0f) * spacing.x * 2.0f),
+				static_cast<float>(lcd->display_height) * lcd->char_height * (cell_size.y + spacing.y) + ((lcd->display_height + 2.0f) * spacing.y * 2.0f));
 
 		ImGui::SetNextWindowSizeConstraints(lcd_size + ImVec2(16, 56), ImVec2(1024, 1024));
 

@@ -25,11 +25,11 @@ enum TextAlignVer {
 
 template< typename... Args >
 std::string string_format(const char* format, Args... args ) {
-  int length = std::snprintf(nullptr, 0, format, args...);
+  auto length = std::snprintf(nullptr, 0, format, args...);
   assert(length >= 0);
 
-  std::string result(length, ' ');
-  std::snprintf(result.data(), length + 1, format, args...);
+  std::string result(static_cast<size_t>(length), ' ');
+  std::snprintf(result.data(), static_cast<size_t>(length + 1), format, args...);
 
   return result;
 }

@@ -40,7 +40,7 @@ public:
 		dir_list_files(data_path, ".bin", "rom_", &rom_files);
 		dir_list_files(data_path, ".bin", "ram_", &ram_files);
 
-		if (arrlen(rom_files) > 0) {
+		if (arrlenu(rom_files) > 0) {
 			current_rom = 0;
 			load_current_rom();
 		}
@@ -76,11 +76,11 @@ public:
 				dms_reset(ui_context->dms_ctx);
 			}
 
-			if (ImGui::Combo("ROM-Image", &current_rom, rom_files, arrlen(rom_files))) {
+			if (ImGui::Combo("ROM-Image", &current_rom, rom_files, static_cast<int>(arrlenu(rom_files)))) {
 				load_current_rom();
 			}
 
-			if (ImGui::Combo("RAM-Image", &current_ram, rom_files, arrlen(ram_files))) {
+			if (ImGui::Combo("RAM-Image", &current_ram, rom_files, static_cast<int>(arrlenu(ram_files)))) {
 				load_current_ram();
 			}
 
@@ -121,6 +121,5 @@ private:
 };
 
 Panel::uptr_t panel_control_create(UIContext *ctx, ImVec2 pos, const char *data_path) {
-	auto panel = std::make_unique<PanelControl>(ctx, pos, data_path);
-	return std::move(panel);
+	return std::make_unique<PanelControl>(ctx, pos, data_path);
 }

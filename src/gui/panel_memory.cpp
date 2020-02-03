@@ -55,9 +55,9 @@ public:
 
 		ImGui::BeginChild("raw", ImGui::GetContentRegionAvail(), false, 0);
 
-		for (int index = 0; index < mem_size; ) {
+		for (auto index = 0u; index < mem_size; ) {
 
-			ImGui::Text("%.4x:", mem_offset + index);
+			ImGui::Text("%.4lx:", mem_offset + index);
 
 			for (int block = 0; block < 4; ++block) {
 
@@ -87,7 +87,7 @@ public:
 
 		char *line = NULL;
 
-		for (int index = 0; index < mem_size; ) {
+		for (auto index = 0ul; index < mem_size; ) {
 			bool is_current = (index + mem_offset) == ui_context->last_pc;
 
 			if (is_current && follow_pc) {

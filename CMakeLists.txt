@@ -90,7 +90,7 @@ target_sources(${IMGUI_TARGET}
 		libs/imgui/examples/imgui_impl_opengl3.cpp
 		libs/imgui/examples/imgui_impl_opengl3.h
 )
-target_include_directories(${IMGUI_TARGET} PUBLIC libs libs/imgui libs/glad)
+target_include_directories(${IMGUI_TARGET} SYSTEM PUBLIC libs libs/imgui libs/glad)
 target_include_directories(${IMGUI_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_link_libraries(${IMGUI_TARGET} PUBLIC glfw)
 target_link_libraries(${IMGUI_TARGET} PRIVATE ${OPENGL_LIBRARIES})
@@ -166,6 +166,7 @@ target_sources(${GUI_TARGET}
 target_include_directories(${GUI_TARGET} PRIVATE libs src)
 target_link_libraries(${GUI_TARGET} PRIVATE ${IMGUI_TARGET})
 target_link_libraries(${GUI_TARGET} PRIVATE ${LIB_TARGET})
+target_compile_warning(${GUI_TARGET})
 
 if (WIN32)
 	target_link_options(${GUI_TARGET} PRIVATE "/ENTRY:mainCRTStartup")
