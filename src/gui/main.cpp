@@ -36,6 +36,12 @@ using namespace gl;
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#include <emscripten/html5.h>
+EM_BOOL emscripten_handle_resize(int eventType, const EmscriptenUiEvent *uiEvent, void *userData);
+#endif // __EMSCRIPTEN__
+
 static void glfw_error_callback(int error, const char* description)
 {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -46,8 +52,16 @@ const char *ui_config_window_title();
 void ui_on_start();
 void ui_frame();
 
+// Emscripten requires full control of the main loop. Store GLFW book-keeping variables globally.
+GLFWwindow *g_window = nullptr;
+
+void main_loop(void *arg);
+
 int main(int, char**)
 {
+	double width = 1200;
+	double height = 800;
+
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -61,6 +75,13 @@ int main(int, char**)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+#elif __EMSCRIPTEN__
+    const char* glsl_version = "#version 100";
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+	glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	emscripten_get_element_css_size("canvas", &width, &height);
 #else
     // GL 3.0 + GLSL 130
     const char* glsl_version = "#version 130";
@@ -71,10 +92,10 @@ int main(int, char**)
 #endif
 
     // Create window with graphics context
-    GLFWwindow* window = glfwCreateWindow(1280, 720, ui_config_window_title(), NULL, NULL);
-    if (window == NULL)
+    g_window = glfwCreateWindow(width, height, ui_config_window_title(), NULL, NULL);
+    if (g_window == NULL)
         return 1;
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(g_window);
     glfwSwapInterval(1); // Enable vsync
 
     // Initialize OpenGL loader
@@ -83,7 +104,11 @@ int main(int, char**)
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLEW)
     bool err = glewInit() != GLEW_OK;
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLAD)
-    bool err = gladLoadGL() == 0;
+	#ifdef __EMSCRIPTEN__
+		bool err = gladLoadGLES2Loader((GLADloadproc) glfwGetProcAddress) == 0;
+	#else
+		bool err = gladLoadGL() == 0;
+	#endif
 #elif defined(IMGUI_IMPL_OPENGL_LOADER_GLBINDING)
     bool err = false;
     glbinding::initialize([](const char* name) { return (glbinding::ProcAddress)glfwGetProcAddress(name); });
@@ -108,7 +133,7 @@ int main(int, char**)
     ImGui::StyleColorsClassic();
 
     // Setup Platform/Renderer bindings
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(g_window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Load Fonts
@@ -128,46 +153,66 @@ int main(int, char**)
 
 	ui_on_start();
 
-    // Our state
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
     // Main loop
-    while (!glfwWindowShouldClose(window))
-    {
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-        glfwPollEvents();
-
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
-
-		// application ui
-		ui_frame();
-
-        // Rendering
-        ImGui::Render();
-        int display_w, display_h;
-        glfwGetFramebufferSize(window, &display_w, &display_h);
-        glViewport(0, 0, display_w, display_h);
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-        glClear(GL_COLOR_BUFFER_BIT);
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-        glfwSwapBuffers(window);
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop_arg(main_loop, nullptr, 0, 1);
+	emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, emscripten_handle_resize);
+#else
+    while (!glfwWindowShouldClose(g_window)) {
+		main_loop(nullptr);
     }
+#endif
 
     // Cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(g_window);
     glfwTerminate();
 
     return 0;
 }
+
+void main_loop(void *arg) {
+
+    ImGuiIO& io = ImGui::GetIO();
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+	// Poll and handle events (inputs, window resize, etc.)
+	// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+	// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+	// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+	// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+	glfwPollEvents();
+
+	// Start the Dear ImGui frame
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+
+	// application ui
+	ui_frame();
+
+	// Rendering
+	ImGui::Render();
+	glViewport(0, 0, (int) io.DisplaySize.x, (int) io.DisplaySize.y);
+	glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+	glClear(GL_COLOR_BUFFER_BIT);
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	glfwSwapBuffers(g_window);
+}
+
+#ifdef __EMSCRIPTEN__
+
+EM_BOOL emscripten_handle_resize(int eventType, const EmscriptenUiEvent *uiEvent, void *userData) {
+	double w, h;
+
+	emscripten_get_element_css_size("canvas", &w, &h);
+	glfwSetWindowSize(g_window, (int) w, (int) h);
+
+	return 0;
+}
+
+#endif // __EMSCRIPTEN__
