@@ -165,8 +165,8 @@ int main(int, char**)
 
     // main loop
 #ifdef __EMSCRIPTEN__
-	emscripten_set_main_loop_arg(main_loop, nullptr, 0, 1);
 	emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, emscripten_handle_resize);
+	emscripten_set_main_loop_arg(main_loop, nullptr, 0, 1);
 #else
     while (!glfwWindowShouldClose(g_window)) {
 		main_loop(nullptr);
