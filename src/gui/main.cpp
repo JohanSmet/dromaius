@@ -1,6 +1,5 @@
+// main application entry point (native + wasm), based upon
 // dear imgui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
-// If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
-// (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan graphics context creation, etc.)
 
 #include "imgui.h"
 #include "examples/imgui_impl_glfw.h"
@@ -29,31 +28,38 @@ using namespace gl;
 // Include glfw3.h after our OpenGL definitions
 #include <GLFW/glfw3.h>
 
-// [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
-// To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
-// Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
-#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
-#pragma comment(lib, "legacy_stdio_definitions")
-#endif
-
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #include <emscripten/html5.h>
+
 EM_BOOL emscripten_handle_resize(int eventType, const EmscriptenUiEvent *uiEvent, void *userData);
 #endif // __EMSCRIPTEN__
 
-static void glfw_error_callback(int error, const char* description)
-{
+namespace {
+
+// Emscripten requires full control of the main loop. Store GLFW book-keeping variables globally.
+GLFWwindow *g_window = nullptr;
+
+static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-// external functions
+} // unnamed namespace
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// external functions - prototypes
+//
+
 const char *ui_config_window_title();
 void ui_on_start();
 void ui_frame();
 
-// Emscripten requires full control of the main loop. Store GLFW book-keeping variables globally.
-GLFWwindow *g_window = nullptr;
+///////////////////////////////////////////////////////////////////////////////
+//
+// interface
+//
 
 void main_loop(void *arg);
 
@@ -137,10 +143,13 @@ int main(int, char**)
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
+    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() 
+	//   to select them.
     // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
+    // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application 
+	//   (e.g. use an assertion, or display an error and quit).
+    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling 
+	//   ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
     // - Read 'docs/FONTS.txt' for more instructions and details.
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     //io.Fonts->AddFontDefault();
@@ -151,9 +160,10 @@ int main(int, char**)
     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
     //IM_ASSERT(font != NULL);
 
+	// initialize application
 	ui_on_start();
 
-    // Main loop
+    // main loop
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop_arg(main_loop, nullptr, 0, 1);
 	emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, nullptr, 0, emscripten_handle_resize);
@@ -163,7 +173,7 @@ int main(int, char**)
     }
 #endif
 
-    // Cleanup
+    // cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
@@ -191,7 +201,7 @@ void main_loop([[maybe_unused]] void *arg) {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	// application ui
+	// application specific stuff
 	ui_frame();
 
 	// Rendering
