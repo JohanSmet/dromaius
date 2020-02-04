@@ -206,7 +206,7 @@ void main_loop([[maybe_unused]] void *arg) {
 
 #ifdef __EMSCRIPTEN__
 
-EM_BOOL emscripten_handle_resize(int eventType, const EmscriptenUiEvent *uiEvent, void *userData) {
+EM_BOOL emscripten_handle_resize([[maybe_unused]] int eventType, [[maybe_unused]] const EmscriptenUiEvent *uiEvent, [[maybe_unused]] void *userData) {
 	double w, h;
 
 	emscripten_get_element_css_size("canvas", &w, &h);
