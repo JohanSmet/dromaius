@@ -6,6 +6,7 @@
 
 #include "widgets.h"
 #include "cpu_6502.h"
+#include "ui_context.h"
 
 #define SIGNAL_POOL			cpu->signal_pool
 #define SIGNAL_COLLECTION	cpu->signals
@@ -16,13 +17,14 @@ public:
 		Panel(ctx),
 		position(pos),
 		cpu(cpu) {
+		title = ui_context->unique_panel_id("CPU -  MOS 6502");
 	}
 
 	void display() override {
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 		
-		if (ImGui::Begin(title)) {
+		if (ImGui::Begin(title.c_str(), &stay_open)) {
 			auto origin = ImGui::GetCursorPos();
 
 			// left column
@@ -75,10 +77,9 @@ public:
 private:
 	ImVec2				position;
 	const ImVec2		size = {410, 0};
+	std::string			title;
 
 	Cpu6502	*			cpu;
-
-	constexpr static const char *title = "CPU - MOS 6502";
 };
 
 Panel::uptr_t panel_cpu_6502_create(UIContext *ctx, struct ImVec2 pos, struct Cpu6502 *cpu) {

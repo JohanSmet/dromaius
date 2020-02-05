@@ -26,6 +26,13 @@ public:
 		}
 	}
 
+	std::string unique_panel_id(const char *title) {
+		std::string result = title;
+		result += "##";
+		result += std::to_string(panel_id++);
+		return result;
+	}
+
 // member variables
 public:
 	struct DmsContext *dms_ctx;
@@ -35,6 +42,7 @@ public:
 
 private:
 	std::vector<Panel::uptr_t>	panels;
+	int							panel_id = 0;
 };
 
 #endif // DROMAIUS_GUI_CONTEXT_H

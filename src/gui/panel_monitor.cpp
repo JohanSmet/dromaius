@@ -15,6 +15,7 @@ public:
 		Panel(ctx),
 		position(pos) {
 		input[0] = '\0';
+		title = ui_context->unique_panel_id("Monitor");
 	}
 
 	void display() override {
@@ -22,7 +23,7 @@ public:
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
-		if (ImGui::Begin(title)) {
+		if (ImGui::Begin(title.c_str(), &stay_open)) {
 
 			// previous input + output
 			auto region = ImGui::GetContentRegionAvail();
@@ -68,11 +69,10 @@ public:
 private:
 	ImVec2			position;
 	const ImVec2	size = {390, 400};
+	std::string		title;
 
 	std::vector<std::string>	output;
 	char						input[256];
-
-	constexpr static const char *title = "Monitor";
 };
 
 Panel::uptr_t panel_monitor_create(UIContext *ctx, struct ImVec2 pos) {

@@ -7,6 +7,7 @@
 #include "context.h"
 #include "utils.h"
 #include "widgets.h"
+#include "ui_context.h"
 
 #include <stb/stb_ds.h>
 #include <assert.h>
@@ -20,6 +21,7 @@ public:
 		Panel(ctx),
 		position(pos),
 		pia(pia) {
+		title = ui_context->unique_panel_id("PIA - MOS 6520");
 	}
 
 	void display() override {
@@ -27,7 +29,7 @@ public:
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 		
-		if (ImGui::Begin(title)) {
+		if (ImGui::Begin(title.c_str(), &stay_open)) {
 			auto origin = ImGui::GetCursorPos();
 
 			// left column
@@ -69,11 +71,10 @@ public:
 private:
 	ImVec2				position;
 	const ImVec2		size = {460, 0};
+	std::string			title;
 
 	Chip6520 *			pia;
 	
-	constexpr static const char *title = "PIA - 6520";
-
 };
 
 
