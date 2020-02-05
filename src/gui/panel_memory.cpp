@@ -35,7 +35,7 @@ public:
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
-		if (ImGui::Begin(title)) {
+		if (ImGui::Begin(title.c_str(), &stay_open)) {
 
 			ImGui::Combo("Display type", &display_type, display_types, sizeof(display_types) / sizeof(const char *));
 
@@ -114,7 +114,7 @@ private:
 private:
 	ImVec2					position;
 	const ImVec2			size = {440, 220};
-	const char *			title;
+	std::string				title;
 
 	const uint8_t *			mem;
 	size_t					mem_size;

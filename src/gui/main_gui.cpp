@@ -82,8 +82,11 @@ void ui_frame() {
 	}
 
 	ui_context.panel_foreach([](auto panel) {
-		if (panel) {
-			panel->display();
+		if (!panel) return;
+		panel->display();
+
+		if (panel->want_close()) {
+			ui_context.panel_close(panel);
 		}
 	});
 }

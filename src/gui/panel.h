@@ -19,8 +19,13 @@ public:
 	virtual ~Panel() = default;
 	virtual void display() = 0;
 
+	constexpr bool want_close() const noexcept {
+		return !stay_open;
+	}
+
 protected:
 	class UIContext *ui_context = nullptr;
+	bool stay_open = true;
 };
 
 #endif // DROMAIUS_GUI_PANEL_BASE_H
