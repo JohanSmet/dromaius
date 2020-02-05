@@ -18,7 +18,7 @@
 
 class PanelMemory : public Panel {
 public:
-	PanelMemory(struct UIContext *ctx, ImVec2 pos, const char *title,
+	PanelMemory(UIContext *ctx, ImVec2 pos, const char *title,
 				const uint8_t *data, size_t data_size, size_t data_offset) :
 		Panel(ctx),
 		position(pos),
@@ -126,7 +126,7 @@ private:
 
 };
 
-Panel::uptr_t panel_memory_create(struct UIContext *ctx, struct ImVec2 pos, const char *title,
+Panel::uptr_t panel_memory_create(UIContext *ctx, struct ImVec2 pos, const char *title,
 								  const uint8_t *data, size_t data_size, size_t data_offset) {
 
 	return std::make_unique<PanelMemory>(ctx, pos, title, data, data_size, data_offset);

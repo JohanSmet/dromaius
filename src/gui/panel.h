@@ -12,7 +12,7 @@ public:
 	using uptr_t = std::unique_ptr<Panel>;
 
 public:
-	Panel(struct UIContext *ui_context) : ui_context(ui_context) {
+	Panel(class UIContext *ui_context) : ui_context(ui_context) {
 	}
 
 public:
@@ -20,7 +20,7 @@ public:
 	virtual void display() = 0;
 
 protected:
-	struct UIContext *ui_context = nullptr;
+	class UIContext *ui_context = nullptr;
 };
 
 #endif // DROMAIUS_GUI_PANEL_BASE_H

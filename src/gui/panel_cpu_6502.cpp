@@ -81,7 +81,7 @@ private:
 	constexpr static const char *title = "CPU - MOS 6502";
 };
 
-Panel::uptr_t panel_cpu_6502_create(struct UIContext *ctx, struct ImVec2 pos, struct Cpu6502 *cpu) {
+Panel::uptr_t panel_cpu_6502_create(UIContext *ctx, struct ImVec2 pos, struct Cpu6502 *cpu) {
 	return std::make_unique<PanelCpu6502>(ctx, pos, cpu);
 }
 

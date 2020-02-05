@@ -35,30 +35,30 @@ void ui_on_start() {
 	dms_set_device(ui_context.dms_ctx, ui_context.device);
 
 	// create UI panels
-	ui_context.panels.push_back(
+	ui_context.panel_add(
 			panel_control_create(&ui_context, {2, 10}, "runtime/minimal_6502"));
 
-	ui_context.panels.push_back(
+	ui_context.panel_add(
 			panel_memory_create(&ui_context, {2, 120}, "RAM",
 								ui_context.device->ram->data_array, 0x8000, 0x0000));
 
-	ui_context.panels.push_back(
+	ui_context.panel_add(
 			panel_memory_create(&ui_context, {442, 120}, "ROM",
 								ui_context.device->rom->data_array, 0x4000, 0xC000));
 
-	ui_context.panels.push_back(
+	ui_context.panel_add(
 			panel_cpu_6502_create(&ui_context, {2, 342}, ui_context.device->cpu));
 
-	ui_context.panels.push_back(
+	ui_context.panel_add(
 			panel_chip_6520_create(&ui_context, {420, 342}, ui_context.device->pia));
 
-	ui_context.panels.push_back(
+	ui_context.panel_add(
 			panel_clock_create(&ui_context, {370, 10}, ui_context.device->clock));
 
-	ui_context.panels.push_back(
+	ui_context.panel_add(
 			panel_monitor_create(&ui_context, {890, 180}));
 
-	ui_context.panels.push_back(
+	ui_context.panel_add(
 			panel_chip_hd44780_create(&ui_context, {740, 10}, ui_context.device->lcd));
 
 	// reset device
@@ -81,8 +81,10 @@ void ui_frame() {
 		ui_context.last_pc = ui_context.device->cpu->reg_pc;
 	}
 
-	for (auto &panel : ui_context.panels) {
-		panel->display();
-	}
+	ui_context.panel_foreach([](auto panel) {
+		if (panel) {
+			panel->display();
+		}
+	});
 }
 

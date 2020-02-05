@@ -7,6 +7,6 @@
 
 #include "panel.h"
 
-Panel::uptr_t panel_monitor_create(struct UIContext *ctx, struct ImVec2 pos);
+Panel::uptr_t panel_monitor_create(class UIContext *ctx, struct ImVec2 pos);
 
 #endif // DROMAIUS_GUI_PANEL_MONITOR_H

@@ -91,7 +91,7 @@ private:
 	constexpr static const char *title = "LCD - HD44780";
 };
 
-Panel::uptr_t panel_chip_hd44780_create(struct UIContext *ctx, struct ImVec2 pos, struct ChipHd44780 *lcd) {
+Panel::uptr_t panel_chip_hd44780_create(UIContext *ctx, struct ImVec2 pos, struct ChipHd44780 *lcd) {
 	return std::make_unique<PanelChipHd44780>(ctx, pos, lcd);
 }
 

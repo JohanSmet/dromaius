@@ -16,7 +16,7 @@
 
 class PanelChip6520 : public Panel {
 public:
-	PanelChip6520(struct UIContext *ctx, ImVec2 pos, Chip6520 *pia) :
+	PanelChip6520(UIContext *ctx, ImVec2 pos, Chip6520 *pia) :
 		Panel(ctx),
 		position(pos),
 		pia(pia) {
@@ -77,7 +77,7 @@ private:
 };
 
 
-Panel::uptr_t panel_chip_6520_create(struct UIContext *ctx, struct ImVec2 pos, struct Chip6520 *pia) {
+Panel::uptr_t panel_chip_6520_create(UIContext *ctx, struct ImVec2 pos, struct Chip6520 *pia) {
 	return std::make_unique<PanelChip6520>(ctx, pos, pia);
 }
 

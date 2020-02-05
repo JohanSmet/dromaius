@@ -8,6 +8,6 @@
 #include "panel.h"
 
 // functions
-Panel::uptr_t panel_chip_6520_create(struct UIContext *ctx, struct ImVec2 pos, struct Chip6520 *pia);
+Panel::uptr_t panel_chip_6520_create(class UIContext *ctx, struct ImVec2 pos, struct Chip6520 *pia);
 
 #endif // DROMAIUS_GUI_PANEL_CHIP_6520_H

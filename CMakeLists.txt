@@ -160,6 +160,7 @@ target_sources(${GUI_TARGET}
 		src/gui/panel_memory.h
 		src/gui/panel_monitor.cpp
 		src/gui/panel_monitor.h
+		src/gui/std_helper.h
 		src/gui/ui_context.h
 		src/gui/widgets.h
 )

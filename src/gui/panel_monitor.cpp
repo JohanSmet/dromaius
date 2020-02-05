@@ -75,6 +75,6 @@ private:
 	constexpr static const char *title = "Monitor";
 };
 
-Panel::uptr_t panel_monitor_create(struct UIContext *ctx, struct ImVec2 pos) {
+Panel::uptr_t panel_monitor_create(UIContext *ctx, struct ImVec2 pos) {
 	return std::make_unique<PanelMonitor>(ctx, pos);
 }

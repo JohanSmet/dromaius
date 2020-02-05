@@ -7,6 +7,6 @@
 
 #include "panel.h"
 
-Panel::uptr_t panel_clock_create(struct UIContext *ctx, struct ImVec2 pos, struct Clock *clock);
+Panel::uptr_t panel_clock_create(class UIContext *ctx, struct ImVec2 pos, struct Clock *clock);
 
 #endif // DROMAIUS_GUI_PANEL_CLOCK_H

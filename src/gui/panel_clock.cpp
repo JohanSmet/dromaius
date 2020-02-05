@@ -82,6 +82,6 @@ private:
 	constexpr static const char *title = "Clock";
 };
 
-Panel::uptr_t panel_clock_create(struct UIContext *ctx, struct ImVec2 pos, struct Clock *clock) {
+Panel::uptr_t panel_clock_create(UIContext *ctx, struct ImVec2 pos, struct Clock *clock) {
 	return std::make_unique<PanelClock>(ctx, pos, clock);
 }
