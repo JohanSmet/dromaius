@@ -5,45 +5,19 @@
 #include "panel_control.h"
 #include "ui_context.h"
 #include "context.h"
-#include "utils.h"
-#include "dev_minimal_6502.h"
 
 #include <imgui.h>
-#include <stb/stb_ds.h>
-#include <string>
-
-namespace {
-
-static inline std::string append_path(const char *path, const char *filename) {
-	std::string result = path;
-	result += "/";
-	result += filename;
-
-	return result;
-}
-
-} // unnamed namespace
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // private types
 //
 
-
 class PanelControl : public Panel {
 public:
-	PanelControl(UIContext *ctx, ImVec2 pos, const char *data_path) :
+	PanelControl(UIContext *ctx, ImVec2 pos) :
 		Panel(ctx),
-		position(pos),
-		data_path(data_path) {
-
-		dir_list_files(data_path, ".bin", "rom_", &rom_files);
-		dir_list_files(data_path, ".bin", "ram_", &ram_files);
-
-		if (arrlenu(rom_files) > 0) {
-			current_rom = 0;
-			load_current_rom();
-		}
+		position(pos) {
 	}
 
 	void display() override {
@@ -76,50 +50,16 @@ public:
 				dms_reset(ui_context->dms_ctx);
 			}
 
-			if (ImGui::Combo("ROM-Image", &current_rom, rom_files, static_cast<int>(arrlenu(rom_files)))) {
-				load_current_rom();
-			}
-
-			if (ImGui::Combo("RAM-Image", &current_ram, rom_files, static_cast<int>(arrlenu(ram_files)))) {
-				load_current_ram();
-			}
-
-
 		ImGui::End();
-	}
-
-private:
-	void load_current_rom() {
-		if (current_rom < 0) {
-			return;
-		}
-
-		auto full_path = append_path(data_path, rom_files[current_rom]);
-		dev_minimal_6502_rom_from_file(dms_get_device(ui_context->dms_ctx), full_path.c_str());
-	}
-
-	void load_current_ram() {
-		if (current_ram < 0) {
-			return;
-		}
-
-		auto full_path = append_path(data_path, rom_files[current_ram]);
-		dev_minimal_6502_ram_from_file(dms_get_device(ui_context->dms_ctx), full_path.c_str());
 	}
 
 private:
 	ImVec2					position;
 	const ImVec2			size = {360, 0};
 
-	const char *			data_path;
-	const char **			rom_files = nullptr;
-	const char **			ram_files = nullptr;
-	int						current_rom = -1;
-	int						current_ram = -1;
-
 	static constexpr const char *title = "Emulator Control";
 };
 
-Panel::uptr_t panel_control_create(UIContext *ctx, ImVec2 pos, const char *data_path) {
-	return std::make_unique<PanelControl>(ctx, pos, data_path);
+Panel::uptr_t panel_control_create(UIContext *ctx, ImVec2 pos) {
+	return std::make_unique<PanelControl>(ctx, pos);
 }

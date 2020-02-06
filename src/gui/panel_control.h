@@ -8,6 +8,6 @@
 #include "panel.h"
 
 // functions
-Panel::uptr_t panel_control_create(struct UIContext *ctx, struct ImVec2 pos, const char *data_path);
+Panel::uptr_t panel_control_create(class UIContext *ctx, struct ImVec2 pos);
 
 #endif // DROMAIUS_GUI_PANEL_CONTROL_H

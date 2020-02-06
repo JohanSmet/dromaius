@@ -156,6 +156,8 @@ target_sources(${GUI_TARGET}
 		src/gui/panel_control.h
 		src/gui/panel_cpu_6502.cpp
 		src/gui/panel_cpu_6502.h
+		src/gui/panel_dev_minimal_6502.cpp
+		src/gui/panel_dev_minimal_6502.h
 		src/gui/panel_memory.cpp
 		src/gui/panel_memory.h
 		src/gui/panel_monitor.cpp
