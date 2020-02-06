@@ -28,7 +28,7 @@ public:
 		constexpr ImU32 lcd_colors[2] = { IM_COL32(80, 80, 90, 255), IM_COL32(220, 220, 250, 255) };
 
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(size, ImGuiCond_Appearing);
 
 		auto cell_size = ImVec2(4,4);
 		auto spacing = ImVec2(1, 1);
