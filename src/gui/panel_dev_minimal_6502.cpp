@@ -39,6 +39,7 @@ public:
 		// load default rom image
 		auto roms = rom_selection->construct_directory_listing();
 		if (!roms.empty()) {
+			rom_last_loaded = roms[0];
 			dev_minimal_6502_rom_from_file(device, path_for_binary(roms[0]).c_str());
 		}
 	}
@@ -75,6 +76,10 @@ public:
 				ImGui::SameLine();
 				load_rom = ImGui::SmallButton("Load##load_rom");
 
+				if (!rom_last_loaded.empty()) {
+					ImGui::Text(" - last loaded: %s", rom_last_loaded.c_str());
+				}
+
 				ImGui::TreePop();
 			}
 
@@ -107,7 +112,7 @@ public:
 				ImGui::Text("Monitor");
 				ImGui::SameLine();
 				if (ImGui::SmallButton("Open##open_monitor")) {
-					auto pnl = panel_monitor_create(ui_context, {890, 180});
+					auto pnl = panel_monitor_create(ui_context, {340, 310});
 					ui_context->panel_add(std::move(pnl));
 				}
 				ImGui::TreePop();
@@ -120,6 +125,7 @@ public:
 		if (load_rom) {
 			rom_selection->display_popup([&](std::string selected_file) {
 				dev_minimal_6502_rom_from_file(device, path_for_binary(selected_file).c_str());
+				rom_last_loaded = selected_file;
 			});
 		}
 
@@ -127,14 +133,18 @@ public:
 		if (load_ram) {
 			ram_selection->display_popup([&](std::string selected_file) {
 				dev_minimal_6502_ram_from_file(device, path_for_binary(selected_file).c_str());
+				ram_last_loaded = selected_file;
 			});
 		}
 	}
 
 private:
 	ImVec2			position;
-	const ImVec2	size = {360, 0};
+	const ImVec2	size = {330, 250};
 	DevMinimal6502 *device;
+
+	std::string		rom_last_loaded = "";
+	std::string		ram_last_loaded = "";
 
 	PopupFileSelector::uptr_t rom_selection = PopupFileSelector::make_unique(ui_context, "runtime/minimal_6502", ".bin", "rom_");
 	PopupFileSelector::uptr_t ram_selection = PopupFileSelector::make_unique(ui_context, "runtime/minimal_6502", ".bin", "ram_");
@@ -145,7 +155,7 @@ private:
 Panel::uptr_t panel_dev_minimal_6502_create(UIContext *ctx, ImVec2 pos, DevMinimal6502 *device) {
 	
 	// always create an output panel
-	auto lcd_pnl = panel_chip_hd44780_create(ctx, {740, 10}, device->lcd);
+	auto lcd_pnl = panel_chip_hd44780_create(ctx, {340, 0}, device->lcd);
 	ctx->panel_add(std::move(lcd_pnl));
 	
 	// create panel for the minimal_6502

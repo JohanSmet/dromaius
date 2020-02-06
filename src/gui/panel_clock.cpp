@@ -43,7 +43,7 @@ public:
 			ImGui::DragInt("##target", &value, 1, 1, 999);
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(48);
-			ImGui::Combo("Target frequency", &unit_idx, units, sizeof(units) / sizeof(units[0]));
+			ImGui::Combo("Target", &unit_idx, units, sizeof(units) / sizeof(units[0]));
 
 			if (clock->conf_frequency != value * factor[unit_idx]) {
 				clock_set_frequency(clock, value * factor[unit_idx]);
@@ -76,7 +76,7 @@ public:
 
 private:
 	ImVec2			position;
-	const ImVec2	size = {360, 0};
+	const ImVec2	size = {330, 0};
 	Clock *			clock;
 
 	constexpr static const char *title = "Clock";

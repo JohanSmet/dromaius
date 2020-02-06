@@ -55,7 +55,7 @@ public:
 
 private:
 	ImVec2					position;
-	const ImVec2			size = {360, 0};
+	const ImVec2			size = {330, 0};
 
 	static constexpr const char *title = "Emulator Control";
 };

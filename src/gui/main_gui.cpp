@@ -30,13 +30,13 @@ void ui_on_start() {
 	dms_set_device(ui_context.dms_ctx, ui_context.device);
 
 	// create UI panels
-	ui_context.panel_add(panel_control_create(&ui_context, {2, 10}));
+	ui_context.panel_add(panel_control_create(&ui_context, {0, 0}));
 
 	ui_context.panel_add(
-			panel_clock_create(&ui_context, {370, 10}, ui_context.device->clock));
+			panel_clock_create(&ui_context, {0, 310}, ui_context.device->clock));
 
 	ui_context.panel_add(
-			panel_dev_minimal_6502_create(&ui_context, {10, 500}, ui_context.device));
+			panel_dev_minimal_6502_create(&ui_context, {0, 55}, ui_context.device));
 
 	// reset device
 	dev_minimal_6502_reset(ui_context.device);
