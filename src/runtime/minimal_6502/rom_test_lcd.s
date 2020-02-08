@@ -1,4 +1,4 @@
-; rom_test_pia.s - Johan Smet - BSD-3-Clause (see LICENSE)
+; rom_test_lcd.s - Johan Smet - BSD-3-Clause (see LICENSE)
 
 	.setcpu "6502"
 
@@ -6,11 +6,13 @@
 
 PORTA = $8000
 CRA = $8001
-PORTB = $8002
-CRB = $8003
 
 LMSG = $20
 HMSG = $21
+
+LCD_ENABLE = %00100000
+LCD_RW     = %01000000
+LCD_RS     = %10000000
 
 ; program entry
 vec_reset:
@@ -18,18 +20,22 @@ vec_reset:
 		ldx #$ff
 		txs
 
-		; set DDRA / DDRB to all output
+		; set DDRA to all output
 		lda #$ff
 		sta PORTA
-		sta PORTB
 
-		; set CRA / CRB to enable write to the ports instead of ddr (no interrupts)
+		; set CRA to enable write to the port instead of ddr (no interrupts)
 		lda #%00000100
 		sta CRA
-		sta CRB
+
+		; lcd: switch to 4 bit interface mode
+		lda #%00000010 | LCD_ENABLE
+		sta PORTA
+		eor #LCD_ENABLE
+		sta PORTA
 
 		; lcd: set two line mode
-		lda #%00111000
+		lda #%00101000
 		jsr lcd_write_cmd
 
 		; enable lcd output
@@ -83,19 +89,45 @@ vec_reset:
 
 ; LCD routines
 lcd_write_data:
-		sta PORTA		; write data to databus
-		lda #%10100000	; rs = 1, rw = 0, enable = 1
-		sta PORTB
-		lda #%10000000	; rs = 1, rw = 0, enable = 0
-		sta PORTB
+		pha				; save accumulator
+		; write upper nible
+		lsr				; shift upper nibble to lower nibble
+		lsr
+		lsr
+		lsr
+		ora #(LCD_ENABLE | LCD_RS)
+		sta PORTA
+		eor #LCD_ENABLE
+		sta PORTA
+		; write lower nibble
+		pla				; restore accumulator
+		and #$0f		; blank out top nible
+		ora #(LCD_ENABLE | LCD_RS)
+		sta PORTA
+		eor #LCD_ENABLE
+		sta PORTA
+
 		rts
 
 lcd_write_cmd:
-		sta PORTA		; write instruction to databus
-		lda #%00100000	; rs = 0, rw = 0, enable = 1
-		sta PORTB
-		lda #%00000000	; rs = 0, rw = 0, enable = 0
-		sta PORTB
+		pha				; save accumulator
+		; write upper nible
+		lsr				; shift upper nibble to lower nibble
+		lsr
+		lsr
+		lsr
+		ora #LCD_ENABLE
+		sta PORTA
+		eor #LCD_ENABLE
+		sta PORTA
+		; write lower nible
+		pla				; restore accumulator
+		and #$0f		; blank out top nible
+		ora #LCD_ENABLE
+		sta PORTA
+		eor #LCD_ENABLE
+		sta PORTA
+
 		rts
 
 lcd_write_string:
