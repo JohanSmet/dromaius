@@ -33,6 +33,7 @@ typedef struct ChipHd44780Signals {
 	Signal  enable;			// 1-bit enable line
 
 	Signal	db4_7;			// upper 4-bits of the databus
+	Signal	db0_3;			// lower 4-bits of the databus
 } ChipHd44780Signals;
 
 typedef struct ChipHd44780 {

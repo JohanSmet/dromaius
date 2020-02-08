@@ -91,7 +91,8 @@ static inline bool output_register_to_databus(ChipHd44780 *lcd, bool final) {
 			return true;
 
 		case DC_8BIT :
-			SIGNAL_SET_UINT8(bus_data, data);
+			SIGNAL_SET_UINT8(db4_7, (data & 0xf0) >> 4);
+			SIGNAL_SET_UINT8(db0_3, (data & 0x0f));
 			return true;
 
 		default :
@@ -112,7 +113,7 @@ static inline bool input_from_databus(ChipHd44780 *lcd) {
 			return true;
 
 		case DC_8BIT :
-			PRIVATE(lcd)->data_in = SIGNAL_UINT8(bus_data);
+			PRIVATE(lcd)->data_in = (uint8_t) ((SIGNAL_UINT8(db4_7) << 4) | SIGNAL_UINT8(db0_3));
 			return true;
 
 		default :
@@ -420,6 +421,8 @@ static void process_end(ChipHd44780 *lcd) {
 //
 
 ChipHd44780 *chip_hd44780_create(struct Clock *clock, SignalPool *signal_pool, ChipHd44780Signals signals) {
+	assert(signals.bus_data.count == 0 || (signals.bus_data.count > 0 && signals.db4_7.count == 0 && signals.db0_3.count == 0));
+
 	ChipHd44780_private *priv = (ChipHd44780_private *) calloc(1, sizeof(ChipHd44780_private));
 	memset(priv, 0, sizeof(ChipHd44780_private));
 	priv->clock = clock;
@@ -427,12 +430,27 @@ ChipHd44780 *chip_hd44780_create(struct Clock *clock, SignalPool *signal_pool, C
 
 	lcd->signal_pool = signal_pool;
 	memcpy(&lcd->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(bus_data, 8);
+
+	// the databus is setup differently than other modules. In 4-bit interface mode only the upper nibble is used.
+	// We try to set it up so writing to signal 'bus_data' works in 8-bit mode but also allow a 4-bit signal to be
+	// connected to the upper nibble when in 4-bit mode. Even in 8-bit mode we always use the two 4-bit signals.
+	// The LCD always starts in 8-bit mode and this way it can be switched to 4-bt mode with only the top 4-bits connected.
+	if (SIGNAL(bus_data).count == 0 && SIGNAL(db0_3).count == 0 && SIGNAL(db4_7).count == 0) {
+		SIGNAL_DEFINE(bus_data, 8);
+	}
+
+	if (SIGNAL(bus_data).count > 0) {
+		// NOTE: this assumes that whatever connects to the databus is at least 8 bits wide
+		lcd->signals.db0_3 = signal_split(SIGNAL(bus_data), 0, 4);
+		lcd->signals.db4_7 = signal_split(SIGNAL(bus_data), 4, 4);
+	} else {
+		SIGNAL_DEFINE(db0_3, 4);
+		SIGNAL_DEFINE(db4_7, 4);
+	}
+
 	SIGNAL_DEFINE(rs, 1);
 	SIGNAL_DEFINE_BOOL(rw, 1, true);
 	SIGNAL_DEFINE_BOOL(enable, 1, false);
-
-	lcd->signals.db4_7 = signal_split(SIGNAL(bus_data), 4, 4);
 
 	// perform the internal reset circuit initialization procedure
 	execute_clear_display(lcd);
