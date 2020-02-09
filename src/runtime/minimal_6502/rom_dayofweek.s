@@ -17,17 +17,21 @@
 ;
 ; Output: Weekday in A (0=Sunday, 1=Monday, ..., 6=Saturday)
 
+	.include "kernel.inc"
 	.setcpu "6502"
+	.export main
 
 	.segment "OS"
 
 TMP = $6				 ; Temporary storage
 
 ; program entry
-vec_reset:
-		; initialize stack pointer
-		ldx #$ff 
-		txs
+main:
+		; show message
+		ldx #<MSG
+		ldy #>MSG
+		lda #$00
+		jsr k_lcd_show_string
 
 		; load params
 		ldy #119		; year = 2019
@@ -62,19 +66,5 @@ dow:
          BCC @MOD7        ; for A in 0..255
          RTS
 
-MTAB:    .byte 1,5,6,3,1,5,3,0,4,2,6,4   	; Month offsets
-;
-; non-maskable interrupt handler
-vec_nmi:
-		jmp vec_nmi
-
-; irq-handler 
-vec_irq:
-		jmp vec_irq
-
-
-; set vectors at the end of the ROM
-	.segment "VECTORS"
-		.word vec_nmi
-		.word vec_reset
-		.word vec_irq
+MTAB:   .byte 1,5,6,3,1,5,3,0,4,2,6,4   	; Month offsets
+MSG:	.asciiz "Day of Week"

@@ -1,21 +1,28 @@
 BINARIES = rom_test.bin rom_dayofweek.bin rom_test_pia.bin rom_test_lcd.bin
+ROM_TEST_OBJS = rom_test.o
+ROM_DAYOFWEEK_OBJS = rom_dayofweek.o kernel.o
+ROM_TEST_PIA_OBJS = rom_test_pia.o
+ROM_TEST_LCD_OBJS = rom_test_lcd.o
 
 all: $(BINARIES)
 
-rom_test.bin: rom_test.s simple.cfg
-	cl65 rom_test.s -o rom_test.bin -C simple.cfg 
+%.o: %.s
+	ca65 $< -o $@
 
-rom_dayofweek.bin: rom_dayofweek.s simple.cfg
-	cl65 rom_dayofweek.s -o rom_dayofweek.bin -C simple.cfg 
+rom_test.bin: $(ROM_TEST_OBJS) simple.cfg
+	cl65 -o $@ -C simple.cfg $(ROM_TEST_OBJS)
 
-rom_test_pia.bin: rom_test_pia.s simple.cfg
-	cl65 rom_test_pia.s -o rom_test_pia.bin -C simple.cfg 
+rom_dayofweek.bin: $(ROM_DAYOFWEEK_OBJS) simple.cfg
+	cl65 -o $@ -C simple.cfg $(ROM_DAYOFWEEK_OBJS)
 
-rom_test_lcd.bin: rom_test_lcd.s simple.cfg
-	cl65 -t none rom_test_lcd.s -o rom_test_lcd.bin -C simple.cfg 
+rom_test_pia.bin: $(ROM_TEST_PIA_OBJS) simple.cfg
+	cl65 -o $@ -C simple.cfg $(ROM_TEST_PIA_OBJS)
+
+rom_test_lcd.bin: $(ROM_TEST_LCD_OBJS) simple.cfg
+	cl65 -o $@ -C simple.cfg $(ROM_TEST_LCD_OBJS)
 
 clean:
-	$(RM) *.o *.bin 
+	$(RM) *.o *.bin
 
 install: $(BINARIES)
 	cp $(BINARIES) ../../../runtime/minimal_6502
