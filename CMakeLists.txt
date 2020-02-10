@@ -117,6 +117,8 @@ target_sources(${LIB_TARGET}
 		src/dev_minimal_6502.h
 		src/filt_6502_asm.c
 		src/filt_6502_asm.h
+		src/input_keypad.c
+		src/input_keypad.h
 		src/ram_8d_16a.c
 		src/ram_8d_16a.h
 		src/rom_8d_16a.c
@@ -215,6 +217,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_cpu_6502.c
 		src/test/test_dev_minimal_6502.c
 		src/test/test_filt_6502_asm.c
+		src/test/test_input_keypad.c
 		src/test/test_ram_8d_16a.c
 		src/test/test_rom_8d_16a.c
 		src/test/test_signal_line.c
