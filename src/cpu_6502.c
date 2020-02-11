@@ -862,9 +862,9 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 2:		// store result + set flags
 			switch (phase) {
 				case CYCLE_BEGIN:
-					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_MIDDLE:
+					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
@@ -1060,9 +1060,9 @@ static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 2:		// store result + set flags
 			switch (phase) {
 				case CYCLE_BEGIN:
-					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_MIDDLE:
+					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
@@ -1151,9 +1151,9 @@ static inline void decode_inc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 2:		// store result + set flags
 			switch (phase) {
 				case CYCLE_BEGIN:
-					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_MIDDLE:
+					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
@@ -1346,9 +1346,9 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 2:		// store result + set flags
 			switch (phase) {
 				case CYCLE_BEGIN:
-					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_MIDDLE:
+					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
@@ -1513,9 +1513,9 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 2:		// store result + set flags
 			switch (phase) {
 				case CYCLE_BEGIN:
-					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_MIDDLE:
+					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
@@ -1586,9 +1586,9 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 2:		// store result + set flags
 			switch (phase) {
 				case CYCLE_BEGIN:
-					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_MIDDLE:
+					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;

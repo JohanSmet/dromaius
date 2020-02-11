@@ -13,6 +13,8 @@ static DevMinimal6502 *dev_minimal_6502_setup(int program) {
 	
 	// >> a simple program
 	if (program == 0) {
+		arrput(rom, OP_6502_INC_ZP);
+		arrput(rom, 0x00);
 		arrput(rom, OP_6502_LDA_IMM);
 		arrput(rom, 10);
 		arrput(rom, OP_6502_STA_ZP);
@@ -78,6 +80,7 @@ MunitResult test_program(const MunitParameter params[], void *user_data_or_fixtu
 	DevMinimal6502 *dev = dev_minimal_6502_setup(0);
 
 	// initialize the memory that is used by the program
+	dev->ram->data_array[0x00] = 0;
 	dev->ram->data_array[0x61] = 0;
 
 	// run the computer until the program counter reaches the IRQ-handler
@@ -93,6 +96,7 @@ MunitResult test_program(const MunitParameter params[], void *user_data_or_fixtu
 	// check some things
 	munit_assert_int(limit, >, 0);
 	munit_assert_uint8(dev->cpu->reg_a, ==, 10);
+	munit_assert_uint8(dev->ram->data_array[0x00], ==, 1);
 	munit_assert_uint8(dev->ram->data_array[0x61], ==, 10);
 
 	dev_minimal_6502_teardown(dev);

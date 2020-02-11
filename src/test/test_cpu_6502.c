@@ -1260,14 +1260,15 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010100);
-	CPU_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	CPU_HALF_CYCLE();
 	munit_assert_true(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -1305,10 +1306,11 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -1347,10 +1349,11 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010100);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -1396,10 +1399,11 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -1445,10 +1449,11 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -2986,10 +2991,11 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
@@ -3031,10 +3037,11 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE()
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, (uint8_t) -1);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE()
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_true(cpu->p_negative_result);
@@ -3075,10 +3082,11 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 14);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
@@ -3124,10 +3132,11 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
@@ -3173,10 +3182,11 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 4);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
@@ -3725,10 +3735,11 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 2);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
@@ -3770,10 +3781,11 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
@@ -3814,10 +3826,11 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x80);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_true(cpu->p_negative_result);
@@ -3863,10 +3876,11 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 2);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
@@ -3912,10 +3926,11 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 6);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
@@ -4982,10 +4997,11 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01000101);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -5027,10 +5043,11 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00101001);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -5069,10 +5086,11 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01000001);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -5118,10 +5136,11 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00001000);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -5167,10 +5186,11 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00100000);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -5835,10 +5855,11 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010101);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -5881,10 +5902,11 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -5926,10 +5948,11 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010100);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -5976,10 +5999,11 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -6026,10 +6050,11 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -6123,10 +6148,11 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b11000101);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -6169,10 +6195,11 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00101001);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -6214,10 +6241,11 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01000001);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -6264,10 +6292,11 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00001000);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_false(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
@@ -6314,10 +6343,11 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00100000);
-	CPU_CYCLE();
+	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_true(cpu->p_carry);
 	munit_assert_false(cpu->p_zero_result);
