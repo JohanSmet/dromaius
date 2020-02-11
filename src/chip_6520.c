@@ -39,6 +39,9 @@ typedef struct Chip6520_private {
 
 	bool			out_irqa_b;
 	bool			out_irqb_b;
+
+	bool			out_enabled;
+	uint8_t			out_data;
 } Chip6520_private;
 
 #define RW_READ  true
@@ -140,7 +143,8 @@ static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, 
 
 static inline void process_positive_enable_edge(Chip6520 *pia) {
 	if (PRIVATE(pia)->strobe && SIGNAL_BOOL(rw) == RW_READ) {
-		SIGNAL_SET_UINT8(bus_data, read_register(pia));
+		PRIVATE(pia)->out_data = read_register(pia);
+		PRIVATE(pia)->out_enabled = true;
 	}
 }
 
@@ -151,7 +155,8 @@ void process_negative_enable_edge(Chip6520 *pia) {
 		if (SIGNAL_BOOL(rw) == RW_WRITE) {
 			write_register(pia, SIGNAL_UINT8(bus_data));
 		} else {
-			SIGNAL_SET_UINT8(bus_data, read_register(pia));
+			PRIVATE(pia)->out_data = read_register(pia);
+			PRIVATE(pia)->out_enabled = true;
 		}
 	}
 
@@ -226,6 +231,11 @@ static inline void process_end(Chip6520 *pia) {
 	// output on cb2 if in output mode
 	if (pia->reg_crb.bf_cl2_mode_select) {
 		SIGNAL_SET_BOOL(cb2, PRIVATE(pia)->internal_cb2);
+	}
+
+	// output on databus
+	if (PRIVATE(pia)->out_enabled) {
+		SIGNAL_SET_UINT8(bus_data, PRIVATE(pia)->out_data);
 	}
 
 	// store state of the enable pin
@@ -304,6 +314,7 @@ void chip_6520_process(Chip6520 *pia) {
 	}
 
 	PRIVATE(pia)->strobe = ACTHI_ASSERTED(SIGNAL_BOOL(cs0)) && ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) && ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b));
+	PRIVATE(pia)->out_enabled = false;
 
 	if (enable) {
 		process_positive_enable_edge(pia);
