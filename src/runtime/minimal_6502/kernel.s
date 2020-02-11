@@ -23,8 +23,7 @@
 ; constants
 ; =============================================================================
 
-PIA_PORTA  = $8000
-PIA_CRA    = $8001
+.include "constants.inc"
 
 LCD_ENABLE = %00100000
 LCD_RW     = %01000000
@@ -56,6 +55,15 @@ _k_init:
 		; >> set CRA to enable write to the port instead of ddr (no interrupts)
 		lda #%00000100
 		sta PIA_CRA
+
+		; initialize port-B of the PIA (connected to the keypad)
+		; >> set upper nibble of DDRB to output
+		lda #%11110000
+		sta PIA_PORTB
+		;
+		; >> set CRB to enable write to the port instead of ddr (no interrupts)
+		lda #%00000100
+		sta PIA_CRB
 
 		; initialize LCD. We don't know what state the LCD is in. It could be in 8-bit mode or
 		; in 4-bit mode (either expecting the upper or lower nibble).
