@@ -127,7 +127,7 @@ MunitResult test_pia(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(dev->pia->reg_ora, ==, 0x55);
 	munit_assert_uint8(dev->pia->reg_orb, ==, 0x55);
 	munit_assert_uint8(signal_read_uint8(dev->signal_pool, dev->pia->signals.port_a), ==, 0x55);
-	munit_assert_uint8(signal_read_uint8(dev->signal_pool, dev->pia->signals.port_b), ==, 0x55);
+	munit_assert_uint8(signal_read_uint8(dev->signal_pool, dev->pia->signals.port_b), ==, 0x50);	// lower nibble == keypad output
 
 	dev_minimal_6502_teardown(dev);
 

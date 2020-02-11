@@ -21,6 +21,7 @@
 #include "rom_8d_16a.h"
 #include "chip_6520.h"
 #include "chip_hd44780.h"
+#include "input_keypad.h"
 #include "clock.h"
 
 #ifdef __cplusplus
@@ -62,6 +63,7 @@ typedef struct DevMinimal6502 {
 	Rom8d16a *		rom;
 	Chip6520 *		pia;
 	ChipHd44780 *	lcd;
+	InputKeypad *	keypad;
 	Clock *			clock;
 
 	// signals

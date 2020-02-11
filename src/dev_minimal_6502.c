@@ -90,6 +90,12 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										.enable = signal_split(device->pia->signals.port_a, 5, 1)
 	});
 
+	// keypad
+	device->keypad = input_keypad_create(device->signal_pool, (InputKeypadSignals) {
+										.rows = signal_split(device->pia->signals.port_b, 4, 4),
+										.cols = signal_split(device->pia->signals.port_b, 0, 4)
+	});
+
 	// copy some signals for easy access
 	SIGNAL(ram_oe_b) = device->ram->signals.oe_b;
 	SIGNAL(ram_we_b) = device->ram->signals.we_b;
@@ -161,6 +167,9 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 
 		// lcd
 		chip_hd44780_process(device->lcd);
+
+		// keypad
+		input_keypad_process(device->keypad);
 
 		// make the clock output it's signal again
 		clock_refresh(device->clock);
