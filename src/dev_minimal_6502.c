@@ -122,36 +122,41 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	// run process twice, once at the time of the clock edge and once slightly later (after the address hold time)
 	for (int time = 0; time < 2; ++time) {
 
+		// run all the combinatorial logic just before beginning the next cycle, as these values should be available immediatly
+
+		// >> ram logic
+		//  - ce_b: assert when top bit of address isn't set (copy of a15)
+		//	- oe_b: assert when cpu_rw is high
+		//	- we_b: assert when cpu_rw is low and clock is low
+		bool next_rw = SIGNAL_NEXT_BOOL(cpu_rw);
+		SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
+		SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_NEXT_BOOL(clock));
+
+		// >> rom logic
+		//  - ce_b: assert when the top 2 bits of the address is set
+		SIGNAL_SET_BOOL(rom_ce_b, !(SIGNAL_NEXT_BOOL(a15) & SIGNAL_NEXT_BOOL(a14)));
+
+		// >> pia logic
+		//  - no peripheral connected, irq lines not connected
+		//	- cs0: assert when top bit of address is set (copy of a15)
+		//	- cs1: always asserted
+		//  - cs2_b: assert when bits 4-14 are zero
+		uint16_t bus_address = SIGNAL_NEXT_UINT16(bus_address);
+		SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
+
+		// start the next cycle
 		signal_pool_cycle(device->signal_pool);
 
 		// cpu
 		cpu_6502_process(device->cpu, time & 1);
 
 		// ram
-		//  - ce_b: assert when top bit of address isn't set (copy of a15)
-		//	- oe_b: assert when cpu_rw is high
-		//	- we_b: assert when cpu_rw is low and clock is low
-		bool next_rw = SIGNAL_NEXT_BOOL(cpu_rw);
-
-		SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
-		SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_NEXT_BOOL(clock));
-
 		ram_8d16a_process(device->ram);
 
 		// rom
-		//  - ce_b: assert when the top 2 bits of the address is set
-		SIGNAL_SET_BOOL(rom_ce_b, !(SIGNAL_NEXT_BOOL(a15) & SIGNAL_NEXT_BOOL(a14)));
-
 		rom_8d16a_process(device->rom);
 
 		// pia
-		//  - no peripheral connected, irq lines not connected
-		//	- cs0: assert when top bit of address is set (copy of a15)
-		//	- cs1: always asserted
-		//  - cs2_b: assert when bits 4-14 are zero
-		uint16_t bus_address = SIGNAL_UINT16(bus_address);
-		SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
-
 		chip_6520_process(device->pia);
 
 		// lcd
