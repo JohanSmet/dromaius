@@ -7,19 +7,25 @@
 
 namespace {
 
-inline ImVec2 aligned_position(ImVec2 pos, float width, const char *text, ImGuiEx::TextAlignHor align_hor) {
+inline ImVec2 aligned_position(ImVec2 pos, ImVec2 rect, const char *text, ImGuiEx::TextAlignHor align_hor, ImGuiEx::TextAlignVer align_ver) {
 
-    if (align_hor == ImGuiEx::TAH_LEFT) {
+    if (align_hor == ImGuiEx::TAH_LEFT && align_ver == ImGuiEx::TAV_TOP) {
         return pos;
     }
 
     auto size = ImGui::CalcTextSize(text);
 
     if (align_hor == ImGuiEx::TAH_RIGHT) {
-        pos.x += width - size.x;
+        pos.x += rect.x - size.x;
     } else if (align_hor == ImGuiEx::TAH_CENTER) {
-        pos.x += width - (size.x * 0.5f);
+        pos.x += (rect.x - size.x) * 0.5f;
     }
+
+	if (align_ver == ImGuiEx::TAV_BOTTOM) {
+		pos.y += rect.y - size.y;
+	} else if (align_ver == ImGuiEx::TAV_CENTER) {
+		pos.y += (rect.y - size.y) * 0.5f;
+	}
 
     return pos;
 }
@@ -30,7 +36,7 @@ namespace ImGuiEx {
 
 void Text(float width, const char *text, TextAlignHor align_hor) {
 	auto org = ImGui::GetCursorScreenPos();
-    auto pos = aligned_position(org, width, text, align_hor);
+    auto pos = aligned_position(org, {width, 0.0f}, text, align_hor, TAV_TOP);
     ImGui::SetCursorScreenPos(pos);
     ImGui::Text("%s", text);
 	ImGui::SetCursorScreenPos(ImVec2(org.x + width, org.y));
@@ -38,10 +44,18 @@ void Text(float width, const char *text, TextAlignHor align_hor) {
 
 void TextColored(const ImVec4 &color, float width, const char *text, TextAlignHor align_hor) {
 	auto org = ImGui::GetCursorScreenPos();
-    auto pos = aligned_position(org, width, text, align_hor);
+    auto pos = aligned_position(org, {width, 0.0f}, text, align_hor, TAV_TOP);
     ImGui::SetCursorScreenPos(pos);
     ImGui::TextColored(color, "%s", text);
 	ImGui::SetCursorScreenPos(ImVec2(org.x + width, org.y));
+}
+
+void Text(const char *text, ImVec2 size, TextAlignHor align_hor, TextAlignVer align_ver) {
+	auto org = ImGui::GetCursorScreenPos();
+    auto pos = aligned_position(org, size, text, align_hor, align_ver);
+    ImGui::SetCursorScreenPos(pos);
+    ImGui::Text("%s", text);
+	ImGui::SetCursorScreenPos(ImVec2(org.x, org.y));
 }
 
 void RectFilled(ImVec2 p1, ImVec2 p2, ImU32 col) {

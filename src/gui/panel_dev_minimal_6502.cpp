@@ -9,6 +9,7 @@
 #include "panel_chip_6520.h"
 #include "panel_chip_hd44780.h"
 #include "panel_cpu_6502.h"
+#include "panel_input_keypad.h"
 #include "panel_memory.h"
 #include "panel_monitor.h"
 
@@ -157,6 +158,10 @@ Panel::uptr_t panel_dev_minimal_6502_create(UIContext *ctx, ImVec2 pos, DevMinim
 	// always create an output panel
 	auto lcd_pnl = panel_chip_hd44780_create(ctx, {340, 0}, device->lcd);
 	ctx->panel_add(std::move(lcd_pnl));
+
+	// a keypad panel is always useful
+	auto keypad_pnl = panel_input_keypad_create(ctx, {340, 200}, device->keypad);
+	ctx->panel_add(std::move(keypad_pnl));
 	
 	// create panel for the minimal_6502
 	return std::make_unique<PanelDevMinimal6502>(ctx, pos, device);

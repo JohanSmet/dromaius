@@ -45,6 +45,8 @@ inline void TextColored(const ImVec4 &color, float width, const std::string &tex
 	return TextColored(color, width, text.c_str(), align_hor);
 }
 
+void Text(const char *text, ImVec2 size, TextAlignHor align_hor = TAH_LEFT, TextAlignVer align_ver = TAV_TOP);
+
 void RectFilled(ImVec2 p1, ImVec2 p2, ImU32 col);
 
 } // namespace ImGuiEx
