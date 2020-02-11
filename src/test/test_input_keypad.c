@@ -38,16 +38,16 @@ MunitResult test_keypad(const MunitParameter params[], void *user_data_or_fixtur
 	CHECK_ROW(0b1000, 0b0000);
 
 	// one key pressed
+	input_keypad_set_decay(keypad, 4);
+
 	for (int r = 0; r < 4; ++r) {
 		for (int c = 0; c < 4; ++c) {
-			keypad->keys[r][c] = true;
+			input_keypad_key_pressed(keypad, r, c);
 
 			CHECK_ROW(0b0001, (r == 0) ? 1 << c : 0);
 			CHECK_ROW(0b0010, (r == 1) ? 1 << c : 0);
 			CHECK_ROW(0b0100, (r == 2) ? 1 << c : 0);
 			CHECK_ROW(0b1000, (r == 3) ? 1 << c : 0);
-
-			keypad->keys[r][c] = false;
 		}
 	}
 

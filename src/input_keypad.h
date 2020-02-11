@@ -38,6 +38,9 @@ InputKeypad *input_keypad_create(SignalPool *pool, InputKeypadSignals signals);
 void input_keypad_destroy(InputKeypad *keypad);
 void input_keypad_process(InputKeypad *keypad);
 
+void input_keypad_key_pressed(InputKeypad *keypad, size_t row, size_t col);
+void input_keypad_set_decay(InputKeypad *keypad, int cycles);
+
 #ifdef __cplusplus
 }
 #endif

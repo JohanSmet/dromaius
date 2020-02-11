@@ -13,12 +13,29 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
+// internal types
+//
+
+typedef struct InputKeypadPrivate {
+	InputKeypad		intf;
+
+	int				key_decay[4][4];
+	int				decay_start;
+} InputKeypadPrivate;
+
+#define PRIVATE(x)	((InputKeypadPrivate *) (x))
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
 // interface functions
 //
 
 InputKeypad *input_keypad_create(SignalPool *pool, InputKeypadSignals signals) {
-	InputKeypad *keypad = calloc(1, sizeof(InputKeypad));
+	InputKeypadPrivate *priv = calloc(1, sizeof(InputKeypadPrivate));
+	InputKeypad *keypad = &priv->intf;
 	keypad->signal_pool = pool;
+	priv->decay_start = 1;
 
 	memcpy(&keypad->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(rows, 4);
@@ -39,7 +56,16 @@ void input_keypad_destroy(InputKeypad *keypad) {
 
 void input_keypad_process(InputKeypad *keypad) {
 	assert(keypad);
+
+	// synthesize key-down bool and decay key pressed
+	for (int r = 0; r < 4; ++r) {
+		for (int c = 0; c < 4; ++c) {
+			keypad->keys[r][c] = PRIVATE(keypad)->key_decay[r][c] > 0;
+			PRIVATE(keypad)->key_decay[r][c] -= keypad->keys[r][c];
+		}
+	}
 	
+	// return signals
 	uint8_t rows = SIGNAL_UINT8(rows);
 	bool output[4] = {false, false, false, false};	
 
@@ -58,4 +84,16 @@ void input_keypad_process(InputKeypad *keypad) {
 	SIGNAL_SET_BOOL(c3, output[3]);
 }
 
+void input_keypad_key_pressed(InputKeypad *keypad, size_t row, size_t col) {
+	assert(keypad);
+	assert(row < 4);
+	assert(col < 4);
+
+	PRIVATE(keypad)->key_decay[row][col] = PRIVATE(keypad)->decay_start;
+}
+
+void input_keypad_set_decay(InputKeypad *keypad, int cycles) {
+	assert(keypad);
+	PRIVATE(keypad)->decay_start = cycles;
+}
 
