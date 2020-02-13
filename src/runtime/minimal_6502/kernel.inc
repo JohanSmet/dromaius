@@ -21,11 +21,23 @@
 ;		         y   = high byte of address of string
 
 .ifndef KERNEL_GUARD
-.define KERNEL_GUARD 1
+KERNEL_GUARD = 1
 
-.import k_lcd_write_cmd			; send command to the LCD
-.import k_lcd_write_data		; send data to the LCD
-.import k_lcd_clear				; clear the LCD
-.import k_lcd_show_string		; show string on the lcd
+.ifndef KERNEL_IMPLEMENTATION
+	.macro SYMBOL sym
+		.import sym
+	.endmacro
+.else
+	.macro SYMBOL sym
+		.export sym
+	.endmacro
+.endif
+
+SYMBOL k_lcd_write_cmd			; send command to the LCD
+SYMBOL k_lcd_write_data			; send data to the LCD
+SYMBOL k_lcd_clear				; clear the LCD
+SYMBOL k_lcd_show_string		; show string on the lcd
+
+SYMBOL k_keyb_scan
 
 .endif ; KERNEL_GUARD
