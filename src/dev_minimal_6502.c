@@ -36,7 +36,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->signals.a14 = signal_split(SIGNAL(bus_address), 14, 1);
 
 	// clock
-	device->clock = clock_create(10, device->signal_pool, (ClockSignals){
+	device->clock = clock_create(10000, device->signal_pool, (ClockSignals){
 										.clock = SIGNAL(clock)
 	});
 
