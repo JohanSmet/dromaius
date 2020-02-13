@@ -14,11 +14,18 @@
 ;		in-data: acc = command
 ; *) k_lcd_write_data : send 8-bits of data to be displayed on the LCD module
 ;		in-data: acc = data
-; *) k_lcd_clear : clear the LCD screen 
+; *) k_lcd_clear : clear the LCD screen
+; *) k_lcd_set_lines : set the number of lines of the LCD module (1 or 2)
+;		in-data: acc = number of lines
+; *) k_lcd_position : position the cursor on the LCD screen
+;		in-data: acc = valid position
 ; *) k_lcd_show_string : displays a string at the specified position of the LCD
-;		in-data: acc = position 
-;		         x   = low byte of address of string 
+;		in-data: acc = position
+;		         x   = low byte of address of string
 ;		         y   = high byte of address of string
+;
+; *) k_keyb_scan : scan the keypad for pressed keys with 3-key-rollover
+;		out-data: acc = ascii code of last pressed key or $ff if no key pressed
 
 .ifndef KERNEL_GUARD
 KERNEL_GUARD = 1
@@ -36,6 +43,8 @@ KERNEL_GUARD = 1
 SYMBOL k_lcd_write_cmd			; send command to the LCD
 SYMBOL k_lcd_write_data			; send data to the LCD
 SYMBOL k_lcd_clear				; clear the LCD
+SYMBOL k_lcd_set_lines			; set the number of display lines of the LCD (1 or 2)
+SYMBOL k_lcd_position
 SYMBOL k_lcd_show_string		; show string on the lcd
 
 SYMBOL k_keyb_scan

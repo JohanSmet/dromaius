@@ -147,6 +147,19 @@ k_lcd_clear:
 		jsr k_lcd_write_cmd
 		rts
 
+k_lcd_set_lines:
+		and #$02		; isolate bit 1
+		asl				; shift bit 1 to bit 3
+		asl				;	which is 1 for 2 lines / 0 for 1 line
+		ora #%00100000	; set command bit
+		jsr k_lcd_write_cmd
+		rts
+
+k_lcd_position:
+		ora #%10000000	; set command bit
+		jsr k_lcd_write_cmd
+		rts
+
 k_lcd_show_string:
 		stx k_strptr
 		sty k_strptr+1
