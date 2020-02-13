@@ -21,30 +21,120 @@
 	.setcpu "6502"
 	.export main
 
-	.segment "OS"
+.zeropage
 
-TMP = $6				 ; Temporary storage
+TMP:	.byte $00
+year:	.byte $00
+month:	.byte $00
+day:	.byte $00
+result: .byte $00
+
+.segment "OS"
 
 ; program entry
 main:
-		; show message
-		ldx #<MSG
-		ldy #>MSG
+		lda #2
+		jsr k_lcd_set_lines
+
+@b:		jsr k_lcd_clear
+
+		; input year
+		ldx #<YEAR_MSG
+		ldy #>YEAR_MSG
 		lda #$00
 		jsr k_lcd_show_string
 
+		lda #40
+		jsr k_lcd_position
+
+		jsr input_digit
+		jsr mult10
+		sta year
+		jsr input_digit
+		clc
+		adc #100
+		clc
+		adc year
+		sta year
+
+		jsr delay
+
+		; input month
+		jsr k_lcd_clear
+		ldx #<MONTH_MSG
+		ldy #>MONTH_MSG
+		lda #$00
+		jsr k_lcd_show_string
+
+		lda #40
+		jsr k_lcd_position
+
+		jsr input_digit
+		jsr mult10
+		sta month
+		jsr input_digit
+		clc
+		adc month
+		sta month
+
+		jsr delay
+
+		; input day
+		jsr k_lcd_clear
+		ldx #<DAY_MSG
+		ldy #>DAY_MSG
+		lda #$00
+		jsr k_lcd_show_string
+
+		lda #40
+		jsr k_lcd_position
+
+		jsr input_digit
+		jsr mult10
+		sta day
+		jsr input_digit
+		clc
+		adc day
+		sta day
+
+		jsr delay
+
 		; load params
-		ldy #119		; year = 2019
-		ldx #12			; month = 12
-		lda #2			; day = 2 
+		ldy year
+		ldx month
+		lda day
 
 		; call day of week routine - output in register-A
 		jsr	dow
+		sta result
 
-		; loop here
-done:	jmp done
+		; display result
+		jsr k_lcd_clear
 
+		lda result
+		asl				; * 2
+		asl				; * 4
+		asl				; * 8
+		asl				; * 16
+		clc
+		adc #<DAYS
+		tax
+		lda #$00
+		adc #>DAYS
+		tay
+		lda #$00
+		jsr k_lcd_show_string
 
+		ldx #<END_MSG
+		ldy #>END_MSG
+		lda #$40
+		jsr k_lcd_show_string
+
+		jsr wait_for_key
+
+		jmp @b
+
+; day of week routine
 dow:
          CPX #3          ; Year starts in March to bypass
          BCS @MARCH      ; leap year problem
@@ -63,8 +153,74 @@ dow:
          CLC             ; Add it to y+m+d and fall through
          ADC TMP
 @MOD7:   ADC #7          ; Returns (A+3) modulo 7
-         BCC @MOD7        ; for A in 0..255
+         BCC @MOD7       ; for A in 0..255
          RTS
 
-MTAB:   .byte 1,5,6,3,1,5,3,0,4,2,6,4   	; Month offsets
-MSG:	.asciiz "Day of Week"
+; input numeric character
+input_digit:
+		; scan keyboard until a key is pressed
+		jsr k_keyb_scan
+		cmp #$ff
+		beq input_digit
+
+		; check for invalid keys
+		cmp #'0'			; check with lower bound
+		bcc input_digit		; branch if less
+
+		cmp #':'			; check with upper bound
+		bcs input_digit		; branch if greater than or equal
+
+		; display digit
+		pha
+		jsr k_lcd_write_data
+		pla
+
+		; convert to decimal number
+		sec
+		sbc #'0'
+
+		rts
+
+; wait for a keypress
+wait_for_key:
+		jsr k_keyb_scan
+		cmp #$ff
+		beq wait_for_key
+		rts
+
+; multiply accumulator with 10
+mult10:
+		asl					; accumulator = org * 2
+		sta TMP
+		asl					; accumulator = org * 4
+		asl					; accumulator = org * 8
+		adc TMP				; accumulator = (org * 8) + (org * 2)
+		rts
+
+; delay - poor man's sleep routine
+delay:
+		ldy #$02
+@l2:	ldx #$ff
+@l1:	nop
+		dex
+		bne @l1
+		dey
+		bne @l2
+		rts
+
+.rodata
+MTAB:		 .byte 1,5,6,3,1,5,3,0,4,2,6,4   	; Month offsets
+
+YEAR_MSG:	.asciiz "Type year (20xx)"
+MONTH_MSG:	.asciiz "Type month (xx) "
+DAY_MSG:	.asciiz "Type day (xx)   "
+
+DAYS:		.asciiz "Sunday         "
+			.asciiz "Monday         "
+			.asciiz "Tuesday        "
+			.asciiz "Wednesday      "
+			.asciiz "Thursday       "
+			.asciiz "Friday         "
+			.asciiz "Saturday       "
+
+END_MSG:	.asciiz "(press key)     "
