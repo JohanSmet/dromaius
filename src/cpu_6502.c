@@ -1466,7 +1466,7 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			case CYCLE_MIDDLE:
 				break;
 			case CYCLE_END: {
-				uint8_t carry = cpu->p_carry;
+				unsigned int carry = cpu->p_carry;
 				cpu->p_carry = IS_BIT_SET(cpu->reg_a, 7);
 				cpu->reg_a = (uint8_t) ((cpu->reg_a << 1) | carry);
 				cpu->p_zero_result = cpu->reg_a == 0;
@@ -1503,7 +1503,7 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END: {
-					uint8_t carry = cpu->p_carry;
+					unsigned int carry = cpu->p_carry;
 					cpu->p_carry = IS_BIT_SET(PRIVATE(cpu)->operand, 7);
 					PRIVATE(cpu)->operand = (uint8_t) ((PRIVATE(cpu)->operand << 1) | carry);
 					break;
