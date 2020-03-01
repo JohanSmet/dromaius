@@ -267,27 +267,27 @@ static inline void execute_set_ddram_address(ChipHd44780 *lcd, uint8_t addr) {
 }
 
 static inline void decode_instruction(ChipHd44780 *lcd) {
-	if (IS_BIT_SET(lcd->reg_ir, 7)) {
+	if (BIT_IS_SET(lcd->reg_ir, 7)) {
 		execute_set_ddram_address(lcd, lcd->reg_ir & 0x7f);
-	} else if (IS_BIT_SET(lcd->reg_ir, 6)) {
+	} else if (BIT_IS_SET(lcd->reg_ir, 6)) {
 		execute_set_cgram_address(lcd, lcd->reg_ir & 0x3f);
-	} else if (IS_BIT_SET(lcd->reg_ir, 5)) {
-		execute_function_set(lcd,	IS_BIT_SET(lcd->reg_ir, 4),
-									IS_BIT_SET(lcd->reg_ir, 3),
-									IS_BIT_SET(lcd->reg_ir, 2));
-	} else if (IS_BIT_SET(lcd->reg_ir, 4)) {
-		execute_cursor_or_display_shift(lcd,	IS_BIT_SET(lcd->reg_ir, 3),
-												IS_BIT_SET(lcd->reg_ir, 2));
-	} else if (IS_BIT_SET(lcd->reg_ir, 3)) {
-		execute_display_on_off_control(lcd, IS_BIT_SET(lcd->reg_ir, 2),
-											IS_BIT_SET(lcd->reg_ir, 1),
-											IS_BIT_SET(lcd->reg_ir, 0));
-	} else if (IS_BIT_SET(lcd->reg_ir, 2)) {
-		execute_entry_mode_set(lcd, IS_BIT_SET(lcd->reg_ir, 1),
-									IS_BIT_SET(lcd->reg_ir, 0));
-	} else if (IS_BIT_SET(lcd->reg_ir, 1)) {
+	} else if (BIT_IS_SET(lcd->reg_ir, 5)) {
+		execute_function_set(lcd,	BIT_IS_SET(lcd->reg_ir, 4),
+									BIT_IS_SET(lcd->reg_ir, 3),
+									BIT_IS_SET(lcd->reg_ir, 2));
+	} else if (BIT_IS_SET(lcd->reg_ir, 4)) {
+		execute_cursor_or_display_shift(lcd,	BIT_IS_SET(lcd->reg_ir, 3),
+												BIT_IS_SET(lcd->reg_ir, 2));
+	} else if (BIT_IS_SET(lcd->reg_ir, 3)) {
+		execute_display_on_off_control(lcd, BIT_IS_SET(lcd->reg_ir, 2),
+											BIT_IS_SET(lcd->reg_ir, 1),
+											BIT_IS_SET(lcd->reg_ir, 0));
+	} else if (BIT_IS_SET(lcd->reg_ir, 2)) {
+		execute_entry_mode_set(lcd, BIT_IS_SET(lcd->reg_ir, 1),
+									BIT_IS_SET(lcd->reg_ir, 0));
+	} else if (BIT_IS_SET(lcd->reg_ir, 1)) {
 		execute_return_home(lcd);
-	} else if (IS_BIT_SET(lcd->reg_ir, 0)) {
+	} else if (BIT_IS_SET(lcd->reg_ir, 0)) {
 		execute_clear_display(lcd);
 	}
 }
