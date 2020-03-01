@@ -21,7 +21,7 @@
 #define SET_LO_BYTE(x,l) ((uint16_t) (((x) & 0xff00) | (l)))		// set low byte of a 16-bit word
 #define SET_HI_BYTE(x,h) ((uint16_t) (((x) & 0x00ff) | ((h) << 8)))	// set high byte of a 16-bit word
 
-#define IS_BIT_SET(x,b) ((bool) (((x) & (1 << (b))) >> (b)))
+#define BIT_IS_SET(x,b) ((bool) (((x) & (1 << (b))) >> (b)))
 
 #define MAKE_WORD(h,l)	((uint16_t) (((h) << 8) | (l)))
 

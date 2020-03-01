@@ -70,7 +70,7 @@ void input_keypad_process(InputKeypad *keypad) {
 	bool output[4] = {false, false, false, false};	
 
 	for (int i = 0; i < 4; ++i) {
-		if (IS_BIT_SET(rows, i)) {
+		if (BIT_IS_SET(rows, i)) {
 			output[0] |= keypad->keys[i][0];
 			output[1] |= keypad->keys[i][1];
 			output[2] |= keypad->keys[i][2];

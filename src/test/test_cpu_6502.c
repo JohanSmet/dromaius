@@ -1160,8 +1160,8 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_a, ==, 0x00);
 	munit_assert_true(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
-	munit_assert_true(IS_BIT_SET(cpu->reg_p, 1));		// zero flag
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_true(BIT_IS_SET(cpu->reg_p, 1));		// zero flag
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	// initialize used registers
 	cpu->reg_a = 0b11000011;
@@ -1175,8 +1175,8 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000011);
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_true(cpu->p_negative_result);
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 1));	// zero flag
-	munit_assert_true(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
+	munit_assert_true(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	return MUNIT_OK;
 }
@@ -4489,8 +4489,8 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_a, ==, 0x01);
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 1));	// zero flag
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	// >> cycle 01: fetch opcode
 	DATABUS_WRITE(OP_6502_LDA_IMM);
@@ -4501,8 +4501,8 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_a, ==, 0x00);
 	munit_assert_true(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
-	munit_assert_true(IS_BIT_SET(cpu->reg_p, 1));		// zero flag
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_true(BIT_IS_SET(cpu->reg_p, 1));		// zero flag
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	// >> cycle 01: fetch opcode
 	DATABUS_WRITE(OP_6502_LDA_IMM);
@@ -4513,8 +4513,8 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_a, ==, 0x81);
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_true(cpu->p_negative_result);
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 1));	// zero flag
-	munit_assert_true(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
+	munit_assert_true(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	return MUNIT_OK;
 }
@@ -4688,8 +4688,8 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_x, ==, 0x01);
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 1));	// zero flag
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	// >> cycle 01: fetch opcode
 	DATABUS_WRITE(OP_6502_LDX_IMM);
@@ -4700,8 +4700,8 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_x, ==, 0x00);
 	munit_assert_true(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
-	munit_assert_true(IS_BIT_SET(cpu->reg_p, 1));		// zero flag
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_true(BIT_IS_SET(cpu->reg_p, 1));		// zero flag
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	// >> cycle 01: fetch opcode
 	DATABUS_WRITE(OP_6502_LDX_IMM);
@@ -4712,8 +4712,8 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_x, ==, 0x81);
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_true(cpu->p_negative_result);
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 1));	// zero flag
-	munit_assert_true(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
+	munit_assert_true(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	return MUNIT_OK;
 }
@@ -4888,8 +4888,8 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_y, ==, 0x01);
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 1));	// zero flag
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	// >> cycle 01: fetch opcode
 	DATABUS_WRITE(OP_6502_LDY_IMM);
@@ -4900,8 +4900,8 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_y, ==, 0x00);
 	munit_assert_true(cpu->p_zero_result);
 	munit_assert_false(cpu->p_negative_result);
-	munit_assert_true(IS_BIT_SET(cpu->reg_p, 1));		// zero flag
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_true(BIT_IS_SET(cpu->reg_p, 1));		// zero flag
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	// >> cycle 01: fetch opcode
 	DATABUS_WRITE(OP_6502_LDY_IMM);
@@ -4912,8 +4912,8 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(cpu->reg_y, ==, 0x81);
 	munit_assert_false(cpu->p_zero_result);
 	munit_assert_true(cpu->p_negative_result);
-	munit_assert_false(IS_BIT_SET(cpu->reg_p, 1));	// zero flag
-	munit_assert_true(IS_BIT_SET(cpu->reg_p, 7));	// negative result
+	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
+	munit_assert_true(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
 	return MUNIT_OK;
 }
