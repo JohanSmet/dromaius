@@ -19,7 +19,7 @@
 Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, SignalPool *signal_pool, Ram8d16aSignals signals) {
 	assert(num_address_lines > 0 && num_address_lines <= 16);
 	
-	size_t data_size = 1ul << num_address_lines;
+	size_t data_size = (size_t) 1 << num_address_lines;
 	Ram8d16a *ram = (Ram8d16a *) malloc(sizeof(Ram8d16a) + data_size);
 
 	memset(ram, 0, sizeof(Ram8d16a) + data_size);

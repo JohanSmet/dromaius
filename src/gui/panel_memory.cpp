@@ -87,7 +87,7 @@ public:
 
 		char *line = NULL;
 
-		for (auto index = 0ul; index < mem_size; ) {
+		for (size_t index = 0; index < mem_size; ) {
 			bool is_current = (index + mem_offset) == ui_context->last_pc;
 
 			if (is_current && follow_pc) {

@@ -51,7 +51,7 @@ bool thread_join(thread_t thread, int *thread_res) {
 
 
 bool thread_create_joinable(thread_t* thread, thread_func_t func, void* arg) {
-	*thread = CreateThread(NULL, 0, func, arg, 0, NULL);
+	*thread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) func, arg, 0, NULL);
 	return *thread != 0;
 }
 
@@ -61,9 +61,11 @@ bool thread_join(thread_t thread, int* thread_res) {
 	}
 
 	if (thread_res != NULL) {
-		if (!GetExitCodeThread(thread, thread_res)) {
+		DWORD result;
+		if (!GetExitCodeThread(thread, &result)) {
 			return false;
 		}
+		*thread_res = result;
 	}
 
 	CloseHandle(thread);
@@ -96,6 +98,7 @@ bool cond_init(cond_t* cond) {
 }
 
 bool cond_destroy(cond_t* cond) {
+	cond;		// silence unused variable warning
 	return true;
 }
 

@@ -16,19 +16,19 @@ MunitResult test_cycle_count(const MunitParameter params[], void* user_data_or_f
 	
 	Clock *clock = (Clock *) user_data_or_fixture;
 
-	munit_assert_int(clock->cycle_count, ==, 0);
+	munit_assert_int64(clock->cycle_count, ==, 0);
 	clock_process(clock);
 	signal_pool_cycle(clock->signal_pool);
-	munit_assert_int(clock->cycle_count, ==, 1);
+	munit_assert_int64(clock->cycle_count, ==, 1);
 	clock_process(clock);
 	signal_pool_cycle(clock->signal_pool);
-	munit_assert_int(clock->cycle_count, ==, 1);
+	munit_assert_int64(clock->cycle_count, ==, 1);
 	clock_process(clock);
 	signal_pool_cycle(clock->signal_pool);
-	munit_assert_int(clock->cycle_count, ==, 2);
+	munit_assert_int64(clock->cycle_count, ==, 2);
 	clock_process(clock);
 	signal_pool_cycle(clock->signal_pool);
-	munit_assert_int(clock->cycle_count, ==, 2);
+	munit_assert_int64(clock->cycle_count, ==, 2);
 
 	return MUNIT_OK;
 }
@@ -42,7 +42,7 @@ MunitResult test_frequency(const MunitParameter params[], void* user_data_or_fix
 	munit_assert_uint64(clock->conf_half_period_ns, ==, 1000000);
 	
 	clock_set_frequency(clock, 1000000);		// 1 MHz
-	munit_assert_uint32(clock->conf_frequency, ==, 1e6);
+	munit_assert_uint32(clock->conf_frequency, ==, 1000000);
 	munit_assert_uint64(clock->conf_half_period_ns, ==, 500);
 
 	return MUNIT_OK;
