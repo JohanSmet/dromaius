@@ -18,7 +18,7 @@
 
 Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Rom8d16aSignals signals) {
 
-	size_t data_size = 1ull << num_address_lines;
+	size_t data_size = (size_t) 1 << num_address_lines;
 	Rom8d16a *rom = (Rom8d16a *) malloc(sizeof(Rom8d16a) + data_size);
 
 	memset(rom, 0, sizeof(Rom8d16a) + data_size);
