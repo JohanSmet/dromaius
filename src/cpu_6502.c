@@ -139,6 +139,9 @@ typedef struct Cpu6502_private {
 	PRIVATE(cpu)->out_data = (uint8_t) (d);	\
 	PRIVATE(cpu)->drv_data = true;
 
+#define CPU_CHANGE_FLAG(flag, cond)			\
+	FLAG_SET_CLEAR_U8(cpu->reg_p, FLAG_6502_##flag, (cond))
+
 static void process_end(Cpu6502 *cpu) {
 
 	// always write to the output pins that aren't tristate
@@ -250,7 +253,7 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 				PRIVATE(cpu)->out_address = VECTOR_HIGH[irq_type];
 			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_HI_BYTE(cpu->reg_pc, PRIVATE(cpu)->in_data);
-				cpu->p_interrupt_disable = irq_type != INTR_RESET;
+				CPU_CHANGE_FLAG(I, irq_type != INTR_RESET);
 				PRIVATE(cpu)->state = CS_RUNNING;
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
@@ -758,9 +761,10 @@ static inline void calculate_adc_decimal(Cpu6502 *cpu) {
    Many thanks go to Bruce Clark, for his excellent explanation of the decimal mode of the 6502 (see: http://www.6502.org/tutorials/decimal_mode.html)
    and the accompanying test program.
 */
-	int bin_result = cpu->reg_a + PRIVATE(cpu)->operand + cpu->p_carry;
+	int carry = FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY);
+	int bin_result = cpu->reg_a + PRIVATE(cpu)->operand + carry;
 
-	int al = (cpu->reg_a & 0x0f) + (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry;
+	int al = (cpu->reg_a & 0x0f) + (PRIVATE(cpu)->operand & 0x0f) + carry;
 	if (al >= 0x0a) {
 		al = ((al + 0x06) & 0x0f) + 0x10;
 	}
@@ -772,10 +776,10 @@ static inline void calculate_adc_decimal(Cpu6502 *cpu) {
 	int a_seq2 = (int8_t) (cpu->reg_a & 0xf0) + (int8_t) (PRIVATE(cpu)->operand & 0xf0) + al;
 
 	cpu->reg_a = (uint8_t) (a_seq1 & 0x00ff);
-	cpu->p_carry = (a_seq1 >= 0x0100);
-	cpu->p_negative_result = BIT_IS_SET(a_seq2, 7);
-	cpu->p_overflow = (a_seq2 < -128) || (a_seq2 > 127);
-	cpu->p_zero_result = (bin_result & 0xff) == 0x00;
+	CPU_CHANGE_FLAG(C, a_seq1 >= 0x0100);
+	CPU_CHANGE_FLAG(V, (a_seq2 < -128) || (a_seq2 > 127));
+	CPU_CHANGE_FLAG(Z, (bin_result & 0xff) == 0x00);
+	CPU_CHANGE_FLAG(N, BIT_IS_SET(a_seq2, 7));
 }
 
 static inline void decode_adc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
@@ -784,14 +788,15 @@ static inline void decode_adc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		return;
 	}
 
-	if (!cpu->p_decimal_mode) {
-		int s_result = (int8_t) cpu->reg_a + (int8_t) PRIVATE(cpu)->operand + cpu->p_carry;
-		int u_result = cpu->reg_a + PRIVATE(cpu)->operand + cpu->p_carry;
+	if (!FLAG_IS_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE)) {
+		int carry = FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY);
+		int s_result = (int8_t) cpu->reg_a + (int8_t) PRIVATE(cpu)->operand + carry;
+		int u_result = cpu->reg_a + PRIVATE(cpu)->operand + carry;
 		cpu->reg_a = (uint8_t) (u_result & 0x00ff);
-		cpu->p_carry = BIT_IS_SET(u_result, 8);
-		cpu->p_overflow = (s_result < -128) || (s_result > 127);
-		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+		CPU_CHANGE_FLAG(C, BIT_IS_SET(u_result, 8));
+		CPU_CHANGE_FLAG(V, (s_result < -128) || (s_result > 127));
+		CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 	} else {
 		calculate_adc_decimal(cpu);
 	}
@@ -803,8 +808,8 @@ static inline void decode_and(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
 		cpu->reg_a	= cpu->reg_a & PRIVATE(cpu)->operand;
-		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -819,10 +824,10 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			case CYCLE_MIDDLE:
 				break;
 			case CYCLE_END:
-				cpu->p_carry = BIT_IS_SET(cpu->reg_a, 7);
+				CPU_CHANGE_FLAG(C, BIT_IS_SET(cpu->reg_a, 7));
 				cpu->reg_a = (uint8_t) (cpu->reg_a << 1);
-				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+				CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+				CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 				PRIVATE(cpu)->decode_cycle = -1;
 				break;
 		}
@@ -854,7 +859,7 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END:
-					cpu->p_carry = BIT_IS_SET(PRIVATE(cpu)->operand, 7);
+					CPU_CHANGE_FLAG(C, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->operand = (uint8_t) (PRIVATE(cpu)->operand << 1);
 					break;
 			}
@@ -868,8 +873,8 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
-					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = BIT_IS_SET(PRIVATE(cpu)->operand, 7);
+					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
+					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -903,9 +908,9 @@ static inline void decode_bit(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	};
 
 	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
-		cpu->p_negative_result = BIT_IS_SET(PRIVATE(cpu)->operand, 7);
-		cpu->p_overflow = BIT_IS_SET(PRIVATE(cpu)->operand, 6);
-		cpu->p_zero_result = (PRIVATE(cpu)->operand & cpu->reg_a) == 0;
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
+		CPU_CHANGE_FLAG(V, BIT_IS_SET(PRIVATE(cpu)->operand, 6));
+		CPU_CHANGE_FLAG(Z, (PRIVATE(cpu)->operand & cpu->reg_a) == 0);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -924,7 +929,7 @@ static inline void decode_bpl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_brk(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (PRIVATE(cpu)->decode_cycle == 1 && phase == CYCLE_BEGIN) {
-		cpu->p_break_command = true;
+		CPU_CHANGE_FLAG(B, true);
 	}
 
 	interrupt_sequence(cpu, phase, INTR_BRK);
@@ -946,7 +951,7 @@ static inline void decode_clc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END : 
-			cpu->p_carry = false;
+			CPU_CHANGE_FLAG(CARRY, false);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -960,7 +965,7 @@ static inline void decode_cld(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END : 
-			cpu->p_decimal_mode = false;
+			CPU_CHANGE_FLAG(DECIMAL_MODE, false);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -974,7 +979,7 @@ static inline void decode_cli(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END : 
-			cpu->p_interrupt_disable = false;
+			CPU_CHANGE_FLAG(INTERRUPT_DISABLE, false);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -988,7 +993,7 @@ static inline void decode_clv(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END : 
-			cpu->p_overflow = false;
+			CPU_CHANGE_FLAG(OVERFLOW, false);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -997,9 +1002,9 @@ static inline void decode_clv(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_cmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (fetch_operand_g1(cpu, phase)) {
 		int8_t result = (int8_t) (cpu->reg_a - PRIVATE(cpu)->operand);
-		cpu->p_zero_result = result == 0;
-		cpu->p_negative_result = BIT_IS_SET(result, 7);
-		cpu->p_carry = result >= 0;
+		CPU_CHANGE_FLAG(Z, result == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(result, 7));
+		CPU_CHANGE_FLAG(C, result >= 0);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1019,9 +1024,9 @@ static inline void decode_cpx_cpy(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t re
 
 	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
 		int8_t result = (int8_t) (reg - PRIVATE(cpu)->operand);
-		cpu->p_zero_result = result == 0;
-		cpu->p_negative_result = BIT_IS_SET(result, 7);
-		cpu->p_carry = result >= 0;
+		CPU_CHANGE_FLAG(Z, result == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(result, 7));
+		CPU_CHANGE_FLAG(C, result >= 0);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1066,8 +1071,8 @@ static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
-					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = BIT_IS_SET(PRIVATE(cpu)->operand, 7);
+					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
+					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1084,8 +1089,8 @@ static inline void decode_dex(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_END : 
 			cpu->reg_x--;
-			cpu->p_zero_result = cpu->reg_x == 0;
-			cpu->p_negative_result = BIT_IS_SET(cpu->reg_x, 7);
+			CPU_CHANGE_FLAG(Z, cpu->reg_x == 0);
+			CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_x, 7));
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1100,8 +1105,8 @@ static inline void decode_dey(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_END : 
 			cpu->reg_y--;
-			cpu->p_zero_result = cpu->reg_y == 0;
-			cpu->p_negative_result = BIT_IS_SET(cpu->reg_y, 7);
+			CPU_CHANGE_FLAG(Z, cpu->reg_y == 0);
+			CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_y, 7));
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1111,8 +1116,8 @@ static inline void decode_eor(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
 		cpu->reg_a	= cpu->reg_a ^ PRIVATE(cpu)->operand;
-		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1157,8 +1162,8 @@ static inline void decode_inc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
-					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = BIT_IS_SET(PRIVATE(cpu)->operand, 7);
+					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
+					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1175,8 +1180,8 @@ static inline void decode_inx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_END : 
 			cpu->reg_x++;
-			cpu->p_zero_result = cpu->reg_x == 0;
-			cpu->p_negative_result = BIT_IS_SET(cpu->reg_x, 7);
+			CPU_CHANGE_FLAG(Z, cpu->reg_x == 0);
+			CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_x, 7));
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1191,8 +1196,8 @@ static inline void decode_iny(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_END : 
 			cpu->reg_y++;
-			cpu->p_zero_result = cpu->reg_y == 0;
-			cpu->p_negative_result = BIT_IS_SET(cpu->reg_y, 7);
+			CPU_CHANGE_FLAG(Z, cpu->reg_y == 0);
+			CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_y, 7));
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1245,8 +1250,8 @@ static inline void decode_lda(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
 		cpu->reg_a	= PRIVATE(cpu)->operand;
-		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1266,8 +1271,8 @@ static inline void decode_ldx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
 		cpu->reg_x = PRIVATE(cpu)->operand;
-		cpu->p_zero_result = cpu->reg_x == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_x, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_x == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_x, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1287,8 +1292,8 @@ static inline void decode_ldy(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand(cpu, AM_LUT[EXTRACT_6502_ADRESSING_MODE(cpu->reg_ir)], phase)) {
 		cpu->reg_y = PRIVATE(cpu)->operand;
-		cpu->p_zero_result = cpu->reg_y == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_y, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_y == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_y, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1303,10 +1308,10 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			case CYCLE_MIDDLE:
 				break;
 			case CYCLE_END:
-				cpu->p_carry = BIT_IS_SET(cpu->reg_a, 0);
+				CPU_CHANGE_FLAG(C, BIT_IS_SET(cpu->reg_a, 0));
 				cpu->reg_a >>= 1;
-				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+				CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+				CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 				PRIVATE(cpu)->decode_cycle = -1;
 				break;
 		}
@@ -1338,7 +1343,7 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END:
-					cpu->p_carry = BIT_IS_SET(PRIVATE(cpu)->operand, 0);
+					CPU_CHANGE_FLAG(C, BIT_IS_SET(PRIVATE(cpu)->operand, 0));
 					PRIVATE(cpu)->operand >>= 1;
 					break;
 			}
@@ -1352,8 +1357,8 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
-					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = BIT_IS_SET(PRIVATE(cpu)->operand, 7);
+					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
+					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1417,8 +1422,8 @@ static inline void decode_pla(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 3 :		// pop value from stack
 			cpu->reg_a = stack_pop(cpu, phase);
 			if (phase == CYCLE_END) {
-				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+				CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+				CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
 			break;
@@ -1436,8 +1441,7 @@ static inline void decode_plp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			}
 			break;
 		case 3 :		// pop value from stack
-			cpu->reg_p = stack_pop(cpu, phase);
-			cpu->p_expension = true;		// reserved bit is always set
+			cpu->reg_p = stack_pop(cpu, phase) | FLAG_6502_EXPANSION;	// reserved bit is always set
 			if (phase == CYCLE_END) {
 				PRIVATE(cpu)->decode_cycle = -1;
 			}
@@ -1450,8 +1454,8 @@ static inline void decode_ora(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	if (fetch_operand_g1(cpu, phase)) {
 		cpu->reg_a	= cpu->reg_a | PRIVATE(cpu)->operand;
-		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1466,11 +1470,11 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			case CYCLE_MIDDLE:
 				break;
 			case CYCLE_END: {
-				int carry = cpu->p_carry;
-				cpu->p_carry = BIT_IS_SET(cpu->reg_a, 7);
+				int carry = FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY);
+				CPU_CHANGE_FLAG(C, BIT_IS_SET(cpu->reg_a, 7));
 				cpu->reg_a = (uint8_t) ((cpu->reg_a << 1) | carry);
-				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+				CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+				CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 				PRIVATE(cpu)->decode_cycle = -1;
 				break;
 			}
@@ -1503,8 +1507,8 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END: {
-					int carry = cpu->p_carry;
-					cpu->p_carry = BIT_IS_SET(PRIVATE(cpu)->operand, 7);
+					int carry = FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY);
+					CPU_CHANGE_FLAG(C, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->operand = (uint8_t) ((PRIVATE(cpu)->operand << 1) | carry);
 					break;
 				}
@@ -1519,8 +1523,8 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
-					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = BIT_IS_SET(PRIVATE(cpu)->operand, 7);
+					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
+					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1539,11 +1543,11 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			case CYCLE_MIDDLE:
 				break;
 			case CYCLE_END: {
-				uint8_t carry = (uint8_t) (cpu->p_carry << 7);
-				cpu->p_carry = BIT_IS_SET(cpu->reg_a, 0);
-				cpu->reg_a = (cpu->reg_a >> 1) | carry;
-				cpu->p_zero_result = cpu->reg_a == 0;
-				cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+				int carry = FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY);
+				CPU_CHANGE_FLAG(C, BIT_IS_SET(cpu->reg_a, 0));
+				cpu->reg_a = (cpu->reg_a >> 1) | (uint8_t) (carry << 7);
+				CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+				CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 				PRIVATE(cpu)->decode_cycle = -1;
 				break;
 			}
@@ -1576,9 +1580,9 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					PRIVATE(cpu)->out_rw = RW_WRITE;
 					break;
 				case CYCLE_END: {
-					uint8_t carry = (uint8_t) (cpu->p_carry << 7);
-					cpu->p_carry = BIT_IS_SET(PRIVATE(cpu)->operand, 0);
-					PRIVATE(cpu)->operand = (PRIVATE(cpu)->operand >> 1) | carry;
+					int carry = FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY);
+					CPU_CHANGE_FLAG(C, BIT_IS_SET(PRIVATE(cpu)->operand, 0));
+					PRIVATE(cpu)->operand = (PRIVATE(cpu)->operand >> 1) | (uint8_t) (carry << 7);
 					break;
 				}
 			}
@@ -1592,8 +1596,8 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->out_rw = RW_READ;
-					cpu->p_zero_result = PRIVATE(cpu)->operand == 0;
-					cpu->p_negative_result = BIT_IS_SET(PRIVATE(cpu)->operand, 7);
+					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
+					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
 					break;
 			}
@@ -1641,7 +1645,7 @@ static inline void decode_rti(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 3 :		// pop status register
 			cpu->reg_p = stack_pop(cpu, phase);
 			if (phase == CYCLE_END) {
-				cpu->p_break_command = false;
+				CPU_CHANGE_FLAG(B, false);
 			}
 			break;
 		case 4 :		// pop program_counter - low byte
@@ -1663,13 +1667,14 @@ static inline void decode_sbc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 
 	// on a 6502 the C/N/V/Z-flags are set using the binary mode computation.
-	int u_result = cpu->reg_a + (uint8_t) ~PRIVATE(cpu)->operand + cpu->p_carry;
-	int s_result = (int8_t) cpu->reg_a - (int8_t) PRIVATE(cpu)->operand - !cpu->p_carry;
+	int carry = FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY);
+	int u_result = cpu->reg_a + (uint8_t) ~PRIVATE(cpu)->operand + carry;
+	int s_result = (int8_t) cpu->reg_a - (int8_t) PRIVATE(cpu)->operand - !carry;
 
-	if (!cpu->p_decimal_mode) {
+	if (!FLAG_IS_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE)) {
 		cpu->reg_a = (uint8_t) (u_result & 0x00ff);
 	} else {
-		int al = (cpu->reg_a & 0x0f) - (PRIVATE(cpu)->operand & 0x0f) + cpu->p_carry - 1;
+		int al = (cpu->reg_a & 0x0f) - (PRIVATE(cpu)->operand & 0x0f) + carry - 1;
 		if (al < 0) {
 			al = ((al - 0x06) & 0x0f) - 0x10;
 		}
@@ -1680,10 +1685,10 @@ static inline void decode_sbc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		cpu->reg_a = (uint8_t) (a_seq3 & 0x00ff);
 	}
 
-	cpu->p_carry = BIT_IS_SET(u_result, 8);
-	cpu->p_overflow = (s_result < -128) || (s_result > 127);
-	cpu->p_zero_result = (u_result & 0x00ff) == 0;
-	cpu->p_negative_result = BIT_IS_SET(u_result, 7);
+	CPU_CHANGE_FLAG(C, BIT_IS_SET(u_result, 8));
+	CPU_CHANGE_FLAG(V, (s_result < -128) || (s_result > 127));
+	CPU_CHANGE_FLAG(Z, (u_result & 0x00ff) == 0);
+	CPU_CHANGE_FLAG(N, BIT_IS_SET(u_result, 7));
 
 	PRIVATE(cpu)->decode_cycle = -1;
 }
@@ -1696,7 +1701,7 @@ static inline void decode_sec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END:
-			cpu->p_carry = true;
+			CPU_CHANGE_FLAG(C, true);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1710,7 +1715,7 @@ static inline void decode_sed(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END:
-			cpu->p_decimal_mode = true;
+			CPU_CHANGE_FLAG(D, true);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1724,7 +1729,7 @@ static inline void decode_sei(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case CYCLE_MIDDLE:
 			break;
 		case CYCLE_END:
-			cpu->p_interrupt_disable = true;
+			CPU_CHANGE_FLAG(I, true);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1784,8 +1789,8 @@ static inline void decode_tax(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_x = cpu->reg_a;
-		cpu->p_zero_result = cpu->reg_x == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_x, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_x == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_x, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1796,8 +1801,8 @@ static inline void decode_tay(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_y = cpu->reg_a;
-		cpu->p_zero_result = cpu->reg_y == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_y, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_y == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_y, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1808,8 +1813,8 @@ static inline void decode_tsx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_x = cpu->reg_sp;
-		cpu->p_zero_result = cpu->reg_x == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_x, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_x == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_x, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1820,8 +1825,8 @@ static inline void decode_txa(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_a = cpu->reg_x;
-		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1842,8 +1847,8 @@ static inline void decode_tya(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_a = cpu->reg_y;
-		cpu->p_zero_result = cpu->reg_a == 0;
-		cpu->p_negative_result = BIT_IS_SET(cpu->reg_a, 7);
+		CPU_CHANGE_FLAG(Z, cpu->reg_a == 0);
+		CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_a, 7));
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -2064,7 +2069,7 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			PRIVATE(cpu)->state = CS_IN_NMI;
 			PRIVATE(cpu)->nmi_triggered = false;
 		}
-		if (ACTLO_ASSERTED(SIGNAL_BOOL(irq_b)) && !cpu->p_interrupt_disable) {
+		if (ACTLO_ASSERTED(SIGNAL_BOOL(irq_b)) && !FLAG_IS_SET(cpu->reg_p, FLAG_6502_INTERRUPT_DISABLE)) {
 			PRIVATE(cpu)->state = CS_IN_IRQ;
 		}
 		if (PRIVATE(cpu)->override_pc) {

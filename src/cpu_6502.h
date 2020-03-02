@@ -25,6 +25,27 @@ typedef struct Cpu6502Signals {
 	Signal	rdy;			// 1-bit ready signal - cpu only runs when asserted
 } Cpu6502Signals;
 
+typedef enum Cpu6502Flags {
+	FLAG_6502_CARRY				= 0b00000001,
+	FLAG_6502_ZERO_RESULT		= 0b00000010,
+	FLAG_6502_INTERRUPT_DISABLE = 0b00000100,
+	FLAG_6502_DECIMAL_MODE		= 0b00001000,
+	FLAG_6502_BREAK_COMMAND		= 0b00010000,
+	FLAG_6502_EXPANSION			= 0b00100000,
+	FLAG_6502_OVERFLOW			= 0b01000000,
+	FLAG_6502_NEGATIVE_RESULT	= 0b10000000,
+
+	// abbreviations
+	FLAG_6502_C = FLAG_6502_CARRY,
+	FLAG_6502_Z = FLAG_6502_ZERO_RESULT,
+	FLAG_6502_I = FLAG_6502_INTERRUPT_DISABLE,
+	FLAG_6502_D = FLAG_6502_DECIMAL_MODE,
+	FLAG_6502_B = FLAG_6502_BREAK_COMMAND,
+	FLAG_6502_E = FLAG_6502_EXPANSION,
+	FLAG_6502_V = FLAG_6502_OVERFLOW,
+	FLAG_6502_N = FLAG_6502_NEGATIVE_RESULT
+} Cpu6502Flags;
+
 typedef struct Cpu6502 {
 	// interface
 	SignalPool *	signal_pool;
@@ -37,19 +58,7 @@ typedef struct Cpu6502 {
 	uint8_t		reg_sp;				// stack-pointer
 	uint8_t		reg_ir;				// instruction register
 	uint16_t	reg_pc;				// program counter
-	union {
-		uint8_t		reg_p;				// processor status register
-		struct {
-			unsigned int p_carry : 1;
-			unsigned int p_zero_result : 1;
-			unsigned int p_interrupt_disable : 1;
-			unsigned int p_decimal_mode : 1;
-			unsigned int p_break_command : 1;
-			unsigned int p_expension : 1;
-			unsigned int p_overflow : 1;
-			unsigned int p_negative_result : 1;
-		};
-	};
+	uint8_t		reg_p;				// processor status register
 } Cpu6502;
 
 // functions

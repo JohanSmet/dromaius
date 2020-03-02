@@ -52,14 +52,14 @@ public:
 			ImGui::NewLine();
 
 			ImGui::SetCursorPos({origin.x + 180, ImGui::GetCursorPosY()});
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", cpu->p_negative_result), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", cpu->p_overflow), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", cpu->p_expension), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", cpu->p_break_command), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", cpu->p_decimal_mode), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", cpu->p_interrupt_disable), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", cpu->p_zero_result), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", cpu->p_carry), ImGuiEx::TAH_CENTER);
+			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_N)), ImGuiEx::TAH_CENTER);
+			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_V)), ImGuiEx::TAH_CENTER);
+			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_E)), ImGuiEx::TAH_CENTER);
+			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_B)), ImGuiEx::TAH_CENTER);
+			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_D)), ImGuiEx::TAH_CENTER);
+			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_I)), ImGuiEx::TAH_CENTER);
+			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_Z)), ImGuiEx::TAH_CENTER);
+			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_C)), ImGuiEx::TAH_CENTER);
 			ImGui::NewLine();
 
 			ui_signal(180, "/RES", SIGNAL_NEXT_BOOL(reset_b), ACTLO_ASSERT);
@@ -72,7 +72,6 @@ public:
 
 		ImGui::End();
 	}
-
 
 private:
 	ImVec2				position;
