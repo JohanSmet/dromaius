@@ -8,6 +8,7 @@ extern MunitTest signal_tests[];
 extern MunitTest clock_tests[];
 extern MunitTest cpu_6502_tests[];
 extern MunitTest chip_6520_tests[];
+extern MunitTest chip_6522_tests[];
 extern MunitTest chip_hd44780_tests[];
 extern MunitTest dev_minimal_6502_tests[];
 extern MunitTest input_keypad_tests[];
@@ -49,6 +50,12 @@ static MunitSuite extern_suites[] = {
 	},
 	{	.prefix = "/chip_6520",
 		.tests = chip_6520_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
+	{	.prefix = "/chip_6522",
+		.tests = chip_6522_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE
