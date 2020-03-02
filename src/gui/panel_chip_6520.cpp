@@ -35,11 +35,11 @@ public:
 			// left column
 			ui_register_8bit(8, "Periph. Output A", pia->reg_ora);
 			ui_register_8bit_binary(8, "Data Direction A", pia->reg_ddra);
-			ui_register_8bit_binary(8, "Control Reg. A", pia->reg_cra.reg);
+			ui_register_8bit_binary(8, "Control Reg. A", pia->reg_cra);
 
 			ui_register_8bit(8, "Periph. Output B", pia->reg_orb);
 			ui_register_8bit_binary(8, "Data Direction B", pia->reg_ddrb);
-			ui_register_8bit_binary(8, "Control Reg. B", pia->reg_crb.reg);
+			ui_register_8bit_binary(8, "Control Reg. B", pia->reg_crb);
 
 			ui_register_8bit(8, "Port-A", SIGNAL_NEXT_UINT8(port_a));
 			ui_register_8bit(8, "Port-B", SIGNAL_NEXT_UINT8(port_b));

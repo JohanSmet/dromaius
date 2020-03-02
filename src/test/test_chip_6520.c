@@ -49,11 +49,11 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 
 	// force registers to junk values
 	pia->reg_ddra = 0xde;
-	pia->reg_cra.reg = 0xad;
+	pia->reg_cra = 0xad;
 	pia->reg_ora = 0xbe;
 
 	pia->reg_ddrb = 0xef;
-	pia->reg_crb.reg = 0xba;
+	pia->reg_crb = 0xba;
 	pia->reg_orb = 0xdd;
 
 	// run pia with reset asserted
@@ -63,11 +63,11 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 
 	// registers should have been reset
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	return MUNIT_OK;
@@ -78,7 +78,7 @@ static MunitResult test_read_ddra(const MunitParameter params[], void *user_data
 
 	// initialize registers
 	pia->reg_ddra = 0xa5;
-	pia->reg_cra.bf_ddr_or_select = ACTHI_DEASSERT;
+	FLAG_SET_CLEAR_U8(pia->reg_cra, FLAG_6520_DDR_OR_SELECT, ACTHI_DEASSERT);
 
 	// read the DDRA register
 	PIA_CYCLE_START
@@ -105,7 +105,7 @@ static MunitResult test_read_cra(const MunitParameter params[], void *user_data_
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_cra.reg = 0x5a;
+	pia->reg_cra = 0x5a;
 
 	// read the CRA register
 	PIA_CYCLE_START
@@ -113,7 +113,7 @@ static MunitResult test_read_cra(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 	PIA_CYCLE_END
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0x5a);
+	munit_assert_uint8(pia->reg_cra, ==, 0x5a);
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x5a);
 
 	// try reading again from a disabled pia, output shouldn't change
@@ -122,7 +122,7 @@ static MunitResult test_read_cra(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 	PIA_CYCLE_END
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0x5a);
+	munit_assert_uint8(pia->reg_cra, ==, 0x5a);
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
 
 	return MUNIT_OK;
@@ -132,7 +132,7 @@ static MunitResult test_read_porta(const MunitParameter params[], void *user_dat
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_cra.bf_ddr_or_select = ACTHI_ASSERT;
+	FLAG_SET_CLEAR_U8(pia->reg_cra, FLAG_6520_DDR_OR_SELECT, ACTHI_ASSERT);
 
 	// read port-A
 	PIA_CYCLE_START
@@ -165,7 +165,7 @@ static MunitResult test_read_ddrb(const MunitParameter params[], void *user_data
 
 	// initialize registers
 	pia->reg_ddrb = 0xa5;
-	pia->reg_crb.bf_ddr_or_select = ACTHI_DEASSERT;
+	FLAG_SET_CLEAR_U8(pia->reg_crb, FLAG_6520_DDR_OR_SELECT, ACTHI_DEASSERT);
 
 	// read the DDRB register
 	PIA_CYCLE_START
@@ -192,7 +192,7 @@ static MunitResult test_read_crb(const MunitParameter params[], void *user_data_
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_crb.reg = 0x5a;
+	pia->reg_crb = 0x5a;
 
 	// read the CRB register
 	PIA_CYCLE_START
@@ -200,7 +200,7 @@ static MunitResult test_read_crb(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 	PIA_CYCLE_END
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0x5a);
+	munit_assert_uint8(pia->reg_crb, ==, 0x5a);
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x5a);
 
 	// try reading again from a disabled pia, output shouldn't change
@@ -209,7 +209,7 @@ static MunitResult test_read_crb(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 	PIA_CYCLE_END
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0x5a);
+	munit_assert_uint8(pia->reg_crb, ==, 0x5a);
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
 
 	return MUNIT_OK;
@@ -219,7 +219,7 @@ static MunitResult test_read_portb(const MunitParameter params[], void *user_dat
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_crb.bf_ddr_or_select = ACTHI_ASSERT;
+	FLAG_SET_CLEAR_U8(pia->reg_crb, FLAG_6520_DDR_OR_SELECT, ACTHI_ASSERT);
 
 	// read port-B
 	PIA_CYCLE_START
@@ -249,14 +249,14 @@ static MunitResult test_write_ora(const MunitParameter params[], void *user_data
 
 	// assert initial state
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// initialize registers
-	pia->reg_cra.bf_ddr_or_select = ACTHI_ASSERT;
+	FLAG_SET_CLEAR_U8(pia->reg_cra, FLAG_6520_DDR_OR_SELECT, ACTHI_ASSERT);
 
 	// write to the ORA register
 	PIA_CYCLE_START
@@ -267,10 +267,10 @@ static MunitResult test_write_ora(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0b00000100);
+	munit_assert_uint8(pia->reg_cra, ==, 0b00000100);
 	munit_assert_uint8(pia->reg_ora, ==, 7);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// try writing again with a disabled pia, register shouldn't change
@@ -282,10 +282,10 @@ static MunitResult test_write_ora(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0b00000100);
+	munit_assert_uint8(pia->reg_cra, ==, 0b00000100);
 	munit_assert_uint8(pia->reg_ora, ==, 0x07);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	return MUNIT_OK;
@@ -296,10 +296,10 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 
 	// assert initial state
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// write to the DDRA register
@@ -311,10 +311,10 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0x09);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0b00000000);
+	munit_assert_uint8(pia->reg_cra, ==, 0b00000000);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// disable pia
@@ -329,10 +329,10 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0x09);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0b00000000);
+	munit_assert_uint8(pia->reg_cra, ==, 0b00000000);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	return MUNIT_OK;
@@ -343,10 +343,10 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 
 	// assert initial state
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// write to the ORA register
@@ -358,10 +358,10 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0x1f);		// top two bits controlled by pia
+	munit_assert_uint8(pia->reg_cra, ==, 0x1f);		// top two bits controlled by pia
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// disable pia
@@ -376,10 +376,10 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0x1f);
+	munit_assert_uint8(pia->reg_cra, ==, 0x1f);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	return MUNIT_OK;
@@ -391,14 +391,14 @@ static MunitResult test_write_orb(const MunitParameter params[], void *user_data
 
 	// assert initial state
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// initialize registers
-	pia->reg_crb.bf_ddr_or_select = ACTHI_ASSERT;
+	FLAG_SET_CLEAR_U8(pia->reg_crb, FLAG_6520_DDR_OR_SELECT, ACTHI_ASSERT);
 
 	// write to the ORA register
 	PIA_CYCLE_START
@@ -409,10 +409,10 @@ static MunitResult test_write_orb(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0b00000100);
+	munit_assert_uint8(pia->reg_crb, ==, 0b00000100);
 	munit_assert_uint8(pia->reg_orb, ==, 0x07);
 
 	// try writing again to disabled pia, register shouldn't change
@@ -424,10 +424,10 @@ static MunitResult test_write_orb(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0b00000100);
+	munit_assert_uint8(pia->reg_crb, ==, 0b00000100);
 	munit_assert_uint8(pia->reg_orb, ==, 0x07);
 
 	return MUNIT_OK;
@@ -438,10 +438,10 @@ static MunitResult test_write_ddrb(const MunitParameter params[], void *user_dat
 
 	// assert initial state
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// write to the ORA register
@@ -453,10 +453,10 @@ static MunitResult test_write_ddrb(const MunitParameter params[], void *user_dat
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0x17);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// try writing again to a disabled pia, register shouldn't change
@@ -468,10 +468,10 @@ static MunitResult test_write_ddrb(const MunitParameter params[], void *user_dat
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0x17);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	return MUNIT_OK;
@@ -482,10 +482,10 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 
 	// assert initial state
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0);
+	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// write to the ORA register
@@ -497,10 +497,10 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0x3f);
+	munit_assert_uint8(pia->reg_crb, ==, 0x3f);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	// disable pia
@@ -515,10 +515,10 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_uint8(pia->reg_ddra, ==, 0);
-	munit_assert_uint8(pia->reg_cra.reg, ==, 0);
+	munit_assert_uint8(pia->reg_cra, ==, 0);
 	munit_assert_uint8(pia->reg_ora, ==, 0);
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
-	munit_assert_uint8(pia->reg_crb.reg, ==, 0x3f);
+	munit_assert_uint8(pia->reg_crb, ==, 0x3f);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
 	return MUNIT_OK;
@@ -528,7 +528,7 @@ static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_cra.reg = 0b00001001;	// irqa1 & irqa2 enable on a negative transition
+	pia->reg_cra = 0b00001001;	// irqa1 & irqa2 enable on a negative transition
 
 	// check initial state (irq not asserted)
 	munit_assert_true(SIGNAL_BOOL(irqa_b));
@@ -541,8 +541,8 @@ static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_false(pia->reg_cra.bf_irq1);
-	munit_assert_false(pia->reg_cra.bf_irq2);
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
 
 	// transition ca1 to low - triggers irq1
 	PIA_CYCLE_START
@@ -550,8 +550,8 @@ static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_true(pia->reg_cra.bf_irq1);
-	munit_assert_false(pia->reg_cra.bf_irq2);
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
 
 	// transition ca2 to low - triggers irq2
 	PIA_CYCLE_START
@@ -560,8 +560,8 @@ static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_true(pia->reg_cra.bf_irq1);
-	munit_assert_true(pia->reg_cra.bf_irq2);
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
 
 	// change CRA to enable read from port-A
 	PIA_CYCLE_START
@@ -572,9 +572,9 @@ static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_true(pia->reg_cra.bf_irq1);
-	munit_assert_true(pia->reg_cra.bf_irq2);
-	munit_assert_true(pia->reg_cra.bf_ddr_or_select);
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_DDR_OR_SELECT));
 
 	// read port-A - should reset the irq
 	PIA_CYCLE_START
@@ -583,8 +583,8 @@ static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_false(pia->reg_cra.bf_irq1);
-	munit_assert_false(pia->reg_cra.bf_irq2);
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
 
 	return MUNIT_OK;
 }
@@ -599,7 +599,7 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
 	PIA_CYCLE_END
 
-	pia->reg_cra.reg = 0b00011011;	// irqa1 & irqa2 enable on a positive transition
+	pia->reg_cra = 0b00011011;	// irqa1 & irqa2 enable on a positive transition
 
 	// check initial state (irq not asserted)
 	PIA_CYCLE_START
@@ -609,8 +609,8 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
 	munit_assert_true(SIGNAL_BOOL(ca1));
 	munit_assert_true(SIGNAL_BOOL(ca2));
-	munit_assert_true(pia->reg_cra.bf_irq1_pos_transition);
-	munit_assert_true(pia->reg_cra.bf_irq2_pos_transition);
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1_POS_TRANSITION));
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2_POS_TRANSITION));
 
 	// transition ca1&ca2 to low - nothing should happen
 	PIA_CYCLE_START
@@ -618,8 +618,8 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_false(pia->reg_cra.bf_irq1);
-	munit_assert_false(pia->reg_cra.bf_irq2);
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
 
 	// transition ca1 to high - triggers irq1
 	PIA_CYCLE_START
@@ -627,8 +627,8 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_true(pia->reg_cra.bf_irq1);
-	munit_assert_false(pia->reg_cra.bf_irq2);
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
 
 	// transition ca2 to high - triggers irq2
 	PIA_CYCLE_START
@@ -637,8 +637,8 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_true(pia->reg_cra.bf_irq1);
-	munit_assert_true(pia->reg_cra.bf_irq2);
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
 
 	// change CRA to enable read from port-A
 	PIA_CYCLE_START
@@ -649,9 +649,9 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_true(pia->reg_cra.bf_irq1);
-	munit_assert_true(pia->reg_cra.bf_irq2);
-	munit_assert_true(pia->reg_cra.bf_ddr_or_select);
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
+	munit_assert_true(FLAG_IS_SET(pia->reg_cra, FLAG_6520_DDR_OR_SELECT));
 
 	// read port-A - should reset the irq
 	PIA_CYCLE_START
@@ -660,8 +660,8 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
-	munit_assert_false(pia->reg_cra.bf_irq1);
-	munit_assert_false(pia->reg_cra.bf_irq2);
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ2));
 
 	return MUNIT_OK;
 }
@@ -670,7 +670,7 @@ static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_crb.reg = 0b00001001;	// irqa1 & irqa2 enable on a negative transition
+	pia->reg_crb = 0b00001001;	// irqa1 & irqa2 enable on a negative transition
 
 	// check initial state (irq not asserted)
 	munit_assert_true(SIGNAL_BOOL(irqb_b));
@@ -683,8 +683,8 @@ static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_false(pia->reg_crb.bf_irq1);
-	munit_assert_false(pia->reg_crb.bf_irq2);
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
 
 	// transition cb1 to low - triggers irq1
 	PIA_CYCLE_START
@@ -692,8 +692,8 @@ static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_true(pia->reg_crb.bf_irq1);
-	munit_assert_false(pia->reg_crb.bf_irq2);
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
 
 	// transition cb2 to low - triggers irq2
 	PIA_CYCLE_START
@@ -702,8 +702,8 @@ static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_true(pia->reg_crb.bf_irq1);
-	munit_assert_true(pia->reg_crb.bf_irq2);
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
 
 	// change CRB to enable read from port-B
 	PIA_CYCLE_START
@@ -714,9 +714,9 @@ static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_true(pia->reg_crb.bf_irq1);
-	munit_assert_true(pia->reg_crb.bf_irq2);
-	munit_assert_true(pia->reg_crb.bf_ddr_or_select);
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_DDR_OR_SELECT));
 
 	// read port-B - should reset the irq
 	PIA_CYCLE_START
@@ -725,8 +725,8 @@ static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_false(pia->reg_crb.bf_irq1);
-	munit_assert_false(pia->reg_crb.bf_irq2);
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
 
 	return MUNIT_OK;
 }
@@ -739,7 +739,7 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
 	PIA_CYCLE_END
-	pia->reg_crb.reg = 0b00011011;	// irqb1 & irqb2 enable on a positive transition
+	pia->reg_crb = 0b00011011;	// irqb1 & irqb2 enable on a positive transition
 
 	// check initial state (irq not asserted)
 	PIA_CYCLE_START
@@ -749,8 +749,8 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
 	munit_assert_true(SIGNAL_BOOL(cb1));
 	munit_assert_true(SIGNAL_BOOL(cb2));
-	munit_assert_true(pia->reg_crb.bf_irq1_pos_transition);
-	munit_assert_true(pia->reg_crb.bf_irq2_pos_transition);
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1_POS_TRANSITION));
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2_POS_TRANSITION));
 
 	// transition cb1&cb2 to low - nothing should happen
 	PIA_CYCLE_START
@@ -758,8 +758,8 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_false(pia->reg_crb.bf_irq1);
-	munit_assert_false(pia->reg_crb.bf_irq2);
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
 
 	// transition cb1 to high - triggers irq1
 	PIA_CYCLE_START
@@ -767,8 +767,8 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_true(pia->reg_crb.bf_irq1);
-	munit_assert_false(pia->reg_crb.bf_irq2);
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
 
 	// transition cb2 to high - triggers irq2
 	PIA_CYCLE_START
@@ -777,8 +777,8 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_true(pia->reg_crb.bf_irq1);
-	munit_assert_true(pia->reg_crb.bf_irq2);
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
 
 	// change CRB to enable read from port-B
 	PIA_CYCLE_START
@@ -789,9 +789,9 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rw, false);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_true(pia->reg_crb.bf_irq1);
-	munit_assert_true(pia->reg_crb.bf_irq2);
-	munit_assert_true(pia->reg_crb.bf_ddr_or_select);
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
+	munit_assert_true(FLAG_IS_SET(pia->reg_crb, FLAG_6520_DDR_OR_SELECT));
 
 	// read port-B - should reset the irq
 	PIA_CYCLE_START
@@ -800,8 +800,8 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
-	munit_assert_false(pia->reg_crb.bf_irq1);
-	munit_assert_false(pia->reg_crb.bf_irq2);
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
+	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ2));
 
 	return MUNIT_OK;
 }
@@ -878,7 +878,7 @@ static MunitResult test_ca2_out_manual(const MunitParameter params[], void *user
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_cra.reg = 0b00110011;	// ca2 = output, output control = 1, irqa1 enabled on positive transition
+	pia->reg_cra = 0b00110011;	// ca2 = output, output control = 1, irqa1 enabled on positive transition
 
 	// assert initial condition
 	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
@@ -932,7 +932,7 @@ static MunitResult test_ca2_out_pulse(const MunitParameter params[], void *user_
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_cra.reg = 0b00101011;	// ca2 = output, output control = 0, restore control = 1, irqa1 enabled on positive transition
+	pia->reg_cra = 0b00101011;	// ca2 = output, output control = 0, restore control = 1, irqa1 enabled on positive transition
 
 	// read ddra, ca2 high 
 	PIA_CYCLE_START
@@ -1037,7 +1037,7 @@ static MunitResult test_cb2_out_manual(const MunitParameter params[], void *user
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_crb.reg = 0b00110011;	// cb2 = output, output control = 1, irqa1 enabled on positive transition
+	pia->reg_crb = 0b00110011;	// cb2 = output, output control = 1, irqa1 enabled on positive transition
 
 	// assert initial condition
 	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
@@ -1091,7 +1091,7 @@ static MunitResult test_cb2_out_pulse(const MunitParameter params[], void *user_
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
 	// initialize registers
-	pia->reg_crb.reg = 0b00101011;	// cb2 = output, output control = 0, restore control = 1, irqa1 enabled on positive transition
+	pia->reg_crb = 0b00101011;	// cb2 = output, output control = 0, restore control = 1, irqa1 enabled on positive transition
 
 	// read ddrb, cb2 high
 	PIA_CYCLE_START

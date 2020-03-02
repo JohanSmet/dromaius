@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "types.h"
+
 #define SIGNAL_POOL			pia->signal_pool
 #define SIGNAL_COLLECTION	pia->signals
 
@@ -55,12 +57,16 @@ typedef struct Chip6520_private {
 
 #define PRIVATE(pia)	((Chip6520_private *) (pia))
 
+#define CR_FLAG(r,f)	FLAG_IS_SET((r), FLAG_6520_##f)
+#define CR_CHANGE_FLAG(reg, flag, cond)			\
+	FLAG_SET_CLEAR_U8(reg, FLAG_6520_##flag, cond)
+
 static inline void write_register(Chip6520 *pia, uint8_t data) {
 	int reg_addr = (SIGNAL_BOOL(rs1) << 1) | SIGNAL_BOOL(rs0);
 
 	switch (reg_addr) {
 		case 0:
-			if (pia->reg_cra.bf_ddr_or_select) {
+			if (CR_FLAG(pia->reg_cra, DDR_OR_SELECT)) {
 				pia->reg_ora = data;
 				PRIVATE(pia)->state_a.write_port = true;
 			} else {
@@ -68,13 +74,13 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			}
 			break;
 		case 1:
-			pia->reg_cra.reg = (uint8_t)((pia->reg_cra.reg & 0b11000011) | (data & 0b00111111));
-			if (pia->reg_cra.bf_cl2_mode_select == 1 && pia->reg_cra.bf_cl2_output == 0) {
+			pia->reg_cra = (uint8_t)((pia->reg_cra & 0b11000011) | (data & 0b00111111));
+			if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT) && !CR_FLAG(pia->reg_cra, CL2_OUTPUT)) {
 				PRIVATE(pia)->internal_ca2 = true;
 			}
 			break;
 		case 2:
-			if (pia->reg_crb.bf_ddr_or_select) {
+			if (CR_FLAG(pia->reg_crb, DDR_OR_SELECT)) {
 				pia->reg_orb = data;
 				PRIVATE(pia)->state_b.write_port = true;
 			} else {
@@ -82,8 +88,8 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			}
 			break;
 		case 3:
-			pia->reg_crb.reg = (uint8_t)((pia->reg_crb.reg & 0b11000000) | (data & 0b00111111));
-			if (pia->reg_crb.bf_cl2_mode_select == 1 && pia->reg_crb.bf_cl2_output == 0) {
+			pia->reg_crb = (uint8_t)((pia->reg_crb & 0b11000000) | (data & 0b00111111));
+			if (CR_FLAG(pia->reg_crb, CL2_MODE_SELECT) && !CR_FLAG(pia->reg_crb, CL2_OUTPUT)) {
 				PRIVATE(pia)->internal_cb2 = true;
 			}
 			break;
@@ -95,46 +101,47 @@ static inline uint8_t read_register(Chip6520 *pia) {
 
 	switch (reg_addr) {
 		case 0:
-			if (pia->reg_cra.bf_ddr_or_select) {
+			if (CR_FLAG(pia->reg_cra, DDR_OR_SELECT)) {
 				PRIVATE(pia)->state_a.read_port = true;
 				return SIGNAL_UINT8(port_a);
 			} else {
 				return pia->reg_ddra;
 			}
 		case 1:
-			return pia->reg_cra.reg;
+			return pia->reg_cra;
 		case 2:
-			if (pia->reg_crb.bf_ddr_or_select) {
+			if (CR_FLAG(pia->reg_crb, DDR_OR_SELECT)) {
 				PRIVATE(pia)->state_b.read_port = true;
 				return SIGNAL_UINT8(port_b);
 			} else {
 				return pia->reg_ddrb;
 			}
 		case 3:
-			return pia->reg_crb.reg;
+			return pia->reg_crb;
 	}
 
 	return 0;
 }
 
-static inline void control_register_irq_routine(ctrl_reg_t *reg_ctrl, bool cl1, bool cl2, Chip6520_pstate *state) {
+static inline void control_register_irq_routine(uint8_t *reg_ctrl, bool cl1, bool cl2, Chip6520_pstate *state) {
 
 	// check for active transition of the control lines
-	state->act_trans_cl1 = (cl1 && !state->prev_cl1 && reg_ctrl->bf_irq1_pos_transition) ||
-	                       (!cl1 && state->prev_cl1 && !reg_ctrl->bf_irq1_pos_transition);
-	state->act_trans_cl2 = reg_ctrl->bf_cl2_mode_select == 0 &&
-						   ((cl2 && !state->prev_cl2 && reg_ctrl->bf_irq2_pos_transition) ||
-	                        (!cl2 && state->prev_cl2 && !reg_ctrl->bf_irq2_pos_transition));
+	bool irq1_pt = CR_FLAG(*reg_ctrl, IRQ1_POS_TRANSITION);
+	state->act_trans_cl1 = (cl1 && !state->prev_cl1 && irq1_pt) || (!cl1 && state->prev_cl1 && !irq1_pt);
+
+	bool irq2_pt = CR_FLAG(*reg_ctrl, IRQ2_POS_TRANSITION);
+	state->act_trans_cl2 = !CR_FLAG(*reg_ctrl, CL2_MODE_SELECT) &&
+						   ((cl2 && !state->prev_cl2 && irq2_pt) || (!cl2 && state->prev_cl2 && !irq2_pt));
 
 	// a read of the peripheral I/O port resets both irq flags in reg_ctrl
 	if (state->read_port) {
-		reg_ctrl->bf_irq1 = ACTHI_DEASSERT;
-		reg_ctrl->bf_irq2 = ACTHI_DEASSERT;
+		CR_CHANGE_FLAG(*reg_ctrl, IRQ1, ACTHI_DEASSERT);
+		CR_CHANGE_FLAG(*reg_ctrl, IRQ2, ACTHI_DEASSERT);
 	}
 
 	// an active transition of the cl1/cl2-lines sets the irq-flags in reg_ctrl
-	reg_ctrl->bf_irq1 = (bool) (reg_ctrl->bf_irq1 | state->act_trans_cl1);
-	reg_ctrl->bf_irq2 = (bool) (reg_ctrl->bf_irq2 | state->act_trans_cl2);
+	*reg_ctrl = (uint8_t) (*reg_ctrl | (-state->act_trans_cl1 & FLAG_6520_IRQ1)
+								     | (-state->act_trans_cl2 & FLAG_6520_IRQ2));
 
 	// store state of interrupt input/peripheral control lines
 	state->prev_cl1 = cl1;
@@ -173,20 +180,20 @@ void process_negative_enable_edge(Chip6520 *pia) {
 			&PRIVATE(pia)->state_b);
 
 	// irq output lines
-	PRIVATE(pia)->out_irqa_b = !((pia->reg_cra.bf_irq1 && pia->reg_cra.bf_irq1_enable) ||
-							     (pia->reg_cra.bf_irq2 && pia->reg_cra.bf_irq2_enable));
-	PRIVATE(pia)->out_irqb_b = !((pia->reg_crb.bf_irq1 && pia->reg_crb.bf_irq1_enable) ||
-							     (pia->reg_crb.bf_irq2 && pia->reg_crb.bf_irq2_enable));
+	PRIVATE(pia)->out_irqa_b = !((CR_FLAG(pia->reg_cra, IRQ1) && CR_FLAG(pia->reg_cra, IRQ1_ENABLE)) ||
+								 (CR_FLAG(pia->reg_cra, IRQ2) && CR_FLAG(pia->reg_cra, IRQ2_ENABLE)));
+	PRIVATE(pia)->out_irqb_b = !((CR_FLAG(pia->reg_crb, IRQ1) && CR_FLAG(pia->reg_crb, IRQ1_ENABLE)) ||
+								 (CR_FLAG(pia->reg_crb, IRQ2) && CR_FLAG(pia->reg_crb, IRQ2_ENABLE)));
 
 	// pin_ca2 output mode
-	if (pia->reg_cra.bf_cl2_mode_select == 1) {
-		if (pia->reg_cra.bf_cl2_output == 1) {
+	if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT)) {
+		if (CR_FLAG(pia->reg_cra, CL2_OUTPUT)) {
 			// ca2 follows the value written to bit 3 of cra (ca2 restore)
-			PRIVATE(pia)->internal_ca2 = pia->reg_cra.bf_cl2_restore == 1;
+			PRIVATE(pia)->internal_ca2 = CR_FLAG(pia->reg_cra, CL2_RESTORE);
 		} else if (PRIVATE(pia)->state_a.read_port) {
 			// ca2 goes low when porta is read, returning high depends on ca2-restore
 			PRIVATE(pia)->internal_ca2 = 0;
-		} else if (pia->reg_cra.bf_cl2_restore == 1) {
+		} else if (CR_FLAG(pia->reg_cra, CL2_RESTORE)) {
 			// return high on the next cycle
 			PRIVATE(pia)->internal_ca2 = 1;
 		} else {
@@ -196,14 +203,14 @@ void process_negative_enable_edge(Chip6520 *pia) {
 	}
 
 	// pin_cb2 output mode
-	if (pia->reg_crb.bf_cl2_mode_select == 1) {
-		if (pia->reg_crb.bf_cl2_output == 1) {
+	if (CR_FLAG(pia->reg_crb, CL2_MODE_SELECT)) {
+		if (CR_FLAG(pia->reg_crb, CL2_OUTPUT)) {
 			// cb2 follows the value written to bit 3 of crb (cb2 restore)
-			PRIVATE(pia)->internal_cb2 = pia->reg_crb.bf_cl2_restore == 1;
+			PRIVATE(pia)->internal_cb2 = CR_FLAG(pia->reg_crb, CL2_RESTORE);
 		} else if (PRIVATE(pia)->state_b.write_port) {
 			// ca2 goes low when port-B is written, returning high depends on cb2-restore
 			PRIVATE(pia)->internal_cb2 = 0;
-		} else if (pia->reg_crb.bf_cl2_restore == 1) {
+		} else if (CR_FLAG(pia->reg_crb, CL2_RESTORE)) {
 			// return high on the next cycle
 			PRIVATE(pia)->internal_cb2 = 1;
 		} else {
@@ -224,12 +231,12 @@ static inline void process_end(Chip6520 *pia) {
 	signal_write_uint8_masked(pia->signal_pool, SIGNAL(port_b), pia->reg_orb, pia->reg_ddrb);
 
 	// output on ca2 if in output mode
-	if (pia->reg_cra.bf_cl2_mode_select) {
+	if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT)) {
 		SIGNAL_SET_BOOL(ca2, PRIVATE(pia)->internal_ca2);
 	}
 
 	// output on cb2 if in output mode
-	if (pia->reg_crb.bf_cl2_mode_select) {
+	if (CR_FLAG(pia->reg_crb, CL2_MODE_SELECT)) {
 		SIGNAL_SET_BOOL(cb2, PRIVATE(pia)->internal_cb2);
 	}
 
@@ -294,10 +301,10 @@ void chip_6520_process(Chip6520 *pia) {
 	if (ACTLO_ASSERTED(reset_b)) {
 		// reset is asserted - clear registers
 		pia->reg_ddra = 0;
-		pia->reg_cra.reg = 0;
+		pia->reg_cra = 0;
 		pia->reg_ora = 0;
 		pia->reg_ddrb = 0;
-		pia->reg_crb.reg = 0;
+		pia->reg_crb = 0;
 		pia->reg_orb = 0;
 		PRIVATE(pia)->out_irqa_b = ACTLO_DEASSERT;
 		PRIVATE(pia)->out_irqb_b = ACTLO_DEASSERT;
