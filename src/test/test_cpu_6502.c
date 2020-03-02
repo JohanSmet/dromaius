@@ -263,8 +263,8 @@ MunitResult test_rdy(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 254;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -297,9 +297,9 @@ MunitResult test_rdy(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(2);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -317,8 +317,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 13;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -331,9 +331,9 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(15);
 	munit_assert_uint8(cpu->reg_a, ==, 28);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -344,8 +344,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 13;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -360,9 +360,9 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
 	DATABUS_WRITE(15);
 	munit_assert_uint8(cpu->reg_a, ==, 29);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -373,8 +373,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 254;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_x = 0xf0;
@@ -396,9 +396,9 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(6);
 	munit_assert_uint8(cpu->reg_a, ==, 5);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -409,8 +409,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 254;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -429,9 +429,9 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(2);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -442,8 +442,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 5;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_x = 0x02;
@@ -465,10 +465,10 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(7);
 	munit_assert_uint8(cpu->reg_a, ==, 12);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -479,8 +479,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 127;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_x = 0xf2;
@@ -506,10 +506,10 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	DATABUS_WRITE(2);
 	munit_assert_uint8(cpu->reg_a, ==, (uint8_t) -127);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_true(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -520,8 +520,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 5;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the y register
 	cpu->reg_y = 0x03;
@@ -543,10 +543,10 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
 	DATABUS_WRITE(-3);
 	munit_assert_uint8(cpu->reg_a, ==, 2);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -557,8 +557,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 5;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_y = 0xf3;
@@ -584,10 +584,10 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
 	DATABUS_WRITE(-7);
 	munit_assert_uint8(cpu->reg_a, ==, (uint8_t) -2);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -598,8 +598,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = -5;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_x = 0x10;
@@ -629,10 +629,10 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
 	DATABUS_WRITE(-7);
 	munit_assert_uint8(cpu->reg_a, ==, -12);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -643,8 +643,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = -66;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the y register
 	cpu->reg_y = 0x10;
@@ -670,10 +670,10 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
 	DATABUS_WRITE(-65);
 	munit_assert_uint8(cpu->reg_a, ==, 125);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_true(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -684,8 +684,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = -66;
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the y register
 	cpu->reg_y = 0xf0;
@@ -715,10 +715,10 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
 	DATABUS_WRITE(66);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -729,8 +729,8 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = BCD_BYTE(7, 9); 
-	cpu->p_carry = false;
-	cpu->p_decimal_mode = true;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -741,9 +741,9 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(BCD_BYTE(1, 4));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(9, 3));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -754,13 +754,13 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	DATABUS_WRITE(BCD_BYTE(2, 1));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(1, 4));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	cpu->reg_a = BCD_BYTE(9, 9); 
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0805);
 	DATABUS_WRITE(OP_6502_ADC_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_IMM);
@@ -769,9 +769,9 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0806);
 	DATABUS_WRITE(BCD_BYTE(9, 9));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(9, 8));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -1145,8 +1145,8 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0b00001111);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000011);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// initialize used registers
 	cpu->reg_a = 0b11000011;
@@ -1158,8 +1158,8 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0b00111100);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0x00);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_true(BIT_IS_SET(cpu->reg_p, 1));		// zero flag
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -1173,8 +1173,8 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0b10001111);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000011);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
 	munit_assert_true(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -1204,9 +1204,9 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_ASL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01000000);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
@@ -1217,9 +1217,9 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ASL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000000);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -1230,9 +1230,9 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	DATABUS_WRITE(OP_6502_ASL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000000);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1265,9 +1265,9 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010100);
 	CPU_HALF_CYCLE();
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
 
 	// >> next instruction
@@ -1312,9 +1312,9 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -1355,9 +1355,9 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010100);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -1405,9 +1405,9 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -1455,9 +1455,9 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -1475,7 +1475,7 @@ MunitResult test_bcc(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// initialize registers
-	cpu->p_carry = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1497,7 +1497,7 @@ MunitResult test_bcc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1523,7 +1523,7 @@ MunitResult test_bcc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1558,7 +1558,7 @@ MunitResult test_bcs(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// initialize registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1580,7 +1580,7 @@ MunitResult test_bcs(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_carry = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1606,7 +1606,7 @@ MunitResult test_bcs(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_carry = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1641,7 +1641,7 @@ MunitResult test_beq(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// initialize registers
-	cpu->p_zero_result = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1663,7 +1663,7 @@ MunitResult test_beq(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_zero_result = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1689,7 +1689,7 @@ MunitResult test_beq(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_zero_result = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1740,9 +1740,9 @@ MunitResult test_bit(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 03: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
 	DATABUS_WRITE(0b01001111);
-	munit_assert_false(cpu->p_negative_result);		// takes value of bit 7
-	munit_assert_true(cpu->p_overflow);				// takes value of bit 6
-	munit_assert_false(cpu->p_zero_result);			// set if memory & reg-a == 0
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// takes value of bit 7
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));				// takes value of bit 6
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if memory & reg-a == 0
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -1773,9 +1773,9 @@ MunitResult test_bit(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 04: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(0b10011111);
-	munit_assert_true(cpu->p_negative_result);		// takes value of bit 7
-	munit_assert_false(cpu->p_overflow);				// takes value of bit 6
-	munit_assert_true(cpu->p_zero_result);			// set if memory & reg-a == 0
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// takes value of bit 7
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));				// takes value of bit 6
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if memory & reg-a == 0
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -1794,7 +1794,7 @@ MunitResult test_bmi(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// initialize registers
-	cpu->p_negative_result = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1816,7 +1816,7 @@ MunitResult test_bmi(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_negative_result = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1842,7 +1842,7 @@ MunitResult test_bmi(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_negative_result = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1877,7 +1877,7 @@ MunitResult test_bne(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// initialize registers
-	cpu->p_zero_result = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1899,7 +1899,7 @@ MunitResult test_bne(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_zero_result = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1925,7 +1925,7 @@ MunitResult test_bne(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_zero_result = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1960,7 +1960,7 @@ MunitResult test_bpl(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// initialize registers
-	cpu->p_negative_result = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -1982,7 +1982,7 @@ MunitResult test_bpl(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_negative_result = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -2008,7 +2008,7 @@ MunitResult test_bpl(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_negative_result = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -2106,7 +2106,7 @@ MunitResult test_bvc(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// initialize registers
-	cpu->p_overflow = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -2128,7 +2128,7 @@ MunitResult test_bvc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_overflow = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -2154,7 +2154,7 @@ MunitResult test_bvc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_overflow = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -2189,7 +2189,7 @@ MunitResult test_bvs(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// initialize registers
-	cpu->p_overflow = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -2211,7 +2211,7 @@ MunitResult test_bvs(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_overflow = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -2237,7 +2237,7 @@ MunitResult test_bvs(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize registers
-	cpu->p_overflow = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -2282,7 +2282,7 @@ MunitResult test_clc(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: execute opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
-	munit_assert_false(cpu->p_carry);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_uint8(cpu->reg_p, ==, 0b11111110);
 
 	return MUNIT_OK;
@@ -2308,7 +2308,7 @@ MunitResult test_cld(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: execute opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
-	munit_assert_false(cpu->p_decimal_mode);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE));
 	munit_assert_uint8(cpu->reg_p, ==, 0b11110111);
 
 	return MUNIT_OK;
@@ -2334,7 +2334,7 @@ MunitResult test_cli(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: execute opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
-	munit_assert_false(cpu->p_interrupt_disable);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_INTERRUPT_DISABLE));
 	munit_assert_uint8(cpu->reg_p, ==, 0b11111011);
 
 	return MUNIT_OK;
@@ -2360,7 +2360,7 @@ MunitResult test_clv(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: execute opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
-	munit_assert_false(cpu->p_overflow);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
 	munit_assert_uint8(cpu->reg_p, ==, 0b10111111);
 
 	return MUNIT_OK;
@@ -2386,9 +2386,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(10);
-	munit_assert_true(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2415,9 +2415,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 03: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
 	DATABUS_WRITE(15);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_true(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_false(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2451,9 +2451,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 04: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	DATABUS_WRITE(5);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2484,9 +2484,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 04: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(10);
-	munit_assert_true(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -2520,9 +2520,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 04: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(16);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_true(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_false(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -2560,9 +2560,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 05: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	DATABUS_WRITE(5);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -2596,9 +2596,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 04: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
 	DATABUS_WRITE(10);
-	munit_assert_true(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -2636,9 +2636,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 05: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
 	DATABUS_WRITE(20);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_true(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_false(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -2680,9 +2680,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 06: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
 	DATABUS_WRITE(6);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2720,9 +2720,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 05: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
 	DATABUS_WRITE(10);
-	munit_assert_true(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2764,9 +2764,9 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 06: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
 	DATABUS_WRITE(11);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_true(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_false(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2794,9 +2794,9 @@ MunitResult test_cpx(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(10);
-	munit_assert_true(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2823,9 +2823,9 @@ MunitResult test_cpx(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 03: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
 	DATABUS_WRITE(15);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_true(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_false(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2856,9 +2856,9 @@ MunitResult test_cpx(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 04: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(7);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -2886,9 +2886,9 @@ MunitResult test_cpy(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(10);
-	munit_assert_true(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2915,9 +2915,9 @@ MunitResult test_cpy(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 03: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
 	DATABUS_WRITE(15);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_true(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_false(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -2948,9 +2948,9 @@ MunitResult test_cpy(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 04: fetch operand + execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(7);
-	munit_assert_false(cpu->p_zero_result);			// set if equal
-	munit_assert_false(cpu->p_negative_result);		// set if memory > reg-a
-	munit_assert_true(cpu->p_carry);					// set if memory <= reg-a
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -2997,8 +2997,8 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -3043,8 +3043,8 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, (uint8_t) -1);
 	CPU_HALF_CYCLE()
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -3088,8 +3088,8 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 14);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -3138,8 +3138,8 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -3188,8 +3188,8 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 4);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -3219,8 +3219,8 @@ MunitResult test_dex(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, 1);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
@@ -3231,8 +3231,8 @@ MunitResult test_dex(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, 0);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -3243,8 +3243,8 @@ MunitResult test_dex(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, (uint8_t) -1);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -3271,8 +3271,8 @@ MunitResult test_dey(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, 1);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
@@ -3283,8 +3283,8 @@ MunitResult test_dey(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, 0);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -3295,8 +3295,8 @@ MunitResult test_dey(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, (uint8_t) -1);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -3670,8 +3670,8 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0b10001111);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0b01001100);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// initialize used registers
 	cpu->reg_a = 0b11000011;
@@ -3683,8 +3683,8 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0b11000011);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0x00);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// initialize used registers
 	cpu->reg_a = 0b11000011;
@@ -3696,8 +3696,8 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0b00001111);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0b11001100);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -3741,8 +3741,8 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 2);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -3787,8 +3787,8 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -3832,8 +3832,8 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x80);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -3882,8 +3882,8 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 2);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -3932,8 +3932,8 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 6);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -3963,8 +3963,8 @@ MunitResult test_inx(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, (uint8_t) -1);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
@@ -3975,8 +3975,8 @@ MunitResult test_inx(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, 0);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -3987,8 +3987,8 @@ MunitResult test_inx(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, 1);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -4015,8 +4015,8 @@ MunitResult test_iny(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, (uint8_t) -1);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
@@ -4027,8 +4027,8 @@ MunitResult test_iny(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, 0);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -4039,8 +4039,8 @@ MunitResult test_iny(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, 1);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -4487,8 +4487,8 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0x01);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0x01);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -4499,8 +4499,8 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0x00);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0x00);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_true(BIT_IS_SET(cpu->reg_p, 1));		// zero flag
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -4511,8 +4511,8 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0x81);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0x81);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
 	munit_assert_true(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -4686,8 +4686,8 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0x01);
 
 	munit_assert_uint8(cpu->reg_x, ==, 0x01);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -4698,8 +4698,8 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0x00);
 
 	munit_assert_uint8(cpu->reg_x, ==, 0x00);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_true(BIT_IS_SET(cpu->reg_p, 1));		// zero flag
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -4710,8 +4710,8 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0x81);
 
 	munit_assert_uint8(cpu->reg_x, ==, 0x81);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
 	munit_assert_true(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -4886,8 +4886,8 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0x01);
 
 	munit_assert_uint8(cpu->reg_y, ==, 0x01);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -4898,8 +4898,8 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0x00);
 
 	munit_assert_uint8(cpu->reg_y, ==, 0x00);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_true(BIT_IS_SET(cpu->reg_p, 1));		// zero flag
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -4910,8 +4910,8 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0x81);
 
 	munit_assert_uint8(cpu->reg_y, ==, 0x81);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	munit_assert_false(BIT_IS_SET(cpu->reg_p, 1));	// zero flag
 	munit_assert_true(BIT_IS_SET(cpu->reg_p, 7));	// negative result
 
@@ -4941,9 +4941,9 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_LSR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000010);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
@@ -4954,9 +4954,9 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_LSR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000001);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -4967,9 +4967,9 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	DATABUS_WRITE(OP_6502_LSR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000000);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -5003,9 +5003,9 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01000101);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -5049,9 +5049,9 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00101001);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -5092,9 +5092,9 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01000001);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -5142,9 +5142,9 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00001000);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -5192,9 +5192,9 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00100000);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -5595,8 +5595,8 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0b00001111);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0b01001111);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// initialize used registers
 	cpu->reg_a = 0b00000000;
@@ -5608,8 +5608,8 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0b00000000);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0x00);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// initialize used registers
 	cpu->reg_a = 0b01000011;
@@ -5621,8 +5621,8 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0b10001100);
 
 	munit_assert_uint8(cpu->reg_a, ==, 0b11001111);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -5796,9 +5796,9 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_ROL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01000000);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
@@ -5809,9 +5809,9 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ROL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000001);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -5822,9 +5822,9 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	DATABUS_WRITE(OP_6502_ROL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000010);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -5834,7 +5834,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->p_carry = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -5861,9 +5861,9 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010101);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -5877,7 +5877,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_x = 0xf0;
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -5908,9 +5908,9 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -5923,7 +5923,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -5954,9 +5954,9 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010100);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -5969,7 +5969,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
@@ -6005,9 +6005,9 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -6020,7 +6020,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
@@ -6056,9 +6056,9 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -6089,9 +6089,9 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_ROR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000010);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
@@ -6102,9 +6102,9 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ROR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000001);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -6115,9 +6115,9 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	DATABUS_WRITE(OP_6502_ROR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01000000);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6127,7 +6127,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->p_carry = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -6154,9 +6154,9 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b11000101);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -6169,7 +6169,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
@@ -6201,9 +6201,9 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00101001);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -6216,7 +6216,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -6247,9 +6247,9 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01000001);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -6262,7 +6262,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
@@ -6298,9 +6298,9 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00001000);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -6313,7 +6313,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->p_carry = false;
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
@@ -6349,9 +6349,9 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00100000);
 	CPU_HALF_CYCLE();
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
@@ -6461,8 +6461,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 13;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -6473,9 +6473,9 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(10);
 	munit_assert_uint8(cpu->reg_a, ==, 3);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6486,8 +6486,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 13;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -6502,9 +6502,9 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
 	DATABUS_WRITE(15);
 	munit_assert_uint8(cpu->reg_a, ==, (uint8_t) -2);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6515,8 +6515,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 254;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_x = 0xf0;
@@ -6538,9 +6538,9 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(6);
 	munit_assert_uint8(cpu->reg_a, ==, 248);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6551,8 +6551,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 2;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -6571,9 +6571,9 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(2);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6584,8 +6584,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 5;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_x = 0x02;
@@ -6607,10 +6607,10 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(7);
 	munit_assert_uint8(cpu->reg_a, ==, -2);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6621,8 +6621,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = -120;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_x = 0xf2;
@@ -6648,10 +6648,10 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	DATABUS_WRITE(10);
 	munit_assert_uint8(cpu->reg_a, ==, 126);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_true(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6662,8 +6662,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 5;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the y register
 	cpu->reg_y = 0x03;
@@ -6685,10 +6685,10 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
 	DATABUS_WRITE(-3);
 	munit_assert_uint8(cpu->reg_a, ==, 8);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6699,8 +6699,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = 5;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_y = 0xf3;
@@ -6726,10 +6726,10 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
 	DATABUS_WRITE(-7);
 	munit_assert_uint8(cpu->reg_a, ==, 12);
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6740,8 +6740,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = -5;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the x register
 	cpu->reg_x = 0x10;
@@ -6771,10 +6771,10 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
 	DATABUS_WRITE(-7);
 	munit_assert_uint8(cpu->reg_a, ==, 2);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6785,8 +6785,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = -66;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the y register
 	cpu->reg_y = 0x10;
@@ -6812,10 +6812,10 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
 	DATABUS_WRITE(65);
 	munit_assert_uint8(cpu->reg_a, ==, 125);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_true(cpu->p_overflow);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6826,8 +6826,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = -66;
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = false;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_CLEAR(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// force the value of the y register
 	cpu->reg_y = 0xf0;
@@ -6857,10 +6857,10 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
 	DATABUS_WRITE(-66);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_overflow);
-	munit_assert_true(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6871,8 +6871,8 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// initialize used registers
 	cpu->reg_a = BCD_BYTE(4, 4); 
-	cpu->p_carry = true;
-	cpu->p_decimal_mode = true;
+	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
+	FLAG_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
@@ -6883,9 +6883,9 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(BCD_BYTE(2, 9));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(1, 5));
-	munit_assert_true(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
@@ -6896,9 +6896,9 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
 	DATABUS_WRITE(BCD_BYTE(2, 9));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(8, 6));
-	munit_assert_false(cpu->p_carry);
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -6923,7 +6923,7 @@ MunitResult test_sec(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: execute opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
-	munit_assert_true(cpu->p_carry);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_uint8(cpu->reg_p, ==, 0b00000001);
 
 	return MUNIT_OK;
@@ -6949,7 +6949,7 @@ MunitResult test_sed(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: execute opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
-	munit_assert_true(cpu->p_decimal_mode);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE));
 	munit_assert_uint8(cpu->reg_p, ==, 0b00001000);
 
 	return MUNIT_OK;
@@ -6975,7 +6975,7 @@ MunitResult test_sei(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 02: execute opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	CPU_CYCLE();
-	munit_assert_true(cpu->p_interrupt_disable);
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_INTERRUPT_DISABLE));
 	munit_assert_uint8(cpu->reg_p, ==, 0b00000100);
 
 	return MUNIT_OK;
@@ -7545,8 +7545,8 @@ MunitResult test_tax(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_x, ==, 0x27);
 
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -7576,8 +7576,8 @@ MunitResult test_tsx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_x, ==, 0x8e);
 
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_true(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 	return MUNIT_OK;
 }
 
@@ -7606,8 +7606,8 @@ MunitResult test_tay(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_y, ==, 0x27);
 
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -7637,8 +7637,8 @@ MunitResult test_txa(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_a, ==, 0x27);
 
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
@@ -7696,8 +7696,8 @@ MunitResult test_tya(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_a, ==, 0x27);
 
-	munit_assert_false(cpu->p_zero_result);
-	munit_assert_false(cpu->p_negative_result);
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
+	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	return MUNIT_OK;
 }
