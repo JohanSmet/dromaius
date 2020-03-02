@@ -76,9 +76,19 @@ jobs:
               with:
                   submodules: true
 
-            - uses: lovasoa/setup-emscripten@master
+            - name: Configure cache for Emscripten
+              uses : actions/cache@v1
+              id: cache
               with:
-                  emscripten-version: '1.39.6'
+                  path: 'emsdk-cache'
+                  key: ${{ runner.os }}--emsdk-1.39.6
+
+            - name: Setup Emscripten
+              uses: mymindstorm/setup-emsdk@v3
+              with:
+                  version: 1.39.6
+                  actions-cache-folder: 'emsdk-cache'
+                  no-cache: true
 
             - name: Create build directory
               run: cmake -E make_directory ${{runner.workspace}}/_build
