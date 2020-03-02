@@ -13,26 +13,6 @@ extern "C" {
 #endif
 
 // types
-typedef union ctrl_reg_t {
-	uint8_t		reg;
-	struct {		// bitfield for cl2 == input (and common fields for cl2 == output)
-		unsigned int bf_irq1_enable : 1;
-		unsigned int bf_irq1_pos_transition : 1;
-		unsigned int bf_ddr_or_select : 1;
-		unsigned int bf_irq2_enable : 1;
-		unsigned int bf_irq2_pos_transition : 1;
-		unsigned int bf_cl2_mode_select : 1;
-		unsigned int bf_irq2 : 1;
-		unsigned int bf_irq1 : 1;
-	};
-	struct {		// bitfield for cl2 == output (only differences)
-		unsigned int spacer1 : 3;
-		unsigned int bf_cl2_restore : 1;
-		unsigned int bf_cl2_output : 1;
-		unsigned int spacer2 : 3;
-	};
-} ctrl_reg_t;
-
 typedef struct Chip6520Signals {
 	Signal		bus_data;		// 8-bit data bus [D0 - D7] - (In & Out)
 	Signal		port_a;			// 8-bit peripheral I/O port A [PA0 - PA7] - (In & Out)
@@ -53,6 +33,22 @@ typedef struct Chip6520Signals {
 	Signal		rw;				// 1-bit read/write-line (true = read (pia -> cpu), false = write (cpu -> pia))
 } Chip6520Signals;
 
+typedef enum Chip6520ControlFlags {
+	// flags for cl2 == input (and common fields for cl2 == output)
+	FLAG_6520_IRQ1_ENABLE			= 0b00000001,
+	FLAG_6520_IRQ1_POS_TRANSITION	= 0b00000010,
+	FLAG_6520_DDR_OR_SELECT			= 0b00000100,
+	FLAG_6520_IRQ2_ENABLE			= 0b00001000,
+	FLAG_6520_IRQ2_POS_TRANSITION	= 0b00010000,
+	FLAG_6520_CL2_MODE_SELECT		= 0b00100000,
+	FLAG_6520_IRQ2					= 0b01000000,
+	FLAG_6520_IRQ1					= 0b10000000,
+
+	// unique flags for cl2 == output
+	FLAG_6520_CL2_RESTORE			= 0b00001000,
+	FLAG_6520_CL2_OUTPUT			= 0b00010000
+} Chip6520ControlFlags;
+
 typedef struct Chip6520 {
 	// interface
 	SignalPool *		signal_pool;
@@ -60,11 +56,11 @@ typedef struct Chip6520 {
 
 	// registers
 	uint8_t		reg_ddra;		// 8-bit data direction register for port A
-	ctrl_reg_t	reg_cra;		// 8-bit control register for port A
+	uint8_t		reg_cra;		// 8-bit control register for port A
 	uint8_t		reg_ora;		// 8-bit peripheral output register for port A
 
 	uint8_t		reg_ddrb;		// 8-bit data direction register for port B
-	ctrl_reg_t	reg_crb;		// 8-bit control register for port B
+	uint8_t		reg_crb;		// 8-bit control register for port B
 	uint8_t		reg_orb;		// 8-bit peripheral output register for port B
 
 	uint8_t		reg_dir;		// 8-bit data input register
