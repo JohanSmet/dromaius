@@ -21,7 +21,16 @@
 #define SET_LO_BYTE(x,l) ((uint16_t) (((x) & 0xff00) | (l)))		// set low byte of a 16-bit word
 #define SET_HI_BYTE(x,h) ((uint16_t) (((x) & 0x00ff) | ((h) << 8)))	// set high byte of a 16-bit word
 
+#define BIT_SET(x,b)	((x) |= (1 << (b)))
+#define BIT_CLEAR(x,b)	((x) &= ~(1 << (b)))
 #define BIT_IS_SET(x,b) ((bool) (((x) & (1 << (b))) >> (b)))
+
+#define FLAG_SET(x,f)			((x) |= (f))
+#define FLAG_CLEAR(x,f)			((x) &= ~(f))
+#define FLAG_IS_SET(x,f)		((bool) (((x) & (f)) != 0))
+#define FLAG_SET_CLEAR(x,f,c)		((x) = ((x) & ~(f)) | (-(c) & (f)))
+#define FLAG_SET_CLEAR_U8(x,f,c)	((x) = (uint8_t) (((x) & ~(f)) | (-(c) & (f))))
+#define FLAG_SET_CLEAR_U16(x,f,c)	((x) = (uint16_t) (((x) & ~(f)) | (-(c) & (f))))
 
 #define MAKE_WORD(h,l)	((uint16_t) (((h) << 8) | (l)))
 
