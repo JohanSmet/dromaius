@@ -73,7 +73,7 @@ typedef enum Chip6522_address {
 #define PRIVATE(via)	((Chip6522_private *) (via))
 
 #define ACR_SETTING(m, v) MASK_IS_SET(via->reg_acr, MASK_6522_ACR_##m, VALUE_6522_ACR_##v)
-#define PCR_SETTING(m, v) MASK_IS_SET(via->reg_pcr, MASK_6523_PCR_##m, VALUE_6522_PCR_##v)
+#define PCR_SETTING(m, v) MASK_IS_SET(via->reg_pcr, MASK_6522_PCR_##m, VALUE_6522_PCR_##v)
 
 #define RW_READ  true
 #define RW_WRITE false
@@ -131,10 +131,17 @@ static inline void write_register(Chip6522 *via, uint8_t data) {
 			via->reg_pcr = data;
 			break;
 		case ADDR_IFR:
-			via->reg_ifr = data;
+			// Individual bits in the IFR my be cleared by writing a logic 1 into the appropriate bit of the IFR.
+			// Bit 7 indicates the status of the irq_b output and can't be written to directly.
+			via->reg_ifr = (uint8_t) (via->reg_ifr & ~(data & 0x7f));
 			break;
 		case ADDR_IER:
-			via->reg_ier = data;
+			// bit 7 of data indicates of bits should be cleared (0) or set (1)
+			if (BIT_IS_SET(data, 7)) {
+				via->reg_ier = (uint8_t) (via->reg_ier | (data & 0x7f));
+			} else {
+				via->reg_ier = (uint8_t) (via->reg_ier & ~data & 0x7f);
+			}
 			break;
 		case ADDR_ORA_IRA_NOHS:
 			via->reg_ora = data;
@@ -176,7 +183,7 @@ static inline uint8_t read_register(Chip6522 *via) {
 		case ADDR_IFR:
 			return via->reg_ifr;
 		case ADDR_IER:
-			return via->reg_ier;
+			return via->reg_ier | 0x80;
 		case ADDR_ORA_IRA_NOHS:
 			// TODO: input latching
 			return SIGNAL_UINT8(port_a);
@@ -272,7 +279,46 @@ static void process_edge_common(Chip6522 *via) {
 	if (ACR_SETTING(PB_LATCH, PB_NO_LATCH) || !PRIVATE(via)->state_b.latched) {
 		via->reg_ilb = SIGNAL_UINT8(port_b);
 	}
+}
 
+static void build_interrupt_register(Chip6522 *via) {
+
+	// some events that happen can pull certain bits of the IFR high
+	int new_ifr = ( PRIVATE(via)->state_a.act_trans_cl2 << 0 |
+					PRIVATE(via)->state_a.act_trans_cl1 << 1 |
+					PRIVATE(via)->state_b.act_trans_cl2 << 3 |
+					PRIVATE(via)->state_b.act_trans_cl1 << 4
+	);
+	via->reg_ifr |= (uint8_t) new_ifr;
+
+	// other events pull bits back down
+	int clr_ifr =	PRIVATE(via)->state_a.port_read << 0 |
+					PRIVATE(via)->state_a.port_written << 0 |
+					PRIVATE(via)->state_a.port_read << 1 |
+					PRIVATE(via)->state_a.port_written << 1 |
+					PRIVATE(via)->state_b.port_read << 3 |
+					PRIVATE(via)->state_b.port_written << 3 |
+					PRIVATE(via)->state_b.port_read << 4 |
+					PRIVATE(via)->state_b.port_written << 4;
+
+	if (PCR_SETTING(CA2_CONTROL, CA2_IN_NEG_INDEP) || PCR_SETTING(CA2_CONTROL, CA2_IN_POS_INDEP)) {
+		clr_ifr &= 0b11111110;
+	}
+
+	if (PCR_SETTING(CB2_CONTROL, CB2_IN_NEG_INDEP) || PCR_SETTING(CB2_CONTROL, CB2_IN_POS_INDEP)) {
+		clr_ifr &= 0b11110111;
+	}
+
+	via->reg_ifr &= (uint8_t) ~clr_ifr;
+
+	// set IFR[7] and output irq when any of the lower 7-bits are set
+	if ((via->reg_ifr & via->reg_ier) > 0) {
+		via->reg_ifr |= 0x80;
+		PRIVATE(via)->out_irq = ACTLO_ASSERT;
+	} else {
+		via->reg_ifr &= 0x7f;
+		PRIVATE(via)->out_irq = ACTLO_DEASSERT;
+	}
 }
 
 static void process_positive_enable_edge(Chip6522 *via) {
@@ -315,6 +361,9 @@ static void process_negative_enable_edge(Chip6522 *via) {
 	if (PRIVATE(via)->state_b.cl2_is_output) {
 		process_control_line_output(false, via->reg_pcr >> 4, &PRIVATE(via)->state_b);
 	}
+
+	// interrupt
+	build_interrupt_register(via);
 }
 
 //////////////////////////////////////////////////////////////////////////////

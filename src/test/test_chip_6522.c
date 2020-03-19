@@ -1249,6 +1249,545 @@ static MunitResult test_hs_portb_write_pulse(const MunitParameter params[], void
 	return MUNIT_OK;
 }
 
+static MunitResult test_read_ifr(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// initialize registers
+	via->reg_ifr = 0x15;
+
+	// read the IFR register
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ifr, ==, 0x15);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x15);
+
+	// try reading again from a disabled via, bus_data shouldn't change
+	VIA_CYCLE_START
+		strobe_via(via, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ifr, ==, 0x15);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_write_ifr(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// setup registers
+	via->reg_ifr = 0b10111011;
+	via->reg_ier = 0b01111111;
+
+	// clear bits 1 & 2
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00000110);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ifr, ==, 0b10111001);
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	ASSERT_REGISTERS_DEFAULT(REG_IFR | REG_IER);
+
+	// clear all bits
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01111111);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ifr, ==, 0);
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	ASSERT_REGISTERS_DEFAULT(REG_IFR | REG_IER);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_read_ier(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// initialize registers
+	via->reg_ier = 0x15;
+
+	// read the Interrupt Enable register
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ier, ==, 0x15);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x95);		// bit 7 is always set to 1
+
+	// try reading again from a disabled via, bus_data shouldn't change
+	VIA_CYCLE_START
+		strobe_via(via, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ier, ==, 0x15);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_write_ier(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// set a few bits
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b10000110);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ier, ==, 0b00000110);
+	ASSERT_REGISTERS_DEFAULT(REG_IER);
+
+	// set some more bits
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b10001100);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ier, ==, 0b00001110);
+	ASSERT_REGISTERS_DEFAULT(REG_IER);
+
+	// clear a bit
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00000010);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ier, ==, 0b00001100);
+
+	// clear all the bits
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01111111);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_ier, ==, 0b00000000);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_irq_port(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// setup registers
+	via->reg_ier = 0b00011011;	// enable
+
+	///////////////////////////////////////////////////////////////////////////
+	//
+	// negative edge triggers interrupt (default)
+	//
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0);
+
+	// negative edge triggers interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
+
+	// deassert control lines, interrupt stays active
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
+
+	// read ORA: clears ca1 and ca2 interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011000);
+
+	// read ORB: clears cb1 and cb2 interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	///////////////////////////////////////////////////////////////////////////
+	//
+	// independent negative edge triggers interrupt
+	//
+
+	// configure PCR
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00100010);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0);
+
+	// negative edge triggers interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
+
+	// deassert control lines, interrupt stays active
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
+
+	// read ORA: clears ca1 interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011001);
+
+	// read ORB: clears cb1 interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10001001);
+
+	// clear all the interrupts
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01111111);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	///////////////////////////////////////////////////////////////////////////
+	//
+	// positive edge triggers interrupt
+	//
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01010101);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0);
+
+	// clear all interrupts
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01111111);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	// trigger interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
+
+	// deassert control lines, interrupt stays active
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
+
+	// read ORA: clears ca1 and ca2 interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011000);
+
+	// read ORB: clears cb1 and cb2 interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	// clear all the interrupts
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01111111);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	///////////////////////////////////////////////////////////////////////////
+	//
+	// independent positive edge triggers interrupt
+	//
+
+	// configure PCR
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01110111);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0);
+
+	// clear all interrupts
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01111111);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	// positive edge triggers interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
+
+	// deassert control lines, interrupt stays active
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
+
+	// read ORA: clears ca1 interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10011001);
+
+	// read ORB: clears cb1 interrupt
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b10001001);
+
+	// clear all the interrupts
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01111111);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	return MUNIT_OK;
+}
+
 MunitTest chip_6522_tests[] = {
 	{ "/reset", test_reset, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_ddra", test_read_ddra, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -1275,5 +1814,10 @@ MunitTest chip_6522_tests[] = {
 	{ "/test_hs_portb_read_pulse", test_hs_portb_read_pulse, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/test_hs_portb_write", test_hs_portb_write, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/test_hs_portb_write_pulse", test_hs_portb_write_pulse, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_ifr", test_read_ifr, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/write_ifr", test_write_ifr, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_ier", test_read_ier, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/write_ier", test_write_ier, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/irq_port", test_irq_port, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
