@@ -35,6 +35,7 @@ typedef struct Chip6522_private {
 
 	bool			strobe;
 	bool			prev_enable;
+	bool			prev_pb6;
 
 	Chip6522_pstate	state_a;
 	Chip6522_pstate	state_b;
@@ -43,6 +44,13 @@ typedef struct Chip6522_private {
 	bool			t1_enabled;
 	bool			t1_clr_irq;
 	bool			t1_set_irq;
+
+	bool			t2_start;
+	bool			t2_enabled;
+	bool			t2_irq_done;
+	bool			t2_clr_irq;
+	bool			t2_set_irq;
+	uint8_t			reg_t2l_h;
 
 	bool			out_irq;
 
@@ -124,8 +132,9 @@ static inline void write_register(Chip6522 *via, uint8_t data) {
 			via->reg_t2l_l = data;
 			break;
 		case ADDR_T2C_H:
-			via->reg_t2c = MAKE_WORD(data, via->reg_t2l_l);
-			// TODO: reset IFR5
+			PRIVATE(via)->reg_t2l_h = data;
+			PRIVATE(via)->t2_clr_irq = true;
+			PRIVATE(via)->t2_start = true;
 			break;
 		case ADDR_SR:
 			via->reg_sr = data;
@@ -178,6 +187,7 @@ static inline uint8_t read_register(Chip6522 *via) {
 		case ADDR_T1L_H:
 			return via->reg_t1l_h;
 		case ADDR_T2C_L:
+			PRIVATE(via)->t2_clr_irq = true;
 			return LO_BYTE(via->reg_t2c);
 		case ADDR_T2C_H:
 			return HI_BYTE(via->reg_t2c);
@@ -192,7 +202,6 @@ static inline uint8_t read_register(Chip6522 *via) {
 		case ADDR_IER:
 			return via->reg_ier | 0x80;
 		case ADDR_ORA_IRA_NOHS:
-			// TODO: input latching
 			return SIGNAL_UINT8(port_a);
 	}
 
@@ -295,6 +304,7 @@ static void build_interrupt_register(Chip6522 *via) {
 					PRIVATE(via)->state_a.act_trans_cl1 << 1 |
 					PRIVATE(via)->state_b.act_trans_cl2 << 3 |
 					PRIVATE(via)->state_b.act_trans_cl1 << 4 |
+					PRIVATE(via)->t2_set_irq << 5 |
 					PRIVATE(via)->t1_set_irq << 6
 	);
 	via->reg_ifr |= (uint8_t) new_ifr;
@@ -308,6 +318,7 @@ static void build_interrupt_register(Chip6522 *via) {
 					PRIVATE(via)->state_b.port_written << 3 |
 					PRIVATE(via)->state_b.port_read << 4 |
 					PRIVATE(via)->state_b.port_written << 4 |
+					PRIVATE(via)->t2_clr_irq << 5 |
 					PRIVATE(via)->t1_clr_irq << 6;
 
 	if (PCR_SETTING(CA2_CONTROL, CA2_IN_NEG_INDEP) || PCR_SETTING(CA2_CONTROL, CA2_IN_POS_INDEP)) {
@@ -322,6 +333,8 @@ static void build_interrupt_register(Chip6522 *via) {
 
 	PRIVATE(via)->t1_clr_irq = false;
 	PRIVATE(via)->t1_set_irq = false;
+	PRIVATE(via)->t2_clr_irq = false;
+	PRIVATE(via)->t2_set_irq = false;
 
 	// set IFR[7] and output irq when any of the lower 7-bits are set
 	if ((via->reg_ifr & via->reg_ier) > 0) {
@@ -367,6 +380,39 @@ static void process_timer1(Chip6522 *via) {
 	--via->reg_t1c;
 }
 
+static void process_timer2(Chip6522 *via) {
+
+	if (PRIVATE(via)->t2_start) {
+		via->reg_t2c = MAKE_WORD(PRIVATE(via)->reg_t2l_h, via->reg_t2l_l);
+		PRIVATE(via)->t2_start = false;
+		PRIVATE(via)->t2_enabled = true;
+		PRIVATE(via)->t2_irq_done = false;
+		PRIVATE(via)->prev_pb6 = BIT_IS_SET(via->reg_ilb, 6);
+		return;
+	}
+
+	if (!PRIVATE(via)->t2_enabled) {
+		return;
+	}
+
+	bool count_pb6 = BIT_IS_SET(via->reg_acr, 5);
+
+	// trigger interrupt?
+	if (via->reg_t2c == 0 && !PRIVATE(via)->t2_irq_done) {
+		PRIVATE(via)->t2_set_irq = true;
+		PRIVATE(via)->t2_irq_done = true;
+	}
+
+	// decrement timer
+	bool pb6 = BIT_IS_SET(via->reg_ilb, 6);
+
+	if (!count_pb6 || (PRIVATE(via)->prev_pb6 && !pb6)) {
+		--via->reg_t2c;
+	}
+
+	PRIVATE(via)->prev_pb6 = pb6;
+}
+
 static void process_positive_enable_edge(Chip6522 *via) {
 	process_edge_common(via);
 
@@ -386,6 +432,7 @@ static void process_negative_enable_edge(Chip6522 *via) {
 
 	// timers
 	process_timer1(via);
+	process_timer2(via);
 
 	// read/write register
 	if (PRIVATE(via)->strobe) {
