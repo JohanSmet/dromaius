@@ -22,7 +22,7 @@
 #define SET_HI_BYTE(x,h) ((uint16_t) (((x) & 0x00ff) | ((h) << 8)))	// set high byte of a 16-bit word
 
 #define BIT_SET(x,b)	((x) |= (1 << (b)))
-#define BIT_CLEAR(x,b)	((x) &= ~(1 << (b)))
+#define BIT_CLEAR(x,b)	((x) &= (uint8_t) ~(1 << (b)))
 #define BIT_IS_SET(x,b) ((bool) (((x) & (1 << (b))) >> (b)))
 
 #define FLAG_SET(x,f)			((x) |= (f))

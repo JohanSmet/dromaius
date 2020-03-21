@@ -39,6 +39,11 @@ typedef struct Chip6522_private {
 	Chip6522_pstate	state_a;
 	Chip6522_pstate	state_b;
 
+	bool			t1_start;
+	bool			t1_enabled;
+	bool			t1_clr_irq;
+	bool			t1_set_irq;
+
 	bool			out_irq;
 
 	bool			out_enabled;
@@ -105,13 +110,14 @@ static inline void write_register(Chip6522 *via, uint8_t data) {
 			break;
 		case ADDR_T1C_H:
 			via->reg_t1l_h = data;
-			via->reg_t1c = MAKE_WORD(via->reg_t1l_h, via->reg_t1l_l);
-			// TODO: initiate countdown and reset T1 interrupt flag IFR6
+			PRIVATE(via)->t1_clr_irq = true;
+			PRIVATE(via)->t1_start = true;
 			break;
 		case ADDR_T1L_L:
 			via->reg_t1l_l = data;
 			break;
 		case ADDR_T1L_H:
+			PRIVATE(via)->t1_clr_irq = true;
 			via->reg_t1l_h = data;
 			break;
 		case ADDR_T2C_L:
@@ -163,6 +169,7 @@ static inline uint8_t read_register(Chip6522 *via) {
 		case ADDR_DDRA:
 			return via->reg_ddra;
 		case ADDR_T1C_L:
+			PRIVATE(via)->t1_clr_irq = true;
 			return LO_BYTE(via->reg_t1c);
 		case ADDR_T1C_H:
 			return HI_BYTE(via->reg_t1c);
@@ -287,7 +294,8 @@ static void build_interrupt_register(Chip6522 *via) {
 	int new_ifr = ( PRIVATE(via)->state_a.act_trans_cl2 << 0 |
 					PRIVATE(via)->state_a.act_trans_cl1 << 1 |
 					PRIVATE(via)->state_b.act_trans_cl2 << 3 |
-					PRIVATE(via)->state_b.act_trans_cl1 << 4
+					PRIVATE(via)->state_b.act_trans_cl1 << 4 |
+					PRIVATE(via)->t1_set_irq << 6
 	);
 	via->reg_ifr |= (uint8_t) new_ifr;
 
@@ -299,7 +307,8 @@ static void build_interrupt_register(Chip6522 *via) {
 					PRIVATE(via)->state_b.port_read << 3 |
 					PRIVATE(via)->state_b.port_written << 3 |
 					PRIVATE(via)->state_b.port_read << 4 |
-					PRIVATE(via)->state_b.port_written << 4;
+					PRIVATE(via)->state_b.port_written << 4 |
+					PRIVATE(via)->t1_clr_irq << 6;
 
 	if (PCR_SETTING(CA2_CONTROL, CA2_IN_NEG_INDEP) || PCR_SETTING(CA2_CONTROL, CA2_IN_POS_INDEP)) {
 		clr_ifr &= 0b11111110;
@@ -311,6 +320,9 @@ static void build_interrupt_register(Chip6522 *via) {
 
 	via->reg_ifr &= (uint8_t) ~clr_ifr;
 
+	PRIVATE(via)->t1_clr_irq = false;
+	PRIVATE(via)->t1_set_irq = false;
+
 	// set IFR[7] and output irq when any of the lower 7-bits are set
 	if ((via->reg_ifr & via->reg_ier) > 0) {
 		via->reg_ifr |= 0x80;
@@ -319,6 +331,40 @@ static void build_interrupt_register(Chip6522 *via) {
 		via->reg_ifr &= 0x7f;
 		PRIVATE(via)->out_irq = ACTLO_DEASSERT;
 	}
+}
+
+static void process_timer1(Chip6522 *via) {
+
+	if (PRIVATE(via)->t1_start) {
+		via->reg_t1c = MAKE_WORD(via->reg_t1l_h, via->reg_t1l_l);
+		PRIVATE(via)->t1_start = false;
+		PRIVATE(via)->t1_enabled = true;
+
+		// make sure port_b[7] is low if configured in one-shot mode
+		if (ACR_SETTING(T1_CONTROL, T1_LOAD_1SHOT)) {
+			BIT_CLEAR(via->reg_orb, 7);
+		}
+		return;
+	}
+
+	if (!PRIVATE(via)->t1_enabled) {
+		return;
+	}
+
+	// check if timer should restart
+	if (via->reg_t1c == 0) {
+		PRIVATE(via)->t1_set_irq = true;
+		if (ACR_SETTING(T1_CONTROL, T1_CONT_SQWAVE)) {
+			via->reg_orb ^= 0b10000000;
+		} else if (ACR_SETTING(T1_CONTROL, T1_LOAD_1SHOT)) {
+			BIT_SET(via->reg_orb, 7);
+		}
+		PRIVATE(via)->t1_start = BIT_IS_SET(via->reg_acr, 6);
+		PRIVATE(via)->t1_enabled = false;
+	}
+
+	// decrement timer
+	--via->reg_t1c;
 }
 
 static void process_positive_enable_edge(Chip6522 *via) {
@@ -337,6 +383,9 @@ static void process_negative_enable_edge(Chip6522 *via) {
 	// port control lines
 	process_control_line_port_input(SIGNAL_BOOL(ca1), SIGNAL_BOOL(ca2), via->reg_pcr & 0x0f, &PRIVATE(via)->state_a);
 	process_control_line_port_input(SIGNAL_BOOL(cb1), SIGNAL_BOOL(cb2), via->reg_pcr >> 4, &PRIVATE(via)->state_b);
+
+	// timers
+	process_timer1(via);
 
 	// read/write register
 	if (PRIVATE(via)->strobe) {

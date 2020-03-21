@@ -314,7 +314,7 @@ static MunitResult test_write_acr(const MunitParameter params[], void *user_data
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
 
-	// write to the DDRA register
+	// write to the ACR register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
@@ -1788,6 +1788,356 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 	return MUNIT_OK;
 }
 
+static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b01000000;					// enable irq on timer1
+
+	// setup t1-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00000000);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+
+	// load low-byte of timer counter
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(bus_data, 144);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t1l_l, ==, 144);
+	munit_assert_uint8(via->reg_t1l_h, ==, 0);
+	munit_assert_uint16(via->reg_t1c, ==, 0);
+
+	// load high-byte of timer counter
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(bus_data, 1);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t1l_l, ==, 144);
+	munit_assert_uint8(via->reg_t1l_h, ==, 1);
+	munit_assert_uint16(via->reg_t1c, ==, 0);
+
+	// run until timer ends
+	for (int i = 400; i >= 0; --i) {
+		VIA_CYCLE();
+		munit_assert_uint16(via->reg_t1c, ==, i);
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	}
+
+	VIA_CYCLE();
+	munit_assert_uint16(via->reg_t1c, ==, 0xffff);
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b11000000);
+
+	// clear t1 interrupt by reading t1c_l
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b01000000;					// enable irq on timer1
+
+	// setup t1-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b01000000);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+
+	// load low-byte of timer counter
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(bus_data, 50);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t1l_l, ==, 50);
+	munit_assert_uint8(via->reg_t1l_h, ==, 0);
+	munit_assert_uint16(via->reg_t1c, ==, 0);
+
+	// load high-byte of timer counter
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t1l_l, ==, 50);
+	munit_assert_uint8(via->reg_t1l_h, ==, 0);
+	munit_assert_uint16(via->reg_t1c, ==, 0);
+
+	for (int j = 0; j < 3; ++j) {
+		// clear t1 interrupt by reading t1c_l
+		VIA_CYCLE_START
+			strobe_via(via, true);					// enable via
+			SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+			SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+			SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+			SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		VIA_CYCLE_END
+		munit_assert_uint16(via->reg_t1c, ==, 50);
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+		// run until timer ends
+		for (int i = 49; i >= 0; --i) {
+			VIA_CYCLE();
+			munit_assert_uint16(via->reg_t1c, ==, i);
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+
+		VIA_CYCLE();
+		munit_assert_uint16(via->reg_t1c, ==, 0xffff);
+		munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_uint8(via->reg_ifr, ==, 0b11000000);
+	}
+
+	// clear t1 interrupt by reading t1c_l
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	Signal pb7 = signal_split(SIGNAL(port_b), 7, 1);
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b01000000;					// enable irq on timer1
+	via->reg_ddrb = 0b10000000;
+
+	// setup t1-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b10000000);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+
+	// load low-byte of timer counter
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(bus_data, 144);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t1l_l, ==, 144);
+	munit_assert_uint8(via->reg_t1l_h, ==, 0);
+	munit_assert_uint16(via->reg_t1c, ==, 0);
+
+	// load high-byte of timer counter
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(bus_data, 1);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(signal_read_next_bool(via->signal_pool, pb7));
+	munit_assert_uint8(via->reg_t1l_l, ==, 144);
+	munit_assert_uint8(via->reg_t1l_h, ==, 1);
+	munit_assert_uint16(via->reg_t1c, ==, 0);
+
+	// run until timer ends
+	for (int i = 400; i >= 0; --i) {
+		VIA_CYCLE();
+		munit_assert_uint16(via->reg_t1c, ==, i);
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_false(signal_read_next_bool(via->signal_pool, pb7));
+	}
+
+	VIA_CYCLE();
+	munit_assert_uint16(via->reg_t1c, ==, 0xffff);
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(signal_read_next_bool(via->signal_pool, pb7));
+	munit_assert_uint8(via->reg_ifr, ==, 0b11000000);
+
+	// clear t1 interrupt by reading t1c_l
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	Signal pb7 = signal_split(SIGNAL(port_b), 7, 1);
+	bool val_pb7 = false;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b01000000;					// enable irq on timer1
+	via->reg_ddrb = 0b10000000;
+
+	// setup t1-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b11000000);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+
+	// load low-byte of timer counter
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(bus_data, 50);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t1l_l, ==, 50);
+	munit_assert_uint8(via->reg_t1l_h, ==, 0);
+	munit_assert_uint16(via->reg_t1c, ==, 0);
+
+	// load high-byte of timer counter
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t1l_l, ==, 50);
+	munit_assert_uint8(via->reg_t1l_h, ==, 0);
+	munit_assert_uint16(via->reg_t1c, ==, 0);
+	munit_assert(signal_read_next_bool(via->signal_pool, pb7) == val_pb7);
+
+	for (int j = 0; j < 3; ++j) {
+
+		// clear t1 interrupt by reading t1c_l
+		VIA_CYCLE_START
+			strobe_via(via, true);					// enable via
+			SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+			SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+			SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+			SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		VIA_CYCLE_END
+		munit_assert_uint16(via->reg_t1c, ==, 50);
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+		// run until timer ends
+		for (int i = 49; i >= 0; --i) {
+			VIA_CYCLE();
+			munit_assert_uint16(via->reg_t1c, ==, i);
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+
+		VIA_CYCLE();
+		munit_assert_uint16(via->reg_t1c, ==, 0xffff);
+		munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_uint8(via->reg_ifr, ==, 0b11000000);
+
+		// value of port_b[7] is inverted everytime the timer reaches zero
+		val_pb7 = !val_pb7;
+		munit_assert(signal_read_next_bool(via->signal_pool, pb7) == val_pb7);
+	}
+
+	// clear t1 interrupt by reading t1c_l
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
+
+	return MUNIT_OK;
+}
+
 MunitTest chip_6522_tests[] = {
 	{ "/reset", test_reset, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_ddra", test_read_ddra, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -1819,5 +2169,9 @@ MunitTest chip_6522_tests[] = {
 	{ "/read_ier", test_read_ier, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_ier", test_write_ier, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/irq_port", test_irq_port, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/t1_once_nopb7", test_t1_once_nopb7, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/t1_freerun_nopb7", test_t1_freerun_nopb7, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/t1_once_pb7", test_t1_once_pb7, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/t1_freerun_pb7", test_t1_freerun_pb7, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
