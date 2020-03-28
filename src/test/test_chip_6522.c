@@ -2342,12 +2342,1042 @@ static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_d
 	return MUNIT_OK;
 }
 
+static MunitResult test_read_sr(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// initialize registers
+	via->reg_sr = 0x15;
+
+	// read the SR register
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0x15);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x15);
+
+	// try reading again from a disabled via, bus_data shouldn't change
+	VIA_CYCLE_START
+		strobe_via(via, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0x15);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_write_sr(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// write to the SR register
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0x09);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0x09);
+	ASSERT_REGISTERS_DEFAULT(REG_SR);
+
+	// try writing again with a disabled via, register shouldn't change
+	VIA_CYCLE_START
+		strobe_via(via, false);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0x17);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+
+	munit_assert_uint8(via->reg_sr, ==, 0x09);
+	ASSERT_REGISTERS_DEFAULT(REG_SR);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b00000100;					// enable irq on shift register
+
+	// setup sr-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00001000);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+
+	// read shift register to active shift in
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
+
+	// shift in 8 bits
+	uint8_t data_1 = 0b10110011;
+	uint8_t done_1 = 0;
+
+	for (int i = 0; i < 8; i++) {
+		bool bit = BIT_IS_SET(data_1, 7 - i);
+
+		VIA_CYCLE_START
+			SIGNAL_SET_BOOL(cb2, bit);
+		VIA_CYCLE_END
+		munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_uint8(via->reg_sr, ==, done_1);
+
+		done_1 = (done_1 << 1) | bit;
+
+		VIA_CYCLE_START
+			SIGNAL_SET_BOOL(cb2, bit);
+		VIA_CYCLE_END
+		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_uint8(via->reg_sr, ==, done_1);
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(via->reg_sr, ==, data_1);
+
+	// read shift register
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10110011);
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	// shift in another 8-bits
+	uint8_t data_2 = 0b11110000;
+	uint8_t done_2 = 0b10110011;
+
+	for (int i = 0; i < 8; i++) {
+		bool bit = BIT_IS_SET(data_2, 7 - i);
+
+		VIA_CYCLE_START
+			SIGNAL_SET_BOOL(cb2, bit);
+		VIA_CYCLE_END
+		munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_uint8(via->reg_sr, ==, done_2);
+
+		done_2 = (done_2 << 1) | bit;
+
+		VIA_CYCLE_START
+			SIGNAL_SET_BOOL(cb2, bit);
+		VIA_CYCLE_END
+		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_uint8(via->reg_sr, ==, done_2);
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(via->reg_sr, ==, data_2);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	const int sr_pulses = 4;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b00000100;					// enable irq on shift register
+
+	// setup t2 enough for the shift register
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, sr_pulses);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t2l_l, ==, sr_pulses);
+
+	// setup sr-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00000100);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+
+	// read shift register to active shift in
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
+
+	// shift in 8 bits
+	uint8_t data_1 = 0b10110011;
+	uint8_t done_1 = 0;
+
+	for (int i = 0; i < 8; i++) {
+		bool bit = BIT_IS_SET(data_1, 7 - i);
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb2, bit);
+			VIA_CYCLE_END
+			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_uint8(via->reg_sr, ==, done_1);
+		}
+
+		done_1 = (done_1 << 1) | bit;
+
+		for (int j = 0; j < ((i < 7) ? sr_pulses : 1); ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb2, bit);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_uint8(via->reg_sr, ==, done_1);
+		}
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(via->reg_sr, ==, data_1);
+
+	// read shift register
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10110011);
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	// shift in another 8-bits
+	uint8_t data_2 = 0b11110000;
+	uint8_t done_2 = 0b10110011;
+
+	for (int i = 0; i < 8; i++) {
+		bool bit = BIT_IS_SET(data_2, 7 - i);
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb2, bit);
+			VIA_CYCLE_END
+			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_uint8(via->reg_sr, ==, done_2);
+		}
+
+		done_2 = (done_2 << 1) | bit;
+
+		for (int j = 0; j < ((i < 7) ? sr_pulses : 1); ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb2, bit);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_uint8(via->reg_sr, ==, done_2);
+		}
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(via->reg_sr, ==, data_2);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	const int sr_pulses = 4;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b00000100;					// enable irq on shift register
+
+	// setup sr-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00001100);
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(cb1, true);
+	VIA_CYCLE_END
+
+	// read shift register to active shift in
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb1, true);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
+
+	// shift in 8 bits
+	uint8_t data_1 = 0b10110011;
+	uint8_t done_1 = 0;
+
+	for (int i = 0; i < 8; i++) {
+		bool bit = BIT_IS_SET(data_1, 7 - i);
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb1, false);
+				SIGNAL_SET_BOOL(cb2, bit);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_uint8(via->reg_sr, ==, done_1);
+		}
+
+		done_1 = (done_1 << 1) | bit;
+
+		for (int j = 0; j < ((i < 7) ? sr_pulses : 1); ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb1, true);
+				SIGNAL_SET_BOOL(cb2, bit);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_uint8(via->reg_sr, ==, done_1);
+		}
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(via->reg_sr, ==, data_1);
+
+	// read shift register
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(cb1, true);
+	VIA_CYCLE_END
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10110011);
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	// shift in another 8-bits
+	uint8_t data_2 = 0b11110000;
+	uint8_t done_2 = 0b10110011;
+
+	for (int i = 0; i < 8; i++) {
+		bool bit = BIT_IS_SET(data_2, 7 - i);
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb1, false);
+				SIGNAL_SET_BOOL(cb2, bit);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_uint8(via->reg_sr, ==, done_2);
+		}
+
+		done_2 = (done_2 << 1) | bit;
+
+		for (int j = 0; j < ((i < 7) ? sr_pulses : 1); ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb1, true);
+				SIGNAL_SET_BOOL(cb2, bit);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_uint8(via->reg_sr, ==, done_2);
+		}
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(via->reg_sr, ==, data_2);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b00000100;					// enable irq on shift register
+
+	// setup sr-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00011000);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+
+	// write shift register to active shift
+	uint8_t data_1 = 0b10110011;
+
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, data_1);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	// shift out 8 bits
+	uint8_t done_1 = 0;
+
+	for (int i = 0; i < 8; i++) {
+
+		VIA_CYCLE();
+		munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+
+		VIA_CYCLE();
+		bool bit = SIGNAL_NEXT_BOOL(cb2);
+		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
+
+		done_1 = (done_1 << 1) | bit;
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(done_1, ==, data_1);
+	munit_assert_uint8(via->reg_sr, ==, data_1);
+
+	// write shift register to active shift
+	uint8_t data_2 = 0b11110000;
+
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, data_2);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+
+	// shift out 8 bits
+	uint8_t done_2 = 0;
+
+	for (int i = 0; i < 8; i++) {
+
+		VIA_CYCLE();
+		munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+
+		VIA_CYCLE();
+		bool bit = SIGNAL_NEXT_BOOL(cb2);
+		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert(bit == BIT_IS_SET(data_2, 7 - i));
+
+		done_2 = (done_2 << 1) | bit;
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(done_2, ==, data_2);
+	munit_assert_uint8(via->reg_sr, ==, data_2);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	const int sr_pulses = 4;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b00000100;					// enable irq on shift register
+
+	// setup t2 enough for the shift register
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, sr_pulses);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t2l_l, ==, sr_pulses);
+
+	// setup sr-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00010100);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+
+	// write shift register to active shift
+	uint8_t data_1 = 0b10110011;
+
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, data_1);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	// shift out 8 bits
+	uint8_t done_1 = 0;
+
+	for (int i = 0; i < 8; i++) {
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE();
+			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+
+		VIA_CYCLE();
+		bool bit = SIGNAL_NEXT_BOOL(cb2);
+		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
+		done_1 = (done_1 << 1) | bit;
+
+		for (int j = 1; j < ((i < 7) ? sr_pulses : 1); ++j) {
+			VIA_CYCLE();
+			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(done_1, ==, data_1);
+	munit_assert_uint8(via->reg_sr, ==, data_1);
+
+	// write shift register to active shift
+	uint8_t data_2 = 0b11110000;
+
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, data_2);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+
+	// shift out 8 bits
+	uint8_t done_2 = 0;
+
+	for (int i = 0; i < 8; i++) {
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE();
+			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+
+		VIA_CYCLE();
+		bool bit = SIGNAL_NEXT_BOOL(cb2);
+		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert(bit == BIT_IS_SET(data_2, 7 - i));
+		done_2 = (done_2 << 1) | bit;
+
+		for (int j = 1; j < ((i < 7) ? sr_pulses : 1); ++j) {
+			VIA_CYCLE();
+			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(done_2, ==, data_2);
+	munit_assert_uint8(via->reg_sr, ==, data_2);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	const int sr_pulses = 4;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b00000100;					// enable irq on shift register
+
+	// setup t2 enough for the shift register
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, sr_pulses);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(via->reg_t2l_l, ==, sr_pulses);
+
+	// setup sr-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00010000);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+
+	// write shift register to active shift
+	uint8_t data_1 = 0b10110011;
+
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, data_1);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	// shift out 8 bits
+	uint8_t done_1 = 0;
+
+	for (int i = 0; i < 8; i++) {
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE();
+			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+
+		VIA_CYCLE();
+		bool bit = SIGNAL_NEXT_BOOL(cb2);
+		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
+		done_1 = (done_1 << 1) | bit;
+
+		for (int j = 1; j < sr_pulses; ++j) {
+			VIA_CYCLE();
+			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+	}
+
+	munit_assert_uint8(done_1, ==, data_1);
+
+	// shift out the same 8 bits
+	uint8_t done_1b = 0;
+
+	for (int i = 0; i < 8; i++) {
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE();
+			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+
+		VIA_CYCLE();
+		bool bit = SIGNAL_NEXT_BOOL(cb2);
+		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
+		done_1b = (done_1b << 1) | bit;
+
+		for (int j = 1; j < sr_pulses; ++j) {
+			VIA_CYCLE();
+			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+	}
+
+	munit_assert_uint8(done_1b, ==, data_1);
+
+	// write shift register to change output
+	uint8_t data_2 = 0b11110000;
+
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, data_2);
+		SIGNAL_SET_BOOL(rw, false);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+
+	// shift out 8 bits
+	uint8_t done_2 = 0;
+
+	for (int i = 0; i < 8; i++) {
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE();
+			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+
+		VIA_CYCLE();
+		bool bit = SIGNAL_NEXT_BOOL(cb2);
+		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert(bit == BIT_IS_SET(data_2, 7 - i));
+		done_2 = (done_2 << 1) | bit;
+
+		for (int j = 1; j < sr_pulses; ++j) {
+			VIA_CYCLE();
+			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+	}
+
+	munit_assert_uint8(done_2, ==, data_2);
+
+	return MUNIT_OK;
+}
+
+static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+
+	const int sr_pulses = 4;
+
+	// assert initial state
+	ASSERT_REGISTERS_DEFAULT(0);
+
+	// initialize registers
+	via->reg_ier = 0b00000100;					// enable irq on shift register
+
+	// setup sr-mode
+	VIA_CYCLE_START
+		strobe_via(via, true);					// enable via
+		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, 0b00011100);
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(cb1, true);
+	VIA_CYCLE_END
+
+	// write shift register to active shift
+	uint8_t data_1 = 0b10110011;
+
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, data_1);
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(cb1, true);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_SET_BOOL(cb2, true);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+
+	// shift out 8 bits
+	uint8_t done_1 = 0;
+
+	for (int i = 0; i < 8; i++) {
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb1, false);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+
+		VIA_CYCLE_START
+			SIGNAL_SET_BOOL(cb1, true);
+		VIA_CYCLE_END
+
+		bool bit = SIGNAL_NEXT_BOOL(cb2);
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
+		done_1 = (done_1 << 1) | bit;
+
+		for (int j = 1; j < ((i < 7) ? sr_pulses : 1); ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb1, true);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(done_1, ==, data_1);
+	munit_assert_uint8(via->reg_sr, ==, data_1);
+
+	// write shift register to active shift
+	uint8_t data_2 = 0b11110000;
+
+	VIA_CYCLE_START
+		strobe_via(via, true);
+		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_UINT8(bus_data, data_2);
+		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_SET_BOOL(cb1, true);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+
+	VIA_CYCLE_START
+		SIGNAL_SET_BOOL(cb1, true);
+	VIA_CYCLE_END
+	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+
+	// shift out 8 bits
+	uint8_t done_2 = 0;
+
+	for (int i = 0; i < 8; i++) {
+
+		for (int j = 0; j < sr_pulses; ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb1, false);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+
+		VIA_CYCLE_START
+			SIGNAL_SET_BOOL(cb1, true);
+		VIA_CYCLE_END
+
+		bool bit = SIGNAL_NEXT_BOOL(cb2);
+		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert(bit == BIT_IS_SET(data_2, 7 - i));
+		done_2 = (done_2 << 1) | bit;
+
+		for (int j = 1; j < ((i < 7) ? sr_pulses : 1); ++j) {
+			VIA_CYCLE_START
+				SIGNAL_SET_BOOL(cb1, true);
+			VIA_CYCLE_END
+			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		}
+	}
+
+	// check irq
+	VIA_CYCLE();
+	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
+	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
+	munit_assert_uint8(done_2, ==, data_2);
+	munit_assert_uint8(via->reg_sr, ==, data_2);
+
+	return MUNIT_OK;
+}
+
 MunitTest chip_6522_tests[] = {
 	{ "/reset", test_reset, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_ddra", test_read_ddra, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_ddrb", test_read_ddrb, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_ddra", test_write_ddra, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
-	{ "/write_ddrb", test_write_ddra, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/write_ddrb", test_write_ddrb, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_acr", test_read_acr, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/write_acr", test_write_acr, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_pcr", test_read_pcr, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -2379,5 +3409,14 @@ MunitTest chip_6522_tests[] = {
 	{ "/t1_freerun_pb7", test_t1_freerun_pb7, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/t2_timed", test_t2_timed, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/t2_count_pb6", test_t2_count_pb6, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_sr", test_read_sr, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/write_sr", test_write_sr, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sr_shift_in_phi2", test_sr_shift_in_phi2, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sr_shift_in_t2", test_sr_shift_in_t2, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sr_shift_in_cb1", test_sr_shift_in_cb1, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sr_shift_out_phi2", test_sr_shift_out_phi2, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sr_shift_out_t2", test_sr_shift_out_t2, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sr_shift_out_t2_free", test_sr_shift_out_t2_free, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/sr_shift_out_cb1", test_sr_shift_out_cb1, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

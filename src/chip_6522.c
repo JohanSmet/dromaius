@@ -26,7 +26,9 @@ typedef struct Chip6522_pstate {		// port state
 	bool			port_read;
 	bool			port_written;
 
+	bool			cl1_is_output;
 	bool			cl2_is_output;
+	bool			out_cl1;
 	bool			out_cl2;
 } Chip6522_pstate;
 
@@ -36,6 +38,7 @@ typedef struct Chip6522_private {
 	bool			strobe;
 	bool			prev_enable;
 	bool			prev_pb6;
+	bool			prev_cb1;
 
 	Chip6522_pstate	state_a;
 	Chip6522_pstate	state_b;
@@ -51,6 +54,13 @@ typedef struct Chip6522_private {
 	bool			t2_clr_irq;
 	bool			t2_set_irq;
 	uint8_t			reg_t2l_h;
+
+	bool			sr_start;
+	bool			sr_running;
+	uint8_t			sr_count;
+	uint8_t			sr_timer;
+	bool			sr_clr_irq;
+	bool			sr_set_irq;
 
 	bool			out_irq;
 
@@ -90,6 +100,8 @@ typedef enum Chip6522_address {
 
 #define RW_READ  true
 #define RW_WRITE false
+
+static void setup_shift_register(Chip6522 *via);
 
 
 static inline Chip6522_address rs_to_addr(Chip6522 *via) {
@@ -138,9 +150,12 @@ static inline void write_register(Chip6522 *via, uint8_t data) {
 			break;
 		case ADDR_SR:
 			via->reg_sr = data;
+			PRIVATE(via)->sr_start = true;
+			PRIVATE(via)->sr_clr_irq = true;
 			break;
 		case ADDR_ACR:
 			via->reg_acr = data;
+			setup_shift_register(via);
 			break;
 		case ADDR_PCR:
 			via->reg_pcr = data;
@@ -192,6 +207,8 @@ static inline uint8_t read_register(Chip6522 *via) {
 		case ADDR_T2C_H:
 			return HI_BYTE(via->reg_t2c);
 		case ADDR_SR:
+			PRIVATE(via)->sr_clr_irq = true;
+			PRIVATE(via)->sr_start = true;
 			return via->reg_sr;
 		case ADDR_ACR:
 			return via->reg_acr;
@@ -227,12 +244,17 @@ static void process_end(Chip6522 *via) {
 		SIGNAL_SET_BOOL(ca2, PRIVATE(via)->state_a.out_cl2);
 	}
 
+	// optional output on cb1
+	if (PRIVATE(via)->state_b.cl1_is_output) {
+		SIGNAL_SET_BOOL(cb1, PRIVATE(via)->state_b.out_cl1);
+	}
+
 	// optional output on cb2
 	if (PRIVATE(via)->state_b.cl2_is_output) {
 		SIGNAL_SET_BOOL(cb2, PRIVATE(via)->state_b.out_cl2);
 	}
 
-	// store state of the enable pin
+	// store state of some pins
 	PRIVATE(via)->prev_enable = SIGNAL_BOOL(enable);
 }
 
@@ -302,6 +324,7 @@ static void build_interrupt_register(Chip6522 *via) {
 	// some events that happen can pull certain bits of the IFR high
 	int new_ifr = ( PRIVATE(via)->state_a.act_trans_cl2 << 0 |
 					PRIVATE(via)->state_a.act_trans_cl1 << 1 |
+					PRIVATE(via)->sr_set_irq << 2 |
 					PRIVATE(via)->state_b.act_trans_cl2 << 3 |
 					PRIVATE(via)->state_b.act_trans_cl1 << 4 |
 					PRIVATE(via)->t2_set_irq << 5 |
@@ -314,6 +337,7 @@ static void build_interrupt_register(Chip6522 *via) {
 					PRIVATE(via)->state_a.port_written << 0 |
 					PRIVATE(via)->state_a.port_read << 1 |
 					PRIVATE(via)->state_a.port_written << 1 |
+					PRIVATE(via)->sr_clr_irq << 2 |
 					PRIVATE(via)->state_b.port_read << 3 |
 					PRIVATE(via)->state_b.port_written << 3 |
 					PRIVATE(via)->state_b.port_read << 4 |
@@ -335,6 +359,8 @@ static void build_interrupt_register(Chip6522 *via) {
 	PRIVATE(via)->t1_set_irq = false;
 	PRIVATE(via)->t2_clr_irq = false;
 	PRIVATE(via)->t2_set_irq = false;
+	PRIVATE(via)->sr_clr_irq = false;
+	PRIVATE(via)->sr_set_irq = false;
 
 	// set IFR[7] and output irq when any of the lower 7-bits are set
 	if ((via->reg_ifr & via->reg_ier) > 0) {
@@ -413,6 +439,90 @@ static void process_timer2(Chip6522 *via) {
 	PRIVATE(via)->prev_pb6 = pb6;
 }
 
+static void setup_shift_register(Chip6522 *via) {
+
+	int mode = via->reg_acr & MASK_6522_ACR_SR_CONTROL;
+
+	switch (mode) {
+		case VALUE_6522_ACR_SR_IN_T2:
+		case VALUE_6522_ACR_SR_IN_PHI2:
+		case VALUE_6522_ACR_SR_OUT_FREE_T2:
+		case VALUE_6522_ACR_SR_OUT_T2:
+		case VALUE_6522_ACR_SR_OUT_PHI2:
+			PRIVATE(via)->state_b.cl1_is_output = true;
+			PRIVATE(via)->state_b.out_cl1 = true;
+			break;
+
+		case VALUE_6522_ACR_SR_DISABLED:
+		case VALUE_6522_ACR_SR_OUT_EXT:
+		case VALUE_6522_ACR_SR_IN_EXT:
+			PRIVATE(via)->state_b.cl1_is_output = false;
+			break;
+	}
+}
+
+static void process_shift_register(Chip6522 *via) {
+
+	if (PRIVATE(via)->sr_start) {
+		PRIVATE(via)->sr_start = false;
+		PRIVATE(via)->sr_running = true;
+		PRIVATE(via)->sr_count = 0;
+		PRIVATE(via)->sr_timer = 1;
+		PRIVATE(via)->state_b.out_cl1 = true;
+		return;
+	}
+
+	if (ACR_SETTING(SR_CONTROL, SR_DISABLED) || !PRIVATE(via)->sr_running) {
+		return;
+	}
+
+	if (PRIVATE(via)->sr_count == 8) {
+		if (!ACR_SETTING(SR_CONTROL, SR_OUT_FREE_T2)) {
+			PRIVATE(via)->sr_set_irq = true;
+			PRIVATE(via)->sr_running = false;
+			return;
+		} else {
+			PRIVATE(via)->sr_count = 0;
+		}
+	}
+
+	bool shift_out = BIT_IS_SET(via->reg_acr, 4);
+	bool do_shift = false;
+	int mode = (via->reg_acr & 0b00001100) >> 2;
+
+	switch (mode) {
+		case 0b10:			// shifting controlled by PHI2
+			PRIVATE(via)->state_b.out_cl1 = !PRIVATE(via)->state_b.out_cl1;
+			do_shift = PRIVATE(via)->state_b.out_cl1;
+			break;
+		case 0b11:			// shifting controlled by extern clock (CB1)
+			do_shift = !PRIVATE(via)->prev_cb1 && SIGNAL_BOOL(cb1);
+			break;
+		default:			// shifting controlled by T2
+			--PRIVATE(via)->sr_timer;
+			if (PRIVATE(via)->sr_timer == 0) {
+				PRIVATE(via)->state_b.out_cl1 = !PRIVATE(via)->state_b.out_cl1;
+				do_shift = PRIVATE(via)->state_b.out_cl1;
+				PRIVATE(via)->sr_timer = via->reg_t2l_l;
+			}
+			break;
+	}
+
+	if (!do_shift) {
+		return;
+	}
+
+	if (shift_out) {
+		PRIVATE(via)->state_b.cl2_is_output = true;
+		PRIVATE(via)->state_b.out_cl2 = BIT_IS_SET(via->reg_sr, 7);
+		via->reg_sr = (uint8_t) ((via->reg_sr << 1) | PRIVATE(via)->state_b.out_cl2);
+	} else {
+		via->reg_sr = (uint8_t) ((via->reg_sr << 1) | SIGNAL_BOOL(cb2));
+	}
+
+	++PRIVATE(via)->sr_count;
+}
+
 static void process_positive_enable_edge(Chip6522 *via) {
 	process_edge_common(via);
 
@@ -434,6 +544,9 @@ static void process_negative_enable_edge(Chip6522 *via) {
 	process_timer1(via);
 	process_timer2(via);
 
+	// shift register
+	process_shift_register(via);
+
 	// read/write register
 	if (PRIVATE(via)->strobe) {
 		// read/write internal register
@@ -454,12 +567,15 @@ static void process_negative_enable_edge(Chip6522 *via) {
 		process_control_line_output(true, via->reg_pcr & 0x0f, &PRIVATE(via)->state_a);
 	}
 
-	if (PRIVATE(via)->state_b.cl2_is_output) {
+	if (PRIVATE(via)->state_b.cl2_is_output && !BIT_IS_SET(via->reg_acr, 4)) {
 		process_control_line_output(false, via->reg_pcr >> 4, &PRIVATE(via)->state_b);
 	}
 
 	// interrupt
 	build_interrupt_register(via);
+
+	// save signal state at negative edge
+	PRIVATE(via)->prev_cb1 = SIGNAL_BOOL(cb1);
 }
 
 //////////////////////////////////////////////////////////////////////////////
