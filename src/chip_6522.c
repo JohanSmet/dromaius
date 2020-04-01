@@ -2,6 +2,12 @@
 //
 // Emulation of the 6522 Versatile Interface Adapter
 
+// NOTE: not tested in a "real-world" scenario, only with the provided unit-test
+//	- timing of operations might be off (e.g. start of timers)
+//	- reading of IFR might be wrong: should IER be taken into account or not?
+//	- unclear what should happen to the CB-flags in IFR when shift register is activated
+//	- ...
+
 #include "chip_6522.h"
 
 #include <assert.h>
