@@ -50,3 +50,60 @@ void chip_7400_nand_process(Chip7400Nand *chip) {
 	SIGNAL_SET_BOOL(y3, !(SIGNAL_NEXT_BOOL(a3) && SIGNAL_NEXT_BOOL(b3)));
 	SIGNAL_SET_BOOL(y4, !(SIGNAL_NEXT_BOOL(a4) && SIGNAL_NEXT_BOOL(b4)));
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// 74244 - Octal 3-STATE Buffer/Line Driver/Line Receiver
+//
+
+Chip74244OctalBuffer *chip_74244_octal_buffer_create(SignalPool *signal_pool, Chip74244Signals signals) {
+	Chip74244OctalBuffer *chip = (Chip74244OctalBuffer *) calloc(1, sizeof(Chip74244OctalBuffer));
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(g1_b,	1);
+	SIGNAL_DEFINE(a11,	1);
+	SIGNAL_DEFINE(y24,	1);
+	SIGNAL_DEFINE(a12,	1);
+	SIGNAL_DEFINE(y23,	1);
+	SIGNAL_DEFINE(a13,	1);
+	SIGNAL_DEFINE(y22,	1);
+	SIGNAL_DEFINE(a14,	1);
+	SIGNAL_DEFINE(y21,	1);
+	SIGNAL_DEFINE(gnd,	1);
+	SIGNAL_DEFINE(a21,	1);
+	SIGNAL_DEFINE(y14,	1);
+	SIGNAL_DEFINE(a22,	1);
+	SIGNAL_DEFINE(y13,	1);
+	SIGNAL_DEFINE(a23,	1);
+	SIGNAL_DEFINE(y12,	1);
+	SIGNAL_DEFINE(a24,	1);
+	SIGNAL_DEFINE(y11,	1);
+	SIGNAL_DEFINE(g2_b,	1);
+	SIGNAL_DEFINE(vcc,	1);
+
+	return chip;
+}
+
+void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
+	assert(chip);
+
+	if (!SIGNAL_NEXT_BOOL(g1_b)) {
+		SIGNAL_SET_BOOL(y11, SIGNAL_NEXT_BOOL(a11));
+		SIGNAL_SET_BOOL(y12, SIGNAL_NEXT_BOOL(a12));
+		SIGNAL_SET_BOOL(y13, SIGNAL_NEXT_BOOL(a13));
+		SIGNAL_SET_BOOL(y14, SIGNAL_NEXT_BOOL(a14));
+	}
+
+	if (!SIGNAL_NEXT_BOOL(g2_b)) {
+		SIGNAL_SET_BOOL(y21, SIGNAL_NEXT_BOOL(a21));
+		SIGNAL_SET_BOOL(y22, SIGNAL_NEXT_BOOL(a22));
+		SIGNAL_SET_BOOL(y23, SIGNAL_NEXT_BOOL(a23));
+		SIGNAL_SET_BOOL(y24, SIGNAL_NEXT_BOOL(a24));
+	}
+}
