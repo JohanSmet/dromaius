@@ -22,7 +22,7 @@ macro(target_compile_warning target)
 		$<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:GNU>>:
 		-Wall -Wextra -Wconversion -Wsign-conversion -Werror>
 		$<$<CXX_COMPILER_ID:MSVC>:
-			/W4 
+			/W4
 			/wd"4200" /wd"4201" /wd"4204"	# disable specific non-standard extension warnings
 			>)
 endmacro()
@@ -109,6 +109,8 @@ target_sources(${LIB_TARGET}
 		src/chip_6520.h
 		src/chip_6522.c
 		src/chip_6522.h
+		src/chip_74xxx.c
+		src/chip_74xxx.h
 		src/chip_hd44780.c
 		src/chip_hd44780.h
 		src/clock.c
@@ -219,6 +221,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_main.c
 		src/test/test_chip_6520.c
 		src/test/test_chip_6522.c
+		src/test/test_chip_74xxx.c
 		src/test/test_chip_hd44780.c
 		src/test/test_clock.c
 		src/test/test_cpu_6502.c
