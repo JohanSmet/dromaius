@@ -53,6 +53,84 @@ void chip_7400_nand_process(Chip7400Nand *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 74154 - 4-Line to 16-Line Decoder/Multiplexer
+//
+
+typedef struct Chip74154Decoder_private {
+	Chip74154Decoder	intf;
+	Signal *			outputs[16];
+} Chip74154Decoder_private;
+
+Chip74154Decoder *chip_74154_decoder_create(SignalPool *signal_pool, Chip74154Signals signals) {
+	Chip74154Decoder_private *priv = (Chip74154Decoder_private *) calloc(1, sizeof(Chip74154Decoder_private));
+	Chip74154Decoder *chip = &priv->intf;
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(y0_b,		1);
+	SIGNAL_DEFINE(y1_b,		1);
+	SIGNAL_DEFINE(y2_b,		1);
+	SIGNAL_DEFINE(y3_b,		1);
+	SIGNAL_DEFINE(y4_b,		1);
+	SIGNAL_DEFINE(y5_b,		1);
+	SIGNAL_DEFINE(y6_b,		1);
+	SIGNAL_DEFINE(y7_b,		1);
+	SIGNAL_DEFINE(y8_b,		1);
+	SIGNAL_DEFINE(y9_b,		1);
+	SIGNAL_DEFINE(y10_b,	1);
+	SIGNAL_DEFINE(gnd,		1);
+	SIGNAL_DEFINE(y11_b,	1);
+	SIGNAL_DEFINE(y12_b,	1);
+	SIGNAL_DEFINE(y13_b,	1);
+	SIGNAL_DEFINE(y14_b,	1);
+	SIGNAL_DEFINE(y15_b,	1);
+	SIGNAL_DEFINE(g1_b,		1);
+	SIGNAL_DEFINE(g2_b,		1);
+	SIGNAL_DEFINE(d,		1);
+	SIGNAL_DEFINE(c,		1);
+	SIGNAL_DEFINE(b,		1);
+	SIGNAL_DEFINE(a,		1);
+	SIGNAL_DEFINE(vcc,		1);
+
+	priv->outputs[0]  = &SIGNAL(y0_b);	priv->outputs[1]  = &SIGNAL(y1_b);
+	priv->outputs[2]  = &SIGNAL(y2_b);	priv->outputs[3]  = &SIGNAL(y3_b);
+	priv->outputs[4]  = &SIGNAL(y4_b);	priv->outputs[5]  = &SIGNAL(y5_b);
+	priv->outputs[6]  = &SIGNAL(y6_b);	priv->outputs[7]  = &SIGNAL(y7_b);
+	priv->outputs[8]  = &SIGNAL(y8_b);	priv->outputs[9]  = &SIGNAL(y9_b);
+	priv->outputs[10] = &SIGNAL(y10_b); priv->outputs[11] = &SIGNAL(y11_b);
+	priv->outputs[12] = &SIGNAL(y12_b); priv->outputs[13] = &SIGNAL(y13_b);
+	priv->outputs[14] = &SIGNAL(y14_b); priv->outputs[15] = &SIGNAL(y15_b);
+
+	return chip;
+}
+
+void chip_74154_decoder_destroy(Chip74154Decoder *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74154_decoder_process(Chip74154Decoder *chip) {
+	assert(chip);
+
+	if (!(ACTLO_ASSERTED(SIGNAL_NEXT_BOOL(g1_b)) && ACTLO_ASSERTED(SIGNAL_NEXT_BOOL(g2_b)))) {
+		return;
+	}
+
+	Signal **outputs = ((Chip74154Decoder_private *) chip)->outputs;
+
+	for (int i = 0; i < 16; ++i) {
+		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT);
+	}
+
+	int value = SIGNAL_NEXT_BOOL(a) |
+				SIGNAL_NEXT_BOOL(b) << 1 |
+				SIGNAL_NEXT_BOOL(c) << 2 |
+				SIGNAL_NEXT_BOOL(d) << 3;
+	signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74244 - Octal 3-STATE Buffer/Line Driver/Line Receiver
 //
 

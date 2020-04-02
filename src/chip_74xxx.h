@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-// types
+// types - 7400
 typedef struct Chip7400NandSignals {
 	Signal		a1;			// pin 1
 	Signal		b1;			// pin 2
@@ -35,7 +35,41 @@ typedef struct Chip7400Nand {
 	Chip7400NandSignals signals;
 } Chip7400Nand;
 
-typedef struct Chip74244OSignals {
+// types - 74154
+typedef struct Chip74154Signals {
+	Signal		y0_b;		// pin 1
+	Signal		y1_b;		// pin 2
+	Signal		y2_b;		// pin 3
+	Signal		y3_b;		// pin 4
+	Signal		y4_b;		// pin 5
+	Signal		y5_b;		// pin 6
+	Signal		y6_b;		// pin 7
+	Signal		y7_b;		// pin 8
+	Signal		y8_b;		// pin 9
+	Signal		y9_b;		// pin 10
+	Signal		y10_b;		// pin 11
+	Signal		gnd;		// pin 12
+	Signal		y11_b;		// pin 13
+	Signal		y12_b;		// pin 14
+	Signal		y13_b;		// pin 15
+	Signal		y14_b;		// pin 16
+	Signal		y15_b;		// pin 17
+	Signal		g1_b;		// pin 18
+	Signal		g2_b;		// pin 19
+	Signal		d;			// pin 20
+	Signal		c;			// pin 21
+	Signal		b;			// pin 22
+	Signal		a;			// pin 23
+	Signal		vcc;		// pin 24
+} Chip74154Signals;
+
+typedef struct Chip74154Decoder {
+	SignalPool *		signal_pool;
+	Chip74154Signals	signals;
+} Chip74154Decoder;
+
+// types - 74244
+typedef struct Chip74244Signals {
 	Signal		g1_b;		// pin 01 - enable output on group 1
 	Signal		a11;		// pin 02 - group 1 input 1
 	Signal		y24;		// pin 03 - group 2 output 4
@@ -67,6 +101,10 @@ typedef struct Chip74244OctalBuffer {
 Chip7400Nand *chip_7400_nand_create(SignalPool *signal_pool, Chip7400NandSignals signals);
 void chip_7400_nand_destroy(Chip7400Nand *chip);
 void chip_7400_nand_process(Chip7400Nand *chip);
+
+Chip74154Decoder *chip_74154_decoder_create(SignalPool *signal_pool, Chip74154Signals signals);
+void chip_74154_decoder_destroy(Chip74154Decoder *chip);
+void chip_74154_decoder_process(Chip74154Decoder *chip);
 
 Chip74244OctalBuffer *chip_74244_octal_buffer_create(SignalPool *signal_pool, Chip74244Signals signals);
 void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip);
