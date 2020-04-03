@@ -104,7 +104,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// run CPU for at least one cycle while reset is asserted
 	signal_write_bool(device->signal_pool, SIGNAL(reset_b), ACTLO_ASSERT);
-	cpu_6502_process(device->cpu, false);
+	device->cpu->process(device->cpu, false);
 
 	return device;
 }
@@ -154,7 +154,7 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 		signal_pool_cycle(device->signal_pool);
 
 		// cpu
-		cpu_6502_process(device->cpu, time & 1);
+		device->cpu->process(device->cpu, time & 1);
 
 		// ram
 		ram_8d16a_process(device->ram);

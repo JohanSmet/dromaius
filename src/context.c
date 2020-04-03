@@ -64,11 +64,11 @@ static bool context_execute(DmsContext *dms) {
 
 	while (dms->state != DS_WAIT && !clock_is_caught_up(dms->device->clock)) {
 
-		bool prev_sync = cpu_6502_at_start_of_instruction(dms->device->cpu);
+		bool prev_sync = dms->device->cpu->is_at_start_of_instruction(dms->device->cpu);
 
 		dev_minimal_6502_process(dms->device);
 
-		bool cpu_sync = cpu_6502_at_start_of_instruction(dms->device->cpu);
+		bool cpu_sync = dms->device->cpu->is_at_start_of_instruction(dms->device->cpu);
 
 		switch (dms->state) {
 			case DS_SINGLE_STEP :
@@ -255,14 +255,14 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 			DevMinimal6502 *dev = dms_get_device(dms);
 
 			// tell the cpu to override the location of the next instruction
-			cpu_6502_override_next_instruction_address(dev->cpu, (uint16_t) (addr & 0xffff));
+			dev->cpu->override_next_instruction_address(dev->cpu, (uint16_t) (addr & 0xffff));
 
 			// run computer until current instruction is finished
-			bool cpu_sync  = cpu_6502_at_start_of_instruction(dms->device->cpu);
+			bool cpu_sync  = dev->cpu->is_at_start_of_instruction(dms->device->cpu);
 
 			while (!(cpu_sync && dev->cpu->reg_pc == addr)) {
 				dev_minimal_6502_process(dev);
-				cpu_sync  = cpu_6502_at_start_of_instruction(dms->device->cpu);
+				cpu_sync  = dev->cpu->is_at_start_of_instruction(dms->device->cpu);
 			}
 
 			arr_printf(*reply, "OK: pc changed to 0x%lx", addr);

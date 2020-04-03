@@ -2098,6 +2098,16 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 }
 
+void cpu_6502_override_next_instruction_address(Cpu6502 *cpu, uint16_t pc) {
+	assert(cpu);
+	PRIVATE(cpu)->override_pc = pc;
+}
+
+bool cpu_6502_at_start_of_instruction(Cpu6502 *cpu) {
+	assert(cpu);
+	return SIGNAL_NEXT_BOOL(sync);
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
@@ -2108,7 +2118,11 @@ Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals) {
 	Cpu6502_private *priv = (Cpu6502_private *) malloc(sizeof(Cpu6502_private));
 	Cpu6502 *cpu = &priv->intf;
 	memset(priv, 0, sizeof(Cpu6502_private));
+
 	cpu->signal_pool = signal_pool;
+	cpu->process = (CPU_PROCESS_FUNC) cpu_6502_process;
+	cpu->override_next_instruction_address = (CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS) cpu_6502_override_next_instruction_address;
+	cpu->is_at_start_of_instruction = (CPU_IS_AT_START_OF_INSTRUCTION) cpu_6502_at_start_of_instruction;
 
 	memcpy(&cpu->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(bus_address, 16);
@@ -2127,7 +2141,7 @@ Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals) {
 	priv->prev_nmi = true;
 	priv->prev_reset = ACTLO_DEASSERT;
 	priv->override_pc = 0;
-	
+
 	return cpu;
 }
 
@@ -2194,12 +2208,3 @@ void cpu_6502_process(Cpu6502 *cpu, bool delayed) {
 	return;
 }
 
-void cpu_6502_override_next_instruction_address(Cpu6502 *cpu, uint16_t pc) {
-	assert(cpu);
-	PRIVATE(cpu)->override_pc = pc;
-}
-
-bool cpu_6502_at_start_of_instruction(Cpu6502 *cpu) {
-	assert(cpu);
-	return SIGNAL_NEXT_BOOL(sync);
-}

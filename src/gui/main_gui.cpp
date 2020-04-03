@@ -54,7 +54,7 @@ void ui_frame() {
 	dms_execute(ui_context.dms_ctx);
 #endif // DMS_NO_THREADING
 
-	if (cpu_6502_at_start_of_instruction(ui_context.device->cpu)) {
+	if (ui_context.device->cpu->is_at_start_of_instruction(ui_context.device->cpu)) {
 		ui_context.last_pc = ui_context.device->cpu->reg_pc;
 	}
 

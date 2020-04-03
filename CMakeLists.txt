@@ -117,6 +117,7 @@ target_sources(${LIB_TARGET}
 		src/clock.h
 		src/context.c
 		src/context.h
+		src/cpu.h
 		src/cpu_6502.c
 		src/cpu_6502.h
 		src/dev_minimal_6502.c
