@@ -105,6 +105,7 @@ target_sources(${LIB_TARGET}
 	PRIVATE
 		src/sys/threads.c
 		src/sys/threads.h
+		src/chip.h
 		src/chip_6520.c
 		src/chip_6520.h
 		src/chip_6522.c

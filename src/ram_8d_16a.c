@@ -18,13 +18,14 @@
 
 Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, SignalPool *signal_pool, Ram8d16aSignals signals) {
 	assert(num_address_lines > 0 && num_address_lines <= 16);
-	
+
 	size_t data_size = (size_t) 1 << num_address_lines;
 	Ram8d16a *ram = (Ram8d16a *) malloc(sizeof(Ram8d16a) + data_size);
 
 	memset(ram, 0, sizeof(Ram8d16a) + data_size);
 	ram->signal_pool = signal_pool;
 	ram->data_size = data_size;
+	ram->process = (PROCESS_FUNC) ram_8d16a_process;
 
 	memcpy(&ram->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(bus_address, num_address_lines);

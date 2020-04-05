@@ -5,7 +5,7 @@
 #ifndef DROMAIUS_ROM_8D_16A_H
 #define DROMAIUS_ROM_8D_16A_H
 
-#include "types.h"
+#include "chip.h"
 #include "signal_line.h"
 
 #ifdef __cplusplus
@@ -21,6 +21,8 @@ typedef struct Rom8d16aSignals {
 
 
 typedef struct Rom8d16a {
+	CHIP_DECLARE_FUNCTIONS
+
 	// interface
 	SignalPool *		signal_pool;
 	Rom8d16aSignals		signals;

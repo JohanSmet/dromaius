@@ -157,10 +157,10 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 		device->cpu->process(device->cpu, time & 1);
 
 		// ram
-		ram_8d16a_process(device->ram);
+		device->ram->process(device->ram);
 
 		// rom
-		rom_8d16a_process(device->rom);
+		device->rom->process(device->rom);
 
 		// pia
 		chip_6520_process(device->pia);
