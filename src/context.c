@@ -32,7 +32,7 @@ typedef enum DMS_STATE {
 } DMS_STATE;
 
 typedef struct DmsContext {
-	DevMinimal6502 *device;	
+	DevMinimal6502 *device;
 	DMS_STATE		state;
 	int64_t *		breakpoints;
 
@@ -50,7 +50,7 @@ typedef struct DmsContext {
 
 static inline int breakpoint_index(DmsContext *dms, int64_t addr) {
 	for (int i = 0; i < arrlen(dms->breakpoints); ++i) {
-		if (dms->breakpoints[i] == addr) { 
+		if (dms->breakpoints[i] == addr) {
 			return i;
 		}
 	}
@@ -112,7 +112,7 @@ static int context_background_thread(DmsContext *dms) {
 		while (dms->state == DS_WAIT) {
 			cond_wait(&dms->cnd_wait, &dms->mtx_wait);
 		}
-		
+
 		keep_running = context_execute(dms);
 
 		mutex_unlock(&dms->mtx_wait);
@@ -169,7 +169,7 @@ struct DevMinimal6502 *dms_get_device(struct DmsContext *dms) {
 void dms_start_execution(DmsContext *dms) {
 	assert(dms);
 	assert(dms->device);
-	
+
 	dms->state = DS_WAIT;
 	mutex_init_plain(&dms->mtx_wait);
 	cond_init(&dms->cnd_wait);
@@ -195,7 +195,7 @@ void dms_execute(DmsContext *dms) {
 
 void dms_single_step(DmsContext *dms) {
 	assert(dms);
-	
+
 	if (dms->state == DS_WAIT) {
 		change_state(dms, DS_SINGLE_STEP);
 	}
@@ -203,7 +203,7 @@ void dms_single_step(DmsContext *dms) {
 
 void dms_single_instruction(DmsContext *dms) {
 	assert(dms);
-	
+
 	if (dms->state == DS_WAIT) {
 		change_state(dms, DS_SINGLE_INSTRUCTION);
 	}
@@ -211,7 +211,7 @@ void dms_single_instruction(DmsContext *dms) {
 
 void dms_run(DmsContext *dms) {
 	assert(dms);
-	
+
 	if (dms->state == DS_WAIT) {
 		change_state(dms, DS_RUN);
 	}
@@ -219,7 +219,7 @@ void dms_run(DmsContext *dms) {
 
 void dms_pause(DmsContext *dms) {
 	assert(dms);
-	
+
 	if (dms->state == DS_RUN) {
 		change_state(dms, DS_WAIT);
 	}

@@ -61,9 +61,9 @@ __________|/\_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _________________/\______________
 
 
 Notes:
-- The 6502 keeps the previous address stable at the beginning of the clock 
+- The 6502 keeps the previous address stable at the beginning of the clock
   cycle for at leat 10ns, depending on the operating frequency. (tAH/adress hold time)
-- To allow synchronization between devices processing of (1) and (2) is not done in 
+- To allow synchronization between devices processing of (1) and (2) is not done in
   the same cpu_6502_process call. The function is called twice for each clock change,
   the first time with parameter "delayed" set to false (execute (1)) and the second
   time with "delayed" set to true (execute (2)).
@@ -270,12 +270,12 @@ static inline void fetch_memory(Cpu6502 *cpu, uint16_t addr, uint8_t *dst, CPU_6
 	assert(dst);
 
 	switch (phase) {
-		case CYCLE_BEGIN : 
+		case CYCLE_BEGIN :
 			PRIVATE(cpu)->out_address = addr;
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			*dst = PRIVATE(cpu)->in_data;
 			break;
 	}
@@ -285,14 +285,14 @@ static inline void store_memory(Cpu6502 *cpu, uint16_t addr, uint8_t value, CPU_
 	assert(cpu);
 
 	switch (phase) {
-		case CYCLE_BEGIN : 
+		case CYCLE_BEGIN :
 			PRIVATE(cpu)->out_address = addr;
 			PRIVATE(cpu)->out_rw = RW_WRITE;
 			break;
 		case CYCLE_MIDDLE:
 			OUTPUT_DATA(value);
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			PRIVATE(cpu)->out_rw = RW_READ;
 			break;
 	}
@@ -363,12 +363,12 @@ static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst, CPU_6502_CYCLE ph
 	assert(dst);
 
 	switch (phase) {
-		case CYCLE_BEGIN : 
+		case CYCLE_BEGIN :
 			PRIVATE(cpu)->out_address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			*dst = PRIVATE(cpu)->in_data;
 			++cpu->reg_pc;
 			break;
@@ -517,7 +517,7 @@ static inline int fetch_address_indexed_indirect(Cpu6502 *cpu, CPU_6502_CYCLE ph
 			fetch_memory(cpu, PRIVATE(cpu)->operand, &PRIVATE(cpu)->addr.hi_byte, phase);
 			break;
 	}
-	
+
 	return 5;
 }
 
@@ -612,25 +612,25 @@ static inline int fetch_address_shortcut(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode
 static inline int fetch_address(Cpu6502 *cpu, ADDRESSING_MODE_6502 mode, CPU_6502_CYCLE phase) {
 
 	switch (mode) {
-		case AM_6502_IMMEDIATE:	
+		case AM_6502_IMMEDIATE:
 			return fetch_address_immediate(cpu, phase);
-		case AM_6502_ZEROPAGE:	
+		case AM_6502_ZEROPAGE:
 			return fetch_address_zeropage(cpu, phase);
-		case AM_6502_ZEROPAGE_X:	
+		case AM_6502_ZEROPAGE_X:
 			return fetch_address_zeropage_indexed(cpu, phase, cpu->reg_x);
-		case AM_6502_ZEROPAGE_Y:	
+		case AM_6502_ZEROPAGE_Y:
 			return fetch_address_zeropage_indexed(cpu, phase, cpu->reg_y);
-		case AM_6502_ABSOLUTE:	
+		case AM_6502_ABSOLUTE:
 			return fetch_address_absolute(cpu, phase);
-		case AM_6502_ABSOLUTE_X:	
+		case AM_6502_ABSOLUTE_X:
 			return fetch_address_absolute_indexed(cpu, phase, cpu->reg_x);
-		case AM_6502_ABSOLUTE_Y:	
+		case AM_6502_ABSOLUTE_Y:
 			return fetch_address_absolute_indexed(cpu, phase, cpu->reg_y);
 		case AM_6502_INDIRECT:
 			return fetch_address_indirect(cpu, phase);
-		case AM_6502_INDIRECT_X: 
+		case AM_6502_INDIRECT_X:
 			return fetch_address_indexed_indirect(cpu, phase);
-		case AM_6502_INDIRECT_Y: 
+		case AM_6502_INDIRECT_Y:
 			return fetch_address_indirect_indexed(cpu, phase);
 		default:
 			return 0;
@@ -724,7 +724,7 @@ static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t 
 			break;
 		case 2:		// add relative address + check for page crossing
 			switch (phase) {
-				case CYCLE_BEGIN: 
+				case CYCLE_BEGIN:
 					PRIVATE(cpu)->out_address = cpu->reg_pc;
 					PRIVATE(cpu)->i_addr.hi_byte = HI_BYTE(cpu->reg_pc);
 					INC_UINT16(cpu->reg_pc, (int8_t) PRIVATE(cpu)->i_addr.lo_byte);
@@ -950,7 +950,7 @@ static inline void decode_clc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			CPU_CHANGE_FLAG(CARRY, false);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
@@ -964,7 +964,7 @@ static inline void decode_cld(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			CPU_CHANGE_FLAG(DECIMAL_MODE, false);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
@@ -978,7 +978,7 @@ static inline void decode_cli(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			CPU_CHANGE_FLAG(INTERRUPT_DISABLE, false);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
@@ -992,7 +992,7 @@ static inline void decode_clv(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			CPU_CHANGE_FLAG(OVERFLOW, false);
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
@@ -1087,7 +1087,7 @@ static inline void decode_dex(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			cpu->reg_x--;
 			CPU_CHANGE_FLAG(Z, cpu->reg_x == 0);
 			CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_x, 7));
@@ -1103,7 +1103,7 @@ static inline void decode_dey(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			cpu->reg_y--;
 			CPU_CHANGE_FLAG(Z, cpu->reg_y == 0);
 			CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_y, 7));
@@ -1178,7 +1178,7 @@ static inline void decode_inx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			cpu->reg_x++;
 			CPU_CHANGE_FLAG(Z, cpu->reg_x == 0);
 			CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_x, 7));
@@ -1194,7 +1194,7 @@ static inline void decode_iny(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			cpu->reg_y++;
 			CPU_CHANGE_FLAG(Z, cpu->reg_y == 0);
 			CPU_CHANGE_FLAG(N, BIT_IS_SET(cpu->reg_y, 7));
@@ -1220,7 +1220,7 @@ static inline void decode_jmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 }
 
 static inline void decode_jsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
-	
+
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch address low byte (adl)
 			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
@@ -1373,7 +1373,7 @@ static inline void decode_nop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case CYCLE_MIDDLE:
 			break;
-		case CYCLE_END : 
+		case CYCLE_END :
 			PRIVATE(cpu)->decode_cycle = -1;
 			break;
 	}
@@ -1384,7 +1384,7 @@ static inline void decode_pha(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 1 :		// fetch discard data & decode pha
 			fetch_memory(cpu, cpu->reg_pc, &PRIVATE(cpu)->addr.lo_byte, phase);
 			break;
-		case 2 : 
+		case 2 :
 			stack_push(cpu, cpu->reg_a, phase);
 			if (phase == CYCLE_END) {
 				PRIVATE(cpu)->decode_cycle = -1;
@@ -1398,7 +1398,7 @@ static inline void decode_php(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 1 :		// fetch discard data & decode php
 			fetch_memory(cpu, cpu->reg_pc, &PRIVATE(cpu)->addr.lo_byte, phase);
 			break;
-		case 2 : 
+		case 2 :
 			// apparently the break bit is also set by PHP
 			// (I didn't see that mentioned in the programming manual, or I missed it, but several only resources mention this.)
 			stack_push(cpu, cpu->reg_p | 0b00010000, phase);
@@ -1414,7 +1414,7 @@ static inline void decode_pla(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case 1 :		// fetch discard data & decode pla
 			fetch_memory(cpu, cpu->reg_pc, &PRIVATE(cpu)->addr.lo_byte, phase);
 			break;
-		case 2 :		// read stack, 
+		case 2 :		// read stack,
 			if (phase == CYCLE_BEGIN) {
 				PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
 			}
@@ -1606,7 +1606,7 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 }
 
 static inline void decode_rts(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
-	
+
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// fetch discard data & decode rts
 			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
@@ -1632,7 +1632,7 @@ static inline void decode_rts(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 }
 
 static inline void decode_rti(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
-	
+
 	switch (PRIVATE(cpu)->decode_cycle) {
 		case 1 :		// decode RTI
 			fetch_pc_memory(cpu, &PRIVATE(cpu)->addr.lo_byte, phase);
@@ -1742,7 +1742,7 @@ static inline void decode_sta(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 }
 
 static inline void decode_stx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
-	
+
 	bool op_ready = false;
 
 	switch (cpu->reg_ir) {
@@ -1763,7 +1763,7 @@ static inline void decode_stx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 }
 
 static inline void decode_sty(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
-	
+
 	bool op_ready = false;
 
 	switch (cpu->reg_ir) {
@@ -2020,14 +2020,14 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		case OP_6502_SEI :
 			decode_sei(cpu, phase);
 			break;
-		case OP_6502_STX_ZP : 
-		case OP_6502_STX_ZPY : 
-		case OP_6502_STX_ABS : 
+		case OP_6502_STX_ZP :
+		case OP_6502_STX_ZPY :
+		case OP_6502_STX_ABS :
 			decode_stx(cpu, phase);
 			break;
-		case OP_6502_STY_ZP : 
-		case OP_6502_STY_ZPX : 
-		case OP_6502_STY_ABS : 
+		case OP_6502_STY_ZP :
+		case OP_6502_STY_ZPX :
+		case OP_6502_STY_ABS :
 			decode_sty(cpu, phase);
 			break;
 		case OP_6502_TAX :
@@ -2088,7 +2088,7 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		interrupt_sequence(cpu, phase, INTR_NMI);
 		return;
 	}
-	
+
 	// first cycle is always filling the instruction register with the new opcode
 	if (PRIVATE(cpu)->decode_cycle == 0) {
 		fetch_pc_memory(cpu, &cpu->reg_ir, phase);
