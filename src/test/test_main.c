@@ -11,6 +11,7 @@ extern MunitTest chip_6520_tests[];
 extern MunitTest chip_6522_tests[];
 extern MunitTest chip_74xxx_tests[];
 extern MunitTest chip_hd44780_tests[];
+extern MunitTest dev_commodore_pet_tests[];
 extern MunitTest dev_minimal_6502_tests[];
 extern MunitTest input_keypad_tests[];
 extern MunitTest ram_8d16a_tests[];
@@ -75,6 +76,12 @@ static MunitSuite extern_suites[] = {
 	},
 	{	.prefix = "/input_keypad",
 		.tests = input_keypad_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
+	{	.prefix = "/dev_commodore_pet",
+		.tests = dev_commodore_pet_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE
