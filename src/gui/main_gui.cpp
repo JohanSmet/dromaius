@@ -46,6 +46,7 @@ void ui_on_start() {
 	dms_start_execution(ui_context.dms_ctx);
 #endif // DMS_NO_THREADING
 
+	panel_memory_load_fonts();
 }
 
 void ui_frame() {
