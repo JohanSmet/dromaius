@@ -16,7 +16,7 @@
 static Rom8d16a *load_rom(DevCommodorePet *device, const char *filename, uint32_t num_lines, Signal rom_ce_b) {
 	Rom8d16a *rom = rom_8d16a_create(num_lines, device->signal_pool, (Rom8d16aSignals) {
 										.bus_address = signal_split(device->signals.bus_ba, 0, num_lines),
-										.bus_data = SIGNAL(bus_bd),
+										.bus_data = SIGNAL(cpu_bus_data),
 										.ce_b = rom_ce_b
 	});
 
@@ -80,8 +80,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE(self_b, 1);
 
 	SIGNAL_DEFINE(x8xx, 1);
-	SIGNAL_DEFINE(db_read_b, 1);
-	SIGNAL_DEFINE(db_write_b, 1);
+	SIGNAL_DEFINE(ram_read_b, 1);
+	SIGNAL_DEFINE(ram_write_b, 1);
 
 	SIGNAL_DEFINE_BOOL(high, 1, true);
 	SIGNAL_DEFINE_BOOL(low, 1, false);
@@ -232,8 +232,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 	});
 
 	device->e9 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
-										.g1_b = SIGNAL(db_write_b),								// 01
-										.g2_b = SIGNAL(db_read_b),								// 19
+										.g1_b = SIGNAL(ram_write_b),							// 01
+										.g2_b = SIGNAL(ram_read_b),								// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 02
 										.y24  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 03
 										.a12  = signal_split(SIGNAL(cpu_bus_data), 1, 1),		// 04
@@ -254,8 +254,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 	});
 
 	device->e10 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
-										.g1_b = SIGNAL(db_write_b),								// 01
-										.g2_b = SIGNAL(db_read_b),								// 19
+										.g1_b = SIGNAL(ram_write_b),							// 01
+										.g2_b = SIGNAL(ram_read_b),								// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 02
 										.y24  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 03
 										.a12  = signal_split(SIGNAL(cpu_bus_data), 5, 1),		// 04
@@ -366,12 +366,9 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 		bool rom_addr_b = NAND(ba15, sel8_b);
 
 		// A5 (3,4,5,6)
-		// NOTE: this differs for the 2001N schematic. Either I'm reading them wrong or there's an error in the copy I'm using.
-		//	- this way the entire range is reabable but writes are turned into reads for the read-only areas
-		//	- if i'm reading the schematics correctly it only allows writes to read-only memory ? I must be missing something...
-		bool db_read_b = rom_addr_b && addr_88xx_b && !rw;
-		SIGNAL_SET_BOOL(db_read_b, db_read_b);
-		SIGNAL_SET_BOOL(db_write_b, !db_read_b);
+		bool ram_read_b = !(rom_addr_b && addr_88xx_b && rw);
+		SIGNAL_SET_BOOL(ram_read_b, ram_read_b);
+		SIGNAL_SET_BOOL(ram_write_b, !ram_read_b);
 
 		chip_74244_octal_buffer_process(device->e9);
 		chip_74244_octal_buffer_process(device->e10);

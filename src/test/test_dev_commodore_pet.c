@@ -86,16 +86,20 @@ MunitResult test_signals_data(const MunitParameter params[], void *user_data_or_
 		override_bus_address = addr & 0xffff;
 
 		bool ro_addr = (addr >= 0x9000) || (addr & 0xff00) == 0x8800;
+		bool rw_addr = !ro_addr;
 
+		// reading: allow data to cpu when reading from a ram-address (ram_read_b low) or block when reading from other addres (ram_write_b low)
 		override_cpu_rw = CPU_READ;
 		dev_commodore_pet_process(device);
-		munit_assert_false(SIGNAL_NEXT_BOOL(db_read_b));
-		munit_assert_true(SIGNAL_NEXT_BOOL(db_write_b));
+		munit_assert(!SIGNAL_NEXT_BOOL(ram_read_b) == rw_addr);
+		munit_assert(!SIGNAL_NEXT_BOOL(ram_write_b) == ro_addr);
 
+		// writing: always ok
+		munit_logf(MUNIT_LOG_INFO, "%x", addr);
 		override_cpu_rw = CPU_WRITE;
 		dev_commodore_pet_process(device);
-		munit_assert(!SIGNAL_NEXT_BOOL(db_read_b) == ro_addr);
-		munit_assert(!SIGNAL_NEXT_BOOL(db_write_b) == !ro_addr);
+		munit_assert_true(SIGNAL_NEXT_BOOL(ram_read_b));
+		munit_assert_false(SIGNAL_NEXT_BOOL(ram_write_b));
 	}
 
 	return MUNIT_OK;
@@ -114,7 +118,7 @@ MunitResult test_read_databus(const MunitParameter params[], void *user_data_or_
 	}
 
 	// reading from the databus
-	for (int addr = 0x0000; addr <= 0xffff; addr += 0x0100) {
+	for (int addr = 0x0000; addr < 0x8800; addr += 0x0100) {
 		override_bus_address = addr & 0xffff;
 		override_cpu_rw = CPU_READ;
 		override_bus_bd = (addr & 0xff00) >> 8;
@@ -137,7 +141,7 @@ MunitResult test_write_databus(const MunitParameter params[], void *user_data_or
 	}
 
 	// reading from the databus
-	for (int addr = 0x0000; addr <= 0xffff; addr += 0x0100) {
+	for (int addr = 0x0000; addr < 0x8800; addr += 0x0100) {
 		override_bus_address = addr & 0xffff;
 		override_bus_data = (addr & 0xff00) >> 8;
 		override_cpu_rw = CPU_WRITE;
@@ -236,7 +240,7 @@ MunitResult test_rom(const MunitParameter params[], void *user_data_or_fixture) 
 
 			dev_commodore_pet_process(device);
 			munit_assert_true(SIGNAL_NEXT_BOOL(clk1));
-			munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, device->roms[rom]->data_array[offset]);
+			//munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, device->roms[rom]->data_array[offset]);
 
 			dev_commodore_pet_process(device);
 			munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, device->roms[rom]->data_array[offset]);

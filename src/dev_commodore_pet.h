@@ -59,8 +59,8 @@ typedef struct DevCommodorePetSignals {
 	Signal		self_b;				// 1-bit - accessing memory $fxxx
 
 	Signal		x8xx;				// 1-bit - 3 nibble of address == 8
-	Signal		db_read_b;			// 1-bit - cpu reads from databus
-	Signal		db_write_b;			// 1-bit - cpu writes to databus
+	Signal		ram_read_b;			// 1-bit - cpu reads from ram
+	Signal		ram_write_b;		// 1-bit - cpu writes to ram
 
 	Signal		high;				// 1-bit - always high
 	Signal		low;				// 1-bit - always low
