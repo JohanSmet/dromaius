@@ -3,11 +3,14 @@
 #include <imgui/imgui.h>
 
 #include "dev_minimal_6502.h"
+#include "dev_commodore_pet.h"
 #include "filt_6502_asm.h"
 
 #include "panel_clock.h"
 #include "panel_control.h"
 #include "panel_dev_minimal_6502.h"
+#include "panel_dev_commodore_pet.h"
+#include "panel_memory.h"
 
 #include "ui_context.h"
 #include "context.h"
@@ -18,28 +21,57 @@ const char *ui_config_window_title() {
 	return "Dromaius";
 }
 
-void ui_on_start() {
+Device *create_minimal_6502(UIContext *ui_context) {
 
-	// create device
-	ui_context.device = dev_minimal_6502_create(NULL);
-	//ui_context.device->line_reset_b = ACTLO_DEASSERT;
-	ui_context.last_pc = 0;
+	DevMinimal6502 *device = dev_minimal_6502_create(NULL);
 
 	// create dromaius context
-	ui_context.dms_ctx = dms_create_context();
-	dms_set_device(ui_context.dms_ctx, ui_context.device);
+	ui_context->dms_ctx = dms_create_context();
+	dms_set_device(ui_context->dms_ctx, (Device *) device);
 
 	// create UI panels
-	ui_context.panel_add(panel_control_create(&ui_context, {0, 0}));
+	ui_context->panel_add(panel_control_create(ui_context, {0, 0}));
 
-	ui_context.panel_add(
-			panel_clock_create(&ui_context, {0, 310}, ui_context.device->clock));
+	ui_context->panel_add(
+			panel_clock_create(ui_context, {0, 310}, device->clock));
 
-	ui_context.panel_add(
-			panel_dev_minimal_6502_create(&ui_context, {0, 55}, ui_context.device));
+	ui_context->panel_add(
+			panel_dev_minimal_6502_create(ui_context, {0, 55}, device));
 
 	// reset device
-	dev_minimal_6502_reset(ui_context.device);
+	device->reset(device);
+
+	return (Device *) device;
+}
+
+Device *create_commodore_pet(UIContext *ui_context) {
+
+	DevCommodorePet *device = dev_commodore_pet_create();
+
+	// create dromaius context
+	ui_context->dms_ctx = dms_create_context();
+	dms_set_device(ui_context->dms_ctx, (Device *) device);
+
+	// create UI panels
+	ui_context->panel_add(panel_control_create(ui_context, {0, 0}));
+
+	ui_context->panel_add(
+			panel_clock_create(ui_context, {0, 310}, device->clock));
+
+	ui_context->panel_add(
+			panel_dev_commodore_pet_create(ui_context, {0, 55}, device));
+
+	// reset device
+	device->reset(device);
+
+	return (Device *) device;
+}
+
+void ui_on_start() {
+	// create device
+	// ui_context.device = create_minimal_6502(&ui_context);
+	ui_context.device = create_commodore_pet(&ui_context);
+	ui_context.last_pc = 0;
 
 #ifndef DMS_NO_THREADING
 	// start dromaius context
@@ -55,8 +87,10 @@ void ui_frame() {
 	dms_execute(ui_context.dms_ctx);
 #endif // DMS_NO_THREADING
 
-	if (ui_context.device->cpu->is_at_start_of_instruction(ui_context.device->cpu)) {
-		ui_context.last_pc = ui_context.device->cpu->reg_pc;
+	Cpu *cpu = ui_context.device->get_cpu(ui_context.device);
+
+	if (cpu->is_at_start_of_instruction(cpu)) {
+		ui_context.last_pc = cpu->program_counter(cpu);
 	}
 
 	ui_context.panel_foreach([](auto panel) {

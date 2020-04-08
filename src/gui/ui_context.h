@@ -37,8 +37,8 @@ public:
 public:
 	struct DmsContext *dms_ctx;
 
-	struct DevMinimal6502 *device;
-	uint64_t	last_pc;
+	struct Device * device;
+	int64_t			last_pc;
 
 private:
 	std::vector<Panel::uptr_t>	panels;
