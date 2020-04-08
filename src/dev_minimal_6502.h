@@ -16,6 +16,7 @@
 #ifndef DROMAIUS_DEV_MINIMAL_6502_H
 #define DROMAIUS_DEV_MINIMAL_6502_H
 
+#include "device.h"
 #include "cpu_6502.h"
 #include "ram_8d_16a.h"
 #include "rom_8d_16a.h"
@@ -57,6 +58,8 @@ typedef struct DevMinimal6502Signals {
 } DevMinimal6502Signals;
 
 typedef struct DevMinimal6502 {
+	DEVICE_DECLARE_FUNCTIONS;
+
 	// components
 	Cpu6502 *		cpu;
 	Ram8d16a *		ram;

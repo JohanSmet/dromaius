@@ -13,8 +13,23 @@
 #define SIGNAL_POOL			device->signal_pool
 #define SIGNAL_COLLECTION	device->signals
 
+Cpu6502* dev_minimal_6502_get_cpu(DevMinimal6502 *device) {
+	assert(device);
+	return device->cpu;
+}
+
+Clock* dev_minimal_6502_get_clock(DevMinimal6502 *device) {
+	assert(device);
+	return device->clock;
+}
+
 DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DevMinimal6502 *device = (DevMinimal6502 *) calloc(1, sizeof(DevMinimal6502));
+
+	device->get_cpu = (DEVICE_GET_CPU) dev_minimal_6502_get_cpu;
+	device->get_clock = (DEVICE_GET_CLOCK) dev_minimal_6502_get_clock;
+	device->process = (DEVICE_PROCESS) dev_minimal_6502_process;
+	device->reset = (DEVICE_RESET) dev_minimal_6502_reset;
 
 	// signals
 	device->signal_pool = signal_pool_create();

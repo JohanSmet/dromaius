@@ -14,7 +14,8 @@
 #include "utils.h"
 #include <stb/stb_ds.h>
 
-#include "dev_minimal_6502.h"
+#include "cpu.h"
+#include "device.h"
 #include "clock.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,7 +33,7 @@ typedef enum DMS_STATE {
 } DMS_STATE;
 
 typedef struct DmsContext {
-	DevMinimal6502 *device;
+	Device *		device;
 	DMS_STATE		state;
 	int64_t *		breakpoints;
 
@@ -60,15 +61,18 @@ static inline int breakpoint_index(DmsContext *dms, int64_t addr) {
 
 static bool context_execute(DmsContext *dms) {
 
-	clock_mark(dms->device->clock);
+	Clock *clock = dms->device->get_clock(dms->device);
+	Cpu *cpu = dms->device->get_cpu(dms->device);
 
-	while (dms->state != DS_WAIT && !clock_is_caught_up(dms->device->clock)) {
+	clock_mark(clock);
 
-		bool prev_sync = dms->device->cpu->is_at_start_of_instruction(dms->device->cpu);
+	while (dms->state != DS_WAIT && !clock_is_caught_up(clock)) {
 
-		dev_minimal_6502_process(dms->device);
+		bool prev_sync = cpu->is_at_start_of_instruction(cpu);
 
-		bool cpu_sync = dms->device->cpu->is_at_start_of_instruction(dms->device->cpu);
+		dms->device->process(dms->device);
+
+		bool cpu_sync = cpu->is_at_start_of_instruction(cpu);
 
 		switch (dms->state) {
 			case DS_SINGLE_STEP :
@@ -81,12 +85,12 @@ static bool context_execute(DmsContext *dms) {
 				break;
 			case DS_RUN :
 				// check for breakpoints
-				if (cpu_sync && breakpoint_index(dms, dms->device->cpu->reg_pc) >= 0) {
+				if (cpu_sync && breakpoint_index(dms, cpu->program_counter(cpu)) >= 0) {
 					dms->state = DS_WAIT;
 				}
 				break;
 			case DS_RESET:
-				dev_minimal_6502_reset(dms->device);
+				dms->device->reset(dms->device);
 				dms->state = DS_WAIT;
 				break;
 			case DS_EXIT:
@@ -154,12 +158,12 @@ void dms_release_context(DmsContext *dms) {
 	free(dms);
 }
 
-void dms_set_device(DmsContext *dms, DevMinimal6502 *device) {
+void dms_set_device(DmsContext *dms, Device *device) {
 	assert(dms);
 	dms->device = device;
 }
 
-struct DevMinimal6502 *dms_get_device(struct DmsContext *dms) {
+struct Device *dms_get_device(struct DmsContext *dms) {
 	assert(dms);
 	return dms->device;
 }
@@ -248,21 +252,22 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 	assert(dms);
 	assert(cmd);
 
+	Cpu *cpu = dms->device->get_cpu(dms->device);
+
 	if (cmd[0] == 'g') {		// "g"oto address
 		int64_t addr;
 
 		if (string_to_hexint(cmd + 1, &addr)) {
-			DevMinimal6502 *dev = dms_get_device(dms);
 
 			// tell the cpu to override the location of the next instruction
-			dev->cpu->override_next_instruction_address(dev->cpu, (uint16_t) (addr & 0xffff));
+			cpu->override_next_instruction_address(cpu, (uint16_t) (addr & 0xffff));
 
 			// run computer until current instruction is finished
-			bool cpu_sync  = dev->cpu->is_at_start_of_instruction(dms->device->cpu);
+			bool cpu_sync  = cpu->is_at_start_of_instruction(cpu);
 
-			while (!(cpu_sync && dev->cpu->reg_pc == addr)) {
-				dev_minimal_6502_process(dev);
-				cpu_sync  = dev->cpu->is_at_start_of_instruction(dms->device->cpu);
+			while (!(cpu_sync && cpu->program_counter(cpu) == addr)) {
+				dms->device->process(dms->device);
+				cpu_sync  = cpu->is_at_start_of_instruction(cpu);
 			}
 
 			arr_printf(*reply, "OK: pc changed to 0x%lx", addr);

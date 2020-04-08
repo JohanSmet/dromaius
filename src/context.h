@@ -11,14 +11,14 @@ extern "C" {
 
 // types
 struct DmsContext;
-struct DevMinimal6502;
+struct Device;
 
 // functions
 struct DmsContext *dms_create_context(void);
 void dms_release_context(struct DmsContext *dms);
 
-void dms_set_device(struct DmsContext *dms, struct DevMinimal6502 *device);
-struct DevMinimal6502 *dms_get_device(struct DmsContext *dms);
+void dms_set_device(struct DmsContext *dms, struct Device *device);
+struct Device *dms_get_device(struct DmsContext *dms);
 
 #ifndef DMS_NO_THREADING
 void dms_start_execution(struct DmsContext *dms);

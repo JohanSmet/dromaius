@@ -121,6 +121,7 @@ target_sources(${LIB_TARGET}
 		src/cpu.h
 		src/cpu_6502.c
 		src/cpu_6502.h
+		src/device.h
 		src/dev_minimal_6502.c
 		src/dev_minimal_6502.h
 		src/filt_6502_asm.c
