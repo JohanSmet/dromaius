@@ -65,6 +65,8 @@ typedef struct DevCommodorePetSignals {
 	Signal		high;				// 1-bit - always high
 	Signal		low;				// 1-bit - always low
 
+	Signal		ba6;				// 1-bit
+	Signal		ba7;				// 1-bit
 	Signal		ba8;				// 1-bit
 	Signal		ba9;				// 1-bit
 	Signal		ba10;				// 1-bit
@@ -81,28 +83,8 @@ typedef struct DevCommodorePetSignals {
 
 	Signal		rome_ce_b;			// 1-bit
 
-/*
-	Signal		bus_address;		// 16-bit address bus
-	Signal		bus_data;			// 8-bit data bus
+	Signal		cs1;				// 1-bit
 
-	Signal		reset_b;			// 1-bit
-	Signal		clock;				// 1-bit
-
-	Signal		cpu_rw;				// 1-bit
-	Signal		cpu_irq_b;			// 1-bit
-	Signal		cpu_nmi_b;			// 1-bit
-	Signal		cpu_sync;			// 1-bit
-	Signal		cpu_rdy;			// 1-bit
-
-
-	Signal		rom_ce_b;			// 1-bit
-
-	Signal		pia_cs2_b;			// 1-bit
-
-	Signal		a15;				// 1-bit - top bit of the address bus
-	Signal		a14;				// 1-bit - second most significat bit of the address bus
-
-*/
 } DevCommodorePetSignals;
 
 typedef struct DevCommodorePet {
@@ -114,6 +96,9 @@ typedef struct DevCommodorePet {
 	Ram8d16a *      vram;
 	Rom8d16a *		roms[7];
 	Clock *			clock;
+	struct Chip6520 *	pia_1;
+	struct Chip6520 *	pia_2;
+	struct Chip6522 *	via;
 
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1

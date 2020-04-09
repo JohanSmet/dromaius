@@ -5,7 +5,8 @@
 #include "dev_commodore_pet.h"
 
 #include "utils.h"
-#include "stb/stb_ds.h"
+#include "chip_6520.h"
+#include "chip_6522.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -86,6 +87,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_BOOL(high, 1, true);
 	SIGNAL_DEFINE_BOOL(low, 1, false);
 
+	SIGNAL_DEFINE(cs1, 1);
+
+	device->signals.ba6 = signal_split(SIGNAL(bus_ba), 6, 1);
+	device->signals.ba7 = signal_split(SIGNAL(bus_ba), 7, 1);
 	device->signals.ba8 = signal_split(SIGNAL(bus_ba), 8, 1);
 	device->signals.ba9 = signal_split(SIGNAL(bus_ba), 9, 1);
 	device->signals.ba10 = signal_split(SIGNAL(bus_ba), 10, 1);
@@ -147,21 +152,52 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	SIGNAL(rome_ce_b) = device->roms[3]->signals.ce_b;
 
-	/*
-
-	// pia
-	device->pia = chip_6520_create(device->signal_pool, (Chip6520Signals) {
-										.bus_data = SIGNAL(bus_data),
-										.enable = SIGNAL(clock),
+	// pia 1 (C6 - IEEE-488 interface)
+	device->pia_1 = chip_6520_create(device->signal_pool, (Chip6520Signals) {
+										.bus_data = SIGNAL(cpu_bus_data),
+										.enable = SIGNAL(clk1),
 										.reset_b = SIGNAL(reset_b),
 										.rw = SIGNAL(cpu_rw),
-										.cs0 = SIGNAL(a15),
-										.cs1 = SIGNAL(high),
-										.rs0 = signal_split(SIGNAL(bus_address), 0, 1),
-										.rs1 = signal_split(SIGNAL(bus_address), 1, 1),
+										.cs0 = SIGNAL(x8xx),
+										.cs1 = signal_split(SIGNAL(bus_ba), 5, 1),
+										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
+										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
+										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
+										.irqa_b = SIGNAL(irq_b),
+										.irqb_b = SIGNAL(irq_b)
 	});
 
-	*/
+	// pia 2 (C7 - keyboard)
+	device->pia_2 = chip_6520_create(device->signal_pool, (Chip6520Signals) {
+										.bus_data = SIGNAL(cpu_bus_data),
+										.enable = SIGNAL(clk1),
+										.reset_b = SIGNAL(reset_b),
+										.rw = SIGNAL(cpu_rw),
+										.cs0 = SIGNAL(x8xx),
+										.cs1 = signal_split(SIGNAL(bus_ba), 4, 1),
+										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
+										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
+										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
+										.irqa_b = SIGNAL(irq_b),
+										.irqb_b = SIGNAL(irq_b)
+	});
+	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_a, 0xff);			// temporary until keyboard connected
+	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_b, 0xff);			// pull-up resistors R18-R25
+
+	// via (C5)
+	device->via = chip_6522_create(device->signal_pool, (Chip6522Signals) {
+										.bus_data = SIGNAL(cpu_bus_data),
+										.enable = SIGNAL(clk1),
+										.reset_b = SIGNAL(reset_b),
+										.rw = SIGNAL(cpu_rw),
+										.cs1 = SIGNAL(cs1),
+										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
+										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
+										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
+										.rs2 = signal_split(SIGNAL(bus_ba), 2, 1),
+										.rs3 = signal_split(SIGNAL(bus_ba), 2, 1),
+										.irq_b = SIGNAL(irq_b)
+	});
 
 	// glue logic
 	device->c3 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
@@ -288,6 +324,9 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	cpu_6502_destroy(device->cpu);
 	ram_8d16a_destroy(device->ram);
 	ram_8d16a_destroy(device->vram);
+	chip_6520_destroy(device->pia_1);
+	chip_6520_destroy(device->pia_2);
+	chip_6522_destroy(device->via);
 
 	for (int i = 0; device->roms[i] != NULL; ++i) {
 		rom_8d16a_destroy(device->roms[i]);
@@ -330,13 +369,16 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 			device->roms[i]->process(device->roms[i]);
 		}
 
-	/*
-		// pia
-		chip_6520_process(device->pia);
+		// pia-1 / IEEE-488
+		chip_6520_process(device->pia_1);
 
-	*/
+		// pia-2 / keyboard
+		chip_6520_process(device->pia_2);
 
-		// make the clock output it's signal again
+		// via
+		chip_6522_process(device->via);
+
+		// make the clock output its signal again
 		clock_refresh(device->clock);
 
 		// run all the combinatorial logic just before beginning the next cycle, as these values should be available immediatly
@@ -347,6 +389,7 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 		chip_74244_octal_buffer_process(device->b3);
 		chip_74154_decoder_process(device->d2);
 
+		bool ba6 = SIGNAL_NEXT_BOOL(ba6);
 		bool ba8 = SIGNAL_NEXT_BOOL(ba8);
 		bool ba9 = SIGNAL_NEXT_BOOL(ba9);
 		bool ba10 = SIGNAL_NEXT_BOOL(ba10);
@@ -389,15 +432,9 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 		//	  respond in the lower 2k
 		SIGNAL_SET_BOOL(rome_ce_b, SIGNAL_NEXT_BOOL(sele_b) || ba11);
 
-/*
 		// >> pia logic
-		//  - no peripheral connected, irq lines not connected
-		//	- cs0: assert when top bit of address is set (copy of a15)
-		//	- cs1: always asserted
-		//  - cs2_b: assert when bits 4-14 are zero
-		uint16_t bus_address = SIGNAL_NEXT_UINT16(bus_address);
-		SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
-*/
+		bool cs1 = addr_x8xx && ba6;
+		SIGNAL_SET_BOOL(cs1, cs1);
 	}
 }
 
