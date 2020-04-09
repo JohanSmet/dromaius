@@ -147,7 +147,7 @@ public:
 		builder.BuildRanges(&ranges);
 
 		auto io = ImGui::GetIO();
-		pet_font = io.Fonts->AddFontFromFileTTF("runtime/commodore_pet/font/PetMe.ttf", 14.0f, nullptr, ranges.Data);
+		pet_font = io.Fonts->AddFontFromFileTTF("runtime/commodore_pet/font/PetMe.ttf", 10.0f, nullptr, ranges.Data);
 		assert(pet_font);
 		io.Fonts->Build();
 	}
