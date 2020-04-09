@@ -246,5 +246,5 @@ target_sources(${TEST_TARGET}
 target_include_directories(${TEST_TARGET} PRIVATE libs src)
 target_link_libraries(${TEST_TARGET} PRIVATE ${LIB_TARGET})
 
-add_test(NAME unittests COMMAND ${TEST_TARGET})
+add_test(NAME unittests COMMAND ${TEST_TARGET} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
