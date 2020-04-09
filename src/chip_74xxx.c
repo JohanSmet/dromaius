@@ -53,6 +53,73 @@ void chip_7400_nand_process(Chip7400Nand *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 74145 - BCD-to-Decimal Decoder/driver
+//
+
+typedef struct Chip74145BcdDecoder_private {
+	Chip74145BcdDecoder	intf;
+	Signal *			outputs[10];
+} Chip74145BcdDecoder_private;
+
+Chip74145BcdDecoder *chip_74145_bcd_decoder_create(SignalPool *signal_pool, Chip74145Signals signals) {
+	Chip74145BcdDecoder_private *priv = (Chip74145BcdDecoder_private *) calloc(1, sizeof(Chip74145BcdDecoder_private));
+	Chip74145BcdDecoder *chip = &priv->intf;
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(y0_b,		1);
+	SIGNAL_DEFINE(y1_b,		1);
+	SIGNAL_DEFINE(y2_b,		1);
+	SIGNAL_DEFINE(y3_b,		1);
+	SIGNAL_DEFINE(y4_b,		1);
+	SIGNAL_DEFINE(y5_b,		1);
+	SIGNAL_DEFINE(y6_b,		1);
+	SIGNAL_DEFINE(gnd,		1);
+	SIGNAL_DEFINE(y7_b,		1);
+	SIGNAL_DEFINE(y8_b,		1);
+	SIGNAL_DEFINE(y9_b,		1);
+	SIGNAL_DEFINE(d,		1);
+	SIGNAL_DEFINE(c,		1);
+	SIGNAL_DEFINE(b,		1);
+	SIGNAL_DEFINE(a,		1);
+	SIGNAL_DEFINE(vcc,		1);
+
+	priv->outputs[0]  = &SIGNAL(y0_b);	priv->outputs[1]  = &SIGNAL(y1_b);
+	priv->outputs[2]  = &SIGNAL(y2_b);	priv->outputs[3]  = &SIGNAL(y3_b);
+	priv->outputs[4]  = &SIGNAL(y4_b);	priv->outputs[5]  = &SIGNAL(y5_b);
+	priv->outputs[6]  = &SIGNAL(y6_b);	priv->outputs[7]  = &SIGNAL(y7_b);
+	priv->outputs[8]  = &SIGNAL(y8_b);	priv->outputs[9]  = &SIGNAL(y9_b);
+
+	return chip;
+}
+
+void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip) {
+	assert((Chip74145BcdDecoder_private *) chip);
+	free(chip);
+}
+
+void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
+	assert(chip);
+
+	Signal **outputs = ((Chip74145BcdDecoder_private *) chip)->outputs;
+
+	for (int i = 0; i < 10; ++i) {
+		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT);
+	}
+
+	int value = SIGNAL_NEXT_BOOL(a) |
+				SIGNAL_NEXT_BOOL(b) << 1 |
+				SIGNAL_NEXT_BOOL(c) << 2 |
+				SIGNAL_NEXT_BOOL(d) << 3;
+
+	if (value < 10) {
+		signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT);
+	}
+
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74154 - 4-Line to 16-Line Decoder/Multiplexer
 //
 
@@ -105,7 +172,7 @@ Chip74154Decoder *chip_74154_decoder_create(SignalPool *signal_pool, Chip74154Si
 }
 
 void chip_74154_decoder_destroy(Chip74154Decoder *chip) {
-	assert(chip);
+	assert((Chip74154Decoder_private *) chip);
 	free(chip);
 }
 
