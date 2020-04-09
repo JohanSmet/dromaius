@@ -58,7 +58,7 @@ typedef struct DevMinimal6502Signals {
 } DevMinimal6502Signals;
 
 typedef struct DevMinimal6502 {
-	DEVICE_DECLARE_FUNCTIONS;
+	DEVICE_DECLARE_FUNCTIONS
 
 	// components
 	Cpu6502 *		cpu;
