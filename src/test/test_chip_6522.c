@@ -509,10 +509,11 @@ static MunitResult test_porta_out(const MunitParameter params[], void *user_data
 	VIA_CYCLE_END
 
 	// cycle clock
-	VIA_CYCLE_START
-		SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
-	VIA_CYCLE_END
-	chip_6522_process(via);
+	half_clock_cycle(via);
+	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
+	half_clock_cycle(via);
+	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
+
 	munit_assert_uint8(via->reg_ddra, ==, 0xf0);
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_a), ==, 0xf9);
 
@@ -545,10 +546,10 @@ static MunitResult test_portb_out(const MunitParameter params[], void *user_data
 	VIA_CYCLE_END
 
 	// cycle clock
-	VIA_CYCLE_START
-		SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
-	VIA_CYCLE_END
-	chip_6522_process(via);
+	half_clock_cycle(via);
+	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
+	half_clock_cycle(via);
+	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
 	munit_assert_uint8(via->reg_ddrb, ==, 0xf0);
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_b), ==, 0xf9);
 

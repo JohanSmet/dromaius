@@ -275,7 +275,7 @@ static MunitResult test_write_ora(const MunitParameter params[], void *user_data
 
 	// try writing again with a disabled pia, register shouldn't change
 	PIA_CYCLE_START
-		strobe_pia(pia, false);				
+		strobe_pia(pia, false);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x15);
@@ -322,7 +322,7 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 
 	// try writing again with a disabled pia, register shouldn't change
 	PIA_CYCLE_START
-		strobe_pia(pia, false);	
+		strobe_pia(pia, false);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x17);
@@ -351,7 +351,7 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 
 	// write to the ORA register
 	PIA_CYCLE_START
-		strobe_pia(pia, true);				
+		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x5f);
@@ -369,7 +369,7 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 
 	// try writing again with disabled pia, register shouldn't change
 	PIA_CYCLE_START
-		strobe_pia(pia, false);				
+		strobe_pia(pia, false);
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x23);
@@ -402,7 +402,7 @@ static MunitResult test_write_orb(const MunitParameter params[], void *user_data
 
 	// write to the ORA register
 	PIA_CYCLE_START
-		strobe_pia(pia, true);				
+		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x07);
@@ -417,7 +417,7 @@ static MunitResult test_write_orb(const MunitParameter params[], void *user_data
 
 	// try writing again to disabled pia, register shouldn't change
 	PIA_CYCLE_START
-		strobe_pia(pia, false);				
+		strobe_pia(pia, false);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x15);
@@ -446,7 +446,7 @@ static MunitResult test_write_ddrb(const MunitParameter params[], void *user_dat
 
 	// write to the ORA register
 	PIA_CYCLE_START
-		strobe_pia(pia, true);				
+		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x17);
@@ -461,7 +461,7 @@ static MunitResult test_write_ddrb(const MunitParameter params[], void *user_dat
 
 	// try writing again to a disabled pia, register shouldn't change
 	PIA_CYCLE_START
-		strobe_pia(pia, false);				
+		strobe_pia(pia, false);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x17);
@@ -490,7 +490,7 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 
 	// write to the ORA register
 	PIA_CYCLE_START
-		strobe_pia(pia, true);				
+		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x7f);
@@ -508,7 +508,7 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 
 	// try writing again to a disable pia, register shouldn't change
 	PIA_CYCLE_START
-		strobe_pia(pia, false);				
+		strobe_pia(pia, false);
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_UINT8(bus_data, 0x7f);
@@ -830,10 +830,12 @@ static MunitResult test_porta_out(const MunitParameter params[], void *user_data
 	PIA_CYCLE_END
 
 	// cycle clock
-	PIA_CYCLE_START
-		SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
-	PIA_CYCLE_END
-	chip_6520_process(pia);
+	half_clock_cycle(pia);
+	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
+
+	half_clock_cycle(pia);
+	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
+
 	munit_assert_uint8(pia->reg_ddra, ==, 0xf0);
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_a), ==, 0xf9);
 
@@ -864,10 +866,12 @@ static MunitResult test_portb_out(const MunitParameter params[], void *user_data
 	PIA_CYCLE_END
 
 	// cycle clock
-	PIA_CYCLE_START
-		SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
-	PIA_CYCLE_END
-	chip_6520_process(pia);
+	half_clock_cycle(pia);
+	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
+
+	half_clock_cycle(pia);
+	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
+
 	munit_assert_uint8(pia->reg_ddrb, ==, 0xf0);
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_b), ==, 0xf9);
 
@@ -934,7 +938,7 @@ static MunitResult test_ca2_out_pulse(const MunitParameter params[], void *user_
 	// initialize registers
 	pia->reg_cra = 0b00101011;	// ca2 = output, output control = 0, restore control = 1, irqa1 enabled on positive transition
 
-	// read ddra, ca2 high 
+	// read ddra, ca2 high
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
@@ -980,7 +984,7 @@ static MunitResult test_ca2_out_handshake(const MunitParameter params[], void *u
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
 
-	// read ddra, ca2 high 
+	// read ddra, ca2 high
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
@@ -991,7 +995,7 @@ static MunitResult test_ca2_out_handshake(const MunitParameter params[], void *u
 	// change cra to switch from ddr to port-a, ca2 still high
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
-		SIGNAL_SET_UINT8(bus_data, 0b00100111); 
+		SIGNAL_SET_UINT8(bus_data, 0b00100111);
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rw, false);
@@ -1151,7 +1155,7 @@ static MunitResult test_cb2_out_handshake(const MunitParameter params[], void *u
 	// change crb to switch from ddr to port-b, cb2 still high
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
-		SIGNAL_SET_UINT8(bus_data, 0b00100111); 
+		SIGNAL_SET_UINT8(bus_data, 0b00100111);
 		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rw, false);

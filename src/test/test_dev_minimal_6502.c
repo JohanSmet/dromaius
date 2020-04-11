@@ -10,7 +10,7 @@ static DevMinimal6502 *dev_minimal_6502_setup(int program) {
 
 	// build ROM image
 	uint8_t *rom = NULL;
-	
+
 	// >> a simple program
 	if (program == 0) {
 		arrput(rom, OP_6502_INC_ZP);
@@ -26,6 +26,8 @@ static DevMinimal6502 *dev_minimal_6502_setup(int program) {
 		arrput(rom, OP_6502_STA_ABS);		// write the PIA - DDRA
 		arrput(rom, 0x00);
 		arrput(rom, 0x80);
+		arrput(rom, OP_6502_LDA_IMM);
+		arrput(rom, 0xf0);
 		arrput(rom, OP_6502_STA_ABS);		// write the PIA - DDRB
 		arrput(rom, 0x02);
 		arrput(rom, 0x80);
@@ -121,7 +123,7 @@ MunitResult test_pia(const MunitParameter params[], void *user_data_or_fixture) 
 	// check some things - not an exhaustive test
 	munit_assert_int(limit, >, 0);
 	munit_assert_uint8(dev->pia->reg_ddra, ==, 0xff);
-	munit_assert_uint8(dev->pia->reg_ddrb, ==, 0xff);
+	munit_assert_uint8(dev->pia->reg_ddrb, ==, 0xf0);
 	munit_assert_uint8(dev->pia->reg_cra, ==, 0x04);
 	munit_assert_uint8(dev->pia->reg_crb, ==, 0x04);
 	munit_assert_uint8(dev->pia->reg_ora, ==, 0x55);

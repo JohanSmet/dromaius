@@ -27,7 +27,7 @@ static MunitResult test_create(const MunitParameter params[], void* user_data_or
 	munit_assert_size(arrlen(pool->signals_curr), ==, 1);
 	munit_assert_size(arrlen(pool->signals_next), ==, 1);
 
-	// 8-bit signal 
+	// 8-bit signal
 	Signal sig2 = signal_create(pool, 8);
 	munit_assert_uint32(sig2.count, ==, 8);
 	munit_assert_size(arrlen(pool->signals_curr), ==, 9);
@@ -50,7 +50,7 @@ static MunitResult test_create(const MunitParameter params[], void* user_data_or
 
 static MunitResult test_read_bool(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
-	
+
 	// setup
 	Signal sig_a = signal_create(pool, 1);
 	Signal sig_b = signal_create(pool, 1);
@@ -66,7 +66,7 @@ static MunitResult test_read_bool(const MunitParameter params[], void* user_data
 
 static MunitResult test_read_uint8(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
-	
+
 	// setup
 	Signal sig_a = signal_create(pool, 8);
 	for (int i = 0; i < 4; ++i) {
@@ -82,7 +82,7 @@ static MunitResult test_read_uint8(const MunitParameter params[], void* user_dat
 
 static MunitResult test_read_uint16(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
-	
+
 	// setup
 	Signal sig_a = signal_create(pool, 16);
 	for (int i = 0; i < 8; ++i) {
@@ -98,7 +98,7 @@ static MunitResult test_read_uint16(const MunitParameter params[], void* user_da
 
 static MunitResult test_write_bool(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
-	
+
 	// setup
 	signal_create(pool, 1);
 	Signal sig = signal_create(pool, 1);
@@ -134,7 +134,7 @@ static MunitResult test_write_bool(const MunitParameter params[], void* user_dat
 
 static MunitResult test_write_uint8(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
-	
+
 	// setup
 	signal_create(pool, 1);
 	Signal sig = signal_create(pool, 8);
@@ -212,7 +212,7 @@ static MunitResult test_write_uint8(const MunitParameter params[], void* user_da
 
 static MunitResult test_write_uint16(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
-	
+
 	// setup
 	signal_create(pool, 1);
 	Signal sig = signal_create(pool, 16);
@@ -306,7 +306,7 @@ static MunitResult test_cycle(const MunitParameter params[], void* user_data_or_
 	munit_assert_false(signal_read_bool(pool, sig_a));
 	munit_assert_false(signal_read_bool(pool, sig_b));
 	munit_assert_false(signal_read_bool(pool, sig_c));
-	
+
 	// cycle
 	signal_pool_cycle(pool);
 
@@ -341,36 +341,40 @@ static MunitResult test_split(const MunitParameter params[], void* user_data_or_
 
 static MunitResult test_write_uint8_masked(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
-	
+
 	// setup
 	Signal sig = signal_create(pool, 8);
-	
-	signal_write_uint8(pool, sig, 0x55);
-	signal_pool_cycle(pool);
-	munit_assert_uint8(signal_read_uint8(pool, sig), ==, 0x55);
 
-	// test 
-	signal_write_uint8_masked(pool, sig, 0xaa, 0xaf);
+	// test
+	signal_write_uint8_masked(pool, sig, 0x5a, 0xaf);
 	signal_pool_cycle(pool);
-	munit_assert_uint8(signal_read_uint8(pool, sig), ==, 0xfa);
+	munit_assert_uint8(signal_read_uint8(pool, sig), ==, 0x0a);
+
+	signal_write_uint8_masked(pool, sig, 0xde, 0xf0);
+	signal_write_uint8_masked(pool, sig, 0xed, 0x0f);
+	signal_pool_cycle(pool);
+	munit_assert_uint8(signal_read_uint8(pool, sig), ==, 0xdd);
 
 	return MUNIT_OK;
 }
 
 static MunitResult test_write_uint16_masked(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
-	
+
 	// setup
 	Signal sig = signal_create(pool, 16);
-	
-	signal_write_uint16(pool, sig, 0x5555);
-	signal_pool_cycle(pool);
-	munit_assert_uint16(signal_read_uint16(pool, sig), ==, 0x5555);
 
-	// test 
+	// test
 	signal_write_uint16_masked(pool, sig, 0xaaaa, 0xaf05);
 	signal_pool_cycle(pool);
-	munit_assert_uint16(signal_read_uint16(pool, sig), ==, 0xfa50);
+	munit_assert_uint16(signal_read_uint16(pool, sig), ==, 0xaa00);
+
+	signal_write_uint16_masked(pool, sig, 0xabcd, 0xff00);
+	munit_assert_uint16(signal_read_next_uint16(pool, sig), ==, 0xab00);
+	signal_write_uint16_masked(pool, sig, 0xefcd, 0x00f0);
+	munit_assert_uint16(signal_read_next_uint16(pool, sig), ==, 0xabc0);
+	signal_pool_cycle(pool);
+	munit_assert_uint16(signal_read_uint16(pool, sig), ==, 0xabc0);
 
 	return MUNIT_OK;
 }

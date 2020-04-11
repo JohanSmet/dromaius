@@ -53,7 +53,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 	assert(size > 0);
 
 	Signal result = {(uint32_t) arrlenu(pool->signals_curr), size};
-	
+
 	for (uint32_t i = 0; i < size; ++i) {
 		arrpush(pool->signals_curr, false);
 		arrpush(pool->signals_next, false);
@@ -157,7 +157,7 @@ void signal_write_uint8_masked(SignalPool *pool, Signal signal, uint8_t value, u
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		uint8_t b = mask & 1;
 
-		pool->signals_next[signal.start + i] = (pool->signals_curr[signal.start + i] & ~b) | (value & b);
+		pool->signals_next[signal.start + i] = (pool->signals_next[signal.start + i] & ~b) | (value & b);
 		mask >>= 1;
 		value >>= 1;
 	}
@@ -170,7 +170,7 @@ void signal_write_uint16_masked(SignalPool *pool, Signal signal, uint16_t value,
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		uint8_t b = mask & 1;
 
-		pool->signals_next[signal.start + i] = (pool->signals_curr[signal.start + i] & ~b) | (value & b);
+		pool->signals_next[signal.start + i] = (pool->signals_next[signal.start + i] & ~b) | (value & b);
 		mask >>= 1;
 		value >>= 1;
 	}
