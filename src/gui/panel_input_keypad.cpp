@@ -25,16 +25,17 @@ public:
 		if (ImGui::Begin(title)) {
 			for (size_t r = 0; r < 4; ++r) {
 				for (size_t c = 0; c < 4; ++c) {
+					size_t k = (r * keypad->col_count) + c;
 
 					auto pos = ImGui::GetCursorScreenPos();
-					ImGuiEx::RectFilled(pos, {pos.x + 32, pos.y + 32}, colors[keypad->keys[r][c]]);
+					ImGuiEx::RectFilled(pos, {pos.x + 32, pos.y + 32}, colors[keypad->keys[k]]);
 					ImGuiEx::Text(labels[r*4+c].c_str(), {32,32}, ImGuiEx::TAH_CENTER , ImGuiEx::TAV_CENTER);
 					ImGui::InvisibleButton(labels[r*4+c].c_str(), {32,32});
 
 					if (ImGui::IsItemHovered() && ImGui::IsMouseDown(0)) {
 						input_keypad_key_pressed(keypad, r, c);
 					}
-					
+
 					ImGui::SameLine();
 				}
 				ImGui::NewLine();

@@ -14,14 +14,8 @@ extern "C" {
 
 // types
 typedef struct InputKeypadSignals {
-	Signal	rows;				// 4-bit (input)
-	Signal	cols;				// 4-bit (output)
-
-	// separate column signals
-	Signal	c0;
-	Signal	c1;
-	Signal	c2;
-	Signal	c3;
+	Signal	rows;				// n-bit (input)
+	Signal	cols;				// n-bit (output)
 } InputKeypadSignals;
 
 typedef struct InputKeypad {
@@ -30,11 +24,15 @@ typedef struct InputKeypad {
 	InputKeypadSignals	signals;
 
 	// data
-	bool				keys[4][4];
+	bool				active_high;
+	size_t				row_count;
+	size_t				col_count;
+	size_t				key_count;
+	bool				*keys;
 } InputKeypad;
 
 // functions
-InputKeypad *input_keypad_create(SignalPool *pool, InputKeypadSignals signals);
+InputKeypad *input_keypad_create(SignalPool *pool, bool active_high, size_t row_count, size_t col_count,  InputKeypadSignals signals);
 void input_keypad_destroy(InputKeypad *keypad);
 void input_keypad_process(InputKeypad *keypad);
 

@@ -106,10 +106,11 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	});
 
 	// keypad
-	device->keypad = input_keypad_create(device->signal_pool, (InputKeypadSignals) {
+	device->keypad = input_keypad_create(device->signal_pool, true, 4, 4, (InputKeypadSignals) {
 										.rows = signal_split(device->pia->signals.port_b, 4, 4),
 										.cols = signal_split(device->pia->signals.port_b, 0, 4)
 	});
+	signal_default_uint8(device->signal_pool, device->keypad->signals.cols, false);
 
 	// copy some signals for easy access
 	SIGNAL(ram_oe_b) = device->ram->signals.oe_b;
