@@ -175,6 +175,8 @@ target_sources(${GUI_TARGET}
 		src/gui/panel_dev_minimal_6502.h
 		src/gui/panel_input_keypad.cpp
 		src/gui/panel_input_keypad.h
+		src/gui/panel_input_pet.cpp
+		src/gui/panel_input_pet.h
 		src/gui/panel_memory.cpp
 		src/gui/panel_memory.h
 		src/gui/panel_monitor.cpp

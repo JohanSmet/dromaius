@@ -10,6 +10,7 @@
 #include "panel_cpu_6502.h"
 #include "panel_memory.h"
 #include "panel_monitor.h"
+#include "panel_input_pet.h"
 
 class PanelDevCommodorePet : public Panel {
 public:
@@ -113,9 +114,9 @@ private:
 
 Panel::uptr_t panel_dev_commodore_pet_create(UIContext *ctx, ImVec2 pos, DevCommodorePet *device) {
 
-	// a keypad panel is always useful
-	//auto keypad_pnl = panel_input_keypad_create(ctx, {340, 200}, device->keypad);
-	//ctx->panel_add(std::move(keypad_pnl));
+	// a keyboard panel is always useful
+	auto keyboard_pnl = panel_input_pet_create(ctx, {340, 200}, device->keypad);
+	ctx->panel_add(std::move(keyboard_pnl));
 
 	// create panel for the commodore pet
 	return std::make_unique<PanelDevCommodorePet>(ctx, pos, device);
