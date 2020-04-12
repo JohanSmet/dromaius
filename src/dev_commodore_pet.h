@@ -96,9 +96,10 @@ typedef struct DevCommodorePet {
 	Ram8d16a *      vram;
 	Rom8d16a *		roms[7];
 	Clock *			clock;
-	struct Chip6520 *	pia_1;
-	struct Chip6520 *	pia_2;
-	struct Chip6522 *	via;
+	struct Chip6520 *		pia_1;
+	struct Chip6520 *		pia_2;
+	struct Chip6522 *		via;
+	struct InputKeypad *	keypad;
 
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1
@@ -106,6 +107,7 @@ typedef struct DevCommodorePet {
 	Chip74244OctalBuffer *	c3;			// address line buffer 1
 	Chip74244OctalBuffer *	b3;			// address line buffer 2
 	Chip74154Decoder *		d2;			// selection of memory areas
+	Chip74145BcdDecoder *	c9;			// keyboard row decoding
 
 	// signals
 	SignalPool *			signal_pool;

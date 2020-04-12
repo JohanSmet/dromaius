@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "chip_6520.h"
 #include "chip_6522.h"
+#include "input_keypad.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -184,6 +185,11 @@ DevCommodorePet *dev_commodore_pet_create() {
 	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_a, 0xff);			// temporary until keyboard connected
 	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_b, 0xff);			// pull-up resistors R18-R25
 
+	// keyboard
+	device->keypad = input_keypad_create(device->signal_pool, false, 10, 8, (InputKeypadSignals) {
+										.cols = device->pia_2->signals.port_b
+	});
+
 	// via (C5)
 	device->via = chip_6522_create(device->signal_pool, (Chip6522Signals) {
 										.bus_data = SIGNAL(cpu_bus_data),
@@ -311,6 +317,23 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.a21  = signal_split(SIGNAL(bus_bd), 7, 1)				// 11
 	});
 
+	device->c9 = chip_74145_bcd_decoder_create(device->signal_pool, (Chip74145Signals) {
+										.a = signal_split(device->pia_2->signals.port_a, 0, 1),
+										.b = signal_split(device->pia_2->signals.port_a, 1, 1),
+										.c = signal_split(device->pia_2->signals.port_a, 2, 1),
+										.d = signal_split(device->pia_2->signals.port_a, 3, 1),
+										.y0_b = signal_split(device->keypad->signals.rows, 0, 1),
+										.y1_b = signal_split(device->keypad->signals.rows, 1, 1),
+										.y2_b = signal_split(device->keypad->signals.rows, 2, 1),
+										.y3_b = signal_split(device->keypad->signals.rows, 3, 1),
+										.y4_b = signal_split(device->keypad->signals.rows, 4, 1),
+										.y5_b = signal_split(device->keypad->signals.rows, 5, 1),
+										.y6_b = signal_split(device->keypad->signals.rows, 6, 1),
+										.y7_b = signal_split(device->keypad->signals.rows, 7, 1),
+										.y8_b = signal_split(device->keypad->signals.rows, 8, 1),
+										.y9_b = signal_split(device->keypad->signals.rows, 9, 1)
+	});
+
 	// power on reset
 	dev_commodore_pet_reset(device);
 
@@ -377,6 +400,9 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 
 		// via
 		chip_6522_process(device->via);
+
+		// keyboard
+		input_keypad_process(device->keypad);
 
 		// make the clock output its signal again
 		clock_refresh(device->clock);
