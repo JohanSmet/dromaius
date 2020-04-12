@@ -71,12 +71,19 @@ public:
 
 			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 			if (ImGui::TreeNode("Support Chips")) {
-				/*ImGui::Text("PIA - MOS Technology 6520");
+				ImGui::Text("PIA - 6520 (IEEE-488)");
 				ImGui::SameLine();
-				if (ImGui::SmallButton("View##view_pia")) {
-					auto pnl = panel_chip_6520_create(ui_context, {420, 342}, device->pia);
+				if (ImGui::SmallButton("View##view_pia_1")) {
+					auto pnl = panel_chip_6520_create(ui_context, {420, 342}, device->pia_1);
 					ui_context->panel_add(std::move(pnl));
-				}*/
+				}
+
+				ImGui::Text("VIA - 6520 (Keyboard)");
+				ImGui::SameLine();
+				if (ImGui::SmallButton("View##view_pia_2")) {
+					auto pnl = panel_chip_6520_create(ui_context, {420, 342}, device->pia_2);
+					ui_context->panel_add(std::move(pnl));
+				}
 
 				ImGui::TreePop();
 			}
