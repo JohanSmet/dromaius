@@ -8,10 +8,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-#if defined(PLATFORM_LINUX) 
+#if defined(PLATFORM_LINUX)
 	#define DMS_TIMER_POSIX
 	#undef DMS_TIMER_WIN32
-#elif defined(PLATFORM_EMSCRIPTEN) 
+#elif defined(PLATFORM_EMSCRIPTEN)
 	#define DMS_TIMER_POSIX
 	#undef DMS_TIMER_WIN32
 #elif defined(PLATFORM_DARWIN)
@@ -106,7 +106,7 @@ Clock *clock_create(int32_t frequency, SignalPool *signal_pool, ClockSignals sig
 	clock->real_frequency = 0;
 	clock->cycle_count = 0;
 	clock->cycle_count = 0;
-	
+
 	priv->time_last_change = timestamp_current();
 
 	memcpy(&clock->signals, &signals, sizeof(signals));
@@ -161,6 +161,11 @@ void clock_process(Clock *clock) {
 
 	clock->cycle_count += clock_value;
 	SIGNAL_SET_BOOL(clock, !clock_value);
+}
+
+void clock_reset(Clock *clock) {
+	assert(clock);
+	PRIVATE(clock)->time_last_change = timestamp_current();
 }
 
 void clock_refresh(Clock *clock) {

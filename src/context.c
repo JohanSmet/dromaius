@@ -127,6 +127,10 @@ static int context_background_thread(DmsContext *dms) {
 
 static inline void change_state(DmsContext *context, DMS_STATE new_state) {
 	mutex_lock(&context->mtx_wait);
+	if (new_state == DS_RUN) {
+		Clock *clock = context->device->get_clock(context->device);
+		clock_reset(clock);
+	}
 	context->state = new_state;
 	mutex_unlock(&context->mtx_wait);
 	cond_signal(&context->cnd_wait);
@@ -135,6 +139,12 @@ static inline void change_state(DmsContext *context, DMS_STATE new_state) {
 #else
 
 static inline void change_state(DmsContext *context, DMS_STATE new_state) {
+
+	if (new_state == DS_RUN) {
+		Clock *clock = context->device->get_clock(context->device);
+		clock_reset(clock);
+	}
+
 	context->state = new_state;
 }
 

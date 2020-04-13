@@ -39,6 +39,7 @@ void clock_set_frequency(Clock *clock, int32_t frequency);
 void clock_mark(Clock *clock);
 bool clock_is_caught_up(Clock *clock);
 void clock_process(Clock *clock);
+void clock_reset(Clock *clock);
 void clock_refresh(Clock *clock);
 void clock_wait_for_change(Clock *clock);
 
