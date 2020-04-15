@@ -85,6 +85,8 @@ typedef struct DevCommodorePetSignals {
 
 	Signal		cs1;				// 1-bit
 
+	Signal		video_on;			// 1-bit - vblank
+
 } DevCommodorePetSignals;
 
 typedef struct DevCommodorePet {
@@ -100,6 +102,8 @@ typedef struct DevCommodorePet {
 	struct Chip6520 *		pia_2;
 	struct Chip6522 *		via;
 	struct InputKeypad *	keypad;
+
+	int						vblank_counter;
 
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1

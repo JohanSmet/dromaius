@@ -90,6 +90,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	SIGNAL_DEFINE(cs1, 1);
 
+	SIGNAL_DEFINE_BOOL(video_on, 1, true);
+
 	device->signals.ba6 = signal_split(SIGNAL(bus_ba), 6, 1);
 	device->signals.ba7 = signal_split(SIGNAL(bus_ba), 7, 1);
 	device->signals.ba8 = signal_split(SIGNAL(bus_ba), 8, 1);
@@ -177,6 +179,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
 										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
+										.cb1 = SIGNAL(video_on)
 	});
 	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_a, 0xff);			// temporary until keyboard connected
 	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_b, 0xff);			// pull-up resistors R18-R25
@@ -367,6 +370,15 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 	// clock tick
 	clock_process(device->clock);
 
+	// vblank 'fake' logic
+	bool video_on = true;
+	device->vblank_counter += SIGNAL_NEXT_BOOL(clk1);
+
+	if (device->vblank_counter >= 16666) {		// about 60 hz if clock is running at the normal 1Mhz
+		device->vblank_counter = 0;
+		video_on = false;
+	}
+
 	// run process twice, once at the time of the clock edge and once slightly later (after the address hold time)
 	for (int time = 0; time < 2; ++time) {
 
@@ -456,6 +468,10 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 		// >> pia logic
 		bool cs1 = addr_x8xx && ba6;
 		SIGNAL_SET_BOOL(cs1, cs1);
+
+		// >> video logic
+		SIGNAL_SET_BOOL(video_on, video_on);
+
 		// >> irq logic: the 2001N wire-or's the irq lines of the chips and connects them to the cpu
 		//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
 		//		-> or the together explicitly
@@ -483,4 +499,6 @@ void dev_commodore_pet_reset(DevCommodorePet *device) {
 
 	// reset clock
 	device->clock->cycle_count = 0;
+
+	device->vblank_counter = 0;
 }
