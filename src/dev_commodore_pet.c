@@ -201,7 +201,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
 										.rs2 = signal_split(SIGNAL(bus_ba), 2, 1),
-										.rs3 = signal_split(SIGNAL(bus_ba), 2, 1),
+										.rs3 = signal_split(SIGNAL(bus_ba), 3, 1),
 										.irq_b = SIGNAL(irq_b)
 	});
 
