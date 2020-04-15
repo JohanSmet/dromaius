@@ -47,14 +47,45 @@ public:
 					ui_context->panel_add(std::move(pnl));
 				}
 
-
-				/*ImGui::Text("Basic ROM");
+				ImGui::Text("Basic ROM (0xb000");
 				ImGui::SameLine();
-				if (ImGui::SmallButton("View##view_basic_rom")) {
+				if (ImGui::SmallButton("View##view_basic_rom_b")) {
 					auto pnl = panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(),
-												   device->rom->data_array, 0x4000, 0xC000);
+												   device->roms[0]->data_array, 0x1000, 0xB000);
 					ui_context->panel_add(std::move(pnl));
-				}*/
+				}
+
+				ImGui::Text("Basic ROM (0xc000");
+				ImGui::SameLine();
+				if (ImGui::SmallButton("View##view_basic_rom_c")) {
+					auto pnl = panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(),
+												   device->roms[1]->data_array, 0x1000, 0xC000);
+					ui_context->panel_add(std::move(pnl));
+				}
+
+				ImGui::Text("Basic ROM (0xd000");
+				ImGui::SameLine();
+				if (ImGui::SmallButton("View##view_basic_rom_d")) {
+					auto pnl = panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(),
+												   device->roms[2]->data_array, 0x1000, 0xD000);
+					ui_context->panel_add(std::move(pnl));
+				}
+
+				ImGui::Text("Editor ROM (0xe000");
+				ImGui::SameLine();
+				if (ImGui::SmallButton("View##view_editor_rom")) {
+					auto pnl = panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(),
+												   device->roms[3]->data_array, 0x0800, 0xE000);
+					ui_context->panel_add(std::move(pnl));
+				}
+
+				ImGui::Text("Kernal ROM (0xf000");
+				ImGui::SameLine();
+				if (ImGui::SmallButton("View##view_kernal_rom")) {
+					auto pnl = panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(),
+												   device->roms[2]->data_array, 0x1000, 0xF000);
+					ui_context->panel_add(std::move(pnl));
+				}
 
 				ImGui::TreePop();
 			}
