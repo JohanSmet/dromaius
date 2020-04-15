@@ -144,7 +144,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-b000.901465-19.bin", 12, SIGNAL(selb_b));
 	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-c000.901465-20.bin", 12, SIGNAL(selc_b));
 	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-d000.901465-21.bin", 12, SIGNAL(seld_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/edit-4-40-n-60Hz.901499-01.bin", 11, (Signal) {0});
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/edit-4-n.901447-29.bin", 11, (Signal) {0});
 	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/kernal-4.901465-22.bin", 12, SIGNAL(self_b));
 
 	for (int i = 0; i < rom_count; ++i) {
