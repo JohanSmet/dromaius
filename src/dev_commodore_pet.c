@@ -164,8 +164,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
 										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
-										.irqa_b = SIGNAL(irq_b),
-										.irqb_b = SIGNAL(irq_b)
 	});
 
 	// pia 2 (C7 - keyboard)
@@ -179,8 +177,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
 										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
-										.irqa_b = SIGNAL(irq_b),
-										.irqb_b = SIGNAL(irq_b)
 	});
 	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_a, 0xff);			// temporary until keyboard connected
 	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_b, 0xff);			// pull-up resistors R18-R25
@@ -202,7 +198,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
 										.rs2 = signal_split(SIGNAL(bus_ba), 2, 1),
 										.rs3 = signal_split(SIGNAL(bus_ba), 3, 1),
-										.irq_b = SIGNAL(irq_b)
 	});
 
 	// glue logic
@@ -461,6 +456,15 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 		// >> pia logic
 		bool cs1 = addr_x8xx && ba6;
 		SIGNAL_SET_BOOL(cs1, cs1);
+		// >> irq logic: the 2001N wire-or's the irq lines of the chips and connects them to the cpu
+		//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
+		//		-> or the together explicitly
+		bool irq_b = signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqa_b) &&
+					 signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqb_b) &&
+					 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqa_b) &&
+					 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqb_b) &&
+					 signal_read_next_bool(device->signal_pool, device->via->signals.irq_b);
+		SIGNAL_SET_BOOL(irq_b, irq_b);
 	}
 }
 
