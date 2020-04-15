@@ -161,6 +161,8 @@ target_sources(${GUI_TARGET}
 		src/gui/panel.h
 		src/gui/panel_chip_6520.cpp
 		src/gui/panel_chip_6520.h
+		src/gui/panel_chip_6522.cpp
+		src/gui/panel_chip_6522.h
 		src/gui/panel_chip_hd44780.cpp
 		src/gui/panel_chip_hd44780.h
 		src/gui/panel_clock.cpp

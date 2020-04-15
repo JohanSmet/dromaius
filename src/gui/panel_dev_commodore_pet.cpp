@@ -7,6 +7,7 @@
 #include "widgets.h"
 
 #include "panel_chip_6520.h"
+#include "panel_chip_6522.h"
 #include "panel_cpu_6502.h"
 #include "panel_memory.h"
 #include "panel_monitor.h"
@@ -79,10 +80,17 @@ public:
 					ui_context->panel_add(std::move(pnl));
 				}
 
-				ImGui::Text("VIA - 6520 (Keyboard)");
+				ImGui::Text("PIA - 6520 (Keyboard)");
 				ImGui::SameLine();
 				if (ImGui::SmallButton("View##view_pia_2")) {
 					auto pnl = panel_chip_6520_create(ui_context, {420, 342}, device->pia_2);
+					ui_context->panel_add(std::move(pnl));
+				}
+
+				ImGui::Text("VIA - 6522");
+				ImGui::SameLine();
+				if (ImGui::SmallButton("View##view_via")) {
+					auto pnl = panel_chip_6522_create(ui_context, {420, 342}, device->via);
 					ui_context->panel_add(std::move(pnl));
 				}
 
