@@ -28,7 +28,7 @@ public:
 
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-		
+
 		if (ImGui::Begin(title.c_str(), &stay_open)) {
 			auto origin = ImGui::GetCursorPos();
 
@@ -56,9 +56,9 @@ public:
 
 			// right column
 			ImGui::SetCursorPos(origin);
-			ui_signal(330, "CB1", SIGNAL_NEXT_BOOL(ca1), ACTHI_ASSERT);
-			ui_signal(330, "CB2", SIGNAL_NEXT_BOOL(ca2), ACTHI_ASSERT);
-			ui_signal(330, "/IRQB", SIGNAL_NEXT_BOOL(irqa_b), ACTLO_ASSERT);
+			ui_signal(330, "CB1", SIGNAL_NEXT_BOOL(cb1), ACTHI_ASSERT);
+			ui_signal(330, "CB2", SIGNAL_NEXT_BOOL(cb2), ACTHI_ASSERT);
+			ui_signal(330, "/IRQB", SIGNAL_NEXT_BOOL(irqb_b), ACTLO_ASSERT);
 
 			ui_signal(330, "RS0", SIGNAL_NEXT_BOOL(rs0), ACTHI_ASSERT);
 			ui_signal(330, "RS1", SIGNAL_NEXT_BOOL(rs1), ACTHI_ASSERT);
