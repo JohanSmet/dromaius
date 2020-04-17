@@ -481,6 +481,9 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 					 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqb_b) &&
 					 signal_read_next_bool(device->signal_pool, device->via->signals.irq_b);
 		SIGNAL_SET_BOOL(irq_b, irq_b);
+
+		// >> keyboard logic
+		chip_74145_bcd_decoder_process(device->c9);
 	}
 }
 
