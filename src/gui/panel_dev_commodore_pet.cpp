@@ -83,7 +83,7 @@ public:
 				ImGui::SameLine();
 				if (ImGui::SmallButton("View##view_kernal_rom")) {
 					auto pnl = panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(),
-												   device->roms[2]->data_array, 0x1000, 0xF000);
+												   device->roms[4]->data_array, 0x1000, 0xF000);
 					ui_context->panel_add(std::move(pnl));
 				}
 
