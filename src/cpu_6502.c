@@ -1400,7 +1400,7 @@ static inline void decode_php(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case 2 :
 			// apparently the break bit is also set by PHP
-			// (I didn't see that mentioned in the programming manual, or I missed it, but several only resources mention this.)
+			// (I didn't see that mentioned in the programming manual, or I missed it, but several online resources mention this.)
 			stack_push(cpu, cpu->reg_p | 0b00010000, phase);
 			if (phase == CYCLE_END) {
 				PRIVATE(cpu)->decode_cycle = -1;
@@ -1442,6 +1442,7 @@ static inline void decode_plp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case 3 :		// pop value from stack
 			cpu->reg_p = stack_pop(cpu, phase) | FLAG_6502_EXPANSION;	// reserved bit is always set
+			FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_BREAK_COMMAND);			// ignore the 'B'-flag (it gets set by the PHP-instruction)
 			if (phase == CYCLE_END) {
 				PRIVATE(cpu)->decode_cycle = -1;
 			}

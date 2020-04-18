@@ -5765,7 +5765,7 @@ MunitResult test_plp(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 04: fetch reg-a
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
 	DATABUS_WRITE(0x79);
-	munit_assert_uint8(cpu->reg_p, ==, 0x79);
+	munit_assert_uint8(cpu->reg_p, ==, 0x69);			// B-flag is always zero when pulled
 
 	// >> next instruction
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
