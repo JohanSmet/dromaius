@@ -1004,7 +1004,7 @@ static inline void decode_cmp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 		int8_t result = (int8_t) (cpu->reg_a - PRIVATE(cpu)->operand);
 		CPU_CHANGE_FLAG(Z, result == 0);
 		CPU_CHANGE_FLAG(N, BIT_IS_SET(result, 7));
-		CPU_CHANGE_FLAG(C, result >= 0);
+		CPU_CHANGE_FLAG(C, cpu->reg_a >= PRIVATE(cpu)->operand);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
@@ -1026,7 +1026,7 @@ static inline void decode_cpx_cpy(Cpu6502 *cpu, CPU_6502_CYCLE phase, uint8_t re
 		int8_t result = (int8_t) (reg - PRIVATE(cpu)->operand);
 		CPU_CHANGE_FLAG(Z, result == 0);
 		CPU_CHANGE_FLAG(N, BIT_IS_SET(result, 7));
-		CPU_CHANGE_FLAG(C, result >= 0);
+		CPU_CHANGE_FLAG(C, reg >= PRIVATE(cpu)->operand);
 		PRIVATE(cpu)->decode_cycle = -1;
 	}
 }
