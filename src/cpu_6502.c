@@ -2109,6 +2109,11 @@ bool cpu_6502_at_start_of_instruction(Cpu6502 *cpu) {
 	return SIGNAL_NEXT_BOOL(sync);
 }
 
+bool cpu_6502_irq_is_asserted(Cpu6502 *cpu) {
+	assert(cpu);
+	return ACTLO_ASSERTED(SIGNAL_NEXT_BOOL(irq_b));
+}
+
 int64_t cpu_6502_program_counter(Cpu6502 *cpu) {
 	assert(cpu);
 	return cpu->reg_pc;
@@ -2129,6 +2134,7 @@ Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals) {
 	cpu->process = (CPU_PROCESS_FUNC) cpu_6502_process;
 	cpu->override_next_instruction_address = (CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS) cpu_6502_override_next_instruction_address;
 	cpu->is_at_start_of_instruction = (CPU_IS_AT_START_OF_INSTRUCTION) cpu_6502_at_start_of_instruction;
+	cpu->irq_is_asserted = (CPU_IRQ_IS_ASSERTED) cpu_6502_irq_is_asserted;
 	cpu->program_counter = (CPU_PROGRAM_COUNTER) cpu_6502_program_counter;
 
 	memcpy(&cpu->signals, &signals, sizeof(signals));

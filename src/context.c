@@ -36,6 +36,7 @@ typedef struct DmsContext {
 	Device *		device;
 	DMS_STATE		state;
 	int64_t *		breakpoints;
+	bool			break_on_irq;
 
 #ifndef DMS_NO_THREADING
 	thread_t		thread;
@@ -69,10 +70,12 @@ static bool context_execute(DmsContext *dms) {
 	while (dms->state != DS_WAIT && !clock_is_caught_up(clock)) {
 
 		bool prev_sync = cpu->is_at_start_of_instruction(cpu);
+		bool prev_irq = cpu->irq_is_asserted(cpu);
 
 		dms->device->process(dms->device);
 
 		bool cpu_sync = cpu->is_at_start_of_instruction(cpu);
+		bool irq = cpu->irq_is_asserted(cpu);
 
 		switch (dms->state) {
 			case DS_SINGLE_STEP :
@@ -85,7 +88,9 @@ static bool context_execute(DmsContext *dms) {
 				break;
 			case DS_RUN :
 				// check for breakpoints
-				if (cpu_sync && breakpoint_index(dms, cpu->program_counter(cpu)) >= 0) {
+				if (!prev_irq && irq && dms->break_on_irq) {
+					dms->state = DS_WAIT;
+				} else if (cpu_sync && breakpoint_index(dms, cpu->program_counter(cpu)) >= 0) {
 					dms->state = DS_WAIT;
 				}
 				break;
@@ -159,6 +164,7 @@ DmsContext *dms_create_context(void) {
 	DmsContext *ctx = (DmsContext *) malloc(sizeof(DmsContext));
 	ctx->device = NULL;
 	ctx->breakpoints = NULL;
+	ctx->break_on_irq = false;
 	ctx->state = DS_WAIT;
 	return ctx;
 }
@@ -284,6 +290,11 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 		} else {
 			arr_printf(*reply, "NOK: invalid address specified");
 		}
+	} else if (cmd[0] == 'b' && cmd[1] == 'i') {		// toggle "b"reak on "i"rq
+		dms->break_on_irq = !dms->break_on_irq;
+
+		static const char *disp_enabled[] = {"disabled", "enabled"};
+		arr_printf(*reply, "OK: break-on-irq %s", disp_enabled[dms->break_on_irq]);
 	} else if (cmd[0] == 'b') {		// toggle "b"reak-point
 		int64_t addr;
 		if (string_to_hexint(cmd + 1, &addr)) {
