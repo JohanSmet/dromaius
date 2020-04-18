@@ -42,12 +42,12 @@ static void cpu_reset(Cpu6502 *cpu) {
 		SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
 	CPU_CYCLE_END
 
-	// ignore first 5 cycles 
+	// ignore first 5 cycles
 	for (int i = 0; i < 5; ++i) {
 		CPU_CYCLE()
 	}
 
-	// cpu should now read address 0xfffc - low byte of reset vector 
+	// cpu should now read address 0xfffc - low byte of reset vector
 	CPU_HALF_CYCLE()
 	DATABUS_WRITE(0x01);
 
@@ -71,7 +71,7 @@ static void cpu_6502_teardown(void *fixture) {
 }
 
 MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture) {
-	
+
 	Cpu6502 *cpu = cpu_6502_create(signal_pool_create(), (Cpu6502Signals) {0});
 	munit_assert_not_null(cpu);
 
@@ -80,7 +80,7 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 		SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
 	CPU_CYCLE_END
 
-	// deassert reset - ignore first 5 cycles 
+	// deassert reset - ignore first 5 cycles
 	for (int i = 0; i < 5; ++i) {
 		CPU_HALF_CYCLE()
 		munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -88,7 +88,7 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 		CPU_HALF_CYCLE()
 	}
 
-	// cpu should now read address 0xfffc - low byte of reset vector 
+	// cpu should now read address 0xfffc - low byte of reset vector
 	CPU_HALF_CYCLE()
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xfffc);
 	DATABUS_WRITE(0x01);
@@ -98,7 +98,7 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xfffd);
 	DATABUS_WRITE(0x08);
 
-	// cpu should now read from address 0x0801 
+	// cpu should now read from address 0x0801
 	munit_assert_uint16(cpu->reg_pc, ==, 0x0801);
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
 
@@ -352,7 +352,7 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ADC_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -384,7 +384,7 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ADC_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -399,7 +399,7 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
-	
+
 	/////////////////////////////////////////////////////////////////////////////
 	//
 	// ADC: absolute addressing
@@ -609,7 +609,7 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ADC_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_INDX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -654,7 +654,7 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ADC_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -695,7 +695,7 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ADC_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -728,7 +728,7 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->reg_a = BCD_BYTE(7, 9); 
+	cpu->reg_a = BCD_BYTE(7, 9);
 	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 	FLAG_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
@@ -759,7 +759,7 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	cpu->reg_a = BCD_BYTE(9, 9); 
+	cpu->reg_a = BCD_BYTE(9, 9);
 	FLAG_CLEAR(cpu->reg_p, FLAG_6502_CARRY);
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0805);
 	DATABUS_WRITE(OP_6502_ADC_IMM);
@@ -815,7 +815,7 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_AND_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -842,7 +842,7 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_AND_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -1033,7 +1033,7 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_AND_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_INDX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -1072,7 +1072,7 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_AND_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -1107,7 +1107,7 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_AND_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -1246,11 +1246,11 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ASL_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
-	// >> cycle 03: fetch operand 
+	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -1288,7 +1288,7 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ASL_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -1296,7 +1296,7 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	DATABUS_WRITE(0b01010101);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -1339,7 +1339,7 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -1389,7 +1389,7 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0b01010101);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -1439,7 +1439,7 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	DATABUS_WRITE(0b01010101);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -1733,7 +1733,7 @@ MunitResult test_bit(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_BIT_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BIT_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -2408,7 +2408,7 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_CMP_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -2440,7 +2440,7 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_CMP_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -2661,7 +2661,7 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_CMP_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_INDX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -2705,7 +2705,7 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_CMP_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -2745,7 +2745,7 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_CMP_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -2816,7 +2816,7 @@ MunitResult test_cpx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_CPX_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPX_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -2908,7 +2908,7 @@ MunitResult test_cpy(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_CPY_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPY_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -2977,11 +2977,11 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_DEC_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEC_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
-	// >> cycle 03: fetch operand 
+	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	DATABUS_WRITE(1);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -3019,7 +3019,7 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_DEC_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEC_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -3027,7 +3027,7 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	DATABUS_WRITE(0);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -3072,7 +3072,7 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(15);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -3122,7 +3122,7 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(1);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -3172,7 +3172,7 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	DATABUS_WRITE(5);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -3340,7 +3340,7 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_EOR_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -3367,7 +3367,7 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_EOR_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -3558,7 +3558,7 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_EOR_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_INDX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -3597,7 +3597,7 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_EOR_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -3632,7 +3632,7 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_EOR_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -3721,11 +3721,11 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_INC_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INC_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
-	// >> cycle 03: fetch operand 
+	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	DATABUS_WRITE(1);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -3763,7 +3763,7 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_INC_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INC_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -3771,7 +3771,7 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	DATABUS_WRITE(0xff);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -3816,7 +3816,7 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(127);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -3866,7 +3866,7 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(1);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -3916,7 +3916,7 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	DATABUS_WRITE(5);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -4187,7 +4187,7 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LDA_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -4211,7 +4211,7 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LDA_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -4384,7 +4384,7 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LDA_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_INDX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -4420,7 +4420,7 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LDA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -4452,7 +4452,7 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LDA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -4540,7 +4540,7 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
-	// LDX: zero page 
+	// LDX: zero page
 	//
 
 	cpu_reset(cpu);
@@ -4550,7 +4550,7 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LDX_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDX_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x2a);
 
@@ -4574,7 +4574,7 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LDX_ZPY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDX_ZPY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -4740,7 +4740,7 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
-	// LDY: zero page 
+	// LDY: zero page
 	//
 
 	cpu_reset(cpu);
@@ -4750,7 +4750,7 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LDY_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDY_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x2a);
 
@@ -4774,7 +4774,7 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LDY_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDY_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -4983,11 +4983,11 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LSR_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
-	// >> cycle 03: fetch operand 
+	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	DATABUS_WRITE(0b10001010);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -5025,7 +5025,7 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_LSR_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -5033,7 +5033,7 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	DATABUS_WRITE(0b01010011);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -5076,7 +5076,7 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(0b10000010);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -5126,7 +5126,7 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0b00010000);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -5176,7 +5176,7 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	DATABUS_WRITE(0b01000001);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -5265,7 +5265,7 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ORA_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -5292,7 +5292,7 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ORA_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -5483,7 +5483,7 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ORA_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_INDX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -5522,7 +5522,7 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ORA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -5557,7 +5557,7 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ORA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -5841,11 +5841,11 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ROL_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
-	// >> cycle 03: fetch operand 
+	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -5884,7 +5884,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ROL_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -5892,7 +5892,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	DATABUS_WRITE(0b01010101);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -5938,7 +5938,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -5989,7 +5989,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0b01010101);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -6040,7 +6040,7 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	DATABUS_WRITE(0b01010101);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -6134,11 +6134,11 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ROR_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
-	// >> cycle 03: fetch operand 
+	// >> cycle 03: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
 	DATABUS_WRITE(0b10001010);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -6177,7 +6177,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_ROR_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -6185,7 +6185,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
 	DATABUS_WRITE(0b01010011);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -6231,7 +6231,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
-	// >> cycle 04: fetch operand 
+	// >> cycle 04: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
 	DATABUS_WRITE(0b10000010);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -6282,7 +6282,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
 	DATABUS_WRITE(0b00010000);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -6333,7 +6333,7 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
-	// >> cycle 05: fetch operand 
+	// >> cycle 05: fetch operand
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
 	DATABUS_WRITE(0b01000001);
 	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
@@ -6494,7 +6494,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_SBC_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -6526,7 +6526,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_SBC_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -6541,7 +6541,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
-	
+
 	/////////////////////////////////////////////////////////////////////////////
 	//
 	// SBC: absolute addressing
@@ -6751,7 +6751,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_SBC_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_INDX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -6796,7 +6796,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_SBC_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -6837,7 +6837,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_SBC_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -6870,7 +6870,7 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// initialize used registers
-	cpu->reg_a = BCD_BYTE(4, 4); 
+	cpu->reg_a = BCD_BYTE(4, 4);
 	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 	FLAG_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
@@ -7000,7 +7000,7 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_STA_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -7027,7 +7027,7 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_STA_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -7228,7 +7228,7 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_STA_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_INDX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -7267,7 +7267,7 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_STA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -7306,7 +7306,7 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_STA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_INDY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -7351,7 +7351,7 @@ MunitResult test_stx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_STX_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STX_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -7378,7 +7378,7 @@ MunitResult test_stx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_STX_ZPY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STX_ZPY);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -7445,7 +7445,7 @@ MunitResult test_sty(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_STY_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STY_ZP);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
@@ -7472,7 +7472,7 @@ MunitResult test_sty(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_STY_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STY_ZPX);
 
-	// >> cycle 02: fetch zero page address 
+	// >> cycle 02: fetch zero page address
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
@@ -7540,7 +7540,7 @@ MunitResult test_tax(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_TAX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TAX);
 
-	// >> cycle 02: execute 
+	// >> cycle 02: execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_x, ==, 0x27);
@@ -7571,7 +7571,7 @@ MunitResult test_tsx(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_TSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TSX);
 
-	// >> cycle 02: execute 
+	// >> cycle 02: execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_x, ==, 0x8e);
@@ -7601,7 +7601,7 @@ MunitResult test_tay(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_TAY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TAY);
 
-	// >> cycle 02: execute 
+	// >> cycle 02: execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_y, ==, 0x27);
@@ -7618,7 +7618,7 @@ MunitResult test_txa(const MunitParameter params[], void *user_data_or_fixture) 
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
-	// TXA: transfer index X to accumulator 
+	// TXA: transfer index X to accumulator
 	//
 
 	cpu_reset(cpu);
@@ -7632,7 +7632,7 @@ MunitResult test_txa(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_TXA);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TXA);
 
-	// >> cycle 02: execute 
+	// >> cycle 02: execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_a, ==, 0x27);
@@ -7663,7 +7663,7 @@ MunitResult test_txs(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_TXS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TXS);
 
-	// >> cycle 02: execute 
+	// >> cycle 02: execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_sp, ==, 0x8a);
@@ -7691,7 +7691,7 @@ MunitResult test_tya(const MunitParameter params[], void *user_data_or_fixture) 
 	DATABUS_WRITE(OP_6502_TYA);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TYA);
 
-	// >> cycle 02: execute 
+	// >> cycle 02: execute
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_a, ==, 0x27);
