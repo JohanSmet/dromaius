@@ -126,6 +126,8 @@ target_sources(${LIB_TARGET}
 		src/dev_commodore_pet.h
 		src/dev_minimal_6502.c
 		src/dev_minimal_6502.h
+		src/display_rgba.c
+		src/display_rgba.h
 		src/filt_6502_asm.c
 		src/filt_6502_asm.h
 		src/input_keypad.c

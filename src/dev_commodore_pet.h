@@ -97,11 +97,14 @@ typedef struct DevCommodorePet {
 	Ram8d16a *		ram;
 	Ram8d16a *      vram;
 	Rom8d16a *		roms[7];
+	Rom8d16a *		char_rom;
 	Clock *			clock;
 	struct Chip6520 *		pia_1;
 	struct Chip6520 *		pia_2;
 	struct Chip6522 *		via;
+
 	struct InputKeypad *	keypad;
+	struct DisplayRGBA *	display;
 
 	int						vblank_counter;
 

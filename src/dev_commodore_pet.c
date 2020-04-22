@@ -8,6 +8,7 @@
 #include "chip_6520.h"
 #include "chip_6522.h"
 #include "input_keypad.h"
+#include "display_rgba.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -29,6 +30,20 @@ static Rom8d16a *load_rom(DevCommodorePet *device, const char *filename, uint32_
 
 	return rom;
 }
+
+static Rom8d16a *load_character_rom(DevCommodorePet *device, const char *filename, uint32_t num_lines) {
+	Rom8d16a *rom = rom_8d16a_create(num_lines, device->signal_pool, (Rom8d16aSignals) {
+										.ce_b = SIGNAL(low)
+	});
+
+	if (file_load_binary_fixed(filename, rom->data_array, rom->data_size) == 0) {
+		rom_8d16a_destroy(rom);
+		return NULL;
+	}
+
+	return rom;
+}
+
 
 Cpu6502* dev_commodore_pet_get_cpu(DevCommodorePet *device) {
 	assert(device);
@@ -104,7 +119,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->signals.ba15 = signal_split(SIGNAL(bus_ba), 15, 1);
 
 	// clock
-	device->clock = clock_create(1000000, device->signal_pool, (ClockSignals){
+	device->clock = clock_create(100000, device->signal_pool, (ClockSignals){
 										.clock = SIGNAL(clk1)
 	});
 
@@ -152,6 +167,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 	for (int i = 0; i < rom_count; ++i) {
 		assert(device->roms[i]);
 	}
+
+	device->char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin", 11);
+	assert(device->char_rom);
 
 	SIGNAL(rome_ce_b) = device->roms[3]->signals.ce_b;
 
@@ -202,6 +220,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.rs2 = signal_split(SIGNAL(bus_ba), 2, 1),
 										.rs3 = signal_split(SIGNAL(bus_ba), 3, 1),
 	});
+
+	// display
+	device->display = display_rgba_create(40 * 8, 25 * 8);
 
 	// glue logic
 	device->c3 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
@@ -348,6 +369,7 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	chip_6520_destroy(device->pia_1);
 	chip_6520_destroy(device->pia_2);
 	chip_6522_destroy(device->via);
+	display_rgba_destroy(device->display);
 
 	for (int i = 0; device->roms[i] != NULL; ++i) {
 		rom_8d16a_destroy(device->roms[i]);
@@ -363,6 +385,40 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 
 #define NAND(a,b)	(!((a)&&(b)))
 #define NOR(a,b)	(!((a)||(b)))
+
+void dev_commodore_pet_fake_display(DevCommodorePet *device) {
+// 'fake' display routine to test read from character rom + write to display before properly simulating all electronics required.
+
+	static size_t char_x = 0;		// current position on screen
+	static size_t char_y = 0;		//	in characters
+	static size_t line = 0;			// current line in character (0 - 7)
+
+	#define COLOR 0xff55ff55
+
+	uint8_t value = device->vram->data_array[char_y * 40 + char_x];
+	uint8_t invert = (value >> 7) & 0x1;
+	value &= 0x7f;
+
+	int rom_addr = value << 3 | (int) (line & 0b111);
+	uint8_t line_value = device->char_rom->data_array[rom_addr];
+	uint32_t *screen_ptr = device->display->frame + (char_x * 8) + ((char_y * 8 + line) * device->display->width);
+
+
+	for (int i = 7; i >= 0; --i) {
+		*screen_ptr++ = COLOR * (unsigned int) (((line_value >> i) & 0x1) ^ invert) | 0xff000000;
+	}
+
+	// update position
+	if (++char_x >= 40) {
+		char_x = 0;
+		if (++line >= 8) {
+			line = 0;
+			if (++char_y >= 25) {
+				char_y = 0;
+			}
+		}
+	}
+}
 
 void dev_commodore_pet_process(DevCommodorePet *device) {
 	assert(device);
@@ -484,6 +540,10 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 
 		// >> keyboard logic
 		chip_74145_bcd_decoder_process(device->c9);
+	}
+
+	if ((device->vblank_counter & 1) == 1) {
+		dev_commodore_pet_fake_display(device);
 	}
 }
 
