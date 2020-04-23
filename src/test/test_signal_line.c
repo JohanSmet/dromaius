@@ -451,6 +451,61 @@ static MunitResult test_default_uint16(const MunitParameter params[], void* user
 	return MUNIT_OK;
 }
 
+static MunitResult benchmark_read_uint8(const MunitParameter params[], void* user_data_or_fixture) {
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	Signal *signals = (Signal *) malloc(sizeof(Signal) * 1024);
+	for (int i = 0; i < 1024; ++i) {
+		signals[i] = signal_create(pool, 8);
+	}
+
+	for (int j = 0; j < 102400; ++j) {
+		for (int i = 0; i < 1024; ++i) {
+			uint8_t r = signal_read_uint8(pool, signals[i]);
+			(void) r;
+		}
+	}
+
+	free(signals);
+	return MUNIT_OK;
+}
+
+static MunitResult benchmark_write_uint8(const MunitParameter params[], void* user_data_or_fixture) {
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	Signal *signals = (Signal *) malloc(sizeof(Signal) * 1024);
+	for (int i = 0; i < 1024; ++i) {
+		signals[i] = signal_create(pool, 8);
+	}
+
+	for (int j = 0; j < 102400; ++j) {
+		for (int i = 0; i < 1024; ++i) {
+			signal_write_uint8(pool, signals[i], j & 255);
+		}
+	}
+
+	free(signals);
+	return MUNIT_OK;
+}
+
+static MunitResult benchmark_write_uint8_masked(const MunitParameter params[], void* user_data_or_fixture) {
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	Signal *signals = (Signal *) malloc(sizeof(Signal) * 1024);
+	for (int i = 0; i < 1024; ++i) {
+		signals[i] = signal_create(pool, 8);
+	}
+
+	for (int j = 0; j < 102400; ++j) {
+		for (int i = 0; i < 1024; ++i) {
+			signal_write_uint8_masked(pool, signals[i], j & 255, (j >> 2) & 255);
+		}
+	}
+
+	free(signals);
+	return MUNIT_OK;
+}
+
 MunitTest signal_tests[] = {
     { "/create", test_create, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/read_bool", test_read_bool, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
@@ -458,7 +513,7 @@ MunitTest signal_tests[] = {
     { "/read_uint16", test_read_uint8, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/write_bool", test_write_bool, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/write_uint8", test_write_uint8, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
-    { "/write_uint16", test_write_uint8, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
+    { "/write_uint16", test_write_uint16, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/read_next_bool", test_read_next_bool, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/read_next_uint8", test_read_next_uint8, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/read_next_uint16", test_read_next_uint16, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
@@ -469,5 +524,8 @@ MunitTest signal_tests[] = {
     { "/default_bool", test_default_bool, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/default_uint8", test_default_uint8, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/default_uint16", test_default_uint16, signal_setup, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
+//	{ "/benchmark_read_uint8", benchmark_read_uint8, signal_setup, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},
+//	{ "/benchmark_write_uint8", benchmark_write_uint8, signal_setup, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},
+//	{ "/benchmark_write_uint8_masked", benchmark_write_uint8_masked, signal_setup, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},
     { NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

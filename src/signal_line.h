@@ -1,9 +1,15 @@
 // signal_line.h - Johan Smet - BSD-3-Clause (see LICENSE)
+//
+// NOTE: some functions provide a fast path when the signal aligns with a 64-bit integer (an 8-bit signal).
+//		 Further improvements can be had by force-aligning these signals at creating and defining read/write functions
+//		 that forgo these runtime checks.
 
 #ifndef DROMAIUS_SIGNAL_LINE_H
 #define DROMAIUS_SIGNAL_LINE_H
 
 #include "types.h"
+#include <assert.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,32 +27,141 @@ typedef struct SignalPool {
 	bool *		signals_default;
 } SignalPool;
 
+extern const uint64_t lut_bit_to_byte[256];
+
 // functions
 SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
 void signal_pool_cycle(SignalPool *pool);
 
 Signal signal_create(SignalPool *pool, uint32_t size);
-Signal signal_split(Signal src, uint32_t start, uint32_t size);
 
 void signal_default_bool(SignalPool *pool, Signal signal, bool value);
 void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value);
 void signal_default_uint16(SignalPool *pool, Signal signal, uint16_t value);
 
-bool signal_read_bool(SignalPool *pool, Signal signal);
-uint8_t signal_read_uint8(SignalPool *pool, Signal signal);
-uint16_t signal_read_uint16(SignalPool *pool, Signal signal);
+static inline Signal signal_split(Signal src, uint32_t start, uint32_t size) {
+	assert(start < src.count);
+	assert(start + size <= src.count);
 
-void signal_write_bool(SignalPool *pool, Signal signal, bool value);
-void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t value);
-void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t value);
+	Signal result = {src.start + start, size};
+	return result;
+}
 
-void signal_write_uint8_masked(SignalPool *pool, Signal signal, uint8_t value, uint8_t mask);
-void signal_write_uint16_masked(SignalPool *pool, Signal signal, uint16_t value, uint16_t mask);
+static inline bool signal_read_bool(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count == 1);
 
-bool signal_read_next_bool(SignalPool *pool, Signal signal);
-uint8_t signal_read_next_uint8(SignalPool *pool, Signal signal);
-uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal);
+	return pool->signals_curr[signal.start];
+}
+
+static inline uint8_t signal_read_uint8_internal(bool *src, size_t len) {
+	uint8_t result = 0;
+	for (size_t i = 0; i < len; ++i) {
+		result |= (uint8_t) (src[i] << i);
+	}
+	return result;
+}
+
+static inline uint16_t signal_read_uint16_internal(bool *src, size_t len) {
+	uint16_t result = 0;
+	for (size_t i = 0; i < len; ++i) {
+		result |= (uint16_t) (src[i] << i);
+	}
+	return result;
+}
+
+static inline uint8_t signal_read_uint8(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count <= 8);
+
+	return signal_read_uint8_internal(pool->signals_curr + signal.start, signal.count);
+}
+
+static inline uint16_t signal_read_uint16(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count <= 16);
+
+	return signal_read_uint16_internal(pool->signals_curr + signal.start, signal.count);
+}
+
+static inline void signal_write_bool(SignalPool *pool, Signal signal, bool value) {
+	assert(pool);
+	assert(signal.count == 1);
+	pool->signals_next[signal.start] = value;
+}
+
+static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t value) {
+	assert(pool);
+	assert(signal.count <= 8);
+
+	if (signal.count == 8 && (signal.start & 0x7) == 0) {
+		(*(uint64_t *) &pool->signals_next[signal.start]) = lut_bit_to_byte[value];
+	} else {
+		memcpy(&pool->signals_next[signal.start], &lut_bit_to_byte[value], signal.count);
+	}
+}
+
+static inline void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t value) {
+	assert(pool);
+	assert(signal.count <= 16);
+
+	for (uint32_t i = 0; i < signal.count; ++i) {
+		pool->signals_next[signal.start + i] = value & 1;
+		value = (uint16_t) (value >> 1);
+	}
+}
+
+static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, uint8_t value, uint8_t mask) {
+	assert(pool);
+	assert(signal.count <= 8);
+
+	if (signal.count == 8 && (signal.start & 0x7) == 0) {
+		uint64_t byte_mask = lut_bit_to_byte[mask];
+		uint64_t current   = (*(uint64_t *) &pool->signals_next[signal.start]);
+		(*(uint64_t *) &pool->signals_next[signal.start]) = (current & ~byte_mask) | (lut_bit_to_byte[value] & byte_mask);
+	} else {
+		for (uint32_t i = 0; i < signal.count; ++i) {
+			bool b = (mask >> i) & 1;
+			if (b) {
+				pool->signals_next[signal.start + i] = (value >> i) & 1;
+			}
+		}
+	}
+}
+
+static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, uint16_t value, uint16_t mask) {
+	assert(pool);
+	assert(signal.count <= 16);
+
+	for (uint32_t i = 0; i < signal.count; ++i) {
+		uint8_t b = (mask >> i) & 1;
+		if (b) {
+			pool->signals_next[signal.start + i] = (value >> i) & 1;
+		}
+	}
+}
+
+static inline bool signal_read_next_bool(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count == 1);
+
+	return pool->signals_next[signal.start];
+}
+
+static inline uint8_t signal_read_next_uint8(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count <= 8);
+
+	return signal_read_uint8_internal(pool->signals_next + signal.start, signal.count);
+}
+
+static inline uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count <= 16);
+
+	return signal_read_uint16_internal(pool->signals_next + signal.start, signal.count);
+}
 
 // macros to make working with signal a little prettier
 //	define SIGNAL_POOL and SIGNAL_COLLECTION in your source file
