@@ -140,8 +140,8 @@ static inline void control_register_irq_routine(uint8_t *reg_ctrl, bool cl1, boo
 	}
 
 	// an active transition of the cl1/cl2-lines sets the irq-flags in reg_ctrl
-	*reg_ctrl = (uint8_t) (*reg_ctrl | (-state->act_trans_cl1 & FLAG_6520_IRQ1)
-								     | (-state->act_trans_cl2 & FLAG_6520_IRQ2));
+	*reg_ctrl = (uint8_t) (*reg_ctrl | (-(int8_t) state->act_trans_cl1 & FLAG_6520_IRQ1)
+								     | (-(int8_t) state->act_trans_cl2 & FLAG_6520_IRQ2));
 
 	// store state of interrupt input/peripheral control lines
 	state->prev_cl1 = cl1;

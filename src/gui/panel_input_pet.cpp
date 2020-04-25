@@ -56,14 +56,14 @@ public:
 			}
 
 			// >> shift lock
-			ImVec2 pos = {origin.x + 0.2f * KEY_SIZE, origin.y + 2 * KEY_SIZE};
-			ImVec2 size = {KEY_SIZE * 1.5f, KEY_SIZE};
-			ImGui::SetCursorScreenPos(pos);
+			const ImVec2 sl_pos = {origin.x + 0.2f * KEY_SIZE, origin.y + 2 * KEY_SIZE};
+			const ImVec2 sl_size = {KEY_SIZE * 1.5f, KEY_SIZE};
+			ImGui::SetCursorScreenPos(sl_pos);
 
-			ImGuiEx::RectFilled({pos.x + 1, pos.y + 1}, {pos.x + size.x - 2, pos.y + size.y - 2}, colors[shift_locked]);
-			ImGuiEx::Text("Shift\nLock", size, ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
+			ImGuiEx::RectFilled({sl_pos.x + 1, sl_pos.y + 1}, {sl_pos.x + sl_size.x - 2, sl_pos.y + sl_size.y - 2}, colors[shift_locked]);
+			ImGuiEx::Text("Shift\nLock", sl_size, ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
 
-			if (ImGui::InvisibleButton("ShiftLock", size) ||
+			if (ImGui::InvisibleButton("ShiftLock", sl_size) ||
 				ImGui::IsKeyPressed(GLFW_KEY_CAPS_LOCK)) {
 				shift_locked = !shift_locked;
 			}
