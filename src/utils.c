@@ -25,6 +25,32 @@ size_t file_load_binary_fixed(const char *filename, uint8_t *buffer, size_t max_
 	return read;
 }
 
+size_t file_load_binary(const char* filename, int8_t** buffer) {
+	enum { BLOCK_SIZE = 2048 };
+	size_t total_size = 0;
+
+	assert(filename);
+	assert(buffer);
+
+	FILE* fp = fopen(filename, "rb");
+
+	if (!fp) {
+		// FIXME: an error message would be nice
+		return total_size;
+	}
+
+	while (!feof(fp)) {
+		arrsetcap(*buffer, total_size + 2048);
+		size_t read = fread(*buffer + total_size, 1, BLOCK_SIZE, fp);
+		total_size += read;
+	}
+
+	fclose(fp);
+
+	arrsetlen(*buffer, total_size);
+	return total_size;
+}
+
 void dir_list_files(const char *path, const char *ext, const char *prefix, const char ***file_list) {
 
 	cf_dir_t dir;

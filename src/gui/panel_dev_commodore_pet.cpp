@@ -14,6 +14,22 @@
 #include "panel_input_pet.h"
 #include "panel_display_rgba.h"
 
+#include "popup_file_selector.h"
+
+namespace {
+
+static std::string binary_path = "runtime/commodore_pet/prg";
+
+static inline std::string path_for_binary(const std::string & filename) {
+	std::string result = binary_path;
+	result += "/";
+	result += filename;
+
+	return result;
+}
+
+} // unnamed namespace
+
 class PanelDevCommodorePet : public Panel {
 public:
 
@@ -27,6 +43,8 @@ public:
 
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
+
+		bool load_prg = false;
 
 		if (ImGui::Begin(title)) {
 
@@ -137,8 +155,23 @@ public:
 					auto pnl = panel_monitor_create(ui_context, {340, 310});
 					ui_context->panel_add(std::move(pnl));
 				}
+				ImGui::Text("Prg-file");
+				ImGui::SameLine();
+				load_prg = ImGui::SmallButton("Load##load_prg");
+				if (!prg_last_loaded.empty()) {
+					ImGui::Text(" - last loaded: %s", prg_last_loaded.c_str());
+				}
+
 				ImGui::TreePop();
 			}
+		}
+
+		prg_selection->define_popup();
+		if (load_prg) {
+			prg_selection->display_popup([&](std::string selected_file) {
+				dev_commodore_pet_load_prg(device, path_for_binary(selected_file).c_str(), true);
+				prg_last_loaded = selected_file;
+			});
 		}
 
 		ImGui::End();
@@ -148,6 +181,10 @@ private:
 	ImVec2			position;
 	const ImVec2	size = {330, 250};
 	DevCommodorePet *device;
+
+	std::string		prg_last_loaded = "";
+
+	PopupFileSelector::uptr_t prg_selection = PopupFileSelector::make_unique(ui_context, binary_path.c_str() , ".prg", "");
 
 	constexpr static const char *title = "Device - Commodore PET 2001N";
 };

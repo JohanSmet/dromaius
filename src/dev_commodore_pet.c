@@ -9,6 +9,7 @@
 #include "chip_6522.h"
 #include "input_keypad.h"
 #include "display_rgba.h"
+#include "stb/stb_ds.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -564,4 +565,24 @@ void dev_commodore_pet_reset(DevCommodorePet *device) {
 	device->clock->cycle_count = 0;
 
 	device->vblank_counter = 0;
+}
+
+bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {
+
+	int8_t * prg_buffer = NULL;
+	size_t prg_size = file_load_binary(filename, &prg_buffer);
+
+	if (prg_size == 0) {
+		arrfree(prg_buffer);
+		return false;
+	}
+
+	uint16_t ram_offset = 0x401;
+	if (use_prg_address) {
+		ram_offset = *((uint16_t*)prg_buffer);
+	}
+
+	memcpy(device->ram->data_array + ram_offset, prg_buffer + 2, prg_size - 2);
+	arrfree(prg_buffer);
+	return true;
 }

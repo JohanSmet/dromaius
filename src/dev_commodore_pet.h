@@ -127,6 +127,8 @@ void dev_commodore_pet_destroy(DevCommodorePet *device);
 void dev_commodore_pet_process(DevCommodorePet *device);
 void dev_commodore_pet_reset(DevCommodorePet *device);
 
+bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address);
+
 #ifdef __cplusplus
 }
 #endif
