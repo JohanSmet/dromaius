@@ -159,7 +159,6 @@ target_sources(${GUI_TARGET}
 		src/gui/imgui_ex.cpp
 		src/gui/imgui_ex.h
 		src/gui/main.cpp
-		src/gui/main_gui.cpp
 		src/gui/panel.h
 		src/gui/panel_chip_6520.cpp
 		src/gui/panel_chip_6520.h
@@ -192,6 +191,8 @@ target_sources(${GUI_TARGET}
 		src/gui/std_helper.h
 		src/gui/ui_context.h
 		src/gui/widgets.h
+		src/gui/window_main.cpp
+		src/gui/window_main.h
 )
 target_include_directories(${GUI_TARGET} PRIVATE libs src)
 target_link_libraries(${GUI_TARGET} PRIVATE ${IMGUI_TARGET})
