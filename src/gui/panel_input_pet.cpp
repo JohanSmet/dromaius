@@ -211,14 +211,14 @@ private:
 
 private:
 	ImVec2			position;
-	const ImVec2	size = {0, 0};
+	const ImVec2	size = {650, 230};
 	InputKeypad *	keypad;
 	bool			shift_locked = false;
 
 	std::vector<std::string>	labels = default_labels();
 	int							decay = 64 * 1024;
 
-	constexpr static const char *title = "Keypad";
+	constexpr static const char *title = "Keyboard - PET";
 };
 
 Panel::uptr_t panel_input_pet_create(UIContext *ctx, struct ImVec2 pos, struct InputKeypad *keypad) {

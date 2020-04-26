@@ -62,7 +62,7 @@ private:
 
 private:
 	ImVec2			position;
-	const ImVec2	size = {330, 0};
+	const ImVec2	size = {400, 300};
 	DisplayRGBA *	display_rgba;
 	GLuint			texture_id;
 

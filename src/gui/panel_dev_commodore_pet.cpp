@@ -179,7 +179,7 @@ public:
 
 private:
 	ImVec2			position;
-	const ImVec2	size = {330, 250};
+	const ImVec2	size = {330, 320};
 	DevCommodorePet *device;
 
 	std::string		prg_last_loaded = "";
@@ -192,11 +192,11 @@ private:
 Panel::uptr_t panel_dev_commodore_pet_create(UIContext *ctx, ImVec2 pos, DevCommodorePet *device) {
 
 	// a keyboard panel is always useful
-	auto keyboard_pnl = panel_input_pet_create(ctx, {340, 200}, device->keypad);
+	auto keyboard_pnl = panel_input_pet_create(ctx, {340, 400}, device->keypad);
 	ctx->panel_add(std::move(keyboard_pnl));
 
 	// display panel
-	auto display_pnl = panel_display_rgba_create(ctx, {340, 400}, device->display);
+	auto display_pnl = panel_display_rgba_create(ctx, {340, 20}, device->display);
 	ctx->panel_add(std::move(display_pnl));
 
 	// create panel for the commodore pet

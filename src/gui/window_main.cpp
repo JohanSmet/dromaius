@@ -85,13 +85,13 @@ Device *WindowMain::create_minimal_6502() {
 	dms_set_device(ui_context.dms_ctx, (Device *) device);
 
 	// create UI panels
-	ui_context.panel_add(panel_control_create(&ui_context, {0, 0}));
+	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}));
 
 	ui_context.panel_add(
 			panel_clock_create(&ui_context, {0, 310}, device->clock));
 
 	ui_context.panel_add(
-			panel_dev_minimal_6502_create(&ui_context, {0, 55}, device));
+			panel_dev_minimal_6502_create(&ui_context, {0, 110}, device));
 
 	// reset device
 	device->reset(device);
@@ -108,13 +108,13 @@ Device *WindowMain::create_commodore_pet() {
 	dms_set_device(ui_context.dms_ctx, (Device *) device);
 
 	// create UI panels
-	ui_context.panel_add(panel_control_create(&ui_context, {0, 0}));
+	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}));
 
 	ui_context.panel_add(
-			panel_clock_create(&ui_context, {0, 310}, device->clock));
+			panel_clock_create(&ui_context, {0, 430}, device->clock));
 
 	ui_context.panel_add(
-			panel_dev_commodore_pet_create(&ui_context, {0, 55}, device));
+			panel_dev_commodore_pet_create(&ui_context, {0, 110}, device));
 
 	// reset device
 	device->reset(device);

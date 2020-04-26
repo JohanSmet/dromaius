@@ -92,7 +92,7 @@ public:
 					auto pnl = panel_cpu_6502_create(ui_context, {2, 342}, device->cpu);
 					ui_context->panel_add(std::move(pnl));
 				}
-				
+
 				ImGui::TreePop();
 			}
 
@@ -154,7 +154,7 @@ private:
 };
 
 Panel::uptr_t panel_dev_minimal_6502_create(UIContext *ctx, ImVec2 pos, DevMinimal6502 *device) {
-	
+
 	// always create an output panel
 	auto lcd_pnl = panel_chip_hd44780_create(ctx, {340, 0}, device->lcd);
 	ctx->panel_add(std::move(lcd_pnl));
@@ -162,7 +162,7 @@ Panel::uptr_t panel_dev_minimal_6502_create(UIContext *ctx, ImVec2 pos, DevMinim
 	// a keypad panel is always useful
 	auto keypad_pnl = panel_input_keypad_create(ctx, {340, 200}, device->keypad);
 	ctx->panel_add(std::move(keypad_pnl));
-	
+
 	// create panel for the minimal_6502
 	return std::make_unique<PanelDevMinimal6502>(ctx, pos, device);
 }
