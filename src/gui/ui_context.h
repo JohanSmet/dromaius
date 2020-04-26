@@ -26,6 +26,10 @@ public:
 		}
 	}
 
+	void panel_close_all() {
+		panels.clear();
+	}
+
 	std::string unique_panel_id(const char *title) {
 		std::string result = title;
 		result += "##";

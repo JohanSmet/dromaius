@@ -15,17 +15,21 @@
 
 #include "context.h"
 
+namespace {
+	enum {
+		MACHINE_COMMODORE_PET = 0,
+		MACHINE_MINIMAL_6502 = 1
+	};
+
+	constexpr static const char *MACHINE_NAMES[] = {
+		"Commodore PET - 2001N",
+		"Minimal 6502"
+	};
+
+} // unnamed namespace
+
 void WindowMain::on_start() {
-	// create device
-	// ui_context.device = create_minimal_6502();
-	ui_context.device = create_commodore_pet();
-	ui_context.last_pc = 0;
-
-#ifndef DMS_NO_THREADING
-	// start dromaius context
-	dms_start_execution(ui_context.dms_ctx);
-#endif // DMS_NO_THREADING
-
+	create_device(0);
 	panel_memory_load_fonts();
 }
 
@@ -41,6 +45,8 @@ void WindowMain::on_render_frame() {
 		ui_context.last_pc = cpu->program_counter(cpu);
 	}
 
+	panel_select_machine();
+
 	ui_context.panel_foreach([&](auto panel) {
 		if (!panel) return;
 		panel->display();
@@ -49,6 +55,25 @@ void WindowMain::on_render_frame() {
 			ui_context.panel_close(panel);
 		}
 	});
+}
+
+void WindowMain::create_device(int index) {
+
+	// create device
+	switch (index) {
+		case MACHINE_COMMODORE_PET:
+			ui_context.device = create_commodore_pet();
+			break;
+		case MACHINE_MINIMAL_6502:
+			ui_context.device = create_minimal_6502();
+			break;
+	}
+	ui_context.last_pc = 0;
+
+#ifndef DMS_NO_THREADING
+	// start dromaius context
+	dms_start_execution(ui_context.dms_ctx);
+#endif // DMS_NO_THREADING
 }
 
 Device *WindowMain::create_minimal_6502() {
@@ -95,4 +120,37 @@ Device *WindowMain::create_commodore_pet() {
 	device->reset(device);
 
 	return (Device *) device;
+}
+
+void WindowMain::panel_select_machine() {
+
+	ImGui::SetNextWindowPos(ImVec2(0,0), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowSize(ImVec2(330,0), ImGuiCond_FirstUseEver);
+
+	if (ImGui::Begin("Emulated machine")) {
+		if (ImGui::Combo("Machine", &active_machine, MACHINE_NAMES, sizeof(MACHINE_NAMES) / sizeof(MACHINE_NAMES[0]))) {
+			switch_machine(active_machine);
+		}
+	}
+	ImGui::End();
+}
+
+void WindowMain::switch_machine(int index) {
+
+#ifndef DMS_NO_THREADING
+	dms_stop_execution(ui_context.dms_ctx);
+#endif
+
+	// close panels
+	ui_context.panel_close_all();
+
+	// release device
+	auto *device = dms_get_device(ui_context.dms_ctx);
+	device->destroy(device);
+
+	// release context
+	dms_release_context(ui_context.dms_ctx);
+
+	// create new device
+	create_device(index);
 }

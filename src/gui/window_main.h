@@ -14,13 +14,18 @@ public:
 	void on_render_frame();
 
 private:
+	void create_device(int index);
 	Device *create_minimal_6502();
 	Device *create_commodore_pet();
+
+	void panel_select_machine();
+	void switch_machine(int index);
 
 public:
 	constexpr static const char* title = "Dromaius";
 private:
 	UIContext	ui_context;
+	int			active_machine = 0;
 };
 
 #endif // DROMAIUS_GUI_WINDOW_MAIN_H
