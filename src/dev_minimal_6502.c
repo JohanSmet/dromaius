@@ -30,6 +30,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->get_clock = (DEVICE_GET_CLOCK) dev_minimal_6502_get_clock;
 	device->process = (DEVICE_PROCESS) dev_minimal_6502_process;
 	device->reset = (DEVICE_RESET) dev_minimal_6502_reset;
+	device->destroy = (DEVICE_DESTROY) dev_minimal_6502_destroy;
 
 	// signals
 	device->signal_pool = signal_pool_create();

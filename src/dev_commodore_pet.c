@@ -64,6 +64,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->get_clock = (DEVICE_GET_CLOCK) dev_commodore_pet_get_clock;
 	device->process = (DEVICE_PROCESS) dev_commodore_pet_process;
 	device->reset = (DEVICE_RESET) dev_commodore_pet_reset;
+	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
 
 	// signals
 	device->signal_pool = signal_pool_create();
