@@ -118,6 +118,99 @@ static MunitResult test_74154_decoder(const MunitParameter params[], void *user_
 	return MUNIT_OK;
 }
 
+static MunitResult test_74164_shift_register(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip74164ShiftRegister *chip = chip_74164_shift_register_create(signal_pool_create(1), (Chip74164Signals) {0});
+
+	chip->state = 0xaf;				// 'random' startup state
+
+	bool truth_table[][10] = {		// replicates timing diagram from datasheet
+		//  A      B     Qa     Qb     Qc     Qd     Qe     Qf     Qg     Qh
+		{true,  false, false, false, false, false, false, false, false, false},		// 01
+		{false, true,  false, false, false, false, false, false, false, false},		// 02
+		{false, true,  false, false, false, false, false, false, false, false},		// 03
+		{true,  true,  true,  false, false, false, false, false, false, false},		// 04
+		{true,  true,  true,  true,  false, false, false, false, false, false},		// 05
+		{false, true,  false, true,  true,  false, false, false, false, false},		// 06
+		{true,  true,  true,  false, true,  true,  false, false, false, false},		// 07
+		{false, true,  false, true,  false, true,  true,  false, false, false},		// 08
+		{false, true,  false, false, true,  false, true,  true,  false, false},		// 09
+		{false, true,  false, false, false, true,  false, true,  true,  false},		// 10
+		{false, true,  false, false, false, false, true,  false, true,  true}		// 11
+	};
+
+	// reset the shift register
+	SIGNAL_SET_BOOL(clear_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clk, false);
+	signal_pool_cycle(chip->signal_pool);
+	chip_74164_shift_register_process(chip);
+	munit_assert_uint8(chip->state, ==, 0);
+	munit_assert_false(SIGNAL_NEXT_BOOL(qa));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qc));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qd));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qe));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qf));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qg));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qh));
+
+	// run truth table
+	for (int line = 0; line < sizeof(truth_table) / sizeof(truth_table[0]); ++line) {
+		munit_logf(MUNIT_LOG_INFO, "truth_table[%d] - a = %d, b = %d", line, truth_table[line][0], truth_table[line][1]);
+
+		// positive edge
+		SIGNAL_SET_BOOL(clear_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clk, true);
+		SIGNAL_SET_BOOL(a, truth_table[line][0]);
+		SIGNAL_SET_BOOL(b, truth_table[line][1]);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74164_shift_register_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qa) == truth_table[line][2]);
+		munit_assert(SIGNAL_NEXT_BOOL(qb) == truth_table[line][3]);
+		munit_assert(SIGNAL_NEXT_BOOL(qc) == truth_table[line][4]);
+		munit_assert(SIGNAL_NEXT_BOOL(qd) == truth_table[line][5]);
+		munit_assert(SIGNAL_NEXT_BOOL(qe) == truth_table[line][6]);
+		munit_assert(SIGNAL_NEXT_BOOL(qf) == truth_table[line][7]);
+		munit_assert(SIGNAL_NEXT_BOOL(qg) == truth_table[line][8]);
+		munit_assert(SIGNAL_NEXT_BOOL(qh) == truth_table[line][9]);
+
+		// negative edge
+		SIGNAL_SET_BOOL(clear_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clk, false);
+		SIGNAL_SET_BOOL(a, truth_table[line][0]);
+		SIGNAL_SET_BOOL(b, truth_table[line][1]);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74164_shift_register_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qa) == truth_table[line][2]);
+		munit_assert(SIGNAL_NEXT_BOOL(qb) == truth_table[line][3]);
+		munit_assert(SIGNAL_NEXT_BOOL(qc) == truth_table[line][4]);
+		munit_assert(SIGNAL_NEXT_BOOL(qd) == truth_table[line][5]);
+		munit_assert(SIGNAL_NEXT_BOOL(qe) == truth_table[line][6]);
+		munit_assert(SIGNAL_NEXT_BOOL(qf) == truth_table[line][7]);
+		munit_assert(SIGNAL_NEXT_BOOL(qg) == truth_table[line][8]);
+		munit_assert(SIGNAL_NEXT_BOOL(qh) == truth_table[line][9]);
+	}
+
+	// reset the shift register again
+	SIGNAL_SET_BOOL(clear_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clk, false);
+	signal_pool_cycle(chip->signal_pool);
+	chip_74164_shift_register_process(chip);
+	munit_assert_uint8(chip->state, ==, 0);
+	munit_assert_false(SIGNAL_NEXT_BOOL(qa));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qc));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qd));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qe));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qf));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qg));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qh));
+
+	chip_74164_shift_register_destroy(chip);
+
+	return MUNIT_OK;
+}
+
 static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *user_data_or_fixture) {
 // TODO: ATM it's not possible to test high impedance output state correctly
 
@@ -169,6 +262,7 @@ MunitTest chip_74xxx_tests[] = {
 	{ "/7400_nand", test_7400_nand, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74145_bcd_decoder", test_74145_bcd_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74154_decoder", test_74154_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/74164_shift_register", test_74164_shift_register, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74244_octal_buffer", test_74244_octal_buffer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

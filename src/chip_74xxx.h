@@ -93,6 +93,32 @@ typedef struct Chip74154Decoder {
 	Chip74154Signals	signals;
 } Chip74154Decoder;
 
+// types - 74164 (8-Bit Serial In/Parallel Out Shift Register)
+typedef struct Chip74164Signals {
+	Signal		a;			// pin 01 - serial input A
+	Signal		b;			// pin 02 - serial input B
+	Signal		qa;			// pin 03 - parallel output A
+	Signal		qb;			// pin 04 - parallel output B
+	Signal		qc;			// pin 05 - parallel output C
+	Signal		qd;			// pin 06 - parallel output D
+	Signal		gnd;		// pin 07
+	Signal		clk;		// pin 08 - clock
+	Signal		clear_b;	// pin 09 - reset
+	Signal		qe;			// pin 10 - parallel output A
+	Signal		qf;			// pin 11 - parallel output B
+	Signal		qg;			// pin 12 - parallel output C
+	Signal		qh;			// pin 13 - parallel output D
+	Signal		vcc;		// pin 14
+} Chip74164Signals;
+
+typedef struct Chip74164ShiftRegister {
+	SignalPool *		signal_pool;
+	Chip74164Signals	signals;
+
+	uint8_t				state;
+	bool				prev_clock;
+} Chip74164ShiftRegister;
+
 // types - 74244
 typedef struct Chip74244Signals {
 	Signal		g1_b;		// pin 01 - enable output on group 1
@@ -134,6 +160,10 @@ void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip);
 Chip74154Decoder *chip_74154_decoder_create(SignalPool *signal_pool, Chip74154Signals signals);
 void chip_74154_decoder_destroy(Chip74154Decoder *chip);
 void chip_74154_decoder_process(Chip74154Decoder *chip);
+
+Chip74164ShiftRegister *chip_74164_shift_register_create(SignalPool *signal_pool, Chip74164Signals signals);
+void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip);
+void chip_74164_shift_register_process(Chip74164ShiftRegister *chip);
 
 Chip74244OctalBuffer *chip_74244_octal_buffer_create(SignalPool *signal_pool, Chip74244Signals signals);
 void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip);

@@ -198,6 +198,67 @@ void chip_74154_decoder_process(Chip74154Decoder *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 74164 - 8-Bit Serial In/Parallel Out Shift Register
+//
+
+Chip74164ShiftRegister *chip_74164_shift_register_create(SignalPool *signal_pool, Chip74164Signals signals) {
+	Chip74164ShiftRegister *chip = (Chip74164ShiftRegister *) calloc(1, sizeof(Chip74164ShiftRegister));
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(a, 1);
+	SIGNAL_DEFINE(b, 1);
+	SIGNAL_DEFINE(qa, 1);
+	SIGNAL_DEFINE(qb, 1);
+	SIGNAL_DEFINE(qc, 1);
+	SIGNAL_DEFINE(qd, 1);
+	SIGNAL_DEFINE(gnd, 1);
+	SIGNAL_DEFINE(clk, 1);
+	SIGNAL_DEFINE_BOOL(clear_b, 1, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(qe, 1);
+	SIGNAL_DEFINE(qf, 1);
+	SIGNAL_DEFINE(qg, 1);
+	SIGNAL_DEFINE(qh, 1);
+	SIGNAL_DEFINE(vcc, 1);
+
+	return chip;
+}
+
+void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
+	assert(chip);
+
+	bool clk = SIGNAL_BOOL(clk);
+
+	if (ACTLO_ASSERTED(SIGNAL_BOOL(clear_b))) {
+		chip->state = 0;
+	} else if (clk && !chip->prev_clock) {
+		// shift on the positive clock edge
+		bool in = SIGNAL_BOOL(a) && SIGNAL_BOOL(b);
+		chip->state = (uint8_t) (((chip->state << 1) | in) & 0xff);
+	}
+
+	// always output the signals
+	SIGNAL_SET_BOOL(qa, (chip->state & 0b00000001) != 0);
+	SIGNAL_SET_BOOL(qb, (chip->state & 0b00000010) != 0);
+	SIGNAL_SET_BOOL(qc, (chip->state & 0b00000100) != 0);
+	SIGNAL_SET_BOOL(qd, (chip->state & 0b00001000) != 0);
+	SIGNAL_SET_BOOL(qe, (chip->state & 0b00010000) != 0);
+	SIGNAL_SET_BOOL(qf, (chip->state & 0b00100000) != 0);
+	SIGNAL_SET_BOOL(qg, (chip->state & 0b01000000) != 0);
+	SIGNAL_SET_BOOL(qh, (chip->state & 0b10000000) != 0);
+
+	// save the clock state
+	chip->prev_clock = clk;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74244 - Octal 3-STATE Buffer/Line Driver/Line Receiver
 //
 
