@@ -119,6 +119,35 @@ typedef struct Chip74164ShiftRegister {
 	bool				prev_clock;
 } Chip74164ShiftRegister;
 
+// types - 74191 (4-Bit Synchronous Up/Down Binary Counter)
+typedef struct Chip74191Signals {
+	Signal		b;			// pin 01
+	Signal		qb;			// pin 02
+	Signal		qa;			// pin 03
+	Signal		enable_b;	// pin 04
+	Signal		d_u;		// pin 05
+	Signal		qc;			// pin 06
+	Signal		qd;			// pin 07
+	Signal		gnd;		// pin 08
+	Signal		d;			// pin 09
+	Signal		c;			// pin 10
+	Signal		load_b;		// pin 11
+	Signal		max_min;	// pin 12
+	Signal		rco_b;		// pin 13
+	Signal		clk;		// pin 14
+	Signal		a;			// pin 15
+	Signal		vcc;		// pin 16
+} Chip74191Signals;
+
+typedef struct Chip74191BinaryCounter {
+	SignalPool *		signal_pool;
+	Chip74191Signals	signals;
+
+	int					state;
+	bool				max_min;
+	bool				prev_clock;
+} Chip74191BinaryCounter;
+
 // types - 74244
 typedef struct Chip74244Signals {
 	Signal		g1_b;		// pin 01 - enable output on group 1
@@ -164,6 +193,10 @@ void chip_74154_decoder_process(Chip74154Decoder *chip);
 Chip74164ShiftRegister *chip_74164_shift_register_create(SignalPool *signal_pool, Chip74164Signals signals);
 void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip);
 void chip_74164_shift_register_process(Chip74164ShiftRegister *chip);
+
+Chip74191BinaryCounter *chip_74191_binary_counter_create(SignalPool *signal_pool, Chip74191Signals signals);
+void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip);
+void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip);
 
 Chip74244OctalBuffer *chip_74244_octal_buffer_create(SignalPool *signal_pool, Chip74244Signals signals);
 void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip);

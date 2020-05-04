@@ -211,6 +211,79 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 	return MUNIT_OK;
 }
 
+static MunitResult test_74191_binary_counter(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip74191BinaryCounter *chip = chip_74191_binary_counter_create(signal_pool_create(1), (Chip74191Signals) {0});
+
+	// initialize with 'random' value
+	chip->state = 0xfa;
+
+	// load the counter
+	SIGNAL_SET_BOOL(load_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clk, false);
+	SIGNAL_SET_BOOL(a, true);
+	SIGNAL_SET_BOOL(b, false);
+	SIGNAL_SET_BOOL(c, true);
+	SIGNAL_SET_BOOL(d, true);
+	signal_pool_cycle(chip->signal_pool);
+	chip_74191_binary_counter_process(chip);
+	munit_assert_uint8(chip->state, ==, 13);
+
+	bool truth_table[][8] = {		// replicates timing diagram from datasheet
+		// du     en     qa     qb     qc     qd  min/max  rco
+		{false, false, false, true,  true,  true,  false, true},	// 1
+		{false, false, true,  true,  true,  true,  true,  false},	// 2
+		{false, false, false, false, false, false, false, true},	// 3
+		{false, false, true,  false, false, false, false, true},	// 4
+		{false, false, false, true,  false, false, false, true},	// 5
+		{false, true,  false, true,  false, false, false, true},	// 6
+		{true,  true,  false, true,  false, false, false, true},	// 7
+		{true,  false, true,  false, false, false, false, true},	// 8
+		{true,  false, false, false, false, false, true,  false},	// 9
+		{true,  false, true,  true,  true,  true,  false, true},	// 10
+		{true,  false, false, true,  true,  true,  false, true},	// 11
+		{true,  false, true,  false, true,  true,  false, true},	// 12
+	};
+
+	// run truth table
+	for (int line = 0; line < sizeof(truth_table) / sizeof(truth_table[0]); ++line) {
+		munit_logf(MUNIT_LOG_INFO, "truth_table[%d] - a = %d, b = %d", line, truth_table[line][0], truth_table[line][1]);
+
+		// positive edge
+		SIGNAL_SET_BOOL(load_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clk, true);
+		SIGNAL_SET_BOOL(d_u, truth_table[line][0]);
+		SIGNAL_SET_BOOL(enable_b, truth_table[line][1]);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74191_binary_counter_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qa) == truth_table[line][2]);
+		munit_assert(SIGNAL_NEXT_BOOL(qb) == truth_table[line][3]);
+		munit_assert(SIGNAL_NEXT_BOOL(qc) == truth_table[line][4]);
+		munit_assert(SIGNAL_NEXT_BOOL(qd) == truth_table[line][5]);
+		munit_assert(SIGNAL_NEXT_BOOL(max_min) == truth_table[line][6]);
+		munit_assert_true(SIGNAL_NEXT_BOOL(rco_b));
+
+		// negative edge
+		SIGNAL_SET_BOOL(load_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clk, false);
+		SIGNAL_SET_BOOL(d_u, truth_table[line][0]);
+		SIGNAL_SET_BOOL(enable_b, truth_table[line][1]);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74191_binary_counter_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qa) == truth_table[line][2]);
+		munit_assert(SIGNAL_NEXT_BOOL(qb) == truth_table[line][3]);
+		munit_assert(SIGNAL_NEXT_BOOL(qc) == truth_table[line][4]);
+		munit_assert(SIGNAL_NEXT_BOOL(qd) == truth_table[line][5]);
+		munit_assert(SIGNAL_NEXT_BOOL(max_min) == truth_table[line][6]);
+		munit_assert(SIGNAL_NEXT_BOOL(rco_b) == truth_table[line][7]);
+	}
+
+
+
+	chip_74191_binary_counter_destroy(chip);
+	return MUNIT_OK;
+}
+
 static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *user_data_or_fixture) {
 // TODO: ATM it's not possible to test high impedance output state correctly
 
@@ -263,6 +336,7 @@ MunitTest chip_74xxx_tests[] = {
 	{ "/74145_bcd_decoder", test_74145_bcd_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74154_decoder", test_74154_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74164_shift_register", test_74164_shift_register, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/74191_binary_counter", test_74191_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74244_octal_buffer", test_74244_octal_buffer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

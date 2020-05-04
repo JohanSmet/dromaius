@@ -256,6 +256,73 @@ void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
 	chip->prev_clock = clk;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// 74191 - 4-Bit Synchronous Up/Down Binary Counter
+//
+
+Chip74191BinaryCounter *chip_74191_binary_counter_create(SignalPool *signal_pool, Chip74191Signals signals) {
+
+	Chip74191BinaryCounter *chip = (Chip74191BinaryCounter *) calloc(1, sizeof(Chip74191BinaryCounter));
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(b, 1);
+	SIGNAL_DEFINE(qb, 1);
+	SIGNAL_DEFINE(qa, 1);
+	SIGNAL_DEFINE_BOOL(enable_b, 1, ACTLO_ASSERT);
+	SIGNAL_DEFINE_BOOL(d_u, 1, ACTHI_DEASSERT);
+	SIGNAL_DEFINE(qc, 1);
+	SIGNAL_DEFINE(qd, 1);
+	SIGNAL_DEFINE(gnd, 1);
+	SIGNAL_DEFINE(d, 1);
+	SIGNAL_DEFINE(c, 1);
+	SIGNAL_DEFINE_BOOL(load_b, 1, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(max_min, 1);
+	SIGNAL_DEFINE(rco_b, 1);
+	SIGNAL_DEFINE(clk, 1);
+	SIGNAL_DEFINE(a, 1);
+	SIGNAL_DEFINE(vcc, 1);
+
+	return chip;
+}
+
+void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip) {
+	assert(chip);
+
+	bool clk = SIGNAL_BOOL(clk);
+	bool d_u = SIGNAL_BOOL(d_u);
+	bool rco = true;
+
+	if (ACTLO_ASSERTED(SIGNAL_BOOL(load_b))) {
+		chip->state = (SIGNAL_BOOL(a) << 0) |
+					  (SIGNAL_BOOL(b) << 1) |
+					  (SIGNAL_BOOL(c) << 2) |
+					  (SIGNAL_BOOL(d) << 3);
+	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(enable_b)) && clk && !chip->prev_clock) {
+		// count on the positive clock edge
+		chip->state = (chip->state - d_u + !d_u) & 0xf;
+		chip->max_min = (d_u && chip->state == 0) || (!d_u && chip->state == 0xf);
+	} else if (!clk && chip->prev_clock) {
+		// negative clock edge
+		rco = !chip->max_min;
+	}
+
+	SIGNAL_SET_BOOL(qa, (chip->state & 0b00000001) != 0);
+	SIGNAL_SET_BOOL(qb, (chip->state & 0b00000010) != 0);
+	SIGNAL_SET_BOOL(qc, (chip->state & 0b00000100) != 0);
+	SIGNAL_SET_BOOL(qd, (chip->state & 0b00001000) != 0);
+	SIGNAL_SET_BOOL(max_min, chip->max_min);
+	SIGNAL_SET_BOOL(rco_b, rco);
+
+	// save the clock state
+	chip->prev_clock = clk;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
