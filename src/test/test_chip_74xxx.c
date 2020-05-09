@@ -40,6 +40,101 @@ static MunitResult test_7400_nand(const MunitParameter params[], void *user_data
 	return MUNIT_OK;
 }
 
+static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *user_data_or_fixture) {
+	Chip74107JKFlipFlop *chip = chip_74107_jk_flipflop_create(signal_pool_create(1), (Chip74107Signals) {0});
+
+	// reset both flip-flops
+	SIGNAL_SET_BOOL(clr1_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clr2_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clk1, false);
+	SIGNAL_SET_BOOL(clk2, false);
+	signal_pool_cycle(chip->signal_pool);
+	chip_74107_jk_flipflop_process(chip);
+	munit_assert_false(SIGNAL_NEXT_BOOL(q1));
+	munit_assert_true(SIGNAL_NEXT_BOOL(q1_b));
+	munit_assert_false(SIGNAL_NEXT_BOOL(q2));
+	munit_assert_true(SIGNAL_NEXT_BOOL(q2_b));
+
+	bool truth_table[][4] = {
+		// j      k      q     q_b
+		{false, false, false, true},		// assumes flip-flop was just reset
+		{true,  false, true,  false},
+		{false, false, true,  false},
+		{true , true,  false, true},
+		{true , true,  true,  false},
+		{false, true,  false, true},
+	};
+
+	// test flip-flop 1
+	for (int line = 0; line < sizeof(truth_table) / sizeof(truth_table[0]); ++line) {
+		munit_logf(MUNIT_LOG_INFO, "1: truth_table[%d] - j = %d, k = %d", line, truth_table[line][0], truth_table[line][1]);
+
+		// positive edge
+		SIGNAL_SET_BOOL(clr1_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clk1, true);
+		SIGNAL_SET_BOOL(clk2, false);
+		SIGNAL_SET_BOOL(j1, truth_table[line][0]);
+		SIGNAL_SET_BOOL(k1, truth_table[line][1]);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74107_jk_flipflop_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(q1) == truth_table[line][2]);
+		munit_assert(SIGNAL_NEXT_BOOL(q1_b) == truth_table[line][3]);
+		munit_assert_false(SIGNAL_NEXT_BOOL(q2));
+		munit_assert_true(SIGNAL_NEXT_BOOL(q2_b));
+
+		// negative edge
+		SIGNAL_SET_BOOL(clr1_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clk1, false);
+		SIGNAL_SET_BOOL(clk2, false);
+		SIGNAL_SET_BOOL(j1, truth_table[line][0]);
+		SIGNAL_SET_BOOL(k1, truth_table[line][1]);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74107_jk_flipflop_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(q1) == truth_table[line][2]);
+		munit_assert(SIGNAL_NEXT_BOOL(q1_b) == truth_table[line][3]);
+		munit_assert_false(SIGNAL_NEXT_BOOL(q2));
+		munit_assert_true(SIGNAL_NEXT_BOOL(q2_b));
+	}
+
+	// test flip-flop 2
+	for (int line = 0; line < sizeof(truth_table) / sizeof(truth_table[0]); ++line) {
+		munit_logf(MUNIT_LOG_INFO, "2: truth_table[%d] - j = %d, k = %d", line, truth_table[line][0], truth_table[line][1]);
+
+		// positive edge
+		SIGNAL_SET_BOOL(clr1_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clk1, false);
+		SIGNAL_SET_BOOL(clk2, true);
+		SIGNAL_SET_BOOL(j2, truth_table[line][0]);
+		SIGNAL_SET_BOOL(k2, truth_table[line][1]);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74107_jk_flipflop_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(q2) == truth_table[line][2]);
+		munit_assert(SIGNAL_NEXT_BOOL(q2_b) == truth_table[line][3]);
+		munit_assert_false(SIGNAL_NEXT_BOOL(q1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(q1_b));
+
+		// negative edge
+		SIGNAL_SET_BOOL(clr1_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(clk1, false);
+		SIGNAL_SET_BOOL(clk2, false);
+		SIGNAL_SET_BOOL(j2, truth_table[line][0]);
+		SIGNAL_SET_BOOL(k2, truth_table[line][1]);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74107_jk_flipflop_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(q2) == truth_table[line][2]);
+		munit_assert(SIGNAL_NEXT_BOOL(q2_b) == truth_table[line][3]);
+		munit_assert_false(SIGNAL_NEXT_BOOL(q1));
+		munit_assert_true(SIGNAL_NEXT_BOOL(q1_b));
+	}
+
+	chip_74107_jk_flipflop_destroy(chip);
+	return MUNIT_OK;
+}
+
 static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *user_data_or_fixture) {
 	Chip74145BcdDecoder *chip = chip_74145_bcd_decoder_create(signal_pool_create(1), (Chip74145Signals) {0});
 
@@ -333,6 +428,7 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 
 MunitTest chip_74xxx_tests[] = {
 	{ "/7400_nand", test_7400_nand, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/74107_jk_flipflop", test_74107_jk_flipflop, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74145_bcd_decoder", test_74145_bcd_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74154_decoder", test_74154_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74164_shift_register", test_74164_shift_register, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },

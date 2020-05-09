@@ -53,6 +53,81 @@ void chip_7400_nand_process(Chip7400Nand *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 74107 - Dual J-K Flip-Flops with clear
+//
+
+Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(SignalPool *signal_pool, Chip74107Signals signals) {
+	Chip74107JKFlipFlop *chip = (Chip74107JKFlipFlop *) calloc(1, sizeof(Chip74107JKFlipFlop));
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+
+	SIGNAL_DEFINE(j1, 1);
+	SIGNAL_DEFINE(q1_b, 1);
+	SIGNAL_DEFINE(q1, 1);
+	SIGNAL_DEFINE(k1, 1);
+	SIGNAL_DEFINE(q2, 1);
+	SIGNAL_DEFINE(q2_b, 1);
+	SIGNAL_DEFINE_BOOL(gnd, 1, false);
+	SIGNAL_DEFINE(j2, 1);
+	SIGNAL_DEFINE(clk2, 1);
+	SIGNAL_DEFINE_BOOL(clr2_b, 1, true);
+	SIGNAL_DEFINE(k2, 1);
+	SIGNAL_DEFINE(clk1, 1);
+	SIGNAL_DEFINE_BOOL(clr1_b, 1, true);
+	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+
+	return chip;
+}
+
+void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip) {
+	assert(chip);
+
+	// flip-flop 1
+	bool clk1 = SIGNAL_BOOL(clk1);
+
+	if (ACTLO_ASSERTED(SIGNAL_BOOL(clr1_b))) {
+		chip->q1 = false;
+	} else if (clk1 && !chip->prev_clk1) {
+		if (SIGNAL_BOOL(j1) && SIGNAL_BOOL(k1)) {
+			chip->q1 = !chip->q1;
+		} else if (SIGNAL_BOOL(j1) || SIGNAL_BOOL(k1)) {
+			chip->q1 = SIGNAL_BOOL(j1);
+		}
+	}
+
+	SIGNAL_SET_BOOL(q1, chip->q1);
+	SIGNAL_SET_BOOL(q1_b, !chip->q1);
+	chip->prev_clk1 = clk1;
+
+	// flip-flop 2
+	bool clk2 = SIGNAL_BOOL(clk2);
+
+	if (ACTLO_ASSERTED(SIGNAL_BOOL(clr2_b))) {
+		chip->q2 = false;
+	} else if (clk2 && !chip->prev_clk2) {
+		if (SIGNAL_BOOL(j2) && SIGNAL_BOOL(k2)) {
+			chip->q2 = !chip->q2;
+		} else if (SIGNAL_BOOL(j2) || SIGNAL_BOOL(k2)) {
+			chip->q2 = SIGNAL_BOOL(j2);
+		}
+	}
+
+	SIGNAL_SET_BOOL(q2, chip->q2);
+	SIGNAL_SET_BOOL(q2_b, !chip->q2);
+	chip->prev_clk2 = clk2;
+
+	SIGNAL_SET_BOOL(q2, chip->q2);
+	SIGNAL_SET_BOOL(q2_b, !chip->q2);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74145 - BCD-to-Decimal Decoder/driver
 //
 

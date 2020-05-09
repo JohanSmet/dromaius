@@ -35,6 +35,34 @@ typedef struct Chip7400Nand {
 	Chip7400NandSignals signals;
 } Chip7400Nand;
 
+// types - 74107
+typedef struct Chip74107Signals {
+	Signal		j1;			// pin 1
+	Signal		q1_b;		// pin 2
+	Signal		q1;			// pin 3
+	Signal		k1;			// pin 4
+	Signal		q2;			// pin 5
+	Signal		q2_b;		// pin 6
+	Signal		gnd;		// pin 7
+	Signal		j2;			// pin 8
+	Signal		clk2;		// pin 9
+	Signal		clr2_b;		// pin 10
+	Signal		k2;			// pin 11
+	Signal		clk1;		// pin 12
+	Signal		clr1_b;		// pin 13
+	Signal		vcc;		// pin 14
+} Chip74107Signals;
+
+typedef struct Chip74107JKFlipFlop {
+	SignalPool *		signal_pool;
+	Chip74107Signals	signals;
+
+	bool				prev_clk1;
+	bool				prev_clk2;
+	bool				q1;
+	bool				q2;
+} Chip74107JKFlipFlop;
+
 // types - 74145
 typedef struct Chip74145Signals {
 	Signal		y0_b;		// pin 1
@@ -181,6 +209,10 @@ typedef struct Chip74244OctalBuffer {
 Chip7400Nand *chip_7400_nand_create(SignalPool *signal_pool, Chip7400NandSignals signals);
 void chip_7400_nand_destroy(Chip7400Nand *chip);
 void chip_7400_nand_process(Chip7400Nand *chip);
+
+Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(SignalPool *signal_pool, Chip74107Signals signals);
+void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip);
+void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip);
 
 Chip74145BcdDecoder *chip_74145_bcd_decoder_create(SignalPool *signal_pool, Chip74145Signals signals);
 void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip);
