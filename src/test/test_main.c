@@ -109,7 +109,7 @@ static MunitSuite extern_suites[] = {
 
 static const MunitSuite suite = {
 	"",
-	NULL,		// tests 
+	NULL,		// tests
 	extern_suites,
 	1,			// iterations,
 	MUNIT_SUITE_OPTION_NONE

@@ -17,7 +17,7 @@ MunitResult test_printf(const MunitParameter params[], void* user_data_or_fixtur
     arr_printf(test_string, "Hello World");
     munit_assert_string_equal(test_string, "Hello World");
 
-    arrfree(test_string); 
+    arrfree(test_string);
 
     return MUNIT_OK;
 }

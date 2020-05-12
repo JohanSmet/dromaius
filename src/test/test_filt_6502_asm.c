@@ -17,16 +17,16 @@ MunitResult test_format(const MunitParameter params[], void* user_data_or_fixtur
 		OP_6502_STA_ABSX, 0x03, 0x60,	// sta $6003,x (absolute, x indexed)
 		OP_6502_STA_ABSY, 0x03, 0x60,	// sta $6003,y (absolute, y indexed)
 		OP_6502_JMP_IND,  0xfc, 0xff,	// jmp ($fffc)
-		OP_6502_EOR_INDX, 0x71,			// eor ($71,x) 
+		OP_6502_EOR_INDX, 0x71,			// eor ($71,x)
 		OP_6502_ADC_INDY, 0x72,			// adc ($72),y
-		OP_6502_BCS,      0x15,			// bcs $15 
+		OP_6502_BCS,      0x15,			// bcs $15
 		OP_6502_ROR_ACC,				// ror (accumulator)
 		OP_6502_BRK						// brk (implied)
 	};
 
-	size_t index = 0;	
+	size_t index = 0;
 	char *output = NULL;
-	
+
 	// immediate operand
 	index += filt_6502_asm_line(TEST_BINARY, sizeof(TEST_BINARY), index, 0x8000, &output);
 	munit_assert_size(index, ==, 2);
@@ -34,7 +34,7 @@ MunitResult test_format(const MunitParameter params[], void* user_data_or_fixtur
 	munit_assert_string_equal(output, "8000: lda #$10");
 	arrsetlen(output, 0);
 
-	// zero page 
+	// zero page
 	index += filt_6502_asm_line(TEST_BINARY, sizeof(TEST_BINARY), index, 0x8000, &output);
 	munit_assert_size(index, ==, 4);
 	munit_assert_not_null(output);
@@ -61,7 +61,7 @@ MunitResult test_format(const MunitParameter params[], void* user_data_or_fixtur
 	munit_assert_not_null(output);
 	munit_assert_string_equal(output, "8008: jmp $0801");
 	arrsetlen(output, 0);
-	
+
 	// absolute, x
 	index += filt_6502_asm_line(TEST_BINARY, sizeof(TEST_BINARY), index, 0x8000, &output);
 	munit_assert_size(index, ==, 14);
@@ -110,7 +110,7 @@ MunitResult test_format(const MunitParameter params[], void* user_data_or_fixtur
 	munit_assert_not_null(output);
 	munit_assert_string_equal(output, "801a: ror");
 	arrsetlen(output, 0);
-	
+
 	// implied addressing
 	index += filt_6502_asm_line(TEST_BINARY, sizeof(TEST_BINARY), index, 0x8000, &output);
 	munit_assert_size(index, ==, 28);
@@ -134,7 +134,7 @@ MunitResult test_incomplete(const MunitParameter params[], void* user_data_or_fi
 	munit_assert_size(index, >, 2);
 	munit_assert_not_null(output);
 	munit_assert_string_equal(output, "8000: sta (opcode incomplete)");
-	
+
 	return MUNIT_OK;
 }
 
@@ -149,9 +149,9 @@ MunitResult test_count(const MunitParameter params[], void* user_data_or_fixture
 		OP_6502_STA_ABSX, 0x03, 0x60,	// sta $6003,x (absolute, x indexed)
 		OP_6502_STA_ABSY, 0x03, 0x60,	// sta $6003,y (absolute, y indexed)
 		OP_6502_JMP_IND,  0xfc, 0xff,	// jmp ($fffc)
-		OP_6502_EOR_INDX, 0x71,			// eor ($71,x) 
+		OP_6502_EOR_INDX, 0x71,			// eor ($71,x)
 		OP_6502_ADC_INDY, 0x72,			// adc ($72),y
-		OP_6502_BCS,      0x15,			// bcs $15 
+		OP_6502_BCS,      0x15,			// bcs $15
 		OP_6502_ROR_ACC,				// ror (accumulator)
 		OP_6502_BRK						// brk (implied)
 	};

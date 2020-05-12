@@ -13,7 +13,7 @@ static void *rom_8d16a_setup(const MunitParameter params[], void *user_data) {
 	for (uint32_t i = 0; i <= 0xffff; ++i) {
 		rom->data_array[i] = i & 0xff;
 	}
-	return rom; 
+	return rom;
 }
 
 static void rom_8d16a_teardown(void *fixture) {
@@ -43,7 +43,7 @@ static MunitResult test_read(const MunitParameter params[], void *user_data_or_f
 static MunitResult test_ce(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Rom8d16a *rom = (Rom8d16a *) user_data_or_fixture;
-	
+
 	SIGNAL_SET_BOOL(ce_b, ACTLO_DEASSERT);
 	SIGNAL_SET_UINT16(bus_address, 0x1635);
 	signal_pool_cycle(rom->signal_pool);
@@ -57,7 +57,7 @@ static MunitResult test_ce(const MunitParameter params[], void *user_data_or_fix
 	rom_8d16a_process(rom);
 	signal_pool_cycle(rom->signal_pool);
 	munit_assert_uint8(SIGNAL_UINT8(bus_data), ==, 0x35);
-	
+
 	SIGNAL_SET_BOOL(ce_b, ACTLO_DEASSERT);
 	SIGNAL_SET_UINT16(bus_address, 0x12AF);
 	signal_pool_cycle(rom->signal_pool);

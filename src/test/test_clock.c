@@ -13,7 +13,7 @@ static void clock_teardown(void *fixture) {
 }
 
 MunitResult test_cycle_count(const MunitParameter params[], void* user_data_or_fixture) {
-	
+
 	Clock *clock = (Clock *) user_data_or_fixture;
 
 	munit_assert_int64(clock->cycle_count, ==, 0);
@@ -34,13 +34,13 @@ MunitResult test_cycle_count(const MunitParameter params[], void* user_data_or_f
 }
 
 MunitResult test_frequency(const MunitParameter params[], void* user_data_or_fixture) {
-	
+
 	Clock *clock = (Clock *) user_data_or_fixture;
 
 	clock_set_frequency(clock, 500);			// 500 Hz => clock changes every millisecond
 	munit_assert_uint32(clock->conf_frequency, ==, 500);
 	munit_assert_uint64(clock->conf_half_period_ns, ==, 1000000);
-	
+
 	clock_set_frequency(clock, 1000000);		// 1 MHz
 	munit_assert_uint32(clock->conf_frequency, ==, 1000000);
 	munit_assert_uint64(clock->conf_half_period_ns, ==, 500);
