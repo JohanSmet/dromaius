@@ -118,6 +118,13 @@ void signal_pool_cycle_domain(SignalPool *pool, int8_t domain_id) {
 	memcpy(domain->signals_next, domain->signals_default, arrlenu(domain->signals_default));
 }
 
+void signal_pool_cycle_domain_no_reset(SignalPool *pool, int8_t domain_id) {
+	SignalDomain *domain = &pool->domains[domain_id];
+
+	assert(arrlenu(domain->signals_curr) == arrlenu(domain->signals_next));
+	memcpy(domain->signals_curr, domain->signals_next, arrlenu(domain->signals_next));
+}
+
 Signal signal_create(SignalPool *pool, uint32_t size) {
 	assert(pool);
 	assert(size > 0);

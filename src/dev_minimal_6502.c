@@ -136,61 +136,69 @@ void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	free(device);
 }
 
+static inline void process_glue_logic(DevMinimal6502 *device) {
+
+	// >> ram logic
+	//  - ce_b: assert when top bit of address isn't set (copy of a15)
+	//	- oe_b: assert when cpu_rw is high
+	//	- we_b: assert when cpu_rw is low and clock is low
+	bool next_rw = SIGNAL_NEXT_BOOL(cpu_rw);
+	SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
+	SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_NEXT_BOOL(clock));
+
+	// >> rom logic
+	//  - ce_b: assert when the top 2 bits of the address is set
+	SIGNAL_SET_BOOL(rom_ce_b, !(SIGNAL_NEXT_BOOL(a15) & SIGNAL_NEXT_BOOL(a14)));
+
+	// >> pia logic
+	//  - no peripheral connected, irq lines not connected
+	//	- cs0: assert when top bit of address is set (copy of a15)
+	//	- cs1: always asserted
+	//  - cs2_b: assert when bits 4-14 are zero
+	uint16_t bus_address = SIGNAL_NEXT_UINT16(bus_address);
+	SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
+}
+
 void dev_minimal_6502_process(DevMinimal6502 *device) {
 	assert(device);
 
 	// clock tick
 	clock_process(device->clock);
 
-	// run process twice, once at the time of the clock edge and once slightly later (after the address hold time)
-	for (int time = 0; time < 2; ++time) {
+	// run all chips on the clock cycle
+	signal_pool_cycle(device->signal_pool);
 
-		// run all the combinatorial logic just before beginning the next cycle, as these values should be available immediatly
+	// >> cpu
+	device->cpu->process(device->cpu, false);
 
-		// >> ram logic
-		//  - ce_b: assert when top bit of address isn't set (copy of a15)
-		//	- oe_b: assert when cpu_rw is high
-		//	- we_b: assert when cpu_rw is low and clock is low
-		bool next_rw = SIGNAL_NEXT_BOOL(cpu_rw);
-		SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
-		SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_NEXT_BOOL(clock));
+	// >> ram
+	device->ram->process(device->ram);
 
-		// >> rom logic
-		//  - ce_b: assert when the top 2 bits of the address is set
-		SIGNAL_SET_BOOL(rom_ce_b, !(SIGNAL_NEXT_BOOL(a15) & SIGNAL_NEXT_BOOL(a14)));
+	// >> rom
+	device->rom->process(device->rom);
 
-		// >> pia logic
-		//  - no peripheral connected, irq lines not connected
-		//	- cs0: assert when top bit of address is set (copy of a15)
-		//	- cs1: always asserted
-		//  - cs2_b: assert when bits 4-14 are zero
-		uint16_t bus_address = SIGNAL_NEXT_UINT16(bus_address);
-		SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
+	// >> pia
+	chip_6520_process(device->pia);
 
-		// start the next cycle
-		signal_pool_cycle(device->signal_pool);
+	// >> lcd
+	chip_hd44780_process(device->lcd);
 
-		// cpu
-		device->cpu->process(device->cpu, time & 1);
+	// >> keypad
+	input_keypad_process(device->keypad);
 
-		// ram
-		device->ram->process(device->ram);
+	// >> glue logic
+	process_glue_logic(device);
 
-		// rom
-		device->rom->process(device->rom);
+	// run the cpu again on the same clock cycle - after the address hold time
+	// make sure the clock signal remains the same
+	clock_refresh(device->clock);
+	signal_pool_cycle_domain_no_reset(device->signal_pool, 0);
 
-		// pia
-		chip_6520_process(device->pia);
+	// >> cpu
+	device->cpu->process(device->cpu, true);
 
-		// lcd
-		chip_hd44780_process(device->lcd);
-
-		// keypad
-		input_keypad_process(device->keypad);
-
-		// make the clock output it's signal again
-		clock_refresh(device->clock);
-	}
+	// >> glue logic
+	process_glue_logic(device);
 }
 
 void dev_minimal_6502_reset(DevMinimal6502 *device) {

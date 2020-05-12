@@ -422,6 +422,77 @@ void dev_commodore_pet_fake_display(DevCommodorePet *device) {
 	}
 }
 
+static inline void process_glue_logic(DevCommodorePet *device, bool video_on) {
+
+	// >> cpu & memory expansion
+	chip_74244_octal_buffer_process(device->c3);
+	chip_74244_octal_buffer_process(device->b3);
+	chip_74154_decoder_process(device->d2);
+
+	bool ba6 = SIGNAL_NEXT_BOOL(ba6);
+	bool ba8 = SIGNAL_NEXT_BOOL(ba8);
+	bool ba9 = SIGNAL_NEXT_BOOL(ba9);
+	bool ba10 = SIGNAL_NEXT_BOOL(ba10);
+	bool ba11 = SIGNAL_NEXT_BOOL(ba11);
+	bool ba15 = SIGNAL_NEXT_BOOL(ba15);
+	bool sel8_b = SIGNAL_NEXT_BOOL(sel8_b);
+	bool rw   = SIGNAL_NEXT_BOOL(cpu_rw);
+
+	// B2 (1,2,4,5,6)
+	bool addr_x8xx = !(ba8 | ba9 | ba10 | !ba11);
+	SIGNAL_SET_BOOL(x8xx, addr_x8xx);
+
+	// A4 (4,5,6)
+	bool addr_88xx_b = NAND(!sel8_b, addr_x8xx);
+
+	// A4 (1,2,3)
+	bool rom_addr_b = NAND(ba15, sel8_b);
+
+	// A5 (3,4,5,6)
+	bool ram_read_b = !(rom_addr_b && addr_88xx_b && rw);
+	SIGNAL_SET_BOOL(ram_read_b, ram_read_b);
+	SIGNAL_SET_BOOL(ram_write_b, !ram_read_b);
+
+	chip_74244_octal_buffer_process(device->e9);
+	chip_74244_octal_buffer_process(device->e10);
+
+	// >> ram logic - simplified from schematic because were not simulating dram (4116 chips) yet.
+	//  - ce_b: assert when top bit of address isn't set (copy of ba15)
+	//	- oe_b: assert when cpu_rw is high
+	//	- we_b: assert when cpu_rw is low and clock is low
+	bool next_rw = SIGNAL_NEXT_BOOL(cpu_rw);
+	SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
+	SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_NEXT_BOOL(clk1));
+
+	// >> video-ram logic - simplified
+	SIGNAL_SET_BOOL(vram_oe_b, !next_rw);
+
+	// >> rom logic: roms are enabled by the selx_b signals
+	//	- rom-E (editor) is special because it's only a 2k ram and it uses address line 11 as an extra enable to only
+	//	  respond in the lower 2k
+	SIGNAL_SET_BOOL(rome_ce_b, SIGNAL_NEXT_BOOL(sele_b) || ba11);
+
+	// >> pia logic
+	bool cs1 = addr_x8xx && ba6;
+	SIGNAL_SET_BOOL(cs1, cs1);
+
+	// >> video logic
+	SIGNAL_SET_BOOL(video_on, video_on);
+
+	// >> irq logic: the 2001N wire-or's the irq lines of the chips and connects them to the cpu
+	//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
+	//		-> or the together explicitly
+	bool irq_b = signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqa_b) &&
+				 signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqb_b) &&
+				 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqa_b) &&
+				 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqb_b) &&
+				 signal_read_next_bool(device->signal_pool, device->via->signals.irq_b);
+	SIGNAL_SET_BOOL(irq_b, irq_b);
+
+	// >> keyboard logic
+	chip_74145_bcd_decoder_process(device->c9);
+}
+
 void dev_commodore_pet_process(DevCommodorePet *device) {
 	assert(device);
 
@@ -437,113 +508,53 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 		video_on = false;
 	}
 
-	// run process twice, once at the time of the clock edge and once slightly later (after the address hold time)
-	for (int time = 0; time < 2; ++time) {
+	// run all chips on the clock cycle
+	signal_pool_cycle(device->signal_pool);
 
-		// start the next cycle
-		signal_pool_cycle(device->signal_pool);
+	// cpu
+	device->cpu->process(device->cpu, false);
 
-		// cpu
-		device->cpu->process(device->cpu, time & 1);
+	// ram
+	device->ram->process(device->ram);
 
-		// ram
-		device->ram->process(device->ram);
+	// video ram
+	device->vram->process(device->vram);
 
-		// video ram
-		device->vram->process(device->vram);
-
-		// roms
-		for (int i = 0; device->roms[i] != NULL; ++i) {
-			device->roms[i]->process(device->roms[i]);
-		}
-
-		// pia-1 / IEEE-488
-		chip_6520_process(device->pia_1);
-
-		// pia-2 / keyboard
-		chip_6520_process(device->pia_2);
-
-		// via
-		chip_6522_process(device->via);
-
-		// keyboard
-		input_keypad_process(device->keypad);
-
-		// make the clock output its signal again
-		clock_refresh(device->clock);
-
-		// run all the combinatorial logic just before beginning the next cycle, as these values should be available immediatly
-		//	NOTE: reading/writing into the same buffer - order matters, mind the dependencies
-
-		// >> cpu & memory expansion
-		chip_74244_octal_buffer_process(device->c3);
-		chip_74244_octal_buffer_process(device->b3);
-		chip_74154_decoder_process(device->d2);
-
-		bool ba6 = SIGNAL_NEXT_BOOL(ba6);
-		bool ba8 = SIGNAL_NEXT_BOOL(ba8);
-		bool ba9 = SIGNAL_NEXT_BOOL(ba9);
-		bool ba10 = SIGNAL_NEXT_BOOL(ba10);
-		bool ba11 = SIGNAL_NEXT_BOOL(ba11);
-		bool ba15 = SIGNAL_NEXT_BOOL(ba15);
-		bool sel8_b = SIGNAL_NEXT_BOOL(sel8_b);
-		bool rw   = SIGNAL_NEXT_BOOL(cpu_rw);
-
-		// B2 (1,2,4,5,6)
-		bool addr_x8xx = !(ba8 | ba9 | ba10 | !ba11);
-		SIGNAL_SET_BOOL(x8xx, addr_x8xx);
-
-		// A4 (4,5,6)
-		bool addr_88xx_b = NAND(!sel8_b, addr_x8xx);
-
-		// A4 (1,2,3)
-		bool rom_addr_b = NAND(ba15, sel8_b);
-
-		// A5 (3,4,5,6)
-		bool ram_read_b = !(rom_addr_b && addr_88xx_b && rw);
-		SIGNAL_SET_BOOL(ram_read_b, ram_read_b);
-		SIGNAL_SET_BOOL(ram_write_b, !ram_read_b);
-
-		chip_74244_octal_buffer_process(device->e9);
-		chip_74244_octal_buffer_process(device->e10);
-
-		// >> ram logic - simplified from schematic because were not simulating dram (4116 chips) yet.
-		//  - ce_b: assert when top bit of address isn't set (copy of ba15)
-		//	- oe_b: assert when cpu_rw is high
-		//	- we_b: assert when cpu_rw is low and clock is low
-		bool next_rw = SIGNAL_NEXT_BOOL(cpu_rw);
-		SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
-		SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_NEXT_BOOL(clk1));
-
-		// >> video-ram logic - simplified
-		SIGNAL_SET_BOOL(vram_oe_b, !next_rw);
-
-		// >> rom logic: roms are enabled by the selx_b signals
-		//	- rom-E (editor) is special because it's only a 2k ram and it uses address line 11 as an extra enable to only
-		//	  respond in the lower 2k
-		SIGNAL_SET_BOOL(rome_ce_b, SIGNAL_NEXT_BOOL(sele_b) || ba11);
-
-		// >> pia logic
-		bool cs1 = addr_x8xx && ba6;
-		SIGNAL_SET_BOOL(cs1, cs1);
-
-		// >> video logic
-		SIGNAL_SET_BOOL(video_on, video_on);
-
-		// >> irq logic: the 2001N wire-or's the irq lines of the chips and connects them to the cpu
-		//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
-		//		-> or the together explicitly
-		bool irq_b = signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqa_b) &&
-					 signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqb_b) &&
-					 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqa_b) &&
-					 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqb_b) &&
-					 signal_read_next_bool(device->signal_pool, device->via->signals.irq_b);
-		SIGNAL_SET_BOOL(irq_b, irq_b);
-
-		// >> keyboard logic
-		chip_74145_bcd_decoder_process(device->c9);
+	// roms
+	for (int i = 0; device->roms[i] != NULL; ++i) {
+		device->roms[i]->process(device->roms[i]);
 	}
 
+	// pia-1 / IEEE-488
+	chip_6520_process(device->pia_1);
+
+	// pia-2 / keyboard
+	chip_6520_process(device->pia_2);
+
+	// via
+	chip_6522_process(device->via);
+
+	// keyboard
+	input_keypad_process(device->keypad);
+
+	// make the clock output its signal again
+	clock_refresh(device->clock);
+
+	// >> glue logic
+	process_glue_logic(device, video_on);
+
+	// run the cpu again on the same clock cycle - after the address hold time
+	// make sure the clock signal remains the same
+	clock_refresh(device->clock);
+	signal_pool_cycle_domain_no_reset(device->signal_pool, 0);
+
+	// >> cpu
+	device->cpu->process(device->cpu, true);
+
+	// >> glue logic
+	process_glue_logic(device, video_on);
+
+	// video out
 	if ((device->vblank_counter & 1) == 1) {
 		dev_commodore_pet_fake_display(device);
 	}

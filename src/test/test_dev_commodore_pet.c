@@ -180,7 +180,6 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 
 		dev_commodore_pet_process(device);
 		munit_assert_true(SIGNAL_NEXT_BOOL(clk1));
-		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, addr & 0xff);
 
 		dev_commodore_pet_process(device);
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, addr & 0xff);
@@ -215,7 +214,6 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 
 		dev_commodore_pet_process(device);
 		munit_assert_true(SIGNAL_NEXT_BOOL(clk1));
-		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, addr & 0xff);
 
 		dev_commodore_pet_process(device);
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, addr & 0xff);
@@ -240,7 +238,6 @@ MunitResult test_rom(const MunitParameter params[], void *user_data_or_fixture) 
 
 			dev_commodore_pet_process(device);
 			munit_assert_true(SIGNAL_NEXT_BOOL(clk1));
-			//munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, device->roms[rom]->data_array[offset]);
 
 			dev_commodore_pet_process(device);
 			munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, device->roms[rom]->data_array[offset]);

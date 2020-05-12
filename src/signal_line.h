@@ -40,9 +40,10 @@ extern const uint64_t lut_bit_to_byte[256];
 SignalPool *signal_pool_create(size_t num_domains);
 void signal_pool_destroy(SignalPool *pool);
 void signal_pool_current_domain(SignalPool *pool, int8_t domain);
+
 void signal_pool_cycle(SignalPool *pool);
 void signal_pool_cycle_domain(SignalPool *pool, int8_t domain);
-
+void signal_pool_cycle_domain_no_reset(SignalPool *pool, int8_t domain);
 
 Signal signal_create(SignalPool *pool, uint32_t size);
 
