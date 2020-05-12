@@ -147,12 +147,12 @@ static inline uint8_t lcd_read_data_4b(ChipHd44780 *lcd) {
 }
 
 static void *chip_hd44780_setup(const MunitParameter params[], void *user_data) {
-	ChipHd44780 *lcd = chip_hd44780_create(NULL, signal_pool_create(), (ChipHd44780Signals) {0});
+	ChipHd44780 *lcd = chip_hd44780_create(NULL, signal_pool_create(1), (ChipHd44780Signals) {0});
 	return lcd;
 }
 
 static void *chip_hd44780_setup_4b(const MunitParameter params[], void *user_data) {
-	ChipHd44780 *lcd = chip_hd44780_create(NULL, signal_pool_create(), (ChipHd44780Signals) {0});
+	ChipHd44780 *lcd = chip_hd44780_create(NULL, signal_pool_create(1), (ChipHd44780Signals) {0});
 
 	// switch LCD to 4-bit interface mode
 	lcd_write_cmd_8b(lcd, 0b00100000);

@@ -23,7 +23,7 @@ static inline void run_cycle(InputKeypad *keypad) {
 
 MunitResult test_keypad_4x4(const MunitParameter params[], void *user_data_or_fixture) {
 
-	InputKeypad *keypad = input_keypad_create(signal_pool_create(), true, 4, 4, (InputKeypadSignals) {0});
+	InputKeypad *keypad = input_keypad_create(signal_pool_create(1), true, 4, 4, (InputKeypadSignals) {0});
 
 	// no keys pressed
 	CHECK_ROW(0b0001, 0b0000);
@@ -52,7 +52,7 @@ MunitResult test_keypad_4x4(const MunitParameter params[], void *user_data_or_fi
 
 MunitResult test_keypad_10x8(const MunitParameter params[], void *user_data_or_fixture) {
 
-	InputKeypad *keypad = input_keypad_create(signal_pool_create(), false, 10, 8, (InputKeypadSignals) {0});
+	InputKeypad *keypad = input_keypad_create(signal_pool_create(1), false, 10, 8, (InputKeypadSignals) {0});
 	signal_default_uint8(keypad->signal_pool, SIGNAL(cols), 0xff);
 
 	// no keys pressed

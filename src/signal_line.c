@@ -73,39 +73,62 @@ const uint64_t lut_bit_to_byte[256] = {
 	BITS_TO_BYTE(255ul)
 };
 
-SignalPool *signal_pool_create(void) {
-	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool));
+SignalPool *signal_pool_create(size_t num_domains) {
+	assert(num_domains > 0);
+	assert(num_domains < 128);
+	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool) + (sizeof(SignalDomain) * num_domains));
+	pool->num_domains = (int8_t) num_domains;
 	return pool;
 }
 
 void signal_pool_destroy(SignalPool *pool) {
 	assert(pool);
 
-	arrfree(pool->signals_curr);
-	arrfree(pool->signals_next);
-	arrfree(pool->signals_default);
+	for (int d = 0; d < pool->num_domains; ++d) {
+		arrfree(pool->domains[d].signals_curr);
+		arrfree(pool->domains[d].signals_next);
+		arrfree(pool->domains[d].signals_default);
+	}
 	free(pool);
+}
+
+void signal_pool_current_domain(SignalPool *pool, int8_t domain) {
+	assert(pool);
+	assert(domain >= 0);
+	assert(domain < pool->num_domains);
+
+	pool->default_domain = domain;
 }
 
 void signal_pool_cycle(SignalPool *pool) {
 	assert(pool);
-	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
-	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
 
-	memcpy(pool->signals_curr, pool->signals_next, arrlenu(pool->signals_next));
-	memcpy(pool->signals_next, pool->signals_default, arrlenu(pool->signals_default));
+	for (int8_t d = 0; d < pool->num_domains; ++d) {
+		signal_pool_cycle_domain(pool, d);
+	}
+}
+
+void signal_pool_cycle_domain(SignalPool *pool, int8_t domain_id) {
+	SignalDomain *domain = &pool->domains[domain_id];
+
+	assert(arrlenu(domain->signals_curr) == arrlenu(domain->signals_next));
+	assert(arrlenu(domain->signals_default) == arrlenu(domain->signals_next));
+
+	memcpy(domain->signals_curr, domain->signals_next, arrlenu(domain->signals_next));
+	memcpy(domain->signals_next, domain->signals_default, arrlenu(domain->signals_default));
 }
 
 Signal signal_create(SignalPool *pool, uint32_t size) {
 	assert(pool);
 	assert(size > 0);
 
-	Signal result = {(uint32_t) arrlenu(pool->signals_curr), size};
+	SignalDomain *domain = &pool->domains[pool->default_domain];
+	Signal result = {(uint32_t) arrlenu(domain->signals_curr), size, pool->default_domain};
 
 	for (uint32_t i = 0; i < size; ++i) {
-		arrpush(pool->signals_curr, false);
-		arrpush(pool->signals_next, false);
-		arrpush(pool->signals_default, false);
+		arrpush(domain->signals_curr, false);
+		arrpush(domain->signals_next, false);
+		arrpush(domain->signals_default, false);
 	}
 
 	return result;
@@ -115,19 +138,21 @@ void signal_default_bool(SignalPool *pool, Signal signal, bool value) {
 	assert(pool);
 	assert(signal.count == 1);
 
-	pool->signals_default[signal.start] = value;
-	pool->signals_curr[signal.start] = value;
-	pool->signals_next[signal.start] = value;
+	SignalDomain *domain = &pool->domains[signal.domain];
+	domain->signals_default[signal.start] = value;
+	domain->signals_curr[signal.start] = value;
+	domain->signals_next[signal.start] = value;
 }
 
 void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value) {
 	assert(pool);
 	assert(signal.count <= 8);
 
+	SignalDomain *domain = &pool->domains[signal.domain];
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		pool->signals_default[signal.start + i] = value & 1;
-		pool->signals_curr[signal.start + i] = value & 1;
-		pool->signals_next[signal.start + i] = value & 1;
+		domain->signals_default[signal.start + i] = value & 1;
+		domain->signals_curr[signal.start + i] = value & 1;
+		domain->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}
 }
@@ -136,10 +161,11 @@ void signal_default_uint16(SignalPool *pool, Signal signal, uint16_t value) {
 	assert(pool);
 	assert(signal.count <= 16);
 
+	SignalDomain *domain = &pool->domains[signal.domain];
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		pool->signals_default[signal.start + i] = value & 1;
-		pool->signals_curr[signal.start + i] = value & 1;
-		pool->signals_next[signal.start + i] = value & 1;
+		domain->signals_default[signal.start + i] = value & 1;
+		domain->signals_curr[signal.start + i] = value & 1;
+		domain->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}
 }

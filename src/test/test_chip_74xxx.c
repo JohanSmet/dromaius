@@ -15,7 +15,7 @@ static MunitResult test_7400_nand(const MunitParameter params[], void *user_data
 		true,  true,  false
 	};
 
-	Chip7400Nand *chip = chip_7400_nand_create(signal_pool_create(), (Chip7400NandSignals) {0});
+	Chip7400Nand *chip = chip_7400_nand_create(signal_pool_create(1), (Chip7400NandSignals) {0});
 
 	for (int i = 0; i < 4; ++i) {
 		SIGNAL_SET_BOOL(a1, truth_table[(i+0)%4][0]);
@@ -41,7 +41,7 @@ static MunitResult test_7400_nand(const MunitParameter params[], void *user_data
 }
 
 static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip74145BcdDecoder *chip = chip_74145_bcd_decoder_create(signal_pool_create(), (Chip74145Signals) {0});
+	Chip74145BcdDecoder *chip = chip_74145_bcd_decoder_create(signal_pool_create(1), (Chip74145Signals) {0});
 
 	for (int input = 0; input < 16; ++input) {
 		SIGNAL_SET_BOOL(a, BIT_IS_SET(input, 0));
@@ -72,7 +72,7 @@ static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *u
 static MunitResult test_74154_decoder(const MunitParameter params[], void *user_data_or_fixture) {
 // TODO: ATM it's not possible to test high impedance output state correctly
 
-	Chip74154Decoder *chip = chip_74154_decoder_create(signal_pool_create(), (Chip74154Signals) {0});
+	Chip74154Decoder *chip = chip_74154_decoder_create(signal_pool_create(1), (Chip74154Signals) {0});
 
 	bool truth_table[4][2] = {
 		false, false,
@@ -128,7 +128,7 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 		true,  true
 	};
 
-	Chip74244OctalBuffer *chip = chip_74244_octal_buffer_create(signal_pool_create(), (Chip74244Signals) {0});
+	Chip74244OctalBuffer *chip = chip_74244_octal_buffer_create(signal_pool_create(1), (Chip74244Signals) {0});
 
 	for (int i = 0; i < 4; ++i) {
 

@@ -33,7 +33,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->destroy = (DEVICE_DESTROY) dev_minimal_6502_destroy;
 
 	// signals
-	device->signal_pool = signal_pool_create();
+	device->signal_pool = signal_pool_create(1);
 
 	SIGNAL_DEFINE(bus_address, 16);
 	SIGNAL_DEFINE(bus_data, 8);

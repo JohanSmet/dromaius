@@ -19,7 +19,7 @@
 	PIA_CYCLE_END
 
 static void *chip_6520_setup(const MunitParameter params[], void *user_data) {
-	Chip6520 *pia = chip_6520_create(signal_pool_create(), (Chip6520Signals) {0});
+	Chip6520 *pia = chip_6520_create(signal_pool_create(1), (Chip6520Signals) {0});
 
 	SIGNAL_SET_BOOL(enable, false);
 	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);

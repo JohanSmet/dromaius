@@ -67,7 +67,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
 
 	// signals
-	device->signal_pool = signal_pool_create();
+	device->signal_pool = signal_pool_create(1);
 
 	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_DEASSERT);
 	SIGNAL_DEFINE_BOOL(irq_b, 1, ACTLO_DEASSERT);

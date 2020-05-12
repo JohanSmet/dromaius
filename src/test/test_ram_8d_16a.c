@@ -7,7 +7,7 @@
 #define SIGNAL_COLLECTION	ram->signals
 
 static void *ram_8d16a_setup(const MunitParameter params[], void *user_data) {
-	SignalPool *pool = signal_pool_create();
+	SignalPool *pool = signal_pool_create(1);
 	Ram8d16a *ram = ram_8d16a_create(16, pool, (Ram8d16aSignals){0});
 	return ram;
 }

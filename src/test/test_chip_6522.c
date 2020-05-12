@@ -62,7 +62,7 @@ typedef enum Chip6522_regs {
 
 
 static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
-	Chip6522 *via = chip_6522_create(signal_pool_create(), (Chip6522Signals) {0});
+	Chip6522 *via = chip_6522_create(signal_pool_create(1), (Chip6522Signals) {0});
 
 	SIGNAL_SET_BOOL(enable, false);
 	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
