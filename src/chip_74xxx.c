@@ -53,6 +53,85 @@ void chip_7400_nand_process(Chip7400Nand *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 7474 - Dual Positive-Edge-Triggered D Flip-Flops with preset/clear
+//
+
+Chip7474DFlipFlop *chip_7474_d_flipflop_create(SignalPool *signal_pool, Chip7474Signals signals) {
+	Chip7474DFlipFlop *chip = (Chip7474DFlipFlop *) calloc(1, sizeof(Chip7474DFlipFlop));
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE_BOOL(clr1_b, 1, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(d1, 1);
+	SIGNAL_DEFINE(clk1, 1);
+	SIGNAL_DEFINE_BOOL(pr1_b, 1, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(q1, 1);
+	SIGNAL_DEFINE(q1_b, 1);
+	SIGNAL_DEFINE_BOOL(gnd, 1, false);
+	SIGNAL_DEFINE(q2_b, 1);
+	SIGNAL_DEFINE(q2, 1);
+	SIGNAL_DEFINE_BOOL(pr2_b, 1, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(clk2, 1);
+	SIGNAL_DEFINE(d2, 1);
+	SIGNAL_DEFINE_BOOL(clr2_b, 1, ACTLO_DEASSERT);
+	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+
+	return chip;
+}
+
+void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
+	assert(chip);
+
+	// flip-flop 1
+	bool clk1 = SIGNAL_BOOL(clk1);
+
+	if (ACTLO_ASSERTED(SIGNAL_BOOL(pr1_b)) && ACTLO_ASSERTED(SIGNAL_BOOL(clr1_b))) {
+		chip->q1 = true;
+		chip->q1_b = true;
+	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(pr1_b))) {
+		chip->q1 = true;
+		chip->q1_b = false;
+	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(clr1_b))) {
+		chip->q1 = false;
+		chip->q1_b = true;
+	} else if (clk1 && !chip->prev_clk1) {
+		chip->q1 = SIGNAL_BOOL(d1);
+		chip->q1_b = !chip->q1;
+	}
+
+	SIGNAL_SET_BOOL(q1, chip->q1);
+	SIGNAL_SET_BOOL(q1_b, chip->q1_b);
+	chip->prev_clk1 = clk1;
+
+	// flip-flop 2
+	bool clk2 = SIGNAL_BOOL(clk2);
+
+	if (ACTLO_ASSERTED(SIGNAL_BOOL(pr2_b)) && ACTLO_ASSERTED(SIGNAL_BOOL(clr2_b))) {
+		chip->q2 = true;
+		chip->q2_b = true;
+	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(pr2_b))) {
+		chip->q2 = true;
+		chip->q2_b = false;
+	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(clr2_b))) {
+		chip->q2 = false;
+		chip->q2_b = true;
+	} else if (clk2 && !chip->prev_clk2) {
+		chip->q2 = SIGNAL_BOOL(d2);
+		chip->q2_b = !chip->q2;
+	}
+
+	SIGNAL_SET_BOOL(q2, chip->q2);
+	SIGNAL_SET_BOOL(q2_b, chip->q2_b);
+	chip->prev_clk2 = clk2;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74107 - Dual J-K Flip-Flops with clear
 //
 
