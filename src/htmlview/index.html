@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Dromaius - HTML viewer</title>
+	<script src="js/jquery-3.5.1.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+  </head>
+  <body>
+	<div id="loading">
+		<figure style="overflow:visible;" id="spinner">
+			<div class="spinner"></div>
+			<center style="margin-top:0.5em"><strong>WebAssembly Modules</strong></center>
+		</figure>
+		<div class="emscripten" id="status">Downloading...</div>
+		<div class="emscripten">
+		  <progress value="0" max="100" id="progress" hidden=1></progress>
+		</div>
+    </div>
+
+	<div id="main" class="hidden">
+		<div id="header">
+			<span>
+				Commodore PET 2001/N
+			</span>
+			<span>
+				&nbsp;Commands:
+				<input type="button" id="btnStep" value="Step">
+				<input type="button" id="btnRun" value="Run">
+				<input type="button" id="btnPause" value="Pause">
+				<input type="button" id="btnReset" value="Reset">
+			</span>
+			<span style="margin-left: 10em">
+				<input type="button" id="btnAboutOpen" value="About">
+			</span>
+		</div>
+		<div id="content">
+			<div id="screen">
+				<canvas id="display" width=320 height=240>
+				</canvas>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="js/emscripten.js"></script>
+	<script async type="text/javascript" src="wasm/htmlview.js"></script>
+	<script type="text/javascript" src="js/main.js"></script>
+	<script type="text/javascript">
+		// initialization
+		Module.onRuntimeInitialized = function() {
+			$("#main").show();
+			wasm_wrap_functions();
+			setup_emulation();
+		}
+	</script>
+  </body>
+</html>

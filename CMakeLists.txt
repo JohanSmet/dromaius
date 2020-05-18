@@ -227,6 +227,25 @@ if (EMSCRIPTEN)
 	)
 endif()
 
+# html viewer
+set (HTML_TARGET htmlview)
+
+if (EMSCRIPTEN)
+	add_executable(${HTML_TARGET})
+	target_sources(${HTML_TARGET}
+					PRIVATE
+						src/htmlview/api/api.c
+	)
+	target_include_directories(${HTML_TARGET} PRIVATE libs src)
+	target_link_libraries(${HTML_TARGET} PRIVATE ${LIB_TARGET})
+	target_link_libraries(${HTML_TARGET} PRIVATE "-s EXTRA_EXPORTED_RUNTIME_METHODS='[\"ccall\", \"cwrap\", \"getValue\", \"_malloc\"]'")
+	target_link_libraries(${HTML_TARGET} PRIVATE
+		"--preload-file ${CMAKE_CURRENT_SOURCE_DIR}/runtime@/runtime"
+			"--exclude-file *.gitignore"
+			"--exclude-file *.cfg"
+	)
+endif()
+
 # unit tests
 enable_testing()
 

@@ -1,0 +1,78 @@
+html, body {
+	margin: 0;
+	height: 100%;
+	overflow: hidden;
+}
+
+div#main {
+	margin: 0;
+	height: 100%;
+}
+
+div#header {
+	padding: 4px;
+	height: 2em;
+	background-color: lightgray;
+	display: flex;
+	align-items: center;
+}
+
+div#header span {
+	margin: 0 .5em;
+	font-size: small;
+	font-family: sans-serif;
+	font-weight: bold;
+}
+
+div#content {
+	height: calc(100% - 2em);
+}
+
+.hidden {
+	display: none;
+}
+
+canvas#display {
+	background-color: #808080;
+}
+
+/* emscripten loader */
+div.emscripten {
+	text-align: center;
+	padding-right: 0;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+}
+
+.spinner {
+	height: 50px;
+	width: 50px;
+	margin: 0px auto;
+	-webkit-animation: rotation .8s linear infinite;
+	-moz-animation: rotation .8s linear infinite;
+	-o-animation: rotation .8s linear infinite;
+	animation: rotation 0.8s linear infinite;
+	border-left: 10px solid rgb(0,150,240);
+	border-right: 10px solid rgb(0,150,240);
+	border-bottom: 10px solid rgb(0,150,240);
+	border-top: 10px solid rgb(100,0,200);
+	border-radius: 100%;
+	background-color: rgb(200,100,250);
+}
+@-webkit-keyframes rotation {
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
+}
+@-moz-keyframes rotation {
+	from {-moz-transform: rotate(0deg);}
+	to {-moz-transform: rotate(360deg);}
+}
+@-o-keyframes rotation {
+	from {-o-transform: rotate(0deg);}
+	to {-o-transform: rotate(360deg);}
+}
+@keyframes rotation {
+	from {transform: rotate(0deg);}
+	to {transform: rotate(360deg);}
+}
