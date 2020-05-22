@@ -1,0 +1,112 @@
+<svg:svg xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg" sodipodi:docname="pet_2001N_01.svg" inkscape:version="1.0 (4035a4fb49, 2020-05-01)" id="svg8" version="1.1" viewBox="0 0 297 210" height="210mm" width="297mm">
+  <svg:defs id="defs2" />
+  <sodipodi:namedview inkscape:window-maximized="1" inkscape:window-y="0" inkscape:window-x="1920" inkscape:window-height="1375" inkscape:window-width="2560" showgrid="false" inkscape:document-rotation="0" inkscape:current-layer="layer2" inkscape:document-units="mm" inkscape:cy="115.41532" inkscape:cx="509.62045" inkscape:zoom="4" inkscape:pageshadow="2" inkscape:pageopacity="0.0" borderopacity="1.0" bordercolor="#666666" pagecolor="#ffffff" id="base" />
+  <svg:style>text.chip {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.chip {fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;}
+.wire {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}
+.D0 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}
+.D1 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}
+.D2 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}
+.D3 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}
+.D4 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}
+.D5 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}
+.D6 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}
+.D7 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}
+.BD0 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;}</svg:style><svg:metadata id="metadata5">
+    <rdf:RDF>
+      <cc:Work rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </svg:metadata>
+  <svg:g inkscape:label="Schematic" id="layer2" inkscape:groupmode="layer" style="display:inline">
+    <svg:g id="g179" inkscape:label="chip#C4_6502">
+      <svg:rect id="rect125" width="17.077238" height="63.870377" x="67.187477" y="77.463959" class="chip" />
+      <svg:text xml:space="preserve" x="86.159164" y="79.242561" id="text992" class="chip"><svg:tspan sodipodi:role="line" id="tspan990" x="86.159164" y="79.242561" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583">33</svg:tspan></svg:text>
+      <svg:text id="text992-7" y="81.368378" x="86.173286" xml:space="preserve" class="chip"><svg:tspan style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="81.368378" x="86.173286" id="tspan990-1" sodipodi:role="line">32</svg:tspan></svg:text>
+      <svg:text id="text992-6" y="83.396538" x="86.167778" xml:space="preserve" class="chip"><svg:tspan style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="83.396538" x="86.167778" id="tspan990-4" sodipodi:role="line">31</svg:tspan></svg:text>
+      <svg:text xml:space="preserve" x="86.149521" y="85.522354" id="text992-7-8" class="chip"><svg:tspan sodipodi:role="line" id="tspan990-1-2" x="86.149521" y="85.522354" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583">30</svg:tspan></svg:text>
+      <svg:text id="text992-1" y="87.626808" x="86.154343" xml:space="preserve" class="chip"><svg:tspan style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="87.626808" x="86.154343" id="tspan990-0" sodipodi:role="line">29</svg:tspan></svg:text>
+      <svg:text xml:space="preserve" x="86.152962" y="89.752625" id="text992-7-9" class="chip"><svg:tspan sodipodi:role="line" id="tspan990-1-1" x="86.152962" y="89.752625" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583">28</svg:tspan></svg:text>
+      <svg:text xml:space="preserve" x="86.165024" y="91.780785" id="text992-6-7" class="chip"><svg:tspan sodipodi:role="line" id="tspan990-4-0" x="86.165024" y="91.780785" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583">27</svg:tspan></svg:text>
+      <svg:text id="text992-7-8-8" y="93.906601" x="86.14917" xml:space="preserve" class="chip"><svg:tspan style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="93.906601" x="86.14917" id="tspan990-1-2-4" sodipodi:role="line">26</svg:tspan></svg:text>
+    </svg:g>
+    <svg:g inkscape:label="wire#D0" id="g1379">
+      <svg:path d="M 84.316476,79.701609 H 114.20852" id="path952" class="D0" />
+      <svg:path d="M 88.272484,79.857313 V 23.405169 h 22.894926 v 0" id="path1111" sodipodi:nodetypes="cccc" class="D0" />
+      <svg:path d="m 111.10502,25.249929 h -4.14048 v -1.784791" id="path1124" class="D0" />
+      <svg:ellipse id="path1227" cy="23.394766" cx="106.98834" rx="0.21147294" ry="0.21078888" class="D0" />
+      <svg:ellipse ry="0.21078888" rx="0.21147294" cx="88.288155" cy="79.65464" id="path1227-9-9-1" class="D0" />
+    </svg:g>
+    <svg:g id="g1392" inkscape:label="wire#D1">
+      <svg:path id="path1124-6" d="m 111.07412,29.359202 h -4.14048 v -1.784791" class="D1" />
+      <svg:ellipse ry="0.21078888" rx="0.21147294" cx="106.94128" cy="27.516666" id="path1227-0" class="D1" />
+      <svg:path id="path954" d="M 84.373817,81.825996 124.665,81.678295" class="D1" />
+      <svg:path id="path1126" d="M 90.403978,81.845374 V 27.46194 h 20.638902 v -0.285919" class="D1" />
+      <svg:ellipse id="path1227-9-9-5" cy="81.813316" cx="90.404816" rx="0.21147294" ry="0.21078888" class="D1" />
+    </svg:g>
+    <svg:g id="g156" inkscape:label="wire#D2">
+      <svg:path id="path952-3" d="M 84.413785,83.932285 H 114.30583" class="D2" />
+      <svg:path d="M 92.378404,83.801618 V 31.631659 h 18.689156 v -0.03014" id="path1143" class="D2" />
+      <svg:path id="path1124-1" d="m 111.08409,33.495393 h -4.14048 v -1.784791" class="D2" />
+      <svg:ellipse ry="0.21078888" rx="0.21147294" cx="106.96033" cy="31.667318" id="path1227-9" class="D2" />
+      <svg:ellipse ry="0.21078888" rx="0.21147294" cx="92.389191" cy="83.922523" id="path1227-9-9-7" class="D2" />
+    </svg:g>
+    <svg:g id="g148" inkscape:label="wire#D3">
+      <svg:path sodipodi:nodetypes="cc" id="path954-9" d="M 84.379421,86.056672 124.76231,85.908971" class="D3" />
+      <svg:path d="M 94.693718,86.079411 V 35.955036 h 16.326972 v -0.189852" id="path1145" class="D3" />
+      <svg:path d="m 111.15366,37.793072 h -4.14048 v -1.784791" id="path1124-1-0" class="D3" />
+      <svg:ellipse id="path1227-9-6" cy="35.965" cx="107.02988" rx="0.21147294" ry="0.21078888" class="D3" />
+      <svg:ellipse ry="0.21078888" rx="0.21147294" cx="94.687759" cy="86.006119" id="path1227-9-9-75" class="D3" />
+    </svg:g>
+    <svg:g id="g140" inkscape:label="wire#D4" inkscape:groupmode="layer">
+      <svg:path sodipodi:nodetypes="cc" id="path952-6" d="M 84.297687,87.989156 H 114.33117" class="D4" />
+      <svg:path d="M 96.719111,88.018553 V 46.128344 h 14.461909 l 0.0223,0.03859" id="path1147" class="D4" />
+      <svg:path d="m 111.13102,48.223764 h -4.14048 v -1.784792" id="path1124-1-1" class="D4" />
+      <svg:ellipse id="path1227-9-8" cy="46.154274" cx="106.99953" rx="0.21147294" ry="0.21078888" class="D4" />
+      <svg:ellipse ry="0.21078888" rx="0.21147294" cx="96.738281" cy="88.010223" id="path1227-9-9-9" class="D4" />
+    </svg:g>
+    <svg:g id="g132" inkscape:label="wire#D5">
+      <svg:path sodipodi:nodetypes="cc" id="path954-2" d="m 84.27935,90.113543 40.5083,-0.147701" class="D5" />
+      <svg:path d="M 98.791769,90.056757 V 50.445418 h 12.302391" id="path1200" class="D5" />
+      <svg:path d="m 111.11727,52.285764 h -4.14048 v -1.784791" id="path1124-1-6" class="D5" />
+      <svg:ellipse id="path1227-9-4" cy="50.457687" cx="106.99352" rx="0.21147294" ry="0.21078888" class="D5" />
+      <svg:ellipse ry="0.21078888" rx="0.21147294" cx="98.805336" cy="90.041016" id="path1227-9-9-8" class="D5" />
+    </svg:g>
+    <svg:g id="g124" inkscape:label="wire#D6">
+      <svg:path id="path952-68" d="M 84.430279,92.308829 H 114.32233" class="D6" />
+      <svg:path d="M 100.86345,92.340384 V 54.644107 h 10.20634 v -0.01476" id="path1202" class="D6" />
+      <svg:path d="m 111.15972,56.573086 h -4.14048 v -1.784791" id="path1124-1-7" class="D6" />
+      <svg:ellipse id="path1227-9-1" cy="54.74501" cx="107.03596" rx="0.21147294" ry="0.21078888" class="D6" />
+      <svg:ellipse ry="0.21078888" rx="0.21147294" cx="100.85586" cy="92.256905" id="path1227-9-9-70" class="D6" />
+    </svg:g>
+    <svg:g id="g116" inkscape:label="wire#D7">
+      <svg:path id="path954-27" d="M 84.401038,94.433216 124.69223,94.285515" class="D7" />
+      <svg:ellipse ry="0.21078888" rx="0.21147294" cx="102.93945" cy="94.323959" id="path1227-9-9-16" class="D7" />
+      <svg:path d="M 102.96943,94.396675 V 58.707204 h 8.07094 v 0.140208" id="path1204" class="D7" />
+      <svg:path d="m 111.15824,60.616342 h -4.14048 v -1.784791" id="path1124-1-14" class="D7" />
+      <svg:ellipse id="path1227-9-9" cy="58.788265" cx="107.03448" rx="0.21147294" ry="0.21078888" class="D7" />
+    </svg:g>
+    <svg:g id="g229" inkscape:label="chip#E9_74LS244">
+      <svg:rect id="rect1122" width="12.734679" height="21.035419" x="111.07561" y="18.969549" class="chip" />
+      <svg:text id="text992-7-8-8-8" y="20.512918" x="117.42331" xml:space="preserve" class="chip"><svg:tspan style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="20.512918" x="117.42331" id="tspan990-1-2-4-3" sodipodi:role="line">E9</svg:tspan><svg:tspan id="tspan199" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="33.742043" x="117.42331" sodipodi:role="line" /></svg:text>
+      <svg:text xml:space="preserve" x="117.42469" y="22.641306" id="text992-7-8-8-8-6" class="chip"><svg:tspan sodipodi:role="line" id="tspan990-1-2-4-3-4" x="117.42469" y="22.641306" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583">74LS244</svg:tspan><svg:tspan sodipodi:role="line" x="117.42469" y="35.87043" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" id="tspan199-3" /></svg:text>
+    </svg:g>
+    <svg:g style="display:inline" inkscape:label="chip#E10_74LS244" id="g147">
+      <svg:rect y="42.012127" x="111.19097" height="21.035421" width="12.73468" id="rect1122-2" class="chip" />
+      <svg:text id="text992-7-8-8-8-2" y="43.551437" x="117.53867" xml:space="preserve" class="chip"><svg:tspan style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="43.551437" x="117.53867" id="tspan990-1-2-4-3-6" sodipodi:role="line">E10</svg:tspan><svg:tspan id="tspan199-35" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="56.780563" x="117.53867" sodipodi:role="line" /></svg:text>
+      <svg:text xml:space="preserve" x="117.54005" y="45.679825" id="text992-7-8-8-8-6-3" class="chip"><svg:tspan sodipodi:role="line" id="tspan990-1-2-4-3-4-8" x="117.54005" y="45.679825" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583">74LS244</svg:tspan><svg:tspan sodipodi:role="line" x="117.54005" y="58.908951" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" id="tspan199-3-8" /></svg:text>
+    </svg:g>
+    <svg:g inkscape:label="wire#BD0" style="display:inline" id="g311">
+      <svg:text id="text992-7-8-8-8-1-9" y="20.367407" x="208.98323" xml:space="preserve" class="BD0"><svg:tspan style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="20.367407" x="208.98323" id="tspan990-1-2-4-3-9-7" sodipodi:role="line">BD0</svg:tspan><svg:tspan id="tspan199-5-6" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" y="33.596531" x="208.98323" sodipodi:role="line" /></svg:text>
+      <svg:text xml:space="preserve" x="158.57617" y="22.526096" id="text992-7-8-8-8-1" class="BD0"><svg:tspan sodipodi:role="line" id="tspan990-1-2-4-3-9" x="158.57617" y="22.526096" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583">BD0</svg:tspan><svg:tspan sodipodi:role="line" x="158.57617" y="35.755222" style="font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583" id="tspan199-5" /></svg:text>
+      <svg:path id="path236" d="m 123.8177,20.983606 h 87.76677 v -0.08558" class="BD0" />
+      <svg:path id="path240" d="m 123.85113,23.108997 h 3.9308 v -2.148584 h 0.0632" class="BD0" />
+      <svg:path d="m 152.85345,20.972571 c 0,2.133272 0,2.163116 0,2.163116 h 8.35563 v -0.168833" id="path242" class="BD0" />
+      <svg:ellipse id="path1227-9-6-1" cy="21.003803" cx="127.80016" rx="0.21147294" ry="0.21078888" class="BD0" />
+      <svg:ellipse id="path1227-9-6-3" cy="20.968229" cx="152.82996" rx="0.21147294" ry="0.21078888" class="BD0" />
+    </svg:g>
+  </svg:g>
+</svg:svg>
