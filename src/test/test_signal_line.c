@@ -506,6 +506,32 @@ static MunitResult test_multiple_domains(const MunitParameter params[], void* us
 	return MUNIT_OK;
 }
 
+static MunitResult test_names(const MunitParameter params[], void* user_data_or_fixture) {
+
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	// 1-bit
+	Signal sig_one = signal_create(pool, 1);
+	munit_assert_string_equal(signal_get_name(pool, sig_one), "");
+
+	signal_set_name(pool, sig_one, "RES");
+	munit_assert_string_equal(signal_get_name(pool, sig_one), "RES");
+
+	// multi-bit
+	Signal sig_multi = signal_create(pool, 8);
+	signal_set_name(pool, sig_multi, "DB%.2d");
+	munit_assert_string_equal(signal_get_name(pool, signal_split(sig_multi, 0, 1)), "DB00");
+	munit_assert_string_equal(signal_get_name(pool, signal_split(sig_multi, 1, 1)), "DB01");
+	munit_assert_string_equal(signal_get_name(pool, signal_split(sig_multi, 2, 1)), "DB02");
+	munit_assert_string_equal(signal_get_name(pool, signal_split(sig_multi, 3, 1)), "DB03");
+	munit_assert_string_equal(signal_get_name(pool, signal_split(sig_multi, 4, 1)), "DB04");
+	munit_assert_string_equal(signal_get_name(pool, signal_split(sig_multi, 5, 1)), "DB05");
+	munit_assert_string_equal(signal_get_name(pool, signal_split(sig_multi, 6, 1)), "DB06");
+	munit_assert_string_equal(signal_get_name(pool, signal_split(sig_multi, 7, 1)), "DB07");
+
+	return MUNIT_OK;
+}
+
 static MunitResult benchmark_read_uint8(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
 
@@ -580,6 +606,7 @@ MunitTest signal_tests[] = {
     { "/default_uint8", test_default_uint8, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/default_uint16", test_default_uint16, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/multiple_domains", test_multiple_domains, signal_setup_two, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
+    { "/names", test_names, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
 //	{ "/benchmark_read_uint8", benchmark_read_uint8, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},
 //	{ "/benchmark_write_uint8", benchmark_write_uint8, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},
 //	{ "/benchmark_write_uint8_masked", benchmark_write_uint8_masked, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},

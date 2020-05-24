@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define BITS_TO_BYTE(b)		((((uint64_t) b) & 0b00000001) |				\
 							((((uint64_t) b) & 0b00000010) << (1*8-1))   |	\
@@ -132,13 +133,47 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 	SignalDomain *domain = &pool->domains[pool->default_domain];
 	Signal result = {(uint32_t) arrlenu(domain->signals_curr), size, pool->default_domain};
 
+	arrsetcap(domain->signals_curr, arrlenu(domain->signals_curr) + size);
+	arrsetcap(domain->signals_next, arrlenu(domain->signals_next) + size);
+	arrsetcap(domain->signals_default, arrlenu(domain->signals_default) + size);
+	arrsetcap(domain->signals_name, arrlenu(domain->signals_name) + (size * MAX_SIGNAL_NAME));
+
 	for (uint32_t i = 0; i < size; ++i) {
 		arrpush(domain->signals_curr, false);
 		arrpush(domain->signals_next, false);
 		arrpush(domain->signals_default, false);
+		for (int j = 0; j < MAX_SIGNAL_NAME; ++j) {
+			arrpush(domain->signals_name, '\0');
+		}
 	}
 
 	return result;
+}
+
+void signal_set_name(SignalPool *pool, Signal signal, const char *name) {
+	assert(pool);
+	assert(name);
+
+	SignalDomain *domain = &pool->domains[signal.domain];
+
+	if (signal.count == 1) {
+		assert(strlen(name) < MAX_SIGNAL_NAME);
+		strcpy(domain->signals_name + (signal.start * MAX_SIGNAL_NAME), name);
+	} else {
+		char sub_name[8];
+		for (size_t i = 0; i < signal.count; ++i) {
+			snprintf(sub_name, MAX_SIGNAL_NAME, name, i);
+			strcpy(domain->signals_name + ((signal.start + i) * MAX_SIGNAL_NAME), sub_name);
+		}
+	}
+}
+
+const char * signal_get_name(SignalPool *pool, Signal signal) {
+	assert(pool);
+	assert(signal.count == 1);
+
+	SignalDomain *domain = &pool->domains[signal.domain];
+	return domain->signals_name + (signal.start * MAX_SIGNAL_NAME);
 }
 
 void signal_default_bool(SignalPool *pool, Signal signal, bool value) {

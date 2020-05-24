@@ -26,6 +26,7 @@ typedef struct SignalDomain {
 	bool *		signals_curr;
 	bool *		signals_next;
 	bool *		signals_default;
+	char *		signals_name;
 } SignalDomain;
 
 typedef struct SignalPool {
@@ -35,6 +36,8 @@ typedef struct SignalPool {
 } SignalPool;
 
 extern const uint64_t lut_bit_to_byte[256];
+
+#define MAX_SIGNAL_NAME		8
 
 // functions
 SignalPool *signal_pool_create(size_t num_domains);
@@ -46,6 +49,8 @@ void signal_pool_cycle_domain(SignalPool *pool, int8_t domain);
 void signal_pool_cycle_domain_no_reset(SignalPool *pool, int8_t domain);
 
 Signal signal_create(SignalPool *pool, uint32_t size);
+void signal_set_name(SignalPool *pool, Signal Signal, const char *name);
+const char * signal_get_name(SignalPool *pool, Signal signal);
 
 void signal_default_bool(SignalPool *pool, Signal signal, bool value);
 void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value);
@@ -184,10 +189,23 @@ static inline uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal) 
 		SIGNAL_COLLECTION.sig = signal_create(SIGNAL_POOL, (cnt));	\
 	}
 
+#define SIGNAL_DEFINE_N(sig,cnt,name)									\
+	if (SIGNAL_COLLECTION.sig.count == 0) {								\
+		SIGNAL_COLLECTION.sig = signal_create(SIGNAL_POOL, (cnt));		\
+		signal_set_name(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (name));	\
+	}
+
 #define SIGNAL_DEFINE_BOOL(sig,cnt,def)										\
 	if (SIGNAL_COLLECTION.sig.count == 0) {									\
 		SIGNAL_COLLECTION.sig = signal_create(SIGNAL_POOL, (cnt));			\
 		signal_default_bool(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (def));		\
+	}
+
+#define SIGNAL_DEFINE_BOOL_N(sig,cnt,def,name)								\
+	if (SIGNAL_COLLECTION.sig.count == 0) {									\
+		SIGNAL_COLLECTION.sig = signal_create(SIGNAL_POOL, (cnt));			\
+		signal_default_bool(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (def));		\
+		signal_set_name(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (name));		\
 	}
 
 #define SIGNAL(sig)		SIGNAL_COLLECTION.sig
