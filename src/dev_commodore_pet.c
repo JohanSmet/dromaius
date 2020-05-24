@@ -69,36 +69,36 @@ DevCommodorePet *dev_commodore_pet_create() {
 	// signals
 	device->signal_pool = signal_pool_create(1);
 
-	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(irq_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(nmi_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(clk1, 1, true);
+	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
+	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
+	SIGNAL_DEFINE_BOOL_N(nmi_b, 1, ACTLO_DEASSERT, "/NMI");
+	SIGNAL_DEFINE_BOOL_N(clk1, 1, true, "CLK1");
 
-	SIGNAL_DEFINE(cpu_bus_address, 16);
-	SIGNAL_DEFINE(cpu_bus_data, 8);
-	SIGNAL_DEFINE_BOOL(cpu_rw, 1, true);
-	SIGNAL_DEFINE(cpu_sync, 1);
-	SIGNAL_DEFINE_BOOL(cpu_rdy, 1, ACTHI_ASSERT);
+	SIGNAL_DEFINE_N(cpu_bus_address, 16, "AB%d");
+	SIGNAL_DEFINE_N(cpu_bus_data, 8, "D%d");
+	SIGNAL_DEFINE_BOOL_N(cpu_rw, 1, true, "RW");
+	SIGNAL_DEFINE_N(cpu_sync, 1, "SYNC");
+	SIGNAL_DEFINE_BOOL_N(cpu_rdy, 1, ACTHI_ASSERT, "RDY");
 
-	SIGNAL_DEFINE(bus_ba, 16);
-	SIGNAL_DEFINE(bus_bd, 8);
+	SIGNAL_DEFINE_N(bus_ba, 16, "BA%d");
+	SIGNAL_DEFINE_N(bus_bd, 8, "BD%d");
 
-	SIGNAL_DEFINE(sel2_b, 1);
-	SIGNAL_DEFINE(sel3_b, 1);
-	SIGNAL_DEFINE(sel4_b, 1);
-	SIGNAL_DEFINE(sel5_b, 1);
-	SIGNAL_DEFINE(sel6_b, 1);
-	SIGNAL_DEFINE(sel7_b, 1);
-	SIGNAL_DEFINE(sel8_b, 1);
-	SIGNAL_DEFINE(sel9_b, 1);
-	SIGNAL_DEFINE(sela_b, 1);
-	SIGNAL_DEFINE(selb_b, 1);
-	SIGNAL_DEFINE(selc_b, 1);
-	SIGNAL_DEFINE(seld_b, 1);
-	SIGNAL_DEFINE(sele_b, 1);
-	SIGNAL_DEFINE(self_b, 1);
+	SIGNAL_DEFINE_N(sel2_b, 1, "/SEL2");
+	SIGNAL_DEFINE_N(sel3_b, 1, "/SEL3");
+	SIGNAL_DEFINE_N(sel4_b, 1, "/SEL4");
+	SIGNAL_DEFINE_N(sel5_b, 1, "/SEL5");
+	SIGNAL_DEFINE_N(sel6_b, 1, "/SEL6");
+	SIGNAL_DEFINE_N(sel7_b, 1, "/SEL7");
+	SIGNAL_DEFINE_N(sel8_b, 1, "/SEL8");
+	SIGNAL_DEFINE_N(sel9_b, 1, "/SEL8");
+	SIGNAL_DEFINE_N(sela_b, 1, "/SELA");
+	SIGNAL_DEFINE_N(selb_b, 1, "/SELB");
+	SIGNAL_DEFINE_N(selc_b, 1, "/SELC");
+	SIGNAL_DEFINE_N(seld_b, 1, "/SELD");
+	SIGNAL_DEFINE_N(sele_b, 1, "/SELE");
+	SIGNAL_DEFINE_N(self_b, 1, "/SELF");
 
-	SIGNAL_DEFINE(x8xx, 1);
+	SIGNAL_DEFINE_N(x8xx, 1, "X8XX");
 	SIGNAL_DEFINE(ram_read_b, 1);
 	SIGNAL_DEFINE(ram_write_b, 1);
 
