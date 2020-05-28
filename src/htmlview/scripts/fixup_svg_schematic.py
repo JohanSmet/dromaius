@@ -25,12 +25,22 @@ def parse_arguments():
 
     return parser.parse_args()
 
+def clean_style_name(raw: str) -> str:
+    result = raw.replace('/', 'bar')
+    return result
+
 def replace_styles(root: ET.Element, css_class: str):
     for child in root:
-        if 'style' in child.attrib:
-            child.attrib.pop('style')
-            child.attrib['class'] = css_class
+        if not 'style' in child.attrib:
+            continue
+        print(child.tag)
+        if child.tag == f"{{{ns['svg']}}}text":
+            continue
 
+        styles = child.attrib['style'].split(';')
+        styles_filtered = [x for x in styles if not x.startswith('stroke:')]
+        child.attrib['style'] = ';'.join(styles_filtered)
+        child.attrib['class'] = css_class
 
 def main():
     cmd_args = parse_arguments()
@@ -45,10 +55,7 @@ def main():
 
     # prepare default styles
     styles = {
-        'text.chip': 'font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;'+
-                     'fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583',
-        '.chip': 'fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;',
-        '.wire': 'fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;'
+        '.wire': 'stroke:#000000'
     }
 
     # modify svg
@@ -69,12 +76,14 @@ def main():
     # --> fix the styles of the schematic elements
     for node in schematic.findall('svg:g', ns):
         label = node.get(ns_attrib('inkscape', 'label'))
-        if label.startswith('wire#'):
-            class_id = label.split('#')[1]
+        if label is None:
+            continue
+        elif label.startswith('wire#'):
+            class_id = clean_style_name(label.split('#')[1])
             styles['.' + class_id] = styles['.wire']
             replace_styles(node, class_id)
-        elif label.startswith('chip#'):
-            replace_styles(node, 'chip')
+        #elif label.startswith('chip#'):
+            #replace_styles(node, 'chip')
 
     # --> add a style element somewhere in the beginning
     style = ET.Element('svg:style')
