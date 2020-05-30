@@ -90,7 +90,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(sel6_b, 1, "/SEL6");
 	SIGNAL_DEFINE_N(sel7_b, 1, "/SEL7");
 	SIGNAL_DEFINE_N(sel8_b, 1, "/SEL8");
-	SIGNAL_DEFINE_N(sel9_b, 1, "/SEL8");
+	SIGNAL_DEFINE_N(sel9_b, 1, "/SEL9");
 	SIGNAL_DEFINE_N(sela_b, 1, "/SELA");
 	SIGNAL_DEFINE_N(selb_b, 1, "/SELB");
 	SIGNAL_DEFINE_N(selc_b, 1, "/SELC");

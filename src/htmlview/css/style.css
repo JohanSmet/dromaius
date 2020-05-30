@@ -28,12 +28,33 @@ div#content {
 	height: calc(100% - 2em);
 }
 
+div#screen {
+	float: left;
+	width: 400px;
+}
+
+div#schematic {
+	float: left;
+	width: calc(100% - 400px);
+	height: 100%;
+}
+
+#schematic_page {
+	width: 100%;
+	height: 100%;
+}
+
 .hidden {
 	display: none;
 }
 
 canvas#display {
 	background-color: #808080;
+}
+
+.D0 {
+	fill: #ff0000;
+	stroke: #ff0000;
 }
 
 /* emscripten loader */

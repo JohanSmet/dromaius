@@ -15,14 +15,22 @@ var dmsapi_context_reset = null;
 
 var dmsapi_cpu_6502_info = null;
 var dmsapi_display_info = null;
+var dmsapi_signal_names = null;
 var dmsapi_free_json = null;
+
 var dmsapi_display_data = null;
+var dmsapi_signal_data = null;
 
 // globals
 var dmsapi_context = null;
 var display_sharmem = null
 var display_context = null;
 var display_imdata = null;
+
+var signals_sharmem = null;
+var signals_names = {};
+
+var svg_styles = {};
 
 // functions
 function wasm_wrap_functions() {
@@ -37,9 +45,11 @@ function wasm_wrap_functions() {
 
 	dmsapi_cpu_6502_info = Module.cwrap('dmsapi_cpu_6502_info', API_STRING, [API_NUMBER]);
 	dmsapi_display_info = Module.cwrap('dmsapi_display_info', API_STRING, [API_NUMBER]);
+	dmsapi_signal_info = Module.cwrap('dmsapi_signal_info', API_STRING, [API_NUMBER]);
 	dmsapi_free_json = Module.cwrap('dmsapi_free_json', null, [API_STRING]);
 
 	dmsapi_display_data = Module.cwrap('dmsapi_display_data', null, [API_NUMBER, API_NUMBER]);
+	dmsapi_signal_data = Module.cwrap('dmsapi_signal_data', API_NUMBER, [API_NUMBER, API_NUMBER, API_NUMBER]);
 }
 
 function allocate_shared_memory(size) {
@@ -62,9 +72,31 @@ function parse_json(wasm_str) {
 	}
 }
 
+function setup_styles() {
+	// FIXME: support more than 1 page
+	var svg_el = document.getElementById('schematic_page');
+	var svg_doc = svg_el.getSVGDocument();
+
+	$.each(svg_doc.styleSheets[0].cssRules, function (index, value) {
+		var name = value.selectorText.replace(/^\./, '');
+		svg_styles[name] = value.style;
+	});
+}
+
 function setup_emulation() {
 	dmsapi_context = dmsapi_create_context();
 	dmsapi_launch_commodore_pet(dmsapi_context);
+
+	// styles
+	setup_styles();
+
+	// signals
+	var signal_info = parse_json(dmsapi_signal_info(dmsapi_context));
+	signals_sharmem = allocate_shared_memory(Math.max(signal_info.count));
+	signals_names = signal_info.names;
+	for (const key in signals_names[0]) {
+		signals_names[0][key] = signals_names[0][key].replace('/', 'bar');
+	};
 
 	// setup shared memory and image-data for the monitor display
 	var display_info = parse_json(dmsapi_display_info(dmsapi_context));
@@ -80,8 +112,22 @@ function setup_emulation() {
 	setInterval(execution_timer, 1000 / 25);
 }
 
+function refresh_signals() {
+	var sig_count = dmsapi_signal_data(dmsapi_context, 0, signals_sharmem.offset);
+	var colors = ["#009900", "#00FF00"];
+
+	for (var s_id = 0; s_id < sig_count; ++s_id) {
+		var s_name = signals_names[0][s_id];
+		if (svg_styles.hasOwnProperty(s_name)) {
+			svg_styles[s_name].stroke = colors[signals_sharmem.data[s_id]];
+		}
+	}
+}
+
 function execution_timer() {
 	dmsapi_context_execute(dmsapi_context);
+
+	refresh_signals();
 
 	// refresh the screen
 	dmsapi_display_data(dmsapi_context, display_sharmem.offset);

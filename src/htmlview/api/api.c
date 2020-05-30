@@ -109,6 +109,52 @@ const char *dmsapi_display_info(DmsApiContext *context) {
 }
 
 EMSCRIPTEN_KEEPALIVE
+const char *dmsapi_signal_info(DmsApiContext *context) {
+	assert(context);
+
+	char *json = NULL;
+
+	SignalPool *pool = context->pet_device->signal_pool;
+
+	arr_printf(json, "{");
+	arr_printf(json, "\"count\": [");
+	for (int d = 0; d < pool->num_domains; ++d) {
+		if (d > 0) {
+			arr_printf(json, ",");
+		}
+		arr_printf(json, "%d", arrlenu(pool->domains[d].signals_curr));
+	}
+	arr_printf(json, "],");
+
+	arr_printf(json, "\"names\": [");
+	for (int d = 0; d < pool->num_domains; ++d) {
+		SignalDomain *domain = &pool->domains[d];
+		if (d > 0) {
+			arr_printf(json, ",");
+		}
+		arr_printf(json, "{");
+
+		bool output = false;
+
+		for (int s = 0; s < arrlenu(domain->signals_curr); ++s) {
+			const char *name = domain->signals_name + (s * MAX_SIGNAL_NAME);
+			if (*name != '\0') {
+				if (output) {
+					arr_printf(json, ",");
+				}
+				arr_printf(json, "\"%d\": \"%s\"", s, name);
+				output = true;
+			}
+		}
+
+		arr_printf(json, "}");
+	}
+	arr_printf(json, "]}");
+
+	return json;
+}
+
+EMSCRIPTEN_KEEPALIVE
 void dmsapi_free_json(char *json) {
 	arrfree(json);
 }
@@ -117,4 +163,15 @@ EMSCRIPTEN_KEEPALIVE
 void dmsapi_display_data(DmsApiContext *context, uint32_t *memory) {
 	assert(context);
 	memcpy(memory, context->pet_device->display->frame, 320 * 200 * 4);
+}
+
+EMSCRIPTEN_KEEPALIVE
+int dmsapi_signal_data(DmsApiContext *context, int8_t domain, uint8_t *memory) {
+	assert(context);
+	assert(domain > 0 && domain < context->pet_device->signal_pool->num_domains);
+
+	bool *signals = context->pet_device->signal_pool->domains[domain].signals_curr;
+	memcpy(memory, signals, arrlenu(signals));
+
+	return arrlenu(signals);
 }
