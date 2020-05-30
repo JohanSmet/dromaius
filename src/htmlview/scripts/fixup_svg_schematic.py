@@ -3,9 +3,10 @@
 # fixup_svg_schematic.py - Johan Smet - BSD-3-Clause (see LICENSE)
 
 import argparse
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 
 ns = {
+        None:"http://www.w3.org/2000/svg",
         'dc':"http://purl.org/dc/elements/1.1/",
         'cc':"http://creativecommons.org/ns#",
         'rdf':"http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -33,7 +34,6 @@ def replace_styles(root: ET.Element, css_class: str):
     for child in root:
         if not 'style' in child.attrib:
             continue
-        print(child.tag)
         if child.tag == f"{{{ns['svg']}}}text":
             continue
 
@@ -45,12 +45,9 @@ def replace_styles(root: ET.Element, css_class: str):
 def main():
     cmd_args = parse_arguments()
 
-    ET.register_namespace('', ns['svg'])
-    for key, value in ns.items():
-        ET.register_namespace(key, value)
-
     # read svg
-    svg_tree = ET.parse(cmd_args.input)
+    svg_parser = ET.XMLParser(remove_blank_text=True)
+    svg_tree = ET.parse(cmd_args.input, svg_parser)
     svg_root = svg_tree.getroot()
 
     # prepare default styles
@@ -86,12 +83,12 @@ def main():
             #replace_styles(node, 'chip')
 
     # --> add a style element somewhere in the beginning
-    style = ET.Element('svg:style')
+    style = ET.Element('style')
     style.text = '\n'.join(['%s {%s}' % kv for kv in styles.items()])
     svg_root.insert(2, style)
 
     # write svg
-    svg_tree.write(cmd_args.output)
+    svg_tree.write(cmd_args.output, pretty_print=True)
 
 if __name__ == "__main__":
     main()
