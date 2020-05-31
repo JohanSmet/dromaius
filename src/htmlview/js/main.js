@@ -30,7 +30,7 @@ var display_imdata = null;
 var signals_sharmem = null;
 var signals_names = {};
 
-var svg_styles = {};
+var svg_doc = null;
 
 // functions
 function wasm_wrap_functions() {
@@ -72,30 +72,25 @@ function parse_json(wasm_str) {
 	}
 }
 
-function setup_styles() {
+function setup_svg_document() {
 	// FIXME: support more than 1 page
 	var svg_el = document.getElementById('schematic_page');
-	var svg_doc = svg_el.getSVGDocument();
-
-	$.each(svg_doc.styleSheets[0].cssRules, function (index, value) {
-		var name = value.selectorText.replace(/^\./, '');
-		svg_styles[name] = value.style;
-	});
+	svg_doc = svg_el.getSVGDocument();
 }
 
 function setup_emulation() {
 	dmsapi_context = dmsapi_create_context();
 	dmsapi_launch_commodore_pet(dmsapi_context);
 
-	// styles
-	setup_styles();
+	// svg
+	setup_svg_document();
 
 	// signals
 	var signal_info = parse_json(dmsapi_signal_info(dmsapi_context));
 	signals_sharmem = allocate_shared_memory(Math.max(signal_info.count));
 	signals_names = signal_info.names;
 	for (const key in signals_names[0]) {
-		signals_names[0][key] = signals_names[0][key].replace('/', 'bar');
+		signals_names[0][key] = '--color-' + signals_names[0][key].replace('/', 'bar');
 	};
 
 	// setup shared memory and image-data for the monitor display
@@ -118,9 +113,7 @@ function refresh_signals() {
 
 	for (var s_id = 0; s_id < sig_count; ++s_id) {
 		var s_name = signals_names[0][s_id];
-		if (svg_styles.hasOwnProperty(s_name)) {
-			svg_styles[s_name].stroke = colors[signals_sharmem.data[s_id]];
-		}
+		svg_doc.documentElement.style.setProperty(s_name, colors[signals_sharmem.data[s_id]]);
 	}
 }
 
