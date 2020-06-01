@@ -181,6 +181,13 @@ static inline uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal) 
 	return signal_read_uint16_internal(pool->domains[signal.domain].signals_next + signal.start, signal.count);
 }
 
+static inline bool signal_changed(SignalPool *pool, Signal signal) {
+	assert(pool);
+
+	SignalDomain *domain = &pool->domains[signal.domain];
+	return memcmp(domain->signals_curr + signal.start, domain->signals_next + signal.start, signal.count) != 0;
+}
+
 // macros to make working with signal a little prettier
 //	define SIGNAL_POOL and SIGNAL_COLLECTION in your source file
 

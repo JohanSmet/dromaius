@@ -506,6 +506,59 @@ static MunitResult test_multiple_domains(const MunitParameter params[], void* us
 	return MUNIT_OK;
 }
 
+static MunitResult test_changed(const MunitParameter params[], void* user_data_or_fixture) {
+
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	// setup
+	Signal sig_bit = signal_create(pool, 1);
+	Signal sig_byte = signal_create(pool, 8);
+	Signal sig_word = signal_create(pool, 16);
+
+	// initial state
+	signal_write_bool(pool, sig_bit, true);
+	signal_write_uint8(pool, sig_byte, 0xaf);
+	signal_write_uint16(pool, sig_word, 0xbeef);
+
+	// no change
+	signal_pool_cycle_domain(pool, 0);
+	signal_write_bool(pool, sig_bit, true);
+	signal_write_uint8(pool, sig_byte, 0xaf);
+	signal_write_uint16(pool, sig_word, 0xbeef);
+	munit_assert_false(signal_changed(pool, sig_bit));
+	munit_assert_false(signal_changed(pool, sig_byte));
+	munit_assert_false(signal_changed(pool, sig_word));
+
+	// change bit
+	signal_pool_cycle_domain(pool, 0);
+	signal_write_bool(pool, sig_bit, false);
+	signal_write_uint8(pool, sig_byte, 0xaf);
+	signal_write_uint16(pool, sig_word, 0xbeef);
+	munit_assert_true(signal_changed(pool, sig_bit));
+	munit_assert_false(signal_changed(pool, sig_byte));
+	munit_assert_false(signal_changed(pool, sig_word));
+
+	// change byte
+	signal_pool_cycle_domain(pool, 0);
+	signal_write_bool(pool, sig_bit, false);
+	signal_write_uint8(pool, sig_byte, 0xfa);
+	signal_write_uint16(pool, sig_word, 0xbeef);
+	munit_assert_false(signal_changed(pool, sig_bit));
+	munit_assert_true(signal_changed(pool, sig_byte));
+	munit_assert_false(signal_changed(pool, sig_word));
+
+	// change word
+	signal_pool_cycle_domain(pool, 0);
+	signal_write_bool(pool, sig_bit, false);
+	signal_write_uint8(pool, sig_byte, 0xfa);
+	signal_write_uint16(pool, sig_word, 0xdead);
+	munit_assert_false(signal_changed(pool, sig_bit));
+	munit_assert_false(signal_changed(pool, sig_byte));
+	munit_assert_true(signal_changed(pool, sig_word));
+
+	return MUNIT_OK;
+}
+
 static MunitResult test_names(const MunitParameter params[], void* user_data_or_fixture) {
 
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
@@ -606,6 +659,7 @@ MunitTest signal_tests[] = {
     { "/default_uint8", test_default_uint8, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/default_uint16", test_default_uint16, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/multiple_domains", test_multiple_domains, signal_setup_two, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/changed", test_changed, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL },
     { "/names", test_names, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
 //	{ "/benchmark_read_uint8", benchmark_read_uint8, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},
 //	{ "/benchmark_write_uint8", benchmark_write_uint8, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},
