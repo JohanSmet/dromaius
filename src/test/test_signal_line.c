@@ -585,6 +585,32 @@ static MunitResult test_names(const MunitParameter params[], void* user_data_or_
 	return MUNIT_OK;
 }
 
+static MunitResult test_fetch_by_name(const MunitParameter params[], void* user_data_or_fixture) {
+
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	// setup
+	Signal sig_bit = signal_create(pool, 1);
+	Signal sig_byte = signal_create(pool, 8);
+	Signal sig_word = signal_create(pool, 16);
+
+	signal_set_name(pool, sig_bit, "bit");
+	signal_set_name(pool, sig_byte, "byte");
+	signal_set_name(pool, sig_word, "word");
+
+	// test
+	Signal test = signal_by_name(pool, "bit");
+	munit_assert_memory_equal(sizeof(Signal), &test, &sig_bit);
+
+	test = signal_by_name(pool, "byte");
+	munit_assert_memory_equal(sizeof(Signal), &test, &sig_byte);
+
+	test = signal_by_name(pool, "word");
+	munit_assert_memory_equal(sizeof(Signal), &test, &sig_word);
+
+	return MUNIT_OK;
+}
+
 static MunitResult benchmark_read_uint8(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
 
@@ -661,6 +687,7 @@ MunitTest signal_tests[] = {
     { "/multiple_domains", test_multiple_domains, signal_setup_two, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/changed", test_changed, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL },
     { "/names", test_names, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
+    { "/fetch_by_name", test_fetch_by_name, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
 //	{ "/benchmark_read_uint8", benchmark_read_uint8, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},
 //	{ "/benchmark_write_uint8", benchmark_write_uint8, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},
 //	{ "/benchmark_write_uint8_masked", benchmark_write_uint8_masked, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL},

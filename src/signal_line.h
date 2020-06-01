@@ -29,9 +29,15 @@ typedef struct SignalDomain {
 	char *		signals_name;
 } SignalDomain;
 
+typedef struct SignalNameMap {
+	const char *key;
+	Signal		value;
+} SignalNameMap;
+
 typedef struct SignalPool {
 	int8_t			default_domain;
 	int8_t			num_domains;
+	SignalNameMap	*signal_names;
 	SignalDomain	domains[0];
 } SignalPool;
 
@@ -63,6 +69,8 @@ static inline Signal signal_split(Signal src, uint32_t start, uint32_t size) {
 	Signal result = {src.start + start, size, src.domain};
 	return result;
 }
+
+Signal signal_by_name(SignalPool *pool, const char *name);
 
 static inline bool signal_read_bool(SignalPool *pool, Signal signal) {
 	assert(pool);
