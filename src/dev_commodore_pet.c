@@ -98,12 +98,25 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(sele_b, 1, "/SELE");
 	SIGNAL_DEFINE_N(self_b, 1, "/SELF");
 
-	SIGNAL_DEFINE_N(x8xx, 1, "X8XX");
-	SIGNAL_DEFINE(ram_read_b, 1);
-	SIGNAL_DEFINE(ram_write_b, 1);
+	SIGNAL_DEFINE_N(sel8, 1, "SEL8");
 
-	SIGNAL_DEFINE_BOOL(high, 1, true);
-	SIGNAL_DEFINE_BOOL(low, 1, false);
+	SIGNAL_DEFINE_N(x8xx, 1, "X8XX");
+	SIGNAL_DEFINE_N(s_88xx_b, 1, "/88XX");
+	SIGNAL_DEFINE_N(rom_addr_b, 1, "/ROMA");
+
+	SIGNAL_DEFINE_N(ram_read_b, 1, "/RAMR");
+	SIGNAL_DEFINE_N(ram_write_b, 1, "/RAMW");
+
+	SIGNAL_DEFINE_N(phi2, 1, "PHI2");
+	SIGNAL_DEFINE_N(bphi2, 1, "BPHI2");
+	SIGNAL_DEFINE_N(cphi2, 1, "CPHI2");
+
+	SIGNAL_DEFINE_N(buf_rw, 1, "BRW");
+	SIGNAL_DEFINE_N(buf_rw_b, 1, "/BRW");
+	SIGNAL_DEFINE_N(ram_rw, 1, "RAMRW");
+
+	SIGNAL_DEFINE_BOOL_N(high, 1, true, "VCC");
+	SIGNAL_DEFINE_BOOL_N(low, 1, false, "GND");
 
 	SIGNAL_DEFINE(cs1, 1);
 
@@ -119,6 +132,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->signals.ba13 = signal_split(SIGNAL(bus_ba), 13, 1);
 	device->signals.ba14 = signal_split(SIGNAL(bus_ba), 14, 1);
 	device->signals.ba15 = signal_split(SIGNAL(bus_ba), 15, 1);
+
+	SIGNAL_DEFINE_N(ba11_b, 1, "/BA11");
+	SIGNAL_DEFINE_N(reset, 1, "RES");
 
 	// clock
 	device->clock = clock_create(100000, device->signal_pool, (ClockSignals){
@@ -438,20 +454,49 @@ static inline void process_glue_logic(DevCommodorePet *device, bool video_on) {
 	bool sel8_b = SIGNAL_NEXT_BOOL(sel8_b);
 	bool rw   = SIGNAL_NEXT_BOOL(cpu_rw);
 
+	// A3 (1, 2)
+	bool reset_b = SIGNAL_NEXT_BOOL(reset_b);
+	SIGNAL_SET_BOOL(reset, !reset_b);
+
+	// A3 (11, 10)
+	bool sel8 = !sel8_b;
+	SIGNAL_SET_BOOL(sel8, sel8);
+
+	// A3 (3, 4)
+	bool ba11_b = !ba11;
+	SIGNAL_SET_BOOL(ba11_b, ba11_b);
+
 	// B2 (1,2,4,5,6)
-	bool addr_x8xx = !(ba8 | ba9 | ba10 | !ba11);
+	bool addr_x8xx = !(ba8 | ba9 | ba10 | ba11_b);
 	SIGNAL_SET_BOOL(x8xx, addr_x8xx);
 
 	// A4 (4,5,6)
-	bool addr_88xx_b = NAND(!sel8_b, addr_x8xx);
+	bool addr_88xx_b = NAND(sel8, addr_x8xx);
+	SIGNAL_SET_BOOL(s_88xx_b, addr_88xx_b);
 
 	// A4 (1,2,3)
 	bool rom_addr_b = NAND(ba15, sel8_b);
+	SIGNAL_SET_BOOL(rom_addr_b, rom_addr_b);
 
 	// A5 (3,4,5,6)
 	bool ram_read_b = !(rom_addr_b && addr_88xx_b && rw);
 	SIGNAL_SET_BOOL(ram_read_b, ram_read_b);
 	SIGNAL_SET_BOOL(ram_write_b, !ram_read_b);
+
+	// A10 (3,4)
+	SIGNAL_SET_BOOL(buf_rw, rw);
+
+	// A3 (12,13)
+	SIGNAL_SET_BOOL(buf_rw_b, !rw);
+
+	// A3 (9,8)
+	SIGNAL_SET_BOOL(ram_rw, rw);
+
+	// FIXME: cpu doesn't output phi2 clock signal
+	bool phi2 = SIGNAL_NEXT_BOOL(clk1);
+	SIGNAL_SET_BOOL(phi2, phi2);
+	SIGNAL_SET_BOOL(bphi2, phi2);
+	SIGNAL_SET_BOOL(cphi2, phi2);
 
 	chip_74244_octal_buffer_process(device->e9);
 	chip_74244_octal_buffer_process(device->e10);

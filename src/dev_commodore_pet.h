@@ -58,9 +58,21 @@ typedef struct DevCommodorePetSignals {
 	Signal		sele_b;				// 1-bit - accessing memory $exxx
 	Signal		self_b;				// 1-bit - accessing memory $fxxx
 
-	Signal		x8xx;				// 1-bit - 3 nibble of address == 8
+	Signal		sel8;				// 1-bit - inverse of sel8_b
+
+	Signal		x8xx;				// 1-bit - third nibble of address == 8
+	Signal		s_88xx_b;			// 1-bit
+	Signal		rom_addr_b;			// 1-bit - low if ROM is being addressed
 	Signal		ram_read_b;			// 1-bit - cpu reads from ram
 	Signal		ram_write_b;		// 1-bit - cpu writes to ram
+
+	Signal		phi2;				// 1-bit - cpu output clock signal (phase 2)
+	Signal		bphi2;				// 1-bit
+	Signal		cphi2;				// 1-bit
+
+	Signal		buf_rw;				// 1-bit - buffered RW
+	Signal		buf_rw_b;			// 1-bit - buffered inverse RW
+	Signal		ram_rw;				// 1-bit
 
 	Signal		high;				// 1-bit - always high
 	Signal		low;				// 1-bit - always low
@@ -75,6 +87,9 @@ typedef struct DevCommodorePetSignals {
 	Signal		ba13;				// 1-bit
 	Signal		ba14;				// 1-bit
 	Signal		ba15;				// 1-bit - top bit of the buffered address bus
+
+	Signal		ba11_b;				// 1-bit
+	Signal		reset;				// 1-bit
 
 	Signal		ram_oe_b;			// 1-bit
 	Signal		ram_we_b;			// 1-bit
