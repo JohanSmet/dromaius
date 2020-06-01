@@ -43,10 +43,10 @@ function wasm_wrap_functions() {
 	dmsapi_context_pause = Module.cwrap('dmsapi_context_pause', null, [API_NUMBER]);
 	dmsapi_context_reset = Module.cwrap('dmsapi_context_reset', null, [API_NUMBER]);
 
-	dmsapi_cpu_6502_info = Module.cwrap('dmsapi_cpu_6502_info', API_STRING, [API_NUMBER]);
-	dmsapi_display_info = Module.cwrap('dmsapi_display_info', API_STRING, [API_NUMBER]);
-	dmsapi_signal_info = Module.cwrap('dmsapi_signal_info', API_STRING, [API_NUMBER]);
-	dmsapi_free_json = Module.cwrap('dmsapi_free_json', null, [API_STRING]);
+	dmsapi_cpu_6502_info = Module.cwrap('dmsapi_cpu_6502_info', API_NUMBER, [API_NUMBER]);
+	dmsapi_display_info = Module.cwrap('dmsapi_display_info', API_NUMBER, [API_NUMBER]);
+	dmsapi_signal_info = Module.cwrap('dmsapi_signal_info', API_NUMBER, [API_NUMBER]);
+	dmsapi_free_json = Module.cwrap('dmsapi_free_json', null, [API_NUMBER]);
 
 	dmsapi_display_data = Module.cwrap('dmsapi_display_data', null, [API_NUMBER, API_NUMBER]);
 	dmsapi_signal_data = Module.cwrap('dmsapi_signal_data', API_NUMBER, [API_NUMBER, API_NUMBER, API_NUMBER]);
@@ -61,10 +61,10 @@ function allocate_shared_memory(size) {
 	}
 }
 
-function parse_json(wasm_str) {
+function parse_json(wasm_ptr) {
 	try {
-		var obj = JSON.parse(wasm_str);
-		dmsapi_free_json(wasm_str);
+		var obj = JSON.parse(UTF8ToString(wasm_ptr));
+		dmsapi_free_json(wasm_ptr);
 		return obj;
 	} catch (err) {
 		console.error(err);
