@@ -170,7 +170,7 @@ int dmsapi_signal_data(DmsApiContext *context, int8_t domain, uint8_t *memory) {
 	assert(context);
 	assert(domain > 0 && domain < context->pet_device->signal_pool->num_domains);
 
-	bool *signals = context->pet_device->signal_pool->domains[domain].signals_curr;
+	bool *signals = context->pet_device->signal_pool->domains[domain].signals_next;
 	memcpy(memory, signals, arrlenu(signals));
 
 	return arrlenu(signals);
