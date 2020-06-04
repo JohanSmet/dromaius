@@ -79,7 +79,7 @@ SignalPool *signal_pool_create(size_t num_domains) {
 	assert(num_domains < 128);
 	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool) + (sizeof(SignalDomain) * num_domains));
 	pool->num_domains = (int8_t) num_domains;
-	pool->signal_names = NULL;
+	sh_new_arena(pool->signal_names);
 	return pool;
 }
 
@@ -164,11 +164,11 @@ void signal_set_name(SignalPool *pool, Signal signal, const char *name) {
 		shput(pool->signal_names, target, signal);
 	} else {
 		char sub_name[8];
-		for (size_t i = 0; i < signal.count; ++i) {
+		for (uint32_t i = 0; i < signal.count; ++i) {
 			snprintf(sub_name, MAX_SIGNAL_NAME, name, i);
 			char *target = domain->signals_name + ((signal.start + i) * MAX_SIGNAL_NAME);
 			strcpy(target, sub_name);
-			shput(pool->signal_names, target, signal);
+			shput(pool->signal_names, target, signal_split(signal, i, 1));
 		}
 	}
 }
