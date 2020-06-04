@@ -36,6 +36,7 @@ typedef struct DmsContext {
 	Device *		device;
 	DMS_STATE		state;
 	int64_t *		breakpoints;
+	Signal *		signal_breakpoints;
 	bool			break_on_irq;
 
 #ifndef DMS_NO_THREADING
@@ -58,6 +59,26 @@ static inline int breakpoint_index(DmsContext *dms, int64_t addr) {
 	}
 
 	return -1;
+}
+
+static inline int signal_breakpoint_index(DmsContext *dms, Signal signal) {
+	for (int i = 0; i < arrlen(dms->signal_breakpoints); ++i) {
+		if (memcmp(&dms->signal_breakpoints[i], &signal, sizeof(signal)) == 0) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+static inline bool signal_breakpoint_triggered(DmsContext *dms) {
+	for (int i = 0; i < arrlen(dms->signal_breakpoints); ++i) {
+		if (signal_changed(dms->device->signal_pool, dms->signal_breakpoints[i])) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 static bool context_execute(DmsContext *dms) {
@@ -91,6 +112,8 @@ static bool context_execute(DmsContext *dms) {
 				if (!prev_irq && irq && dms->break_on_irq) {
 					dms->state = DS_WAIT;
 				} else if (cpu_sync && breakpoint_index(dms, cpu->program_counter(cpu)) >= 0) {
+					dms->state = DS_WAIT;
+				} else if (signal_breakpoint_triggered(dms)) {
 					dms->state = DS_WAIT;
 				}
 				break;
@@ -164,6 +187,7 @@ DmsContext *dms_create_context(void) {
 	DmsContext *ctx = (DmsContext *) malloc(sizeof(DmsContext));
 	ctx->device = NULL;
 	ctx->breakpoints = NULL;
+	ctx->signal_breakpoints = NULL;
 	ctx->break_on_irq = false;
 	ctx->state = DS_WAIT;
 	return ctx;
@@ -264,6 +288,18 @@ bool dms_toggle_breakpoint(DmsContext *dms, int64_t addr) {
 	}
 }
 
+bool dms_toggle_signal_breakpoint(DmsContext *dms, Signal signal) {
+	int idx = signal_breakpoint_index(dms, signal);
+
+	if (idx < 0) {
+		arrpush(dms->signal_breakpoints, signal);
+		return true;
+	} else {
+		arrdelswap(dms->signal_breakpoints, idx);
+		return false;
+	}
+}
+
 void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 	assert(dms);
 	assert(cmd);
@@ -295,6 +331,16 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 
 		static const char *disp_enabled[] = {"disabled", "enabled"};
 		arr_printf(*reply, "OK: break-on-irq %s", disp_enabled[dms->break_on_irq]);
+	} else if (cmd[0] == 'b' && cmd[1] == 's') {		// toggle "b"reak on signal change
+		Signal signal = signal_by_name(dms->device->signal_pool, cmd + 3);
+
+		if (signal.count != 0) {
+			static const char *disp_break[] = {"unset", "set"};
+			bool set = dms_toggle_signal_breakpoint(dms, signal);
+			arr_printf(*reply, "OK: signal-change breakpoint on %s %s", cmd + 3, disp_break[set]);
+		} else {
+			arr_printf(*reply, "NOK: signal '%s' is not known", cmd + 3);
+		}
 	} else if (cmd[0] == 'b') {		// toggle "b"reak-point
 		int64_t addr;
 		if (string_to_hexint(cmd + 1, &addr)) {
