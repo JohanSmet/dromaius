@@ -132,7 +132,6 @@ typedef struct DevCommodorePet {
 	Chip74145BcdDecoder *	c9;			// keyboard row decoding
 
 	// signals
-	SignalPool *			signal_pool;
 	DevCommodorePetSignals	signals;
 } DevCommodorePet;
 

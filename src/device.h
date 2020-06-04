@@ -6,6 +6,7 @@
 #define DROMAIUS_DEVICE_H
 
 #include "types.h"
+#include "signal_line.h"
 
 typedef struct Cpu *(*DEVICE_GET_CPU)(void *device);
 typedef struct Clock *(*DEVICE_GET_CLOCK)(void *device);
@@ -18,10 +19,13 @@ typedef void (*DEVICE_DESTROY)(void *device);
 	DEVICE_GET_CLOCK get_clock;			\
 	DEVICE_PROCESS process;				\
 	DEVICE_RESET reset;					\
-	DEVICE_DESTROY destroy;
+	DEVICE_DESTROY destroy;				\
+	SignalPool *			signal_pool;
+
 
 typedef struct Device {
 	DEVICE_DECLARE_FUNCTIONS
+
 } Device;
 
 #endif // DROMAIUS_DEVICE_H

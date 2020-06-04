@@ -70,7 +70,6 @@ typedef struct DevMinimal6502 {
 	Clock *			clock;
 
 	// signals
-	SignalPool *			signal_pool;
 	DevMinimal6502Signals	signals;
 } DevMinimal6502;
 
