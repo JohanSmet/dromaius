@@ -137,15 +137,13 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 	arrsetcap(domain->signals_curr, arrlenu(domain->signals_curr) + size);
 	arrsetcap(domain->signals_next, arrlenu(domain->signals_next) + size);
 	arrsetcap(domain->signals_default, arrlenu(domain->signals_default) + size);
-	arrsetcap(domain->signals_name, arrlenu(domain->signals_name) + (size * MAX_SIGNAL_NAME));
+	arrsetcap(domain->signals_name, arrlenu(domain->signals_name) + size);
 
 	for (uint32_t i = 0; i < size; ++i) {
 		arrpush(domain->signals_curr, false);
 		arrpush(domain->signals_next, false);
 		arrpush(domain->signals_default, false);
-		for (int j = 0; j < MAX_SIGNAL_NAME; ++j) {
-			arrpush(domain->signals_name, '\0');
-		}
+		arrpush(domain->signals_name, NULL);
 	}
 
 	return result;
@@ -158,17 +156,14 @@ void signal_set_name(SignalPool *pool, Signal signal, const char *name) {
 	SignalDomain *domain = &pool->domains[signal.domain];
 
 	if (signal.count == 1) {
-		assert(strlen(name) < MAX_SIGNAL_NAME);
-		char *target = domain->signals_name + (signal.start * MAX_SIGNAL_NAME);
-		strcpy(target, name);
-		shput(pool->signal_names, target, signal);
+		shput(pool->signal_names, name, signal);
+		domain->signals_name[signal.start] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
 	} else {
-		char sub_name[8];
+		char sub_name[MAX_SIGNAL_NAME];
 		for (uint32_t i = 0; i < signal.count; ++i) {
 			snprintf(sub_name, MAX_SIGNAL_NAME, name, i);
-			char *target = domain->signals_name + ((signal.start + i) * MAX_SIGNAL_NAME);
-			strcpy(target, sub_name);
-			shput(pool->signal_names, target, signal_split(signal, i, 1));
+			shput(pool->signal_names, sub_name, signal_split(signal, i, 1));
+			domain->signals_name[signal.start+i] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
 		}
 	}
 }
@@ -178,7 +173,7 @@ const char * signal_get_name(SignalPool *pool, Signal signal) {
 	assert(signal.count == 1);
 
 	SignalDomain *domain = &pool->domains[signal.domain];
-	return domain->signals_name + (signal.start * MAX_SIGNAL_NAME);
+	return domain->signals_name[signal.start];
 }
 
 void signal_default_bool(SignalPool *pool, Signal signal, bool value) {

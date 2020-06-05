@@ -28,7 +28,7 @@ var display_context = null;
 var display_imdata = null;
 
 var signals_sharmem = null;
-var signals_names = {};
+var signals_names = [];
 
 var svg_doc = null;
 
@@ -88,10 +88,20 @@ function setup_emulation() {
 	// signals
 	var signal_info = parse_json(dmsapi_signal_info(dmsapi_context));
 	signals_sharmem = allocate_shared_memory(Math.max(signal_info.count));
-	signals_names = signal_info.names;
-	for (const key in signals_names[0]) {
-		signals_names[0][key] = '--color-' + signals_names[0][key].replace('/', 'bar');
-	};
+
+	for (var d = 0; d < signal_info.count.length; ++d) {
+		signals_names.push([]);
+		for (var i = 0; i < signal_info.count[d]; ++i) {
+			signals_names[d].push('');
+		}
+	}
+
+	for (const key in signal_info.names) {
+		const signal = signal_info.names[key];
+		if (signal.count == 1) {
+			signals_names[signal.domain][signal.start] = '--color-' + key.replace('/', 'bar');
+		}
+	}
 
 	// setup shared memory and image-data for the monitor display
 	var display_info = parse_json(dmsapi_display_info(dmsapi_context));

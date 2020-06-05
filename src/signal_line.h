@@ -23,10 +23,10 @@ typedef struct Signal {
 } Signal;
 
 typedef struct SignalDomain {
-	bool *		signals_curr;
-	bool *		signals_next;
-	bool *		signals_default;
-	char *		signals_name;
+	bool *			signals_curr;
+	bool *			signals_next;
+	bool *			signals_default;
+	const char **	signals_name;
 } SignalDomain;
 
 typedef struct SignalNameMap {

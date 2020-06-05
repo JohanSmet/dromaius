@@ -126,31 +126,25 @@ const char *dmsapi_signal_info(DmsApiContext *context) {
 	}
 	arr_printf(json, "],");
 
-	arr_printf(json, "\"names\": [");
-	for (int d = 0; d < pool->num_domains; ++d) {
-		SignalDomain *domain = &pool->domains[d];
-		if (d > 0) {
+	arr_printf(json, "\"names\": {");
+	for (int s = 0; s < shlen(pool->signal_names); ++s) {
+		const char *name = pool->signal_names[s].key;
+		Signal *sig = &pool->signal_names[s].value;
+
+		if (s > 0) {
 			arr_printf(json, ",");
 		}
-		arr_printf(json, "{");
 
-		bool output = false;
-
-		for (int s = 0; s < arrlenu(domain->signals_curr); ++s) {
-			const char *name = domain->signals_name + (s * MAX_SIGNAL_NAME);
-			if (*name != '\0') {
-				if (output) {
-					arr_printf(json, ",");
-				}
-				arr_printf(json, "\"%d\": \"%s\"", s, name);
-				output = true;
-			}
-		}
-
-		arr_printf(json, "}");
+		arr_printf(json, "\"%s\": {\"domain\": %d, \"start\": %d, \"count\": %d}",
+				name,
+				sig->domain,
+				sig->start,
+				sig->count
+		);
 	}
-	arr_printf(json, "]}");
+	arr_printf(json, "}");
 
+	arr_printf(json, "}");
 	return json;
 }
 
