@@ -54,7 +54,12 @@ h2 {
 	text-align: center;
 	background-color: lightgray;
 	padding: 2px;
-	margin: 1em 1em 0em 1em;
+	margin-top: 0;
+}
+
+div.panel {
+	margin: 10px;
+	border: lightgray 1px solid;
 }
 
 table.cpu_register, table.cpu_status {
@@ -81,6 +86,7 @@ table.cpu_status td, table.cpu_status td {
 
 canvas#display {
 	background-color: #808080;
+	margin-left: 2px;
 }
 
 .D0 {
