@@ -6,8 +6,10 @@
 #include <map>
 
 #include "context.h"
+#include "cpu_6502.h"
 #include "dev_commodore_pet.h"
 #include "display_rgba.h"
+
 #include "stb/stb_ds.h"
 
 using namespace emscripten;
@@ -93,6 +95,11 @@ public:
 		return result;
 	}
 
+	Cpu6502 cpu_info() {
+		assert(pet_device);
+		return *pet_device->cpu;
+	}
+
 private:
 	DmsContext *	dms_ctx;
 	DevCommodorePet *	pet_device;
@@ -125,6 +132,16 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.field("count", &Signal::count)
 		;
 
+	value_object<Cpu6502>("Cpu6502")
+		.field("reg_a", &Cpu6502::reg_a)
+		.field("reg_x", &Cpu6502::reg_x)
+		.field("reg_y", &Cpu6502::reg_y)
+		.field("reg_sp", &Cpu6502::reg_sp)
+		.field("reg_ir", &Cpu6502::reg_ir)
+		.field("reg_pc", &Cpu6502::reg_pc)
+		.field("reg_p", &Cpu6502::reg_p)
+		;
+
 	value_object<DmsApi::DisplayInfo>("DmsApi__DisplayInfo")
 		.field("width", &DmsApi::DisplayInfo::width)
 		.field("height", &DmsApi::DisplayInfo::height)
@@ -147,5 +164,6 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("signal_data", &DmsApi::signal_data)
 		.function("display_info", &DmsApi::display_info)
 		.function("signal_info", &DmsApi::signal_info)
+		.function("cpu_info", &DmsApi::cpu_info)
 		;
 }

@@ -7,6 +7,8 @@ var signals_names = [];
 
 var svg_doc = null;
 
+var panel_cpu = new PanelCpu6502($('div#cpu'));
+
 // functions
 function setup_svg_document() {
 	// FIXME: support more than 1 page
@@ -68,10 +70,16 @@ function refresh_signals() {
 	}
 }
 
+function refresh_cpu_panel() {
+	var cpu_info = dmsapi.cpu_info();
+	panel_cpu.update(cpu_info);
+}
+
 function execution_timer() {
 	dmsapi.context_execute();
 
 	refresh_signals();
+	refresh_cpu_panel();
 
 	// refresh the screen
 	display_imdata.data.set(dmsapi.display_data());
