@@ -47,11 +47,29 @@
 				</div>
 			</div>
 			<div id="right_column">
-				<div id="schematic">
-					<object id="schematic_page" type="image/svg+xml" data="circuits/commodore_pet_2001n/sheet_01.svg" class="schematic">
+				<div class="tab">
+					<button class="tab_button" id="sheet_01">Sheet 1</button>
+					<button class="tab_button" id="sheet_02">Sheet 2</button>
+					<button class="tab_button" id="sheet_06">Sheet 6</button>
+				</div>
+
+				<div class="tab_content schematic" id="sheet_01">
+					<object id="sheet_01" type="image/svg+xml" data="circuits/commodore_pet_2001n/sheet_01.svg" class="schematic">
 						Page 1
 					</object>
-				<div>
+				</div>
+
+				<div class="tab_content schematic" id="sheet_02">
+					<object id="sheet_02" type="image/svg+xml" data="circuits/commodore_pet_2001n/sheet_02.svg" class="schematic">
+						Page 2
+					</object>
+				</div>
+
+				<div class="tab_content schematic" id="sheet_06">
+					<object id="sheet_06" type="image/svg+xml" data="circuits/commodore_pet_2001n/sheet_06.svg" class="schematic">
+						Page 1
+					</object>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -64,6 +82,7 @@
 		Module.onRuntimeInitialized = function() {
 			$("#main").show();
 			setup_emulation();
+			$("button#sheet_01").click();
 		}
 	</script>
   </body>

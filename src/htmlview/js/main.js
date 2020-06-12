@@ -10,9 +10,8 @@ var svg_doc = null;
 var panel_cpu = new PanelCpu6502($('div#cpu'));
 
 // functions
-function setup_svg_document() {
-	// FIXME: support more than 1 page
-	var svg_el = document.getElementById('schematic_page');
+function setup_svg_document(container) {
+	var svg_el = $('object' + container + '.schematic')[0];
 	svg_doc = svg_el.getSVGDocument();
 }
 
@@ -20,9 +19,6 @@ function setup_emulation() {
 	dmsapi = new Module.DmsApi();
 
 	dmsapi.launch_commodore_pet();
-
-	// svg
-	setup_svg_document();
 
 	// signals
 	var signal_info = dmsapi.signal_info();
@@ -61,6 +57,10 @@ function setup_emulation() {
 }
 
 function refresh_signals() {
+	if (svg_doc == null) {
+		return;
+	}
+
 	var sig_data = dmsapi.signal_data(0);
 	var colors = ["#009900", "#00FF00"];
 
@@ -100,4 +100,16 @@ $('#btnPause').on('click', function (event) {
 
 $('#btnReset').on('click', function (event) {
 	dmsapi.context_reset();
+});
+
+$('.tab_button').on('click', function (event) {
+	var obj_id = '#' + $(this).attr('id');
+
+	$('.tab_content').hide();
+	$('div' + obj_id).show();
+
+	$('.tab_button').removeClass('active');
+	$(this).addClass('active');
+
+	setup_svg_document(obj_id);
 });
