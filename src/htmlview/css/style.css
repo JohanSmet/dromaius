@@ -59,6 +59,7 @@ h2 {
 	background-color: lightgray;
 	padding: 2px;
 	margin-top: 0;
+	margin-bottom: 0.5em;
 }
 
 div.panel {
@@ -66,7 +67,7 @@ div.panel {
 	border: lightgray 1px solid;
 }
 
-table.cpu_register, table.cpu_status {
+table.panel_info, table.cpu_register, table.cpu_status {
 	font-family: monospace;
 	text-align: right;
 	margin-left: 2em;

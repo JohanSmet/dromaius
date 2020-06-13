@@ -8,6 +8,7 @@ var signals_names = [];
 var svg_doc = null;
 
 var panel_cpu = new PanelCpu6502($('div#cpu'));
+var panel_clock = new PanelClock($('div#clock'));
 
 // functions
 function setup_svg_document(container) {
@@ -75,11 +76,17 @@ function refresh_cpu_panel() {
 	panel_cpu.update(cpu_info);
 }
 
+function refresh_clock_panel() {
+	var clock_info = dmsapi.clock_info();
+	panel_clock.update(clock_info);
+}
+
 function execution_timer() {
 	dmsapi.context_execute();
 
 	refresh_signals();
 	refresh_cpu_panel();
+	refresh_clock_panel();
 
 	// refresh the screen
 	display_imdata.data.set(dmsapi.display_data());

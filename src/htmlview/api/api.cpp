@@ -26,6 +26,11 @@ public:
 		std::map<std::string, Signal>	names;
 	};
 
+	struct ClockInfo {
+		bool	output;
+		int32_t cycle_count;
+	};
+
 public:
 	DmsApi() = default;
 
@@ -105,6 +110,13 @@ public:
 		return *pet_device->cpu;
 	}
 
+	ClockInfo clock_info() {
+		return (ClockInfo) {
+			signal_read_next_bool(pet_device->signal_pool, pet_device->clock->signals.clock),
+			static_cast<int32_t>(pet_device->clock->cycle_count)
+		};
+	}
+
 private:
 	DmsContext *	dms_ctx;
 	DevCommodorePet *	pet_device;
@@ -157,6 +169,11 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.field("names", &DmsApi::SignalInfo::names)
 		;
 
+	value_object<DmsApi::ClockInfo>("DmsApi__ClockInfo")
+		.field("output", &DmsApi::ClockInfo::output)
+		.field("cycle_count", &DmsApi::ClockInfo::cycle_count)
+		;
+
 	class_<DmsApi>("DmsApi")
 		.constructor()
 		.function("launch_commodore_pet", &DmsApi::launch_commodore_pet)
@@ -171,5 +188,6 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("display_info", &DmsApi::display_info)
 		.function("signal_info", &DmsApi::signal_info)
 		.function("cpu_info", &DmsApi::cpu_info)
+		.function("clock_info", &DmsApi::clock_info)
 		;
 }
