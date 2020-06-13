@@ -86,8 +86,12 @@ function execution_timer() {
 	display_context.putImageData(display_imdata, 0, 0);
 }
 
-$('#btnStep').on('click', function (event) {
-	dmsapi.context_step();
+$('#btnStepInstruction').on('click', function (event) {
+	dmsapi.context_step_instruction();
+});
+
+$('#btnStepClock').on('click', function (event) {
+	dmsapi.context_step_clock();
 });
 
 $('#btnRun').on('click', function (event) {

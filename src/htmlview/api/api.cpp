@@ -38,7 +38,12 @@ public:
 		dms_execute(dms_ctx);
 	}
 
-	void context_step() {
+	void context_step_clock() {
+		assert(dms_ctx);
+		dms_single_step(dms_ctx);
+	}
+
+	void context_step_instruction() {
 		assert(dms_ctx);
 		dms_single_instruction(dms_ctx);
 	}
@@ -156,7 +161,8 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.constructor()
 		.function("launch_commodore_pet", &DmsApi::launch_commodore_pet)
 		.function("context_execute", &DmsApi::context_execute)
-		.function("context_step", &DmsApi::context_step)
+		.function("context_step_clock", &DmsApi::context_step_clock)
+		.function("context_step_instruction", &DmsApi::context_step_instruction)
 		.function("context_run", &DmsApi::context_run)
 		.function("context_pause", &DmsApi::context_pause)
 		.function("context_reset", &DmsApi::context_reset)
