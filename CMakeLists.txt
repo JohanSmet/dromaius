@@ -244,6 +244,8 @@ if (EMSCRIPTEN)
 			"--exclude-file *.cfg"
 	)
 	target_link_libraries(${HTML_TARGET} PRIVATE "--bind")
+	target_link_libraries(${HTML_TARGET} PRIVATE "-s EXPORT_ES6=1")
+	target_link_libraries(${HTML_TARGET} PRIVATE "-s MODULARIZE=1")
 endif()
 
 # unit tests

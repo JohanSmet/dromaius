@@ -77,18 +77,15 @@
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript" src="js/emscripten.js"></script>
-	<script async type="text/javascript" src="wasm/htmlview.js"></script>
-	<script type="text/javascript" src="js/panel_cpu_6502.js"></script>
-	<script type="text/javascript" src="js/panel_clock.js"></script>
-	<script type="text/javascript" src="js/main.js"></script>
+
+	<script type="module" src="js/entrypoint.js"></script>
+
 	<script type="text/javascript">
-		// initialization
-		Module.onRuntimeInitialized = function() {
-			$("#main").show();
-			setup_emulation();
-			$("button#sheet_01").click();
-		}
+		// override error-handler
+		window.onerror = function() {
+			$('#status').text('Exception thrown, see JavaScript console');
+			$('#spinner').hide();
+		};
 	</script>
   </body>
 </html>

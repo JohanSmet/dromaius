@@ -1,6 +1,6 @@
 // js/panel_clock.js - Johan Smet - BSD-3-Clause (see LICENSE)
 
-class PanelClock {
+export class PanelClock {
 	constructor(container) {
 		// title
 		container.append($("<h2 />", { text: "Clock" }));

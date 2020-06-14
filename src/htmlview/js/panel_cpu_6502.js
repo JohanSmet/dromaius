@@ -1,6 +1,6 @@
 // js/panel_cpu_6502.js - Johan Smet - BSD-3-Clause (see LICENSE)
 
-class PanelCpu6502 {
+export class PanelCpu6502 {
 	constructor(container) {
 		var create_row = function(label, reg) {
 			return $('<tr>')

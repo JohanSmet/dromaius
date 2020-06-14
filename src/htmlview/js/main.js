@@ -1,3 +1,8 @@
+// js/main.js - Johan Smet - BSD-3-Clause (see LICENSE)
+
+import {PanelCpu6502} from './panel_cpu_6502.js';
+import {PanelClock} from './panel_clock.js';
+
 // globals
 var dmsapi = null;
 var display_context = null;
@@ -16,8 +21,8 @@ function setup_svg_document(container) {
 	svg_doc = svg_el.getSVGDocument();
 }
 
-function setup_emulation() {
-	dmsapi = new Module.DmsApi();
+export function setup_emulation(emscripten_mod) {
+	dmsapi = new emscripten_mod.DmsApi();
 
 	dmsapi.launch_commodore_pet();
 
