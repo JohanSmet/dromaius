@@ -81,12 +81,12 @@ jobs:
               id: cache
               with:
                   path: 'emsdk-cache'
-                  key: ${{ runner.os }}--emsdk-1.39.6
+                  key: ${{ runner.os }}--emsdk-1.39.14
 
             - name: Setup Emscripten
               uses: mymindstorm/setup-emsdk@v3
               with:
-                  version: 1.39.6
+                  version: 1.39.14
                   actions-cache-folder: 'emsdk-cache'
                   no-cache: true
 
