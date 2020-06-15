@@ -173,7 +173,8 @@ const char * signal_get_name(SignalPool *pool, Signal signal) {
 	assert(signal.count == 1);
 
 	SignalDomain *domain = &pool->domains[signal.domain];
-	return domain->signals_name[signal.start];
+	const char *name = domain->signals_name[signal.start];
+	return (name == NULL) ? "" : name;
 }
 
 void signal_default_bool(SignalPool *pool, Signal signal, bool value) {
