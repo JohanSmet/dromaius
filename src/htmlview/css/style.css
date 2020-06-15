@@ -94,9 +94,17 @@ canvas#display {
 	margin-left: 2px;
 }
 
-.D0 {
-	fill: #ff0000;
-	stroke: #ff0000;
+div#about {
+	z-index: 20;
+	position: fixed;
+	border: 2px black solid;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%,-50%);
+	text-align: center;
+	padding: 20px;
+	font-family: sans-serif;
+	background-color: white;
 }
 
 /* tabs */

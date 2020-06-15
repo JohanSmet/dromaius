@@ -129,3 +129,11 @@ $('.tab_button').on('click', function (event) {
 
 	setup_svg_document(obj_id);
 });
+
+$("#btnAboutOpen").on("click", function (event) {
+	$("#about").show();
+});
+
+$("#btnAboutClose").on("click", function (event) {
+	$("#about").hide();
+});

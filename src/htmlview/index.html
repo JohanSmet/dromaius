@@ -26,11 +26,11 @@
 			</span>
 			<span>
 				&nbsp;Commands:
-				<input type="button" id="btnStepClock" value="Step Clock">
-				<input type="button" id="btnStepInstruction" value="Step Instruction">
-				<input type="button" id="btnRun" value="Run">
-				<input type="button" id="btnPause" value="Pause">
-				<input type="button" id="btnReset" value="Reset">
+				<input type="button" id="btnStepClock" value="Step Clock" title="Advance simulation until the clock signal changes">
+				<input type="button" id="btnStepInstruction" value="Step Instruction" title="Advance simulation until the next CPU instruction">
+				<input type="button" id="btnRun" value="Run" title="Run simulation continuously">
+				<input type="button" id="btnPause" value="Pause" title="Pause a running simulation">
+				<input type="button" id="btnReset" value="Reset" title="Reset the simulation">
 			</span>
 			<span style="margin-left: 10em">
 				<input type="button" id="btnAboutOpen" value="About">
@@ -52,9 +52,9 @@
 			</div>
 			<div id="right_column">
 				<div class="tab">
-					<button class="tab_button" id="sheet_01">Sheet 1</button>
-					<button class="tab_button" id="sheet_02">Sheet 2</button>
-					<button class="tab_button" id="sheet_06">Sheet 6</button>
+					<button class="tab_button" id="sheet_01" title="Micro-processor / Memory Expansion">Sheet 1</button>
+					<button class="tab_button" id="sheet_02" title="IEEE-488 Interface">Sheet 2</button>
+					<button class="tab_button" id="sheet_06" title="Master timing">Sheet 6</button>
 				</div>
 
 				<div class="tab_content schematic" id="sheet_01">
@@ -75,6 +75,16 @@
 					</object>
 				</div>
 			</div>
+		</div>
+
+		<div id="about" class="hidden">
+			<h1>PET 2001-N Emulator - Schematic View</h1>
+			<p>Prototype of a chip-level, cycle-accurate, simulation of a Commodore PET 2001-N using the
+			<a href="https://github.com/JohanSmet/dromaius">Dromaius emulator</a>.</p>
+			<p>Not yet all subsystems are implemented at the chip-level. The RAM, ROM, and display section are functional approximations.</p>
+
+			<p>Copyright (c) 2020 Johan Smet</p>
+			<input type="button" id="btnAboutClose" value="Close">
 		</div>
 	</div>
 
