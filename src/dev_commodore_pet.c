@@ -74,6 +74,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->signal_pool = signal_pool_create(2);
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_CLOCK);
+	SIGNAL_DEFINE_BOOL_N(clk16, 1, true, "CLK16");
+	SIGNAL_DEFINE_BOOL_N(clk8, 1, true, "CLK8");
+	SIGNAL_DEFINE_BOOL_N(clk4, 1, true, "CLK4");
+	SIGNAL_DEFINE_BOOL_N(clk2, 1, true, "CLK2");
 	SIGNAL_DEFINE_BOOL_N(clk1, 1, true, "CLK1");
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
@@ -143,10 +147,33 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(ba11_b, 1, "/BA11");
 	SIGNAL_DEFINE_N(reset, 1, "RES");
 
+	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_CLOCK);
+
 	// clock
 	device->clock = clock_create(100000, device->signal_pool, (ClockSignals){
-										.clock = SIGNAL(clk1)
+										.clock = SIGNAL(clk16)
 	});
+
+	device->g5 = chip_74191_binary_counter_create(device->signal_pool, (Chip74191Signals) {
+										.vcc = SIGNAL(high),			// pin 16
+										.gnd = SIGNAL(low),				// pin 08
+										.enable_b = SIGNAL(low),		// pin 04
+										.d_u = SIGNAL(low),				// pin 05
+										.a = SIGNAL(low),				// pin 15
+										.b = SIGNAL(low),				// pin 01
+										.c = SIGNAL(low),				// pin 10
+										.d = SIGNAL(low),				// pin 09
+										.load_b = SIGNAL(high),			// pin 11 - FIXME: should be connected to the /INIT signal
+										.clk = SIGNAL(clk16),			// pin 14
+										.qa = SIGNAL(clk8),				// pin 03
+										.qb = SIGNAL(clk4),				// pin 02
+										.qc = SIGNAL(clk2),				// pin 06
+										.qd = SIGNAL(clk1),				// pin 07
+								//		.max_min = not connected        // pin 12
+								//		.rco_b = not connected          // pin 13
+	});
+
+	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 
 	// cpu
 	device->cpu = cpu_6502_create(device->signal_pool, (Cpu6502Signals) {
@@ -400,6 +427,8 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 		rom_8d16a_destroy(device->roms[i]);
 	}
 
+	chip_74191_binary_counter_destroy(device->g5);
+
 	chip_74244_octal_buffer_destroy(device->c3);
 	chip_74244_octal_buffer_destroy(device->b3);
 	chip_74244_octal_buffer_destroy(device->e9);
@@ -554,61 +583,70 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 	// clock tick
 	signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_CLOCK);
 	clock_process(device->clock);
+	chip_74191_binary_counter_process(device->g5);
 
-	// vblank 'fake' logic
-	bool video_on = true;
-	device->vblank_counter += SIGNAL_BOOL(clk1);
+	if (signal_changed(device->signal_pool, SIGNAL(clk1))) {
+		// vblank 'fake' logic
+		bool video_on = true;
+		device->vblank_counter += SIGNAL_BOOL(clk1);
 
-	if (device->vblank_counter >= 16666)  {		// about 60 hz if clock is running at the normal 1Mhz
-		device->vblank_counter = 0;
-		video_on = false;
+		if (device->vblank_counter >= 16666)  {		// about 60 hz if clock is running at the normal 1Mhz
+			device->vblank_counter = 0;
+			video_on = false;
+		}
+
+		// run all chips on the clock cycle
+		signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_1MHZ);
+
+		// cpu
+		device->cpu->process(device->cpu, false);
+
+		// ram
+		device->ram->process(device->ram);
+
+		// video ram
+		device->vram->process(device->vram);
+
+		// roms
+		for (int i = 0; device->roms[i] != NULL; ++i) {
+			device->roms[i]->process(device->roms[i]);
+		}
+
+		// pia-1 / IEEE-488
+		chip_6520_process(device->pia_1);
+
+		// pia-2 / keyboard
+		chip_6520_process(device->pia_2);
+
+		// via
+		chip_6522_process(device->via);
+
+		// keyboard
+		input_keypad_process(device->keypad);
+
+		// >> glue logic
+		process_glue_logic(device, video_on);
+
+		// run the cpu again on the same clock cycle - after the address hold time
+		signal_pool_cycle_domain_no_reset(device->signal_pool, PET_DOMAIN_1MHZ);
+
+		// >> cpu
+		device->cpu->process(device->cpu, true);
+
+		// >> glue logic
+		process_glue_logic(device, video_on);
+
+		// video out
+		if ((device->vblank_counter & 1) == 1) {
+			dev_commodore_pet_fake_display(device);
+		}
 	}
+}
 
-	// run all chips on the clock cycle
-	signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_1MHZ);
-
-	// cpu
-	device->cpu->process(device->cpu, false);
-
-	// ram
-	device->ram->process(device->ram);
-
-	// video ram
-	device->vram->process(device->vram);
-
-	// roms
-	for (int i = 0; device->roms[i] != NULL; ++i) {
-		device->roms[i]->process(device->roms[i]);
-	}
-
-	// pia-1 / IEEE-488
-	chip_6520_process(device->pia_1);
-
-	// pia-2 / keyboard
-	chip_6520_process(device->pia_2);
-
-	// via
-	chip_6522_process(device->via);
-
-	// keyboard
-	input_keypad_process(device->keypad);
-
-	// >> glue logic
-	process_glue_logic(device, video_on);
-
-	// run the cpu again on the same clock cycle - after the address hold time
-	signal_pool_cycle_domain_no_reset(device->signal_pool, PET_DOMAIN_1MHZ);
-
-	// >> cpu
-	device->cpu->process(device->cpu, true);
-
-	// >> glue logic
-	process_glue_logic(device, video_on);
-
-	// video out
-	if ((device->vblank_counter & 1) == 1) {
-		dev_commodore_pet_fake_display(device);
-	}
+void dev_commodore_pet_process_clk1(DevCommodorePet *device) {
+	do {
+		dev_commodore_pet_process(device);
+	} while (!signal_changed(device->signal_pool, SIGNAL(clk1)));
 }
 
 void dev_commodore_pet_reset(DevCommodorePet *device) {
@@ -616,7 +654,7 @@ void dev_commodore_pet_reset(DevCommodorePet *device) {
 	// run for a few cycles while reset is asserted
 	activate_reset(device, true);
 
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 32; ++i) {
 		dev_commodore_pet_process(device);
 	}
 

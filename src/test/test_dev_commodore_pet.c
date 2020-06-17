@@ -52,7 +52,7 @@ MunitResult test_signals_address(const MunitParameter params[], void *user_data_
 	for (int addr = 0x0000; addr <= 0xffff; addr += 0x0100) {
 		override_bus_address = addr & 0xffff;
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 
 		munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_ba), ==, override_bus_address);
 		munit_assert(SIGNAL_NEXT_BOOL(sel4_b) == ((addr & 0xf000) != 0x4000));
@@ -90,14 +90,14 @@ MunitResult test_signals_data(const MunitParameter params[], void *user_data_or_
 
 		// reading: allow data to cpu when reading from a ram-address (ram_read_b low) or block when reading from other addres (ram_write_b low)
 		override_cpu_rw = CPU_READ;
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert(!SIGNAL_NEXT_BOOL(ram_read_b) == rw_addr);
 		munit_assert(!SIGNAL_NEXT_BOOL(ram_write_b) == ro_addr);
 
 		// writing: always ok
 		munit_logf(MUNIT_LOG_INFO, "%x", addr);
 		override_cpu_rw = CPU_WRITE;
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_true(SIGNAL_NEXT_BOOL(ram_read_b));
 		munit_assert_false(SIGNAL_NEXT_BOOL(ram_write_b));
 	}
@@ -123,7 +123,7 @@ MunitResult test_read_databus(const MunitParameter params[], void *user_data_or_
 		override_cpu_rw = CPU_READ;
 		override_bus_bd = (addr & 0xff00) >> 8;
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, override_bus_bd);
 	}
 
@@ -146,7 +146,7 @@ MunitResult test_write_databus(const MunitParameter params[], void *user_data_or
 		override_bus_data = (addr & 0xff00) >> 8;
 		override_cpu_rw = CPU_WRITE;
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 
 		bool ro_addr = (addr >= 0x9000) || (addr & 0xff00) == 0x8800;
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_bd), ==, (!ro_addr) ? override_bus_data : 0);
@@ -166,10 +166,10 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 		override_bus_data = addr & 0xff;
 		override_cpu_rw = CPU_WRITE;
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_true(SIGNAL_BOOL(clk1));
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_uint8(device->ram->data_array[override_bus_address], ==, override_bus_data);
 		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
@@ -178,10 +178,10 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 		override_bus_address = addr & 0xffff;
 		override_cpu_rw = CPU_READ;
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_true(SIGNAL_BOOL(clk1));
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, addr & 0xff);
 		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
@@ -200,10 +200,10 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 		override_bus_data = addr & 0xff;
 		override_cpu_rw = CPU_WRITE;
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_true(SIGNAL_BOOL(clk1));
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_uint8(device->vram->data_array[override_bus_address - 0x8000], ==, override_bus_data);
 		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
@@ -212,10 +212,10 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 		override_bus_address = addr & 0xffff;
 		override_cpu_rw = CPU_READ;
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_true(SIGNAL_BOOL(clk1));
 
-		dev_commodore_pet_process(device);
+		dev_commodore_pet_process_clk1(device);
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, addr & 0xff);
 		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
@@ -236,10 +236,10 @@ MunitResult test_rom(const MunitParameter params[], void *user_data_or_fixture) 
 			override_bus_address = (rom_addr[rom] + offset) & 0xffff;
 			override_cpu_rw = CPU_READ;
 
-			dev_commodore_pet_process(device);
+			dev_commodore_pet_process_clk1(device);
 			munit_assert_true(SIGNAL_BOOL(clk1));
 
-			dev_commodore_pet_process(device);
+			dev_commodore_pet_process_clk1(device);
 			munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, device->roms[rom]->data_array[offset]);
 			munit_assert_false(SIGNAL_BOOL(clk1));
 		}

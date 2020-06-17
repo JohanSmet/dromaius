@@ -35,10 +35,15 @@ typedef enum DevCommodorePetDomains {
 
 typedef struct DevCommodorePetSignals {
 
+	Signal		clk16;				// 1-bit - 16Mhz signal straight from the oscillator
+	Signal		clk8;				// 1-bit - 8Mhz clock signal (used for display section)
+	Signal		clk4;				// 1-bit - 4Mhz clock signal (visualisation only)
+	Signal		clk2;				// 1-bit - 2Mhz clock signal (visualisation only)
+	Signal		clk1;				// 1-bit - 1Mhz main clock
+
 	Signal		reset_b;			// 1-bit - reset line
 	Signal		irq_b;				// 1-bit - interrupt request
 	Signal		nmi_b;				// 1-bit - non-maskable interrupt
-	Signal		clk1;				// 1-bit - main clock
 
 	Signal		cpu_bus_address;	// 16-bit address bus
 	Signal		cpu_bus_data;		// 8-bit data
@@ -130,6 +135,9 @@ typedef struct DevCommodorePet {
 	bool					in_reset;
 	int						vblank_counter;
 
+	// master timing components
+	Chip74191BinaryCounter *g5;			// clock divider
+
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1
 	Chip74244OctalBuffer *	e10;		// data-bus buffer 2
@@ -146,6 +154,7 @@ typedef struct DevCommodorePet {
 DevCommodorePet *dev_commodore_pet_create();
 void dev_commodore_pet_destroy(DevCommodorePet *device);
 void dev_commodore_pet_process(DevCommodorePet *device);
+void dev_commodore_pet_process_clk1(DevCommodorePet *device);
 void dev_commodore_pet_reset(DevCommodorePet *device);
 
 bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address);
