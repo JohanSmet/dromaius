@@ -45,6 +45,10 @@ static Rom8d16a *load_character_rom(DevCommodorePet *device, const char *filenam
 	return rom;
 }
 
+static inline void activate_reset(DevCommodorePet *device, bool reset) {
+	device->in_reset = reset;
+	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
+}
 
 Cpu6502* dev_commodore_pet_get_cpu(DevCommodorePet *device) {
 	assert(device);
@@ -454,6 +458,9 @@ static inline void process_glue_logic(DevCommodorePet *device, bool video_on) {
 	bool sel8_b = SIGNAL_NEXT_BOOL(sel8_b);
 	bool rw   = SIGNAL_NEXT_BOOL(cpu_rw);
 
+	// reset circuit
+	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
+
 	// A3 (1, 2)
 	bool reset_b = SIGNAL_NEXT_BOOL(reset_b);
 	SIGNAL_SET_BOOL(reset, !reset_b);
@@ -582,15 +589,13 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 	// keyboard
 	input_keypad_process(device->keypad);
 
-	// make the clock output its signal again
-	clock_refresh(device->clock);
-
 	// >> glue logic
 	process_glue_logic(device, video_on);
 
 	// run the cpu again on the same clock cycle - after the address hold time
 	// make sure the clock signal remains the same
 	clock_refresh(device->clock);
+
 	signal_pool_cycle_domain_no_reset(device->signal_pool, 0);
 
 	// >> cpu
@@ -608,19 +613,21 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 void dev_commodore_pet_reset(DevCommodorePet *device) {
 
 	// run for a few cycles while reset is asserted
+	activate_reset(device, true);
+
 	for (int i = 0; i < 4; ++i) {
-		SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
 		dev_commodore_pet_process(device);
 	}
 
 	// run CPU init cycle
-	for (int i = 0; i < 15; ++i) {
+	activate_reset(device, false);
+
+	do {
 		dev_commodore_pet_process(device);
-	}
+	} while (cpu_6502_in_initialization(device->cpu));
 
 	// reset clock
 	device->clock->cycle_count = 0;
-
 	device->vblank_counter = 0;
 }
 

@@ -2221,3 +2221,8 @@ void cpu_6502_process(Cpu6502 *cpu, bool delayed) {
 	return;
 }
 
+bool cpu_6502_in_initialization(Cpu6502 *cpu)  {
+	assert(cpu);
+	return PRIVATE(cpu)->state == CS_INIT;
+}
+

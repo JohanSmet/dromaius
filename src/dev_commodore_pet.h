@@ -121,6 +121,7 @@ typedef struct DevCommodorePet {
 	struct InputKeypad *	keypad;
 	struct DisplayRGBA *	display;
 
+	bool					in_reset;
 	int						vblank_counter;
 
 	// glue logic
