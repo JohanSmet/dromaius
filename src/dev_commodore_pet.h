@@ -27,6 +27,12 @@ extern "C" {
 #endif
 
 // types
+
+typedef enum DevCommodorePetDomains {
+	PET_DOMAIN_CLOCK = 0,
+	PET_DOMAIN_1MHZ = 1
+} DevCommodorePetDomains;
+
 typedef struct DevCommodorePetSignals {
 
 	Signal		reset_b;			// 1-bit - reset line

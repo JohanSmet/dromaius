@@ -71,12 +71,15 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
 
 	// signals
-	device->signal_pool = signal_pool_create(1);
+	device->signal_pool = signal_pool_create(2);
 
+	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_CLOCK);
+	SIGNAL_DEFINE_BOOL_N(clk1, 1, true, "CLK1");
+
+	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
 	SIGNAL_DEFINE_BOOL_N(nmi_b, 1, ACTLO_DEASSERT, "/NMI");
-	SIGNAL_DEFINE_BOOL_N(clk1, 1, true, "CLK1");
 
 	SIGNAL_DEFINE_N(cpu_bus_address, 16, "AB%d");
 	SIGNAL_DEFINE_N(cpu_bus_data, 8, "D%d");
@@ -124,7 +127,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	SIGNAL_DEFINE(cs1, 1);
 
-	SIGNAL_DEFINE_BOOL(video_on, 1, true);
+	SIGNAL_DEFINE_BOOL_N(video_on, 1, true, "VIDEOON");
 
 	device->signals.ba6 = signal_split(SIGNAL(bus_ba), 6, 1);
 	device->signals.ba7 = signal_split(SIGNAL(bus_ba), 7, 1);
@@ -500,7 +503,7 @@ static inline void process_glue_logic(DevCommodorePet *device, bool video_on) {
 	SIGNAL_SET_BOOL(ram_rw, rw);
 
 	// FIXME: cpu doesn't output phi2 clock signal
-	bool phi2 = SIGNAL_NEXT_BOOL(clk1);
+	bool phi2 = SIGNAL_BOOL(clk1);
 	SIGNAL_SET_BOOL(phi2, phi2);
 	SIGNAL_SET_BOOL(bphi2, phi2);
 	SIGNAL_SET_BOOL(cphi2, phi2);
@@ -514,7 +517,7 @@ static inline void process_glue_logic(DevCommodorePet *device, bool video_on) {
 	//	- we_b: assert when cpu_rw is low and clock is low
 	bool next_rw = SIGNAL_NEXT_BOOL(cpu_rw);
 	SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
-	SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_NEXT_BOOL(clk1));
+	SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_BOOL(clk1));
 
 	// >> video-ram logic - simplified
 	SIGNAL_SET_BOOL(vram_oe_b, !next_rw);
@@ -549,19 +552,20 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 	assert(device);
 
 	// clock tick
+	signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_CLOCK);
 	clock_process(device->clock);
 
 	// vblank 'fake' logic
 	bool video_on = true;
-	device->vblank_counter += SIGNAL_NEXT_BOOL(clk1);
+	device->vblank_counter += SIGNAL_BOOL(clk1);
 
-	if (device->vblank_counter >= 16666) {		// about 60 hz if clock is running at the normal 1Mhz
+	if (device->vblank_counter >= 16666)  {		// about 60 hz if clock is running at the normal 1Mhz
 		device->vblank_counter = 0;
 		video_on = false;
 	}
 
 	// run all chips on the clock cycle
-	signal_pool_cycle(device->signal_pool);
+	signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 
 	// cpu
 	device->cpu->process(device->cpu, false);
@@ -593,10 +597,7 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 	process_glue_logic(device, video_on);
 
 	// run the cpu again on the same clock cycle - after the address hold time
-	// make sure the clock signal remains the same
-	clock_refresh(device->clock);
-
-	signal_pool_cycle_domain_no_reset(device->signal_pool, 0);
+	signal_pool_cycle_domain_no_reset(device->signal_pool, PET_DOMAIN_1MHZ);
 
 	// >> cpu
 	device->cpu->process(device->cpu, true);

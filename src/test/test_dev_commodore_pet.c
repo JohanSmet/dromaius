@@ -167,11 +167,11 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 		override_cpu_rw = CPU_WRITE;
 
 		dev_commodore_pet_process(device);
-		munit_assert_true(SIGNAL_NEXT_BOOL(clk1));
+		munit_assert_true(SIGNAL_BOOL(clk1));
 
 		dev_commodore_pet_process(device);
 		munit_assert_uint8(device->ram->data_array[override_bus_address], ==, override_bus_data);
-		munit_assert_false(SIGNAL_NEXT_BOOL(clk1));
+		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
 
 	for (int addr = 0x0000; addr <= 0x7fff; ++addr) {
@@ -179,11 +179,11 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 		override_cpu_rw = CPU_READ;
 
 		dev_commodore_pet_process(device);
-		munit_assert_true(SIGNAL_NEXT_BOOL(clk1));
+		munit_assert_true(SIGNAL_BOOL(clk1));
 
 		dev_commodore_pet_process(device);
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, addr & 0xff);
-		munit_assert_false(SIGNAL_NEXT_BOOL(clk1));
+		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
 
 	return MUNIT_OK;
@@ -201,11 +201,11 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 		override_cpu_rw = CPU_WRITE;
 
 		dev_commodore_pet_process(device);
-		munit_assert_true(SIGNAL_NEXT_BOOL(clk1));
+		munit_assert_true(SIGNAL_BOOL(clk1));
 
 		dev_commodore_pet_process(device);
 		munit_assert_uint8(device->vram->data_array[override_bus_address - 0x8000], ==, override_bus_data);
-		munit_assert_false(SIGNAL_NEXT_BOOL(clk1));
+		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
 
 	for (int addr = 0x8000; addr <= 0x83e8; ++addr) {		// 40x25
@@ -213,11 +213,11 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 		override_cpu_rw = CPU_READ;
 
 		dev_commodore_pet_process(device);
-		munit_assert_true(SIGNAL_NEXT_BOOL(clk1));
+		munit_assert_true(SIGNAL_BOOL(clk1));
 
 		dev_commodore_pet_process(device);
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, addr & 0xff);
-		munit_assert_false(SIGNAL_NEXT_BOOL(clk1));
+		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
 
 	return MUNIT_OK;
@@ -237,11 +237,11 @@ MunitResult test_rom(const MunitParameter params[], void *user_data_or_fixture) 
 			override_cpu_rw = CPU_READ;
 
 			dev_commodore_pet_process(device);
-			munit_assert_true(SIGNAL_NEXT_BOOL(clk1));
+			munit_assert_true(SIGNAL_BOOL(clk1));
 
 			dev_commodore_pet_process(device);
 			munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, device->roms[rom]->data_array[offset]);
-			munit_assert_false(SIGNAL_NEXT_BOOL(clk1));
+			munit_assert_false(SIGNAL_BOOL(clk1));
 		}
 	}
 
