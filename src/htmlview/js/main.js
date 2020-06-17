@@ -67,12 +67,15 @@ function refresh_signals() {
 		return;
 	}
 
-	var sig_data = dmsapi.signal_data(0);
-	var colors = ["#009900", "#00FF00"];
+	const colors = ["#009900", "#00FF00"];
 
-	for (var s_id = 0; s_id < sig_data.length; ++s_id) {
-		var s_name = signals_names[0][s_id];
-		svg_doc.documentElement.style.setProperty(s_name, colors[sig_data[s_id]]);
+	for (var d = 0; d < signals_names.length; ++d) {
+		var sig_data = dmsapi.signal_data(d);
+
+		for (var s_id = 0; s_id < sig_data.length; ++s_id) {
+			var s_name = signals_names[d][s_id];
+			svg_doc.documentElement.style.setProperty(s_name, colors[sig_data[s_id]]);
+		}
 	}
 }
 
