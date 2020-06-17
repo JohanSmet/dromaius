@@ -13,6 +13,7 @@
 #include "panel_monitor.h"
 #include "panel_input_pet.h"
 #include "panel_display_rgba.h"
+#include "panel_signals.h"
 
 #include "popup_file_selector.h"
 
@@ -155,6 +156,14 @@ public:
 					auto pnl = panel_monitor_create(ui_context, {340, 310});
 					ui_context->panel_add(std::move(pnl));
 				}
+
+				ImGui::Text("Signals");
+				ImGui::SameLine();
+				if (ImGui::SmallButton("Open##open_signals")) {
+					auto pnl = panel_signals_create(ui_context, {340, 310});
+					ui_context->panel_add(std::move(pnl));
+				}
+
 				ImGui::Text("Prg-file");
 				ImGui::SameLine();
 				load_prg = ImGui::SmallButton("Load##load_prg");

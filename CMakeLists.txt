@@ -187,6 +187,8 @@ target_sources(${GUI_TARGET}
 		src/gui/panel_memory.h
 		src/gui/panel_monitor.cpp
 		src/gui/panel_monitor.h
+		src/gui/panel_signals.cpp
+		src/gui/panel_signals.h
 		src/gui/popup_file_selector.cpp
 		src/gui/popup_file_selector.h
 		src/gui/std_helper.h
