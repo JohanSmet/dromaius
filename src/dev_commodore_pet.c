@@ -99,6 +99,16 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(bphi2f_b, 1, "/BPHI2F");
 	SIGNAL_DEFINE_N(bphi2g_b, 1, "/BPHI2G");
 
+	SIGNAL_DEFINE_N(ra1, 1, "RA1");
+	SIGNAL_DEFINE_N(ra2, 1, "RA2");
+	SIGNAL_DEFINE_N(ra3, 1, "RA3");
+	SIGNAL_DEFINE_N(ra4, 1, "RA4");
+	SIGNAL_DEFINE_N(ra5, 1, "RA5");
+	SIGNAL_DEFINE_N(ra6, 1, "RA6");
+
+	SIGNAL_DEFINE_N(ra1_b, 1, "/RA1");
+	SIGNAL_DEFINE_N(ra6_b, 1, "/RA6");
+
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
@@ -208,6 +218,26 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.gnd = SIGNAL(low),				// pin 07
 										.vcc = SIGNAL(high)				// pin 14
 	});
+
+	device->h6 = chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
+										.gnd = SIGNAL(low),				// pin 7
+										.vcc = SIGNAL(high),			// pin 14
+
+										.clr1_b = SIGNAL(init_b),		// pin 13
+										.clk1 = SIGNAL(bphi2a_b),		// pin 12
+										.j1 = SIGNAL(init_b),			// pin 1
+										.k1 = SIGNAL(init_b),			// pin 4
+										.q1 = SIGNAL(ra1),				// pin 3
+										.q1_b = SIGNAL(ra1_b),			// pin 2
+
+										.clr2_b = SIGNAL(init_b),		// pin 10
+										.clk2 = SIGNAL(ra5),			// pin 9
+										.j2 = SIGNAL(init_b),			// pin 8
+										.k2 = SIGNAL(init_b),			// pin 11
+										.q2 = SIGNAL(ra6),				// pin 5
+										.q2_b = SIGNAL(ra6_b)			// pin 6
+	});
+
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 
@@ -465,6 +495,7 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 
 	chip_74191_binary_counter_destroy(device->g5);
 	chip_74164_shift_register_destroy(device->h3);
+	chip_74107_jk_flipflop_destroy(device->h6);
 
 	chip_74244_octal_buffer_destroy(device->c3);
 	chip_74244_octal_buffer_destroy(device->b3);
@@ -635,6 +666,9 @@ static inline void process_master_timing(DevCommodorePet *device) {
 	SIGNAL_SET_BOOL(bphi2b_b, !SIGNAL_NEXT_BOOL(bphi2b));
 	SIGNAL_SET_BOOL(bphi2f_b, !SIGNAL_NEXT_BOOL(bphi2f));
 	SIGNAL_SET_BOOL(bphi2g_b, !SIGNAL_NEXT_BOOL(bphi2g));
+
+	// jk-flip flop (depends on /BPHI2A)
+	chip_74107_jk_flipflop_process(device->h6);
 }
 
 void dev_commodore_pet_process(DevCommodorePet *device) {

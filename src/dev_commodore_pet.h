@@ -58,6 +58,15 @@ typedef struct DevCommodorePetSignals {
 	Signal		bphi2f_b;
 	Signal		bphi2g_b;
 
+	Signal		ra1;				// 1-bit - ram refresh address
+	Signal		ra2;				// 1-bit - ram refresh address
+	Signal		ra3;				// 1-bit - ram refresh address
+	Signal		ra4;				// 1-bit - ram refresh address
+	Signal		ra5;				// 1-bit - ram refresh address
+	Signal		ra6;				// 1-bit - ram refresh address
+	Signal		ra1_b;
+	Signal		ra6_b;
+
 	Signal		reset_b;			// 1-bit - reset line
 	Signal		irq_b;				// 1-bit - interrupt request
 	Signal		nmi_b;				// 1-bit - non-maskable interrupt
@@ -155,6 +164,7 @@ typedef struct DevCommodorePet {
 	// master timing components
 	Chip74191BinaryCounter *g5;			// clock divider
 	Chip74164ShiftRegister *h3;			// 8 phases of clk1
+	Chip74107JKFlipFlop *	h6;			// flipflop
 
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1
