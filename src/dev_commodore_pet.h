@@ -35,6 +35,9 @@ typedef enum DevCommodorePetDomains {
 
 typedef struct DevCommodorePetSignals {
 
+	Signal		init_b;				// 1-bit - initialization of the master timing section
+	Signal		init;				// 1-bit
+
 	Signal		clk16;				// 1-bit - 16Mhz signal straight from the oscillator
 	Signal		clk8;				// 1-bit - 8Mhz clock signal (used for display section)
 	Signal		clk4;				// 1-bit - 4Mhz clock signal (visualisation only)

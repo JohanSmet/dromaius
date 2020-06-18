@@ -48,6 +48,8 @@ static Rom8d16a *load_character_rom(DevCommodorePet *device, const char *filenam
 static inline void activate_reset(DevCommodorePet *device, bool reset) {
 	device->in_reset = reset;
 	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
+	SIGNAL_SET_BOOL(init_b, !device->in_reset);
+	SIGNAL_SET_BOOL(init, device->in_reset);
 }
 
 Cpu6502* dev_commodore_pet_get_cpu(DevCommodorePet *device) {
@@ -74,6 +76,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->signal_pool = signal_pool_create(2);
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_CLOCK);
+	SIGNAL_DEFINE_BOOL_N(init_b, 1, ACTLO_DEASSERT, "/INIT");
+	SIGNAL_DEFINE_BOOL_N(init, 1, ACTHI_DEASSERT, "INIT");
+
 	SIGNAL_DEFINE_BOOL_N(clk16, 1, true, "CLK16");
 	SIGNAL_DEFINE_BOOL_N(clk8, 1, true, "CLK8");
 	SIGNAL_DEFINE_BOOL_N(clk4, 1, true, "CLK4");
@@ -524,6 +529,8 @@ static inline void process_glue_logic(DevCommodorePet *device, bool video_on) {
 
 	// reset circuit
 	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
+	SIGNAL_SET_BOOL(init_b, !device->in_reset);
+	SIGNAL_SET_BOOL(init, device->in_reset);
 
 	// A3 (1, 2)
 	bool reset_b = SIGNAL_NEXT_BOOL(reset_b);
