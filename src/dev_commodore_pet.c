@@ -80,6 +80,20 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_BOOL_N(clk2, 1, true, "CLK2");
 	SIGNAL_DEFINE_BOOL_N(clk1, 1, true, "CLK1");
 
+	SIGNAL_DEFINE_N(bphi2a, 1, "BPHI2A");
+	SIGNAL_DEFINE_N(bphi2b, 1, "BPHI2B");
+	SIGNAL_DEFINE_N(bphi2c, 1, "BPHI2C");
+	SIGNAL_DEFINE_N(bphi2d, 1, "BPHI2D");
+	SIGNAL_DEFINE_N(bphi2e, 1, "BPHI2E");
+	SIGNAL_DEFINE_N(bphi2f, 1, "BPHI2F");
+	SIGNAL_DEFINE_N(bphi2g, 1, "BPHI2G");
+	SIGNAL_DEFINE_N(bphi2h, 1, "BPHI2H");
+
+	SIGNAL_DEFINE_N(bphi2a_b, 1, "/BPHI2A");
+	SIGNAL_DEFINE_N(bphi2b_b, 1, "/BPHI2B");
+	SIGNAL_DEFINE_N(bphi2f_b, 1, "/BPHI2F");
+	SIGNAL_DEFINE_N(bphi2g_b, 1, "/BPHI2G");
+
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
@@ -171,6 +185,23 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qd = SIGNAL(clk1),				// pin 07
 								//		.max_min = not connected        // pin 12
 								//		.rco_b = not connected          // pin 13
+	});
+
+	device->h3 = chip_74164_shift_register_create(device->signal_pool, (Chip74164Signals) {
+										.a = SIGNAL(clk1),				// pin 01
+										.b = SIGNAL(high),				// pin 02
+										.clk = SIGNAL(clk16),			// pin 08
+										.clear_b = SIGNAL(high),		// pin 09
+										.qa = SIGNAL(bphi2a),			// pin 03
+										.qb = SIGNAL(bphi2b),			// pin 04
+										.qc = SIGNAL(bphi2c),			// pin 05
+										.qd = SIGNAL(bphi2d),			// pin 06
+										.qe = SIGNAL(bphi2e),			// pin 10
+										.qf = SIGNAL(bphi2f),			// pin 11
+										.qg = SIGNAL(bphi2g),			// pin 12
+										.qh = SIGNAL(bphi2h),			// pin 13
+										.gnd = SIGNAL(low),				// pin 07
+										.vcc = SIGNAL(high)				// pin 14
 	});
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
@@ -428,6 +459,7 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	}
 
 	chip_74191_binary_counter_destroy(device->g5);
+	chip_74164_shift_register_destroy(device->h3);
 
 	chip_74244_octal_buffer_destroy(device->c3);
 	chip_74244_octal_buffer_destroy(device->b3);
@@ -577,13 +609,32 @@ static inline void process_glue_logic(DevCommodorePet *device, bool video_on) {
 	chip_74145_bcd_decoder_process(device->c9);
 }
 
+static inline void process_master_timing(DevCommodorePet *device) {
+
+	// cycle signal domain
+	signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_CLOCK);
+
+	// >> 16Mhz oscillator (no dependencies)
+	clock_process(device->clock);
+
+	// >> clock divider (depends on clk16)
+	chip_74191_binary_counter_process(device->g5);
+
+	// >> clk phase splitter (depends on clk1 and clk16)
+	chip_74164_shift_register_process(device->h3);
+
+	// >> invert clock phases (depends on h3)
+	SIGNAL_SET_BOOL(bphi2a_b, !SIGNAL_NEXT_BOOL(bphi2a));
+	SIGNAL_SET_BOOL(bphi2b_b, !SIGNAL_NEXT_BOOL(bphi2b));
+	SIGNAL_SET_BOOL(bphi2f_b, !SIGNAL_NEXT_BOOL(bphi2f));
+	SIGNAL_SET_BOOL(bphi2g_b, !SIGNAL_NEXT_BOOL(bphi2g));
+}
+
 void dev_commodore_pet_process(DevCommodorePet *device) {
 	assert(device);
 
-	// clock tick
-	signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_CLOCK);
-	clock_process(device->clock);
-	chip_74191_binary_counter_process(device->g5);
+	// master timing (schematic sheet 6)
+	process_master_timing(device);
 
 	if (signal_changed(device->signal_pool, SIGNAL(clk1))) {
 		// vblank 'fake' logic

@@ -41,6 +41,20 @@ typedef struct DevCommodorePetSignals {
 	Signal		clk2;				// 1-bit - 2Mhz clock signal (visualisation only)
 	Signal		clk1;				// 1-bit - 1Mhz main clock
 
+	Signal		bphi2a;				// 8 phases of clk1
+	Signal		bphi2b;
+	Signal		bphi2c;
+	Signal		bphi2d;
+	Signal		bphi2e;
+	Signal		bphi2f;
+	Signal		bphi2g;
+	Signal		bphi2h;
+
+	Signal		bphi2a_b;
+	Signal		bphi2b_b;
+	Signal		bphi2f_b;
+	Signal		bphi2g_b;
+
 	Signal		reset_b;			// 1-bit - reset line
 	Signal		irq_b;				// 1-bit - interrupt request
 	Signal		nmi_b;				// 1-bit - non-maskable interrupt
@@ -137,6 +151,7 @@ typedef struct DevCommodorePet {
 
 	// master timing components
 	Chip74191BinaryCounter *g5;			// clock divider
+	Chip74164ShiftRegister *h3;			// 8 phases of clk1
 
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1
