@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" id="svg2642" version="1.1" viewBox="0 0 297 210">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" id="svg2642" version="1.1" viewBox="0 0 297 210">
   <defs id="defs2636"/>
-  <g id="Schematic">
+  <g style="display:inline" id="Schematic">
     <g id="wire#VERTDRIVE_0">
       <path id="path_0" d="m 246.87856,115.35013 h 19.96257" class="path_0"/>
       <path id="path_1" d="m 252.16713,115.33281 v -10.60839 h 16.56952" class="path_0"/>
@@ -104,22 +104,22 @@
       <text xml:space="preserve" x="126.05726" y="40.889763" id="text_69" class="text_2"><tspan x="126.05726" y="40.889763" id="tspan_74" class="tspan_2">12</tspan></text>
       <text id="text_70" y="42.923691" x="126.25514" xml:space="preserve" class="text_2"><tspan id="tspan_75" y="42.923691" x="126.25514" class="tspan_2">13</tspan></text>
     </g>
-    <path d="m 44.360236,60.682131 h 4.06973" id="wire#NC_0" class="path_4"/>
-    <path d="m 44.324456,62.836829 c 4.10551,0 4.10551,0 4.10551,0" id="wire#NC_1" class="path_4"/>
-    <path id="wire#NC_2" d="m 44.360235,66.938628 h 4.069731" class="path_4"/>
-    <path id="wire#NC_3" d="m 45.108357,68.998703 h 3.399261" class="path_4"/>
-    <g transform="translate(-57.710655,-73.070368)" id="wire#GND_0" class="g_0">
-      <path id="path_9" d="m 80.075225,140.10025 c 2.08559,0 2.19854,0 2.19854,0" class="path_5"/>
-      <path id="path_10" d="m 80.428845,140.63334 h 1.469499" class="path_5"/>
-      <path id="path_11" d="m 80.720265,141.15667 h 0.78101" class="path_5"/>
+    <path d="m 44.360236,60.682131 h 4.06973" id="wire#CLK4_0" class="path_4"/>
+    <path d="m 44.324456,62.836829 c 4.10551,0 4.10551,0 4.10551,0" id="wire#CLK2_0" class="path_5"/>
+    <path id="wire#NC_0" d="m 44.360235,66.938628 h 4.069731" class="path_6"/>
+    <path id="wire#NC_1" d="m 45.108357,68.998703 h 3.399261" class="path_6"/>
+    <g inkscape:groupmode="layer" transform="translate(-57.710655,-73.070368)" id="wire#GND_0" class="g_0">
+      <path id="path_9" d="m 80.075225,140.10025 c 2.08559,0 2.19854,0 2.19854,0" class="path_7"/>
+      <path id="path_10" d="m 80.428845,140.63334 h 1.469499" class="path_7"/>
+      <path id="path_11" d="m 80.720265,141.15667 h 0.78101" class="path_7"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="81.125175" cy="138.0545" id="ellipse_7" class="ellipse_4"/>
-      <path id="path_12" d="m 81.132833,139.98524 v -16.52389 h 11.254412 v 1.98244" class="path_6"/>
-      <path id="path_13" d="m 81.13942,138.05899 h 8.258671" class="path_6"/>
-      <path id="path_14" d="M 88.316662,127.62935 H 81.12526" class="path_6"/>
-      <path d="m 81.164203,136.00563 h 8.258671" id="path_15" class="path_5"/>
-      <path d="m 81.134476,133.88778 h 8.258671" id="path_16" class="path_5"/>
-      <path d="m 81.075358,131.80984 h 8.258671" id="path_17" class="path_5"/>
-      <path d="m 81.161585,129.73542 h 8.258671" id="path_18" class="path_5"/>
+      <path id="path_12" d="m 81.132833,139.98524 v -16.52389 h 11.254412 v 1.98244" class="path_8"/>
+      <path id="path_13" d="m 81.13942,138.05899 h 8.258671" class="path_8"/>
+      <path id="path_14" d="M 88.316662,127.62935 H 81.12526" class="path_8"/>
+      <path d="m 81.164203,136.00563 h 8.258671" id="path_15" class="path_7"/>
+      <path d="m 81.134476,133.88778 h 8.258671" id="path_16" class="path_7"/>
+      <path d="m 81.075358,131.80984 h 8.258671" id="path_17" class="path_7"/>
+      <path d="m 81.161585,129.73542 h 8.258671" id="path_18" class="path_7"/>
       <ellipse id="ellipse_8" cy="136.00272" cx="81.121193" rx="0.21147294" ry="0.21078888" class="ellipse_4"/>
       <ellipse id="ellipse_9" cy="133.87567" cx="81.124016" rx="0.21147294" ry="0.21078888" class="ellipse_4"/>
       <ellipse id="ellipse_10" cy="131.80093" cx="81.087669" rx="0.21147294" ry="0.21078888" class="ellipse_4"/>
@@ -137,8 +137,8 @@
     <g id="chip#I1_74LS04_0" transform="translate(24.422956,-14.972371)" class="g_0">
       <g transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" id="g_2" class="g_1">
         <title id="title_0">Not Gate Small</title>
-        <path id="path_20" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_7"/>
-        <path id="path_21" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_8"/>
+        <path id="path_20" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_9"/>
+        <path id="path_21" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_10"/>
       </g>
       <text id="text_76" y="42.86232" x="37.642185" xml:space="preserve" class="text_2"><tspan y="42.86232" x="37.642185" id="tspan_82" class="tspan_0">I1</tspan><tspan id="tspan_83" y="56.091446" x="37.642185" class="tspan_0"/></text>
       <text xml:space="preserve" x="38.993382" y="45.942654" id="text_77" class="text_2"><tspan x="38.993382" y="45.942654" id="tspan_84" class="tspan_0">74LS04</tspan></text>
@@ -148,8 +148,8 @@
     <g transform="translate(37.100201,-6.7594901)" id="chip#I1_74LS04_1" class="g_0">
       <g id="g_3" transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" class="g_1">
         <title id="title_1">Not Gate Small</title>
-        <path d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" id="path_22" class="path_7"/>
-        <path d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" id="path_23" class="path_8"/>
+        <path d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" id="path_22" class="path_9"/>
+        <path d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" id="path_23" class="path_10"/>
       </g>
       <text xml:space="preserve" x="37.642185" y="42.86232" id="text_80" class="text_2"><tspan id="tspan_89" x="37.642185" y="42.86232" class="tspan_0">I1</tspan><tspan x="37.642185" y="56.091446" id="tspan_90" class="tspan_0"/></text>
       <text id="text_81" y="45.942654" x="38.993382" xml:space="preserve" class="text_2"><tspan id="tspan_91" y="45.942654" x="38.993382" class="tspan_0">74LS04</tspan></text>
@@ -159,8 +159,8 @@
     <g transform="translate(12.118624,-14.905642)" id="chip#I1_74LS04_2" class="g_0">
       <g id="g_4" transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" class="g_1">
         <title id="title_2">Not Gate Small</title>
-        <path d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" id="path_24" class="path_7"/>
-        <path d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" id="path_25" class="path_8"/>
+        <path d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" id="path_24" class="path_9"/>
+        <path d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" id="path_25" class="path_10"/>
       </g>
       <text xml:space="preserve" x="37.642185" y="42.86232" id="text_84" class="text_2"><tspan id="tspan_96" x="37.642185" y="42.86232" class="tspan_0">I1</tspan><tspan x="37.642185" y="56.091446" id="tspan_97" class="tspan_0"/></text>
       <text id="text_85" y="45.942654" x="38.993382" xml:space="preserve" class="text_2"><tspan id="tspan_98" y="45.942654" x="38.993382" class="tspan_0">74LS04</tspan></text>
@@ -168,12 +168,12 @@
       <text xml:space="preserve" x="42.195835" y="41.742832" id="text_87" class="text_2"><tspan x="42.195835" y="41.742832" id="tspan_101" class="tspan_0">12</tspan></text>
     </g>
     <g id="passive#R15_0" transform="translate(-96.895997,-134.67481)" class="g_0">
-      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_26" class="path_9"/>
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_26" class="path_11"/>
       <text xml:space="preserve" x="134.95171" y="170.52983" id="text_88" class="text_2"><tspan x="134.95171" y="170.52983" id="tspan_102" class="tspan_0">R46</tspan></text>
       <text id="text_89" y="172.15439" x="134.95799" xml:space="preserve" class="text_2"><tspan id="tspan_103" y="172.15439" x="134.95799" class="tspan_0">1K</tspan></text>
     </g>
     <g transform="translate(-93.755843,-132.73307)" id="passive#R30_0" class="g_0">
-      <path id="path_27" d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" class="path_9"/>
+      <path id="path_27" d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" class="path_11"/>
       <text id="text_90" y="166.86134" x="141.65521" xml:space="preserve" class="text_2"><tspan id="tspan_104" y="166.86134" x="141.65521" class="tspan_0">R8</tspan></text>
       <text xml:space="preserve" x="141.375" y="170.98389" id="text_91" class="text_2"><tspan id="tspan_105" x="141.375" y="170.98389" class="tspan_0">470</tspan><tspan x="141.375" y="184.21301" id="tspan_106" class="tspan_0"/></text>
     </g>
@@ -194,7 +194,7 @@
       <text id="text_95" y="23.487701" x="164.35034" xml:space="preserve" class="text_2"><tspan id="tspan_112" y="23.487701" x="164.35034" class="tspan_0">1, 5, 7</tspan></text>
     </g>
     <g id="wire#CLK8_0">
-      <path d="M 58.66726,58.585142 H 44.289286" id="path_34" class="path_10"/>
+      <path d="M 58.66726,58.585142 H 44.289286" id="path_34" class="path_12"/>
       <text id="text_96" y="58.107891" x="57.14521" xml:space="preserve" class="text_3"><tspan id="tspan_113" y="58.107891" x="57.14521" class="tspan_2">CLK8</tspan></text>
     </g>
     <g id="chip#H6_74LS107_0">
@@ -211,7 +211,7 @@
       <text id="text_103" y="99.750244" x="36.070351" xml:space="preserve" class="text_2"><tspan id="tspan_120" y="99.750244" x="36.070351" class="tspan_0">CL</tspan></text>
       <g transform="translate(-165.87588,33.866307)" id="g_5" class="g_0">
         <text id="text_104" y="64.730103" x="204.5517" xml:space="preserve" class="text_2"><tspan id="tspan_121" y="64.730103" x="204.5517" class="tspan_0">Q</tspan></text>
-        <path id="path_36" d="m 204.0053,63.530987 h 1.10542" class="path_11"/>
+        <path id="path_36" d="m 204.0053,63.530987 h 1.10542" class="path_13"/>
       </g>
       <text xml:space="preserve" x="30.342936" y="85.275429" id="text_105" class="text_2"><tspan x="30.342936" y="85.275429" id="tspan_122" class="tspan_0">1</tspan></text>
       <text id="text_106" y="85.195358" x="41.755142" xml:space="preserve" class="text_2"><tspan id="tspan_123" y="85.195358" x="41.755142" class="tspan_0">3</tspan></text>
@@ -234,7 +234,7 @@
       <text xml:space="preserve" x="36.070351" y="99.750244" id="text_117" class="text_2"><tspan x="36.070351" y="99.750244" id="tspan_134" class="tspan_0">CL</tspan></text>
       <g id="g_6" transform="translate(-165.87588,33.866307)" class="g_0">
         <text xml:space="preserve" x="204.5517" y="64.730103" id="text_118" class="text_2"><tspan x="204.5517" y="64.730103" id="tspan_135" class="tspan_0">Q</tspan></text>
-        <path d="m 204.0053,63.530987 h 1.10542" id="path_38" class="path_11"/>
+        <path d="m 204.0053,63.530987 h 1.10542" id="path_38" class="path_13"/>
       </g>
       <text id="text_119" y="85.247665" x="30.238413" xml:space="preserve" class="text_2"><tspan id="tspan_136" y="85.247665" x="30.238413" class="tspan_0">8</tspan></text>
       <text xml:space="preserve" x="41.755142" y="85.195358" id="text_120" class="text_2"><tspan x="41.755142" y="85.195358" id="tspan_137" class="tspan_0">5</tspan></text>
@@ -257,7 +257,7 @@
       <text id="text_131" y="99.750244" x="36.070351" xml:space="preserve" class="text_2"><tspan id="tspan_148" y="99.750244" x="36.070351" class="tspan_0">CL</tspan></text>
       <g transform="translate(-165.87588,33.866307)" id="g_7" class="g_0">
         <text id="text_132" y="64.730103" x="204.5517" xml:space="preserve" class="text_2"><tspan id="tspan_149" y="64.730103" x="204.5517" class="tspan_0">Q</tspan></text>
-        <path id="path_40" d="m 204.0053,63.530987 h 1.10542" class="path_11"/>
+        <path id="path_40" d="m 204.0053,63.530987 h 1.10542" class="path_13"/>
       </g>
       <text xml:space="preserve" x="30.238413" y="85.247665" id="text_133" class="text_2"><tspan x="30.238413" y="85.247665" id="tspan_150" class="tspan_0">8</tspan></text>
       <text id="text_134" y="85.195358" x="41.755142" xml:space="preserve" class="text_2"><tspan id="tspan_151" y="85.195358" x="41.755142" class="tspan_0">5</tspan></text>
@@ -280,7 +280,7 @@
       <text xml:space="preserve" x="36.070351" y="99.750244" id="text_145" class="text_2"><tspan x="36.070351" y="99.750244" id="tspan_162" class="tspan_0">CL</tspan></text>
       <g id="g_8" transform="translate(-165.87588,33.866307)" class="g_0">
         <text xml:space="preserve" x="204.5517" y="64.730103" id="text_146" class="text_2"><tspan x="204.5517" y="64.730103" id="tspan_163" class="tspan_0">Q</tspan></text>
-        <path d="m 204.0053,63.530987 h 1.10542" id="path_42" class="path_11"/>
+        <path d="m 204.0053,63.530987 h 1.10542" id="path_42" class="path_13"/>
       </g>
       <text id="text_147" y="85.275429" x="30.342936" xml:space="preserve" class="text_2"><tspan id="tspan_164" y="85.275429" x="30.342936" class="tspan_0">1</tspan></text>
       <text xml:space="preserve" x="41.755142" y="85.195358" id="text_148" class="text_2"><tspan x="41.755142" y="85.195358" id="tspan_165" class="tspan_0">3</tspan></text>
@@ -303,7 +303,7 @@
       <text id="text_159" y="99.750244" x="36.070351" xml:space="preserve" class="text_2"><tspan id="tspan_176" y="99.750244" x="36.070351" class="tspan_0">CL</tspan></text>
       <g transform="translate(-165.87588,33.866307)" id="g_9" class="g_0">
         <text id="text_160" y="64.730103" x="204.5517" xml:space="preserve" class="text_2"><tspan id="tspan_177" y="64.730103" x="204.5517" class="tspan_0">Q</tspan></text>
-        <path id="path_44" d="m 204.0053,63.530987 h 1.10542" class="path_11"/>
+        <path id="path_44" d="m 204.0053,63.530987 h 1.10542" class="path_13"/>
       </g>
       <text xml:space="preserve" x="30.342936" y="85.275429" id="text_161" class="text_2"><tspan x="30.342936" y="85.275429" id="tspan_178" class="tspan_0">1</tspan></text>
       <text id="text_162" y="85.195358" x="41.755142" xml:space="preserve" class="text_2"><tspan id="tspan_179" y="85.195358" x="41.755142" class="tspan_0">3</tspan></text>
@@ -326,7 +326,7 @@
       <text xml:space="preserve" x="36.070351" y="99.750244" id="text_173" class="text_2"><tspan x="36.070351" y="99.750244" id="tspan_190" class="tspan_0">CL</tspan></text>
       <g id="g_10" transform="translate(-165.87588,33.866307)" class="g_0">
         <text xml:space="preserve" x="204.5517" y="64.730103" id="text_174" class="text_2"><tspan x="204.5517" y="64.730103" id="tspan_191" class="tspan_0">Q</tspan></text>
-        <path d="m 204.0053,63.530987 h 1.10542" id="path_46" class="path_11"/>
+        <path d="m 204.0053,63.530987 h 1.10542" id="path_46" class="path_13"/>
       </g>
       <text id="text_175" y="85.247665" x="30.238413" xml:space="preserve" class="text_2"><tspan id="tspan_192" y="85.247665" x="30.238413" class="tspan_0">8</tspan></text>
       <text xml:space="preserve" x="41.755142" y="85.195358" id="text_176" class="text_2"><tspan x="41.755142" y="85.195358" id="tspan_193" class="tspan_0">5</tspan></text>
@@ -346,7 +346,7 @@
     <g id="chip#G9_74LS74_0" transform="translate(79.443306,7.9156401)">
       <rect id="rect_8" width="8.3618717" height="16.479906" x="31.892233" y="83.682922" class="rect_0"/>
       <text xml:space="preserve" x="36.029682" y="87.282761" id="text_186" class="text_2"><tspan x="36.029682" y="87.282761" id="tspan_203" class="tspan_0">G9</tspan></text>
-      <text id="text_187" y="89.406815" x="36.060123" xml:space="preserve" class="text_2"><tspan id="tspan_204" y="89.406815" x="36.060123" class="tspan_0">74LS174</tspan></text>
+      <text id="text_187" y="89.406815" x="36.060123" xml:space="preserve" class="text_2"><tspan id="tspan_204" y="89.406815" x="36.060123" class="tspan_0">74LS74</tspan></text>
       <path d="m 31.971339,91.630194 1.34609,0.360682 -1.3255,0.355169" id="path_48" class="path_3"/>
       <text id="text_188" y="92.513512" x="35.083" xml:space="preserve" class="text_2"><tspan id="tspan_205" y="92.513512" x="35.083" class="tspan_0">CK</tspan></text>
       <ellipse id="ellipse_25" ry="0.48355335" rx="0.44926631" cy="83.012772" cx="35.963428" class="ellipse_2"/>
@@ -356,7 +356,7 @@
       <text xml:space="preserve" x="36.070351" y="99.750244" id="text_191" class="text_2"><tspan x="36.070351" y="99.750244" id="tspan_208" class="tspan_0">CL</tspan></text>
       <g id="g_11" transform="translate(-165.87588,33.866307)" class="g_0">
         <text xml:space="preserve" x="204.5517" y="64.730103" id="text_192" class="text_2"><tspan x="204.5517" y="64.730103" id="tspan_209" class="tspan_0">Q</tspan></text>
-        <path d="m 204.0053,63.530987 h 1.10542" id="path_49" class="path_11"/>
+        <path d="m 204.0053,63.530987 h 1.10542" id="path_49" class="path_13"/>
       </g>
       <text id="text_193" y="85.247665" x="30.238413" xml:space="preserve" class="text_2"><tspan id="tspan_210" y="85.247665" x="30.238413" class="tspan_0">2</tspan></text>
       <text xml:space="preserve" x="41.623962" y="85.104218" id="text_194" class="text_2"><tspan x="41.623962" y="85.104218" id="tspan_211" class="tspan_0">5</tspan></text>
@@ -379,7 +379,7 @@
       <text id="text_205" y="99.750244" x="36.070351" xml:space="preserve" class="text_2"><tspan id="tspan_222" y="99.750244" x="36.070351" class="tspan_0">CL</tspan></text>
       <g transform="translate(-165.87588,33.866307)" id="g_12" class="g_0">
         <text id="text_206" y="64.730103" x="204.5517" xml:space="preserve" class="text_2"><tspan id="tspan_223" y="64.730103" x="204.5517" class="tspan_0">Q</tspan></text>
-        <path id="path_51" d="m 204.0053,63.530987 h 1.10542" class="path_11"/>
+        <path id="path_51" d="m 204.0053,63.530987 h 1.10542" class="path_13"/>
       </g>
       <text xml:space="preserve" x="30.238413" y="85.247665" id="text_207" class="text_2"><tspan x="30.238413" y="85.247665" id="tspan_224" class="tspan_0">2</tspan></text>
       <text id="text_208" y="85.104218" x="41.623962" xml:space="preserve" class="text_2"><tspan id="tspan_225" y="85.104218" x="41.623962" class="tspan_0">5</tspan></text>
@@ -402,7 +402,7 @@
       <text xml:space="preserve" x="36.070351" y="99.750244" id="text_219" class="text_2"><tspan x="36.070351" y="99.750244" id="tspan_236" class="tspan_0">CL</tspan></text>
       <g id="g_13" transform="translate(-165.87588,33.866307)" class="g_0">
         <text xml:space="preserve" x="204.5517" y="64.730103" id="text_220" class="text_2"><tspan x="204.5517" y="64.730103" id="tspan_237" class="tspan_0">Q</tspan></text>
-        <path d="m 204.0053,63.530987 h 1.10542" id="path_53" class="path_11"/>
+        <path d="m 204.0053,63.530987 h 1.10542" id="path_53" class="path_13"/>
       </g>
       <text id="text_221" y="85.143532" x="29.846989" xml:space="preserve" class="text_2"><tspan id="tspan_238" y="85.143532" x="29.846989" class="tspan_0">12</tspan></text>
       <text xml:space="preserve" x="41.623962" y="85.104218" id="text_222" class="text_2"><tspan x="41.623962" y="85.104218" id="tspan_239" class="tspan_0">9</tspan></text>
@@ -479,8 +479,8 @@
     <g transform="translate(114.6416,15.519662)" id="chip#H2_74LS04_0" class="g_0">
       <g id="g_14" transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" class="g_1">
         <title id="title_3">Not Gate Small</title>
-        <path d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" id="path_56" class="path_7"/>
-        <path d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" id="path_57" class="path_8"/>
+        <path d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" id="path_56" class="path_9"/>
+        <path d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" id="path_57" class="path_10"/>
       </g>
       <text xml:space="preserve" x="37.455406" y="42.796265" id="text_281" class="text_2"><tspan x="37.455406" y="42.796265" id="tspan_298" class="tspan_0">H2</tspan></text>
       <text id="text_282" y="45.942654" x="38.739376" xml:space="preserve" class="text_2"><tspan id="tspan_299" y="45.942654" x="38.739376" class="tspan_0">74LS04</tspan></text>
@@ -490,8 +490,8 @@
     <g id="chip#H2_74LS04_1" transform="translate(114.85377,40.568415)" class="g_0">
       <g transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" id="g_15" class="g_1">
         <title id="title_4">Not Gate Small</title>
-        <path id="path_58" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_7"/>
-        <path id="path_59" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_8"/>
+        <path id="path_58" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_9"/>
+        <path id="path_59" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_10"/>
       </g>
       <text id="text_285" y="42.796265" x="37.455406" xml:space="preserve" class="text_2"><tspan id="tspan_303" y="42.796265" x="37.455406" class="tspan_0">H2</tspan></text>
       <text xml:space="preserve" x="38.739376" y="45.942654" id="text_286" class="text_2"><tspan x="38.739376" y="45.942654" id="tspan_304" class="tspan_0">74LS04</tspan></text>
@@ -501,8 +501,8 @@
     <g id="chip#H2_74LS04_2" transform="translate(114.68916,32.188997)" class="g_0">
       <g transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" id="g_16" class="g_1">
         <title id="title_5">Not Gate Small</title>
-        <path id="path_60" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_7"/>
-        <path id="path_61" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_8"/>
+        <path id="path_60" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_9"/>
+        <path id="path_61" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_10"/>
       </g>
       <text id="text_289" y="42.796265" x="37.455406" xml:space="preserve" class="text_2"><tspan id="tspan_309" y="42.796265" x="37.455406" class="tspan_0">H2</tspan></text>
       <text xml:space="preserve" x="38.739376" y="45.942654" id="text_290" class="text_2"><tspan x="38.739376" y="45.942654" id="tspan_310" class="tspan_0">74LS04</tspan></text>
@@ -512,8 +512,8 @@
     <g transform="translate(114.66143,23.824767)" id="chip#H2_74LS04_3" class="g_0">
       <g id="g_17" transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" class="g_1">
         <title id="title_6">Not Gate Small</title>
-        <path d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" id="path_62" class="path_7"/>
-        <path d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" id="path_63" class="path_8"/>
+        <path d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" id="path_62" class="path_9"/>
+        <path d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" id="path_63" class="path_10"/>
       </g>
       <text xml:space="preserve" x="37.455406" y="42.796265" id="text_293" class="text_2"><tspan x="37.455406" y="42.796265" id="tspan_313" class="tspan_0">H2</tspan></text>
       <text id="text_294" y="45.942654" x="38.739376" xml:space="preserve" class="text_2"><tspan id="tspan_314" y="45.942654" x="38.739376" class="tspan_0">74LS04</tspan></text>
@@ -584,8 +584,8 @@
     <g id="chip#H2_74LS04_4" transform="translate(186.41412,60.497896)" class="g_0">
       <g transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" id="g_18" class="g_1">
         <title id="title_7">Not Gate Small</title>
-        <path id="path_71" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_7"/>
-        <path id="path_72" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_8"/>
+        <path id="path_71" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_9"/>
+        <path id="path_72" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_10"/>
       </g>
       <text id="text_334" y="42.86232" x="37.642185" xml:space="preserve" class="text_2"><tspan id="tspan_363" y="42.86232" x="37.642185" class="tspan_0">H2</tspan></text>
       <text xml:space="preserve" x="38.993382" y="45.942654" id="text_335" class="text_2"><tspan x="38.993382" y="45.942654" id="tspan_364" class="tspan_0">74LS04</tspan></text>
@@ -595,7 +595,7 @@
     <g id="chip#G1_74LS08_3" transform="translate(167.06936,23.401289)" class="g_0">
       <g id="g_19" transform="translate(61.791641,10.163309)" class="g_1">
         <title id="title_8">Nor Gate</title>
-        <path d="m 8.8024793,13.567913 h 2.8214917 c 2.773818,0 4.160725,-2.393442 4.160725,-2.393442 0,0 -0.693453,-2.3934435 -4.160725,-2.3934435 H 8.8024793 c 0.2482475,0.3702894 0.4370662,0.7723015 0.5634321,1.1967215 0.1139201,0.382606 0.1776981,0.783352 0.1776981,1.196722 0,0.413368 -0.063789,0.814114 -0.1776981,1.196721 -0.1263685,0.424419 -0.3151846,0.826432 -0.5634321,1.196721 z" id="path_73" class="path_12"/>
+        <path d="m 8.8024793,13.567913 h 2.8214917 c 2.773818,0 4.160725,-2.393442 4.160725,-2.393442 0,0 -0.693453,-2.3934435 -4.160725,-2.3934435 H 8.8024793 c 0.2482475,0.3702894 0.4370662,0.7723015 0.5634321,1.1967215 0.1139201,0.382606 0.1776981,0.783352 0.1776981,1.196722 0,0.413368 -0.063789,0.814114 -0.1776981,1.196721 -0.1263685,0.424419 -0.3151846,0.826432 -0.5634321,1.196721 z" id="path_73" class="path_14"/>
       </g>
       <ellipse id="ellipse_37" ry="0.48355335" rx="0.44926631" cy="19.302372" cx="70.103149" class="ellipse_2"/>
       <ellipse id="ellipse_38" ry="0.48355335" rx="0.44926631" cy="21.210739" cx="78.146217" class="ellipse_2"/>
@@ -607,26 +607,26 @@
       <text id="text_342" y="22.827778" x="68.804947" xml:space="preserve" class="text_2"><tspan y="22.827778" x="68.804947" id="tspan_377" class="tspan_0">12</tspan><tspan id="tspan_378" y="36.056904" x="68.804947" class="tspan_0"/></text>
     </g>
     <g id="passive#R30_1" transform="translate(-79.266668,-132.71498)" class="g_0">
-      <path d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" id="path_74" class="path_9"/>
+      <path d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" id="path_74" class="path_11"/>
       <text xml:space="preserve" x="141.83138" y="166.85777" id="text_343" class="text_2"><tspan x="141.83138" y="166.85777" id="tspan_379" class="tspan_0">R7</tspan></text>
       <text id="text_344" y="170.97604" x="141.81937" xml:space="preserve" class="text_2"><tspan y="170.97604" x="141.81937" id="tspan_380" class="tspan_0">470</tspan><tspan id="tspan_381" y="184.20517" x="141.81937" class="tspan_0"/></text>
     </g>
     <g transform="translate(-87.933818,-40.268415)" id="wire#VCC_0" class="g_0">
       <ellipse ry="0.21078888" rx="0.21147294" cx="123.5476" cy="79.782852" id="ellipse_40" class="ellipse_5"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="117.34746" cy="77.142479" id="ellipse_41" class="ellipse_5"/>
-      <path d="m 173.60612,79.767542 -56.25777,0.03683 V 78.07456 l 0.85116,-0.851157 0.0721,0.07206" id="path_75" class="path_13"/>
-      <path d="m 117.34835,78.07456 -0.86916,-0.869162 -0.023,0.02297" id="path_76" class="path_13"/>
-      <path d="M 123.5427,78.066325 V 79.7584" id="path_77" class="path_13"/>
+      <path d="m 173.60612,79.767542 -56.25777,0.03683 V 78.07456 l 0.85116,-0.851157 0.0721,0.07206" id="path_75" class="path_15"/>
+      <path d="m 117.34835,78.07456 -0.86916,-0.869162 -0.023,0.02297" id="path_76" class="path_15"/>
+      <path d="M 123.5427,78.066325 V 79.7584" id="path_77" class="path_15"/>
       <text xml:space="preserve" x="117.25353" y="76.567345" id="text_345" class="text_4"><tspan id="tspan_382" x="117.25353" y="76.567345" class="tspan_0">TP8</tspan><tspan x="117.25353" y="89.796471" id="tspan_383" class="tspan_0"/><tspan x="117.25353" y="103.0256" id="tspan_384" class="tspan_0"/></text>
     </g>
     <g id="wire#TP9_0" class="g_0">
       <ellipse id="ellipse_42" cy="35.726223" cx="53.24477" rx="0.21147294" ry="0.21078888" class="ellipse_6"/>
-      <path id="path_78" d="m 53.245712,35.72292 v -1.13825 l 0.85116,-0.851157 0.0721,0.07206" class="path_14"/>
-      <path id="path_79" d="m 53.245712,34.58467 -0.86916,-0.869162 -0.023,0.02297" class="path_14"/>
+      <path id="path_78" d="m 53.245712,35.72292 v -1.13825 l 0.85116,-0.851157 0.0721,0.07206" class="path_16"/>
+      <path id="path_79" d="m 53.245712,34.58467 -0.86916,-0.869162 -0.023,0.02297" class="path_16"/>
       <text id="text_346" y="33.077457" x="53.150887" xml:space="preserve" class="text_5"><tspan y="33.077457" x="53.150887" id="tspan_385" class="tspan_0">TP9</tspan><tspan id="tspan_386" y="46.306583" x="53.150887" class="tspan_0"/><tspan id="tspan_387" y="59.535706" x="53.150887" class="tspan_0"/></text>
-      <path id="path_80" d="m 53.249622,27.430044 h 7.17631" class="path_14"/>
-      <path id="path_81" d="m 56.382712,27.409822 v 8.354531" class="path_14"/>
-      <path d="M 50.003047,35.73439 H 60.832184" id="path_82" class="path_15"/>
+      <path id="path_80" d="m 53.249622,27.430044 h 7.17631" class="path_16"/>
+      <path id="path_81" d="m 56.382712,27.409822 v 8.354531" class="path_16"/>
+      <path d="M 50.003047,35.73439 H 60.832184" id="path_82" class="path_17"/>
       <ellipse id="ellipse_43" cy="33.638153" cx="53.264828" rx="0.21147294" ry="0.21078888" class="ellipse_6"/>
       <ellipse id="ellipse_44" cy="35.748566" cx="56.38781" rx="0.21147294" ry="0.21078888" class="ellipse_6"/>
       <ellipse id="ellipse_45" cy="27.405836" cx="56.379761" rx="0.21147294" ry="0.21078888" class="ellipse_6"/>
@@ -656,10 +656,10 @@
       <text id="text_348" y="13.262897" x="62.431301" xml:space="preserve" class="text_2"><tspan y="13.262897" x="62.431301" id="tspan_390" class="tspan_0">Y1</tspan><tspan id="tspan_391" y="26.492022" x="62.431301" class="tspan_0"/></text>
     </g>
     <g id="wire#GND_1" transform="translate(21.376381,-151.54685)" class="g_0">
-      <path id="path_93" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_5"/>
-      <path id="path_94" d="m 50.828435,168.88631 h 1.469499" class="path_5"/>
-      <path id="path_95" d="m 51.119855,169.40964 h 0.78101" class="path_5"/>
-      <path d="m 44.252733,167.50359 h 7.260715 v 0.79377" id="path_96" class="path_6"/>
+      <path id="path_93" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_7"/>
+      <path id="path_94" d="m 50.828435,168.88631 h 1.469499" class="path_7"/>
+      <path id="path_95" d="m 51.119855,169.40964 h 0.78101" class="path_7"/>
+      <path d="m 44.252733,167.50359 h 7.260715 v 0.79377" id="path_96" class="path_8"/>
       <ellipse id="ellipse_49" cy="167.5067" cx="44.261719" rx="0.21147294" ry="0.21078888" class="ellipse_4"/>
     </g>
     <g id="label#lcock_0">
@@ -671,7 +671,7 @@
       <text id="text_351" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan y="23.459679" x="163.86922" id="tspan_396" class="tspan_0">5</tspan><tspan id="tspan_397" y="36.688805" x="163.86922" class="tspan_0"/></text>
     </g>
     <g id="wire#BANKSEL_0" transform="translate(0.02904377,-0.36532008)">
-      <path id="path_98" d="M 123.31106,49.806927 H 106.63319" class="path_16"/>
+      <path id="path_98" d="M 123.31106,49.806927 H 106.63319" class="path_18"/>
       <text id="text_352" y="49.418091" x="111.69377" xml:space="preserve" class="text_6"><tspan y="49.418091" x="111.69377" id="tspan_398" class="tspan_0">BANK   SEL</tspan><tspan id="tspan_399" y="62.647217" x="111.69377" class="tspan_0"/></text>
     </g>
     <g transform="translate(-75.196888,30.515576)" id="pointer#1_0" class="g_0">
@@ -679,97 +679,97 @@
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_353" class="text_2"><tspan id="tspan_400" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_401" class="tspan_0"/></text>
     </g>
     <g id="wire#BPHI2_0" transform="translate(0.02904377,-0.36532008)">
-      <path id="path_100" d="M 92.144648,53.863843 H 123.3472" class="path_17"/>
+      <path id="path_100" d="M 92.144648,53.863843 H 123.3472" class="path_19"/>
       <g transform="translate(-114.92703,-113.24796)" id="g_20" class="g_0">
         <text id="text_354" y="166.70625" x="209.60358" xml:space="preserve" class="text_7"><tspan y="166.70625" x="209.60358" id="tspan_402" class="tspan_0">B02</tspan><tspan id="tspan_403" y="179.93538" x="209.60358" class="tspan_0"/></text>
-        <path id="path_101" d="m 210.04402,165.62044 -0.75965,1.16872" class="path_18"/>
+        <path id="path_101" d="m 210.04402,165.62044 -0.75965,1.16872" class="path_20"/>
       </g>
     </g>
-    <path d="m 78.231197,35.576195 h 7.20099" id="wire_3" class="path_3"/>
+    <path d="M 78.231197,35.576195 H 85.62888" id="wire_3" class="path_3"/>
     <g id="wire#CLK1_0">
-      <path id="path_102" d="M 58.655357,64.870073 H 44.288085" class="path_19"/>
-      <path id="path_103" d="M 110.71103,33.137644 H 98.172941 V 47.866635 H 50.275889 v 16.983514" class="path_19"/>
+      <path id="path_102" d="M 58.655357,64.870073 H 44.288085" class="path_21"/>
+      <path id="path_103" d="M 110.71103,33.137644 H 98.172941 V 47.866635 H 50.275889 v 16.983514" class="path_21"/>
       <ellipse id="ellipse_50" cy="64.855026" cx="50.268459" rx="0.21147294" ry="0.21078888" class="ellipse_8"/>
       <text xml:space="preserve" x="57.175747" y="64.374084" id="text_355" class="text_8"><tspan x="57.175747" y="64.374084" id="tspan_404" class="tspan_2">CLK1</tspan></text>
     </g>
     <g id="wire#VCC_1" transform="translate(-31.292086,-136.85693)" class="g_0">
-      <path id="wire#VCC_2" d="m 142.08356,172.11098 h -4.27334" class="path_13"/>
+      <path id="wire#VCC_2" d="m 142.08356,172.11098 h -4.27334" class="path_15"/>
       <text id="text_356" y="172.59134" x="135.17838" xml:space="preserve" class="text_4"><tspan y="172.59134" x="135.17838" id="tspan_405" class="tspan_0">+5V</tspan><tspan id="tspan_406" y="185.82047" x="135.17838" class="tspan_0"/></text>
     </g>
     <g id="wire#CLK16_0">
-      <path d="M 92.019857,37.319079 H 110.66316" id="path_104" class="path_20"/>
-      <path d="M 31.635232,69.068249 H 27.395075 V 46.07161 h 68.793452 v -8.802861" id="path_105" class="path_20"/>
+      <path d="M 92.019857,37.319079 H 110.66316" id="path_104" class="path_22"/>
+      <path d="M 31.635232,69.068249 H 27.395075 V 46.07161 h 68.793452 v -8.802861" id="path_105" class="path_22"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="96.199043" cy="37.309265" id="ellipse_51" class="ellipse_9"/>
     </g>
     <g id="wire#BPHI2C_0" class="g_0">
-      <path id="path_106" d="m 123.21859,33.008088 h 39.688 v 14.217659 h 14.58431" class="path_21"/>
-      <path id="path_107" d="M 177.51944,40.847724 H 162.94878" class="path_22"/>
+      <path id="path_106" d="m 123.21859,33.008088 h 39.688 v 14.217659 h 14.58431" class="path_23"/>
+      <path id="path_107" d="M 177.51944,40.847724 H 162.94878" class="path_24"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="162.9028" cy="40.850471" id="ellipse_52" class="ellipse_10"/>
       <g id="g_21" transform="translate(-4.8164402,6.7569083)" class="g_0">
         <text id="text_357" y="25.922127" x="133.32544" xml:space="preserve" class="text_9"><tspan y="25.922127" x="133.32544" id="tspan_407" class="tspan_1">B02C</tspan><tspan id="tspan_408" y="39.151253" x="133.32544" class="tspan_0"/></text>
-        <path id="path_108" d="m 135.11725,24.820352 -0.75965,1.16872" class="path_23"/>
+        <path id="path_108" d="m 135.11725,24.820352 -0.75965,1.16872" class="path_25"/>
       </g>
     </g>
     <g id="wire#BPHI2B_0" class="g_0">
       <ellipse ry="0.21078888" rx="0.21147294" cx="144.5125" cy="57.823433" id="ellipse_53" class="ellipse_11"/>
       <g id="g_22">
         <g id="g_23">
-          <path id="path_109" d="m 123.33451,30.91644 h 41.65783 v 12.144881 h 12.55526" class="path_24"/>
-          <path id="path_110" d="M 177.4896,32.499868 H 165.00449" class="path_24"/>
+          <path id="path_109" d="m 123.33451,30.91644 h 41.65783 v 12.144881 h 12.55526" class="path_26"/>
+          <path id="path_110" d="M 177.4896,32.499868 H 165.00449" class="path_26"/>
           <ellipse ry="0.21078888" rx="0.21147294" cx="164.98959" cy="32.52187" id="ellipse_54" class="ellipse_11"/>
         </g>
         <ellipse id="ellipse_55" cy="30.937323" cx="144.50624" rx="0.21147294" ry="0.21078888" class="ellipse_11"/>
-        <path d="m 115.57985,109.23141 v 3.0564 H 144.5213 V 30.869917" id="path_111" class="path_24"/>
+        <path d="m 115.57985,109.23141 v 3.0564 H 144.5213 V 30.869917" id="path_111" class="path_26"/>
       </g>
-      <path id="path_112" d="m 150.66921,57.83118 h -6.11274" class="path_24"/>
+      <path id="path_112" d="m 150.66921,57.83118 h -6.11274" class="path_26"/>
       <g id="g_24" transform="translate(-4.8086789,4.6580986)">
         <text id="text_358" y="25.922127" x="133.32544" xml:space="preserve" class="text_10"><tspan y="25.922127" x="133.32544" id="tspan_409" class="tspan_1">B02B</tspan><tspan id="tspan_410" y="39.151253" x="133.32544" class="tspan_0"/></text>
-        <path id="path_113" d="m 135.11725,24.820352 -0.75965,1.16872" class="path_25"/>
+        <path id="path_113" d="m 135.11725,24.820352 -0.75965,1.16872" class="path_27"/>
       </g>
     </g>
     <g id="wire#BPHI2A_0">
-      <path id="path_114" d="m 123.26926,28.919421 h 43.76648 v 5.850639 h 10.59374" class="path_26"/>
+      <path id="path_114" d="m 123.26926,28.919421 h 43.76648 v 5.850639 h 10.59374" class="path_28"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="138.14719" cy="28.951698" id="ellipse_56" class="ellipse_12"/>
-      <path id="path_115" d="m 150.84785,82.888861 h -12.7144 V 28.910084" class="path_26"/>
+      <path id="path_115" d="m 150.84785,82.888861 h -12.7144 V 28.910084" class="path_28"/>
       <g transform="translate(-4.7935345,2.412091)" id="g_25">
         <text xml:space="preserve" x="133.32544" y="25.922127" id="text_359" class="text_11"><tspan id="tspan_411" x="133.32544" y="25.922127" class="tspan_1">B02A</tspan><tspan x="133.32544" y="39.151253" id="tspan_412" class="tspan_0"/></text>
-        <path d="m 135.11725,24.820352 -0.75965,1.16872" id="path_116" class="path_27"/>
+        <path d="m 135.11725,24.820352 -0.75965,1.16872" id="path_116" class="path_29"/>
       </g>
     </g>
-    <path d="M 176.67788,51.381456 H 130.77416" id="wire_4" class="path_9"/>
-    <path id="wire#NC_4" d="m 173.34389,38.865867 c 4.10551,0 4.10551,0 4.10551,0" class="path_4"/>
+    <path d="M 176.67788,51.381456 H 130.77416" id="wire_4" class="path_11"/>
+    <path id="wire#NC_2" d="m 173.34389,38.865867 c 4.10551,0 4.10551,0 4.10551,0" class="path_6"/>
     <g transform="translate(-4.26465,26.290038)" id="pointer#1_1" class="g_0">
       <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_117" class="path_3"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_360" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_413" class="tspan_0">1</tspan></text>
     </g>
-    <path d="m 173.3436,36.716023 c 4.10551,0 4.10551,0 4.10551,0" id="wire#NC_5" class="path_4"/>
+    <path d="m 173.3436,36.716023 c 4.10551,0 4.10551,0 4.10551,0" id="wire#NC_3" class="path_6"/>
     <g id="wire#BRW_0">
-      <path d="m 163.10593,49.272985 h 14.44492" id="wire#BRW_1" class="path_28"/>
+      <path d="m 163.10593,49.272985 h 14.44492" id="wire#BRW_1" class="path_30"/>
       <text xml:space="preserve" x="166.48128" y="48.847343" id="text_361" class="text_12"><tspan x="166.48128" y="48.847343" id="tspan_414" class="tspan_0">B  R/W</tspan></text>
     </g>
     <g id="wire#BPHI2D_0" transform="translate(-4.8033455,8.6312071)" class="g_0">
-      <path d="m 128.12593,26.454781 h 8.24152 29.28929 v 10.003427 h 16.67781" id="wire#BPHI2D_1" class="path_29"/>
+      <path d="m 128.12593,26.454781 h 8.24152 29.28929 v 10.003427 h 16.67781" id="wire#BPHI2D_1" class="path_31"/>
       <text id="text_362" y="26.057848" x="133.33749" xml:space="preserve" class="text_13"><tspan y="26.057848" x="133.33749" id="tspan_415" class="tspan_1">B02D</tspan><tspan id="tspan_416" y="39.286972" x="133.33749" class="tspan_0"/></text>
-      <path id="path_118" d="m 135.11725,24.820352 -0.75965,1.16872" class="path_30"/>
+      <path id="path_118" d="m 135.11725,24.820352 -0.75965,1.16872" class="path_32"/>
     </g>
     <g id="wire#BPHI2F_0" class="g_0">
       <ellipse ry="0.21078888" rx="0.21147294" cx="142.51848" cy="66.246437" id="ellipse_57" class="ellipse_13"/>
       <g transform="translate(-6.036965,7.9904435)" id="g_26" class="g_0">
         <text id="text_363" y="30.854576" x="134.58009" xml:space="preserve" class="text_14"><tspan y="30.854576" x="134.58009" id="tspan_417" class="tspan_1">B02F</tspan><tspan id="tspan_418" y="44.083702" x="134.58009" class="tspan_0"/></text>
-        <path id="path_119" d="m 136.35985,29.617081 -0.75965,1.16872" class="path_31"/>
+        <path id="path_119" d="m 136.35985,29.617081 -0.75965,1.16872" class="path_33"/>
       </g>
-      <path id="path_120" d="m 123.31876,39.135806 h 19.16922 v 39.703227 h 81.60087 v -4.015386" class="path_32"/>
-      <path id="path_121" d="m 150.66262,66.228814 h -8.13325 v 0.04282" class="path_32"/>
+      <path id="path_120" d="m 123.31876,39.135806 h 19.16922 v 39.703227 h 81.60087 v -4.015386" class="path_34"/>
+      <path id="path_121" d="m 150.66262,66.228814 h -8.13325 v 0.04282" class="path_34"/>
     </g>
     <g id="wire#BPHI2G_0">
       <g id="g_27" transform="translate(-6.0335555,10.047154)" class="g_0">
         <text xml:space="preserve" x="134.58009" y="30.854576" id="text_364" class="text_15"><tspan id="tspan_419" x="134.58009" y="30.854576" class="tspan_1">B02G</tspan><tspan x="134.58009" y="44.083702" id="tspan_420" class="tspan_0"/></text>
-        <path d="m 136.35985,29.617081 -0.75965,1.16872" id="path_122" class="path_33"/>
+        <path d="m 136.35985,29.617081 -0.75965,1.16872" id="path_122" class="path_35"/>
       </g>
-      <path id="path_123" d="m 123.38176,41.135419 h 16.8515 v 33.484578 h 10.5102" class="path_34"/>
+      <path id="path_123" d="m 123.38176,41.135419 h 16.8515 v 33.484578 h 10.5102" class="path_36"/>
     </g>
     <path id="wire_5" d="m 190.28519,36.360987 h 29.02447" class="path_3"/>
-    <path d="m 190.19239,40.748513 h 4.43708" id="wire#NC_6" class="path_4"/>
+    <path d="m 190.19239,40.748513 h 4.43708" id="wire#NC_4" class="path_6"/>
     <g id="wire_6">
       <path id="path_124" d="m 190.12944,48.99407 h 4.64424 v 33.237095 h 44.1529" class="path_3"/>
       <path id="path_125" d="m 239.24663,100.82171 h -4.30575 V 82.193608" class="path_3"/>
@@ -781,13 +781,13 @@
     </g>
     <path d="m 227.6126,42.691936 h 9.03717" id="wire_7" class="path_3"/>
     <path d="m 236.81117,46.707427 h -2.59974 v 25.042355 h -5.98022" id="wire_8" class="path_3"/>
-    <path d="m 228.17767,59.270055 h 4.12092" id="wire#NC_7" class="path_4"/>
+    <path d="m 228.17767,59.270055 h 4.12092" id="wire#NC_5" class="path_6"/>
     <g id="pointer#7_0" transform="translate(39.79955,27.831295)" class="g_0">
       <path id="path_128" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_3"/>
       <text id="text_365" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan y="23.459679" x="163.86922" id="tspan_421" class="tspan_0">7</tspan><tspan id="tspan_422" y="36.688805" x="163.86922" class="tspan_0"/></text>
     </g>
     <g id="wire#MUXA_0">
-      <path d="m 190.27625,44.863173 h 10.66158" id="path_129" class="path_35"/>
+      <path d="m 190.27625,44.863173 h 10.66158" id="path_129" class="path_37"/>
       <text id="text_366" y="44.398556" x="197.53238" xml:space="preserve" class="text_16"><tspan y="44.398556" x="197.53238" id="tspan_423" class="tspan_0">MUXA</tspan><tspan id="tspan_424" y="57.627682" x="197.53238" class="tspan_0"/></text>
     </g>
     <g transform="translate(39.6676,21.916561)" id="pointer#5_1" class="g_0">
@@ -795,7 +795,7 @@
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_367" class="text_2"><tspan id="tspan_425" x="163.86922" y="23.459679" class="tspan_0">5</tspan><tspan x="163.86922" y="36.688805" id="tspan_426" class="tspan_0"/></text>
     </g>
     <g transform="translate(111.22853,-123.86252)" id="passive#R30_2" class="g_0">
-      <path id="path_131" d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" class="path_9"/>
+      <path id="path_131" d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" class="path_11"/>
       <text id="text_368" y="166.85777" x="141.83138" xml:space="preserve" class="text_2"><tspan id="tspan_427" y="166.85777" x="141.83138" class="tspan_0">R39</tspan></text>
       <text xml:space="preserve" x="141.81937" y="170.97604" id="text_369" class="text_2"><tspan id="tspan_428" x="141.81937" y="170.97604" class="tspan_0">39</tspan><tspan x="141.81937" y="184.20517" id="tspan_429" class="tspan_0"/></text>
     </g>
@@ -810,13 +810,13 @@
     <g id="wire#/RAS0_0">
       <g transform="translate(0.34238117,1.0030801)" id="g_28">
         <text id="text_372" y="43.189308" x="264.25369" xml:space="preserve" class="text_17"><tspan id="tspan_434" y="43.189308" x="264.25369" class="tspan_0">RAS0</tspan></text>
-        <path id="path_134" d="m 262.48142,41.950613 h 3.51212" class="path_36"/>
+        <path id="path_134" d="m 262.48142,41.950613 h 3.51212" class="path_38"/>
       </g>
-      <path d="m 245.60303,44.58685 h 5.72435" id="path_135" class="path_37"/>
-      <path id="path_136" d="m 254.98742,44.60494 h 12.80136" class="path_37"/>
+      <path d="m 245.60303,44.58685 h 5.72435" id="path_135" class="path_39"/>
+      <path id="path_136" d="m 254.98742,44.60494 h 12.80136" class="path_39"/>
     </g>
     <g id="passive#R42_0" transform="translate(111.82446,-84.462943)" class="g_0">
-      <path d="m 140.10241,168.55801 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" id="path_137" class="path_9"/>
+      <path d="m 140.10241,168.55801 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" id="path_137" class="path_11"/>
       <text xml:space="preserve" x="141.83138" y="166.85777" id="text_373" class="text_2"><tspan x="141.83138" y="166.85777" id="tspan_435" class="tspan_0">R42</tspan></text>
       <text id="text_374" y="170.97604" x="141.81937" xml:space="preserve" class="text_2"><tspan y="170.97604" x="141.81937" id="tspan_436" class="tspan_0">27</tspan><tspan id="tspan_437" y="184.20517" x="141.81937" class="tspan_0"/></text>
     </g>
@@ -825,15 +825,15 @@
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_375" class="text_2"><tspan id="tspan_438" x="163.86922" y="23.459679" class="tspan_0">5</tspan><tspan x="163.86922" y="36.688805" id="tspan_439" class="tspan_0"/></text>
     </g>
     <g id="wire#/CAS1_0">
-      <path d="m 246.35414,84.095067 h 5.57273" id="path_139" class="path_38"/>
-      <path id="path_140" d="m 255.58691,84.113155 h 12.74678" class="path_39"/>
+      <path d="m 246.35414,84.095067 h 5.57273" id="path_139" class="path_40"/>
+      <path id="path_140" d="m 255.58691,84.113155 h 12.74678" class="path_41"/>
       <g transform="translate(0.93035741,40.070135)" id="g_29">
         <text id="text_376" y="43.189308" x="264.25369" xml:space="preserve" class="text_18"><tspan id="tspan_440" y="43.189308" x="264.25369" class="tspan_0">CAS1</tspan></text>
-        <path id="path_141" d="m 262.48142,41.950613 h 3.51212" class="path_40"/>
+        <path id="path_141" d="m 262.48142,41.950613 h 3.51212" class="path_42"/>
       </g>
     </g>
     <g transform="translate(112.07546,-67.851834)" id="passive#R41_0" class="g_0">
-      <path id="path_142" d="m 140.10241,168.55801 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" class="path_9"/>
+      <path id="path_142" d="m 140.10241,168.55801 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" class="path_11"/>
       <text id="text_377" y="166.85777" x="141.83138" xml:space="preserve" class="text_2"><tspan y="166.85777" x="141.83138" id="tspan_441" class="tspan_0">R41</tspan></text>
       <text xml:space="preserve" x="141.81937" y="170.97604" id="text_378" class="text_2"><tspan id="tspan_442" x="141.81937" y="170.97604" class="tspan_0">27</tspan><tspan x="141.81937" y="184.20517" id="tspan_443" class="tspan_0"/></text>
     </g>
@@ -842,15 +842,15 @@
       <text id="text_379" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan y="23.459679" x="163.86922" id="tspan_444" class="tspan_0">5</tspan><tspan id="tspan_445" y="36.688805" x="163.86922" class="tspan_0"/></text>
     </g>
     <g id="wire#/CAS0_0" transform="translate(0.25099949,16.611112)">
-      <path id="path_144" d="m 246.35414,84.095067 h 5.57273" class="path_41"/>
-      <path d="m 255.58691,84.113155 h 12.74678" id="path_145" class="path_42"/>
+      <path id="path_144" d="m 246.35414,84.095067 h 5.57273" class="path_43"/>
+      <path d="m 255.58691,84.113155 h 12.74678" id="path_145" class="path_44"/>
       <g id="g_30" transform="translate(0.93035741,40.070135)">
         <text xml:space="preserve" x="264.25369" y="43.189308" id="text_380" class="text_19"><tspan x="264.25369" y="43.189308" id="tspan_446" class="tspan_0">CAS0</tspan></text>
-        <path d="m 262.48142,41.950613 h 3.51212" id="path_146" class="path_43"/>
+        <path d="m 262.48142,41.950613 h 3.51212" id="path_146" class="path_45"/>
       </g>
     </g>
     <g id="chip#J7_0" transform="translate(54.997634,33.323517)" class="g_0">
-      <path d="m 211.85738,79.573509 h 4.06167 v 12.591958 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" id="path_147" class="path_44"/>
+      <path d="m 211.85738,79.573509 h 4.06167 v 12.591958 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" id="path_147" class="path_46"/>
       <text id="text_381" y="82.116783" x="213.96527" xml:space="preserve" class="text_2"><tspan id="tspan_447" y="82.116783" x="213.96527" class="tspan_0">3</tspan></text>
       <text id="text_382" y="86.295265" x="214.00835" xml:space="preserve" class="text_2"><tspan id="tspan_448" y="86.295265" x="214.00835" class="tspan_0">2</tspan></text>
       <text xml:space="preserve" x="214.05127" y="79.035583" id="text_383" class="text_2"><tspan x="214.05127" y="79.035583" id="tspan_449" class="tspan_0">J7</tspan></text>
@@ -859,13 +859,13 @@
       <text id="text_386" y="88.428337" x="213.9942" xml:space="preserve" class="text_2"><tspan id="tspan_452" y="88.428337" x="213.9942" class="tspan_0">4</tspan></text>
     </g>
     <g id="wire#GND_2" transform="translate(211.17108,-42.876508)" class="g_0">
-      <path id="path_148" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_5"/>
-      <path id="path_149" d="m 50.828435,168.88631 h 1.469499" class="path_5"/>
-      <path id="path_150" d="m 51.119855,169.40964 h 0.78101" class="path_5"/>
-      <path d="m 55.582876,162.09831 h -4.069428 v 6.19905" id="path_151" class="path_6"/>
+      <path id="path_148" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_7"/>
+      <path id="path_149" d="m 50.828435,168.88631 h 1.469499" class="path_7"/>
+      <path id="path_150" d="m 51.119855,169.40964 h 0.78101" class="path_7"/>
+      <path d="m 55.582876,162.09831 h -4.069428 v 6.19905" id="path_151" class="path_8"/>
       <ellipse id="ellipse_61" cy="164.19281" cx="51.509029" rx="0.21147294" ry="0.21078888" class="ellipse_4"/>
-      <path id="path_152" d="m 51.599368,164.18639 h 4.011057" class="path_6"/>
-      <path d="m 51.606733,166.31116 h 4.01106" id="path_153" class="path_5"/>
+      <path id="path_152" d="m 51.599368,164.18639 h 4.011057" class="path_8"/>
+      <path d="m 51.606733,166.31116 h 4.01106" id="path_153" class="path_7"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="51.47197" cy="166.29523" id="ellipse_62" class="ellipse_4"/>
     </g>
     <text id="label#KEY_0" y="117.68271" x="264.04556" xml:space="preserve" class="text_2"><tspan id="tspan_453" y="117.68271" x="264.04556" class="tspan_0">KEY</tspan></text>
@@ -874,7 +874,7 @@
       <text id="text_387" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_454" y="23.459679" x="163.86922" class="tspan_0">3</tspan></text>
     </g>
     <g id="wire#VIDEOON_0">
-      <path id="path_155" d="m 245.99038,131.92821 h 23.17446" class="path_45"/>
+      <path id="path_155" d="m 245.99038,131.92821 h 23.17446" class="path_47"/>
       <text id="text_388" y="131.44624" x="263.62521" xml:space="preserve" class="text_20"><tspan id="tspan_455" y="131.44624" x="263.62521" class="tspan_0">VIDEO  ON</tspan></text>
     </g>
     <g transform="translate(107.88827,108.85327)" id="pointer#3_1" class="g_0">
@@ -884,8 +884,8 @@
     <g id="chip#I1_74LS04_3" transform="translate(0.22252786,68.245256)" class="g_0">
       <g transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" id="g_31" class="g_1">
         <title id="title_9">Not Gate Small</title>
-        <path id="path_157" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_7"/>
-        <path id="path_158" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_8"/>
+        <path id="path_157" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_9"/>
+        <path id="path_158" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_10"/>
       </g>
       <text id="text_390" y="42.86232" x="37.642185" xml:space="preserve" class="text_2"><tspan y="42.86232" x="37.642185" id="tspan_457" class="tspan_0">I1</tspan><tspan id="tspan_458" y="56.091446" x="37.642185" class="tspan_0"/></text>
       <text xml:space="preserve" x="38.993382" y="45.942654" id="text_391" class="text_2"><tspan x="38.993382" y="45.942654" id="tspan_459" class="tspan_0">74LS04</tspan></text>
@@ -893,11 +893,11 @@
       <text id="text_393" y="41.885017" x="42.168606" xml:space="preserve" class="text_2"><tspan y="41.885017" x="42.168606" id="tspan_461" class="tspan_0">10</tspan><tspan id="tspan_462" y="55.114143" x="42.168606" class="tspan_0"/></text>
     </g>
     <g id="wire#VCC_3" transform="translate(-96.895997,-134.67481)" class="g_0">
-      <path id="wire#VCC_4" d="m 132.52297,168.81269 v -2.64816" class="path_13"/>
+      <path id="wire#VCC_4" d="m 132.52297,168.81269 v -2.64816" class="path_15"/>
       <text id="text_394" y="165.79825" x="132.368" xml:space="preserve" class="text_4"><tspan y="165.79825" x="132.368" id="tspan_463" class="tspan_0">+5V</tspan><tspan id="tspan_464" y="179.02737" x="132.368" class="tspan_0"/></text>
     </g>
     <g transform="translate(-76.291142,-25.637891)" id="passive#R15_1" class="g_0">
-      <path id="path_159" d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" class="path_9"/>
+      <path id="path_159" d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" class="path_11"/>
       <text id="text_395" y="169.99921" x="135.4377" xml:space="preserve" class="text_2"><tspan id="tspan_465" y="169.99921" x="135.4377" class="tspan_0">R12</tspan></text>
       <text xml:space="preserve" x="134.95799" y="172.15439" id="text_396" class="text_2"><tspan x="134.95799" y="172.15439" id="tspan_466" class="tspan_0">1K</tspan></text>
     </g>
@@ -912,101 +912,101 @@
       <ellipse id="ellipse_70" cy="154.32602" cx="36.550194" rx="0.21147294" ry="0.21078888" class="ellipse_14"/>
       <ellipse id="ellipse_71" cy="110.62724" cx="25.493349" rx="0.21147294" ry="0.21078888" class="ellipse_14"/>
       <ellipse id="ellipse_72" cy="102.30911" cx="25.497103" rx="0.21147294" ry="0.21078888" class="ellipse_14"/>
-      <path id="path_160" d="m 30.71682,67.030533 h -5.230454 l 0.03945,87.287307 h 99.701314 99.70131 v -4.3987" class="path_46"/>
+      <path id="path_160" d="m 30.71682,67.030533 h -5.230454 l 0.03945,87.287307 h 99.701314 99.70131 v -4.3987" class="path_48"/>
       <ellipse id="ellipse_73" cy="85.784721" cx="25.472315" rx="0.21147294" ry="0.21078888" class="ellipse_14"/>
-      <path id="path_161" d="M 25.502129,85.782136 H 31.79355" class="path_46"/>
-      <path id="path_162" d="m 25.487848,98.187455 h 6.391862 v -0.02278 l 0.0053,-0.0053" class="path_46"/>
+      <path id="path_161" d="M 25.502129,85.782136 H 31.79355" class="path_48"/>
+      <path id="path_162" d="m 25.487848,98.187455 h 6.391862 v -0.02278 l 0.0053,-0.0053" class="path_48"/>
       <ellipse id="ellipse_74" cy="98.18618" cx="25.489111" rx="0.21147294" ry="0.21078888" class="ellipse_14"/>
-      <path id="path_163" d="m 36.135201,101.31525 v 0.98853 H 25.513615" class="path_46"/>
-      <path id="path_164" d="M 36.239971,110.63438 H 25.497559" class="path_46"/>
-      <path id="path_165" d="M 32.299859,137.65259 H 25.542108" class="path_46"/>
-      <path id="path_166" d="M 32.300658,150.0995 H 25.559796" class="path_46"/>
-      <path id="path_167" d="m 36.545832,153.20711 v 1.11344" class="path_46"/>
+      <path id="path_163" d="m 36.135201,101.31525 v 0.98853 H 25.513615" class="path_48"/>
+      <path id="path_164" d="M 36.239971,110.63438 H 25.497559" class="path_48"/>
+      <path id="path_165" d="M 32.299859,137.65259 H 25.542108" class="path_48"/>
+      <path id="path_166" d="M 32.300658,150.0995 H 25.559796" class="path_48"/>
+      <path id="path_167" d="m 36.545832,153.20711 v 1.11344" class="path_48"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="25.5019" cy="150.12" id="ellipse_75" class="ellipse_14"/>
-      <path id="path_168" d="m 101.28328,154.29657 v -2.42961 l 0.85116,-0.85115 0.0721,0.0721" class="path_47"/>
-      <path id="path_169" d="m 101.28328,151.86696 -0.86916,-0.86916 -0.023,0.023" class="path_47"/>
+      <path id="path_168" d="m 101.28328,154.29657 v -2.42961 l 0.85116,-0.85115 0.0721,0.0721" class="path_49"/>
+      <path id="path_169" d="m 101.28328,151.86696 -0.86916,-0.86916 -0.023,0.023" class="path_49"/>
       <text id="text_397" y="150.35976" x="101.18845" xml:space="preserve" class="text_21"><tspan y="150.35976" x="101.18845" id="tspan_467" class="tspan_0">TP7</tspan><tspan id="tspan_468" y="163.58888" x="101.18845" class="tspan_0"/><tspan id="tspan_469" y="176.81801" x="101.18845" class="tspan_0"/></text>
       <ellipse id="ellipse_76" cy="150.92046" cx="101.3024" rx="0.21147294" ry="0.21078888" class="ellipse_14"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="101.29578" cy="154.28099" id="ellipse_77" class="ellipse_14"/>
-      <path id="path_170" d="m 49.001566,154.30898 v 4.06348 h 6.227706" class="path_46"/>
+      <path id="path_170" d="m 49.001566,154.30898 v 4.06348 h 6.227706" class="path_48"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="105.27477" cy="154.32474" id="ellipse_78" class="ellipse_14"/>
-      <path id="path_171" d="m 111.36712,93.566299 h -6.1104 v 60.772931" class="path_46"/>
+      <path id="path_171" d="m 111.36712,93.566299 h -6.1104 v 60.772931" class="path_48"/>
       <g transform="translate(-212.2197,114.64273)" id="g_32">
         <text id="text_398" y="43.189308" x="264.25369" xml:space="preserve" class="text_21"><tspan id="tspan_470" y="43.189308" x="264.25369" class="tspan_0">INIT</tspan></text>
-        <path id="path_172" d="m 262.83926,41.950613 h 2.81706" class="path_48"/>
+        <path id="path_172" d="m 262.83926,41.950613 h 2.81706" class="path_50"/>
       </g>
       <g id="g_33" transform="translate(-57.500845,81.207619)">
         <text xml:space="preserve" x="264.25369" y="43.189308" id="text_399" class="text_21"><tspan x="264.25369" y="43.189308" id="tspan_471" class="tspan_0">INIT</tspan></text>
-        <path d="m 262.83926,41.950613 h 2.81706" id="path_173" class="path_48"/>
+        <path d="m 262.83926,41.950613 h 2.81706" id="path_173" class="path_50"/>
       </g>
-      <path id="path_174" d="m 115.90424,150.81737 v 3.52335" class="path_46"/>
-      <path id="path_175" d="m 147.17603,150.61367 v 3.69691" class="path_46"/>
-      <path id="path_176" d="m 183.00782,149.82898 v 4.43941" class="path_46"/>
-      <path id="path_177" d="m 204.09826,154.25735 v -0.0921 -29.21068 h 7.80869 V 22.109525 h -104.4897 v 17.283528 h 2.33069" class="path_46"/>
+      <path id="path_174" d="m 115.90424,150.81737 v 3.52335" class="path_48"/>
+      <path id="path_175" d="m 147.17603,150.61367 v 3.69691" class="path_48"/>
+      <path id="path_176" d="m 183.00782,149.82898 v 4.43941" class="path_48"/>
+      <path id="path_177" d="m 204.09826,154.25735 v -0.0921 -29.21068 h 7.80869 V 22.109525 h -104.4897 v 17.283528 h 2.33069" class="path_48"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="211.9023" cy="59.269413" id="ellipse_79" class="ellipse_14"/>
-      <path d="m 211.96001,59.245449 h 7.77753" id="path_178" class="path_46"/>
+      <path d="m 211.96001,59.245449 h 7.77753" id="path_178" class="path_48"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="211.89778" cy="30.156435" id="ellipse_80" class="ellipse_14"/>
-      <path d="m 219.15672,30.129673 h -7.18445" id="path_179" class="path_46"/>
+      <path d="m 219.15672,30.129673 h -7.18445" id="path_179" class="path_48"/>
       <ellipse id="ellipse_81" cy="24.76466" cx="211.90005" rx="0.21147294" ry="0.21078888" class="ellipse_14"/>
-      <path d="M 223.34628,26.910892 V 24.77773 H 211.8449" id="path_180" class="path_46"/>
-      <path id="path_181" d="m 56.213738,146.83483 v 7.46052" class="path_47"/>
+      <path d="M 223.34628,26.910892 V 24.77773 H 211.8449" id="path_180" class="path_48"/>
+      <path id="path_181" d="m 56.213738,146.83483 v 7.46052" class="path_49"/>
     </g>
     <g transform="translate(-76.291142,-25.637891)" id="wire#VCC_5" class="g_0">
-      <path d="m 132.52297,168.81269 v -1.4705" id="wire#VCC_6" class="path_13"/>
+      <path d="m 132.52297,168.81269 v -1.4705" id="wire#VCC_6" class="path_15"/>
       <text xml:space="preserve" x="132.86488" y="166.8188" id="text_400" class="text_4"><tspan id="tspan_472" x="132.86488" y="166.8188" class="tspan_0">+5V</tspan><tspan x="132.86488" y="180.04793" id="tspan_473" class="tspan_0"/></text>
     </g>
     <g transform="translate(55.762243,76.168377)" id="chip#J7_1" class="g_0">
-      <path id="path_182" d="m 211.85738,79.573509 h 4.06167 v 4.039716 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" class="path_44"/>
+      <path id="path_182" d="m 211.85738,79.573509 h 4.06167 v 4.039716 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" class="path_46"/>
       <text xml:space="preserve" x="213.96527" y="82.116783" id="text_401" class="text_2"><tspan x="213.96527" y="82.116783" id="tspan_474" class="tspan_0">5</tspan></text>
       <text id="text_402" y="79.035583" x="214.05127" xml:space="preserve" class="text_2"><tspan id="tspan_475" y="79.035583" x="214.05127" class="tspan_0">J7</tspan></text>
     </g>
-    <g id="wire_9">
-      <path id="path_183" d="m 229.07703,134.174 h 10.57622" class="path_9"/>
-      <path id="path_184" d="m 178.81281,147.42684 h -4.26064 v 8.80641 h 58.95642 v -22.02469 h -0.0184" class="path_9"/>
-      <ellipse ry="0.21078888" rx="0.21147294" cx="233.49698" cy="134.20175" id="ellipse_82" class="ellipse_7"/>
+    <g id="wire#H8Q_0">
+      <path id="path_183" d="m 229.07703,134.174 h 10.57622" class="path_51"/>
+      <path id="path_184" d="m 178.81281,147.42684 h -4.26064 v 8.80641 h 58.95642 v -22.02469 h -0.0184" class="path_51"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="233.49698" cy="134.20175" id="ellipse_82" class="ellipse_15"/>
     </g>
     <g id="pointer#3_2" transform="translate(108.19853,126.11938)" class="g_0">
       <path id="path_185" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_3"/>
       <text id="text_403" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_476" y="23.459679" x="163.86922" class="tspan_0">3</tspan></text>
     </g>
     <g id="wire#HORZDRIVE_0">
-      <path d="m 151.24973,147.45575 h 4.4363 v 10.4967 h 111.84344" id="path_186" class="path_49"/>
+      <path d="m 151.24973,147.45575 h 4.4363 v 10.4967 h 111.84344" id="path_186" class="path_52"/>
       <text id="text_404" y="157.47308" x="262.66452" xml:space="preserve" class="text_22"><tspan id="tspan_477" y="157.47308" x="262.66452" class="tspan_0">DRIVE</tspan></text>
-      <path d="m 252.71009,157.95657 v -8.7459 h 16.83595" id="path_187" class="path_49"/>
+      <path d="m 252.71009,157.95657 v -8.7459 h 16.83595" id="path_187" class="path_52"/>
       <text xml:space="preserve" x="260.24625" y="148.75732" id="text_405" class="text_22"><tspan x="260.24625" y="148.75732" id="tspan_478" class="tspan_0">HORZ  DRIVE</tspan></text>
-      <ellipse id="ellipse_83" cy="157.95618" cx="252.72139" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+      <ellipse id="ellipse_83" cy="157.95618" cx="252.72139" rx="0.21147294" ry="0.21078888" class="ellipse_16"/>
     </g>
-    <g id="wire_10">
-      <path id="path_188" d="m 187.11444,134.38888 h 33.51231" class="path_3"/>
-      <ellipse ry="0.21078888" rx="0.21147294" cx="214.45049" cy="134.36113" id="ellipse_84" class="ellipse_7"/>
-      <path d="m 239.62119,130.14853 h -25.1771 v 4.20456" id="path_189" class="path_3"/>
+    <g id="wire#H8Q_1">
+      <path id="path_188" d="m 187.11444,134.38888 h 33.51231" class="path_53"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="214.45049" cy="134.36113" id="ellipse_84" class="ellipse_15"/>
+      <path d="m 239.62119,130.14853 h -25.1771 v 4.20456" id="path_189" class="path_53"/>
     </g>
     <g id="pointer#78_0" transform="translate(-3.47211,117.62085)" class="g_0">
       <path id="path_190" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_3"/>
       <text id="text_406" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_479" y="23.459679" x="163.86922" class="tspan_0">7, 8</tspan></text>
     </g>
-    <path id="wire#NC_8" d="m 151.34526,134.99765 h 4.11264" class="path_4"/>
+    <path id="wire#/HORZDRIVE_0" d="m 151.34526,134.99765 h 4.11264" class="path_54"/>
     <g transform="translate(-18.448814,105.69043)" id="pointer#78_1" class="g_0">
       <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_191" class="path_3"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_407" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_480" class="tspan_0">7, 8</tspan></text>
     </g>
     <g id="wire#HORZDISPON_0">
-      <path d="m 120.12349,135.02156 h 22.71043" id="path_192" class="path_50"/>
-      <path d="m 128.34316,135.02061 c 0,-3.0228 0,-6.26691 0,-6.26691 h 14.52207" id="path_193" class="path_50"/>
-      <ellipse ry="0.21078888" rx="0.21147294" cx="128.36838" cy="135.01189" id="ellipse_85" class="ellipse_16"/>
+      <path d="m 120.12349,135.02156 h 22.71043" id="path_192" class="path_55"/>
+      <path d="m 128.34316,135.02061 c 0,-3.0228 0,-6.26691 0,-6.26691 h 14.52207" id="path_193" class="path_55"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="128.36838" cy="135.01189" id="ellipse_85" class="ellipse_17"/>
       <text xml:space="preserve" x="134.98506" y="128.40076" id="text_408" class="text_23"><tspan x="134.98506" y="128.40076" id="tspan_481" class="tspan_0">HORZ  DISP  ON</tspan></text>
     </g>
     <g id="wire#HORZDISPOFF_0">
-      <ellipse ry="0.21078888" rx="0.21147294" cx="126.28452" cy="147.59413" id="ellipse_86" class="ellipse_17"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="126.28452" cy="147.59413" id="ellipse_86" class="ellipse_18"/>
       <text id="text_409" y="157.51218" x="134.27075" xml:space="preserve" class="text_24"><tspan id="tspan_482" y="157.51218" x="134.27075" class="tspan_0">HORZ  DISP  OFF</tspan></text>
-      <path d="m 120.0695,147.55311 h 22.86347 l 0.022,0.0793" id="path_194" class="path_51"/>
-      <path d="m 126.28566,147.62451 v 10.44929 h 16.73772" id="path_195" class="path_51"/>
+      <path d="m 120.0695,147.55311 h 22.86347 l 0.022,0.0793" id="path_194" class="path_56"/>
+      <path d="m 126.28566,147.62451 v 10.44929 h 16.73772" id="path_195" class="path_56"/>
     </g>
     <g id="pointer#7_2" transform="translate(-18.260857,134.97205)" class="g_0">
       <path id="path_196" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_3"/>
       <text id="text_410" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan y="23.459679" x="163.86922" id="tspan_483" class="tspan_0">7</tspan><tspan id="tspan_484" y="36.688805" x="163.86922" class="tspan_0"/></text>
     </g>
-    <path id="wire_11" d="M 141.94826,141.28011 H 126.16189 V 120.8064 H 96.951719" class="path_3"/>
+    <path id="wire#RA1AND3_0" d="M 141.94826,141.28011 H 126.16189 V 120.8064 H 96.951719" class="path_57"/>
     <g transform="translate(40.022731,65.641978)" id="pointer#78_2" class="g_0">
       <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_197" class="path_3"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_411" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_485" class="tspan_0">7, 8</tspan></text>
@@ -1020,16 +1020,16 @@
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_413" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_488" class="tspan_0">8</tspan></text>
     </g>
     <g id="wire#/LOADSR_0">
-      <ellipse ry="0.21078888" rx="0.21147294" cx="126.09175" cy="105.95233" id="ellipse_87" class="ellipse_18"/>
-      <path d="m 119.7413,105.93688 h 16.68108" id="path_200" class="path_52"/>
-      <path d="m 110.67128,141.45857 h -3.20174 v -27.11538 h 18.6017 v -8.42513" id="path_201" class="path_52"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="126.09175" cy="105.95233" id="ellipse_87" class="ellipse_19"/>
+      <path d="m 119.7413,105.93688 h 16.68108" id="path_200" class="path_58"/>
+      <path d="m 110.67128,141.45857 h -3.20174 v -27.11538 h 18.6017 v -8.42513" id="path_201" class="path_58"/>
       <g transform="translate(-133.85633,62.218102)" id="g_34">
         <text id="text_414" y="43.27169" x="265.24875" xml:space="preserve" class="text_25"><tspan id="tspan_489" y="43.27169" x="265.24875" class="tspan_0">LOAD  SR</tspan></text>
-        <path id="path_202" d="m 262.00983,42.032994 h 6.56955" class="path_53"/>
+        <path id="path_202" d="m 262.00983,42.032994 h 6.56955" class="path_59"/>
       </g>
     </g>
     <g id="wire#LOADSR_0">
-      <path d="m 119.67654,93.379752 h 16.63255" id="path_203" class="path_54"/>
+      <path d="m 119.67654,93.379752 h 16.63255" id="path_203" class="path_60"/>
       <text xml:space="preserve" x="131.37152" y="93.002167" id="text_415" class="text_26"><tspan x="131.37152" y="93.002167" id="tspan_490" class="tspan_0">LOAD  SR</tspan></text>
     </g>
     <g id="pointer#78_3" transform="translate(-106.07609,135.3737)" class="g_0">
@@ -1037,23 +1037,23 @@
       <text id="text_416" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_491" y="23.459679" x="163.86922" class="tspan_0">7, 8</tspan></text>
     </g>
     <g id="wire#INIT_0">
-      <path d="M 41.353525,110.58094 H 55.962581 V 93.799241 h 2.959838" id="path_205" class="path_55"/>
-      <path d="M 59.010158,98.026256 H 56.024766" id="path_206" class="path_55"/>
-      <ellipse id="ellipse_88" cy="98.029457" cx="55.935291" rx="0.21147294" ry="0.21078888" class="ellipse_19"/>
+      <path d="M 41.353525,110.58094 H 55.962581 V 93.799241 h 2.959838" id="path_205" class="path_61"/>
+      <path d="M 59.010158,98.026256 H 56.024766" id="path_206" class="path_61"/>
+      <ellipse id="ellipse_88" cy="98.029457" cx="55.935291" rx="0.21147294" ry="0.21078888" class="ellipse_20"/>
     </g>
     <g id="wire#RA2_0">
-      <ellipse ry="0.21078888" rx="0.21147294" cx="75.674538" cy="85.411079" id="ellipse_89" class="ellipse_20"/>
-      <path d="M 71.478896,85.454436 H 90.26613" id="path_207" class="path_56"/>
-      <path d="M 57.88248,89.795852 H 52.53827 V 79.448797 h 23.128255 v 6.036214" id="path_208" class="path_56"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="75.674538" cy="85.411079" id="ellipse_89" class="ellipse_21"/>
+      <path d="M 71.478896,85.454436 H 90.26613" id="path_207" class="path_62"/>
+      <path d="M 57.88248,89.795852 H 52.53827 V 79.448797 h 23.128255 v 6.036214" id="path_208" class="path_62"/>
       <text xml:space="preserve" x="87.552727" y="84.946449" id="text_417" class="text_27"><tspan x="87.552727" y="84.946449" id="tspan_492" class="tspan_0">RA2</tspan></text>
     </g>
     <g id="wire#RA1_0">
-      <path d="M 57.915087,85.614244 H 40.3021" id="path_209" class="path_57"/>
-      <ellipse id="ellipse_90" cy="85.581795" cx="48.469723" rx="0.21147294" ry="0.21078888" class="ellipse_21"/>
+      <path d="M 57.915087,85.614244 H 40.3021" id="path_209" class="path_63"/>
+      <ellipse id="ellipse_90" cy="85.581795" cx="48.469723" rx="0.21147294" ry="0.21078888" class="ellipse_22"/>
       <text id="text_418" y="76.638069" x="87.396408" xml:space="preserve" class="text_28"><tspan id="tspan_493" y="76.638069" x="87.396408" class="tspan_0">RA1</tspan></text>
-      <path d="m 48.464205,85.581754 v -8.41298 h 41.805544" id="path_210" class="path_57"/>
-      <ellipse id="ellipse_91" cy="77.182617" cx="84.262741" rx="0.21147294" ry="0.21078888" class="ellipse_21"/>
-      <path d="M 90.649815,118.85604 H 84.242216 V 77.125803" id="path_211" class="path_57"/>
+      <path d="m 48.464205,85.581754 v -8.41298 h 41.805544" id="path_210" class="path_63"/>
+      <ellipse id="ellipse_91" cy="77.182617" cx="84.262741" rx="0.21147294" ry="0.21078888" class="ellipse_22"/>
+      <path d="M 90.649815,118.85604 H 84.242216 V 77.125803" id="path_211" class="path_63"/>
     </g>
     <g transform="translate(-71.002504,54.141685)" id="pointer#5_5" class="g_0">
       <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_212" class="path_3"/>
@@ -1084,113 +1084,113 @@
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_425" class="text_2"><tspan id="tspan_506" x="163.86922" y="23.459679" class="tspan_0">7</tspan><tspan x="163.86922" y="36.688805" id="tspan_507" class="tspan_0"/></text>
     </g>
     <g id="wire#RA3_0" class="g_0">
-      <ellipse ry="0.21078888" rx="0.21147294" cx="82.026329" cy="89.763573" id="ellipse_92" class="ellipse_22"/>
-      <path id="path_219" d="M 71.482518,89.728075 H 90.269752" class="path_58"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="82.026329" cy="89.763573" id="ellipse_92" class="ellipse_23"/>
+      <path id="path_219" d="M 71.482518,89.728075 H 90.269752" class="path_64"/>
       <text id="text_426" y="89.12896" x="87.513054" xml:space="preserve" class="text_29"><tspan id="tspan_508" y="89.12896" x="87.513054" class="tspan_0">RA3</tspan></text>
-      <path d="M 90.631705,122.80685 H 82.037493 V 89.669701" id="path_220" class="path_58"/>
+      <path d="M 90.631705,122.80685 H 82.037493 V 89.669701" id="path_220" class="path_64"/>
     </g>
     <g id="wire#RA4_0">
-      <ellipse ry="0.21078888" rx="0.21147294" cx="80.007111" cy="93.826248" id="ellipse_93" class="ellipse_23"/>
-      <path d="M 71.482518,93.847116 H 90.269752" id="path_221" class="path_59"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="80.007111" cy="93.826248" id="ellipse_93" class="ellipse_24"/>
+      <path d="M 71.482518,93.847116 H 90.269752" id="path_221" class="path_65"/>
       <text id="text_427" y="93.401268" x="87.597214" xml:space="preserve" class="text_30"><tspan id="tspan_509" y="93.401268" x="87.597214" class="tspan_0">RA4</tspan></text>
-      <path d="M 90.796109,133.34215 H 80.018884 V 93.793124" id="path_222" class="path_59"/>
+      <path d="M 90.796109,133.34215 H 80.018884 V 93.793124" id="path_222" class="path_65"/>
     </g>
     <g id="wire#RA5_0" class="g_0">
-      <ellipse ry="0.21078888" rx="0.21147294" cx="77.824738" cy="129.16177" id="ellipse_94" class="ellipse_24"/>
-      <ellipse ry="0.21078888" rx="0.21147294" cx="77.853027" cy="97.99292" id="ellipse_95" class="ellipse_24"/>
-      <path d="M 71.482518,98.01669 H 90.269752" id="path_223" class="path_60"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="77.824738" cy="129.16177" id="ellipse_94" class="ellipse_25"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="77.853027" cy="97.99292" id="ellipse_95" class="ellipse_25"/>
+      <path d="M 71.482518,98.01669 H 90.269752" id="path_223" class="path_66"/>
       <text id="text_428" y="97.580322" x="87.633957" xml:space="preserve" class="text_31"><tspan id="tspan_510" y="97.580322" x="87.633957" class="tspan_0">RA5</tspan></text>
-      <path d="M 90.750669,145.85711 H 77.835397 V 97.972998" id="path_224" class="path_60"/>
-      <path d="M 31.293726,143.95588 H 27.76161 v -14.80509 h 50.048781" id="path_225" class="path_60"/>
+      <path d="M 90.750669,145.85711 H 77.835397 V 97.972998" id="path_224" class="path_66"/>
+      <path d="M 31.293726,143.95588 H 27.76161 v -14.80509 h 50.048781" id="path_225" class="path_66"/>
     </g>
     <g id="wire#RA6_0">
       <text xml:space="preserve" x="52.380356" y="132.96457" id="text_429" class="text_32"><tspan x="52.380356" y="132.96457" id="tspan_511" class="tspan_0">RA6</tspan></text>
-      <path d="M 90.766989,137.32068 H 40.621238" id="path_226" class="path_61"/>
-      <path d="m 55.114351,133.47089 h -6.352866 v 3.81524" id="path_227" class="path_61"/>
-      <ellipse ry="0.21078888" rx="0.21147294" cx="48.751698" cy="137.3103" id="ellipse_96" class="ellipse_25"/>
+      <path d="M 90.766989,137.32068 H 40.621238" id="path_226" class="path_67"/>
+      <path d="m 55.114351,133.47089 h -6.352866 v 3.81524" id="path_227" class="path_67"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="48.751698" cy="137.3103" id="ellipse_96" class="ellipse_26"/>
     </g>
-    <path id="wire#/RA6_0" d="M 90.778816,149.89295 H 40.678274" class="path_62"/>
+    <path id="wire#/RA6_0" d="M 90.778816,149.89295 H 40.678274" class="path_68"/>
     <g id="wire#/RA1_0">
       <g transform="translate(-218.97014,54.608592)" id="g_35">
         <text id="text_430" y="43.27169" x="265.24875" xml:space="preserve" class="text_33"><tspan id="tspan_512" y="43.27169" x="265.24875" class="tspan_0">RA1</tspan></text>
-        <path id="path_228" d="m 263.91898,42.032994 h 2.83806" class="path_63"/>
+        <path id="path_228" d="m 263.91898,42.032994 h 2.83806" class="path_69"/>
       </g>
-      <path d="M 48.566593,98.118815 H 40.243942" id="path_229" class="path_64"/>
+      <path d="M 48.566593,98.118815 H 40.243942" id="path_229" class="path_70"/>
     </g>
     <g id="pointer#8_3" transform="translate(-62.58166,53.817474)" class="g_0">
       <path id="path_230" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_3"/>
       <text id="text_431" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan y="23.459679" x="163.86922" id="tspan_513" class="tspan_0">8</tspan><tspan id="tspan_514" y="36.688805" x="163.86922" class="tspan_0"/></text>
     </g>
     <g id="wire#PULLUP1_0">
-      <path d="M 115.44726,90.457948 V 76.800421 h -10.65834" id="path_231" class="path_65"/>
+      <path d="M 115.44726,90.457948 V 76.800421 h -10.65834" id="path_231" class="path_71"/>
       <text id="text_432" y="76.426285" x="109.33389" xml:space="preserve" class="text_34"><tspan id="tspan_515" y="76.426285" x="109.33389" class="tspan_0">PULL UP  1</tspan></text>
     </g>
     <g id="wire#/BPHI2A_0" class="g_0">
-      <path d="M 30.860529,91.980035 H 27.722226 V 104.38323 H 102.8868 V 87.005704 h 64.74209 v -4.260697 h -11.66836" id="path_232" class="path_66"/>
-      <path d="m 111.31347,99.912669 h -8.397" id="path_233" class="path_66"/>
-      <ellipse ry="0.21078888" rx="0.21147294" cx="102.9198" cy="99.932098" id="ellipse_97" class="ellipse_26"/>
+      <path d="M 30.860529,91.980035 H 27.722226 V 104.38323 H 102.8868 V 87.005704 h 64.74209 v -4.260697 h -11.66836" id="path_232" class="path_72"/>
+      <path d="m 111.31347,99.912669 h -8.397" id="path_233" class="path_72"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="102.9198" cy="99.932098" id="ellipse_97" class="ellipse_27"/>
       <text id="text_433" y="82.229675" x="161.41719" xml:space="preserve" class="text_35"><tspan id="tspan_516" y="82.229675" x="161.41719" class="tspan_1">B02A</tspan></text>
-      <path id="path_234" d="m 163.20902,81.127898 -0.75965,1.16872" class="path_67"/>
-      <path id="path_235" d="m 161.51746,80.927769 h 3.51212" class="path_68"/>
+      <path id="path_234" d="m 163.20902,81.127898 -0.75965,1.16872" class="path_73"/>
+      <path id="path_235" d="m 161.51746,80.927769 h 3.51212" class="path_74"/>
     </g>
     <g id="wire#/BPHI2B_0">
-      <path id="path_236" d="m 155.7726,57.855347 h 59.94188 v 7.770503 h 4.02056" class="path_69"/>
+      <path id="path_236" d="m 155.7726,57.855347 h 59.94188 v 7.770503 h 4.02056" class="path_75"/>
       <g id="g_36" transform="translate(27.873397,31.246182)" class="g_0">
         <text id="text_434" y="25.922127" x="133.32544" xml:space="preserve" class="text_36"><tspan y="25.922127" x="133.32544" id="tspan_517" class="tspan_1">B02B</tspan><tspan id="tspan_518" y="39.151253" x="133.32544" class="tspan_0"/></text>
-        <path id="path_237" d="m 135.11725,24.820352 -0.75965,1.16872" class="path_70"/>
-        <path id="path_238" d="m 133.42569,24.620223 h 3.51212" class="path_71"/>
+        <path id="path_237" d="m 135.11725,24.820352 -0.75965,1.16872" class="path_76"/>
+        <path id="path_238" d="m 133.42569,24.620223 h 3.51212" class="path_77"/>
       </g>
     </g>
     <g id="wire#/BPHI2F_0">
-      <path id="path_239" d="m 155.79243,66.160453 h 13.87965 v 20.764799 h 6.51351" class="path_72"/>
+      <path id="path_239" d="m 155.79243,66.160453 h 13.87965 v 20.764799 h 6.51351" class="path_78"/>
       <g transform="translate(26.488217,37.005337)" id="g_37" class="g_0">
         <text xml:space="preserve" x="134.71547" y="28.494402" id="text_435" class="text_37"><tspan x="134.71547" y="28.494402" id="tspan_519" class="tspan_1">B02F</tspan></text>
-        <path d="m 136.50728,27.392628 -0.75965,1.16872" id="path_240" class="path_73"/>
-        <path d="m 134.81572,27.192499 h 3.51212" id="path_241" class="path_74"/>
+        <path d="m 136.50728,27.392628 -0.75965,1.16872" id="path_240" class="path_79"/>
+        <path d="m 134.81572,27.192499 h 3.51212" id="path_241" class="path_80"/>
       </g>
     </g>
     <g id="wire#/BPHI2G_0">
-      <path id="path_242" d="m 155.82016,74.524681 h 40.92283 V 48.823916 h 26.79352 v -3.201042" class="path_75"/>
+      <path id="path_242" d="m 155.82016,74.524681 h 40.92283 V 48.823916 h 26.79352 v -3.201042" class="path_81"/>
       <g id="g_38">
         <text id="text_436" y="73.959648" x="161.33653" xml:space="preserve" class="text_38"><tspan id="tspan_520" y="73.959648" x="161.33653" class="tspan_1">B02G</tspan></text>
-        <path id="path_243" d="m 163.12836,72.857878 -0.75965,1.168719" class="path_76"/>
-        <path id="path_244" d="m 161.4368,72.657748 h 3.51212" class="path_77"/>
+        <path id="path_243" d="m 163.12836,72.857878 -0.75965,1.168719" class="path_82"/>
+        <path id="path_244" d="m 161.4368,72.657748 h 3.51212" class="path_83"/>
       </g>
     </g>
     <g id="wire#VIDEOLATCH_0">
       <text xml:space="preserve" x="194.0182" y="88.164505" id="text_437" class="text_39"><tspan x="194.0182" y="88.164505" id="tspan_521" class="tspan_0">VIDEO  LATCH</tspan></text>
-      <path d="m 182.4959,88.749671 h 18.82948" id="path_245" class="path_78"/>
+      <path d="m 182.4959,88.749671 h 18.82948" id="path_245" class="path_84"/>
     </g>
     <g id="wire#PULLUP2_0">
-      <path id="path_246" d="M 223.86326,56.146609 V 50.814242 H 207.17013" class="path_79"/>
+      <path id="path_246" d="M 223.86326,56.146609 V 50.814242 H 207.17013" class="path_85"/>
       <text xml:space="preserve" x="216.76978" y="50.418514" id="text_438" class="text_40"><tspan x="216.76978" y="50.418514" id="tspan_522" class="tspan_0">PULL UP 2</tspan></text>
     </g>
     <text id="label#ROWSELECT_0" y="109.94796" x="205.54132" xml:space="preserve" class="text_2"><tspan id="tspan_523" y="109.94796" x="205.54132" class="tspan_0">ROW SELECT</tspan></text>
     <text xml:space="preserve" x="205.66743" y="101.60505" id="label#8K_0" class="text_2"><tspan x="205.66743" y="101.60505" id="tspan_524" class="tspan_0">8K</tspan></text>
-    <path id="wire#/BA14_0" d="m 227.54512,102.83358 h 11.6298" class="path_80"/>
+    <path id="wire#/BA14_0" d="m 227.54512,102.83358 h 11.6298" class="path_86"/>
     <text xml:space="preserve" x="120.21761" y="25.242285" id="label1_0" class="text_2"><tspan x="120.21761" y="25.242285" id="tspan_525" class="tspan_0">8  PHASES  OF  CLK1</tspan></text>
     <text xml:space="preserve" x="68.047318" y="59.026165" id="label#8MHZ_0" class="text_2"><tspan x="68.047318" y="59.026165" id="tspan_526" class="tspan_0">8MHZ</tspan></text>
     <text xml:space="preserve" x="68.64315" y="65.333389" id="label#1MHZ_0" class="text_2"><tspan x="68.64315" y="65.333389" id="tspan_527" class="tspan_0">1MHZ</tspan></text>
     <text xml:space="preserve" x="66.596268" y="76.655373" id="label2_0" class="text_2"><tspan x="66.596268" y="76.655373" id="tspan_528" class="tspan_0">REFRESH  ADDRESS  COUNTER</tspan></text>
-    <path id="wire#NC_9" d="m 227.62408,30.056788 h 4.29562" class="path_4"/>
+    <path id="wire#NC_6" d="m 227.62408,30.056788 h 4.29562" class="path_6"/>
     <g id="wire#BA14_0" class="g_0">
       <text id="text_439" y="106.90652" x="192.15826" xml:space="preserve" class="text_41"><tspan id="tspan_529" y="106.90652" x="192.15826" class="tspan_0">BA14</tspan></text>
       <text xml:space="preserve" x="201.98048" y="106.8269" id="text_440" class="text_41"><tspan x="201.98048" y="106.8269" id="tspan_530" class="tspan_0">F</tspan></text>
-      <g id="wire_12" class="g_0">
-        <path id="path_247" d="M 222.38048,102.97838 H 208.34271" class="path_81"/>
-        <path id="path_248" d="M 239.00535,86.097606 H 216.10682 V 102.98361" class="path_81"/>
-        <ellipse id="ellipse_98" cy="102.97253" cx="216.11497" rx="0.21147294" ry="0.21078888" class="ellipse_27"/>
+      <g id="wire_9" class="g_0">
+        <path id="path_247" d="M 222.38048,102.97838 H 208.34271" class="path_87"/>
+        <path id="path_248" d="M 239.00535,86.097606 H 216.10682 V 102.98361" class="path_87"/>
+        <ellipse id="ellipse_98" cy="102.97253" cx="216.11497" rx="0.21147294" ry="0.21078888" class="ellipse_28"/>
       </g>
-      <ellipse cx="207.82523" cy="103.042" rx="0.44926631" ry="0.48355335" id="ellipse_99" class="ellipse_28"/>
-      <ellipse cx="207.85608" cy="107.37228" rx="0.44926631" ry="0.48355335" id="ellipse_100" class="ellipse_28"/>
-      <ellipse cx="203.09091" cy="107.4068" rx="0.44926631" ry="0.48355335" id="ellipse_101" class="ellipse_28"/>
-      <path id="path_249" d="m 207.44364,107.34903 h -3.80604 l 0.038,-0.0102" class="path_82"/>
-      <path d="m 207.8865,103.51551 v 3.32678" id="path_250" class="path_81"/>
-      <path d="m 188.89129,107.37823 h 13.69708" id="path_251" class="path_81"/>
+      <ellipse cx="207.82523" cy="103.042" rx="0.44926631" ry="0.48355335" id="ellipse_99" class="ellipse_29"/>
+      <ellipse cx="207.85608" cy="107.37228" rx="0.44926631" ry="0.48355335" id="ellipse_100" class="ellipse_29"/>
+      <ellipse cx="203.09091" cy="107.4068" rx="0.44926631" ry="0.48355335" id="ellipse_101" class="ellipse_29"/>
+      <path id="path_249" d="m 207.44364,107.34903 h -3.80604 l 0.038,-0.0102" class="path_88"/>
+      <path d="m 207.8865,103.51551 v 3.32678" id="path_250" class="path_87"/>
+      <path d="m 188.89129,107.37823 h 13.69708" id="path_251" class="path_87"/>
     </g>
     <g id="wire#BA13_0">
-      <ellipse cx="203.03029" cy="103.08932" rx="0.44926631" ry="0.48355335" id="ellipse_102" class="ellipse_29"/>
-      <path id="wire#BA13_1" d="m 188.85725,103.12821 h 13.69708" class="path_83"/>
+      <ellipse cx="203.03029" cy="103.08932" rx="0.44926631" ry="0.48355335" id="ellipse_102" class="ellipse_30"/>
+      <path id="wire#BA13_1" d="m 188.85725,103.12821 h 13.69708" class="path_89"/>
       <text xml:space="preserve" x="191.83052" y="102.6909" id="text_441" class="text_42"><tspan x="191.83052" y="102.6909" id="tspan_531" class="tspan_0">BA13</tspan></text>
       <text id="text_442" y="102.3682" x="201.9951" xml:space="preserve" class="text_42"><tspan id="tspan_532" y="102.3682" x="201.9951" class="tspan_0">E</tspan></text>
     </g>
@@ -1202,23 +1202,26 @@
       <path id="path_253" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_3"/>
       <text id="text_444" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan y="23.459679" x="163.86922" id="tspan_535" class="tspan_0">1</tspan><tspan id="tspan_536" y="36.688805" x="163.86922" class="tspan_0"/></text>
     </g>
-    <g id="wire_13" class="g_0">
-      <path d="m 187.12586,147.12503 h 33.51231" id="path_254" class="path_3"/>
-      <path d="m 239.53473,117.26761 h -44.39212 v 29.82731" id="path_255" class="path_3"/>
-      <ellipse id="ellipse_103" cy="147.06833" cx="195.11656" rx="0.21147294" ry="0.21078888" class="ellipse_7"/>
+    <g id="wire#/H8Q_0" class="g_0">
+      <path d="m 187.12586,147.12503 h 33.51231" id="path_254" class="path_90"/>
+      <path d="m 239.53473,117.26761 h -44.39212 v 29.82731" id="path_255" class="path_90"/>
+      <ellipse id="ellipse_103" cy="147.06833" cx="195.11656" rx="0.21147294" ry="0.21078888" class="ellipse_31"/>
     </g>
     <g id="wire#NEXT_0" class="g_0">
       <text id="text_445" y="140.1909" x="167.10918" xml:space="preserve" class="text_43"><tspan id="tspan_537" y="140.1909" x="167.10918" class="tspan_0">NEXT</tspan></text>
-      <path d="M 177.75481,140.6038 H 163.89847" id="path_256" class="path_84"/>
-      <path id="path_257" d="m 219.76379,140.70375 h -3.0811 v -12.52827 h -44.28692 v 12.54735" class="path_84"/>
-      <ellipse id="ellipse_104" cy="140.60666" cx="172.3932" rx="0.21147294" ry="0.21078888" class="ellipse_30"/>
+      <path d="M 177.75481,140.6038 H 163.89847" id="path_256" class="path_91"/>
+      <path id="path_257" d="m 219.76379,140.70375 h -3.0811 v -12.52827 h -44.28692 v 12.54735" class="path_91"/>
+      <ellipse id="ellipse_104" cy="140.60666" cx="172.3932" rx="0.21147294" ry="0.21078888" class="ellipse_32"/>
     </g>
-    <g id="wire_14">
-      <ellipse id="ellipse_105" cy="113.41097" cx="235.26447" rx="0.21147294" ry="0.21078888" class="ellipse_7"/>
-      <path d="m 239.50762,113.40454 h -69.08939 v 21.44688 h 8.37869" id="path_258" class="path_3"/>
-      <path d="m 229.02655,146.6769 h 6.23478 v -33.27192" id="path_259" class="path_3"/>
+    <g id="wire#/H8Q_1">
+      <ellipse id="ellipse_105" cy="113.41097" cx="235.26447" rx="0.21147294" ry="0.21078888" class="ellipse_31"/>
+      <path d="m 239.50762,113.40454 h -69.08939 v 21.44688 h 8.37869" id="path_258" class="path_90"/>
+      <path d="m 229.02655,146.6769 h 6.23478 v -33.27192" id="path_259" class="path_90"/>
     </g>
     <text id="label#16K_0" y="105.82425" x="205.88953" xml:space="preserve" class="text_2"><tspan id="tspan_538" y="105.82425" x="205.88953" class="tspan_0">16K</tspan></text>
+    <path d="m 123.32859,37.197953 h 4.15729" id="wire#BPHI2E_0" class="path_92"/>
+    <path id="wire#RA4AND6_0" d="M 97.124482,135.31275 H 111.69371" class="path_93"/>
+    <path id="wire#RA5AND/6_0" d="M 97.176345,147.80936 H 111.69613" class="path_94"/>
   </g>
 <style>.path_0 {fill:none;stroke:var(--color-VERTDRIVE);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_0 {display:inline;fill:var(--color-VERTDRIVE);stroke:var(--color-VERTDRIVE);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
@@ -1236,154 +1239,166 @@
 .text_2 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
 .tspan_2 {font-size:1.41111px;text-align:end;text-anchor:end;stroke-width:0.264583}
 .ellipse_3 {fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
-.path_4 {fill:none;stroke:var(--color-NC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_5 {display:inline;fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_4 {fill:none;stroke:var(--color-CLK4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_5 {fill:none;stroke:var(--color-CLK2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_6 {fill:none;stroke:var(--color-NC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_7 {display:inline;fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_4 {display:inline;fill:var(--color-GND);stroke:var(--color-GND);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_6 {fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_7 {stroke-width:0.389804;stroke-miterlimit:4;stroke-dasharray:none}
-.path_8 {stroke-width:0.389804;stroke-miterlimit:2;stroke-dasharray:none}
+.path_8 {fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_9 {stroke-width:0.389804;stroke-miterlimit:4;stroke-dasharray:none}
+.path_10 {stroke-width:0.389804;stroke-miterlimit:2;stroke-dasharray:none}
 .g_1 {fill:none;stroke:#000000;stroke-width:2}
-.path_9 {display:inline;fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_10 {fill:none;stroke:var(--color-CLK8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_11 {display:inline;fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_12 {fill:none;stroke:var(--color-CLK8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_3 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-CLK8);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_11 {fill:none;stroke:#000000;stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_12 {stroke-width:0.265;stroke-miterlimit:4;stroke-dasharray:none}
+.path_13 {fill:none;stroke:#000000;stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_14 {stroke-width:0.265;stroke-miterlimit:4;stroke-dasharray:none}
 .ellipse_5 {display:inline;fill:var(--color-VCC);stroke:var(--color-VCC);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_13 {display:inline;fill:none;stroke:var(--color-VCC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_15 {display:inline;fill:none;stroke:var(--color-VCC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_4 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-VCC);fill-opacity:1;stroke:none;stroke-width:0.264583}
 .ellipse_6 {display:inline;fill:var(--color-TP9);stroke:var(--color-TP9);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_14 {display:inline;fill:none;stroke:var(--color-TP9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_16 {display:inline;fill:none;stroke:var(--color-TP9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_5 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-TP9);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_15 {fill:none;stroke:var(--color-TP9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_17 {fill:none;stroke:var(--color-TP9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_7 {display:inline;fill:#000000;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_16 {fill:none;stroke:var(--color-BANKSEL);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_18 {fill:none;stroke:var(--color-BANKSEL);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_6 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BANKSEL);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_17 {fill:none;stroke:var(--color-BPHI2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_19 {fill:none;stroke:var(--color-BPHI2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_7 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_18 {fill:none;stroke:var(--color-BPHI2);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_19 {fill:none;stroke:var(--color-CLK1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_20 {fill:none;stroke:var(--color-BPHI2);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_21 {fill:none;stroke:var(--color-CLK1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_8 {display:inline;fill:var(--color-CLK1);stroke:var(--color-CLK1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_8 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-CLK1);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_20 {display:inline;fill:none;stroke:var(--color-CLK16);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_22 {display:inline;fill:none;stroke:var(--color-CLK16);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_9 {display:inline;fill:var(--color-CLK16);stroke:var(--color-CLK16);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_21 {display:inline;fill:none;stroke:var(--color-BPHI2C);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_22 {fill:none;stroke:var(--color-BPHI2C);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_23 {display:inline;fill:none;stroke:var(--color-BPHI2C);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_24 {fill:none;stroke:var(--color-BPHI2C);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_10 {display:inline;fill:var(--color-BPHI2C);stroke:var(--color-BPHI2C);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_9 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2C);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_23 {display:inline;fill:none;stroke:var(--color-BPHI2C);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_25 {display:inline;fill:none;stroke:var(--color-BPHI2C);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .ellipse_11 {display:inline;fill:var(--color-BPHI2B);stroke:var(--color-BPHI2B);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_24 {fill:none;stroke:var(--color-BPHI2B);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_26 {fill:none;stroke:var(--color-BPHI2B);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_10 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2B);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_25 {display:inline;fill:none;stroke:var(--color-BPHI2B);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_26 {fill:none;stroke:var(--color-BPHI2A);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_27 {display:inline;fill:none;stroke:var(--color-BPHI2B);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_28 {fill:none;stroke:var(--color-BPHI2A);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_12 {display:inline;fill:var(--color-BPHI2A);stroke:var(--color-BPHI2A);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_11 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2A);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_27 {display:inline;fill:none;stroke:var(--color-BPHI2A);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_28 {fill:none;stroke:var(--color-BRW);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_29 {display:inline;fill:none;stroke:var(--color-BPHI2A);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_30 {fill:none;stroke:var(--color-BRW);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_12 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BRW);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_29 {fill:none;stroke:var(--color-BPHI2D);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_31 {fill:none;stroke:var(--color-BPHI2D);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_13 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2D);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_30 {display:inline;fill:none;stroke:var(--color-BPHI2D);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_32 {display:inline;fill:none;stroke:var(--color-BPHI2D);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .ellipse_13 {display:inline;fill:var(--color-BPHI2F);stroke:var(--color-BPHI2F);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_14 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2F);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_31 {display:inline;fill:none;stroke:var(--color-BPHI2F);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_32 {fill:none;stroke:var(--color-BPHI2F);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_33 {display:inline;fill:none;stroke:var(--color-BPHI2F);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_34 {fill:none;stroke:var(--color-BPHI2F);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_15 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2G);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_33 {display:inline;fill:none;stroke:var(--color-BPHI2G);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_34 {fill:none;stroke:var(--color-BPHI2G);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_35 {fill:none;stroke:var(--color-MUXA);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_35 {display:inline;fill:none;stroke:var(--color-BPHI2G);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_36 {fill:none;stroke:var(--color-BPHI2G);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_37 {fill:none;stroke:var(--color-MUXA);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_16 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-MUXA);fill-opacity:1;stroke:none;stroke-width:0.264583}
 .text_17 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barRAS0);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_36 {display:inline;fill:none;stroke:var(--color-barRAS0);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_37 {display:inline;fill:none;stroke:var(--color-barRAS0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_38 {display:inline;fill:none;stroke:var(--color-barCAS1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_39 {fill:none;stroke:var(--color-barCAS1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_38 {display:inline;fill:none;stroke:var(--color-barRAS0);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_39 {display:inline;fill:none;stroke:var(--color-barRAS0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_40 {display:inline;fill:none;stroke:var(--color-barCAS1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_41 {fill:none;stroke:var(--color-barCAS1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_18 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barCAS1);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_40 {display:inline;fill:none;stroke:var(--color-barCAS1);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_41 {display:inline;fill:none;stroke:var(--color-barCAS0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_42 {fill:none;stroke:var(--color-barCAS0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_42 {display:inline;fill:none;stroke:var(--color-barCAS1);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_43 {display:inline;fill:none;stroke:var(--color-barCAS0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_44 {fill:none;stroke:var(--color-barCAS0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_19 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barCAS0);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_43 {display:inline;fill:none;stroke:var(--color-barCAS0);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_44 {fill:none;stroke:#000000;stroke-width:0.264999;stroke-miterlimit:4;stroke-dasharray:none}
-.path_45 {display:inline;fill:none;stroke:var(--color-VIDEOON);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_45 {display:inline;fill:none;stroke:var(--color-barCAS0);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_46 {fill:none;stroke:#000000;stroke-width:0.264999;stroke-miterlimit:4;stroke-dasharray:none}
+.path_47 {display:inline;fill:none;stroke:var(--color-VIDEOON);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_20 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-VIDEOON);fill-opacity:1;stroke:none;stroke-width:0.264583}
 .ellipse_14 {display:inline;fill:var(--color-barINIT);stroke:var(--color-barINIT);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_46 {fill:none;stroke:var(--color-barINIT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_47 {display:inline;fill:none;stroke:var(--color-barINIT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_48 {fill:none;stroke:var(--color-barINIT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_49 {display:inline;fill:none;stroke:var(--color-barINIT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_21 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barINIT);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_48 {display:inline;fill:none;stroke:var(--color-barINIT);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_49 {fill:none;stroke:var(--color-HORZDRIVE);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_50 {display:inline;fill:none;stroke:var(--color-barINIT);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_51 {display:inline;fill:none;stroke:var(--color-H8Q);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_15 {display:inline;fill:var(--color-H8Q);stroke:var(--color-H8Q);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_52 {fill:none;stroke:var(--color-HORZDRIVE);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_22 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-HORZDRIVE);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.ellipse_15 {display:inline;fill:var(--color-HORZDRIVE);stroke:var(--color-HORZDRIVE);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_50 {fill:none;stroke:var(--color-HORZDISPON);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.ellipse_16 {display:inline;fill:var(--color-HORZDISPON);stroke:var(--color-HORZDISPON);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_16 {display:inline;fill:var(--color-HORZDRIVE);stroke:var(--color-HORZDRIVE);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_53 {fill:none;stroke:var(--color-H8Q);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_54 {fill:none;stroke:var(--color-barHORZDRIVE);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_55 {fill:none;stroke:var(--color-HORZDISPON);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_17 {display:inline;fill:var(--color-HORZDISPON);stroke:var(--color-HORZDISPON);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_23 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-HORZDISPON);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.ellipse_17 {display:inline;fill:var(--color-HORZDISPOFF);stroke:var(--color-HORZDISPOFF);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_18 {display:inline;fill:var(--color-HORZDISPOFF);stroke:var(--color-HORZDISPOFF);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_24 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-HORZDISPOFF);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_51 {fill:none;stroke:var(--color-HORZDISPOFF);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.ellipse_18 {display:inline;fill:var(--color-barLOADSR);stroke:var(--color-barLOADSR);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_52 {fill:none;stroke:var(--color-barLOADSR);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_56 {fill:none;stroke:var(--color-HORZDISPOFF);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_57 {fill:none;stroke:var(--color-RA1AND3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_19 {display:inline;fill:var(--color-barLOADSR);stroke:var(--color-barLOADSR);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_58 {fill:none;stroke:var(--color-barLOADSR);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_25 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barLOADSR);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_53 {display:inline;fill:none;stroke:var(--color-barLOADSR);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_54 {fill:none;stroke:var(--color-LOADSR);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_59 {display:inline;fill:none;stroke:var(--color-barLOADSR);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_60 {fill:none;stroke:var(--color-LOADSR);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_26 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-LOADSR);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_55 {fill:none;stroke:var(--color-INIT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.ellipse_19 {display:inline;fill:var(--color-INIT);stroke:var(--color-INIT);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.ellipse_20 {display:inline;fill:var(--color-RA2);stroke:var(--color-RA2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_56 {fill:none;stroke:var(--color-RA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_61 {fill:none;stroke:var(--color-INIT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_20 {display:inline;fill:var(--color-INIT);stroke:var(--color-INIT);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_21 {display:inline;fill:var(--color-RA2);stroke:var(--color-RA2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_62 {fill:none;stroke:var(--color-RA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_27 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-RA2);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_57 {fill:none;stroke:var(--color-RA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.ellipse_21 {display:inline;fill:var(--color-RA1);stroke:var(--color-RA1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_63 {fill:none;stroke:var(--color-RA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_22 {display:inline;fill:var(--color-RA1);stroke:var(--color-RA1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_28 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-RA1);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.ellipse_22 {display:inline;fill:var(--color-RA3);stroke:var(--color-RA3);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_58 {fill:none;stroke:var(--color-RA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_23 {display:inline;fill:var(--color-RA3);stroke:var(--color-RA3);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_64 {fill:none;stroke:var(--color-RA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_29 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-RA3);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.ellipse_23 {display:inline;fill:var(--color-RA4);stroke:var(--color-RA4);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_59 {fill:none;stroke:var(--color-RA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_24 {display:inline;fill:var(--color-RA4);stroke:var(--color-RA4);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_65 {fill:none;stroke:var(--color-RA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_30 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-RA4);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.ellipse_24 {display:inline;fill:var(--color-RA5);stroke:var(--color-RA5);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_60 {fill:none;stroke:var(--color-RA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_25 {display:inline;fill:var(--color-RA5);stroke:var(--color-RA5);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_66 {fill:none;stroke:var(--color-RA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_31 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-RA5);fill-opacity:1;stroke:none;stroke-width:0.264583}
 .text_32 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-RA6);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_61 {fill:none;stroke:var(--color-RA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.ellipse_25 {display:inline;fill:var(--color-RA6);stroke:var(--color-RA6);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_62 {fill:none;stroke:var(--color-barRA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_67 {fill:none;stroke:var(--color-RA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_26 {display:inline;fill:var(--color-RA6);stroke:var(--color-RA6);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_68 {fill:none;stroke:var(--color-barRA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_33 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barRA1);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_63 {display:inline;fill:none;stroke:var(--color-barRA1);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_64 {fill:none;stroke:var(--color-barRA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_65 {fill:none;stroke:var(--color-PULLUP1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_69 {display:inline;fill:none;stroke:var(--color-barRA1);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_70 {fill:none;stroke:var(--color-barRA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_71 {fill:none;stroke:var(--color-PULLUP1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_34 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-PULLUP1);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_66 {fill:none;stroke:var(--color-barBPHI2A);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.ellipse_26 {display:inline;fill:var(--color-barBPHI2A);stroke:var(--color-barBPHI2A);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_72 {fill:none;stroke:var(--color-barBPHI2A);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_27 {display:inline;fill:var(--color-barBPHI2A);stroke:var(--color-barBPHI2A);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_35 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barBPHI2A);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_67 {display:inline;fill:none;stroke:var(--color-barBPHI2A);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_68 {display:inline;fill:none;stroke:var(--color-barBPHI2A);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_69 {fill:none;stroke:var(--color-barBPHI2B);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_73 {display:inline;fill:none;stroke:var(--color-barBPHI2A);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_74 {display:inline;fill:none;stroke:var(--color-barBPHI2A);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_75 {fill:none;stroke:var(--color-barBPHI2B);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_36 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barBPHI2B);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_70 {display:inline;fill:none;stroke:var(--color-barBPHI2B);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_71 {display:inline;fill:none;stroke:var(--color-barBPHI2B);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_72 {fill:none;stroke:var(--color-barBPHI2F);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_76 {display:inline;fill:none;stroke:var(--color-barBPHI2B);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_77 {display:inline;fill:none;stroke:var(--color-barBPHI2B);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_78 {fill:none;stroke:var(--color-barBPHI2F);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_37 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barBPHI2F);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_73 {display:inline;fill:none;stroke:var(--color-barBPHI2F);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_74 {display:inline;fill:none;stroke:var(--color-barBPHI2F);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_75 {fill:none;stroke:var(--color-barBPHI2G);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_79 {display:inline;fill:none;stroke:var(--color-barBPHI2F);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_80 {display:inline;fill:none;stroke:var(--color-barBPHI2F);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_81 {fill:none;stroke:var(--color-barBPHI2G);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_38 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barBPHI2G);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_76 {display:inline;fill:none;stroke:var(--color-barBPHI2G);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_77 {display:inline;fill:none;stroke:var(--color-barBPHI2G);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_82 {display:inline;fill:none;stroke:var(--color-barBPHI2G);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_83 {display:inline;fill:none;stroke:var(--color-barBPHI2G);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_39 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-VIDEOLATCH);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_78 {fill:none;stroke:var(--color-VIDEOLATCH);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_79 {fill:none;stroke:var(--color-PULLUP2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_84 {fill:none;stroke:var(--color-VIDEOLATCH);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_85 {fill:none;stroke:var(--color-PULLUP2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_40 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-PULLUP2);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_80 {fill:none;stroke:var(--color-barBA14);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_86 {fill:none;stroke:var(--color-barBA14);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_41 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA14);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_81 {fill:none;stroke:var(--color-BA14);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.ellipse_27 {display:inline;fill:var(--color-BA14);stroke:var(--color-BA14);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.ellipse_28 {display:inline;fill:none;fill-rule:evenodd;stroke:var(--color-BA14);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
-.path_82 {display:inline;fill:none;stroke:var(--color-BA14);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.ellipse_29 {display:inline;fill:none;fill-rule:evenodd;stroke:var(--color-BA13);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
-.path_83 {fill:none;stroke:var(--color-BA13);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_87 {fill:none;stroke:var(--color-BA14);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_28 {display:inline;fill:var(--color-BA14);stroke:var(--color-BA14);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_29 {display:inline;fill:none;fill-rule:evenodd;stroke:var(--color-BA14);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
+.path_88 {display:inline;fill:none;stroke:var(--color-BA14);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_30 {display:inline;fill:none;fill-rule:evenodd;stroke:var(--color-BA13);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
+.path_89 {fill:none;stroke:var(--color-BA13);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_42 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA13);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_90 {fill:none;stroke:var(--color-barH8Q);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_31 {display:inline;fill:var(--color-barH8Q);stroke:var(--color-barH8Q);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_43 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-NEXT);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_84 {display:inline;fill:none;stroke:var(--color-NEXT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.ellipse_30 {display:inline;fill:var(--color-NEXT);stroke:var(--color-NEXT);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-:root {--color-VERTDRIVE:#000000;--color-BPHI2H:#000000;--color-H3_74164:#000000;--color-H5_74LS00:#000000;--color-G5_74191:#000000;--color-NC:#000000;--color-GND:#000000;--color-G1_74LS08:#000000;--color-I1_74LS04:#000000;--color-R15:#000000;--color-R30:#000000;--color-C44:#000000;--color-8:#000000;--color-157:#000000;--color-CLK8:#000000;--color-H6_74LS107:#000000;--color-H7_74LS107:#000000;--color-H8_74LS107:#000000;--color-F1_74LS08:#000000;--color-G9_74LS74:#000000;--color-H1_74LS74:#000000;--color-H9_74LS93:#000000;--color-H4_74157:#000000;--color-H2_74LS04:#000000;--color-G7_74LS10:#000000;--color-G10_74LS00:#000000;--color-H10_74LS08:#000000;--color-VCC:#000000;--color-TP9:#000000;--color-crystal:#000000;--color-lcock:#000000;--color-5:#000000;--color-BANKSEL:#000000;--color-1:#000000;--color-BPHI2:#000000;--color-CLK1:#000000;--color-CLK16:#000000;--color-BPHI2C:#000000;--color-BPHI2B:#000000;--color-BPHI2A:#000000;--color-BRW:#000000;--color-BPHI2D:#000000;--color-BPHI2F:#000000;--color-BPHI2G:#000000;--color-7:#000000;--color-MUXA:#000000;--color-barRAS0:#000000;--color-R42:#000000;--color-barCAS1:#000000;--color-R41:#000000;--color-barCAS0:#000000;--color-J7:#000000;--color-KEY:#000000;--color-3:#000000;--color-VIDEOON:#000000;--color-barINIT:#000000;--color-HORZDRIVE:#000000;--color-78:#000000;--color-HORZDISPON:#000000;--color-HORZDISPOFF:#000000;--color-barLOADSR:#000000;--color-LOADSR:#000000;--color-INIT:#000000;--color-RA2:#000000;--color-RA1:#000000;--color-RA3:#000000;--color-RA4:#000000;--color-RA5:#000000;--color-RA6:#000000;--color-barRA6:#000000;--color-barRA1:#000000;--color-PULLUP1:#000000;--color-barBPHI2A:#000000;--color-barBPHI2B:#000000;--color-barBPHI2F:#000000;--color-barBPHI2G:#000000;--color-VIDEOLATCH:#000000;--color-PULLUP2:#000000;--color-ROWSELECT:#000000;--color-8K:#000000;--color-barBA14:#000000;--color-8MHZ:#000000;--color-1MHZ:#000000;--color-BA14:#000000;--color-BA13:#000000;--color-NEXT:#000000;--color-16K:#000000;}</style></svg>
+.path_91 {display:inline;fill:none;stroke:var(--color-NEXT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_32 {display:inline;fill:var(--color-NEXT);stroke:var(--color-NEXT);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_92 {fill:none;stroke:var(--color-BPHI2E);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_93 {fill:none;stroke:var(--color-RA4AND6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_94 {fill:none;stroke:var(--color-RA5ANDbar6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+:root {--color-VERTDRIVE:#000000;--color-BPHI2H:#000000;--color-H3_74164:#000000;--color-H5_74LS00:#000000;--color-G5_74191:#000000;--color-CLK4:#000000;--color-CLK2:#000000;--color-NC:#000000;--color-GND:#000000;--color-G1_74LS08:#000000;--color-I1_74LS04:#000000;--color-R15:#000000;--color-R30:#000000;--color-C44:#000000;--color-8:#000000;--color-157:#000000;--color-CLK8:#000000;--color-H6_74LS107:#000000;--color-H7_74LS107:#000000;--color-H8_74LS107:#000000;--color-F1_74LS08:#000000;--color-G9_74LS74:#000000;--color-H1_74LS74:#000000;--color-H9_74LS93:#000000;--color-H4_74157:#000000;--color-H2_74LS04:#000000;--color-G7_74LS10:#000000;--color-G10_74LS00:#000000;--color-H10_74LS08:#000000;--color-VCC:#000000;--color-TP9:#000000;--color-crystal:#000000;--color-lcock:#000000;--color-5:#000000;--color-BANKSEL:#000000;--color-1:#000000;--color-BPHI2:#000000;--color-CLK1:#000000;--color-CLK16:#000000;--color-BPHI2C:#000000;--color-BPHI2B:#000000;--color-BPHI2A:#000000;--color-BRW:#000000;--color-BPHI2D:#000000;--color-BPHI2F:#000000;--color-BPHI2G:#000000;--color-7:#000000;--color-MUXA:#000000;--color-barRAS0:#000000;--color-R42:#000000;--color-barCAS1:#000000;--color-R41:#000000;--color-barCAS0:#000000;--color-J7:#000000;--color-KEY:#000000;--color-3:#000000;--color-VIDEOON:#000000;--color-barINIT:#000000;--color-H8Q:#000000;--color-HORZDRIVE:#000000;--color-78:#000000;--color-barHORZDRIVE:#000000;--color-HORZDISPON:#000000;--color-HORZDISPOFF:#000000;--color-RA1AND3:#000000;--color-barLOADSR:#000000;--color-LOADSR:#000000;--color-INIT:#000000;--color-RA2:#000000;--color-RA1:#000000;--color-RA3:#000000;--color-RA4:#000000;--color-RA5:#000000;--color-RA6:#000000;--color-barRA6:#000000;--color-barRA1:#000000;--color-PULLUP1:#000000;--color-barBPHI2A:#000000;--color-barBPHI2B:#000000;--color-barBPHI2F:#000000;--color-barBPHI2G:#000000;--color-VIDEOLATCH:#000000;--color-PULLUP2:#000000;--color-ROWSELECT:#000000;--color-8K:#000000;--color-barBA14:#000000;--color-8MHZ:#000000;--color-1MHZ:#000000;--color-BA14:#000000;--color-BA13:#000000;--color-barH8Q:#000000;--color-NEXT:#000000;--color-16K:#000000;--color-BPHI2E:#000000;--color-RA4AND6:#000000;--color-RA5ANDbar6:#000000;}</style></svg>
