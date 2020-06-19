@@ -132,6 +132,70 @@ void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 7493 - 4-Bit Binary Counter
+//
+
+Chip7493BinaryCounter *chip_7493_binary_counter_create(SignalPool *signal_pool, Chip7493Signals signals) {
+	Chip7493BinaryCounter *chip = (Chip7493BinaryCounter *) calloc(1, sizeof(Chip7493BinaryCounter));
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(b_b, 1);					// pin 1
+	SIGNAL_DEFINE_BOOL(r01, 1, false);		// pin 2
+	SIGNAL_DEFINE_BOOL(r02, 1, false);		// pin 3
+	SIGNAL_DEFINE_BOOL(vcc, 1, true);		// pin 5
+	SIGNAL_DEFINE(qc, 1);					// pin 8
+	SIGNAL_DEFINE(qb, 1);					// pin 9
+	SIGNAL_DEFINE_BOOL(gnd, 1, false);		// pin 10
+	SIGNAL_DEFINE(qd, 1);					// pin 11
+	SIGNAL_DEFINE(qa, 1);					// pin 12
+	SIGNAL_DEFINE(a_b, 1);					// pin 14
+
+	return chip;
+}
+
+void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip) {
+	assert(chip);
+
+	bool a_b = SIGNAL_BOOL(a_b);
+	bool b_b = SIGNAL_BOOL(b_b);
+
+	if (ACTHI_ASSERTED(SIGNAL_BOOL(r01)) && ACTHI_ASSERTED(SIGNAL_BOOL(r02))) {
+		chip->count_a = 0;
+		chip->count_b = 0;
+	} else {
+		if (chip->prev_a_b && !a_b) {
+			chip->count_a = !chip->count_a;
+		}
+
+		// ok, a bit hacky ... if the second stage's clock is connected to the output of the first stage:
+		// don't wait until the next process call to trigger the second stage
+		if (memcmp(&SIGNAL(b_b), &SIGNAL(qa), sizeof(Signal)) == 0) {
+			if (chip->prev_a_b && !a_b) {
+				chip->count_b += !chip->count_a;
+			}
+		} else if (chip->prev_b_b && !b_b) {
+			++chip->count_b;
+		}
+	}
+
+	SIGNAL_SET_BOOL(qa, chip->count_a);
+	SIGNAL_SET_BOOL(qb, chip->count_b & 0b0001);
+	SIGNAL_SET_BOOL(qc, (chip->count_b & 0b0010) >> 1);
+	SIGNAL_SET_BOOL(qd, (chip->count_b & 0b0100) >> 2);
+
+	// save the clock state
+	chip->prev_a_b = a_b;
+	chip->prev_b_b = b_b;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74107 - Dual J-K Flip-Flops with clear
 //
 

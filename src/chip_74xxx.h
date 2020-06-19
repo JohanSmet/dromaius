@@ -65,6 +65,30 @@ typedef struct Chip7474DFlipFlop {
 	bool				q2_b;
 } Chip7474DFlipFlop;
 
+// types - 7493 (4-Bit Binary Counter)
+typedef struct Chip7493Signals {
+	Signal		b_b;		// pin 1
+	Signal		r01;		// pin 2
+	Signal		r02;		// pin 3
+	Signal		vcc;		// pin 5
+	Signal		qc;			// pin 8
+	Signal		qb;			// pin 9
+	Signal		gnd;		// pin 10
+	Signal		qd;			// pin 11
+	Signal		qa;			// pin 12
+	Signal		a_b;		// pin 14
+} Chip7493Signals;
+
+typedef struct Chip7493BinaryCounter {
+	SignalPool *		signal_pool;
+	Chip7493Signals		signals;
+
+	bool				count_a;
+	int					count_b;
+	bool				prev_a_b;
+	bool				prev_b_b;
+} Chip7493BinaryCounter;
+
 // types - 74107
 typedef struct Chip74107Signals {
 	Signal		j1;			// pin 1
@@ -243,6 +267,10 @@ void chip_7400_nand_process(Chip7400Nand *chip);
 Chip7474DFlipFlop *chip_7474_d_flipflop_create(SignalPool *signal_pool, Chip7474Signals signals);
 void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip);
 void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip);
+
+Chip7493BinaryCounter *chip_7493_binary_counter_create(SignalPool *signal_pool, Chip7493Signals signals);
+void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip);
+void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip);
 
 Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(SignalPool *signal_pool, Chip74107Signals signals);
 void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip);

@@ -153,6 +153,46 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	return MUNIT_OK;
 }
 
+static MunitResult test_7493_binary_counter(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip7493BinaryCounter *chip = chip_7493_binary_counter_create(signal_pool_create(1), (Chip7493Signals) {0});
+	chip->signals.b_b = chip->signals.qa;
+
+	// reset counter
+	SIGNAL_SET_BOOL(r01, ACTHI_ASSERT);
+	SIGNAL_SET_BOOL(r02, ACTHI_ASSERT);
+	SIGNAL_SET_BOOL(a_b, true);
+	signal_pool_cycle(chip->signal_pool);
+	chip_7493_binary_counter_process(chip);
+	munit_assert_false(SIGNAL_NEXT_BOOL(qa));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qc));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qd));
+
+	for (int i = 1; i < 20; ++i) {
+		munit_logf(MUNIT_LOG_INFO, "i = %d", i);
+
+		SIGNAL_SET_BOOL(a_b, false);
+		signal_pool_cycle(chip->signal_pool);
+		chip_7493_binary_counter_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qa) == ((i & 0b0001) >> 0));
+		munit_assert(SIGNAL_NEXT_BOOL(qb) == ((i & 0b0010) >> 1));
+		munit_assert(SIGNAL_NEXT_BOOL(qc) == ((i & 0b0100) >> 2));
+		munit_assert(SIGNAL_NEXT_BOOL(qd) == ((i & 0b1000) >> 3));
+
+		SIGNAL_SET_BOOL(a_b, true);
+		signal_pool_cycle(chip->signal_pool);
+		chip_7493_binary_counter_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qa) == ((i & 0b0001) >> 0));
+		munit_assert(SIGNAL_NEXT_BOOL(qb) == ((i & 0b0010) >> 1));
+		munit_assert(SIGNAL_NEXT_BOOL(qc) == ((i & 0b0100) >> 2));
+		munit_assert(SIGNAL_NEXT_BOOL(qd) == ((i & 0b1000) >> 3));
+	}
+
+	chip_7493_binary_counter_destroy(chip);
+	return MUNIT_OK;
+};
+
 static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *user_data_or_fixture) {
 	Chip74107JKFlipFlop *chip = chip_74107_jk_flipflop_create(signal_pool_create(1), (Chip74107Signals) {0});
 
@@ -542,6 +582,7 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 MunitTest chip_74xxx_tests[] = {
 	{ "/7400_nand", test_7400_nand, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/7474_d_flipflop", test_7474_d_flipflop, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/7493_binary_counter", test_7493_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74107_jk_flipflop", test_74107_jk_flipflop, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74145_bcd_decoder", test_74145_bcd_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74154_decoder", test_74154_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
