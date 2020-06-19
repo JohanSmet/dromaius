@@ -109,6 +109,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(ra1_b, 1, "/RA1");
 	SIGNAL_DEFINE_N(ra6_b, 1, "/RA6");
 
+	SIGNAL_DEFINE_N(ra1and3, 1, "RA1AND3");
+	SIGNAL_DEFINE_N(ra4and6, 1, "RA4AND6");
+	SIGNAL_DEFINE_N(ra5and6_b, 1, "RA5AND/6");
+
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
@@ -238,6 +242,18 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.q2_b = SIGNAL(ra6_b)			// pin 6
 	});
 
+	device->h9 = chip_7493_binary_counter_create(device->signal_pool, (Chip7493Signals) {
+										.gnd = SIGNAL(low),				// pin 10
+										.vcc = SIGNAL(high),			// pin 5
+										.a_b = SIGNAL(ra1),				// pin 14
+										.b_b = SIGNAL(ra2),				// pin 1
+										.r01 = SIGNAL(init),			// pin 2
+										.r02 = SIGNAL(init),			// pin 3
+										.qa = SIGNAL(ra2),				// pin 12
+										.qb = SIGNAL(ra3),				// pin 9
+										.qc = SIGNAL(ra4),				// pin 8
+										.qd = SIGNAL(ra5),				// pin 11
+	});
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 
@@ -496,6 +512,7 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	chip_74191_binary_counter_destroy(device->g5);
 	chip_74164_shift_register_destroy(device->h3);
 	chip_74107_jk_flipflop_destroy(device->h6);
+	chip_7493_binary_counter_destroy(device->h9);
 
 	chip_74244_octal_buffer_destroy(device->c3);
 	chip_74244_octal_buffer_destroy(device->b3);
@@ -669,6 +686,12 @@ static inline void process_master_timing(DevCommodorePet *device) {
 
 	// jk-flip flop (depends on /BPHI2A)
 	chip_74107_jk_flipflop_process(device->h6);
+
+	// refresh address counter (depends on ra1)
+	chip_7493_binary_counter_process(device->h9);
+	SIGNAL_SET_BOOL(ra1and3, SIGNAL_NEXT_BOOL(ra1) & SIGNAL_NEXT_BOOL(ra3));
+	SIGNAL_SET_BOOL(ra4and6, SIGNAL_NEXT_BOOL(ra4) & SIGNAL_NEXT_BOOL(ra6));
+	SIGNAL_SET_BOOL(ra5and6_b, SIGNAL_NEXT_BOOL(ra5) & SIGNAL_NEXT_BOOL(ra6_b));
 }
 
 void dev_commodore_pet_process(DevCommodorePet *device) {
