@@ -113,6 +113,14 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(ra4and6, 1, "RA4AND6");
 	SIGNAL_DEFINE_N(ra5and6_b, 1, "RA5AND/6");
 
+	SIGNAL_DEFINE_N(load_sr, 1, "LOADSR");
+	SIGNAL_DEFINE_N(load_sr_b, 1, "/LOADSR");
+
+	SIGNAL_DEFINE_N(horz_disp_on, 1, "HORZDISPON");
+	SIGNAL_DEFINE_N(horz_disp_off, 1, "HORZDISPOFF");
+	SIGNAL_DEFINE_N(horz_drive, 1, "HORZDRIVE");
+	SIGNAL_DEFINE_N(horz_drive_b, 1, "/HORZDRIVE");
+
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
@@ -253,6 +261,44 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qb = SIGNAL(ra3),				// pin 9
 										.qc = SIGNAL(ra4),				// pin 8
 										.qd = SIGNAL(ra5),				// pin 11
+	});
+
+	device->g9 = chip_7474_d_flipflop_create(device->signal_pool, (Chip7474Signals) {
+										.gnd = SIGNAL(low),				// pin 7
+										.vcc = SIGNAL(high),			// pin 14
+
+										.d1 = SIGNAL(init_b),			// pin 2
+										.clr1_b = SIGNAL(bphi2b),		// pin 1
+										.clk1 = SIGNAL(bphi2a_b),		// pin 3
+										.pr1_b = SIGNAL(high),			// pin 4
+										.q1 = SIGNAL(load_sr),			// pin 5
+										.q1_b = SIGNAL(load_sr_b),		// pin 6
+
+										// .q2_b = not used,			// pin 8
+										// .q2 = not used,				// pin 9
+										// .pr2_b = not used,			// pin 10
+										// .clk2 = not used,			// pin 11
+										// .d2 = not used,				// pin 12
+										// .clr2_b = not used,			// pin 13
+	});
+
+	device->h7 = chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
+										.gnd = SIGNAL(low),				// pin 7
+										.vcc = SIGNAL(high),			// pin 14
+
+										.clr1_b = SIGNAL(init_b),		// pin 13
+										.clk1 = SIGNAL(ra1and3),		// pin 12
+										.j1 = SIGNAL(horz_disp_on),		// pin 1
+										.k1 = SIGNAL(horz_disp_off),	// pin 4
+										.q1 = SIGNAL(horz_drive_b),		// pin 3
+										.q1_b = SIGNAL(horz_drive),		// pin 2
+
+										.clr2_b = SIGNAL(init_b),		// pin 10
+										.clk2 = SIGNAL(load_sr_b),		// pin 9
+										.j2 = SIGNAL(ra4and6),			// pin 8
+										.k2 = SIGNAL(ra5and6_b),		// pin 11
+										.q2 = SIGNAL(horz_disp_on),		// pin 5
+										.q2_b = SIGNAL(horz_disp_off)	// pin 6
 	});
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
@@ -513,6 +559,8 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	chip_74164_shift_register_destroy(device->h3);
 	chip_74107_jk_flipflop_destroy(device->h6);
 	chip_7493_binary_counter_destroy(device->h9);
+	chip_7474_d_flipflop_destroy(device->g9);
+	chip_74107_jk_flipflop_destroy(device->h7);
 
 	chip_74244_octal_buffer_destroy(device->c3);
 	chip_74244_octal_buffer_destroy(device->b3);
@@ -692,6 +740,10 @@ static inline void process_master_timing(DevCommodorePet *device) {
 	SIGNAL_SET_BOOL(ra1and3, SIGNAL_NEXT_BOOL(ra1) & SIGNAL_NEXT_BOOL(ra3));
 	SIGNAL_SET_BOOL(ra4and6, SIGNAL_NEXT_BOOL(ra4) & SIGNAL_NEXT_BOOL(ra6));
 	SIGNAL_SET_BOOL(ra5and6_b, SIGNAL_NEXT_BOOL(ra5) & SIGNAL_NEXT_BOOL(ra6_b));
+
+	chip_7474_d_flipflop_process(device->g9);
+
+	chip_74107_jk_flipflop_process(device->h7);
 }
 
 void dev_commodore_pet_process(DevCommodorePet *device) {

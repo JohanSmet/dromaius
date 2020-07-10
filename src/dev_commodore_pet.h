@@ -70,6 +70,14 @@ typedef struct DevCommodorePetSignals {
 	Signal		ra4and6;
 	Signal		ra5and6_b;
 
+	Signal		load_sr;
+	Signal		load_sr_b;
+
+	Signal		horz_disp_on;
+	Signal		horz_disp_off;
+	Signal		horz_drive;
+	Signal		horz_drive_b;
+
 	Signal		reset_b;			// 1-bit - reset line
 	Signal		irq_b;				// 1-bit - interrupt request
 	Signal		nmi_b;				// 1-bit - non-maskable interrupt
@@ -167,8 +175,10 @@ typedef struct DevCommodorePet {
 	// master timing components
 	Chip74191BinaryCounter *g5;			// clock divider
 	Chip74164ShiftRegister *h3;			// 8 phases of clk1
-	Chip74107JKFlipFlop *	h6;			// flipflop
+	Chip74107JKFlipFlop *	h6;			// jk-flipflop
 	Chip7493BinaryCounter * h9;			// refresh address counter
+	Chip7474DFlipFlop *		g9;			// d-flipflop
+	Chip74107JKFlipFlop *	h7;			// jk-flipflop
 
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1
