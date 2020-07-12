@@ -1,0 +1,1135 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="svg2642" version="1.1" viewBox="0 0 297 210">
+  <defs id="defs2636"/>
+  <g id="Schematic" style="display:inline">
+    <g transform="translate(-51.213484,60.978837)" id="chip#G3_74LS373_0" class="g_0">
+      <rect y="26.883739" x="110.70764" height="22.896053" width="12.573433" id="rect_0" class="rect_0"/>
+      <text id="text_0" y="28.441612" x="116.91093" xml:space="preserve" class="text_0"><tspan id="tspan_0" y="28.441612" x="116.91093" class="tspan_0">G3</tspan></text>
+      <text xml:space="preserve" x="118.69646" y="49.294392" id="text_1" class="text_0"><tspan x="118.69646" y="49.294392" id="tspan_1" class="tspan_0">74LS373</tspan></text>
+      <text xml:space="preserve" x="117.05688" y="34.698177" id="text_2" class="text_0"><tspan x="117.05688" y="34.698177" id="tspan_2" class="tspan_0">LATCH</tspan></text>
+      <text id="text_3" y="33.715256" x="112.77913" xml:space="preserve" class="text_0"><tspan id="tspan_3" y="33.715256" x="112.77913" class="tspan_0">D6</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="35.747627" id="text_4" class="text_0"><tspan x="112.77913" y="35.747627" id="tspan_4" class="tspan_0">D7</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="44.09647" id="text_5" class="text_0"><tspan x="112.77913" y="44.09647" id="tspan_5" class="tspan_0">D4</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="42.061489" id="text_6" class="text_0"><tspan x="112.77913" y="42.061489" id="tspan_6" class="tspan_0">D1</tspan></text>
+      <text xml:space="preserve" x="113.77132" y="29.496412" id="text_7" class="text_0"><tspan x="113.77132" y="29.496412" id="tspan_7" class="tspan_1">D5</tspan></text>
+      <text id="text_8" y="31.582127" x="113.77132" xml:space="preserve" class="text_0"><tspan id="tspan_8" y="31.582127" x="113.77132" class="tspan_1">D8</tspan></text>
+      <text id="text_9" y="33.579937" x="122.19968" xml:space="preserve" class="text_0"><tspan id="tspan_9" y="33.579937" x="122.19968" class="tspan_1">Q6</tspan></text>
+      <text xml:space="preserve" x="122.20657" y="35.634624" id="text_10" class="text_0"><tspan x="122.20657" y="35.634624" id="tspan_10" class="tspan_1">Q7</tspan></text>
+      <text id="text_11" y="37.733475" x="122.21346" xml:space="preserve" class="text_0"><tspan id="tspan_11" y="37.733475" x="122.21346" class="tspan_1">Q2</tspan></text>
+      <text xml:space="preserve" x="122.2052" y="39.788162" id="text_12" class="text_0"><tspan x="122.2052" y="39.788162" id="tspan_12" class="tspan_1">Q3</tspan></text>
+      <text xml:space="preserve" x="122.23896" y="41.869114" id="text_13" class="text_0"><tspan x="122.23896" y="41.869114" id="tspan_13" class="tspan_1">Q1</tspan></text>
+      <text id="text_14" y="43.923801" x="122.2617" xml:space="preserve" class="text_0"><tspan id="tspan_14" y="43.923801" x="122.2617" class="tspan_1">Q4</tspan></text>
+      <text xml:space="preserve" x="116.79047" y="32.599068" id="text_15" class="text_0"><tspan x="116.79047" y="32.599068" id="tspan_15" class="tspan_0">8-BIT</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="37.833023" id="text_16" class="text_0"><tspan x="112.77913" y="37.833023" id="tspan_16" class="tspan_0">D2</tspan></text>
+      <text id="text_17" y="39.92194" x="112.77913" xml:space="preserve" class="text_0"><tspan id="tspan_17" y="39.92194" x="112.77913" class="tspan_0">D3</tspan></text>
+      <text xml:space="preserve" x="109.66123" y="36.789371" id="text_18" class="text_0"><tspan x="109.66123" y="36.789371" id="tspan_18" class="tspan_1">4</tspan></text>
+      <text id="text_19" y="36.767666" x="125.32961" xml:space="preserve" class="text_0"><tspan id="tspan_19" y="36.767666" x="125.32961" class="tspan_1">5</tspan></text>
+      <text id="text_20" y="32.597443" x="126.27066" xml:space="preserve" class="text_0"><tspan id="tspan_20" y="32.597443" x="126.27066" class="tspan_1">15</tspan></text>
+      <text xml:space="preserve" x="109.71223" y="47.193226" id="text_21" class="text_0"><tspan x="109.71223" y="47.193226" id="tspan_21" class="tspan_1">1</tspan></text>
+      <text id="text_22" y="30.537121" x="109.67847" xml:space="preserve" class="text_0"><tspan id="tspan_22" y="30.537121" x="109.67847" class="tspan_1">18</tspan></text>
+      <text xml:space="preserve" x="125.3433" y="42.99741" id="text_23" class="text_0"><tspan x="125.3433" y="42.99741" id="tspan_23" class="tspan_1">9</tspan></text>
+      <text xml:space="preserve" x="109.71223" y="45.070858" id="text_24" class="text_0"><tspan x="109.71223" y="45.070858" id="tspan_24" class="tspan_1">11</tspan></text>
+      <text id="text_25" y="32.673889" x="109.66123" xml:space="preserve" class="text_0"><tspan id="tspan_25" y="32.673889" x="109.66123" class="tspan_1">14</tspan></text>
+      <text id="text_26" y="40.884567" x="109.69499" xml:space="preserve" class="text_0"><tspan id="tspan_26" y="40.884567" x="109.69499" class="tspan_1">3</tspan></text>
+      <text xml:space="preserve" x="125.34747" y="40.947552" id="text_27" class="text_0"><tspan x="125.34747" y="40.947552" id="tspan_27" class="tspan_1">2</tspan></text>
+      <text xml:space="preserve" x="125.31852" y="38.923298" id="text_28" class="text_0"><tspan x="125.31852" y="38.923298" id="tspan_28" class="tspan_1">6</tspan></text>
+      <text id="text_29" y="38.843475" x="109.70258" xml:space="preserve" class="text_0"><tspan id="tspan_29" y="38.843475" x="109.70258" class="tspan_1">7</tspan></text>
+      <text xml:space="preserve" x="126.27066" y="28.469294" id="text_30" class="text_0"><tspan x="126.27066" y="28.469294" id="tspan_30" class="tspan_1">12</tspan></text>
+      <text id="text_31" y="28.499048" x="109.69499" xml:space="preserve" class="text_0"><tspan id="tspan_31" y="28.499048" x="109.69499" class="tspan_1">13</tspan></text>
+      <text id="text_32" y="46.239338" x="112.29028" xml:space="preserve" class="text_0"><tspan id="tspan_32" y="46.239338" x="112.29028" class="tspan_0">G</tspan></text>
+      <text id="text_33" y="48.223873" x="112.81398" xml:space="preserve" class="text_0"><tspan id="tspan_33" y="48.223873" x="112.81398" class="tspan_0">OC</tspan></text>
+      <text xml:space="preserve" x="122.16777" y="29.53863" id="text_34" class="text_0"><tspan x="122.16777" y="29.53863" id="tspan_34" class="tspan_1">Q5</tspan></text>
+      <text id="text_35" y="31.593317" x="122.17467" xml:space="preserve" class="text_0"><tspan id="tspan_35" y="31.593317" x="122.17467" class="tspan_1">Q8</tspan></text>
+      <text xml:space="preserve" x="109.70258" y="34.703056" id="text_36" class="text_0"><tspan x="109.70258" y="34.703056" id="tspan_36" class="tspan_1">17</tspan></text>
+      <text xml:space="preserve" x="126.27066" y="30.483305" id="text_37" class="text_0"><tspan x="126.27066" y="30.483305" id="tspan_37" class="tspan_1">19</tspan></text>
+      <text xml:space="preserve" x="126.27066" y="34.833118" id="text_38" class="text_0"><tspan x="126.27066" y="34.833118" id="tspan_38" class="tspan_1">16</tspan></text>
+      <text xml:space="preserve" x="109.67847" y="43.070557" id="text_39" class="text_0"><tspan x="109.67847" y="43.070557" id="tspan_39" class="tspan_1">8</tspan></text>
+    </g>
+    <g transform="translate(73.783719,4.0251757)" id="chip#F4_74177_0" class="g_0">
+      <rect y="83.682922" x="31.892233" height="18.693319" width="12.52014" id="rect_1" class="rect_0"/>
+      <text id="text_40" y="99.73954" x="38.15324" xml:space="preserve" class="text_0"><tspan id="tspan_40" y="99.73954" x="38.15324" class="tspan_0">F4</tspan></text>
+      <text xml:space="preserve" x="38.556957" y="101.78557" id="text_41" class="text_0"><tspan x="38.556957" y="101.78557" id="tspan_41" class="tspan_0">74177</tspan></text>
+      <path id="path_0" d="m 31.988739,87.4111 1.34609,0.360682 -1.3255,0.355169" class="path_0"/>
+      <ellipse cx="31.325615" cy="87.766006" rx="0.44926631" ry="0.48355335" id="ellipse_0" class="ellipse_0"/>
+      <text xml:space="preserve" x="35.75943" y="86.235046" id="text_42" class="text_0"><tspan x="35.75943" y="86.235046" id="tspan_42" class="tspan_0">CLK2</tspan></text>
+      <text id="text_43" y="90.386169" x="35.017231" xml:space="preserve" class="text_0"><tspan id="tspan_43" y="90.386169" x="35.017231" class="tspan_0">CT/LD</tspan></text>
+      <text xml:space="preserve" x="29.814625" y="91.433693" id="text_44" class="text_0"><tspan x="29.814625" y="91.433693" id="tspan_44" class="tspan_0">13</tspan></text>
+      <text id="text_45" y="97.520264" x="30.407503" xml:space="preserve" class="text_0"><tspan id="tspan_45" y="97.520264" x="30.407503" class="tspan_0">3</tspan></text>
+      <text id="text_46" y="89.258263" x="45.989059" xml:space="preserve" class="text_0"><tspan id="tspan_46" y="89.258263" x="45.989059" class="tspan_0">9</tspan></text>
+      <text id="text_47" y="97.712448" x="46.524529" xml:space="preserve" class="text_0"><tspan id="tspan_47" y="97.712448" x="46.524529" class="tspan_0">12</tspan></text>
+      <text id="text_48" y="89.387939" x="30.20727" xml:space="preserve" class="text_0"><tspan id="tspan_48" y="89.387939" x="30.20727" class="tspan_0">1</tspan></text>
+      <text id="text_49" y="93.539551" x="46.04908" xml:space="preserve" class="text_0"><tspan id="tspan_49" y="93.539551" x="46.04908" class="tspan_0">2</tspan></text>
+      <path d="m 31.985105,85.368018 1.34609,0.360682 -1.3255,0.355169" id="path_1" class="path_0"/>
+      <ellipse id="ellipse_1" ry="0.48355335" rx="0.44926631" cy="85.722923" cx="31.321981" class="ellipse_0"/>
+      <text id="text_50" y="88.309616" x="35.781483" xml:space="preserve" class="text_0"><tspan id="tspan_50" y="88.309616" x="35.781483" class="tspan_0">CLK1</tspan></text>
+      <text xml:space="preserve" x="33.436802" y="94.654343" id="text_51" class="text_0"><tspan x="33.436802" y="94.654343" id="tspan_51" class="tspan_0">A</tspan></text>
+      <text id="text_52" y="86.152054" x="42.244232" xml:space="preserve" class="text_0"><tspan id="tspan_52" y="86.152054" x="42.244232" class="tspan_0">QA</tspan></text>
+      <text xml:space="preserve" x="42.227222" y="90.365784" id="text_53" class="text_0"><tspan x="42.227222" y="90.365784" id="tspan_53" class="tspan_0">QB</tspan></text>
+      <text xml:space="preserve" x="42.202042" y="94.511795" id="text_54" class="text_0"><tspan x="42.202042" y="94.511795" id="tspan_54" class="tspan_0">QC</tspan></text>
+      <text xml:space="preserve" x="42.359093" y="98.715668" id="text_55" class="text_0"><tspan x="42.359093" y="98.715668" id="tspan_55" class="tspan_0">QD</tspan></text>
+      <text id="text_56" y="95.64782" x="37.662067" xml:space="preserve" class="text_0"><tspan id="tspan_56" y="95.64782" x="37.662067" class="tspan_0">4-BIT</tspan></text>
+      <text id="text_57" y="97.698418" x="37.751114" xml:space="preserve" class="text_0"><tspan id="tspan_57" y="97.698418" x="37.751114" class="tspan_0">COUNTER</tspan></text>
+      <text xml:space="preserve" x="30.293638" y="87.249718" id="text_58" class="text_0"><tspan x="30.293638" y="87.249718" id="tspan_58" class="tspan_0">8</tspan></text>
+      <text xml:space="preserve" x="29.909754" y="99.756905" id="text_59" class="text_0"><tspan x="29.909754" y="99.756905" id="tspan_59" class="tspan_0">11</tspan></text>
+      <text xml:space="preserve" x="34.374016" y="92.484215" id="text_60" class="text_0"><tspan x="34.374016" y="92.484215" id="tspan_60" class="tspan_0">CLK</tspan></text>
+      <text id="text_61" y="96.636047" x="33.310711" xml:space="preserve" class="text_0"><tspan id="tspan_61" y="96.636047" x="33.310711" class="tspan_0">B</tspan></text>
+      <text id="text_62" y="98.79911" x="33.378578" xml:space="preserve" class="text_0"><tspan id="tspan_62" y="98.79911" x="33.378578" class="tspan_0">C</tspan></text>
+      <text id="text_63" y="100.81857" x="33.369968" xml:space="preserve" class="text_0"><tspan id="tspan_63" y="100.81857" x="33.369968" class="tspan_0">D</tspan></text>
+      <text id="text_64" y="85.160622" x="45.901199" xml:space="preserve" class="text_0"><tspan id="tspan_64" y="85.160622" x="45.901199" class="tspan_0">5</tspan></text>
+      <text id="text_65" y="95.650436" x="29.998178" xml:space="preserve" class="text_0"><tspan id="tspan_65" y="95.650436" x="29.998178" class="tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="30.390825" y="93.604683" id="text_66" class="text_0"><tspan x="30.390825" y="93.604683" id="tspan_66" class="tspan_0">4</tspan></text>
+      <text id="text_67" y="85.198616" x="30.302826" xml:space="preserve" class="text_0"><tspan id="tspan_67" y="85.198616" x="30.302826" class="tspan_0">6</tspan></text>
+      <ellipse id="ellipse_2" ry="0.48355335" rx="0.44926631" cy="92.026031" cx="31.306068" class="ellipse_0"/>
+    </g>
+    <g id="chip#F2_74177_0" transform="translate(73.804504,31.175189)" class="g_0">
+      <rect id="rect_2" width="12.52014" height="18.693319" x="31.892233" y="83.682922" class="rect_0"/>
+      <text xml:space="preserve" x="38.15324" y="99.73954" id="text_68" class="text_0"><tspan x="38.15324" y="99.73954" id="tspan_68" class="tspan_0">F2</tspan></text>
+      <text id="text_69" y="101.78557" x="38.556957" xml:space="preserve" class="text_0"><tspan id="tspan_69" y="101.78557" x="38.556957" class="tspan_0">74177</tspan></text>
+      <path d="m 31.988739,87.4111 1.34609,0.360682 -1.3255,0.355169" id="path_2" class="path_0"/>
+      <ellipse id="ellipse_3" ry="0.48355335" rx="0.44926631" cy="87.766006" cx="31.325615" class="ellipse_0"/>
+      <text id="text_70" y="86.235046" x="35.75943" xml:space="preserve" class="text_0"><tspan id="tspan_70" y="86.235046" x="35.75943" class="tspan_0">CLK2</tspan></text>
+      <text xml:space="preserve" x="35.017231" y="90.386169" id="text_71" class="text_0"><tspan x="35.017231" y="90.386169" id="tspan_71" class="tspan_0">CT/LD</tspan></text>
+      <text id="text_72" y="91.433693" x="29.814625" xml:space="preserve" class="text_0"><tspan id="tspan_72" y="91.433693" x="29.814625" class="tspan_0">13</tspan></text>
+      <text xml:space="preserve" x="30.407503" y="97.520264" id="text_73" class="text_0"><tspan x="30.407503" y="97.520264" id="tspan_73" class="tspan_0">3</tspan></text>
+      <text xml:space="preserve" x="45.989059" y="89.258263" id="text_74" class="text_0"><tspan x="45.989059" y="89.258263" id="tspan_74" class="tspan_0">9</tspan></text>
+      <text xml:space="preserve" x="46.524529" y="97.712448" id="text_75" class="text_0"><tspan x="46.524529" y="97.712448" id="tspan_75" class="tspan_0">12</tspan></text>
+      <text xml:space="preserve" x="30.20727" y="89.387939" id="text_76" class="text_0"><tspan x="30.20727" y="89.387939" id="tspan_76" class="tspan_0">1</tspan></text>
+      <text xml:space="preserve" x="46.04908" y="93.539551" id="text_77" class="text_0"><tspan x="46.04908" y="93.539551" id="tspan_77" class="tspan_0">2</tspan></text>
+      <path id="path_3" d="m 31.985105,85.368018 1.34609,0.360682 -1.3255,0.355169" class="path_0"/>
+      <ellipse cx="31.321981" cy="85.722923" rx="0.44926631" ry="0.48355335" id="ellipse_4" class="ellipse_0"/>
+      <text xml:space="preserve" x="35.781483" y="88.309616" id="text_78" class="text_0"><tspan x="35.781483" y="88.309616" id="tspan_78" class="tspan_0">CLK1</tspan></text>
+      <text id="text_79" y="94.654343" x="33.436802" xml:space="preserve" class="text_0"><tspan id="tspan_79" y="94.654343" x="33.436802" class="tspan_0">A</tspan></text>
+      <text xml:space="preserve" x="42.244232" y="86.152054" id="text_80" class="text_0"><tspan x="42.244232" y="86.152054" id="tspan_80" class="tspan_0">QA</tspan></text>
+      <text id="text_81" y="90.365784" x="42.227222" xml:space="preserve" class="text_0"><tspan id="tspan_81" y="90.365784" x="42.227222" class="tspan_0">QB</tspan></text>
+      <text id="text_82" y="94.511795" x="42.202042" xml:space="preserve" class="text_0"><tspan id="tspan_82" y="94.511795" x="42.202042" class="tspan_0">QC</tspan></text>
+      <text id="text_83" y="98.715668" x="42.359093" xml:space="preserve" class="text_0"><tspan id="tspan_83" y="98.715668" x="42.359093" class="tspan_0">QD</tspan></text>
+      <text xml:space="preserve" x="37.662067" y="95.64782" id="text_84" class="text_0"><tspan x="37.662067" y="95.64782" id="tspan_84" class="tspan_0">4-BIT</tspan></text>
+      <text xml:space="preserve" x="37.751114" y="97.698418" id="text_85" class="text_0"><tspan x="37.751114" y="97.698418" id="tspan_85" class="tspan_0">COUNTER</tspan></text>
+      <text id="text_86" y="87.249718" x="30.293638" xml:space="preserve" class="text_0"><tspan id="tspan_86" y="87.249718" x="30.293638" class="tspan_0">8</tspan></text>
+      <text id="text_87" y="99.756905" x="29.909754" xml:space="preserve" class="text_0"><tspan id="tspan_87" y="99.756905" x="29.909754" class="tspan_0">11</tspan></text>
+      <text id="text_88" y="92.484215" x="34.374016" xml:space="preserve" class="text_0"><tspan id="tspan_88" y="92.484215" x="34.374016" class="tspan_0">CLK</tspan></text>
+      <text xml:space="preserve" x="33.310711" y="96.636047" id="text_89" class="text_0"><tspan x="33.310711" y="96.636047" id="tspan_89" class="tspan_0">B</tspan></text>
+      <text xml:space="preserve" x="33.378578" y="98.79911" id="text_90" class="text_0"><tspan x="33.378578" y="98.79911" id="tspan_90" class="tspan_0">C</tspan></text>
+      <text xml:space="preserve" x="33.369968" y="100.81857" id="text_91" class="text_0"><tspan x="33.369968" y="100.81857" id="tspan_91" class="tspan_0">D</tspan></text>
+      <text xml:space="preserve" x="45.901199" y="85.160622" id="text_92" class="text_0"><tspan x="45.901199" y="85.160622" id="tspan_92" class="tspan_0">5</tspan></text>
+      <text xml:space="preserve" x="29.998178" y="95.650436" id="text_93" class="text_0"><tspan x="29.998178" y="95.650436" id="tspan_93" class="tspan_0">10</tspan></text>
+      <text id="text_94" y="93.604683" x="30.390825" xml:space="preserve" class="text_0"><tspan id="tspan_94" y="93.604683" x="30.390825" class="tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="30.302826" y="85.198616" id="text_95" class="text_0"><tspan x="30.302826" y="85.198616" id="tspan_95" class="tspan_0">6</tspan></text>
+      <ellipse cx="31.306068" cy="92.026031" rx="0.44926631" ry="0.48355335" id="ellipse_5" class="ellipse_0"/>
+    </g>
+    <g id="chip#G6_74LS107_0" transform="translate(69.484448,-25.121774)" class="g_0">
+      <rect id="rect_3" width="8.3618717" height="16.479906" x="31.892233" y="83.682922" class="rect_0"/>
+      <text xml:space="preserve" x="36.029682" y="87.282761" id="text_96" class="text_0"><tspan x="36.029682" y="87.282761" id="tspan_96" class="tspan_0">G6</tspan></text>
+      <text id="text_97" y="89.406815" x="36.060123" xml:space="preserve" class="text_0"><tspan id="tspan_97" y="89.406815" x="36.060123" class="tspan_0">74LS107</tspan></text>
+      <path d="m 31.975296,91.63604 1.34609,0.360682 -1.3255,0.355169" id="path_4" class="path_0"/>
+      <text id="text_98" y="92.513512" x="35.083" xml:space="preserve" class="text_0"><tspan id="tspan_98" y="92.513512" x="35.083" class="tspan_0">CK</tspan></text>
+      <ellipse id="ellipse_6" ry="0.48355335" rx="0.44926631" cy="91.9851" cx="31.359085" class="ellipse_0"/>
+      <ellipse cx="36.127865" cy="100.79939" rx="0.44926631" ry="0.48355335" id="ellipse_7" class="ellipse_0"/>
+      <text id="text_99" y="86.104065" x="33.736725" xml:space="preserve" class="text_0"><tspan id="tspan_99" y="86.104065" x="33.736725" class="tspan_0">J</tspan></text>
+      <text xml:space="preserve" x="38.595501" y="86.22049" id="text_100" class="text_0"><tspan x="38.595501" y="86.22049" id="tspan_100" class="tspan_0">Q</tspan></text>
+      <text xml:space="preserve" x="33.471622" y="98.711929" id="text_101" class="text_0"><tspan x="33.471622" y="98.711929" id="tspan_101" class="tspan_0">K</tspan></text>
+      <text xml:space="preserve" x="36.070351" y="99.750244" id="text_102" class="text_0"><tspan x="36.070351" y="99.750244" id="tspan_102" class="tspan_0">CL</tspan></text>
+      <g id="g_0" transform="translate(-165.87588,33.866307)" class="g_0">
+        <text xml:space="preserve" x="204.5517" y="64.730103" id="text_103" class="text_0"><tspan x="204.5517" y="64.730103" id="tspan_103" class="tspan_0">Q</tspan></text>
+        <path d="m 204.0053,63.530987 h 1.10542" id="path_5" class="path_1"/>
+      </g>
+      <text id="text_104" y="85.275429" x="30.342936" xml:space="preserve" class="text_0"><tspan id="tspan_104" y="85.275429" x="30.342936" class="tspan_0">1</tspan></text>
+      <text xml:space="preserve" x="41.755142" y="85.195358" id="text_105" class="text_0"><tspan x="41.755142" y="85.195358" id="tspan_105" class="tspan_0">3</tspan></text>
+      <text xml:space="preserve" x="41.70837" y="97.777069" id="text_106" class="text_0"><tspan x="41.70837" y="97.777069" id="tspan_106" class="tspan_0">2</tspan></text>
+      <text xml:space="preserve" x="38.275875" y="101.77271" id="text_107" class="text_0"><tspan x="38.275875" y="101.77271" id="tspan_107" class="tspan_0">13</tspan></text>
+      <text xml:space="preserve" x="30.359234" y="97.706741" id="text_108" class="text_0"><tspan x="30.359234" y="97.706741" id="tspan_108" class="tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="29.935024" y="91.441406" id="text_109" class="text_0"><tspan x="29.935024" y="91.441406" id="tspan_109" class="tspan_0">12</tspan></text>
+    </g>
+    <g id="chip#G8_74LS74_0" transform="translate(145.29852,53.9521)" class="g_0">
+      <rect id="rect_4" width="8.3618717" height="16.479906" x="31.892233" y="83.682922" class="rect_0"/>
+      <text xml:space="preserve" x="36.029682" y="87.282761" id="text_110" class="text_0"><tspan x="36.029682" y="87.282761" id="tspan_110" class="tspan_0">G8</tspan></text>
+      <text id="text_111" y="89.406815" x="36.060123" xml:space="preserve" class="text_0"><tspan id="tspan_111" y="89.406815" x="36.060123" class="tspan_0">74LS74</tspan></text>
+      <path d="m 31.971339,91.630194 1.34609,0.360682 -1.3255,0.355169" id="path_6" class="path_0"/>
+      <text id="text_112" y="92.513512" x="35.083" xml:space="preserve" class="text_0"><tspan id="tspan_112" y="92.513512" x="35.083" class="tspan_0">CK</tspan></text>
+      <ellipse id="ellipse_8" ry="0.48355335" rx="0.44926631" cy="83.012772" cx="35.963428" class="ellipse_0"/>
+      <ellipse cx="36.127865" cy="100.79939" rx="0.44926631" ry="0.48355335" id="ellipse_9" class="ellipse_0"/>
+      <text id="text_113" y="86.127449" x="33.371899" xml:space="preserve" class="text_0"><tspan id="tspan_113" y="86.127449" x="33.371899" class="tspan_0">D</tspan></text>
+      <text xml:space="preserve" x="38.595501" y="86.22049" id="text_114" class="text_0"><tspan x="38.595501" y="86.22049" id="tspan_114" class="tspan_0">Q</tspan></text>
+      <text xml:space="preserve" x="36.070351" y="99.750244" id="text_115" class="text_0"><tspan x="36.070351" y="99.750244" id="tspan_115" class="tspan_0">CL</tspan></text>
+      <g id="g_1" transform="translate(-165.87588,33.866307)" class="g_0">
+        <text xml:space="preserve" x="204.5517" y="64.730103" id="text_116" class="text_0"><tspan x="204.5517" y="64.730103" id="tspan_116" class="tspan_0">Q</tspan></text>
+        <path d="m 204.0053,63.530987 h 1.10542" id="path_7" class="path_1"/>
+      </g>
+      <text id="text_117" y="85.121727" x="29.776329" xml:space="preserve" class="text_0"><tspan id="tspan_117" y="85.121727" x="29.776329" class="tspan_0">12</tspan></text>
+      <text xml:space="preserve" x="41.623962" y="85.104218" id="text_118" class="text_0"><tspan x="41.623962" y="85.104218" id="tspan_118" class="tspan_0">9</tspan></text>
+      <text xml:space="preserve" x="41.752789" y="97.604912" id="text_119" class="text_0"><tspan x="41.752789" y="97.604912" id="tspan_119" class="tspan_0">8</tspan></text>
+      <text xml:space="preserve" x="38.097713" y="101.74696" id="text_120" class="text_0"><tspan x="38.097713" y="101.74696" id="tspan_120" class="tspan_0">13</tspan></text>
+      <text xml:space="preserve" x="38.081955" y="83.056305" id="text_121" class="text_0"><tspan x="38.081955" y="83.056305" id="tspan_121" class="tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="29.717571" y="91.367195" id="text_122" class="text_0"><tspan x="29.717571" y="91.367195" id="tspan_122" class="tspan_0">11</tspan></text>
+      <text xml:space="preserve" x="35.877468" y="85.174286" id="text_123" class="text_0"><tspan x="35.877468" y="85.174286" id="tspan_123" class="tspan_0">P</tspan></text>
+    </g>
+    <g id="chip#F6_74LS157_0" transform="translate(66.061375,20.929506)" class="g_0">
+      <rect id="rect_5" width="12.573433" height="22.896053" x="110.70764" y="26.883739" class="rect_0"/>
+      <text xml:space="preserve" x="116.91093" y="28.441612" id="text_124" class="text_0"><tspan x="116.91093" y="28.441612" id="tspan_124" class="tspan_0">F6</tspan></text>
+      <text id="text_125" y="30.414206" x="118.11612" xml:space="preserve" class="text_0"><tspan id="tspan_125" y="30.414206" x="118.11612" class="tspan_0">74LS157</tspan></text>
+      <text id="text_126" y="35.662094" x="116.92163" xml:space="preserve" class="text_0"><tspan id="tspan_126" y="35.662094" x="116.92163" class="tspan_0">2TO1</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="33.715256" id="text_127" class="text_0"><tspan x="112.77913" y="33.715256" id="tspan_127" class="tspan_0">2A</tspan></text>
+      <text id="text_128" y="35.747627" x="112.77913" xml:space="preserve" class="text_0"><tspan id="tspan_128" y="35.747627" x="112.77913" class="tspan_0">2B</tspan></text>
+      <text id="text_129" y="44.09647" x="112.77913" xml:space="preserve" class="text_0"><tspan id="tspan_129" y="44.09647" x="112.77913" class="tspan_0">1B</tspan></text>
+      <text id="text_130" y="42.061489" x="112.77913" xml:space="preserve" class="text_0"><tspan id="tspan_130" y="42.061489" x="112.77913" class="tspan_0">1A</tspan></text>
+      <text id="text_131" y="29.496412" x="113.77132" xml:space="preserve" class="text_0"><tspan id="tspan_131" y="29.496412" x="113.77132" class="tspan_1">3A</tspan></text>
+      <text xml:space="preserve" x="113.77132" y="31.582127" id="text_132" class="text_0"><tspan x="113.77132" y="31.582127" id="tspan_132" class="tspan_1">3B</tspan></text>
+      <text xml:space="preserve" x="122.19968" y="33.579937" id="text_133" class="text_0"><tspan x="122.19968" y="33.579937" id="tspan_133" class="tspan_1">Y2</tspan></text>
+      <text xml:space="preserve" x="122.21346" y="37.733475" id="text_134" class="text_0"><tspan x="122.21346" y="37.733475" id="tspan_134" class="tspan_1">Y3</tspan></text>
+      <text id="text_135" y="41.869114" x="122.23896" xml:space="preserve" class="text_0"><tspan id="tspan_135" y="41.869114" x="122.23896" class="tspan_1">Y4</tspan></text>
+      <text xml:space="preserve" x="122.03876" y="46.13586" id="text_136" class="text_0"><tspan x="122.03876" y="46.13586" id="tspan_136" class="tspan_1">Y1</tspan></text>
+      <text id="text_137" y="33.596306" x="116.89218" xml:space="preserve" class="text_0"><tspan id="tspan_137" y="33.596306" x="116.89218" class="tspan_0">QUAD</tspan></text>
+      <text id="text_138" y="37.833023" x="112.77913" xml:space="preserve" class="text_0"><tspan id="tspan_138" y="37.833023" x="112.77913" class="tspan_0">4A</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="39.92194" id="text_139" class="text_0"><tspan x="112.77913" y="39.92194" id="tspan_139" class="tspan_0">4B</tspan></text>
+      <text id="text_140" y="45.019321" x="125.36549" xml:space="preserve" class="text_0"><tspan id="tspan_140" y="45.019321" x="125.36549" class="tspan_1">4</tspan></text>
+      <text xml:space="preserve" x="109.49789" y="32.564865" id="text_141" class="text_0"><tspan x="109.49789" y="32.564865" id="tspan_141" class="tspan_1">5</tspan></text>
+      <text xml:space="preserve" x="109.65136" y="47.193195" id="text_142" class="text_0"><tspan x="109.65136" y="47.193195" id="tspan_142" class="tspan_1">15</tspan></text>
+      <text xml:space="preserve" x="109.49944" y="30.491129" id="text_143" class="text_0"><tspan x="109.49944" y="30.491129" id="tspan_143" class="tspan_1">10</tspan></text>
+      <text id="text_144" y="36.728489" x="125.33812" xml:space="preserve" class="text_0"><tspan id="tspan_144" y="36.728489" x="125.33812" class="tspan_1">9</tspan></text>
+      <text id="text_145" y="45.070858" x="109.71223" xml:space="preserve" class="text_0"><tspan id="tspan_145" y="45.070858" x="109.71223" class="tspan_1">1</tspan></text>
+      <text xml:space="preserve" x="109.522" y="36.720371" id="text_146" class="text_0"><tspan x="109.522" y="36.720371" id="tspan_146" class="tspan_1">14</tspan></text>
+      <text xml:space="preserve" x="109.69499" y="40.884567" id="text_147" class="text_0"><tspan x="109.69499" y="40.884567" id="tspan_147" class="tspan_1">2</tspan></text>
+      <text xml:space="preserve" x="125.33032" y="32.427608" id="text_148" class="text_0"><tspan x="125.33032" y="32.427608" id="tspan_148" class="tspan_1">7</tspan></text>
+      <text id="text_149" y="40.897366" x="126.34763" xml:space="preserve" class="text_0"><tspan id="tspan_149" y="40.897366" x="126.34763" class="tspan_1">12</tspan></text>
+      <text xml:space="preserve" x="109.50101" y="28.405504" id="text_150" class="text_0"><tspan x="109.50101" y="28.405504" id="tspan_150" class="tspan_1">11</tspan></text>
+      <text xml:space="preserve" x="112.29028" y="46.239338" id="text_151" class="text_0"><tspan x="112.29028" y="46.239338" id="tspan_151" class="tspan_0">S</tspan></text>
+      <text xml:space="preserve" x="112.29921" y="48.275948" id="text_152" class="text_0"><tspan x="112.29921" y="48.275948" id="tspan_152" class="tspan_0">G</tspan></text>
+      <text id="text_153" y="37.715714" x="118.49001" xml:space="preserve" class="text_0"><tspan id="tspan_153" y="37.715714" x="118.49001" class="tspan_1">MUX</tspan></text>
+      <text id="text_154" y="34.651375" x="109.46593" xml:space="preserve" class="text_0"><tspan id="tspan_154" y="34.651375" x="109.46593" class="tspan_1">6</tspan></text>
+      <text id="text_155" y="38.803856" x="109.56734" xml:space="preserve" class="text_0"><tspan id="tspan_155" y="38.803856" x="109.56734" class="tspan_1">13</tspan></text>
+      <text id="text_156" y="43.070557" x="109.67847" xml:space="preserve" class="text_0"><tspan id="tspan_156" y="43.070557" x="109.67847" class="tspan_1">3</tspan></text>
+      <ellipse cx="110.14376" cy="47.734436" rx="0.44926631" ry="0.48355335" id="ellipse_10" class="ellipse_0"/>
+    </g>
+    <g transform="translate(66.061375,50.117581)" id="chip#F5_74LS157_0" class="g_0">
+      <rect y="26.883739" x="110.70764" height="22.896053" width="12.573433" id="rect_6" class="rect_0"/>
+      <text id="text_157" y="28.441612" x="116.91093" xml:space="preserve" class="text_0"><tspan id="tspan_157" y="28.441612" x="116.91093" class="tspan_0">F5</tspan></text>
+      <text xml:space="preserve" x="118.11612" y="30.414206" id="text_158" class="text_0"><tspan x="118.11612" y="30.414206" id="tspan_158" class="tspan_0">74LS157</tspan></text>
+      <text xml:space="preserve" x="116.92163" y="35.662094" id="text_159" class="text_0"><tspan x="116.92163" y="35.662094" id="tspan_159" class="tspan_0">2TO1</tspan></text>
+      <text id="text_160" y="33.715256" x="112.77913" xml:space="preserve" class="text_0"><tspan id="tspan_160" y="33.715256" x="112.77913" class="tspan_0">2A</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="35.747627" id="text_161" class="text_0"><tspan x="112.77913" y="35.747627" id="tspan_161" class="tspan_0">2B</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="44.09647" id="text_162" class="text_0"><tspan x="112.77913" y="44.09647" id="tspan_162" class="tspan_0">1B</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="42.061489" id="text_163" class="text_0"><tspan x="112.77913" y="42.061489" id="tspan_163" class="tspan_0">1A</tspan></text>
+      <text xml:space="preserve" x="113.77132" y="29.496412" id="text_164" class="text_0"><tspan x="113.77132" y="29.496412" id="tspan_164" class="tspan_1">3A</tspan></text>
+      <text id="text_165" y="31.582127" x="113.77132" xml:space="preserve" class="text_0"><tspan id="tspan_165" y="31.582127" x="113.77132" class="tspan_1">3B</tspan></text>
+      <text id="text_166" y="37.809719" x="122.06592" xml:space="preserve" class="text_0"><tspan id="tspan_166" y="37.809719" x="122.06592" class="tspan_1">Y2</tspan></text>
+      <text id="text_167" y="33.610802" x="122.05343" xml:space="preserve" class="text_0"><tspan id="tspan_167" y="33.610802" x="122.05343" class="tspan_1">Y3</tspan></text>
+      <text xml:space="preserve" x="122.23896" y="41.869114" id="text_168" class="text_0"><tspan x="122.23896" y="41.869114" id="tspan_168" class="tspan_1">Y4</tspan></text>
+      <text id="text_169" y="46.13586" x="122.03876" xml:space="preserve" class="text_0"><tspan id="tspan_169" y="46.13586" x="122.03876" class="tspan_1">Y1</tspan></text>
+      <text xml:space="preserve" x="116.89218" y="33.596306" id="text_170" class="text_0"><tspan x="116.89218" y="33.596306" id="tspan_170" class="tspan_0">QUAD</tspan></text>
+      <text xml:space="preserve" x="112.77913" y="37.833023" id="text_171" class="text_0"><tspan x="112.77913" y="37.833023" id="tspan_171" class="tspan_0">4A</tspan></text>
+      <text id="text_172" y="39.92194" x="112.77913" xml:space="preserve" class="text_0"><tspan id="tspan_172" y="39.92194" x="112.77913" class="tspan_0">4B</tspan></text>
+      <text xml:space="preserve" x="125.36549" y="45.019321" id="text_173" class="text_0"><tspan x="125.36549" y="45.019321" id="tspan_173" class="tspan_1">4</tspan></text>
+      <text id="text_174" y="32.564865" x="109.49789" xml:space="preserve" class="text_0"><tspan id="tspan_174" y="32.564865" x="109.49789" class="tspan_1">5</tspan></text>
+      <text id="text_175" y="47.193195" x="109.65136" xml:space="preserve" class="text_0"><tspan id="tspan_175" y="47.193195" x="109.65136" class="tspan_1">15</tspan></text>
+      <text id="text_176" y="30.491129" x="109.49944" xml:space="preserve" class="text_0"><tspan id="tspan_176" y="30.491129" x="109.49944" class="tspan_1">10</tspan></text>
+      <text xml:space="preserve" x="125.34049" y="32.731022" id="text_177" class="text_0"><tspan x="125.34049" y="32.731022" id="tspan_177" class="tspan_1">9</tspan></text>
+      <text xml:space="preserve" x="109.71223" y="45.070858" id="text_178" class="text_0"><tspan x="109.71223" y="45.070858" id="tspan_178" class="tspan_1">1</tspan></text>
+      <text id="text_179" y="36.720371" x="109.522" xml:space="preserve" class="text_0"><tspan id="tspan_179" y="36.720371" x="109.522" class="tspan_1">14</tspan></text>
+      <text id="text_180" y="40.884567" x="109.69499" xml:space="preserve" class="text_0"><tspan id="tspan_180" y="40.884567" x="109.69499" class="tspan_1">2</tspan></text>
+      <text id="text_181" y="36.672318" x="125.45441" xml:space="preserve" class="text_0"><tspan id="tspan_181" y="36.672318" x="125.45441" class="tspan_1">7</tspan></text>
+      <text xml:space="preserve" x="126.34763" y="40.897366" id="text_182" class="text_0"><tspan x="126.34763" y="40.897366" id="tspan_182" class="tspan_1">12</tspan></text>
+      <text id="text_183" y="28.405504" x="109.50101" xml:space="preserve" class="text_0"><tspan id="tspan_183" y="28.405504" x="109.50101" class="tspan_1">11</tspan></text>
+      <text id="text_184" y="46.239338" x="112.29028" xml:space="preserve" class="text_0"><tspan id="tspan_184" y="46.239338" x="112.29028" class="tspan_0">S</tspan></text>
+      <text id="text_185" y="48.275948" x="112.29921" xml:space="preserve" class="text_0"><tspan id="tspan_185" y="48.275948" x="112.29921" class="tspan_0">G</tspan></text>
+      <text xml:space="preserve" x="118.49001" y="37.715714" id="text_186" class="text_0"><tspan x="118.49001" y="37.715714" id="tspan_186" class="tspan_1">MUX</tspan></text>
+      <text xml:space="preserve" x="109.46593" y="34.651375" id="text_187" class="text_0"><tspan x="109.46593" y="34.651375" id="tspan_187" class="tspan_1">6</tspan></text>
+      <text xml:space="preserve" x="109.56734" y="38.803856" id="text_188" class="text_0"><tspan x="109.56734" y="38.803856" id="tspan_188" class="tspan_1">13</tspan></text>
+      <text xml:space="preserve" x="109.67847" y="43.070557" id="text_189" class="text_0"><tspan x="109.67847" y="43.070557" id="tspan_189" class="tspan_1">3</tspan></text>
+      <ellipse id="ellipse_11" ry="0.48355335" rx="0.44926631" cy="47.734436" cx="110.14376" class="ellipse_0"/>
+    </g>
+    <g id="chip#F3_74LS157_0" transform="translate(66.061375,79.273343)" class="g_0">
+      <rect id="rect_7" width="12.573433" height="22.896053" x="110.70764" y="26.883739" class="rect_0"/>
+      <text xml:space="preserve" x="116.91093" y="28.441612" id="text_190" class="text_0"><tspan x="116.91093" y="28.441612" id="tspan_190" class="tspan_0">F3</tspan></text>
+      <text id="text_191" y="30.414206" x="118.11612" xml:space="preserve" class="text_0"><tspan id="tspan_191" y="30.414206" x="118.11612" class="tspan_0">74LS157</tspan></text>
+      <text id="text_192" y="35.662094" x="116.92163" xml:space="preserve" class="text_0"><tspan id="tspan_192" y="35.662094" x="116.92163" class="tspan_0">2TO1</tspan></text>
+      <text xml:space="preserve" x="112.90285" y="37.972382" id="text_193" class="text_0"><tspan x="112.90285" y="37.972382" id="tspan_193" class="tspan_0">2A</tspan></text>
+      <text id="text_194" y="40.004753" x="112.90285" xml:space="preserve" class="text_0"><tspan id="tspan_194" y="40.004753" x="112.90285" class="tspan_0">2B</tspan></text>
+      <text id="text_195" y="31.590988" x="112.84057" xml:space="preserve" class="text_0"><tspan id="tspan_195" y="31.590988" x="112.84057" class="tspan_0">1B</tspan></text>
+      <text id="text_196" y="29.556007" x="112.84057" xml:space="preserve" class="text_0"><tspan id="tspan_196" y="29.556007" x="112.84057" class="tspan_0">1A</tspan></text>
+      <text id="text_197" y="42.099136" x="113.90747" xml:space="preserve" class="text_0"><tspan id="tspan_197" y="42.099136" x="113.90747" class="tspan_1">3A</tspan></text>
+      <text xml:space="preserve" x="113.90747" y="44.184853" id="text_198" class="text_0"><tspan x="113.90747" y="44.184853" id="tspan_198" class="tspan_1">3B</tspan></text>
+      <text xml:space="preserve" x="122.199" y="42.051472" id="text_199" class="text_0"><tspan x="122.199" y="42.051472" id="tspan_199" class="tspan_1">Y2</tspan></text>
+      <text xml:space="preserve" x="122.2893" y="46.035221" id="text_200" class="text_0"><tspan x="122.2893" y="46.035221" id="tspan_200" class="tspan_1">Y3</tspan></text>
+      <text id="text_201" y="37.750927" x="122.28177" xml:space="preserve" class="text_0"><tspan id="tspan_201" y="37.750927" x="122.28177" class="tspan_1">Y4</tspan></text>
+      <text xml:space="preserve" x="122.20606" y="33.683781" id="text_202" class="text_0"><tspan x="122.20606" y="33.683781" id="tspan_202" class="tspan_1">Y1</tspan></text>
+      <text id="text_203" y="33.596306" x="116.89218" xml:space="preserve" class="text_0"><tspan id="tspan_203" y="33.596306" x="116.89218" class="tspan_0">QUAD</tspan></text>
+      <text id="text_204" y="33.829258" x="112.90179" xml:space="preserve" class="text_0"><tspan id="tspan_204" y="33.829258" x="112.90179" class="tspan_0">4A</tspan></text>
+      <text xml:space="preserve" x="112.90179" y="35.918175" id="text_205" class="text_0"><tspan x="112.90179" y="35.918175" id="tspan_205" class="tspan_0">4B</tspan></text>
+      <text id="text_206" y="32.567242" x="125.5328" xml:space="preserve" class="text_0"><tspan id="tspan_206" y="32.567242" x="125.5328" class="tspan_1">4</tspan></text>
+      <text xml:space="preserve" x="109.6216" y="36.821991" id="text_207" class="text_0"><tspan x="109.6216" y="36.821991" id="tspan_207" class="tspan_1">5</tspan></text>
+      <text xml:space="preserve" x="109.65136" y="47.193195" id="text_208" class="text_0"><tspan x="109.65136" y="47.193195" id="tspan_208" class="tspan_1">15</tspan></text>
+      <text xml:space="preserve" x="109.6356" y="43.093853" id="text_209" class="text_0"><tspan x="109.6356" y="43.093853" id="tspan_209" class="tspan_1">10</tspan></text>
+      <text id="text_210" y="45.155441" x="125.57636" xml:space="preserve" class="text_0"><tspan id="tspan_210" y="45.155441" x="125.57636" class="tspan_1">9</tspan></text>
+      <text id="text_211" y="45.070858" x="109.71223" xml:space="preserve" class="text_0"><tspan id="tspan_211" y="45.070858" x="109.71223" class="tspan_1">1</tspan></text>
+      <text xml:space="preserve" x="109.64466" y="32.716606" id="text_212" class="text_0"><tspan x="109.64466" y="32.716606" id="tspan_212" class="tspan_1">14</tspan></text>
+      <text xml:space="preserve" x="109.75643" y="28.379086" id="text_213" class="text_0"><tspan x="109.75643" y="28.379086" id="tspan_213" class="tspan_1">2</tspan></text>
+      <text xml:space="preserve" x="125.58749" y="40.91407" id="text_214" class="text_0"><tspan x="125.58749" y="40.91407" id="tspan_214" class="tspan_1">7</tspan></text>
+      <text id="text_215" y="36.779179" x="126.39044" xml:space="preserve" class="text_0"><tspan id="tspan_215" y="36.779179" x="126.39044" class="tspan_1">12</tspan></text>
+      <text xml:space="preserve" x="109.63716" y="41.008228" id="text_216" class="text_0"><tspan x="109.63716" y="41.008228" id="tspan_216" class="tspan_1">11</tspan></text>
+      <text xml:space="preserve" x="112.29028" y="46.239338" id="text_217" class="text_0"><tspan x="112.29028" y="46.239338" id="tspan_217" class="tspan_0">S</tspan></text>
+      <text xml:space="preserve" x="112.29921" y="48.275948" id="text_218" class="text_0"><tspan x="112.29921" y="48.275948" id="tspan_218" class="tspan_0">G</tspan></text>
+      <text id="text_219" y="37.715714" x="118.49001" xml:space="preserve" class="text_0"><tspan id="tspan_219" y="37.715714" x="118.49001" class="tspan_1">MUX</tspan></text>
+      <text id="text_220" y="38.908501" x="109.58965" xml:space="preserve" class="text_0"><tspan id="tspan_220" y="38.908501" x="109.58965" class="tspan_1">6</tspan></text>
+      <text id="text_221" y="34.800091" x="109.68999" xml:space="preserve" class="text_0"><tspan id="tspan_221" y="34.800091" x="109.68999" class="tspan_1">13</tspan></text>
+      <text id="text_222" y="30.565075" x="109.73991" xml:space="preserve" class="text_0"><tspan id="tspan_222" y="30.565075" x="109.73991" class="tspan_1">3</tspan></text>
+      <ellipse cx="110.14376" cy="47.734436" rx="0.44926631" ry="0.48355335" id="ellipse_12" class="ellipse_0"/>
+    </g>
+    <g id="chip#H5_74LS00_0" transform="translate(5.1529365,83.119689)" class="g_0">
+      <path d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" id="path_8" class="path_0"/>
+      <ellipse id="ellipse_13" ry="0.48355335" rx="0.44926631" cy="75.466316" cx="126.56069" class="ellipse_1"/>
+      <text xml:space="preserve" x="122.76205" y="76.01667" id="text_223" class="text_0"><tspan x="122.76205" y="76.01667" id="tspan_223" class="tspan_0">H5</tspan></text>
+      <text id="text_224" y="74.957977" x="127.4677" xml:space="preserve" class="text_0"><tspan id="tspan_224" y="74.957977" x="127.4677" class="tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="118.05068" y="77.080338" id="text_225" class="text_0"><tspan x="118.05068" y="77.080338" id="tspan_225" class="tspan_0">5</tspan></text>
+      <text xml:space="preserve" x="118.07848" y="72.750664" id="text_226" class="text_0"><tspan x="118.07848" y="72.750664" id="tspan_226" class="tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="122.75421" y="80.107811" id="text_227" class="text_0"><tspan x="122.75421" y="80.107811" id="tspan_227" class="tspan_0">74LS00</tspan></text>
+    </g>
+    <g transform="translate(21.265777,-31.683106)" id="chip#A5_74LS10_0" class="g_0">
+      <path id="path_9" d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" class="path_0"/>
+      <ellipse cx="126.56069" cy="75.466316" rx="0.44926631" ry="0.48355335" id="ellipse_14" class="ellipse_1"/>
+      <text id="text_228" y="76.01667" x="122.76205" xml:space="preserve" class="text_0"><tspan id="tspan_228" y="76.01667" x="122.76205" class="tspan_0">A5</tspan></text>
+      <text xml:space="preserve" x="127.4677" y="74.957977" id="text_229" class="text_0"><tspan x="127.4677" y="74.957977" id="tspan_229" class="tspan_0">8</tspan></text>
+      <text id="text_230" y="77.100334" x="118.52953" xml:space="preserve" class="text_0"><tspan id="tspan_230" y="77.100334" x="118.52953" class="tspan_1">10</tspan></text>
+      <text id="text_231" y="72.846176" x="118.53503" xml:space="preserve" class="text_0"><tspan id="tspan_231" y="72.846176" x="118.53503" class="tspan_1">9</tspan></text>
+      <text id="text_232" y="80.107811" x="122.75421" xml:space="preserve" class="text_0"><tspan id="tspan_232" y="80.107811" x="122.75421" class="tspan_0">74LS10</tspan></text>
+      <text xml:space="preserve" x="118.56603" y="74.969246" id="text_233" class="text_0"><tspan x="118.56603" y="74.969246" id="tspan_233" class="tspan_1">11</tspan></text>
+    </g>
+    <g id="chip#A5_74LS10_1" transform="translate(21.296514,-21.17403)" class="g_0">
+      <path d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" id="path_10" class="path_0"/>
+      <ellipse id="ellipse_15" ry="0.48355335" rx="0.44926631" cy="75.466316" cx="126.56069" class="ellipse_1"/>
+      <text xml:space="preserve" x="122.76205" y="76.01667" id="text_234" class="text_0"><tspan x="122.76205" y="76.01667" id="tspan_234" class="tspan_0">A5</tspan></text>
+      <text id="text_235" y="74.90831" x="127.99966" xml:space="preserve" class="text_0"><tspan id="tspan_235" y="74.90831" x="127.99966" class="tspan_0">12</tspan></text>
+      <text xml:space="preserve" x="118.52953" y="77.100334" id="text_236" class="text_0"><tspan x="118.52953" y="77.100334" id="tspan_236" class="tspan_1">1</tspan></text>
+      <text xml:space="preserve" x="118.53503" y="72.846176" id="text_237" class="text_0"><tspan x="118.53503" y="72.846176" id="tspan_237" class="tspan_1">13</tspan></text>
+      <text xml:space="preserve" x="122.75421" y="80.107811" id="text_238" class="text_0"><tspan x="122.75421" y="80.107811" id="tspan_238" class="tspan_0">74LS10</tspan></text>
+      <text id="text_239" y="74.969246" x="118.56603" xml:space="preserve" class="text_0"><tspan id="tspan_239" y="74.969246" x="118.56603" class="tspan_1">2</tspan></text>
+    </g>
+    <g transform="translate(-35.270502,-23.133651)" id="chip#F1_74LS08_0" class="g_0">
+      <path id="path_11" d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" class="path_0"/>
+      <text id="text_240" y="76.01667" x="122.76205" xml:space="preserve" class="text_0"><tspan id="tspan_240" y="76.01667" x="122.76205" class="tspan_0">F1</tspan></text>
+      <text xml:space="preserve" x="127.38922" y="74.948524" id="text_241" class="text_0"><tspan x="127.38922" y="74.948524" id="tspan_241" class="tspan_0">6</tspan></text>
+      <text id="text_242" y="77.098351" x="117.98603" xml:space="preserve" class="text_0"><tspan id="tspan_242" y="77.098351" x="117.98603" class="tspan_0">4</tspan></text>
+      <text id="text_243" y="72.882828" x="117.96758" xml:space="preserve" class="text_0"><tspan id="tspan_243" y="72.882828" x="117.96758" class="tspan_0">5</tspan></text>
+      <text id="text_244" y="80.107811" x="122.75421" xml:space="preserve" class="text_0"><tspan id="tspan_244" y="80.107811" x="122.75421" class="tspan_0">74LS08</tspan></text>
+    </g>
+    <g transform="translate(-47.073851,85.334577)" id="chip#H5_74LS00_1" class="g_0">
+      <g transform="translate(61.791641,10.163309)" id="g_2" class="g_1">
+        <title id="title_0">Nor Gate</title>
+        <path id="path_12" d="m 8.8024793,13.567913 h 2.8214917 c 2.773818,0 4.160725,-2.393442 4.160725,-2.393442 0,0 -0.693453,-2.3934435 -4.160725,-2.3934435 H 8.8024793 c 0.2482475,0.3702894 0.4370662,0.7723015 0.5634321,1.1967215 0.1139201,0.382606 0.1776981,0.783352 0.1776981,1.196722 0,0.413368 -0.063789,0.814114 -0.1776981,1.196721 -0.1263685,0.424419 -0.3151846,0.826432 -0.5634321,1.196721 z" class="path_2"/>
+      </g>
+      <ellipse cx="70.103149" cy="19.302372" rx="0.44926631" ry="0.48355335" id="ellipse_16" class="ellipse_0"/>
+      <ellipse cx="70.223503" cy="23.424683" rx="0.44926631" ry="0.48355335" id="ellipse_17" class="ellipse_0"/>
+      <text xml:space="preserve" x="74.457664" y="21.871925" id="text_245" class="text_0"><tspan id="tspan_245" x="74.457664" y="21.871925" class="tspan_0">H5</tspan><tspan x="74.457664" y="35.101051" id="tspan_246" class="tspan_0"/></text>
+      <text id="text_246" y="26.00955" x="74.493942" xml:space="preserve" class="text_0"><tspan y="26.00955" x="74.493942" id="tspan_247" class="tspan_0">74LS00</tspan><tspan id="tspan_248" y="39.238674" x="74.493942" class="tspan_0"/></text>
+      <text id="text_247" y="20.744986" x="79.493401" xml:space="preserve" class="text_0"><tspan y="20.744986" x="79.493401" id="tspan_249" class="tspan_0">11</tspan><tspan id="tspan_250" y="33.97411" x="79.493401" class="tspan_0"/></text>
+      <text xml:space="preserve" x="68.763039" y="18.623922" id="text_248" class="text_0"><tspan id="tspan_251" x="68.763039" y="18.623922" class="tspan_0">13</tspan><tspan x="68.763039" y="31.853046" id="tspan_252" class="tspan_0"/></text>
+      <text xml:space="preserve" x="68.777222" y="22.843058" id="text_249" class="text_0"><tspan id="tspan_253" x="68.777222" y="22.843058" class="tspan_0">12</tspan><tspan x="68.777222" y="36.072182" id="tspan_254" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(43.809241,87.168666)" id="chip#G1_74LS08_0" class="g_0">
+      <path id="path_13" d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" class="path_0"/>
+      <text id="text_250" y="76.01667" x="122.76205" xml:space="preserve" class="text_0"><tspan id="tspan_255" y="76.01667" x="122.76205" class="tspan_0">G1</tspan></text>
+      <text xml:space="preserve" x="127.38922" y="74.948524" id="text_251" class="text_0"><tspan x="127.38922" y="74.948524" id="tspan_256" class="tspan_0">3</tspan></text>
+      <text id="text_252" y="77.098351" x="117.98603" xml:space="preserve" class="text_0"><tspan id="tspan_257" y="77.098351" x="117.98603" class="tspan_0">1</tspan></text>
+      <text id="text_253" y="72.882828" x="117.96758" xml:space="preserve" class="text_0"><tspan id="tspan_258" y="72.882828" x="117.96758" class="tspan_0">2</tspan></text>
+      <text id="text_254" y="80.107811" x="122.75421" xml:space="preserve" class="text_0"><tspan id="tspan_259" y="80.107811" x="122.75421" class="tspan_0">74LS08</tspan></text>
+    </g>
+    <g id="chip#G2_74LS20_0" transform="translate(-49.443883,85.274836)" class="g_0">
+      <path d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" id="path_14" class="path_0"/>
+      <ellipse id="ellipse_18" ry="0.48355335" rx="0.44926631" cy="75.466316" cx="126.56069" class="ellipse_1"/>
+      <text xml:space="preserve" x="122.76205" y="76.01667" id="text_255" class="text_0"><tspan x="122.76205" y="76.01667" id="tspan_260" class="tspan_0">G2</tspan></text>
+      <text id="text_256" y="74.957977" x="127.4677" xml:space="preserve" class="text_0"><tspan id="tspan_261" y="74.957977" x="127.4677" class="tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="118.52953" y="77.100334" id="text_257" class="text_0"><tspan x="118.52953" y="77.100334" id="tspan_262" class="tspan_1">2</tspan></text>
+      <text xml:space="preserve" x="118.53503" y="72.846176" id="text_258" class="text_0"><tspan x="118.53503" y="72.846176" id="tspan_263" class="tspan_1">1</tspan></text>
+      <text xml:space="preserve" x="123.48064" y="80.165749" id="text_259" class="text_0"><tspan x="123.48064" y="80.165749" id="tspan_264" class="tspan_0">74LS20</tspan></text>
+      <text id="text_260" y="74.969246" x="118.56603" xml:space="preserve" class="text_0"><tspan id="tspan_265" y="74.969246" x="118.56603" class="tspan_1">5</tspan></text>
+      <text id="text_261" y="79.056641" x="118.58496" xml:space="preserve" class="text_0"><tspan id="tspan_266" y="79.056641" x="118.58496" class="tspan_1">4</tspan></text>
+      <path id="path_15" d="m 119.667,77.871844 v 2.799125" class="path_0"/>
+    </g>
+    <g transform="translate(-22.182004,85.246839)" id="chip#G2_74LS20_1" class="g_0">
+      <path id="path_16" d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" class="path_0"/>
+      <ellipse cx="126.56069" cy="75.466316" rx="0.44926631" ry="0.48355335" id="ellipse_19" class="ellipse_1"/>
+      <text id="text_262" y="76.01667" x="122.76205" xml:space="preserve" class="text_0"><tspan id="tspan_267" y="76.01667" x="122.76205" class="tspan_0">G2</tspan></text>
+      <text xml:space="preserve" x="127.4677" y="74.957977" id="text_263" class="text_0"><tspan x="127.4677" y="74.957977" id="tspan_268" class="tspan_0">8</tspan></text>
+      <text id="text_264" y="77.100334" x="118.52953" xml:space="preserve" class="text_0"><tspan id="tspan_269" y="77.100334" x="118.52953" class="tspan_1">13</tspan></text>
+      <text id="text_265" y="72.846176" x="118.53503" xml:space="preserve" class="text_0"><tspan id="tspan_270" y="72.846176" x="118.53503" class="tspan_1">12</tspan></text>
+      <text id="text_266" y="80.165749" x="123.48064" xml:space="preserve" class="text_0"><tspan id="tspan_271" y="80.165749" x="123.48064" class="tspan_0">74LS20</tspan></text>
+      <text xml:space="preserve" x="118.56603" y="74.969246" id="text_267" class="text_0"><tspan x="118.56603" y="74.969246" id="tspan_272" class="tspan_1">10</tspan></text>
+      <text xml:space="preserve" x="118.58496" y="79.056641" id="text_268" class="text_0"><tspan x="118.58496" y="79.056641" id="tspan_273" class="tspan_1">9</tspan></text>
+      <path d="m 119.667,77.871844 v 2.799125" id="path_17" class="path_0"/>
+    </g>
+    <g transform="translate(76.19734,118.29084)" id="chip#I1_74LS04_0" class="g_0">
+      <g id="g_3" transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" class="g_1">
+        <title id="title_1">Not Gate Small</title>
+        <path d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" id="path_18" class="path_3"/>
+        <path d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" id="path_19" class="path_4"/>
+      </g>
+      <text xml:space="preserve" x="37.642185" y="42.86232" id="text_269" class="text_0"><tspan id="tspan_274" x="37.642185" y="42.86232" class="tspan_0">I1</tspan><tspan x="37.642185" y="56.091446" id="tspan_275" class="tspan_0"/></text>
+      <text id="text_270" y="45.942654" x="38.993382" xml:space="preserve" class="text_0"><tspan id="tspan_276" y="45.942654" x="38.993382" class="tspan_0">74LS04</tspan></text>
+      <text id="text_271" y="41.705822" x="34.404282" xml:space="preserve" class="text_0"><tspan id="tspan_277" y="41.705822" x="34.404282" class="tspan_0">9</tspan></text>
+      <text xml:space="preserve" x="41.713264" y="41.707767" id="text_272" class="text_0"><tspan id="tspan_278" x="41.713264" y="41.707767" class="tspan_0">8</tspan><tspan x="41.713264" y="54.936893" id="tspan_279" class="tspan_0"/></text>
+    </g>
+    <g id="chip#I1_74LS04_1" transform="translate(7.1384976,120.53222)" class="g_0">
+      <g transform="matrix(0.64625841,0,0,0.71514377,29.589227,32.87493)" id="g_4" class="g_1">
+        <title id="title_2">Not Gate Small</title>
+        <path id="path_20" d="m 17.859375,13.229167 c 0,0.365313 -0.296145,0.661458 -0.661458,0.661458 -0.365314,0 -0.661459,-0.296145 -0.661459,-0.661458 0,-0.365314 0.296145,-0.661459 0.661459,-0.661459 0.365313,0 0.661458,0.296145 0.661458,0.661459 z" class="path_3"/>
+        <path id="path_21" d="M 9.9778537,10.583333 16.592437,13.229167 9.9778537,15.875 Z" class="path_4"/>
+      </g>
+      <text id="text_273" y="42.86232" x="37.642185" xml:space="preserve" class="text_0"><tspan y="42.86232" x="37.642185" id="tspan_280" class="tspan_0">I1</tspan><tspan id="tspan_281" y="56.091446" x="37.642185" class="tspan_0"/></text>
+      <text xml:space="preserve" x="38.993382" y="45.942654" id="text_274" class="text_0"><tspan x="38.993382" y="45.942654" id="tspan_282" class="tspan_0">74LS04</tspan></text>
+      <text xml:space="preserve" x="34.404282" y="41.705822" id="text_275" class="text_0"><tspan x="34.404282" y="41.705822" id="tspan_283" class="tspan_0">5</tspan></text>
+      <text id="text_276" y="41.707767" x="41.713264" xml:space="preserve" class="text_0"><tspan id="tspan_284" y="41.707767" x="41.713264" class="tspan_0">6</tspan></text>
+    </g>
+    <g id="passive#R45_0" transform="translate(2.0855251,-133.00565)" class="g_0">
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_22" class="path_5"/>
+      <text xml:space="preserve" x="134.98148" y="169.97726" id="text_277" class="text_0"><tspan x="134.98148" y="169.97726" id="tspan_285" class="tspan_0">R45</tspan></text>
+      <text id="text_278" y="172.06276" x="134.68881" xml:space="preserve" class="text_0"><tspan id="tspan_286" y="172.06276" x="134.68881" class="tspan_0">1K</tspan></text>
+    </g>
+    <g id="wire#VCC_0" transform="translate(2.0855251,-133.00565)" class="g_0">
+      <path id="wire#VCC_1" d="m 132.52297,168.81269 v -2.64816" class="path_6"/>
+      <text id="text_279" y="165.79825" x="132.368" xml:space="preserve" class="text_1"><tspan y="165.79825" x="132.368" id="tspan_287" class="tspan_0">+5V</tspan><tspan id="tspan_288" y="179.02737" x="132.368" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(39.759918,-128.92515)" id="passive#R40_0" class="g_0">
+      <path id="path_23" d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" class="path_5"/>
+      <text id="text_280" y="169.97726" x="134.98148" xml:space="preserve" class="text_0"><tspan id="tspan_289" y="169.97726" x="134.98148" class="tspan_0">R40</tspan></text>
+      <text xml:space="preserve" x="134.68881" y="172.06276" id="text_281" class="text_0"><tspan x="134.68881" y="172.06276" id="tspan_290" class="tspan_0">1K</tspan></text>
+    </g>
+    <g transform="translate(39.759918,-128.92515)" id="wire#VCC_2" class="g_0">
+      <path d="m 132.52297,168.81269 v -2.64816" id="wire#VCC_3" class="path_6"/>
+      <text xml:space="preserve" x="132.368" y="165.79825" id="text_282" class="text_1"><tspan id="tspan_291" x="132.368" y="165.79825" class="tspan_0">+5V</tspan><tspan x="132.368" y="179.02737" id="tspan_292" class="tspan_0"/></text>
+    </g>
+    <g id="passive#R27_0" transform="translate(-76.872899,-13.957616)" class="g_0">
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_24" class="path_5"/>
+      <text xml:space="preserve" x="134.98148" y="169.97726" id="text_283" class="text_0"><tspan x="134.98148" y="169.97726" id="tspan_293" class="tspan_0">R27</tspan></text>
+      <text id="text_284" y="172.06276" x="134.68881" xml:space="preserve" class="text_0"><tspan id="tspan_294" y="172.06276" x="134.68881" class="tspan_0">1K</tspan></text>
+    </g>
+    <g id="wire#VCC_4" transform="translate(-76.872899,-13.957616)" class="g_0">
+      <path id="wire#VCC_5" d="m 132.52297,168.81269 v -2.64816" class="path_6"/>
+      <text id="text_285" y="165.79825" x="132.368" xml:space="preserve" class="text_1"><tspan y="165.79825" x="132.368" id="tspan_295" class="tspan_0">+5V</tspan><tspan id="tspan_296" y="179.02737" x="132.368" class="tspan_0"/></text>
+    </g>
+    <g id="wire#GND_0" transform="translate(3.9362395,-57.546783)" class="g_0">
+      <path id="path_25" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_7"/>
+      <path id="path_26" d="m 50.828435,168.88631 h 1.469499" class="path_7"/>
+      <path id="path_27" d="m 51.119855,169.40964 h 0.78101" class="path_7"/>
+      <path d="m 55.582876,166.26318 h -4.069428 v 2.03418" id="path_28" class="path_8"/>
+    </g>
+    <g transform="translate(121.24119,-39.154983)" id="wire#GND_1" class="g_0">
+      <path d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" id="path_29" class="path_7"/>
+      <path d="m 50.828435,168.88631 h 1.469499" id="path_30" class="path_7"/>
+      <path d="m 51.119855,169.40964 h 0.78101" id="path_31" class="path_7"/>
+      <path id="path_32" d="m 54.504518,166.26318 h -2.99107 v 2.03418" class="path_8"/>
+    </g>
+    <g id="wire#GND_2" transform="translate(121.1928,-68.379274)" class="g_0">
+      <path id="path_33" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_7"/>
+      <path id="path_34" d="m 50.828435,168.88631 h 1.469499" class="path_7"/>
+      <path id="path_35" d="m 51.119855,169.40964 h 0.78101" class="path_7"/>
+      <path d="m 54.504518,166.26318 h -2.99107 v 2.03418" id="path_36" class="path_8"/>
+    </g>
+    <g id="wire#GND_3" transform="translate(121.19117,-97.563033)" class="g_0">
+      <path id="path_37" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_7"/>
+      <path id="path_38" d="m 50.828435,168.88631 h 1.469499" class="path_7"/>
+      <path id="path_39" d="m 51.119855,169.40964 h 0.78101" class="path_7"/>
+      <path d="m 54.504518,166.26318 h -2.99107 v 2.03418" id="path_40" class="path_8"/>
+    </g>
+    <g id="wire#VCC_6" class="g_0">
+      <g id="wire#TP2_0" transform="translate(75.00331,5.13545)" class="g_0">
+        <path d="m 53.301058,35.660593 v -1.13825 l 0.998618,-0.994911" id="path_41" class="path_9"/>
+        <path d="M 53.301058,34.522343 52.355229,33.533057" id="path_42" class="path_9"/>
+        <text xml:space="preserve" x="53.206234" y="33.015129" id="text_286" class="text_2"><tspan id="tspan_297" x="53.206234" y="33.015129" class="tspan_0">TP2</tspan><tspan x="53.206234" y="46.244255" id="tspan_298" class="tspan_0"/><tspan x="53.206234" y="59.473377" id="tspan_299" class="tspan_0"/></text>
+        <ellipse ry="0.21078888" rx="0.21147294" cx="53.320175" cy="33.575825" id="ellipse_20" class="ellipse_2"/>
+        <ellipse id="ellipse_21" cy="36.635643" cx="59.586926" rx="0.21147294" ry="0.21078888" class="ellipse_2"/>
+      </g>
+      <path d="m 128.30437,40.796043 v 0.920419 h 12.60296" id="path_43" class="path_10"/>
+      <path d="m 134.5904,39.46707 v 2.244132" id="path_44" class="path_10"/>
+    </g>
+    <g transform="translate(-39.05024,20.824409)" id="pointer#1_0" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_45" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_287" class="text_0"><tspan id="tspan_300" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_301" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BRW_0">
+      <path d="M 140.96928,43.807356 H 128.32034" id="path_46" class="path_11"/>
+      <text id="text_288" y="43.382046" x="132.02734" xml:space="preserve" class="text_3"><tspan y="43.382046" x="132.02734" id="tspan_302" class="tspan_0">B  R/W</tspan><tspan id="tspan_303" y="56.611172" x="132.02734" class="tspan_0"/><tspan id="tspan_304" y="69.840294" x="132.02734" class="tspan_0"/></text>
+    </g>
+    <g id="wire#TVSEL_0">
+      <path d="M 90.718459,52.301539 H 140.92185" id="path_47" class="path_12"/>
+      <path d="m 140.93602,45.709162 h -4.27188 v 6.62954" id="path_48" class="path_12"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="136.66898" cy="52.267029" id="ellipse_22" class="ellipse_3"/>
+      <text id="text_289" y="51.943409" x="106.10405" xml:space="preserve" class="text_4"><tspan y="51.943409" x="106.10405" id="tspan_305" class="tspan_0">TV  SEL</tspan><tspan id="tspan_306" y="65.172531" x="106.10405" class="tspan_0"/><tspan id="tspan_307" y="78.401657" x="106.10405" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-1.9640488,21.407576)" id="pointer#8_0" class="g_0">
+      <path d="m 162.45212,21.252366 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_49" class="path_0"/>
+      <text xml:space="preserve" x="164.20792" y="22.646132" id="text_290" class="text_0"><tspan x="164.20792" y="22.646132" id="tspan_308" class="tspan_0">8</tspan></text>
+    </g>
+    <g id="wire#/TVREAD_0">
+      <path id="path_50" d="M 159.77322,43.742257 H 148.33249" class="path_13"/>
+      <g transform="translate(-110.37851,0.01138751)" id="g_5" class="g_0">
+        <text id="text_291" y="43.275349" x="265.32123" xml:space="preserve" class="text_5"><tspan id="tspan_309" y="43.275349" x="265.32123" class="tspan_0">TV  READ</tspan></text>
+        <path id="path_51" d="m 262.00983,42.032994 h 6.56955" class="path_14"/>
+      </g>
+    </g>
+    <g id="pointer#1_1" transform="translate(-39.070796,31.188207)" class="g_0">
+      <path id="path_52" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_292" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_310" class="tspan_0">1</tspan><tspan id="tspan_311" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-0.02055571,10.363798)" id="wire#BRW_1" class="g_0">
+      <path id="path_53" d="M 140.96928,43.807356 H 128.32034" class="path_11"/>
+      <text xml:space="preserve" x="132.02734" y="43.382046" id="text_293" class="text_3"><tspan id="tspan_312" x="132.02734" y="43.382046" class="tspan_0">B  R/W</tspan><tspan x="132.02734" y="56.611172" id="tspan_313" class="tspan_0"/><tspan x="132.02734" y="69.840294" id="tspan_314" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-39.090706,33.339224)" id="pointer#1_2" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_54" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_294" class="text_0"><tspan id="tspan_315" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_316" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BPHI2_0">
+      <path d="m 128.27987,56.322171 h 12.64186" id="path_55" class="path_15"/>
+      <g id="g_6" transform="translate(-78.652605,-110.69474)" class="g_0">
+        <text xml:space="preserve" x="209.60358" y="166.70625" id="text_295" class="text_6"><tspan id="tspan_317" x="209.60358" y="166.70625" class="tspan_0">B02</tspan><tspan x="209.60358" y="179.93538" id="tspan_318" class="tspan_0"/></text>
+        <path d="m 210.04402,165.62044 -0.75965,1.16872" id="path_56" class="path_16"/>
+      </g>
+    </g>
+    <path id="wire#A512_0" d="m 148.33886,54.296928 h 2.99664 v 1.848286 h 25.40561" class="path_17"/>
+    <g id="wire#VCC_7">
+      <ellipse ry="0.21078888" rx="0.21147294" cx="172.25439" cy="49.792442" id="ellipse_23" class="ellipse_4"/>
+      <ellipse id="ellipse_24" cy="52.004391" cx="172.24715" rx="0.21147294" ry="0.21078888" class="ellipse_4"/>
+      <path d="m 172.2648,43.547569 v 10.420805 h 4.52722" id="path_57" class="path_10"/>
+      <path d="m 172.29598,49.799462 h 4.49968" id="path_58" class="path_10"/>
+      <path id="path_59" d="m 172.25544,51.984387 h 4.49968" class="path_6"/>
+    </g>
+    <g id="pointer#1_3" transform="translate(-99.890282,27.318123)" class="g_0">
+      <path id="path_60" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_296" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_319" class="tspan_0">1</tspan><tspan id="tspan_320" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-99.853282,31.420154)" id="pointer#1_4" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_61" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_297" class="text_0"><tspan id="tspan_321" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_322" class="tspan_0"/></text>
+    </g>
+    <g id="wire#/BA11_0">
+      <path d="M 67.480298,50.301069 H 84.425247" id="path_62" class="path_18"/>
+      <g id="g_7" transform="translate(22.270948,-16.816013)" class="g_0">
+        <text xml:space="preserve" x="48.380753" y="66.714684" id="text_298" class="text_7"><tspan id="tspan_323" x="48.380753" y="66.714684" class="tspan_0">BA11</tspan><tspan x="48.380753" y="79.94381" id="tspan_324" class="tspan_0"/></text>
+        <path d="m 46.568929,65.477991 h 3.54804 v 0.05265" id="path_63" class="path_19"/>
+      </g>
+    </g>
+    <g id="wire#SEL8_0">
+      <path d="M 67.517298,54.403101 H 84.383665" id="path_64" class="path_20"/>
+      <text xml:space="preserve" x="71.036079" y="54.00301" id="text_299" class="text_8"><tspan x="71.036079" y="54.00301" id="tspan_325" class="tspan_0">SEL 8</tspan></text>
+    </g>
+    <g transform="translate(-87.109708,37.706614)" id="pointer#6_0" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_65" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_300" class="text_0"><tspan x="163.86922" y="23.459679" id="tspan_326" class="tspan_0">6</tspan></text>
+    </g>
+    <g id="pointer#6_1" transform="translate(-86.937416,43.853377)" class="g_0">
+      <path id="path_66" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_301" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan id="tspan_327" y="23.459679" x="163.86922" class="tspan_0">6</tspan></text>
+    </g>
+    <g id="wire#/INIT_0">
+      <g transform="translate(-181.15,17.114127)" id="g_8" class="g_0">
+        <text id="text_302" y="43.189308" x="264.25369" xml:space="preserve" class="text_9"><tspan id="tspan_328" y="43.189308" x="264.25369" class="tspan_0">INIT</tspan></text>
+        <path id="path_67" d="m 262.83926,41.950613 h 2.81706" class="path_21"/>
+      </g>
+      <path id="path_68" d="M 80.260872,60.689561 H 101.39722" class="path_22"/>
+      <path id="path_69" d="M 101.39003,73.105485 H 94.889427 V 60.650032" class="path_22"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="94.87822" cy="60.65543" id="ellipse_25" class="ellipse_5"/>
+    </g>
+    <g id="wire#/RA1_0">
+      <path d="M 80.433164,66.836324 H 100.34319" id="path_70" class="path_23"/>
+      <g transform="translate(-182.50036,23.2497)" id="g_9" class="g_0">
+        <text id="text_303" y="43.27169" x="265.24875" xml:space="preserve" class="text_10"><tspan id="tspan_329" y="43.27169" x="265.24875" class="tspan_0">RA1</tspan></text>
+        <path id="path_71" d="m 263.91898,42.032994 h 2.83806" class="path_24"/>
+      </g>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="97.115257" cy="66.824303" id="ellipse_26" class="ellipse_6"/>
+      <path id="path_72" d="M 176.85575,58.170111 H 170.0975 V 49.948332 H 97.119539 v 16.8749" class="path_25"/>
+      <g id="g_10" transform="translate(-249.94997,64.902677)" class="g_0"/>
+    </g>
+    <path d="m 109.77866,73.056323 h 4.18072" id="wire#/G6Q_0" class="path_26"/>
+    <g id="wire#G6Q_0" class="g_0">
+      <ellipse ry="0.21078888" rx="0.21147294" cx="120.19984" cy="62.491238" id="ellipse_27" class="ellipse_7"/>
+      <path id="path_73" d="m 109.75736,60.514586 h 10.443 V 81.420487 H 99.260055 v 10.410267 h 5.422075" class="path_27"/>
+      <path id="path_74" d="M 176.76913,62.457755 H 120.18037" class="path_27"/>
+    </g>
+    <g id="pointer#1_5" transform="translate(-7.7715068,37.380218)" class="g_0">
+      <path id="path_75" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_304" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_330" class="tspan_0">1</tspan><tspan id="tspan_331" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA0_0">
+      <path id="path_76" d="m 159.59907,60.363165 h 17.14977" class="path_28"/>
+      <text xml:space="preserve" x="162.18106" y="60.013783" id="text_305" class="text_11"><tspan id="tspan_332" x="162.18106" y="60.013783" class="tspan_0">BA0</tspan><tspan x="162.18106" y="73.242905" id="tspan_333" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-7.8023653,41.598285)" id="pointer#1_6" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_77" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_306" class="text_0"><tspan id="tspan_334" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_335" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA1_0" transform="translate(-0.03086558,4.2180667)" class="g_0">
+      <path d="m 159.59907,60.363165 h 17.14977" id="path_78" class="path_29"/>
+      <text id="text_307" y="60.013783" x="162.18106" xml:space="preserve" class="text_12"><tspan y="60.013783" x="162.18106" id="tspan_336" class="tspan_0">BA1</tspan><tspan id="tspan_337" y="73.242905" x="162.18106" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-7.6391032,58.285865)" id="pointer#1_7" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_79" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_308" class="text_0"><tspan id="tspan_338" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_339" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA2_0" transform="translate(0.13240677,20.905647)" class="g_0">
+      <path d="m 159.59907,60.363165 h 17.14977" id="path_80" class="path_30"/>
+      <text id="text_309" y="60.013783" x="162.18106" xml:space="preserve" class="text_13"><tspan id="tspan_340" y="60.013783" x="162.18106" class="tspan_0">BA2</tspan></text>
+    </g>
+    <g id="pointer#1_8" transform="translate(-7.6699532,62.503932)" class="g_0">
+      <path id="path_81" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_310" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_341" class="tspan_0">1</tspan><tspan id="tspan_342" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(0.10154677,25.123714)" id="wire#BA3_0" class="g_0">
+      <path id="path_82" d="m 159.59907,60.363165 h 17.14977" class="path_31"/>
+      <text xml:space="preserve" x="162.18106" y="60.013783" id="text_311" class="text_14"><tspan id="tspan_343" x="162.18106" y="60.013783" class="tspan_0">BA3</tspan><tspan x="162.18106" y="73.242905" id="tspan_344" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-7.6846592,66.606142)" id="pointer#1_9" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_83" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_312" class="text_0"><tspan id="tspan_345" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_346" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA4_0" transform="translate(0.08685076,29.225924)" class="g_0">
+      <path d="m 159.59907,60.363165 h 17.14977" id="path_84" class="path_32"/>
+      <text id="text_313" y="60.013783" x="162.18106" xml:space="preserve" class="text_15"><tspan y="60.013783" x="162.18106" id="tspan_347" class="tspan_0">BA4</tspan><tspan id="tspan_348" y="73.242905" x="162.18106" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_10" transform="translate(-7.7155092,70.824209)" class="g_0">
+      <path id="path_85" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_314" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_349" class="tspan_0">1</tspan><tspan id="tspan_350" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(0.05599076,33.443991)" id="wire#BA5_0" class="g_0">
+      <path id="path_86" d="m 159.59907,60.363165 h 17.14977" class="path_33"/>
+      <text xml:space="preserve" x="162.18106" y="60.013783" id="text_315" class="text_16"><tspan id="tspan_351" x="162.18106" y="60.013783" class="tspan_0">BA5</tspan><tspan x="162.18106" y="73.242905" id="tspan_352" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_11" transform="translate(-7.6843684,87.454182)" class="g_0">
+      <path id="path_87" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_316" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_353" class="tspan_0">1</tspan><tspan id="tspan_354" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(0.0871417,50.073964)" id="wire#BA6_0" class="g_0">
+      <path id="path_88" d="m 159.59907,60.363165 h 17.14977" class="path_34"/>
+      <text xml:space="preserve" x="162.18106" y="60.013783" id="text_317" class="text_17"><tspan x="162.18106" y="60.013783" id="tspan_355" class="tspan_0">BA6</tspan></text>
+    </g>
+    <g transform="translate(-7.7152184,91.672249)" id="pointer#1_12" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_89" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_318" class="text_0"><tspan id="tspan_356" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_357" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA7_0" transform="translate(0.0562817,54.292031)" class="g_0">
+      <path d="m 159.59907,60.363165 h 17.14977" id="path_90" class="path_35"/>
+      <text id="text_319" y="60.013783" x="162.18106" xml:space="preserve" class="text_18"><tspan y="60.013783" x="162.18106" id="tspan_358" class="tspan_0">BA7</tspan><tspan id="tspan_359" y="73.242905" x="162.18106" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_13" transform="translate(-7.7299184,95.77446)" class="g_0">
+      <path id="path_91" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_320" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_360" class="tspan_0">1</tspan><tspan id="tspan_361" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(0.0415817,58.394242)" id="wire#BA8_0" class="g_0">
+      <path id="path_92" d="m 159.59907,60.363165 h 17.14977" class="path_36"/>
+      <text xml:space="preserve" x="162.18106" y="60.013783" id="text_321" class="text_19"><tspan id="tspan_362" x="162.18106" y="60.013783" class="tspan_0">BA8</tspan><tspan x="162.18106" y="73.242905" id="tspan_363" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-7.7607684,99.992527)" id="pointer#1_14" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_93" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_322" class="text_0"><tspan id="tspan_364" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_365" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA9_0" transform="translate(0.0107317,62.612309)" class="g_0">
+      <path d="m 159.59907,60.363165 h 17.14977" id="path_94" class="path_37"/>
+      <text id="text_323" y="60.013783" x="162.18106" xml:space="preserve" class="text_20"><tspan y="60.013783" x="162.18106" id="tspan_366" class="tspan_0">BA9</tspan><tspan id="tspan_367" y="73.242905" x="162.18106" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#6_2" transform="translate(-30.762475,43.771325)" class="g_0">
+      <path id="path_95" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_324" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan id="tspan_368" y="23.459679" x="163.86922" class="tspan_0">6</tspan></text>
+    </g>
+    <g id="wire#CLK1_0">
+      <path id="path_96" d="m 136.6081,66.754271 h 40.10119" class="path_38"/>
+      <path id="path_97" d="m 176.80663,124.99871 h -6.27766 V 66.726278" class="path_38"/>
+      <path id="path_98" d="m 176.74284,95.78723 h -6.1981" class="path_38"/>
+      <ellipse id="ellipse_28" cy="66.717659" cx="170.53279" rx="0.21147294" ry="0.21078888" class="ellipse_8"/>
+      <ellipse id="ellipse_29" cy="95.794441" cx="170.52164" rx="0.21147294" ry="0.21078888" class="ellipse_8"/>
+      <text xml:space="preserve" x="141.54788" y="66.186218" id="text_325" class="text_21"><tspan x="141.54788" y="66.186218" id="tspan_369" class="tspan_1">CLK1</tspan></text>
+    </g>
+    <path d="M 30.502487,106.67235 H 59.531363" id="wire#RELOADNEXT_0" class="path_39"/>
+    <g id="wire#GA2_0" class="g_0">
+      <path id="path_99" d="M 59.485894,89.99803 H 53.29407 V 135.7648 H 124.6763 V 79.332851 h 52.10834" class="path_40"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="124.6424" cy="85.511436" id="ellipse_30" class="ellipse_9"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="124.64853" cy="89.765747" id="ellipse_31" class="ellipse_9"/>
+      <path id="path_100" d="m 104.6743,89.80313 h -3.27611 v -4.270364 h 23.2374" class="path_40"/>
+      <path id="path_101" d="m 118.22117,89.785432 h 6.47572" class="path_40"/>
+    </g>
+    <g id="wire#GA3_0" class="g_0">
+      <path id="path_102" d="m 59.532353,92.0152 h -8.35787 v 45.75459 H 126.73133 V 83.452651 h 50.03043" class="path_41"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="126.68916" cy="93.900169" id="ellipse_32" class="ellipse_10"/>
+      <path id="path_103" d="m 118.21765,93.915845 h 8.56461" class="path_41"/>
+    </g>
+    <g id="wire#GA4_0">
+      <path id="path_104" d="M 59.475557,94.118982 H 49.198397 V 139.91804 H 128.79987 V 87.646504 h 48.00719" class="path_42"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="128.79826" cy="98.094574" id="ellipse_33" class="ellipse_11"/>
+      <path id="path_105" d="m 118.17957,98.110325 h 10.60119" class="path_42"/>
+    </g>
+    <g id="wire#GA5_0">
+      <ellipse ry="0.21078888" rx="0.21147294" cx="130.87798" cy="108.4715" id="ellipse_34" class="ellipse_12"/>
+      <g id="g_11" class="g_0">
+        <path d="M 59.458685,96.221602 H 47.090991 V 141.98645 H 130.8646 V 91.819679 h 45.9114" id="path_106" class="path_43"/>
+        <ellipse id="ellipse_35" cy="102.21532" cx="130.86823" rx="0.21147294" ry="0.21078888" class="ellipse_12"/>
+        <path d="m 118.18858,102.22021 h 12.65121" id="path_107" class="path_43"/>
+      </g>
+      <path id="path_108" d="M 104.69867,118.96159 H 99.499723 V 108.5156 h 31.346687" class="path_43"/>
+    </g>
+    <g id="wire#GA7_0" class="g_0">
+      <path id="path_109" d="M 59.50038,100.36208 H 42.904671 v 45.80218 h 92.253569 v -33.58773 h 41.57387" class="path_44"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="135.13208" cy="121.0249" id="ellipse_36" class="ellipse_13"/>
+      <path id="path_110" d="M 118.21957,121.01614 H 135.1545" class="path_44"/>
+    </g>
+    <g id="wire#GA8_0" class="g_0">
+      <path id="path_111" d="M 59.474967,102.45486 H 40.78806 v 45.85166 h 96.37176 v -31.40704 h 39.62534" class="path_45"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="137.16711" cy="125.17779" id="ellipse_37" class="ellipse_14"/>
+      <path id="path_112" d="m 118.21199,125.18952 h 18.95097" class="path_45"/>
+    </g>
+    <g id="wire#GA9_0" class="g_0">
+      <path id="path_113" d="M 59.548439,104.53217 H 38.734912 v 45.76931 H 139.43481 v -29.30894 h 37.26138" class="path_46"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="139.45491" cy="129.36418" id="ellipse_38" class="ellipse_15"/>
+      <path id="path_114" d="m 118.2061,129.35419 h 21.24405" class="path_46"/>
+    </g>
+    <g id="wire#HORZDISPON_0">
+      <ellipse ry="0.21078888" rx="0.21147294" cx="97.329025" cy="79.393944" id="ellipse_39" class="ellipse_16"/>
+      <path id="path_115" d="m 105.60197,76.161428 v 3.212547 H 67.881941" class="path_47"/>
+      <g id="g_12">
+        <ellipse id="ellipse_40" cy="93.975182" cx="97.309608" rx="0.21147294" ry="0.21078888" class="ellipse_16"/>
+        <path d="M 105.68475,121.05943 H 97.319924 V 79.36078" id="path_116" class="path_47"/>
+        <path d="M 105.64011,93.969093 H 97.369457" id="path_117" class="path_47"/>
+      </g>
+      <text id="text_326" y="79.017311" x="74.456551" xml:space="preserve" class="text_22"><tspan id="tspan_370" y="79.017311" x="74.456551" class="tspan_0">HORZ  DISP  ON</tspan></text>
+    </g>
+    <g transform="translate(-99.488639,56.391028)" id="pointer#6_3" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_118" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_327" class="text_0"><tspan x="163.86922" y="23.459679" id="tspan_371" class="tspan_0">6</tspan></text>
+    </g>
+    <g id="wire#/NEXT_0" class="g_0">
+      <g id="g_13" class="g_0">
+        <g id="g_14">
+          <text id="text_328" y="43.471363" x="265.63831" xml:space="preserve" transform="translate(-249.94997,64.902678)" class="text_23"><tspan id="tspan_372" y="43.471363" x="265.63831" class="tspan_0">NEXT</tspan></text>
+          <path id="path_119" d="m 263.88551,42.232666 h 3.69985" transform="translate(-249.94997,64.902678)" class="path_48"/>
+        </g>
+        <path d="m 22.685477,108.7482 h -8.869016 v 68.51835 H 200.54462 v -25.35596 h -15.00666" id="path_120" class="path_49"/>
+        <text id="text_329" y="151.66" x="195.81572" xml:space="preserve" class="text_23"><tspan id="tspan_373" y="151.66" x="195.81572" class="tspan_0">NEXT</tspan></text>
+        <path id="path_121" d="m 194.06293,150.42131 h 3.69985" class="path_48"/>
+        <path id="path_122" d="M 104.63927,123.17113 H 13.782149" class="path_49"/>
+        <ellipse id="ellipse_41" cy="123.18027" cx="13.805242" rx="0.21147294" ry="0.21078888" class="ellipse_17"/>
+      </g>
+      <g id="g_15">
+        <ellipse id="ellipse_42" cy="123.16095" cx="95.07341" rx="0.21147294" ry="0.21078888" class="ellipse_17"/>
+        <path d="M 104.62694,96.023267 H 95.063809 V 123.24119" id="path_123" class="path_49"/>
+      </g>
+    </g>
+    <path d="m 72.085294,89.874136 h 18.864559 v 8.319143 h 14.756817" id="wire#LGA2_0" class="path_50"/>
+    <path d="m 72.046779,94.129988 h 14.668092 v 8.203862 h 18.932719" id="wire#LGA4_0" class="path_51"/>
+    <path d="m 72.089858,96.174858 h 12.60615 v 8.321392 h 20.984742" id="wire#LGA5_0" class="path_52"/>
+    <g id="wire#LGA6_0" class="g_0">
+      <ellipse ry="0.21078888" rx="0.21147294" cx="88.981537" cy="125.22018" id="ellipse_43" class="ellipse_18"/>
+      <path id="path_124" d="M 72.171165,98.269106 H 82.615536 V 125.2062 h 23.032784" class="path_53"/>
+      <path id="path_125" d="m 88.97921,125.20597 v 33.345 h 8.492667" class="path_53"/>
+    </g>
+    <g id="wire#LGA7_0" class="g_0">
+      <ellipse ry="0.21078888" rx="0.21147294" cx="86.930969" cy="127.49323" id="ellipse_44" class="ellipse_19"/>
+      <path id="path_126" d="m 72.087138,100.28279 h 8.403376 v 27.19102 h 25.250296" class="path_54"/>
+      <path d="m 86.913383,127.46282 v 33.345 h 10.512215" id="path_127" class="path_55"/>
+    </g>
+    <g id="wire#LGA8_0">
+      <ellipse ry="0.21078888" rx="0.21147294" cx="84.806923" cy="129.42165" id="ellipse_45" class="ellipse_20"/>
+      <path id="path_128" d="m 72.059535,102.42402 h 6.336389 v 26.98645 h 27.262416" class="path_56"/>
+      <path d="m 84.788521,129.44436 v 33.345 h 12.723042" id="path_129" class="path_57"/>
+    </g>
+    <g id="wire#LGA9_0" class="g_0">
+      <ellipse ry="0.21078888" rx="0.21147294" cx="82.731819" cy="131.55049" id="ellipse_46" class="ellipse_21"/>
+      <path id="path_130" d="m 72.060201,104.52884 h 4.263229 v 27.00425 h 29.3984" class="path_58"/>
+      <path d="m 82.734771,131.53365 v 33.345 h 14.734456" id="path_131" class="path_59"/>
+    </g>
+    <g id="wire#/RELOAD_0">
+      <g id="g_16" transform="translate(0.35301526,-4.1955535)" class="g_0">
+        <text transform="translate(-249.94997,64.902678)" xml:space="preserve" x="265.63831" y="43.471363" id="text_330" class="text_24"><tspan x="265.63831" y="43.471363" id="tspan_374" class="tspan_0">RELOAD</tspan></text>
+        <path transform="translate(-249.94997,64.902678)" d="m 262.83419,42.232666 h 5.69129" id="path_132" class="path_60"/>
+      </g>
+      <path id="path_133" d="M 22.605352,104.65882 H 12.83366" class="path_61"/>
+    </g>
+    <g id="pointer#8_1" transform="translate(-154.53692,81.675873)" class="g_0">
+      <path id="path_134" d="m 163.3752,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 2.08677 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_331" y="23.348875" x="164.60616" xml:space="preserve" class="text_0"><tspan id="tspan_375" y="23.348875" x="164.60616" class="tspan_0">8</tspan></text>
+    </g>
+    <g id="wire#GA6_0" class="g_0">
+      <g id="g_17">
+        <ellipse id="ellipse_47" cy="116.83761" cx="132.98308" rx="0.21147294" ry="0.21078888" class="ellipse_22"/>
+        <g id="g_18" class="g_0">
+          <path id="path_135" d="M 59.495287,98.292808 H 44.980899 v 45.747722 h 88.026581 v -35.5943 h 43.61742" class="path_62"/>
+          <ellipse ry="0.21078888" rx="0.21147294" cx="133.00714" cy="110.5838" id="ellipse_48" class="ellipse_22"/>
+          <path id="path_136" d="m 104.68802,116.87059 h -3.15162 v -6.31729 h 31.47855" class="path_62"/>
+        </g>
+        <path d="m 118.24406,116.85292 h 14.7404" id="path_137" class="path_62"/>
+      </g>
+      <path id="path_138" d="M 70.265572,158.76164 H 63.947394 V 144.09653" class="path_62"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="63.949142" cy="144.03818" id="ellipse_49" class="ellipse_22"/>
+    </g>
+    <path d="M 48.269495,162.8679 H 70.227054" id="wire#/VIDEOON_0" class="path_63"/>
+    <g id="pointer#8_2" transform="translate(-109.79652,141.93326)" class="g_0">
+      <path id="path_139" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_332" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan id="tspan_376" y="23.459679" x="163.86922" class="tspan_0">8</tspan></text>
+    </g>
+    <g id="wire#RA9_0">
+      <path id="path_140" d="M 57.57406,164.91621 H 70.144935" class="path_64"/>
+      <text id="text_333" y="164.5499" x="60.286472" xml:space="preserve" class="text_25"><tspan y="164.5499" x="60.286472" id="tspan_377" class="tspan_0">RA9</tspan><tspan id="tspan_378" y="177.77902" x="60.286472" class="tspan_0"/></text>
+    </g>
+    <g id="wire#VIDEOON_0">
+      <text id="text_334" y="162.52469" x="31.402685" xml:space="preserve" class="text_26"><tspan id="tspan_379" y="162.52469" x="31.402685" class="tspan_0">VIDEO  ON</tspan></text>
+      <path id="path_141" d="M 43.185696,162.84197 H 26.45501" class="path_65"/>
+    </g>
+    <g transform="translate(-140.91557,139.85902)" id="pointer#3_0" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_142" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_335" class="text_0"><tspan x="163.86922" y="23.459679" id="tspan_380" class="tspan_0">3</tspan></text>
+    </g>
+    <g id="pointer#6_4" transform="translate(-78.469956,148.1711)" class="g_0">
+      <path id="path_143" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_336" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan id="tspan_381" y="23.459679" x="163.86922" class="tspan_0">6</tspan></text>
+    </g>
+    <g id="wire#PULLUP2_0" class="g_0">
+      <ellipse id="ellipse_50" cy="160.82422" cx="64.952812" rx="0.21147294" ry="0.21078888" class="ellipse_23"/>
+      <path id="path_144" d="m 55.631982,158.5151 v 2.29485 h 14.591569" class="path_66"/>
+      <path id="path_145" d="M 82.854278,171.16833 H 64.938695 v -10.34514" class="path_66"/>
+      <text xml:space="preserve" x="69.624641" y="170.82039" id="text_337" class="text_27"><tspan x="69.624641" y="170.82039" id="tspan_382" class="tspan_0">PULLUP  2</tspan></text>
+    </g>
+    <g id="wire#/20LINES_0">
+      <text transform="translate(87.743358,95.694418)" xml:space="preserve" x="46.60268" y="66.607567" id="text_338" class="text_28"><tspan x="46.60268" y="66.607567" id="tspan_383" class="tspan_2">20  LINES</tspan></text>
+      <path id="path_146" d="m 77.560587,160.77403 h 3.297171 v 6.23693 h 52.384662 v -4.28258 h 15.13164" class="path_67"/>
+      <g id="g_19" transform="translate(87.825253,95.60143)" class="g_0">
+        <path d="M 46.631068,65.370871 H 53.24729" id="path_147" class="path_68"/>
+      </g>
+    </g>
+    <path d="m 104.85089,160.70254 h 7.38762" id="wire#/LGAHI_0" class="path_69"/>
+    <path d="m 117.32834,160.62652 h 7.45487" id="wire#LGAHI_0" class="path_70"/>
+    <g transform="translate(-26.981268,145.97838)" id="pointer#6_5" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_148" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_339" class="text_0"><tspan x="163.86922" y="23.459679" id="tspan_384" class="tspan_0">6</tspan></text>
+    </g>
+    <g id="chip#H5_74LS00_2" transform="translate(78.59632,139.2623)" class="g_0">
+      <g id="g_20" transform="translate(61.791641,10.163309)" class="g_1">
+        <title id="title_3">Nor Gate</title>
+        <path d="m 8.8024793,13.567913 h 2.8214917 c 2.773818,0 4.160725,-2.393442 4.160725,-2.393442 0,0 -0.693453,-2.3934435 -4.160725,-2.3934435 H 8.8024793 c 0.2482475,0.3702894 0.4370662,0.7723015 0.5634321,1.1967215 0.1139201,0.382606 0.1776981,0.783352 0.1776981,1.196722 0,0.413368 -0.063789,0.814114 -0.1776981,1.196721 -0.1263685,0.424419 -0.3151846,0.826432 -0.5634321,1.196721 z" id="path_149" class="path_2"/>
+      </g>
+      <ellipse id="ellipse_51" ry="0.48355335" rx="0.44926631" cy="19.221704" cx="70.104233" class="ellipse_0"/>
+      <ellipse id="ellipse_52" ry="0.48355335" rx="0.44926631" cy="23.424683" cx="70.223503" class="ellipse_0"/>
+      <text id="text_340" y="21.871925" x="74.457664" xml:space="preserve" class="text_0"><tspan y="21.871925" x="74.457664" id="tspan_385" class="tspan_0">H5</tspan><tspan id="tspan_386" y="35.101051" x="74.457664" class="tspan_0"/></text>
+      <text xml:space="preserve" x="74.493942" y="26.00955" id="text_341" class="text_0"><tspan id="tspan_387" x="74.493942" y="26.00955" class="tspan_0">74LS00</tspan><tspan x="74.493942" y="39.238674" id="tspan_388" class="tspan_0"/></text>
+      <text xml:space="preserve" x="79.051193" y="20.665329" id="text_342" class="text_0"><tspan id="tspan_389" x="79.051193" y="20.665329" class="tspan_0">8</tspan><tspan x="79.051193" y="33.894455" id="tspan_390" class="tspan_0"/></text>
+      <text id="text_343" y="18.647308" x="68.928688" xml:space="preserve" class="text_0"><tspan y="18.647308" x="68.928688" id="tspan_391" class="tspan_0">9</tspan><tspan id="tspan_392" y="31.876432" x="68.928688" class="tspan_0"/></text>
+      <text id="text_344" y="22.843058" x="68.565544" xml:space="preserve" class="text_0"><tspan y="22.843058" x="68.565544" id="tspan_393" class="tspan_0">10</tspan><tspan id="tspan_394" y="36.072182" x="68.565544" class="tspan_0"/></text>
+    </g>
+    <g id="wire#HORZDISPOFF_0">
+      <path id="path_150" d="m 163.49212,164.67316 h -5.30173 v 4.28817 h -17.80108" class="path_71"/>
+      <text id="text_345" y="168.56961" x="147.73325" xml:space="preserve" class="text_29"><tspan id="tspan_395" y="168.56961" x="147.73325" class="tspan_0">HORZ  DISP  OFF</tspan></text>
+    </g>
+    <g id="pointer#6_6" transform="translate(3.50405,150.06268)" class="g_0">
+      <path id="path_151" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_346" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan id="tspan_396" y="23.459679" x="163.86922" class="tspan_0">6</tspan></text>
+    </g>
+    <g id="wire#BPHI2H_0">
+      <path id="path_152" d="m 181.46629,155.16441 v 17.88122 h -10.59166 v 0.21254" class="path_72"/>
+      <g id="g_21" transform="translate(37.432819,141.82362)" class="g_0">
+        <text xml:space="preserve" x="134.58009" y="30.854576" id="text_347" class="text_30"><tspan id="tspan_397" x="134.58009" y="30.854576" class="tspan_2">B02H</tspan><tspan x="134.58009" y="44.083702" id="tspan_398" class="tspan_0"/></text>
+        <path d="m 136.35985,29.617081 -0.75965,1.16872" id="path_153" class="path_73"/>
+      </g>
+    </g>
+    <path d="m 169.87984,162.63418 h 3.15066 v -23.05531 h 4.13249" id="wire#220OFF_0" class="path_74"/>
+    <g id="wire#VIDEOLATCH_0">
+      <path id="path_154" d="M 177.2167,145.94645 H 156.03749" class="path_75"/>
+      <text xml:space="preserve" x="162.1167" y="145.5305" id="text_348" class="text_31"><tspan x="162.1167" y="145.5305" id="tspan_399" class="tspan_0">VIDEO  LATCH</tspan></text>
+    </g>
+    <g id="pointer#6_7" transform="translate(-11.33309,122.9635)" class="g_0">
+      <path id="path_155" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_349" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan id="tspan_400" y="23.459679" x="163.86922" class="tspan_0">6</tspan></text>
+    </g>
+    <g id="wire#PULLUP1_0">
+      <path id="path_156" d="m 181.26139,136.46663 v -1.07519 H 156.028" class="path_76"/>
+      <text id="text_350" y="135.05396" x="160.5145" xml:space="preserve" class="text_32"><tspan id="tspan_401" y="135.05396" x="160.5145" class="tspan_0">PULLUP  1</tspan></text>
+    </g>
+    <g transform="translate(-11.34258,112.40849)" id="pointer#8_3" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_157" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_351" class="text_0"><tspan x="163.86922" y="23.459679" id="tspan_402" class="tspan_0">8</tspan></text>
+    </g>
+    <g id="pointer#68_0" transform="translate(39.019702,116.4607)" class="g_0">
+      <path id="path_158" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_352" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan id="tspan_403" y="23.459679" x="163.86922" class="tspan_0">6, 8</tspan></text>
+    </g>
+    <g id="wire#NEXT_0">
+      <path id="path_159" d="m 185.61884,139.564 h 14.67463" class="path_77"/>
+      <text xml:space="preserve" x="197.10208" y="139.23431" id="text_353" class="text_33"><tspan x="197.10208" y="139.23431" id="tspan_404" class="tspan_0">NEXT</tspan></text>
+    </g>
+    <path d="m 189.38734,58.139951 h 4.12108" id="wire#F6Y3_0" class="path_78"/>
+    <g id="wire#TVRAMRW_0">
+      <path id="path_160" d="m 189.38687,53.95632 h 17.57366" class="path_79"/>
+      <text xml:space="preserve" x="200.55249" y="53.60611" id="text_354" class="text_34"><tspan x="200.55249" y="53.60611" id="tspan_405" class="tspan_0">TV  RAM  R/W</tspan></text>
+    </g>
+    <g id="pointer#8_4" transform="translate(45.72167,30.996362)" class="g_0">
+      <path id="path_161" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_355" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan id="tspan_406" y="23.459679" x="163.86922" class="tspan_0">8</tspan></text>
+    </g>
+    <g id="wire#SA0_0">
+      <path d="m 206.51091,63.132048 -0.76272,-0.76272 H 189.4668" id="path_162" class="path_80"/>
+      <text xml:space="preserve" x="202.33696" y="61.79546" id="text_356" class="text_35"><tspan id="tspan_407" x="202.33696" y="61.79546" class="tspan_0">SA0</tspan><tspan x="202.33696" y="75.024582" id="tspan_408" class="tspan_0"/></text>
+    </g>
+    <g id="wire#SA1_0">
+      <path id="path_163" d="m 206.51244,67.300749 -0.76272,-0.76272 h -16.28139" class="path_81"/>
+      <text id="text_357" y="65.978111" x="202.36554" xml:space="preserve" class="text_36"><tspan id="tspan_409" y="65.978111" x="202.36554" class="tspan_0">SA1</tspan></text>
+    </g>
+    <g id="wire#SA2_0">
+      <path id="path_164" d="m 206.46649,83.977325 -0.76272,-0.76272 h -16.28139" class="path_82"/>
+      <text id="text_358" y="82.685577" x="202.41859" xml:space="preserve" class="text_37"><tspan y="82.685577" x="202.41859" id="tspan_410" class="tspan_0">SA2</tspan><tspan id="tspan_411" y="95.914703" x="202.41859" class="tspan_0"/></text>
+    </g>
+    <g id="wire#SA3_0">
+      <path d="M 206.48402,88.12122 205.7213,87.3585 h -16.28139" id="path_165" class="path_83"/>
+      <text xml:space="preserve" x="202.41859" y="86.868225" id="text_359" class="text_38"><tspan x="202.41859" y="86.868225" id="tspan_412" class="tspan_0">SA3</tspan></text>
+    </g>
+    <g id="wire#SA4_0">
+      <path d="m 206.4347,92.302212 -0.76272,-0.76272 h -16.28139" id="path_166" class="path_84"/>
+      <text id="text_360" y="91.002502" x="202.41859" xml:space="preserve" class="text_39"><tspan id="tspan_413" y="91.002502" x="202.41859" class="tspan_0">SA4</tspan></text>
+    </g>
+    <g id="wire#SA5_0">
+      <path d="m 206.43886,96.456323 -0.76272,-0.76272 h -16.28139" id="path_167" class="path_85"/>
+      <text xml:space="preserve" x="202.41859" y="95.18515" id="text_361" class="text_40"><tspan x="202.41859" y="95.18515" id="tspan_414" class="tspan_0">SA5</tspan></text>
+    </g>
+    <g id="wire#SA6_0">
+      <path d="m 206.46095,113.12263 -0.76272,-0.76272 h -16.28139" id="path_168" class="path_86"/>
+      <text xml:space="preserve" x="202.53915" y="111.99217" id="text_362" class="text_41"><tspan id="tspan_415" x="202.53915" y="111.99217" class="tspan_0">SA6</tspan><tspan x="202.53915" y="125.2213" id="tspan_416" class="tspan_0"/></text>
+    </g>
+    <g id="wire#SA7_0">
+      <path id="path_169" d="m 206.44081,117.30842 -0.76272,-0.76272 H 189.3967" class="path_87"/>
+      <text id="text_363" y="116.17483" x="202.53915" xml:space="preserve" class="text_42"><tspan id="tspan_417" y="116.17483" x="202.53915" class="tspan_0">SA7</tspan></text>
+    </g>
+    <g id="wire#SA8_0">
+      <path d="m 206.45613,121.47913 -0.76272,-0.76272 h -16.28139" id="path_170" class="path_88"/>
+      <text xml:space="preserve" x="202.53915" y="120.3091" id="text_364" class="text_43"><tspan x="202.53915" y="120.3091" id="tspan_418" class="tspan_0">SA8</tspan></text>
+    </g>
+    <g id="wire#SA9_0">
+      <path id="path_171" d="m 206.44792,125.58158 -0.76272,-0.76272 h -16.28139" class="path_89"/>
+      <text id="text_365" y="124.49174" x="202.53915" xml:space="preserve" class="text_44"><tspan id="tspan_419" y="124.49174" x="202.53915" class="tspan_0">SA9</tspan></text>
+    </g>
+    <g id="bus_0">
+      <path id="bus_1" d="m 219.02176,129.00815 h -12.5475 v -65.9793" class="path_90"/>
+      <text id="text_366" y="128.49699" x="212.93646" xml:space="preserve" class="text_45"><tspan y="128.49699" x="212.93646" id="tspan_420" class="tspan_3">SA0-9  BUS </tspan><tspan id="tspan_421" y="141.72612" x="212.93646" class="tspan_3"/></text>
+    </g>
+    <g id="label_0">
+      <text xml:space="preserve" x="231.1423" y="128.46895" id="text_367" class="text_0"><tspan x="231.1423" y="128.46895" id="tspan_422" class="tspan_0">DISPLAY  RAM</tspan></text>
+      <text id="text_368" y="130.48822" x="231.67319" xml:space="preserve" class="text_0"><tspan id="tspan_423" y="130.48822" x="231.67319" class="tspan_0">ADDRESS  BUS</tspan></text>
+    </g>
+    <g id="pointer#8_5" transform="translate(57.602463,106.04096)" class="g_0">
+      <path id="path_172" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_369" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan id="tspan_424" y="23.459679" x="163.86922" class="tspan_0">8</tspan></text>
+    </g>
+    <path id="wire#220LINE_0" d="m 156.17266,160.60008 h 7.33591" class="path_91"/>
+    <g id="wire#/200LINES_0">
+      <path d="M 148.23973,158.4988 H 132.16335" id="path_173" class="path_92"/>
+      <g id="g_22">
+        <text id="text_370" y="158.09036" x="135.35478" xml:space="preserve" class="text_46"><tspan id="tspan_425" y="158.09036" x="135.35478" class="tspan_2">200  LINES</tspan></text>
+        <path id="path_174" d="m 135.38316,156.85366 h 7.62568" class="path_93"/>
+      </g>
+    </g>
+    <g id="wire#LGA3_0" class="g_0">
+      <path id="path_175" d="M 72.095801,91.980847 H 88.862822 V 100.2584 H 105.71044" class="path_94"/>
+      <path id="path_176" d="m 90.936388,100.24042 v 56.31544 h 33.850802" class="path_94"/>
+      <ellipse id="ellipse_53" cy="100.24564" cx="90.922165" rx="0.21147294" ry="0.21078888" class="ellipse_24"/>
+    </g>
+    <g id="sheet_0">
+      <g transform="translate(28.899775,44.483108)" id="label_1" class="g_0">
+        <text id="text_371" y="130.00014" x="235.04747" xml:space="preserve" class="text_0"><tspan id="tspan_426" y="130.00014" x="235.04747" class="tspan_0">DYNAMIC PET</tspan></text>
+        <text xml:space="preserve" x="235.11844" y="127.89767" id="text_372" class="text_0"><tspan x="235.11844" y="127.89767" id="tspan_427" class="tspan_0">LOGIC  DIAGRAM</tspan></text>
+        <text id="text_373" y="132.17581" x="235.08778" xml:space="preserve" class="text_0"><tspan id="tspan_428" y="132.17581" x="235.08778" class="tspan_0">DISPLAY LOGIC</tspan></text>
+        <text id="text_374" y="124.61198" x="235.19122" xml:space="preserve" class="text_0"><tspan id="tspan_429" y="124.61198" x="235.19122" class="tspan_4">commodore</tspan></text>
+        <text id="text_375" y="133.90042" x="223.98859" xml:space="preserve" class="text_47"><tspan id="tspan_430" y="133.90042" x="223.98859" class="tspan_5">SIZE</tspan></text>
+        <text xml:space="preserve" x="246.05711" y="133.93695" id="text_376" class="text_47"><tspan x="246.05711" y="133.93695" id="tspan_431" class="tspan_5">REV</tspan></text>
+        <text xml:space="preserve" x="223.90756" y="135.84822" id="text_377" class="text_0"><tspan x="223.90756" y="135.84822" id="tspan_432" class="tspan_6">D</tspan></text>
+        <text id="text_378" y="135.68661" x="235.18332" xml:space="preserve" class="text_48"><tspan id="tspan_433" y="135.68661" x="235.34604" class="tspan_7">320349</tspan></text>
+        <text xml:space="preserve" x="246.00992" y="135.91792" id="text_379" class="text_49"><tspan x="246.00992" y="135.91792" id="tspan_434" class="tspan_7">A</tspan></text>
+        <text xml:space="preserve" x="224.36774" y="137.91835" id="text_380" class="text_47"><tspan x="224.36774" y="137.91835" id="tspan_435" class="tspan_5">SCALE</tspan></text>
+        <text xml:space="preserve" x="235.57414" y="137.84587" id="text_381" class="text_47"><tspan x="235.57414" y="137.84587" id="tspan_436" class="tspan_5">SHEET</tspan></text>
+        <text id="text_382" y="137.88062" x="243.03755" xml:space="preserve" class="text_47"><tspan id="tspan_437" y="137.88062" x="243.03755" class="tspan_5">OF</tspan></text>
+        <text id="text_383" y="138.15033" x="239.21062" xml:space="preserve" class="text_0"><tspan id="tspan_438" y="138.15033" x="239.21062" class="tspan_6">7</tspan></text>
+        <text id="text_384" y="138.19711" x="245.75871" xml:space="preserve" class="text_0"><tspan id="tspan_439" y="138.19711" x="245.75871" class="tspan_6">9</tspan></text>
+        <path d="m 227.66936,137.53725 h 4.64594" id="path_177" class="path_0"/>
+        <path d="m 248.11376,121.86819 h -26.35318 v 16.656" id="path_178" class="path_0"/>
+        <path d="m 221.72613,125.8852 h 26.41184" id="path_179" class="path_0"/>
+        <path id="path_180" d="m 221.82375,132.72346 h 26.41184" class="path_5"/>
+        <path id="path_181" d="m 221.67512,136.52029 h 26.41184" class="path_5"/>
+        <path d="m 226.08433,132.80248 v 3.75441" id="path_182" class="path_0"/>
+        <path d="m 243.95734,132.80718 v 3.6408" id="path_183" class="path_0"/>
+      </g>
+      <rect id="rect_8" width="270.07034" height="174.39131" x="7.1903315" y="8.6991415" ry="0" class="rect_1"/>
+      <path d="m 262.0793,181.05936 v 2.00353" id="path_184" class="path_0"/>
+    </g>
+  </g>
+<style>.rect_0 {fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:round}
+.tspan_0 {font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.text_0 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.tspan_1 {font-size:1.41111px;text-align:end;text-anchor:end;stroke-width:0.264583}
+.g_0 {display:inline}
+.path_0 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_0 {display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
+.path_1 {fill:none;stroke:#000000;stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_1 {fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
+.path_2 {stroke-width:0.265;stroke-miterlimit:4;stroke-dasharray:none}
+.g_1 {fill:none;stroke:#000000;stroke-width:2}
+.path_3 {stroke-width:0.389804;stroke-miterlimit:4;stroke-dasharray:none}
+.path_4 {stroke-width:0.389804;stroke-miterlimit:2;stroke-dasharray:none}
+.path_5 {display:inline;fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_6 {display:inline;fill:none;stroke:var(--color-VCC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_1 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-VCC);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_7 {display:inline;fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_8 {fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_9 {display:inline;fill:none;stroke:var(--color-TP2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_2 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-TP2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_2 {display:inline;fill:var(--color-TP2);stroke:var(--color-TP2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_10 {fill:none;stroke:var(--color-VCC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_11 {fill:none;stroke:var(--color-BRW);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_3 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BRW);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_12 {fill:none;stroke:var(--color-TVSEL);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_3 {display:inline;fill:var(--color-TVSEL);stroke:var(--color-TVSEL);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.text_4 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-TVSEL);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_13 {display:inline;fill:none;stroke:var(--color-barTVREAD);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_5 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barTVREAD);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_14 {display:inline;fill:none;stroke:var(--color-barTVREAD);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_15 {fill:none;stroke:var(--color-BPHI2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_6 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_16 {fill:none;stroke:var(--color-BPHI2);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_17 {fill:none;stroke:var(--color-A512);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_4 {display:inline;fill:var(--color-VCC);stroke:var(--color-VCC);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_18 {fill:none;stroke:var(--color-barBA11);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_7 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barBA11);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_19 {display:inline;fill:none;stroke:var(--color-barBA11);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_20 {fill:none;stroke:var(--color-SEL8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_8 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SEL8);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_9 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barINIT);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_21 {display:inline;fill:none;stroke:var(--color-barINIT);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_22 {fill:none;stroke:var(--color-barINIT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_5 {display:inline;fill:var(--color-barINIT);stroke:var(--color-barINIT);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_23 {display:inline;fill:none;stroke:var(--color-barRA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_10 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barRA1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_24 {display:inline;fill:none;stroke:var(--color-barRA1);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_6 {display:inline;fill:var(--color-barRA1);stroke:var(--color-barRA1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_25 {fill:none;stroke:var(--color-barRA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_26 {fill:none;stroke:var(--color-barG6Q);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_7 {display:inline;fill:var(--color-G6Q);stroke:var(--color-G6Q);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_27 {fill:none;stroke:var(--color-G6Q);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_28 {fill:none;stroke:var(--color-BA0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_11 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_29 {fill:none;stroke:var(--color-BA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_12 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_30 {fill:none;stroke:var(--color-BA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_13 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_31 {fill:none;stroke:var(--color-BA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_14 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_32 {fill:none;stroke:var(--color-BA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_15 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_33 {fill:none;stroke:var(--color-BA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_16 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA5);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_34 {fill:none;stroke:var(--color-BA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_17 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA6);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_35 {fill:none;stroke:var(--color-BA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_18 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_36 {fill:none;stroke:var(--color-BA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_19 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA8);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_37 {fill:none;stroke:var(--color-BA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_20 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA9);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_38 {display:inline;fill:none;stroke:var(--color-CLK1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_8 {display:inline;fill:var(--color-CLK1);stroke:var(--color-CLK1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.text_21 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-CLK1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_39 {fill:none;stroke:var(--color-RELOADNEXT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_40 {fill:none;stroke:var(--color-GA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_9 {display:inline;fill:var(--color-GA2);stroke:var(--color-GA2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_41 {fill:none;stroke:var(--color-GA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_10 {display:inline;fill:var(--color-GA3);stroke:var(--color-GA3);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_42 {fill:none;stroke:var(--color-GA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_11 {display:inline;fill:var(--color-GA4);stroke:var(--color-GA4);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_12 {display:inline;fill:var(--color-GA5);stroke:var(--color-GA5);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_43 {fill:none;stroke:var(--color-GA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_44 {fill:none;stroke:var(--color-GA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_13 {display:inline;fill:var(--color-GA7);stroke:var(--color-GA7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_45 {fill:none;stroke:var(--color-GA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_14 {display:inline;fill:var(--color-GA8);stroke:var(--color-GA8);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_46 {fill:none;stroke:var(--color-GA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_15 {display:inline;fill:var(--color-GA9);stroke:var(--color-GA9);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_16 {display:inline;fill:var(--color-HORZDISPON);stroke:var(--color-HORZDISPON);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_47 {fill:none;stroke:var(--color-HORZDISPON);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_22 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-HORZDISPON);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_23 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barNEXT);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_48 {display:inline;fill:none;stroke:var(--color-barNEXT);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_49 {fill:none;stroke:var(--color-barNEXT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_17 {display:inline;fill:var(--color-barNEXT);stroke:var(--color-barNEXT);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_50 {fill:none;stroke:var(--color-LGA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_51 {display:inline;fill:none;stroke:var(--color-LGA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_52 {display:inline;fill:none;stroke:var(--color-LGA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_18 {display:inline;fill:var(--color-LGA6);stroke:var(--color-LGA6);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_53 {fill:none;stroke:var(--color-LGA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_19 {display:inline;fill:var(--color-LGA7);stroke:var(--color-LGA7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_54 {fill:none;stroke:var(--color-LGA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_55 {display:inline;fill:none;stroke:var(--color-LGA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_20 {display:inline;fill:var(--color-LGA8);stroke:var(--color-LGA8);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_56 {fill:none;stroke:var(--color-LGA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_57 {display:inline;fill:none;stroke:var(--color-LGA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_21 {display:inline;fill:var(--color-LGA9);stroke:var(--color-LGA9);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_58 {fill:none;stroke:var(--color-LGA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_59 {display:inline;fill:none;stroke:var(--color-LGA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_24 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barRELOAD);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_60 {display:inline;fill:none;stroke:var(--color-barRELOAD);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_61 {fill:none;stroke:var(--color-barRELOAD);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_22 {display:inline;fill:var(--color-GA6);stroke:var(--color-GA6);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_62 {fill:none;stroke:var(--color-GA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_63 {fill:none;stroke:var(--color-barVIDEOON);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_64 {fill:none;stroke:var(--color-RA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_25 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-RA9);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_26 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-VIDEOON);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_65 {fill:none;stroke:var(--color-VIDEOON);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_23 {display:inline;fill:var(--color-PULLUP2);stroke:var(--color-PULLUP2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_66 {fill:none;stroke:var(--color-PULLUP2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_27 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-PULLUP2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.tspan_2 {font-size:1.41111px;text-align:start;text-anchor:start;stroke-width:0.264583}
+.text_28 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-bar20LINES);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_67 {fill:none;stroke:var(--color-bar20LINES);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_68 {display:inline;fill:none;stroke:var(--color-bar20LINES);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_69 {fill:none;stroke:var(--color-barLGAHI);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_70 {fill:none;stroke:var(--color-LGAHI);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_71 {display:inline;fill:none;stroke:var(--color-HORZDISPOFF);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_29 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-HORZDISPOFF);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_72 {fill:none;stroke:var(--color-BPHI2H);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_30 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2H);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_73 {display:inline;fill:none;stroke:var(--color-BPHI2H);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_74 {fill:none;stroke:var(--color-220OFF);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_75 {fill:none;stroke:var(--color-VIDEOLATCH);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_31 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-VIDEOLATCH);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_76 {fill:none;stroke:var(--color-PULLUP1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_32 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-PULLUP1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_77 {fill:none;stroke:var(--color-NEXT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_33 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-NEXT);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_78 {fill:none;stroke:var(--color-F6Y3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_79 {fill:none;stroke:var(--color-TVRAMRW);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_34 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-TVRAMRW);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_80 {display:inline;fill:none;stroke:var(--color-SA0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_35 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_81 {display:inline;fill:none;stroke:var(--color-SA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_36 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_82 {display:inline;fill:none;stroke:var(--color-SA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_37 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_83 {display:inline;fill:none;stroke:var(--color-SA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_38 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_84 {display:inline;fill:none;stroke:var(--color-SA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_39 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_85 {display:inline;fill:none;stroke:var(--color-SA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_40 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA5);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_86 {display:inline;fill:none;stroke:var(--color-SA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_41 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA6);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_87 {display:inline;fill:none;stroke:var(--color-SA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_42 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_88 {display:inline;fill:none;stroke:var(--color-SA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_43 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA8);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_89 {fill:none;stroke:var(--color-SA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_44 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA9);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_90 {fill:none;stroke:#000080;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.tspan_3 {font-size:1.41111px;text-align:center;text-anchor:middle;fill:#000080;stroke:none;stroke-width:0.264583}
+.text_45 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000080;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_91 {display:inline;fill:none;stroke:var(--color-220LINE);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_92 {display:inline;fill:none;stroke:var(--color-bar200LINES);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_46 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-bar200LINES);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_93 {display:inline;fill:none;stroke:var(--color-bar200LINES);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_94 {fill:none;stroke:var(--color-LGA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_24 {display:inline;fill:var(--color-LGA3);stroke:var(--color-LGA3);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.tspan_4 {font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.11667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;stroke-width:0.264583}
+.tspan_5 {font-size:1.05833px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.text_47 {font-style:normal;font-weight:normal;font-size:1.05833px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.tspan_6 {font-weight:normal;font-size:1.76389px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.tspan_7 {font-weight:normal;font-size:2.11667px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.text_48 {font-style:normal;font-weight:normal;font-size:2.11667px;line-height:1.25;font-family:sans-serif;letter-spacing:0.325437px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_49 {font-style:normal;font-weight:normal;font-size:2.11667px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.rect_1 {fill:none;stroke:#000000;stroke-width:0.264999;stroke-linecap:round}
+:root {--color-G3_74LS373:#000000;--color-F4_74177:#000000;--color-F2_74177:#000000;--color-G6_74LS107:#000000;--color-G8_74LS74:#000000;--color-F6_74LS157:#000000;--color-F5_74LS157:#000000;--color-F3_74LS157:#000000;--color-H5_74LS00:#000000;--color-A5_74LS10:#000000;--color-F1_74LS08:#000000;--color-G1_74LS08:#000000;--color-G2_74LS20:#000000;--color-I1_74LS04:#000000;--color-R45:#000000;--color-VCC:#000000;--color-R40:#000000;--color-R27:#000000;--color-GND:#000000;--color-TP2:#000000;--color-1:#000000;--color-BRW:#000000;--color-TVSEL:#000000;--color-8:#000000;--color-barTVREAD:#000000;--color-BPHI2:#000000;--color-A512:#000000;--color-barBA11:#000000;--color-SEL8:#000000;--color-6:#000000;--color-barINIT:#000000;--color-barRA1:#000000;--color-barG6Q:#000000;--color-G6Q:#000000;--color-BA0:#000000;--color-BA1:#000000;--color-BA2:#000000;--color-BA3:#000000;--color-BA4:#000000;--color-BA5:#000000;--color-BA6:#000000;--color-BA7:#000000;--color-BA8:#000000;--color-BA9:#000000;--color-CLK1:#000000;--color-RELOADNEXT:#000000;--color-GA2:#000000;--color-GA3:#000000;--color-GA4:#000000;--color-GA5:#000000;--color-GA7:#000000;--color-GA8:#000000;--color-GA9:#000000;--color-HORZDISPON:#000000;--color-barNEXT:#000000;--color-LGA2:#000000;--color-LGA4:#000000;--color-LGA5:#000000;--color-LGA6:#000000;--color-LGA7:#000000;--color-LGA8:#000000;--color-LGA9:#000000;--color-barRELOAD:#000000;--color-GA6:#000000;--color-barVIDEOON:#000000;--color-RA9:#000000;--color-VIDEOON:#000000;--color-3:#000000;--color-PULLUP2:#000000;--color-bar20LINES:#000000;--color-barLGAHI:#000000;--color-LGAHI:#000000;--color-HORZDISPOFF:#000000;--color-BPHI2H:#000000;--color-220OFF:#000000;--color-VIDEOLATCH:#000000;--color-PULLUP1:#000000;--color-68:#000000;--color-NEXT:#000000;--color-F6Y3:#000000;--color-TVRAMRW:#000000;--color-SA0:#000000;--color-SA1:#000000;--color-SA2:#000000;--color-SA3:#000000;--color-SA4:#000000;--color-SA5:#000000;--color-SA6:#000000;--color-SA7:#000000;--color-SA8:#000000;--color-SA9:#000000;--color-220LINE:#000000;--color-bar200LINES:#000000;--color-LGA3:#000000;}</style></svg>

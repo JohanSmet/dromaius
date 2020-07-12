@@ -2,6 +2,7 @@
 
 import {PanelCpu6502} from './panel_cpu_6502.js';
 import {PanelClock} from './panel_clock.js';
+import {CircuitView} from './circuit_view.js';
 
 // globals
 var dmsapi = null;
@@ -14,6 +15,7 @@ var svg_doc = null;
 
 var panel_cpu = new PanelCpu6502($('div#cpu'));
 var panel_clock = new PanelClock($('div#clock'));
+var circuit_view = new CircuitView($('div#right_column'));
 
 // functions
 function setup_svg_document(container) {

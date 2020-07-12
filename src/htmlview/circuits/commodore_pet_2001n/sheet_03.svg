@@ -1,0 +1,971 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 297 210" version="1.1" id="svg2642">
+  <defs id="defs2636"/>
+  <g style="display:inline" id="Schematic">
+    <g transform="translate(-8.8590688,24.963109)" id="chip#C7_6520_0" class="g_0">
+      <rect y="77.651878" x="67.322945" height="70.937859" width="16.827522" id="rect_0" class="rect_0"/>
+      <text id="text_0" y="81.24778" x="65.308258" xml:space="preserve" class="text_0"><tspan y="81.24778" x="65.308258" id="tspan_0" class="tspan_0">33</tspan></text>
+      <text xml:space="preserve" x="65.32238" y="83.373596" id="text_1" class="text_0"><tspan id="tspan_1" x="65.32238" y="83.373596" class="tspan_0">32</tspan></text>
+      <text xml:space="preserve" x="65.316872" y="85.401756" id="text_2" class="text_0"><tspan id="tspan_2" x="65.316872" y="85.401756" class="tspan_0">31</tspan></text>
+      <text id="text_3" y="87.527573" x="65.298615" xml:space="preserve" class="text_0"><tspan y="87.527573" x="65.298615" id="tspan_3" class="tspan_0">30</tspan></text>
+      <text xml:space="preserve" x="65.303436" y="89.632027" id="text_4" class="text_0"><tspan id="tspan_4" x="65.303436" y="89.632027" class="tspan_0">29</tspan></text>
+      <text id="text_5" y="91.757843" x="65.302055" xml:space="preserve" class="text_0"><tspan y="91.757843" x="65.302055" id="tspan_5" class="tspan_0">28</tspan></text>
+      <text id="text_6" y="93.786003" x="65.314117" xml:space="preserve" class="text_0"><tspan y="93.786003" x="65.314117" id="tspan_6" class="tspan_0">27</tspan></text>
+      <text xml:space="preserve" x="65.298264" y="95.911819" id="text_7" class="text_0"><tspan id="tspan_7" x="65.298264" y="95.911819" class="tspan_0">26</tspan></text>
+      <text id="text_8" y="125.19098" x="86.247047" xml:space="preserve" class="text_1"><tspan id="tspan_8" y="125.19098" x="86.247047" class="tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="86.247047" y="127.29739" id="text_9" class="text_1"><tspan x="86.247047" y="127.29739" id="tspan_9" class="tspan_0">11</tspan></text>
+      <text xml:space="preserve" x="86.247047" y="129.32558" id="text_10" class="text_1"><tspan x="86.247047" y="129.32558" id="tspan_10" class="tspan_0">12</tspan></text>
+      <text id="text_11" y="131.43198" x="86.247047" xml:space="preserve" class="text_1"><tspan id="tspan_11" y="131.43198" x="86.247047" class="tspan_0">13</tspan></text>
+      <text xml:space="preserve" x="86.247047" y="133.45676" id="text_12" class="text_1"><tspan x="86.247047" y="133.45676" id="tspan_12" class="tspan_0">14</tspan></text>
+      <text id="text_13" y="135.56316" x="86.247047" xml:space="preserve" class="text_1"><tspan id="tspan_13" y="135.56316" x="86.247047" class="tspan_0">15</tspan></text>
+      <text xml:space="preserve" x="86.247047" y="137.69006" id="text_14" class="text_1"><tspan x="86.247047" y="137.69006" id="tspan_14" class="tspan_0">16</tspan></text>
+      <text xml:space="preserve" x="86.247047" y="139.74078" id="text_15" class="text_1"><tspan x="86.247047" y="139.74078" id="tspan_15" class="tspan_0">17</tspan></text>
+      <text id="text_16" y="141.89693" x="86.2593" xml:space="preserve" class="text_1"><tspan id="tspan_16" y="141.89693" x="86.2593" class="tspan_0">18</tspan></text>
+      <text id="text_17" y="144.07042" x="86.2593" xml:space="preserve" class="text_1"><tspan id="tspan_17" y="144.07042" x="86.2593" class="tspan_0">19</tspan></text>
+      <text xml:space="preserve" x="85.689323" y="110.45602" id="text_18" class="text_1"><tspan x="85.689323" y="110.45602" id="tspan_18" class="tspan_0">9</tspan></text>
+      <text xml:space="preserve" x="65.185364" y="131.26228" id="text_19" class="text_1"><tspan x="65.185364" y="131.26228" id="tspan_19" class="tspan_0">36</tspan></text>
+      <text id="text_20" y="127.02222" x="65.328087" xml:space="preserve" class="text_1"><tspan id="tspan_20" y="127.02222" x="65.328087" class="tspan_0">22</tspan></text>
+      <text id="text_21" y="124.89324" x="65.170845" xml:space="preserve" class="text_1"><tspan id="tspan_21" y="124.89324" x="65.170845" class="tspan_0">23</tspan></text>
+      <text xml:space="preserve" x="65.289803" y="122.96699" id="text_22" class="text_1"><tspan x="65.289803" y="122.96699" id="tspan_22" class="tspan_0">24</tspan></text>
+      <text xml:space="preserve" x="65.306267" y="141.62328" id="text_23" class="text_1"><tspan x="65.306267" y="141.62328" id="tspan_23" class="tspan_0">25</tspan></text>
+      <text id="text_24" y="89.678963" x="85.690781" xml:space="preserve" class="text_1"><tspan id="tspan_24" y="89.678963" x="85.690781" class="tspan_0">3</tspan></text>
+      <text id="text_25" y="106.30789" x="85.662453" xml:space="preserve" class="text_1"><tspan id="tspan_25" y="106.30789" x="85.662453" class="tspan_0">7</tspan></text>
+      <text id="text_26" y="143.73138" x="65.272781" xml:space="preserve" class="text_1"><tspan id="tspan_26" y="143.73138" x="65.272781" class="tspan_0">34</tspan></text>
+      <text id="text_27" y="83.415604" x="86.249527" xml:space="preserve" class="text_1"><tspan id="tspan_27" y="83.415604" x="86.249527" class="tspan_0">39</tspan></text>
+      <text xml:space="preserve" x="74.972054" y="150.05637" id="text_28" class="text_1"><tspan x="74.972054" y="150.05637" id="tspan_28" class="tspan_0">1</tspan></text>
+      <text xml:space="preserve" x="65.241203" y="139.61713" id="text_29" class="text_1"><tspan x="65.241203" y="139.61713" id="tspan_29" class="tspan_0">21</tspan></text>
+      <text xml:space="preserve" x="86.288109" y="81.380394" id="text_30" class="text_1"><tspan x="86.288109" y="81.380394" id="tspan_30" class="tspan_0">40</tspan></text>
+      <text xml:space="preserve" x="86.306839" y="145.98448" id="text_31" class="text_1"><tspan x="86.306839" y="145.98448" id="tspan_31" class="tspan_0">37</tspan></text>
+      <text xml:space="preserve" x="86.249527" y="79.274971" id="text_32" class="text_1"><tspan x="86.249527" y="79.274971" id="tspan_32" class="tspan_0">38</tspan></text>
+      <text xml:space="preserve" x="85.72937" y="91.821861" id="text_33" class="text_1"><tspan x="85.72937" y="91.821861" id="tspan_33" class="tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="85.679672" y="104.26469" id="text_34" class="text_1"><tspan x="85.679672" y="104.26469" id="tspan_34" class="tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="85.694916" y="87.684311" id="text_35" class="text_1"><tspan x="85.694916" y="87.684311" id="tspan_35" class="tspan_0">2</tspan></text>
+      <text id="text_36" y="77.365875" x="73.712212" xml:space="preserve" class="text_1"><tspan id="tspan_36" y="77.365875" x="73.712212" class="tspan_0">20</tspan></text>
+      <text id="text_37" y="114.61017" x="70.300285" xml:space="preserve" class="text_1"><tspan id="tspan_37" y="114.61017" x="70.300285" class="tspan_0">C7</tspan></text>
+      <text id="text_38" y="116.7168" x="71.135033" xml:space="preserve" class="text_1"><tspan id="tspan_38" y="116.7168" x="71.135033" class="tspan_0">6520</tspan></text>
+      <text xml:space="preserve" x="73.461281" y="148.03578" id="text_39" class="text_1"><tspan x="73.461281" y="148.03578" id="tspan_39" class="tspan_0">VSS</tspan></text>
+      <text id="text_40" y="79.286247" x="71.479134" xml:space="preserve" class="text_1"><tspan id="tspan_40" y="79.286247" x="71.479134" class="tspan_0">VCC</tspan></text>
+      <text xml:space="preserve" x="69.401871" y="82.340584" id="text_41" class="text_1"><tspan x="69.401871" y="82.340584" id="tspan_41" class="tspan_0">D0</tspan></text>
+      <text id="text_42" y="84.454849" x="69.401871" xml:space="preserve" class="text_1"><tspan id="tspan_42" y="84.454849" x="69.401871" class="tspan_0">D1</tspan></text>
+      <text id="text_43" y="86.515411" x="69.401871" xml:space="preserve" class="text_1"><tspan id="tspan_43" y="86.515411" x="69.401871" class="tspan_0">D2</tspan></text>
+      <text xml:space="preserve" x="69.401871" y="88.629677" id="text_44" class="text_1"><tspan x="69.401871" y="88.629677" id="tspan_44" class="tspan_0">D3</tspan></text>
+      <text id="text_45" y="90.695923" x="69.401871" xml:space="preserve" class="text_1"><tspan id="tspan_45" y="90.695923" x="69.401871" class="tspan_0">D4</tspan></text>
+      <text xml:space="preserve" x="69.401871" y="92.810188" id="text_46" class="text_1"><tspan x="69.401871" y="92.810188" id="tspan_46" class="tspan_0">D5</tspan></text>
+      <text xml:space="preserve" x="69.401871" y="94.87075" id="text_47" class="text_1"><tspan x="69.401871" y="94.87075" id="tspan_47" class="tspan_0">D6</tspan></text>
+      <text id="text_48" y="96.985016" x="69.401871" xml:space="preserve" class="text_1"><tspan id="tspan_48" y="96.985016" x="69.401871" class="tspan_0">D7</tspan></text>
+      <text id="text_49" y="88.679497" x="81.42691" xml:space="preserve" class="text_1"><tspan id="tspan_49" y="88.679497" x="81.42691" class="tspan_0">PA0</tspan></text>
+      <text xml:space="preserve" x="81.463425" y="90.793777" id="text_50" class="text_1"><tspan x="81.463425" y="90.793777" id="tspan_50" class="tspan_0">PA1</tspan></text>
+      <text xml:space="preserve" x="81.474449" y="92.854332" id="text_51" class="text_1"><tspan x="81.474449" y="92.854332" id="tspan_51" class="tspan_0">PA2</tspan></text>
+      <text id="text_52" y="94.968597" x="81.446198" xml:space="preserve" class="text_1"><tspan id="tspan_52" y="94.968597" x="81.446198" class="tspan_0">PA3</tspan></text>
+      <text xml:space="preserve" x="81.392372" y="105.32314" id="text_53" class="text_1"><tspan x="81.392372" y="105.32314" id="tspan_53" class="tspan_0">PA4</tspan></text>
+      <text id="text_54" y="107.4374" x="81.43647" xml:space="preserve" class="text_1"><tspan id="tspan_54" y="107.4374" x="81.43647" class="tspan_0">PA5</tspan></text>
+      <text id="text_55" y="109.49797" x="81.402023" xml:space="preserve" class="text_1"><tspan id="tspan_55" y="109.49797" x="81.402023" class="tspan_0">PA6</tspan></text>
+      <text xml:space="preserve" x="81.433716" y="111.61222" id="text_56" class="text_1"><tspan x="81.433716" y="111.61222" id="tspan_56" class="tspan_0">PA7</tspan></text>
+      <text xml:space="preserve" x="81.689964" y="82.460625" id="text_57" class="text_1"><tspan x="81.689964" y="82.460625" id="tspan_57" class="tspan_0">CA1</tspan></text>
+      <text id="text_58" y="84.574883" x="81.700989" xml:space="preserve" class="text_1"><tspan id="tspan_58" y="84.574883" x="81.700989" class="tspan_0">CA2</tspan></text>
+      <text id="text_59" y="143.0248" x="81.516899" xml:space="preserve" class="text_1"><tspan id="tspan_59" y="143.0248" x="81.516899" class="tspan_0">CB1</tspan></text>
+      <text xml:space="preserve" x="81.527924" y="145.13905" id="text_60" class="text_1"><tspan x="81.527924" y="145.13905" id="tspan_60" class="tspan_0">CB2</tspan></text>
+      <text xml:space="preserve" x="69.781975" y="128.12495" id="text_61" class="text_1"><tspan x="69.781975" y="128.12495" id="tspan_61" class="tspan_0">CS0</tspan></text>
+      <text id="text_62" y="124.01876" x="69.781975" xml:space="preserve" class="text_1"><tspan id="tspan_62" y="124.01876" x="69.781975" class="tspan_0">CS1</tspan><tspan id="tspan_63" y="137.24788" x="69.781975" class="tspan_0"/></text>
+      <text xml:space="preserve" x="69.66761" y="140.69522" id="text_63" class="text_1"><tspan x="69.66761" y="140.69522" id="tspan_64" class="tspan_0">R/W</tspan><tspan x="69.66761" y="153.92435" id="tspan_65" class="tspan_0"/></text>
+      <g transform="translate(-12.953348,1.9788745)" id="g_0">
+        <text id="text_64" y="140.59927" x="82.136574" xml:space="preserve" class="text_1"><tspan y="140.59927" x="82.136574" id="tspan_66" class="tspan_0">o2</tspan><tspan id="tspan_67" y="153.8284" x="82.136574" class="tspan_0"/></text>
+        <path id="path_0" d="m 81.686184,139.66678 0.0122,1.15595" class="path_0"/>
+      </g>
+      <text id="text_65" y="132.43094" x="69.663704" xml:space="preserve" class="text_1"><tspan id="tspan_68" y="132.43094" x="69.663704" class="tspan_0">RS0</tspan></text>
+      <text id="text_66" y="136.50433" x="69.829308" xml:space="preserve" class="text_1"><tspan id="tspan_69" y="136.50433" x="69.829308" class="tspan_0">RS1</tspan></text>
+      <g transform="translate(-0.45032203,-10.296136)" id="g_1">
+        <text xml:space="preserve" x="81.58876" y="157.54208" id="text_67" class="text_1"><tspan x="81.58876" y="157.54208" id="tspan_70" class="tspan_0">IRQB</tspan></text>
+        <path d="m 79.96816,156.31378 h 3.294411" id="path_1" class="path_1"/>
+      </g>
+      <g transform="translate(-134.04226,80.148379)" id="g_2" class="g_0">
+        <text id="text_68" y="64.730103" x="204.5517" xml:space="preserve" class="text_1"><tspan id="tspan_71" y="64.730103" x="204.5517" class="tspan_0">RESET</tspan></text>
+        <path id="path_2" d="m 202.42277,63.530987 h 4.41026" class="path_1"/>
+      </g>
+      <g transform="translate(-0.32943821,-77.172542)" id="g_3" class="g_0">
+        <text id="text_69" y="157.54208" x="81.58876" xml:space="preserve" class="text_1"><tspan id="tspan_72" y="157.54208" x="81.58876" class="tspan_0">IRQA</tspan></text>
+        <path id="path_3" d="m 79.96816,156.31378 h 3.294411" class="path_1"/>
+      </g>
+      <g transform="translate(-11.794103,-31.443596)" id="g_4" class="g_0">
+        <text id="text_70" y="157.54208" x="81.58876" xml:space="preserve" class="text_1"><tspan id="tspan_73" y="157.54208" x="81.58876" class="tspan_0">CS2</tspan></text>
+        <path id="path_4" d="m 80.265911,156.31378 h 2.704013" class="path_1"/>
+      </g>
+      <text xml:space="preserve" x="81.535309" y="126.19312" id="text_71" class="text_1"><tspan x="81.535309" y="126.19312" id="tspan_74" class="tspan_0">PB0</tspan></text>
+      <text id="text_72" y="128.30742" x="81.571823" xml:space="preserve" class="text_1"><tspan id="tspan_75" y="128.30742" x="81.571823" class="tspan_0">PB1</tspan></text>
+      <text id="text_73" y="130.36797" x="81.582848" xml:space="preserve" class="text_1"><tspan id="tspan_76" y="130.36797" x="81.582848" class="tspan_0">PB2</tspan></text>
+      <text xml:space="preserve" x="81.554596" y="132.48222" id="text_74" class="text_1"><tspan x="81.554596" y="132.48222" id="tspan_77" class="tspan_0">PB3</tspan></text>
+      <text id="text_75" y="134.54846" x="81.520836" xml:space="preserve" class="text_1"><tspan id="tspan_78" y="134.54846" x="81.520836" class="tspan_0">PB4</tspan></text>
+      <text xml:space="preserve" x="81.564934" y="136.66273" id="text_76" class="text_1"><tspan x="81.564934" y="136.66273" id="tspan_79" class="tspan_0">PB5</tspan></text>
+      <text xml:space="preserve" x="81.530487" y="138.72331" id="text_77" class="text_1"><tspan x="81.530487" y="138.72331" id="tspan_80" class="tspan_0">PB6</tspan></text>
+      <text id="text_78" y="140.83755" x="81.56218" xml:space="preserve" class="text_1"><tspan id="tspan_81" y="140.83755" x="81.56218" class="tspan_0">PB7</tspan></text>
+      <text id="text_79" y="135.40508" x="65.230026" xml:space="preserve" class="text_1"><tspan id="tspan_82" y="135.40508" x="65.230026" class="tspan_0">35</tspan></text>
+      <text id="text_80" y="93.818527" x="85.689407" xml:space="preserve" class="text_1"><tspan id="tspan_83" y="93.818527" x="85.689407" class="tspan_0">5</tspan></text>
+      <text xml:space="preserve" x="85.682434" y="108.4352" id="text_81" class="text_1"><tspan x="85.682434" y="108.4352" id="tspan_84" class="tspan_0">8</tspan></text>
+    </g>
+    <g id="chip#C5_6522_0" transform="translate(-8.6920654,-60.647983)" class="g_0">
+      <g id="g_5" transform="translate(-2.2715679,-76.367175)" class="g_0">
+        <text xml:space="preserve" x="83.722267" y="156.63393" id="text_82" class="text_1"><tspan x="83.722267" y="156.63393" id="tspan_85" class="tspan_0">IRQ</tspan></text>
+        <path d="m 82.481524,155.40562 h 2.613883" id="path_5" class="path_1"/>
+      </g>
+      <rect id="rect_1" width="16.827522" height="52.129517" x="67.322945" y="77.651878" class="rect_0"/>
+      <text xml:space="preserve" x="65.308258" y="81.24778" id="text_83" class="text_0"><tspan id="tspan_86" x="65.308258" y="81.24778" class="tspan_0">33</tspan></text>
+      <text id="text_84" y="83.373596" x="65.32238" xml:space="preserve" class="text_0"><tspan y="83.373596" x="65.32238" id="tspan_87" class="tspan_0">32</tspan></text>
+      <text id="text_85" y="85.401756" x="65.316872" xml:space="preserve" class="text_0"><tspan y="85.401756" x="65.316872" id="tspan_88" class="tspan_0">31</tspan></text>
+      <text xml:space="preserve" x="65.298615" y="87.527573" id="text_86" class="text_0"><tspan id="tspan_89" x="65.298615" y="87.527573" class="tspan_0">30</tspan></text>
+      <text id="text_87" y="89.632027" x="65.303436" xml:space="preserve" class="text_0"><tspan y="89.632027" x="65.303436" id="tspan_90" class="tspan_0">29</tspan></text>
+      <text xml:space="preserve" x="65.302055" y="91.757843" id="text_88" class="text_0"><tspan id="tspan_91" x="65.302055" y="91.757843" class="tspan_0">28</tspan></text>
+      <text xml:space="preserve" x="65.314117" y="93.786003" id="text_89" class="text_0"><tspan id="tspan_92" x="65.314117" y="93.786003" class="tspan_0">27</tspan></text>
+      <text id="text_90" y="95.911819" x="65.298264" xml:space="preserve" class="text_0"><tspan y="95.911819" x="65.298264" id="tspan_93" class="tspan_0">26</tspan></text>
+      <text xml:space="preserve" x="86.171066" y="106.43952" id="text_91" class="text_1"><tspan x="86.171066" y="106.43952" id="tspan_94" class="tspan_0">10</tspan></text>
+      <text id="text_92" y="108.54594" x="86.171066" xml:space="preserve" class="text_1"><tspan id="tspan_95" y="108.54594" x="86.171066" class="tspan_0">11</tspan></text>
+      <text id="text_93" y="110.57412" x="86.171066" xml:space="preserve" class="text_1"><tspan id="tspan_96" y="110.57412" x="86.171066" class="tspan_0">12</tspan></text>
+      <text xml:space="preserve" x="86.171066" y="112.68052" id="text_94" class="text_1"><tspan x="86.171066" y="112.68052" id="tspan_97" class="tspan_0">13</tspan></text>
+      <text id="text_95" y="114.7053" x="86.171066" xml:space="preserve" class="text_1"><tspan id="tspan_98" y="114.7053" x="86.171066" class="tspan_0">14</tspan></text>
+      <text xml:space="preserve" x="86.171066" y="116.8117" id="text_96" class="text_1"><tspan x="86.171066" y="116.8117" id="tspan_99" class="tspan_0">15</tspan></text>
+      <text id="text_97" y="118.93861" x="86.171066" xml:space="preserve" class="text_1"><tspan id="tspan_100" y="118.93861" x="86.171066" class="tspan_0">16</tspan></text>
+      <text id="text_98" y="120.98933" x="86.171066" xml:space="preserve" class="text_1"><tspan id="tspan_101" y="120.98933" x="86.171066" class="tspan_0">17</tspan></text>
+      <text xml:space="preserve" x="86.18721" y="125.22903" id="text_99" class="text_1"><tspan x="86.18721" y="125.22903" id="tspan_102" class="tspan_0">18</tspan></text>
+      <text xml:space="preserve" x="86.18721" y="127.40252" id="text_100" class="text_1"><tspan x="86.18721" y="127.40252" id="tspan_103" class="tspan_0">19</tspan></text>
+      <text id="text_101" y="102.19088" x="85.653557" xml:space="preserve" class="text_1"><tspan id="tspan_104" y="102.19088" x="85.653557" class="tspan_0">9</tspan></text>
+      <text id="text_102" y="114.65437" x="65.089722" xml:space="preserve" class="text_1"><tspan id="tspan_105" y="114.65437" x="65.089722" class="tspan_0">36</tspan></text>
+      <text xml:space="preserve" x="65.138313" y="106.31425" id="text_103" class="text_1"><tspan x="65.138313" y="106.31425" id="tspan_106" class="tspan_0">23</tspan></text>
+      <text id="text_104" y="104.38799" x="65.257271" xml:space="preserve" class="text_1"><tspan id="tspan_107" y="104.38799" x="65.257271" class="tspan_0">24</tspan></text>
+      <text id="text_105" y="122.99911" x="65.378433" xml:space="preserve" class="text_1"><tspan id="tspan_108" y="122.99911" x="65.378433" class="tspan_0">25</tspan></text>
+      <text xml:space="preserve" x="85.690781" y="89.678963" id="text_106" class="text_1"><tspan x="85.690781" y="89.678963" id="tspan_109" class="tspan_0">3</tspan></text>
+      <text xml:space="preserve" x="85.626686" y="98.042755" id="text_107" class="text_1"><tspan x="85.626686" y="98.042755" id="tspan_110" class="tspan_0">7</tspan></text>
+      <text xml:space="preserve" x="65.344948" y="125.10722" id="text_108" class="text_1"><tspan x="65.344948" y="125.10722" id="tspan_111" class="tspan_0">34</tspan></text>
+      <text xml:space="preserve" x="86.249527" y="83.415604" id="text_109" class="text_1"><tspan x="86.249527" y="83.415604" id="tspan_112" class="tspan_0">39</tspan></text>
+      <text id="text_110" y="131.38107" x="73.065788" xml:space="preserve" class="text_1"><tspan id="tspan_113" y="131.38107" x="73.065788" class="tspan_0">1</tspan></text>
+      <text id="text_111" y="120.99296" x="65.31337" xml:space="preserve" class="text_1"><tspan id="tspan_114" y="120.99296" x="65.31337" class="tspan_0">22</tspan></text>
+      <text id="text_112" y="81.380394" x="86.288109" xml:space="preserve" class="text_1"><tspan id="tspan_115" y="81.380394" x="86.288109" class="tspan_0">40</tspan></text>
+      <text id="text_113" y="112.65142" x="65.108391" xml:space="preserve" class="text_1"><tspan id="tspan_116" y="112.65142" x="65.108391" class="tspan_0">37</tspan></text>
+      <text id="text_114" y="79.274971" x="86.249527" xml:space="preserve" class="text_1"><tspan id="tspan_117" y="79.274971" x="86.249527" class="tspan_0">21</tspan></text>
+      <text id="text_115" y="91.821861" x="85.72937" xml:space="preserve" class="text_1"><tspan id="tspan_118" y="91.821861" x="85.72937" class="tspan_0">4</tspan></text>
+      <text id="text_116" y="95.99955" x="85.643906" xml:space="preserve" class="text_1"><tspan id="tspan_119" y="95.99955" x="85.643906" class="tspan_0">6</tspan></text>
+      <text id="text_117" y="87.684311" x="85.694916" xml:space="preserve" class="text_1"><tspan id="tspan_120" y="87.684311" x="85.694916" class="tspan_0">2</tspan></text>
+      <text xml:space="preserve" x="73.712212" y="77.365875" id="text_118" class="text_1"><tspan x="73.712212" y="77.365875" id="tspan_121" class="tspan_0">20</tspan></text>
+      <text xml:space="preserve" x="71.453339" y="100.14684" id="text_119" class="text_1"><tspan x="71.453339" y="100.14684" id="tspan_122" class="tspan_0">C5</tspan></text>
+      <text xml:space="preserve" x="71.526146" y="102.20512" id="text_120" class="text_1"><tspan x="71.526146" y="102.20512" id="tspan_123" class="tspan_0">6522</tspan></text>
+      <text id="text_121" y="129.31084" x="71.436493" xml:space="preserve" class="text_1"><tspan id="tspan_124" y="129.31084" x="71.436493" class="tspan_0">VSS</tspan></text>
+      <text xml:space="preserve" x="71.479134" y="79.286247" id="text_122" class="text_1"><tspan x="71.479134" y="79.286247" id="tspan_125" class="tspan_0">VCC</tspan></text>
+      <text id="text_123" y="82.340584" x="69.401871" xml:space="preserve" class="text_1"><tspan id="tspan_126" y="82.340584" x="69.401871" class="tspan_0">D0</tspan></text>
+      <text xml:space="preserve" x="69.401871" y="84.454849" id="text_124" class="text_1"><tspan x="69.401871" y="84.454849" id="tspan_127" class="tspan_0">D1</tspan></text>
+      <text xml:space="preserve" x="69.401871" y="86.515411" id="text_125" class="text_1"><tspan x="69.401871" y="86.515411" id="tspan_128" class="tspan_0">D2</tspan></text>
+      <text id="text_126" y="88.629677" x="69.401871" xml:space="preserve" class="text_1"><tspan id="tspan_129" y="88.629677" x="69.401871" class="tspan_0">D3</tspan></text>
+      <text xml:space="preserve" x="69.401871" y="90.695923" id="text_127" class="text_1"><tspan x="69.401871" y="90.695923" id="tspan_130" class="tspan_0">D4</tspan></text>
+      <text id="text_128" y="92.810188" x="69.401871" xml:space="preserve" class="text_1"><tspan id="tspan_131" y="92.810188" x="69.401871" class="tspan_0">D5</tspan></text>
+      <text id="text_129" y="94.87075" x="69.401871" xml:space="preserve" class="text_1"><tspan id="tspan_132" y="94.87075" x="69.401871" class="tspan_0">D6</tspan></text>
+      <text xml:space="preserve" x="69.401871" y="96.985016" id="text_130" class="text_1"><tspan x="69.401871" y="96.985016" id="tspan_133" class="tspan_0">D7</tspan></text>
+      <text xml:space="preserve" x="81.42691" y="88.679497" id="text_131" class="text_1"><tspan x="81.42691" y="88.679497" id="tspan_134" class="tspan_0">PA0</tspan></text>
+      <text id="text_132" y="90.793777" x="81.463425" xml:space="preserve" class="text_1"><tspan id="tspan_135" y="90.793777" x="81.463425" class="tspan_0">PA1</tspan></text>
+      <text id="text_133" y="92.854332" x="81.474449" xml:space="preserve" class="text_1"><tspan id="tspan_136" y="92.854332" x="81.474449" class="tspan_0">PA2</tspan></text>
+      <text xml:space="preserve" x="81.446198" y="94.968597" id="text_134" class="text_1"><tspan x="81.446198" y="94.968597" id="tspan_137" class="tspan_0">PA3</tspan></text>
+      <text id="text_135" y="97.058006" x="81.356606" xml:space="preserve" class="text_1"><tspan id="tspan_138" y="97.058006" x="81.356606" class="tspan_0">PA4</tspan></text>
+      <text xml:space="preserve" x="81.400703" y="99.172264" id="text_136" class="text_1"><tspan x="81.400703" y="99.172264" id="tspan_139" class="tspan_0">PA5</tspan></text>
+      <text xml:space="preserve" x="81.366257" y="101.23283" id="text_137" class="text_1"><tspan x="81.366257" y="101.23283" id="tspan_140" class="tspan_0">PA6</tspan></text>
+      <text id="text_138" y="103.34708" x="81.397949" xml:space="preserve" class="text_1"><tspan id="tspan_141" y="103.34708" x="81.397949" class="tspan_0">PA7</tspan></text>
+      <text id="text_139" y="82.427483" x="81.429672" xml:space="preserve" class="text_1"><tspan id="tspan_142" y="82.427483" x="81.429672" class="tspan_0">CA1</tspan></text>
+      <text xml:space="preserve" x="81.440697" y="84.54174" id="text_140" class="text_1"><tspan x="81.440697" y="84.54174" id="tspan_143" class="tspan_0">CA2</tspan></text>
+      <text xml:space="preserve" x="81.444809" y="126.3569" id="text_141" class="text_1"><tspan x="81.444809" y="126.3569" id="tspan_144" class="tspan_0">CB1</tspan></text>
+      <text id="text_142" y="128.47115" x="81.455833" xml:space="preserve" class="text_1"><tspan id="tspan_145" y="128.47115" x="81.455833" class="tspan_0">CB2</tspan></text>
+      <text xml:space="preserve" x="69.749443" y="105.43977" id="text_143" class="text_1"><tspan x="69.749443" y="105.43977" id="tspan_146" class="tspan_0">CS1</tspan><tspan x="69.749443" y="118.6689" id="tspan_147" class="tspan_0"/></text>
+      <text id="text_144" y="122.07105" x="69.739777" xml:space="preserve" class="text_1"><tspan id="tspan_148" y="122.07105" x="69.739777" class="tspan_0">R/W</tspan><tspan id="tspan_149" y="135.30017" x="69.739777" class="tspan_0"/></text>
+      <g id="g_6" transform="translate(-12.88118,-16.645291)">
+        <text xml:space="preserve" x="82.136574" y="140.59927" id="text_145" class="text_1"><tspan id="tspan_150" x="82.136574" y="140.59927" class="tspan_0">o2</tspan><tspan x="82.136574" y="153.8284" id="tspan_151" class="tspan_0"/></text>
+        <path d="m 81.686184,139.66678 0.0122,1.15595" id="path_6" class="path_0"/>
+      </g>
+      <text xml:space="preserve" x="69.754059" y="111.62313" id="text_146" class="text_1"><tspan x="69.754059" y="111.62313" id="tspan_152" class="tspan_0">RS0</tspan></text>
+      <text xml:space="preserve" x="69.76944" y="113.75119" id="text_147" class="text_1"><tspan x="69.76944" y="113.75119" id="tspan_153" class="tspan_0">RS1</tspan></text>
+      <g id="g_7" transform="translate(-133.97009,61.524213)" class="g_0">
+        <text xml:space="preserve" x="204.5517" y="64.730103" id="text_148" class="text_1"><tspan x="204.5517" y="64.730103" id="tspan_154" class="tspan_0">RESET</tspan></text>
+        <path d="m 202.42277,63.530987 h 4.41026" id="path_7" class="path_1"/>
+      </g>
+      <g id="g_8" transform="translate(-11.826636,-50.022588)" class="g_0">
+        <text xml:space="preserve" x="81.58876" y="157.54208" id="text_149" class="text_1"><tspan x="81.58876" y="157.54208" id="tspan_155" class="tspan_0">CS2</tspan></text>
+        <path d="m 80.265911,156.31378 h 2.704013" id="path_8" class="path_1"/>
+      </g>
+      <text id="text_150" y="107.44167" x="81.459328" xml:space="preserve" class="text_1"><tspan id="tspan_156" y="107.44167" x="81.459328" class="tspan_0">PB0</tspan></text>
+      <text xml:space="preserve" x="81.495842" y="109.55596" id="text_151" class="text_1"><tspan x="81.495842" y="109.55596" id="tspan_157" class="tspan_0">PB1</tspan></text>
+      <text xml:space="preserve" x="81.506866" y="111.61651" id="text_152" class="text_1"><tspan x="81.506866" y="111.61651" id="tspan_158" class="tspan_0">PB2</tspan></text>
+      <text id="text_153" y="113.73077" x="81.478615" xml:space="preserve" class="text_1"><tspan id="tspan_159" y="113.73077" x="81.478615" class="tspan_0">PB3</tspan></text>
+      <text xml:space="preserve" x="81.444855" y="115.797" id="text_154" class="text_1"><tspan x="81.444855" y="115.797" id="tspan_160" class="tspan_0">PB4</tspan></text>
+      <text id="text_155" y="117.91128" x="81.488953" xml:space="preserve" class="text_1"><tspan id="tspan_161" y="117.91128" x="81.488953" class="tspan_0">PB5</tspan></text>
+      <text id="text_156" y="119.97186" x="81.454506" xml:space="preserve" class="text_1"><tspan id="tspan_162" y="119.97186" x="81.454506" class="tspan_0">PB6</tspan></text>
+      <text xml:space="preserve" x="81.486198" y="122.0861" id="text_157" class="text_1"><tspan x="81.486198" y="122.0861" id="tspan_163" class="tspan_0">PB7</tspan></text>
+      <text xml:space="preserve" x="65.297333" y="116.7758" id="text_158" class="text_1"><tspan x="65.297333" y="116.7758" id="tspan_164" class="tspan_0">35</tspan></text>
+      <text xml:space="preserve" x="85.689407" y="93.818527" id="text_159" class="text_1"><tspan x="85.689407" y="93.818527" id="tspan_165" class="tspan_0">5</tspan></text>
+      <text id="text_160" y="100.17007" x="85.646667" xml:space="preserve" class="text_1"><tspan id="tspan_166" y="100.17007" x="85.646667" class="tspan_0">8</tspan></text>
+      <text xml:space="preserve" x="65.24575" y="110.62521" id="text_161" class="text_1"><tspan x="65.24575" y="110.62521" id="tspan_167" class="tspan_0">38</tspan></text>
+      <text id="text_162" y="115.77753" x="69.810432" xml:space="preserve" class="text_1"><tspan id="tspan_168" y="115.77753" x="69.810432" class="tspan_0">RS2</tspan></text>
+      <text id="text_163" y="117.82275" x="69.805496" xml:space="preserve" class="text_1"><tspan id="tspan_169" y="117.82275" x="69.805496" class="tspan_0">RS3</tspan></text>
+    </g>
+    <g id="chip#C9_74LS145_0" transform="translate(-6.0965971,77.853042)">
+      <rect id="rect_2" width="12.573433" height="23.082188" x="110.70764" y="26.883739" class="rect_1"/>
+      <ellipse id="ellipse_0" ry="0.48355335" rx="0.44926631" cy="31.177528" cx="123.84952" class="ellipse_0"/>
+      <text xml:space="preserve" x="117.01161" y="28.504404" id="text_164" class="text_1"><tspan x="117.01161" y="28.504404" id="tspan_170" class="tspan_0">C9</tspan></text>
+      <text id="text_165" y="30.590347" x="116.20066" xml:space="preserve" class="text_1"><tspan id="tspan_171" y="30.590347" x="116.20066" class="tspan_0">74LS145</tspan></text>
+      <text id="text_166" y="36.892117" x="116.96397" xml:space="preserve" class="text_1"><tspan id="tspan_172" y="36.892117" x="116.96397" class="tspan_0">DECIMAL</tspan></text>
+      <text xml:space="preserve" x="112.31661" y="35.79874" id="text_167" class="text_1"><tspan x="112.31661" y="35.79874" id="tspan_173" class="tspan_0">A</tspan></text>
+      <text id="text_168" y="37.910645" x="112.31667" xml:space="preserve" class="text_1"><tspan id="tspan_174" y="37.910645" x="112.31667" class="tspan_0">B</tspan></text>
+      <text id="text_169" y="34.736305" x="116.94824" xml:space="preserve" class="text_1"><tspan id="tspan_175" y="34.736305" x="116.94824" class="tspan_0">BCD  TO</tspan></text>
+      <ellipse cx="123.85188" cy="47.86972" rx="0.44926631" ry="0.48355335" id="ellipse_1" class="ellipse_0"/>
+      <text id="text_170" y="39.99604" x="112.27023" xml:space="preserve" class="text_1"><tspan id="tspan_176" y="39.99604" x="112.27023" class="tspan_0">C</tspan></text>
+      <text xml:space="preserve" x="112.31175" y="42.084957" id="text_171" class="text_1"><tspan x="112.31175" y="42.084957" id="tspan_177" class="tspan_0">D</tspan></text>
+      <ellipse cx="123.86331" cy="29.083332" rx="0.44926631" ry="0.48355335" id="ellipse_2" class="ellipse_0"/>
+      <text id="text_172" y="34.807178" x="125.25546" xml:space="preserve" class="text_1"><tspan id="tspan_178" y="34.807178" x="125.25546" class="tspan_1">4</tspan></text>
+      <text xml:space="preserve" x="125.29955" y="36.807899" id="text_173" class="text_1"><tspan x="125.29955" y="36.807899" id="tspan_179" class="tspan_1">5</tspan></text>
+      <text xml:space="preserve" x="109.60278" y="34.699947" id="text_174" class="text_1"><tspan x="109.60278" y="34.699947" id="tspan_180" class="tspan_1">15</tspan></text>
+      <text id="text_175" y="28.551439" x="125.36436" xml:space="preserve" class="text_1"><tspan id="tspan_181" y="28.551439" x="125.36436" class="tspan_1">1</tspan></text>
+      <text xml:space="preserve" x="126.37176" y="45.277596" id="text_176" class="text_1"><tspan x="126.37176" y="45.277596" id="tspan_182" class="tspan_1">10</tspan></text>
+      <text id="text_177" y="43.093185" x="125.40604" xml:space="preserve" class="text_1"><tspan id="tspan_183" y="43.093185" x="125.40604" class="tspan_1">9</tspan></text>
+      <text id="text_178" y="47.330914" x="126.39764" xml:space="preserve" class="text_1"><tspan id="tspan_184" y="47.330914" x="126.39764" class="tspan_1">11</tspan></text>
+      <text xml:space="preserve" x="109.68545" y="36.786396" id="text_179" class="text_1"><tspan x="109.68545" y="36.786396" id="tspan_185" class="tspan_1">14</tspan></text>
+      <text xml:space="preserve" x="125.35378" y="32.767895" id="text_180" class="text_1"><tspan x="125.35378" y="32.767895" id="tspan_186" class="tspan_1">3</tspan></text>
+      <text id="text_181" y="30.683041" x="125.32377" xml:space="preserve" class="text_1"><tspan id="tspan_187" y="30.683041" x="125.32377" class="tspan_1">2</tspan></text>
+      <text id="text_182" y="38.965904" x="125.29681" xml:space="preserve" class="text_1"><tspan id="tspan_188" y="38.965904" x="125.29681" class="tspan_1">6</tspan></text>
+      <text xml:space="preserve" x="125.27958" y="40.966629" id="text_183" class="text_1"><tspan x="125.27958" y="40.966629" id="tspan_189" class="tspan_1">7</tspan></text>
+      <text id="text_184" y="40.983814" x="109.67486" xml:space="preserve" class="text_1"><tspan id="tspan_190" y="40.983814" x="109.67486" class="tspan_1">12</tspan></text>
+      <text xml:space="preserve" x="109.69087" y="38.951679" id="text_185" class="text_1"><tspan x="109.69087" y="38.951679" id="tspan_191" class="tspan_1">13</tspan></text>
+      <text xml:space="preserve" x="122.15566" y="37.921654" id="text_186" class="text_1"><tspan x="122.15566" y="37.921654" id="tspan_192" class="tspan_1">4</tspan></text>
+      <text id="text_187" y="39.922371" x="122.19975" xml:space="preserve" class="text_1"><tspan id="tspan_193" y="39.922371" x="122.19975" class="tspan_1">5</tspan></text>
+      <text xml:space="preserve" x="122.26456" y="31.665907" id="text_188" class="text_1"><tspan x="122.26456" y="31.665907" id="tspan_194" class="tspan_1">1</tspan></text>
+      <text id="text_189" y="35.88237" x="122.25398" xml:space="preserve" class="text_1"><tspan id="tspan_195" y="35.88237" x="122.25398" class="tspan_1">3</tspan></text>
+      <text xml:space="preserve" x="122.22397" y="33.797516" id="text_190" class="text_1"><tspan x="122.22397" y="33.797516" id="tspan_196" class="tspan_1">2</tspan></text>
+      <text xml:space="preserve" x="122.19701" y="42.080376" id="text_191" class="text_1"><tspan x="122.19701" y="42.080376" id="tspan_197" class="tspan_1">6</tspan></text>
+      <text id="text_192" y="44.0811" x="122.17978" xml:space="preserve" class="text_1"><tspan id="tspan_198" y="44.0811" x="122.17978" class="tspan_1">7</tspan></text>
+      <text xml:space="preserve" x="122.22459" y="46.265377" id="text_193" class="text_1"><tspan x="122.22459" y="46.265377" id="tspan_199" class="tspan_1">8</tspan></text>
+      <text xml:space="preserve" x="122.27279" y="48.3377" id="text_194" class="text_1"><tspan x="122.27279" y="48.3377" id="tspan_200" class="tspan_1">9</tspan></text>
+      <text id="text_195" y="29.54689" x="122.17875" xml:space="preserve" class="text_1"><tspan id="tspan_201" y="29.54689" x="122.17875" class="tspan_1">0</tspan></text>
+      <ellipse cx="123.84383" cy="35.353374" rx="0.44926631" ry="0.48355335" id="ellipse_3" class="ellipse_0"/>
+      <ellipse id="ellipse_4" ry="0.48355335" rx="0.44926631" cy="33.259182" cx="123.85763" class="ellipse_0"/>
+      <ellipse cx="123.8326" cy="39.540375" rx="0.44926631" ry="0.48355335" id="ellipse_5" class="ellipse_0"/>
+      <ellipse id="ellipse_6" ry="0.48355335" rx="0.44926631" cy="37.446182" cx="123.8464" class="ellipse_0"/>
+      <ellipse id="ellipse_7" ry="0.48355335" rx="0.44926631" cy="43.716225" cx="123.82691" class="ellipse_0"/>
+      <ellipse cx="123.84072" cy="41.622032" rx="0.44926631" ry="0.48355335" id="ellipse_8" class="ellipse_0"/>
+      <ellipse id="ellipse_9" ry="0.48355335" rx="0.44926631" cy="45.782166" cx="123.83102" class="ellipse_0"/>
+      <text xml:space="preserve" x="116.94533" y="38.964817" id="text_196" class="text_1"><tspan x="116.94533" y="38.964817" id="tspan_202" class="tspan_0">DECODER</tspan></text>
+    </g>
+    <g id="chip#Q3_2N3904_0">
+      <circle id="circle_0" cx="105.79238" cy="75.499062" r="3.1960249" class="rect_1"/>
+      <path d="m 102.62991,75.526169 h 1.58329" id="path_9" class="path_2"/>
+      <path d="m 104.22102,73.968466 v 3.096202" id="path_10" class="path_2"/>
+      <path d="m 104.22421,74.666318 2.6401,-1.243528 v -0.866857" id="path_11" class="path_2"/>
+      <path d="m 104.30118,76.32412 2.50428,1.445848 v 0.779303" id="path_12" class="path_2"/>
+      <path d="m 104.98849,77.185051 h 0.79938 l -0.19843,-0.740553 z" id="path_13" class="path_3"/>
+      <text xml:space="preserve" x="110.9691" y="74.96344" id="text_197" class="text_1"><tspan x="110.9691" y="74.96344" id="tspan_203" class="tspan_0">Q3</tspan></text>
+      <text id="text_198" y="77.095093" x="112.84769" xml:space="preserve" class="text_1"><tspan id="tspan_204" y="77.095093" x="112.84769" class="tspan_0">2N3904</tspan></text>
+    </g>
+    <g transform="translate(41.77853,0.17575772)" id="chip#Q2_2N4401_0">
+      <circle r="3.1960249" cy="75.499062" cx="105.79238" id="circle_1" class="rect_1"/>
+      <path id="path_14" d="m 102.62991,75.526169 h 1.58329" class="path_2"/>
+      <path id="path_15" d="m 104.22102,73.968466 v 3.096202" class="path_2"/>
+      <path id="path_16" d="m 104.22421,74.666318 2.6401,-1.243528 v -0.866857" class="path_2"/>
+      <path id="path_17" d="m 104.30118,76.32412 2.50428,1.445848 v 0.779303" class="path_2"/>
+      <path id="path_18" d="m 104.98849,77.185051 h 0.79938 l -0.19843,-0.740553 z" class="path_3"/>
+      <text id="text_199" y="74.96344" x="110.9691" xml:space="preserve" class="text_1"><tspan id="tspan_205" y="74.96344" x="110.9691" class="tspan_0">Q2</tspan></text>
+      <text xml:space="preserve" x="112.84769" y="77.095093" id="text_200" class="text_1"><tspan x="112.84769" y="77.095093" id="tspan_206" class="tspan_0">2N4401</tspan></text>
+    </g>
+    <g id="chip#Q5_2N4401_0" transform="translate(41.821072,19.052302)">
+      <circle id="circle_2" cx="105.79238" cy="75.499062" r="3.1960249" class="rect_1"/>
+      <path d="m 102.62991,75.526169 h 1.58329" id="path_19" class="path_2"/>
+      <path d="m 104.22102,73.968466 v 3.096202" id="path_20" class="path_2"/>
+      <path d="m 104.22421,74.666318 2.6401,-1.243528 v -0.866857" id="path_21" class="path_2"/>
+      <path d="m 104.30118,76.32412 2.50428,1.445848 v 0.779303" id="path_22" class="path_2"/>
+      <path d="m 104.98849,77.185051 h 0.79938 l -0.19843,-0.740553 z" id="path_23" class="path_3"/>
+      <text xml:space="preserve" x="110.9691" y="74.96344" id="text_201" class="text_1"><tspan x="110.9691" y="74.96344" id="tspan_207" class="tspan_0">Q5</tspan></text>
+      <text id="text_202" y="77.095093" x="112.84769" xml:space="preserve" class="text_1"><tspan id="tspan_208" y="77.095093" x="112.84769" class="tspan_0">2N4401</tspan></text>
+    </g>
+    <g transform="translate(-0.08713072,18.860813)" id="chip#Q3_2N3904_1">
+      <circle r="3.1960249" cy="75.499062" cx="105.79238" id="circle_3" class="rect_1"/>
+      <path id="path_24" d="m 102.62991,75.526169 h 1.58329" class="path_2"/>
+      <path id="path_25" d="m 104.22102,73.968466 v 3.096202" class="path_2"/>
+      <path id="path_26" d="m 104.22421,74.666318 2.6401,-1.243528 v -0.866857" class="path_2"/>
+      <path id="path_27" d="m 104.30118,76.32412 2.50428,1.445848 v 0.779303" class="path_2"/>
+      <path id="path_28" d="m 104.98849,77.185051 h 0.79938 l -0.19843,-0.740553 z" class="path_3"/>
+      <text id="text_203" y="74.96344" x="110.9691" xml:space="preserve" class="text_1"><tspan id="tspan_209" y="74.96344" x="110.9691" class="tspan_0">Q6</tspan></text>
+      <text xml:space="preserve" x="112.84769" y="77.095093" id="text_204" class="text_1"><tspan x="112.84769" y="77.095093" id="tspan_210" class="tspan_0">2N3904</tspan></text>
+    </g>
+    <g transform="translate(58.642156,23.19719)" id="chip#Q4_TIP29_0">
+      <circle r="3.1960249" cy="75.499062" cx="105.79238" id="circle_4" class="rect_1"/>
+      <path id="path_29" d="m 102.62991,75.526169 h 1.58329" class="path_2"/>
+      <path id="path_30" d="m 104.22102,73.968466 v 3.096202" class="path_2"/>
+      <path id="path_31" d="m 104.22421,74.666318 2.6401,-1.243528 v -0.866857" class="path_2"/>
+      <path id="path_32" d="m 104.30118,76.32412 2.46364,1.296338 1.42825,-0.0093 h 11.19133 v -5.787604" class="path_2"/>
+      <path id="path_33" d="m 104.98849,77.185051 h 0.79938 l -0.19843,-0.740553 z" class="path_3"/>
+      <text id="text_205" y="73.918617" x="110.88692" xml:space="preserve" class="text_1"><tspan id="tspan_211" y="73.918617" x="110.88692" class="tspan_0">Q4</tspan></text>
+      <text xml:space="preserve" x="112.07884" y="75.982185" id="text_206" class="text_1"><tspan x="112.07884" y="75.982185" id="tspan_212" class="tspan_0">TIP29</tspan></text>
+      <path id="path_34" d="m 100.36796,61.786846 v 1.218163 h 23.22243 v 3.665199" class="path_2"/>
+      <path id="path_35" d="m 87.894329,121.80609 v -2.43096 h 44.206501 v 2.50905" class="path_2"/>
+    </g>
+    <g id="chip#Q1_TIP29_0" transform="translate(52.204657,6.4347655)">
+      <circle id="circle_5" cx="105.79238" cy="75.499062" r="3.1960249" class="rect_1"/>
+      <path d="m 102.62991,75.526169 h 1.58329" id="path_36" class="path_2"/>
+      <path d="m 104.22102,73.968466 v 3.096202" id="path_37" class="path_2"/>
+      <path d="m 104.22421,74.666318 2.6401,-1.243528 v -0.866857" id="path_38" class="path_2"/>
+      <path d="m 104.30118,76.32412 2.50428,1.445848 v 0.779303" id="path_39" class="path_2"/>
+      <path d="m 104.98849,77.185051 h 0.79938 l -0.19843,-0.740553 z" id="path_40" class="path_3"/>
+      <text xml:space="preserve" x="100.53345" y="77.022789" id="text_207" class="text_1"><tspan x="100.53345" y="77.022789" id="tspan_213" class="tspan_0">Q1</tspan></text>
+      <text id="text_208" y="79.168968" x="99.482956" xml:space="preserve" class="text_1"><tspan id="tspan_214" y="79.168968" x="99.482956" class="tspan_0">TIP29</tspan></text>
+    </g>
+    <g transform="translate(14.701808,0.16078892)" id="chip#VR1_0">
+      <circle r="3.1960249" cy="75.499062" cx="105.79238" id="circle_6" class="rect_1"/>
+      <path id="path_41" d="m 106.20369,76.160076 h 1.23819 l -0.63724,-1.282942 z" class="path_3"/>
+      <text id="text_209" y="74.96344" x="111.42639" xml:space="preserve" class="text_1"><tspan id="tspan_215" y="74.96344" x="111.42639" class="tspan_0">VR1</tspan></text>
+      <text xml:space="preserve" x="111.98261" y="77.012306" id="text_210" class="text_1"><tspan x="111.98261" y="77.012306" id="tspan_216" class="tspan_0">7.5V</tspan></text>
+      <path id="path_42" d="m 106.78146,76.221857 v 2.300759" class="path_2"/>
+      <path id="path_43" d="M 106.80464,74.877134 V 72.467827" class="path_2"/>
+      <path id="path_44" d="M 107.74509,74.701676 H 105.9249" class="path_2"/>
+      <path id="path_45" d="m 105.25793,74.388724 h -1.63531 v 1.106884" class="path_2"/>
+    </g>
+    <g id="chip#VR1_1" transform="translate(14.725255,18.965492)">
+      <circle id="circle_7" cx="105.79238" cy="75.499062" r="3.1960249" class="rect_1"/>
+      <path d="m 106.20369,76.160076 h 1.23819 l -0.63724,-1.282942 z" id="path_46" class="path_3"/>
+      <text xml:space="preserve" x="111.38375" y="73.874603" id="text_211" class="text_1"><tspan x="111.38375" y="73.874603" id="tspan_217" class="tspan_0">VR2</tspan></text>
+      <text id="text_212" y="76.036522" x="111.91189" xml:space="preserve" class="text_1"><tspan id="tspan_218" y="76.036522" x="111.91189" class="tspan_0">7.5V</tspan></text>
+      <path d="m 106.78146,76.221857 v 2.300759" id="path_47" class="path_2"/>
+      <path d="M 106.80464,74.877134 V 72.467827" id="path_48" class="path_2"/>
+      <path d="M 107.74509,74.701676 H 105.9249" id="path_49" class="path_2"/>
+      <path d="m 105.25793,74.388724 h -1.63531 v 1.106884" id="path_50" class="path_2"/>
+    </g>
+    <g transform="translate(-146.51053,-1.6929071)" id="pointer#1_0" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_51" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_213" class="text_1"><tspan id="tspan_219" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_220" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_1" transform="translate(-146.53044,0.34196791)" class="g_0">
+      <path id="path_52" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_214" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan y="23.459679" x="163.86922" id="tspan_221" class="tspan_0">1</tspan><tspan id="tspan_222" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_2" transform="translate(-146.55035,2.3768429)" class="g_0">
+      <path id="path_53" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_215" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan y="23.459679" x="163.86922" id="tspan_223" class="tspan_0">1</tspan><tspan id="tspan_224" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-146.57026,4.4117179)" id="pointer#1_3" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_54" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_216" class="text_1"><tspan id="tspan_225" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_226" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_4" transform="translate(-146.59017,6.4465929)" class="g_0">
+      <path id="path_55" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_217" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan y="23.459679" x="163.86922" id="tspan_227" class="tspan_0">1</tspan><tspan id="tspan_228" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-146.61008,8.4814679)" id="pointer#1_5" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_56" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_218" class="text_1"><tspan id="tspan_229" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_230" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-146.62999,10.516343)" id="pointer#1_6" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_57" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_219" class="text_1"><tspan id="tspan_231" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_232" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_7" transform="translate(-146.6499,12.551218)" class="g_0">
+      <path id="path_58" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_220" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan y="23.459679" x="163.86922" id="tspan_233" class="tspan_0">1</tspan><tspan id="tspan_234" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="wire#D0_0" class="g_0">
+      <path d="M 20.86005,21.29004 H 58.65751" id="path_59" class="path_4"/>
+      <text id="text_221" y="20.649323" x="23.05991" xml:space="preserve" class="text_2"><tspan y="20.649323" x="23.05991" id="tspan_235" class="tspan_0">D0</tspan><tspan id="tspan_236" y="33.878448" x="23.05991" class="tspan_0"/></text>
+      <ellipse id="ellipse_10" cy="21.312094" cx="41.746674" rx="0.21147294" ry="0.21078888" class="ellipse_1"/>
+      <path d="M 58.424151,106.67924 H 41.757073 V 21.311901" id="path_60" class="path_4"/>
+    </g>
+    <g id="wire#D1_0">
+      <path id="path_61" d="M 20.84014,23.324915 H 58.637599" class="path_5"/>
+      <text xml:space="preserve" x="23.05991" y="22.74262" id="text_222" class="text_3"><tspan id="tspan_237" x="23.05991" y="22.74262" class="tspan_0">D1</tspan><tspan x="23.05991" y="35.971745" id="tspan_238" class="tspan_0"/></text>
+      <ellipse id="ellipse_11" cy="23.355833" cx="39.68663" rx="0.21147294" ry="0.21078888" class="ellipse_2"/>
+      <path id="path_62" d="M 58.466687,108.80156 H 39.689249 V 23.434211" class="path_5"/>
+    </g>
+    <g id="wire#D2_0">
+      <path id="path_63" d="M 20.82023,25.35979 H 58.617689" class="path_6"/>
+      <text xml:space="preserve" x="23.05991" y="24.783216" id="text_223" class="text_4"><tspan x="23.05991" y="24.783216" id="tspan_239" class="tspan_0">D2</tspan></text>
+      <ellipse id="ellipse_12" cy="25.384359" cx="37.624634" rx="0.21147294" ry="0.21078888" class="ellipse_3"/>
+      <path d="M 58.452947,110.90034 37.62069,110.74552 V 25.378172" id="path_64" class="path_6"/>
+    </g>
+    <g id="wire#D3_0">
+      <path d="M 20.80032,27.394665 H 58.59778" id="path_65" class="path_7"/>
+      <text id="text_224" y="26.876514" x="23.05991" xml:space="preserve" class="text_5"><tspan y="26.876514" x="23.05991" id="tspan_240" class="tspan_0">D3</tspan><tspan id="tspan_241" y="40.10564" x="23.05991" class="tspan_0"/></text>
+      <ellipse id="ellipse_13" cy="27.401564" cx="35.481293" rx="0.21147294" ry="0.21078888" class="ellipse_4"/>
+      <path id="path_66" d="M 58.483916,112.89276 H 35.477327 V 27.525423" class="path_7"/>
+    </g>
+    <g id="wire#D4_0">
+      <path id="path_67" d="M 20.78041,29.42954 H 58.577869" class="path_8"/>
+      <text id="text_225" y="28.955933" x="23.05991" xml:space="preserve" class="text_6"><tspan id="tspan_242" y="28.955933" x="23.05991" class="tspan_0">D4</tspan></text>
+      <ellipse id="ellipse_14" cy="29.482601" cx="33.408806" rx="0.21147294" ry="0.21078888" class="ellipse_5"/>
+      <path d="M 58.440207,115.01508 H 33.409503 V 29.417839" id="path_68" class="path_8"/>
+    </g>
+    <g id="wire#D5_0">
+      <path d="M 20.7605,31.464415 H 58.557959" id="path_69" class="path_9"/>
+      <text xml:space="preserve" x="23.05991" y="31.049231" id="text_226" class="text_7"><tspan x="23.05991" y="31.049231" id="tspan_243" class="tspan_0">D5</tspan></text>
+      <ellipse id="ellipse_15" cy="31.501623" cx="31.333313" rx="0.21147294" ry="0.21078888" class="ellipse_6"/>
+      <path id="path_70" d="M 58.46896,117.11386 H 31.340944 V 31.501042" class="path_9"/>
+    </g>
+    <g id="wire#D6_0">
+      <path d="M 20.74059,33.49929 H 58.538049" id="path_71" class="path_10"/>
+      <text xml:space="preserve" x="23.05991" y="33.089825" id="text_227" class="text_8"><tspan x="23.05991" y="33.089825" id="tspan_244" class="tspan_0">D6</tspan></text>
+      <ellipse id="ellipse_16" cy="33.524769" cx="29.251842" rx="0.21147294" ry="0.21078888" class="ellipse_7"/>
+      <path id="path_72" d="M 58.427076,119.08295 H 29.261249 V 33.49622" class="path_10"/>
+    </g>
+    <g id="wire#D7_0">
+      <path id="path_73" d="M 20.72068,35.534165 H 58.51814" class="path_11"/>
+      <text id="text_228" y="35.183125" x="23.05991" xml:space="preserve" class="text_9"><tspan id="tspan_245" y="35.183125" x="23.05991" class="tspan_0">D7</tspan></text>
+      <ellipse id="ellipse_17" cy="35.559784" cx="27.203402" rx="0.21147294" ry="0.21078888" class="ellipse_8"/>
+      <path d="M 58.425614,121.18174 27.19269,120.91115 V 35.543792" id="path_74" class="path_11"/>
+    </g>
+    <g id="pointer#1_8" transform="translate(-146.53788,31.481721)" class="g_0">
+      <path id="path_75" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_229" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan y="23.459679" x="163.86922" id="tspan_246" class="tspan_0">1</tspan><tspan id="tspan_247" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-146.55779,33.516596)" id="pointer#1_9" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_76" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_230" class="text_1"><tspan id="tspan_248" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_249" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-146.52026,21.146011)" id="pointer#2_0" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_77" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_231" class="text_1"><tspan x="163.86922" y="23.459679" id="tspan_250" class="tspan_0">2</tspan></text>
+    </g>
+    <g id="wire#CS1_0">
+      <path d="M 20.85032,44.128957 H 58.605922" id="path_78" class="path_12"/>
+      <text id="text_232" y="43.524227" x="23.498785" xml:space="preserve" class="text_10"><tspan id="tspan_251" y="43.524227" x="23.498785" class="tspan_0">CS1</tspan></text>
+    </g>
+    <g id="wire#BA2_0">
+      <path d="M 20.8327,54.464666 H 58.623546" id="path_79" class="path_13"/>
+      <text id="text_233" y="54.042175" x="23.5238" xml:space="preserve" class="text_11"><tspan id="tspan_252" y="54.042175" x="23.5238" class="tspan_0">BA2</tspan></text>
+    </g>
+    <g id="wire#BA3_0">
+      <path d="M 20.81279,56.499542 H 58.68743" id="path_80" class="path_14"/>
+      <text xml:space="preserve" x="23.628906" y="56.059956" id="text_234" class="text_12"><tspan x="23.628906" y="56.059956" id="tspan_253" class="tspan_0">BA3</tspan></text>
+    </g>
+    <g id="pointer#1_10" transform="translate(-146.70243,125.37487)" class="g_0">
+      <path id="path_81" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_235" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan y="23.459679" x="163.86922" id="tspan_254" class="tspan_0">1</tspan><tspan id="tspan_255" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_11" transform="translate(-146.72234,127.40974)" class="g_0">
+      <path id="path_82" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_236" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan y="23.459679" x="163.86922" id="tspan_256" class="tspan_0">1</tspan><tspan id="tspan_257" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-146.74225,129.44462)" id="pointer#1_12" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_83" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_237" class="text_1"><tspan id="tspan_258" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_259" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_13" transform="translate(-146.69807,142.01542)" class="g_0">
+      <path id="path_84" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_238" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan y="23.459679" x="163.86922" id="tspan_260" class="tspan_0">1</tspan><tspan id="tspan_261" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_14" transform="translate(-146.71798,144.0503)" class="g_0">
+      <path id="path_85" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_239" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan y="23.459679" x="163.86922" id="tspan_262" class="tspan_0">1</tspan><tspan id="tspan_263" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-146.73789,146.08517)" id="pointer#1_15" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_86" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_240" class="text_1"><tspan id="tspan_264" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_265" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-146.73127,133.68081)" id="pointer#1_16" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_87" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_241" class="text_1"><tspan id="tspan_266" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_267" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-146.67512,137.84446)" id="pointer#1_17" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_88" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_242" class="text_1"><tspan id="tspan_268" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_269" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA4_0">
+      <path d="M 20.66815,148.35782 H 58.395623" id="path_89" class="path_15"/>
+      <text id="text_243" y="147.78279" x="23.36533" xml:space="preserve" class="text_13"><tspan id="tspan_270" y="147.78279" x="23.36533" class="tspan_0">BA4</tspan></text>
+    </g>
+    <g id="wire#X8XX_0">
+      <path d="M 20.62833,152.42757 H 58.419322" id="path_90" class="path_16"/>
+      <text xml:space="preserve" x="23.865742" y="151.99577" id="text_244" class="text_14"><tspan x="23.865742" y="151.99577" id="tspan_271" class="tspan_0">X8XX</tspan></text>
+    </g>
+    <g id="wire#IO_0">
+      <ellipse id="ellipse_18" cy="150.40373" cx="43.957294" rx="0.21147294" ry="0.21078888" class="ellipse_9"/>
+      <path d="M 20.64824,150.39269 H 58.4416" id="path_91" class="path_17"/>
+      <text xml:space="preserve" x="23.154266" y="149.83029" id="text_245" class="text_15"><tspan x="23.154266" y="149.83029" id="tspan_272" class="tspan_0">I/O</tspan></text>
+      <path d="M 58.597043,46.2706 H 43.957065 v 104.13674" id="path_92" class="path_17"/>
+    </g>
+    <g id="wire#BA0_0">
+      <ellipse id="ellipse_19" cy="156.67523" cx="45.996014" rx="0.21147294" ry="0.21078888" class="ellipse_10"/>
+      <path d="M 20.63931,156.66376 H 58.41208" id="path_93" class="path_18"/>
+      <text xml:space="preserve" x="23.203173" y="156.20207" id="text_246" class="text_16"><tspan x="23.203173" y="156.20207" id="tspan_273" class="tspan_0">BA0</tspan></text>
+      <path d="M 58.628012,50.455546 H 46.016423 V 156.68254" id="path_94" class="path_18"/>
+    </g>
+    <g id="wire#BA1_0">
+      <ellipse id="ellipse_20" cy="160.81648" cx="48.071507" rx="0.21147294" ry="0.21078888" class="ellipse_11"/>
+      <path d="M 20.69546,160.82741 H 58.44147" id="path_95" class="path_19"/>
+      <text id="text_247" y="160.30385" x="23.323963" xml:space="preserve" class="text_17"><tspan id="tspan_274" y="160.30385" x="23.323963" class="tspan_0">BA1</tspan></text>
+      <path d="M 58.618916,52.485943 H 48.090796 V 160.78702" id="path_96" class="path_19"/>
+    </g>
+    <g id="wire#/RES_0">
+      <ellipse id="ellipse_21" cy="169.05183" cx="54.461555" rx="0.21147294" ry="0.21078888" class="ellipse_12"/>
+      <path id="path_97" d="M 20.632689,169.06812 H 58.423682" class="path_20"/>
+      <g id="g_9" transform="translate(-0.29551193,-0.06407478)">
+        <text id="text_248" y="168.79547" x="23.530809" xml:space="preserve" class="text_18"><tspan id="tspan_275" y="168.79547" x="23.530809" class="tspan_0">RES</tspan></text>
+        <path id="path_98" d="m 22.276871,167.59635 h 2.56854" class="path_21"/>
+      </g>
+      <path d="M 58.584779,65.04302 H 54.46052 v 104.01163" id="path_99" class="path_20"/>
+    </g>
+    <g id="wire#BPHI2_0">
+      <ellipse id="ellipse_22" cy="167.01985" cx="52.293598" rx="0.21147294" ry="0.21078888" class="ellipse_13"/>
+      <path id="path_100" d="M 20.652599,167.03324 H 58.44596" class="path_22"/>
+      <g id="g_10" transform="translate(-186.24306,-0.2088513)" class="g_0">
+        <text xml:space="preserve" x="209.60358" y="166.70625" id="text_249" class="text_19"><tspan id="tspan_276" x="209.60358" y="166.70625" class="tspan_0">B02</tspan><tspan x="209.60358" y="179.93538" id="tspan_277" class="tspan_0"/></text>
+        <path d="m 210.04402,165.62044 -0.75965,1.16872" id="path_101" class="path_23"/>
+      </g>
+      <path d="M 58.561147,62.872595 H 52.299764 V 166.98742" id="path_102" class="path_22"/>
+    </g>
+    <g id="wire#RW_0">
+      <ellipse id="ellipse_23" cy="165.02271" cx="50.133644" rx="0.21147294" ry="0.21078888" class="ellipse_14"/>
+      <path id="path_103" d="M 20.672509,164.99837 H 58.399983" class="path_24"/>
+      <text xml:space="preserve" x="23.389297" y="164.4314" id="text_250" class="text_20"><tspan x="23.389297" y="164.4314" id="tspan_278" class="tspan_0">R/W</tspan></text>
+      <path d="M 58.645591,60.837989 H 50.136364 V 165.00322" id="path_104" class="path_24"/>
+    </g>
+    <g transform="translate(8.1866844,0.33467436)" id="chip#J2_0" class="g_0">
+      <path d="m 211.85738,18.979414 c 1.17347,0.807802 2.64804,-0.607344 4.06167,0 v 53.340907 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" id="path_105" class="path_25"/>
+      <text id="text_251" y="21.591988" x="213.86252" xml:space="preserve" class="text_1"><tspan id="tspan_279" y="21.591988" x="213.86252" class="tspan_0">B</tspan></text>
+      <text id="text_252" y="27.888334" x="213.88449" xml:space="preserve" class="text_1"><tspan id="tspan_280" y="27.888334" x="213.88449" class="tspan_0">C</tspan></text>
+      <text id="text_253" y="29.977808" x="213.84918" xml:space="preserve" class="text_1"><tspan id="tspan_281" y="29.977808" x="213.84918" class="tspan_0">D</tspan></text>
+      <text id="text_254" y="55.133183" x="213.81808" xml:space="preserve" class="text_1"><tspan id="tspan_282" y="55.133183" x="213.81808" class="tspan_0">5</tspan></text>
+      <text id="text_255" y="34.089386" x="213.74994" xml:space="preserve" class="text_1"><tspan id="tspan_283" y="34.089386" x="213.74994" class="tspan_0">F</tspan></text>
+      <text id="text_256" y="53.039997" x="213.68532" xml:space="preserve" class="text_1"><tspan id="tspan_284" y="53.039997" x="213.68532" class="tspan_0">7</tspan></text>
+      <text id="text_257" y="32.047661" x="213.80458" xml:space="preserve" class="text_1"><tspan id="tspan_285" y="32.047661" x="213.80458" class="tspan_0">E</tspan></text>
+      <text id="text_258" y="51.018265" x="213.82869" xml:space="preserve" class="text_1"><tspan id="tspan_286" y="51.018265" x="213.82869" class="tspan_0">9</tspan></text>
+      <text id="text_259" y="48.810047" x="213.94254" xml:space="preserve" class="text_1"><tspan id="tspan_287" y="48.810047" x="213.94254" class="tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="213.85362" y="63.503479" id="text_260" class="text_1"><tspan x="213.85362" y="63.503479" id="tspan_288" class="tspan_0">11</tspan></text>
+      <text xml:space="preserve" x="214.00484" y="65.595673" id="text_261" class="text_1"><tspan x="214.00484" y="65.595673" id="tspan_289" class="tspan_0">12</tspan></text>
+      <text id="text_262" y="67.69091" x="213.80971" xml:space="preserve" class="text_1"><tspan id="tspan_290" y="67.69091" x="213.80971" class="tspan_0">M</tspan></text>
+      <text xml:space="preserve" x="213.88475" y="69.695595" id="text_263" class="text_1"><tspan x="213.88475" y="69.695595" id="tspan_291" class="tspan_0">8</tspan></text>
+      <text id="text_264" y="71.80201" x="213.92885" xml:space="preserve" class="text_1"><tspan id="tspan_292" y="71.80201" x="213.92885" class="tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="213.73529" y="18.276539" id="text_265" class="text_1"><tspan x="213.73529" y="18.276539" id="tspan_293" class="tspan_0">J2</tspan></text>
+      <text xml:space="preserve" x="213.89873" y="36.401722" id="text_266" class="text_1"><tspan x="213.89873" y="36.401722" id="tspan_294" class="tspan_0">H</tspan></text>
+      <text xml:space="preserve" x="213.86342" y="38.491196" id="text_267" class="text_1"><tspan x="213.86342" y="38.491196" id="tspan_295" class="tspan_0">J</tspan></text>
+      <text xml:space="preserve" x="213.73201" y="42.552162" id="text_268" class="text_1"><tspan x="213.73201" y="42.552162" id="tspan_296" class="tspan_0">L</tspan></text>
+      <text xml:space="preserve" x="213.80151" y="40.513344" id="text_269" class="text_1"><tspan x="213.80151" y="40.513344" id="tspan_297" class="tspan_0">K</tspan></text>
+      <text id="text_270" y="46.675144" x="213.78008" xml:space="preserve" class="text_1"><tspan id="tspan_298" y="46.675144" x="213.78008" class="tspan_0">2</tspan></text>
+      <text id="text_271" y="44.636326" x="213.84958" xml:space="preserve" class="text_1"><tspan id="tspan_299" y="44.636326" x="213.84958" class="tspan_0">3</tspan></text>
+      <text xml:space="preserve" x="213.90312" y="57.313927" id="text_272" class="text_1"><tspan x="213.90312" y="57.313927" id="tspan_300" class="tspan_0">A</tspan></text>
+      <text id="text_273" y="59.338722" x="213.86937" xml:space="preserve" class="text_1"><tspan id="tspan_301" y="59.338722" x="213.86937" class="tspan_0">N</tspan></text>
+      <text xml:space="preserve" x="213.91347" y="61.445137" id="text_274" class="text_1"><tspan x="213.91347" y="61.445137" id="tspan_302" class="tspan_0">I</tspan></text>
+    </g>
+    <g id="chip#J6_0" transform="translate(8.3268542,55.839711)" class="g_0">
+      <path id="path_106" d="m 211.85738,18.979414 c 1.17347,0.807802 2.64804,-0.607344 4.06167,0 v 13.45329 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" class="path_25"/>
+      <text xml:space="preserve" x="213.91223" y="20.631224" id="text_275" class="text_1"><tspan x="213.91223" y="20.631224" id="tspan_303" class="tspan_0">A-1</tspan></text>
+      <text id="text_276" y="18.276539" x="213.73529" xml:space="preserve" class="text_1"><tspan id="tspan_304" y="18.276539" x="213.73529" class="tspan_0">J6</tspan></text>
+      <text id="text_277" y="22.667227" x="213.91223" xml:space="preserve" class="text_1"><tspan id="tspan_305" y="22.667227" x="213.91223" class="tspan_0">B-2</tspan></text>
+      <text id="text_278" y="25.730803" x="213.91223" xml:space="preserve" class="text_1"><tspan id="tspan_306" y="25.730803" x="213.91223" class="tspan_0">D-4</tspan></text>
+      <text id="text_279" y="27.929094" x="213.91223" xml:space="preserve" class="text_1"><tspan id="tspan_307" y="27.929094" x="213.91223" class="tspan_0">C-3</tspan></text>
+      <text id="text_280" y="29.823368" x="213.91223" xml:space="preserve" class="text_1"><tspan id="tspan_308" y="29.823368" x="213.91223" class="tspan_0">E-5</tspan></text>
+      <text id="text_281" y="32.045044" x="213.91223" xml:space="preserve" class="text_1"><tspan id="tspan_309" y="32.045044" x="213.91223" class="tspan_0">F-6</tspan></text>
+    </g>
+    <g transform="translate(8.160132,71.577862)" id="chip#J3_0" class="g_0">
+      <path d="m 211.85738,18.979414 c 1.17347,0.807802 2.64804,-0.607344 4.06167,0 v 13.45329 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" id="path_107" class="path_25"/>
+      <text id="text_282" y="20.631224" x="213.91223" xml:space="preserve" class="text_1"><tspan id="tspan_310" y="20.631224" x="213.91223" class="tspan_0">A-1</tspan></text>
+      <text xml:space="preserve" x="213.73529" y="18.276539" id="text_283" class="text_1"><tspan x="213.73529" y="18.276539" id="tspan_311" class="tspan_0">J6</tspan></text>
+      <text xml:space="preserve" x="213.91223" y="22.667227" id="text_284" class="text_1"><tspan x="213.91223" y="22.667227" id="tspan_312" class="tspan_0">B-2</tspan></text>
+      <text xml:space="preserve" x="213.99367" y="29.852915" id="text_285" class="text_1"><tspan x="213.99367" y="29.852915" id="tspan_313" class="tspan_0">D-4</tspan></text>
+      <text xml:space="preserve" x="213.91223" y="27.929094" id="text_286" class="text_1"><tspan x="213.91223" y="27.929094" id="tspan_314" class="tspan_0">C-3</tspan></text>
+      <text xml:space="preserve" x="213.86577" y="25.585989" id="text_287" class="text_1"><tspan x="213.86577" y="25.585989" id="tspan_315" class="tspan_0">E-5</tspan></text>
+      <text xml:space="preserve" x="213.91223" y="32.045044" id="text_288" class="text_1"><tspan x="213.91223" y="32.045044" id="tspan_316" class="tspan_0">F-6</tspan></text>
+    </g>
+    <g id="chip#J5_0" transform="translate(8.17223,87.06992)" class="g_0">
+      <path id="path_108" d="m 211.85738,18.979414 c 1.17347,0.807802 2.64804,-0.607344 4.06167,0 v 42.86627 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" class="path_25"/>
+      <text xml:space="preserve" x="213.98814" y="47.753372" id="text_289" class="text_1"><tspan x="213.98814" y="47.753372" id="tspan_317" class="tspan_0">B</tspan></text>
+      <text xml:space="preserve" x="213.99504" y="20.589148" id="text_290" class="text_1"><tspan x="213.99504" y="20.589148" id="tspan_318" class="tspan_0">1</tspan></text>
+      <text xml:space="preserve" x="214.0126" y="26.862207" id="text_291" class="text_1"><tspan x="214.0126" y="26.862207" id="tspan_319" class="tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="214.01468" y="28.961828" id="text_292" class="text_1"><tspan x="214.01468" y="28.961828" id="tspan_320" class="tspan_0">5</tspan></text>
+      <text xml:space="preserve" x="214.00778" y="35.238995" id="text_293" class="text_1"><tspan x="214.00778" y="35.238995" id="tspan_321" class="tspan_0">8</tspan></text>
+      <text xml:space="preserve" x="214.00984" y="33.103588" id="text_294" class="text_1"><tspan x="214.00984" y="33.103588" id="tspan_322" class="tspan_0">7</tspan></text>
+      <text xml:space="preserve" x="214.00261" y="31.090496" id="text_295" class="text_1"><tspan x="214.00261" y="31.090496" id="tspan_323" class="tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="214.0126" y="37.377224" id="text_296" class="text_1"><tspan x="214.0126" y="37.377224" id="tspan_324" class="tspan_0">9</tspan></text>
+      <text xml:space="preserve" x="213.97678" y="39.428818" id="text_297" class="text_1"><tspan x="213.97678" y="39.428818" id="tspan_325" class="tspan_0">10</tspan></text>
+      <text id="text_298" y="18.276539" x="213.73529" xml:space="preserve" class="text_1"><tspan id="tspan_326" y="18.276539" x="213.73529" class="tspan_0">J5</tspan></text>
+      <text id="text_299" y="41.577625" x="214.00055" xml:space="preserve" class="text_1"><tspan id="tspan_327" y="41.577625" x="214.00055" class="tspan_0">12</tspan></text>
+      <text xml:space="preserve" x="214.02638" y="22.732479" id="text_300" class="text_1"><tspan x="214.02638" y="22.732479" id="tspan_328" class="tspan_0">2</tspan></text>
+      <text xml:space="preserve" x="214.01019" y="24.763432" id="text_301" class="text_1"><tspan x="214.01019" y="24.763432" id="tspan_329" class="tspan_0">3</tspan></text>
+      <text id="text_302" y="45.738586" x="214.00778" xml:space="preserve" class="text_1"><tspan id="tspan_330" y="45.738586" x="214.00778" class="tspan_0">A</tspan></text>
+      <text id="text_303" y="49.846992" x="214.00606" xml:space="preserve" class="text_1"><tspan id="tspan_331" y="49.846992" x="214.00606" class="tspan_0">C</tspan></text>
+      <text id="text_304" y="51.936462" x="213.97987" xml:space="preserve" class="text_1"><tspan id="tspan_332" y="51.936462" x="213.97987" class="tspan_0">D</tspan></text>
+      <text id="text_305" y="56.048042" x="213.97919" xml:space="preserve" class="text_1"><tspan id="tspan_333" y="56.048042" x="213.97919" class="tspan_0">F</tspan></text>
+      <text id="text_306" y="54.006317" x="213.98332" xml:space="preserve" class="text_1"><tspan id="tspan_334" y="54.006317" x="213.98332" class="tspan_0">E</tspan></text>
+      <text xml:space="preserve" x="214.00743" y="58.360382" id="text_307" class="text_1"><tspan x="214.00743" y="58.360382" id="tspan_335" class="tspan_0">H</tspan></text>
+      <text xml:space="preserve" x="214.1132" y="60.44986" id="text_308" class="text_1"><tspan x="214.1132" y="60.44986" id="tspan_336" class="tspan_0">J</tspan></text>
+    </g>
+    <g id="passive#R2_0" transform="translate(-41.421344,-88.769256)" class="g_0">
+      <path d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" id="path_109" class="path_26"/>
+      <text xml:space="preserve" x="141.46693" y="166.85777" id="text_309" class="text_1"><tspan x="141.46693" y="166.85777" id="tspan_337" class="tspan_0">R2</tspan></text>
+      <text id="text_310" y="171.01515" x="142.5631" xml:space="preserve" class="text_1"><tspan y="171.01515" x="142.5631" id="tspan_338" class="tspan_0">10K</tspan><tspan id="tspan_339" y="184.24428" x="142.5631" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(8.3146351,132.04887)" id="chip#J9_0" class="g_0">
+      <path d="m 211.85738,18.979414 c 1.17347,0.807802 2.64804,-0.607344 4.06167,0 v 4.224572 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" id="path_110" class="path_25"/>
+      <text id="text_311" y="21.663525" x="213.90475" xml:space="preserve" class="text_1"><tspan id="tspan_340" y="21.663525" x="213.90475" class="tspan_0">20</tspan></text>
+      <text xml:space="preserve" x="214.05478" y="18.47337" id="text_312" class="text_1"><tspan x="214.05478" y="18.47337" id="tspan_341" class="tspan_0">J9</tspan></text>
+      <path id="path_111" d="M 67.145457,-110.80522 H 211.69777" class="path_2"/>
+      <path d="M 67.257774,-104.44753 H 211.81009" id="path_112" class="path_26"/>
+      <path id="path_113" d="M 67.20296,-102.46467 H 211.75527" class="path_26"/>
+      <path id="path_114" d="M 67.244453,-100.25689 H 211.79677" class="path_26"/>
+      <path d="M 67.189639,-98.274024 H 211.74195" id="path_115" class="path_26"/>
+      <path id="path_116" d="M 67.180977,-96.162162 H 211.73329" class="path_26"/>
+      <path d="M 67.126163,-94.179302 H 211.67847" id="path_117" class="path_26"/>
+      <path d="M 67.167656,-91.971522 H 211.71997" id="path_118" class="path_26"/>
+      <path id="path_119" d="M 67.112842,-89.988652 H 211.66515" class="path_26"/>
+    </g>
+    <g id="pointer#2_1" transform="translate(-68.058523,23.337022)" class="g_0">
+      <path id="path_120" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_313" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan id="tspan_342" y="23.459679" x="163.86922" class="tspan_0">2</tspan></text>
+    </g>
+    <g id="pointer#2_2" transform="translate(-68.078433,25.371897)" class="g_0">
+      <path id="path_121" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_314" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan id="tspan_343" y="23.459679" x="163.86922" class="tspan_0">2</tspan></text>
+    </g>
+    <g id="pointer#2_3" transform="translate(-68.098343,27.406772)" class="g_0">
+      <path id="path_122" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_315" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan id="tspan_344" y="23.459679" x="163.86922" class="tspan_0">2</tspan></text>
+    </g>
+    <path id="path_123" d="M 93.257152,46.282046 H 75.462105" class="path_2"/>
+    <path id="path_124" d="M 93.250699,48.401226 H 75.47812" class="path_2"/>
+    <path id="path_125" d="M 93.223928,50.457351 H 75.446164" class="path_2"/>
+    <g transform="translate(-68.1414,35.868487)" id="pointer#2_4" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_126" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_316" class="text_1"><tspan x="163.86922" y="23.459679" id="tspan_345" class="tspan_0">2</tspan></text>
+    </g>
+    <g transform="translate(-68.16131,37.903362)" id="pointer#2_5" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_127" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_317" class="text_1"><tspan x="163.86922" y="23.459679" id="tspan_346" class="tspan_0">2</tspan></text>
+    </g>
+    <path id="path_128" d="M 93.199065,58.808103 H 75.469953" class="path_2"/>
+    <path id="path_129" d="M 93.202179,60.905553 H 75.525486" class="path_2"/>
+    <g id="pointer#8_0" transform="translate(-68.060643,0.37334909)" class="g_0">
+      <path id="path_130" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_318" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan id="tspan_347" y="23.459679" x="163.86922" class="tspan_0">8</tspan></text>
+    </g>
+    <path id="path_131" d="M 93.263621,23.301431 H 75.488191" class="path_2"/>
+    <g transform="translate(37.922463,21.422222)" id="pointer#2_6" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_132" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_319" class="text_1"><tspan x="163.86922" y="23.459679" id="tspan_348" class="tspan_0">2</tspan></text>
+    </g>
+    <g id="pointer#2_7" transform="translate(37.902553,23.457097)" class="g_0">
+      <path id="path_133" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_320" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan id="tspan_349" y="23.459679" x="163.86922" class="tspan_0">8</tspan></text>
+    </g>
+    <g id="pointer#6_0" transform="translate(37.882643,25.491972)" class="g_0">
+      <path id="path_134" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" class="path_2"/>
+      <text id="text_321" y="23.459679" x="163.86922" xml:space="preserve" class="text_1"><tspan id="tspan_350" y="23.459679" x="163.86922" class="tspan_0">6</tspan></text>
+    </g>
+    <g transform="translate(37.862733,27.526847)" id="pointer#6_1" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.338621 0,2.029726 h 3.31157 l 1.90861,-0.985797 -1.8887,-1.049078 z" id="path_135" class="path_2"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_322" class="text_1"><tspan x="163.86922" y="23.459679" id="tspan_351" class="tspan_0">6</tspan></text>
+    </g>
+    <path id="path_136" d="m 205.29304,44.405168 h 14.73751" class="path_2"/>
+    <path d="m 205.27313,46.440044 h 14.73751" id="path_137" class="path_2"/>
+    <path d="m 205.25322,48.474919 h 14.73751" id="path_138" class="path_2"/>
+    <path id="path_139" d="m 205.23331,50.509795 h 14.73751" class="path_2"/>
+    <ellipse id="ellipse_24" cy="52.632851" cx="199.02251" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_25" cy="58.968605" cx="201.3051" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_26" cy="61.072697" cx="201.29317" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_27" cy="63.150894" cx="201.30727" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_28" cy="65.273422" cx="201.29738" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_29" cy="75.802116" cx="201.29266" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_30" cy="80.908829" cx="203.3031" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_31" cy="85.180557" cx="199.04303" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_32" cy="91.468178" cx="201.28915" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_33" cy="99.94635" cx="191.85599" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_34" cy="135.98697" cx="196.89294" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_35" cy="163.56625" cx="190.71529" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_36" cy="162.54634" cx="184.34488" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_37" cy="161.17419" cx="178.01436" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_38" cy="159.11386" cx="171.70909" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_39" cy="156.99625" cx="165.36128" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_40" cy="154.93629" cx="159.0948" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_41" cy="152.8329" cx="152.77876" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse transform="scale(1,-1)" id="ellipse_42" cy="-150.73813" cx="146.51906" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_43" cy="141.41978" cx="146.81067" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_44" cy="141.58514" cx="152.43306" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_45" cy="141.71744" cx="158.91536" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_46" cy="141.71744" cx="165.49687" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_47" cy="141.61823" cx="172.0453" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_48" cy="141.41978" cx="177.96536" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_49" cy="141.84973" cx="184.28229" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_50" cy="171.54013" cx="79.636322" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_51" cy="168.33302" cx="81.851288" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_52" cy="104.77576" cx="79.606964" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_53" cy="98.434975" cx="92.16375" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_54" cy="98.467522" cx="106.7317" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_55" cy="98.45903" cx="121.48705" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_56" cy="90.293221" cx="106.75436" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_57" cy="79.675018" cx="96.31781" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_58" cy="79.698051" cx="106.80572" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_59" cy="79.68309" cx="121.47791" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_60" cy="90.299484" cx="121.53641" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_61" cy="90.274582" cx="131.91338" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_62" cy="90.278236" cx="148.69289" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_63" cy="90.264618" cx="165.48352" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_64" cy="87.054054" cx="165.47849" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_65" cy="61.12674" cx="159.0851" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_66" cy="71.436646" cx="159.06927" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_67" cy="71.414612" cx="148.61874" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_68" cy="71.435738" cx="131.89497" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <ellipse id="ellipse_69" cy="71.433105" cx="121.49353" rx="0.21147294" ry="0.21078888" class="ellipse_15"/>
+    <path id="path_140" d="M 75.423823,52.61839 H 220.05568" class="path_2"/>
+    <g transform="translate(14.013516,-23.80941)" id="passive#R29_0" class="g_0">
+      <path id="path_141" d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" class="path_26"/>
+      <text id="text_323" y="170.06909" x="134.93517" xml:space="preserve" class="text_1"><tspan y="170.06909" x="134.93517" id="tspan_352" class="tspan_0">R22</tspan><tspan id="tspan_353" y="183.29822" x="134.93517" class="tspan_0"/></text>
+      <text xml:space="preserve" x="134.95799" y="172.15439" id="text_324" class="text_1"><tspan id="tspan_354" x="134.95799" y="172.15439" class="tspan_0">10K</tspan><tspan x="134.95799" y="185.38351" id="tspan_355" class="tspan_0"/></text>
+    </g>
+    <g id="passive#R29_1" transform="translate(20.267012,-23.80941)" class="g_0">
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_142" class="path_26"/>
+      <text xml:space="preserve" x="134.93517" y="170.06909" id="text_325" class="text_1"><tspan id="tspan_356" x="134.93517" y="170.06909" class="tspan_0">R23</tspan><tspan x="134.93517" y="183.29822" id="tspan_357" class="tspan_0"/></text>
+      <text id="text_326" y="172.15439" x="134.95799" xml:space="preserve" class="text_1"><tspan y="172.15439" x="134.95799" id="tspan_358" class="tspan_0">10K</tspan><tspan id="tspan_359" y="185.38351" x="134.95799" class="tspan_0"/></text>
+    </g>
+    <g id="passive#R29_2" transform="translate(26.570442,-23.80941)" class="g_0">
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_143" class="path_26"/>
+      <text xml:space="preserve" x="134.93517" y="170.06909" id="text_327" class="text_1"><tspan id="tspan_360" x="134.93517" y="170.06909" class="tspan_0">R24</tspan><tspan x="134.93517" y="183.29822" id="tspan_361" class="tspan_0"/></text>
+      <text id="text_328" y="172.15439" x="134.95799" xml:space="preserve" class="text_1"><tspan y="172.15439" x="134.95799" id="tspan_362" class="tspan_0">10K</tspan><tspan id="tspan_363" y="185.38351" x="134.95799" class="tspan_0"/></text>
+    </g>
+    <g id="passive#R29_3" transform="translate(32.845483,-23.80941)" class="g_0">
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_144" class="path_26"/>
+      <text xml:space="preserve" x="134.93517" y="170.06909" id="text_329" class="text_1"><tspan id="tspan_364" x="134.93517" y="170.06909" class="tspan_0">R25</tspan><tspan x="134.93517" y="183.29822" id="tspan_365" class="tspan_0"/></text>
+      <text id="text_330" y="172.15439" x="134.95799" xml:space="preserve" class="text_1"><tspan y="172.15439" x="134.95799" id="tspan_366" class="tspan_0">10K</tspan><tspan id="tspan_367" y="185.38351" x="134.95799" class="tspan_0"/></text>
+    </g>
+    <g id="passive#R29_4" transform="translate(39.202135,-23.80941)" class="g_0">
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_145" class="path_26"/>
+      <text xml:space="preserve" x="134.93517" y="170.06909" id="text_331" class="text_1"><tspan id="tspan_368" x="134.93517" y="170.06909" class="tspan_0">R18</tspan><tspan x="134.93517" y="183.29822" id="tspan_369" class="tspan_0"/></text>
+      <text id="text_332" y="172.15439" x="134.95799" xml:space="preserve" class="text_1"><tspan y="172.15439" x="134.95799" id="tspan_370" class="tspan_0">10K</tspan><tspan id="tspan_371" y="185.38351" x="134.95799" class="tspan_0"/></text>
+    </g>
+    <g id="passive#R29_5" transform="translate(45.502135,-23.80941)" class="g_0">
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_146" class="path_26"/>
+      <text xml:space="preserve" x="134.93517" y="170.06909" id="text_333" class="text_1"><tspan id="tspan_372" x="134.93517" y="170.06909" class="tspan_0">R19</tspan><tspan x="134.93517" y="183.29822" id="tspan_373" class="tspan_0"/></text>
+      <text id="text_334" y="172.15439" x="134.95799" xml:space="preserve" class="text_1"><tspan y="172.15439" x="134.95799" id="tspan_374" class="tspan_0">10K</tspan><tspan id="tspan_375" y="185.38351" x="134.95799" class="tspan_0"/></text>
+    </g>
+    <g id="passive#R29_6" transform="translate(51.85974,-23.80941)" class="g_0">
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_147" class="path_26"/>
+      <text xml:space="preserve" x="134.93517" y="170.06909" id="text_335" class="text_1"><tspan id="tspan_376" x="134.93517" y="170.06909" class="tspan_0">R20</tspan><tspan x="134.93517" y="183.29822" id="tspan_377" class="tspan_0"/></text>
+      <text id="text_336" y="172.15439" x="134.95799" xml:space="preserve" class="text_1"><tspan y="172.15439" x="134.95799" id="tspan_378" class="tspan_0">10K</tspan><tspan id="tspan_379" y="185.38351" x="134.95799" class="tspan_0"/></text>
+    </g>
+    <g id="passive#R29_7" transform="translate(58.217314,-23.80941)" class="g_0">
+      <path d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" id="path_148" class="path_26"/>
+      <text xml:space="preserve" x="134.93517" y="170.06909" id="text_337" class="text_1"><tspan x="134.93517" y="170.06909" id="tspan_380" class="tspan_0">R21</tspan></text>
+      <text id="text_338" y="172.15439" x="134.95799" xml:space="preserve" class="text_1"><tspan y="172.15439" x="134.95799" id="tspan_381" class="tspan_0">10K</tspan><tspan id="tspan_382" y="185.38351" x="134.95799" class="tspan_0"/></text>
+    </g>
+    <path d="M 75.365686,150.76152 H 199.19757 v -18.5245 h 20.90517" id="path_149" class="path_26"/>
+    <path id="path_150" d="M 75.290182,152.81831 H 201.27727 v -18.5245 h 18.79379" class="path_26"/>
+    <path id="path_151" d="M 75.148545,154.94509 H 203.41827 v -18.5245 h 16.64149" class="path_26"/>
+    <path d="M 75.423234,157.00188 H 205.49798 v -18.5245 h 14.54915" id="path_152" class="path_26"/>
+    <path id="path_153" d="M 75.430681,159.11892 H 207.64477 v -18.5245 h 12.45444" class="path_26"/>
+    <path d="M 75.302131,161.17571 H 209.72448 v -18.5245 h 10.31084" id="path_154" class="path_26"/>
+    <path d="m 184.35737,162.53922 h 27.50811 v -17.76123 h 8.15784" id="path_155" class="path_26"/>
+    <path id="path_156" d="m 190.71528,163.56625 h 23.22991 v -16.73147 h 6.07255" class="path_26"/>
+    <path d="m 190.72219,148.66331 v 16.6841 H 75.323622" id="path_157" class="path_2"/>
+    <path d="m 184.36462,148.66331 v 14.72103 H 75.246348" id="path_158" class="path_2"/>
+    <path d="m 178.00701,148.66331 v 12.53206" id="path_159" class="path_2"/>
+    <path d="m 171.70701,148.66331 v 10.47861" id="path_160" class="path_2"/>
+    <path d="m 165.35036,148.66331 v 8.29081" id="path_161" class="path_2"/>
+    <path d="m 159.07532,148.66331 v 6.26691" id="path_162" class="path_2"/>
+    <path d="m 152.77189,148.66331 v 4.24224 l 0.10973,0.0397" id="path_163" class="path_2"/>
+    <path d="m 146.5184,148.66331 v 2.05195" id="path_164" class="path_2"/>
+    <path d="M 220.20272,153.17394 H 215.9544 V 164.659 H 196.91743 V 54.769487 h 23.09278" id="path_165" class="path_2"/>
+    <path d="M 75.21132,135.99246 H 196.88698" id="path_166" class="path_2"/>
+    <path d="M 118.22609,106.93129 H 220.01654" id="path_167" class="path_2"/>
+    <path id="path_168" d="M 118.24092,109.03949 H 220.03137" class="path_2"/>
+    <path id="path_169" d="M 118.25213,111.1221 H 220.04258" class="path_2"/>
+    <path d="M 118.26696,113.2303 H 220.05741" id="path_170" class="path_2"/>
+    <path id="path_171" d="M 118.17006,115.28976 H 219.96052" class="path_2"/>
+    <path d="M 118.18489,117.39796 H 219.97535" id="path_172" class="path_2"/>
+    <path d="M 118.1961,119.48057 H 219.98656" id="path_173" class="path_2"/>
+    <path id="path_174" d="M 118.21093,121.58877 H 220.00139" class="path_2"/>
+    <path id="path_175" d="M 118.17417,123.65777 H 219.96463" class="path_2"/>
+    <path d="M 118.189,125.76597 H 219.97946" id="path_176" class="path_2"/>
+    <path d="M 220.0024,96.743392 H 199.03965 V 52.545231" id="path_177" class="path_2"/>
+    <path d="M 220.25103,85.143339 H 199.05058" id="path_178" class="path_2"/>
+    <path d="M 219.99572,56.864937 H 201.31497 V 91.44827 h 18.71888" id="path_179" class="path_2"/>
+    <g id="wire#GND_0" transform="translate(148.4257,-77.11803)" class="g_0">
+      <path d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" id="path_180" class="path_27"/>
+      <path d="m 52.152167,170.95339 h 1.469499" id="path_181" class="path_27"/>
+      <path d="m 52.443587,171.47672 h 0.78101" id="path_182" class="path_27"/>
+      <path id="path_183" d="M 52.889271,170.41283 V 168.5663" class="path_27"/>
+    </g>
+    <path d="M 220.04405,58.996055 H 201.28468" id="path_184" class="path_2"/>
+    <path id="path_185" d="M 220.07155,61.115427 H 201.31218" class="path_2"/>
+    <path id="path_186" d="M 220.05721,63.173838 H 201.29784" class="path_2"/>
+    <path d="M 220.08471,65.29321 H 201.32534" id="path_187" class="path_2"/>
+    <path id="path_188" d="M 220.14207,75.82603 H 201.3827" class="path_2"/>
+    <path d="m 220.17175,80.9622 h -52.62704 l 0.0825,-15.807235 H 87.94413 l -2.83e-4,10.354675 -22.073937,-0.0033 -0.0072,5.649887" id="path_189" class="path_2"/>
+    <path d="m 220.04061,71.559374 h -16.7517 v 9.349237" id="path_190" class="path_2"/>
+    <path d="M 75.308308,167.33804 H 93.068517" id="path_191" class="path_2"/>
+    <path d="M 75.31719,171.53279 H 93.068671" id="path_192" class="path_2"/>
+    <path d="m 75.308314,169.43584 h 8.429582 V 98.413148 h 2.343661" id="path_193" class="path_2"/>
+    <path d="M 75.479147,19.135244 H 79.59949 V 171.52863" id="path_194" class="path_2"/>
+    <path d="m 75.326694,104.77015 h 4.254188" id="path_195" class="path_2"/>
+    <g transform="translate(9.8905731,-98.147922)" id="wire#GND_1" class="g_0">
+      <path id="path_196" d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" class="path_27"/>
+      <path id="path_197" d="m 52.152167,170.95339 h 1.469499" class="path_27"/>
+      <path id="path_198" d="m 52.443587,171.47672 h 0.78101" class="path_27"/>
+      <path d="m 52.889271,170.41283 v -3.09792" id="path_199" class="path_27"/>
+    </g>
+    <g id="wire#GND_2" transform="translate(11.866286,6.2635682)" class="g_0">
+      <path d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" id="path_200" class="path_27"/>
+      <path d="m 52.152167,170.95339 h 1.469499" id="path_201" class="path_27"/>
+      <path d="m 52.443587,171.47672 h 0.78101" id="path_202" class="path_27"/>
+      <path id="path_203" d="m 52.889271,170.41283 v -3.09792" class="path_27"/>
+    </g>
+    <path id="path_204" d="M 75.462063,67.239597 H 220.03405" class="path_2"/>
+    <g transform="translate(-3.7242087,-97.030085)" id="passive#R1_0" class="g_0">
+      <path id="path_205" d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" class="path_26"/>
+      <text id="text_339" y="166.85777" x="141.46693" xml:space="preserve" class="text_1"><tspan id="tspan_383" y="166.85777" x="141.46693" class="tspan_0">R1</tspan></text>
+      <text xml:space="preserve" x="142.5631" y="171.01515" id="text_340" class="text_1"><tspan id="tspan_384" x="142.5631" y="171.01515" class="tspan_0">1.5K</tspan><tspan x="142.5631" y="184.24428" id="tspan_385" class="tspan_0"/></text>
+    </g>
+    <path id="path_206" d="M 136.37464,71.419285 H 106.85237 V 72.46943" class="path_2"/>
+    <path id="path_207" d="M 159.06896,78.990697 V 58.885893" class="path_2"/>
+    <path id="path_208" d="m 140.03468,71.437375 h 19.04844" class="path_2"/>
+    <path id="path_209" d="M 148.64284,72.73169 V 71.448284" class="path_2"/>
+    <path id="path_210" d="m 154.83456,81.960933 h -6.25174 v -3.231565" class="path_2"/>
+    <ellipse ry="0.21078888" rx="0.21147294" cx="133.97522" cy="71.4039" id="ellipse_70" class="ellipse_15"/>
+    <g id="passive#C69_0" transform="translate(79.176629,-110.52118)" class="g_0">
+      <text id="text_341" y="170.07916" x="67.238831" xml:space="preserve" class="text_1"><tspan y="170.07916" x="67.238831" id="tspan_386" class="tspan_0">C69</tspan><tspan id="tspan_387" y="183.30829" x="67.238831" class="tspan_0"/></text>
+      <path d="m 67.714792,170.50489 c 0,2.17035 0,2.19527 0,2.19527" id="path_211" class="path_2"/>
+      <path d="m 66.578072,170.52571 c 0.37483,0.57635 0.52043,1.23149 0.0105,2.11194" id="path_212" class="path_2"/>
+      <path d="m 66.932362,171.62217 -0.86194,-0.0159" id="path_213" class="path_2"/>
+      <path id="path_214" d="m 68.457612,171.63794 -0.77425,-0.0159" class="path_2"/>
+      <text xml:space="preserve" x="67.31881" y="174.14087" id="text_342" class="text_1"><tspan id="tspan_388" x="67.31881" y="174.14087" class="tspan_0">.01</tspan><tspan x="67.31881" y="187.37" id="tspan_389" class="tspan_0"/></text>
+    </g>
+    <path id="path_215" d="m 147.63424,61.11676 h 11.37444" class="path_2"/>
+    <path id="path_216" d="M 145.24705,61.085089 H 133.98581 V 71.403532" class="path_2"/>
+    <path id="path_217" d="m 144.40844,75.701926 h -12.5087 v -4.19305" class="path_2"/>
+    <path id="path_218" d="M 121.50645,72.628616 V 71.419005" class="path_2"/>
+    <g transform="translate(-49.772972,-88.787346)" id="passive#R3_0" class="g_0">
+      <path id="path_219" d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" class="path_26"/>
+      <text id="text_343" y="166.85777" x="141.46693" xml:space="preserve" class="text_1"><tspan id="tspan_390" y="166.85777" x="141.46693" class="tspan_0">R3</tspan></text>
+      <text xml:space="preserve" x="141.49722" y="170.97214" id="text_344" class="text_1"><tspan id="tspan_391" x="141.49722" y="170.97214" class="tspan_0">1K</tspan><tspan x="141.49722" y="184.20126" id="tspan_392" class="tspan_0"/></text>
+    </g>
+    <path id="path_220" d="M 98.677504,79.680114 H 93.985918" class="path_2"/>
+    <path id="path_221" d="M 102.62991,75.526169 H 96.323519 V 79.67061" class="path_2"/>
+    <g id="wire#GND_3" transform="translate(68.593997,-88.631505)" class="g_0">
+      <path d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" id="path_222" class="path_27"/>
+      <path d="m 52.152167,170.95339 h 1.469499" id="path_223" class="path_27"/>
+      <path d="m 52.443587,171.47672 h 0.78101" id="path_224" class="path_27"/>
+      <path id="path_225" d="m 52.889271,170.41283 v -3.09792" class="path_27"/>
+    </g>
+    <path id="path_226" d="m 102.33755,79.698203 h 19.11603" class="path_2"/>
+    <path id="path_227" d="M 106.80546,78.549269 V 79.69247" class="path_2"/>
+    <path id="path_228" d="M 90.325878,79.662024 H 83.600157 V 54.655259 H 75.51748" class="path_2"/>
+    <ellipse id="ellipse_71" ry="0.48355335" rx="0.44926631" cy="81.713051" cx="65.874916" class="ellipse_0"/>
+    <ellipse cx="70.088974" cy="81.738327" rx="0.44926631" ry="0.48355335" id="ellipse_72" class="ellipse_0"/>
+    <ellipse cx="65.889366" cy="85.905998" rx="0.44926631" ry="0.48355335" id="ellipse_73" class="ellipse_0"/>
+    <ellipse cx="70.064064" cy="85.973091" rx="0.44926631" ry="0.48355335" id="ellipse_74" class="ellipse_0"/>
+    <path id="path_229" d="m 66.327075,81.726224 h 3.305979" class="path_2"/>
+    <path d="m 66.332218,85.918268 h 3.305979" id="path_230" class="path_26"/>
+    <path id="path_231" d="M 70.543276,81.724015 H 85.712524 V 65.07922 h -10.18626" class="path_2"/>
+    <g transform="translate(52.031559,-84.554958)" id="passive#C70_0" class="g_0">
+      <text xml:space="preserve" x="67.238831" y="170.07916" id="text_345" class="text_1"><tspan id="tspan_393" x="67.238831" y="170.07916" class="tspan_0">C70</tspan><tspan x="67.238831" y="183.30829" id="tspan_394" class="tspan_0"/></text>
+      <path id="path_232" d="m 67.714792,170.50489 c 0,2.17035 0,2.19527 0,2.19527" class="path_2"/>
+      <path id="path_233" d="m 66.578072,170.52571 c 0.37483,0.57635 0.52043,1.23149 0.0105,2.11194" class="path_2"/>
+      <path id="path_234" d="m 66.932362,171.62217 -0.86194,-0.0159" class="path_2"/>
+      <path d="m 68.457612,171.63794 -0.77425,-0.0159" id="path_235" class="path_2"/>
+      <text id="text_346" y="174.14087" x="67.31881" xml:space="preserve" class="text_1"><tspan y="174.14087" x="67.31881" id="tspan_395" class="tspan_0">.01</tspan><tspan id="tspan_396" y="187.37" x="67.31881" class="tspan_0"/></text>
+    </g>
+    <g id="passive#R4_0" transform="translate(-3.8324356,-78.158271)" class="g_0">
+      <path d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" id="path_236" class="path_26"/>
+      <text xml:space="preserve" x="141.46693" y="166.85777" id="text_347" class="text_1"><tspan x="141.46693" y="166.85777" id="tspan_397" class="tspan_0">R4</tspan></text>
+      <text id="text_348" y="171.01515" x="142.5631" xml:space="preserve" class="text_1"><tspan y="171.01515" x="142.5631" id="tspan_398" class="tspan_0">1.5K</tspan><tspan id="tspan_399" y="184.24428" x="142.5631" class="tspan_0"/></text>
+    </g>
+    <path id="path_237" d="m 118.10198,87.05131 h -11.32445 v 4.293008" class="path_2"/>
+    <path id="path_238" d="M 136.26641,90.291099 H 106.74808" class="path_2"/>
+    <path id="path_239" d="M 121.52989,91.433318 V 90.24917" class="path_2"/>
+    <path id="path_240" d="M 144.45098,94.57847 H 131.87439 V 90.284526" class="path_2"/>
+    <path id="path_241" d="M 165.50646,95.753123 V 82.96204" class="path_2"/>
+    <path id="path_242" d="m 139.92645,90.309188 h 25.52838" class="path_2"/>
+    <path id="path_243" d="M 148.68538,91.608234 V 90.335213" class="path_2"/>
+    <path id="path_244" d="m 120.39136,87.078482 h 45.06937" class="path_2"/>
+    <path id="path_245" d="M 161.27206,98.723359 H 148.63617 V 97.568783" class="path_2"/>
+    <g transform="translate(68.617444,-69.826802)" id="wire#GND_4" class="g_0">
+      <path id="path_246" d="m 51.808162,169.50714 c 2.08559,0 2.19854,0 2.19854,0" class="path_27"/>
+      <path id="path_247" d="m 52.161782,170.04023 h 1.469499" class="path_27"/>
+      <path id="path_248" d="m 52.453202,170.56356 h 0.78101" class="path_27"/>
+      <path d="m 52.889271,169.4504 v -2.13549" id="path_249" class="path_27"/>
+    </g>
+    <g transform="translate(-43.543045,-70.018132)" id="passive#R6_0" class="g_0">
+      <path id="path_250" d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" class="path_26"/>
+      <text id="text_349" y="166.95" x="141.37036" xml:space="preserve" class="text_1"><tspan id="tspan_400" y="166.95" x="141.37036" class="tspan_0">R6</tspan></text>
+      <text xml:space="preserve" x="141.94121" y="171.15349" id="text_350" class="text_1"><tspan id="tspan_401" x="141.94121" y="171.15349" class="tspan_0">10K</tspan><tspan x="141.94121" y="184.38261" id="tspan_402" class="tspan_0"/></text>
+      <path id="path_251" d="m 143.75889,168.46746 h 21.26818" class="path_2"/>
+      <path id="path_252" d="m 150.26137,167.42822 v 1.03654" class="path_2"/>
+    </g>
+    <g id="passive#R5_0" transform="translate(-54.017293,-70.036222)" class="g_0">
+      <path d="m 140.09885,168.44937 0.42267,0.003 0.27023,-0.27023 0.45462,0.60805 0.45828,-0.64709 0.40458,0.60418 0.44405,-0.5966 0.50386,0.65546 0.22943,-0.34268 0.47232,0.004" id="path_253" class="path_26"/>
+      <text xml:space="preserve" x="141.46693" y="166.85777" id="text_351" class="text_1"><tspan x="141.46693" y="166.85777" id="tspan_403" class="tspan_0">R5</tspan></text>
+      <text id="text_352" y="170.97214" x="141.49722" xml:space="preserve" class="text_1"><tspan y="170.97214" x="141.49722" id="tspan_404" class="tspan_0">1K</tspan><tspan id="tspan_405" y="184.20126" x="141.49722" class="tspan_0"/></text>
+    </g>
+    <path id="path_254" d="m 89.741596,98.431238 h 6.814209" class="path_2"/>
+    <path id="path_255" d="M 102.54278,94.386981 H 92.165137 v 4.045199" class="path_2"/>
+    <path id="path_256" d="M 70.47925,85.927884 H 94.318335 V 102.67305 H 190.62579 V 69.322862 h 29.41534" class="path_2"/>
+    <text id="text_353" y="84.344315" x="67.251488" xml:space="preserve" class="text_1"><tspan id="tspan_406" y="84.344315" x="67.251488" class="tspan_0">CASSETTE  JUMPERS</tspan></text>
+    <ellipse cx="178.01103" cy="90.317314" rx="0.44926631" ry="0.48355335" id="ellipse_75" class="ellipse_0"/>
+    <ellipse id="ellipse_76" ry="0.48355335" rx="0.44926631" cy="90.34259" cx="182.22508" class="ellipse_0"/>
+    <ellipse id="ellipse_77" ry="0.48355335" rx="0.44926631" cy="94.510262" cx="178.02548" class="ellipse_0"/>
+    <ellipse id="ellipse_78" ry="0.48355335" rx="0.44926631" cy="94.577354" cx="182.20018" class="ellipse_0"/>
+    <path d="m 178.46319,90.330493 h 3.30598" id="path_257" class="path_26"/>
+    <path id="path_258" d="m 178.46833,94.522537 h 3.30598" class="path_26"/>
+    <text xml:space="preserve" x="179.3876" y="92.948578" id="text_354" class="text_1"><tspan x="179.3876" y="92.948578" id="tspan_407" class="tspan_0">CASSETTE  JUMPERS</tspan></text>
+  </g>
+<style>.rect_0 {fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.tspan_0 {font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.text_0 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_1 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_0 {display:inline;fill:none;stroke:#000000;stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_1 {fill:none;stroke:#000000;stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.g_0 {display:inline}
+.rect_1 {fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:round}
+.ellipse_0 {display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
+.tspan_1 {font-size:1.41111px;text-align:end;text-anchor:end;stroke-width:0.264583}
+.path_2 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_3 {fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_4 {fill:none;stroke:var(--color-D0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_2 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_1 {display:inline;fill:var(--color-D0);stroke:var(--color-D0);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_5 {fill:none;stroke:var(--color-D1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_3 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_2 {display:inline;fill:var(--color-D1);stroke:var(--color-D1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_6 {fill:none;stroke:var(--color-D2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_4 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_3 {display:inline;fill:var(--color-D2);stroke:var(--color-D2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_7 {fill:none;stroke:var(--color-D3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_5 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_4 {display:inline;fill:var(--color-D3);stroke:var(--color-D3);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_8 {fill:none;stroke:var(--color-D4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_6 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_5 {display:inline;fill:var(--color-D4);stroke:var(--color-D4);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_9 {fill:none;stroke:var(--color-D5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_7 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D5);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_6 {display:inline;fill:var(--color-D5);stroke:var(--color-D5);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_10 {fill:none;stroke:var(--color-D6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_8 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D6);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_7 {display:inline;fill:var(--color-D6);stroke:var(--color-D6);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_11 {fill:none;stroke:var(--color-D7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_9 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_8 {display:inline;fill:var(--color-D7);stroke:var(--color-D7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_12 {fill:none;stroke:var(--color-CS1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_10 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-CS1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_13 {fill:none;stroke:var(--color-BA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_11 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_14 {fill:none;stroke:var(--color-BA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_12 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_15 {fill:none;stroke:var(--color-BA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_13 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_16 {fill:none;stroke:var(--color-X8XX);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_14 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-X8XX);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_9 {display:inline;fill:var(--color-IO);stroke:var(--color-IO);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_17 {fill:none;stroke:var(--color-IO);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_15 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-IO);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_10 {display:inline;fill:var(--color-BA0);stroke:var(--color-BA0);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_18 {fill:none;stroke:var(--color-BA0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_16 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_11 {display:inline;fill:var(--color-BA1);stroke:var(--color-BA1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_19 {fill:none;stroke:var(--color-BA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_17 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.ellipse_12 {display:inline;fill:var(--color-barRES);stroke:var(--color-barRES);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_20 {fill:none;stroke:var(--color-barRES);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_18 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barRES);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_21 {display:inline;fill:none;stroke:var(--color-barRES);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_13 {display:inline;fill:var(--color-BPHI2);stroke:var(--color-BPHI2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_22 {fill:none;stroke:var(--color-BPHI2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_19 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BPHI2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_23 {fill:none;stroke:var(--color-BPHI2);stroke-width:0.12;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.ellipse_14 {display:inline;fill:var(--color-RW);stroke:var(--color-RW);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_24 {fill:none;stroke:var(--color-RW);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_20 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-RW);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_25 {fill:none;stroke:#000000;stroke-width:0.264999;stroke-miterlimit:4;stroke-dasharray:none}
+.path_26 {display:inline;fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_15 {display:inline;fill:#000000;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_27 {display:inline;fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+:root {--color-C7_6520:#000000;--color-C5_6522:#000000;--color-C9_74LS145:#000000;--color-Q3_2N3904:#000000;--color-Q2_2N4401:#000000;--color-Q5_2N4401:#000000;--color-Q4_TIP29:#000000;--color-Q1_TIP29:#000000;--color-VR1:#000000;--color-1:#000000;--color-D0:#000000;--color-D1:#000000;--color-D2:#000000;--color-D3:#000000;--color-D4:#000000;--color-D5:#000000;--color-D6:#000000;--color-D7:#000000;--color-2:#000000;--color-CS1:#000000;--color-BA2:#000000;--color-BA3:#000000;--color-BA4:#000000;--color-X8XX:#000000;--color-IO:#000000;--color-BA0:#000000;--color-BA1:#000000;--color-barRES:#000000;--color-BPHI2:#000000;--color-RW:#000000;--color-J2:#000000;--color-J6:#000000;--color-J3:#000000;--color-J5:#000000;--color-R2:#000000;--color-J9:#000000;--color-8:#000000;--color-6:#000000;--color-R29:#000000;--color-GND:#000000;--color-R1:#000000;--color-C69:#000000;--color-R3:#000000;--color-C70:#000000;--color-R4:#000000;--color-R6:#000000;--color-R5:#000000;}</style></svg>
