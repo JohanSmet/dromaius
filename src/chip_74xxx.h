@@ -175,6 +175,31 @@ typedef struct Chip74154Decoder {
 	Chip74154Signals	signals;
 } Chip74154Decoder;
 
+// types - 74157 (Quad 2-Input Multiplexer)
+typedef struct Chip74157Signals {
+	Signal		sel;		// pin 01 - common select input
+	Signal		i0a;		// pin 02 - input 0 a
+	Signal		i1a;		// pin 03 - input 1 a
+	Signal		za;			// pin 04 - output a
+	Signal		i0b;		// pin 05 - input 0 b
+	Signal		i1b;		// pin 06 - input 1 b
+	Signal		zb;			// pin 07 - output b
+	Signal		gnd;		// pin 08
+	Signal		zd;			// pin 09 - output d
+	Signal		i1d;		// pin 10 - input 1 d
+	Signal		i0d;		// pin 11 - input 0 d
+	Signal		zc;			// pin 12 - output c
+	Signal		i1c;		// pin 13 - input 1 c
+	Signal		i0c;		// pin 14 - input 0 c
+	Signal		enable_b;	// pin 15 - chip enable
+	Signal		vcc;		// pin 16
+} Chip74157Signals;
+
+typedef struct Chip74157Multiplexer {
+	SignalPool *		signal_pool;
+	Chip74157Signals	signals;
+} Chip74157Multiplexer;
+
 // types - 74164 (8-Bit Serial In/Parallel Out Shift Register)
 typedef struct Chip74164Signals {
 	Signal		a;			// pin 01 - serial input A
@@ -283,6 +308,10 @@ void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip);
 Chip74154Decoder *chip_74154_decoder_create(SignalPool *signal_pool, Chip74154Signals signals);
 void chip_74154_decoder_destroy(Chip74154Decoder *chip);
 void chip_74154_decoder_process(Chip74154Decoder *chip);
+
+Chip74157Multiplexer *chip_74157_multiplexer_create(SignalPool *signal_pool, Chip74157Signals signals);
+void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip);
+void chip_74157_multiplexer_process(Chip74157Multiplexer *chip);
 
 Chip74164ShiftRegister *chip_74164_shift_register_create(SignalPool *signal_pool, Chip74164Signals signals);
 void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip);

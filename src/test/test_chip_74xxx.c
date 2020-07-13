@@ -366,6 +366,52 @@ static MunitResult test_74154_decoder(const MunitParameter params[], void *user_
 	return MUNIT_OK;
 }
 
+static MunitResult test_74157_multiplexer(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip74157Multiplexer *chip = chip_74157_multiplexer_create(signal_pool_create(1), (Chip74157Signals) {0});
+	munit_assert_ptr_not_null(chip);
+
+	// all outputs false when chip is not enabled
+	SIGNAL_SET_BOOL(enable_b, ACTLO_DEASSERT);
+	signal_pool_cycle(chip->signal_pool);
+	chip_74157_multiplexer_process(chip);
+	munit_assert_false(SIGNAL_NEXT_BOOL(za));
+	munit_assert_false(SIGNAL_NEXT_BOOL(zb));
+	munit_assert_false(SIGNAL_NEXT_BOOL(zc));
+	munit_assert_false(SIGNAL_NEXT_BOOL(zd));
+
+	// check normal operation
+	bool truth_table[][4] = {
+		//  S    I0     I1    Z
+		{true,  true,  false, false},
+		{true,  false, true,  true},
+		{false, false, true,  false},
+		{false, true,  false, true},
+	};
+
+	for (int line = 0; line < sizeof(truth_table) / sizeof(truth_table[0]); ++line) {
+		SIGNAL_SET_BOOL(enable_b, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(sel, truth_table[line][0]);
+		SIGNAL_SET_BOOL(i0a, truth_table[line][1]);
+		SIGNAL_SET_BOOL(i0b, truth_table[line][1]);
+		SIGNAL_SET_BOOL(i0c, truth_table[line][1]);
+		SIGNAL_SET_BOOL(i0d, truth_table[line][1]);
+		SIGNAL_SET_BOOL(i1a, truth_table[line][2]);
+		SIGNAL_SET_BOOL(i1b, truth_table[line][2]);
+		SIGNAL_SET_BOOL(i1c, truth_table[line][2]);
+		SIGNAL_SET_BOOL(i1d, truth_table[line][2]);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74157_multiplexer_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(za) == truth_table[line][3]);
+		munit_assert(SIGNAL_NEXT_BOOL(zb) == truth_table[line][3]);
+		munit_assert(SIGNAL_NEXT_BOOL(zc) == truth_table[line][3]);
+		munit_assert(SIGNAL_NEXT_BOOL(zd) == truth_table[line][3]);
+	}
+
+	chip_74157_multiplexer_destroy(chip);
+	return MUNIT_OK;
+}
+
 static MunitResult test_74164_shift_register(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Chip74164ShiftRegister *chip = chip_74164_shift_register_create(signal_pool_create(1), (Chip74164Signals) {0});
@@ -586,6 +632,7 @@ MunitTest chip_74xxx_tests[] = {
 	{ "/74107_jk_flipflop", test_74107_jk_flipflop, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74145_bcd_decoder", test_74145_bcd_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74154_decoder", test_74154_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/74157_multiplexer", test_74157_multiplexer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74164_shift_register", test_74164_shift_register, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74191_binary_counter", test_74191_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74244_octal_buffer", test_74244_octal_buffer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },

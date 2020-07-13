@@ -416,6 +416,53 @@ void chip_74154_decoder_process(Chip74154Decoder *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 74157 - Quad 2-Input Multiplexer
+//
+
+Chip74157Multiplexer *chip_74157_multiplexer_create(SignalPool *signal_pool, Chip74157Signals signals) {
+	Chip74157Multiplexer *chip = (Chip74157Multiplexer *) calloc(1, sizeof(Chip74157Multiplexer));
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(sel, 1);
+	SIGNAL_DEFINE(i0a, 1);
+	SIGNAL_DEFINE(i1a, 1);
+	SIGNAL_DEFINE(za, 1);
+	SIGNAL_DEFINE(i0b, 1);
+	SIGNAL_DEFINE(i1b, 1);
+	SIGNAL_DEFINE(zb, 1);
+	SIGNAL_DEFINE_BOOL(gnd, 1, false);
+	SIGNAL_DEFINE(zd, 1);
+	SIGNAL_DEFINE(i1d, 1);
+	SIGNAL_DEFINE(i0d, 1);
+	SIGNAL_DEFINE(zc, 1);
+	SIGNAL_DEFINE(i1c, 1);
+	SIGNAL_DEFINE(i0c, 1);
+	SIGNAL_DEFINE(enable_b, 1);
+	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+
+	return chip;
+}
+
+void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74157_multiplexer_process(Chip74157Multiplexer *chip) {
+	assert(chip);
+
+	bool mask_0 = !SIGNAL_BOOL(enable_b) && !SIGNAL_BOOL(sel);
+	bool mask_1 = !SIGNAL_BOOL(enable_b) && SIGNAL_BOOL(sel);
+
+	SIGNAL_SET_BOOL(za, (SIGNAL_BOOL(i0a) && mask_0) || (SIGNAL_BOOL(i1a) && mask_1));
+	SIGNAL_SET_BOOL(zb, (SIGNAL_BOOL(i0b) && mask_0) || (SIGNAL_BOOL(i1b) && mask_1));
+	SIGNAL_SET_BOOL(zc, (SIGNAL_BOOL(i0c) && mask_0) || (SIGNAL_BOOL(i1c) && mask_1));
+	SIGNAL_SET_BOOL(zd, (SIGNAL_BOOL(i0d) && mask_0) || (SIGNAL_BOOL(i1d) && mask_1));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74164 - 8-Bit Serial In/Parallel Out Shift Register
 //
 
