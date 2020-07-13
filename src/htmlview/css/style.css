@@ -135,7 +135,7 @@ div#about {
 }
 
 .tab_content {
-	display: none;
+/*	display: none; */	/* visible to force chrome to load the svg immediatly */
 	margin: 10px;
 }
 

@@ -11,18 +11,11 @@ var display_imdata = null;
 
 var signals_names = [];
 
-var svg_doc = null;
-
 var panel_cpu = new PanelCpu6502($('div#cpu'));
 var panel_clock = new PanelClock($('div#clock'));
 var circuit_view = new CircuitView($('div#right_column'));
 
 // functions
-function setup_svg_document(container) {
-	var svg_el = $('object' + container + '.schematic')[0];
-	svg_doc = svg_el.getSVGDocument();
-}
-
 export function setup_emulation(emscripten_mod) {
 	dmsapi = new emscripten_mod.DmsApi();
 
@@ -65,18 +58,19 @@ export function setup_emulation(emscripten_mod) {
 }
 
 function refresh_signals() {
-	if (svg_doc == null) {
+	if (circuit_view.svg_document == null) {
 		return;
 	}
 
 	const colors = ["#009900", "#00FF00"];
+	var svg_style = circuit_view.svg_document.documentElement.style;
 
 	for (var d = 0; d < signals_names.length; ++d) {
 		var sig_data = dmsapi.signal_data(d);
 
 		for (var s_id = 0; s_id < sig_data.length; ++s_id) {
 			var s_name = signals_names[d][s_id];
-			svg_doc.documentElement.style.setProperty(s_name, colors[sig_data[s_id]]);
+			svg_style.setProperty(s_name, colors[sig_data[s_id]]);
 		}
 	}
 }
@@ -121,18 +115,6 @@ $('#btnPause').on('click', function (event) {
 
 $('#btnReset').on('click', function (event) {
 	dmsapi.context_reset();
-});
-
-$('.tab_button').on('click', function (event) {
-	var obj_id = '#' + $(this).attr('id');
-
-	$('.tab_content').hide();
-	$('div' + obj_id).show();
-
-	$('.tab_button').removeClass('active');
-	$(this).addClass('active');
-
-	setup_svg_document(obj_id);
 });
 
 $("#btnAboutOpen").on("click", function (event) {

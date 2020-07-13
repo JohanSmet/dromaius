@@ -67,5 +67,4 @@ var DmsModule = {
 Module(DmsModule).then(function(emscripten_mod) {
 	$("#main").show();
 	Main.setup_emulation(emscripten_mod);
-	$("button#sheet_01").click();
 });
