@@ -523,6 +523,76 @@ void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 74177 - Presettable Binary Counter/Latch
+//
+
+Chip74177BinaryCounter *chip_74177_binary_counter_create(SignalPool *signal_pool, Chip74177Signals signals) {
+	Chip74177BinaryCounter *chip = (Chip74177BinaryCounter *) calloc(1, sizeof(Chip74177BinaryCounter));
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE_BOOL(load_b, 1, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(qc, 1);
+	SIGNAL_DEFINE(c, 1);
+	SIGNAL_DEFINE(a, 1);
+	SIGNAL_DEFINE(qa, 1);
+	SIGNAL_DEFINE(clk2, 1);
+	SIGNAL_DEFINE_BOOL(gnd, 1, false);
+	SIGNAL_DEFINE(clk1, 1);
+	SIGNAL_DEFINE(qb, 1);
+	SIGNAL_DEFINE(b, 1);
+	SIGNAL_DEFINE(d, 1);
+	SIGNAL_DEFINE(qd, 1);
+	SIGNAL_DEFINE_BOOL(clear_b, 1, ACTLO_DEASSERT);
+	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+
+	return chip;
+}
+
+void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip) {
+	assert(chip);
+
+	bool clk1 = SIGNAL_BOOL(clk1);
+	bool clk2 = SIGNAL_BOOL(clk2);
+
+	if (ACTLO_ASSERTED(SIGNAL_BOOL(load_b))) {
+		chip->count_1 = SIGNAL_BOOL(a);
+		chip->count_2 = SIGNAL_BOOL(b) | (SIGNAL_BOOL(c) << 1) | (SIGNAL_BOOL(d) << 2);
+	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(clear_b))) {
+		chip->count_1 = false;
+		chip->count_2 = false;
+	} else {
+		if (chip->prev_clk1 && !clk1) {
+			chip->count_1 = !chip->count_1;
+		}
+
+		// ok, a bit hacky ... if the second stage's clock is connected to the output of the first stage:
+		// don't wait until the next process call to trigger the second stage
+		if (memcmp(&SIGNAL(clk2), &SIGNAL(qa), sizeof(Signal)) == 0) {
+			if (chip->prev_clk1 && !clk1) {
+				chip->count_2 += !chip->count_1;
+			}
+		} else if (chip->prev_clk2 && !clk2) {
+			++chip->count_2;
+		}
+	}
+
+	SIGNAL_SET_BOOL(qa, chip->count_1);
+	SIGNAL_SET_BOOL(qb, (chip->count_2 >> 0) & 0x01);
+	SIGNAL_SET_BOOL(qc, (chip->count_2 >> 1) & 0x01);
+	SIGNAL_SET_BOOL(qd, (chip->count_2 >> 2) & 0x01);
+
+	chip->prev_clk1 = clk1;
+	chip->prev_clk2 = clk2;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74191 - 4-Bit Synchronous Up/Down Binary Counter
 //
 

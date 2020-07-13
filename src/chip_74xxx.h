@@ -226,6 +226,34 @@ typedef struct Chip74164ShiftRegister {
 	bool				prev_clock;
 } Chip74164ShiftRegister;
 
+// types - 74177 (Presettable Binary Counter/Latch)
+typedef struct Chip74177Signals {
+	Signal		load_b;		// pin 01
+	Signal		qc;			// pin 02
+	Signal		c;			// pin 03
+	Signal		a;			// pin 04
+	Signal		qa;			// pin 05
+	Signal		clk2;		// pin 06
+	Signal		gnd;		// pin 07
+	Signal		clk1;		// pin 08
+	Signal		qb;			// pin 09
+	Signal		b;			// pin 10
+	Signal		d;			// pin 11
+	Signal		qd;			// pin 12
+	Signal		clear_b;	// pin 13
+	Signal		vcc;		// pin 14
+} Chip74177Signals;
+
+typedef struct Chip74177BinaryCounter {
+	SignalPool *		signal_pool;
+	Chip74177Signals	signals;
+
+	bool				count_1;
+	int					count_2;
+	bool				prev_clk1;
+	bool				prev_clk2;
+} Chip74177BinaryCounter;
+
 // types - 74191 (4-Bit Synchronous Up/Down Binary Counter)
 typedef struct Chip74191Signals {
 	Signal		b;			// pin 01
@@ -316,6 +344,10 @@ void chip_74157_multiplexer_process(Chip74157Multiplexer *chip);
 Chip74164ShiftRegister *chip_74164_shift_register_create(SignalPool *signal_pool, Chip74164Signals signals);
 void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip);
 void chip_74164_shift_register_process(Chip74164ShiftRegister *chip);
+
+Chip74177BinaryCounter *chip_74177_binary_counter_create(SignalPool *signal_pool, Chip74177Signals signals);
+void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip);
+void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip);
 
 Chip74191BinaryCounter *chip_74191_binary_counter_create(SignalPool *signal_pool, Chip74191Signals signals);
 void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip);

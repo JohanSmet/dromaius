@@ -505,6 +505,58 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 	return MUNIT_OK;
 }
 
+static MunitResult test_74177_binary_counter(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip74177BinaryCounter *chip = chip_74177_binary_counter_create(signal_pool_create(1), (Chip74177Signals) {0});
+	chip->signals.clk2 = chip->signals.qa;
+
+	// reset counter
+	SIGNAL_SET_BOOL(clear_b, ACTLO_ASSERT);
+	signal_pool_cycle(chip->signal_pool);
+	chip_74177_binary_counter_process(chip);
+	munit_assert_false(SIGNAL_NEXT_BOOL(qa));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qc));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qd));
+
+	// preset counter
+	SIGNAL_SET_BOOL(load_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(a, true);
+	SIGNAL_SET_BOOL(b, false);
+	SIGNAL_SET_BOOL(c, true);
+	SIGNAL_SET_BOOL(d, false);
+	SIGNAL_SET_BOOL(clk1, true);
+	signal_pool_cycle(chip->signal_pool);
+	chip_74177_binary_counter_process(chip);
+	munit_assert_true(SIGNAL_NEXT_BOOL(qa));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
+	munit_assert_true(SIGNAL_NEXT_BOOL(qc));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qd));
+
+	for (int i = 6; i < 20; ++i) {
+		munit_logf(MUNIT_LOG_INFO, "i = %d", i);
+
+		SIGNAL_SET_BOOL(clk1, false);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74177_binary_counter_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qa) == ((i & 0b0001) >> 0));
+		munit_assert(SIGNAL_NEXT_BOOL(qb) == ((i & 0b0010) >> 1));
+		munit_assert(SIGNAL_NEXT_BOOL(qc) == ((i & 0b0100) >> 2));
+		munit_assert(SIGNAL_NEXT_BOOL(qd) == ((i & 0b1000) >> 3));
+
+		SIGNAL_SET_BOOL(clk1, true);
+		signal_pool_cycle(chip->signal_pool);
+		chip_74177_binary_counter_process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qa) == ((i & 0b0001) >> 0));
+		munit_assert(SIGNAL_NEXT_BOOL(qb) == ((i & 0b0010) >> 1));
+		munit_assert(SIGNAL_NEXT_BOOL(qc) == ((i & 0b0100) >> 2));
+		munit_assert(SIGNAL_NEXT_BOOL(qd) == ((i & 0b1000) >> 3));
+	}
+
+	chip_74177_binary_counter_destroy(chip);
+	return MUNIT_OK;
+};
+
 static MunitResult test_74191_binary_counter(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Chip74191BinaryCounter *chip = chip_74191_binary_counter_create(signal_pool_create(1), (Chip74191Signals) {0});
@@ -634,6 +686,7 @@ MunitTest chip_74xxx_tests[] = {
 	{ "/74154_decoder", test_74154_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74157_multiplexer", test_74157_multiplexer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74164_shift_register", test_74164_shift_register, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/74177_binary_counter", test_74177_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74191_binary_counter", test_74191_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74244_octal_buffer", test_74244_octal_buffer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
