@@ -715,3 +715,68 @@ void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 		SIGNAL_SET_BOOL(y24, SIGNAL_NEXT_BOOL(a24));
 	}
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// 74373 - Octal D-Type Transparant Latches
+//
+
+Chip74373Latch *chip_74373_latch_create(SignalPool *signal_pool, Chip74373Signals signals) {
+	Chip74373Latch *chip = (Chip74373Latch *) calloc(1, sizeof(Chip74373Latch));
+	chip->signal_pool = signal_pool;
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(oc_b, 1);
+	SIGNAL_DEFINE(q1, 1);
+	SIGNAL_DEFINE(d1, 1);
+	SIGNAL_DEFINE(d2, 1);
+	SIGNAL_DEFINE(q2, 1);
+	SIGNAL_DEFINE(q3, 1);
+	SIGNAL_DEFINE(d3, 1);
+	SIGNAL_DEFINE(d4, 1);
+	SIGNAL_DEFINE(q4, 1);
+	SIGNAL_DEFINE_BOOL(gnd, 1, false);
+	SIGNAL_DEFINE(c, 1);
+	SIGNAL_DEFINE(q5, 1);
+	SIGNAL_DEFINE(d5, 1);
+	SIGNAL_DEFINE(d6, 1);
+	SIGNAL_DEFINE(q6, 1);
+	SIGNAL_DEFINE(q7, 1);
+	SIGNAL_DEFINE(d7, 1);
+	SIGNAL_DEFINE(d8, 1);
+	SIGNAL_DEFINE(q8, 1);
+	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+
+	return chip;
+}
+
+void chip_74373_latch_destroy(Chip74373Latch *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74373_latch_process(Chip74373Latch *chip) {
+	if (SIGNAL_NEXT_BOOL(c)) {
+		chip->state = (uint8_t)	(
+				(SIGNAL_NEXT_BOOL(d1) << 0) |
+				(SIGNAL_NEXT_BOOL(d2) << 1) |
+				(SIGNAL_NEXT_BOOL(d3) << 2) |
+				(SIGNAL_NEXT_BOOL(d4) << 3) |
+				(SIGNAL_NEXT_BOOL(d5) << 4) |
+				(SIGNAL_NEXT_BOOL(d6) << 5) |
+				(SIGNAL_NEXT_BOOL(d7) << 6) |
+				(SIGNAL_NEXT_BOOL(d8) << 7)
+		);
+	}
+
+	if (!SIGNAL_NEXT_BOOL(oc_b)) {
+		SIGNAL_SET_BOOL(q1, (chip->state >> 0) & 0x01);
+		SIGNAL_SET_BOOL(q2, (chip->state >> 1) & 0x01);
+		SIGNAL_SET_BOOL(q3, (chip->state >> 2) & 0x01);
+		SIGNAL_SET_BOOL(q4, (chip->state >> 3) & 0x01);
+		SIGNAL_SET_BOOL(q5, (chip->state >> 4) & 0x01);
+		SIGNAL_SET_BOOL(q6, (chip->state >> 5) & 0x01);
+		SIGNAL_SET_BOOL(q7, (chip->state >> 6) & 0x01);
+		SIGNAL_SET_BOOL(q8, (chip->state >> 7) & 0x01);
+	}
+}

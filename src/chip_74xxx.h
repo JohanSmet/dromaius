@@ -309,8 +309,39 @@ typedef struct Chip74244Signals {
 
 typedef struct Chip74244OctalBuffer {
 	SignalPool *		signal_pool;
-	Chip74244Signals signals;
+	Chip74244Signals	signals;
 } Chip74244OctalBuffer;
+
+// types - 74373 (Octal D-Type Transparant Latches)
+typedef struct Chip74373Signals {
+	Signal		oc_b;		// pin 01 - output control
+	Signal		q1;			// pin 02
+	Signal		d1;			// pin 03
+	Signal		d2;			// pin 04
+	Signal		q2;			// pin 05
+	Signal		q3;			// pin 06
+	Signal		d3;			// pin 07
+	Signal		d4;			// pin 08
+	Signal		q4;			// pin 09
+	Signal		gnd;		// pin 10
+	Signal		c;			// pin 11 - enable input
+	Signal		q5;			// pin 12
+	Signal		d5;			// pin 13
+	Signal		d6;			// pin 14
+	Signal		q6;			// pin 15
+	Signal		q7;			// pin 16
+	Signal		d7;			// pin 17
+	Signal		d8;			// pin 18
+	Signal		q8;			// pin 19
+	Signal		vcc;		// pin 20
+} Chip74373Signals;
+
+typedef struct Chip74373Latch {
+	SignalPool *		signal_pool;
+	Chip74373Signals	signals;
+
+	uint8_t				state;
+} Chip74373Latch;
 
 // functions
 Chip7400Nand *chip_7400_nand_create(SignalPool *signal_pool, Chip7400NandSignals signals);
@@ -357,7 +388,9 @@ Chip74244OctalBuffer *chip_74244_octal_buffer_create(SignalPool *signal_pool, Ch
 void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip);
 void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip);
 
-
+Chip74373Latch *chip_74373_latch_create(SignalPool *signal_pool, Chip74373Signals signals);
+void chip_74373_latch_destroy(Chip74373Latch *chip);
+void chip_74373_latch_process(Chip74373Latch *chip);
 
 #ifdef __cplusplus
 }

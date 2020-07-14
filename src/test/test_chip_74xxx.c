@@ -677,6 +677,50 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 	return MUNIT_OK;
 }
 
+static MunitResult test_74373_latch(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip74373Latch *chip = chip_74373_latch_create(signal_pool_create(1), (Chip74373Signals) {0});
+	munit_assert_ptr_not_null(chip);
+
+	bool truth_table[][18] = {
+		//  oc    c      d1     d2     d3     d4     d5     d6     d7     d8     q1     q2     q3     q4     q5     q6     q7     q8
+		{false, true,  false, true,  false, true,  false, true,  false, true,  false, true,  false, true,  false, true,  false, true},
+		{false, true,  true,  false, true,  false, true,  false, true,  false, true,  false, true,  false, true,  false, true,  false},
+		{false, false, false, false, false, false, false, false, false, false, true,  false, true,  false, true,  false, true,  false}
+	};
+
+	for (int line = 0; line < sizeof(truth_table) / sizeof(truth_table[0]); ++line) {
+		munit_logf(MUNIT_LOG_INFO, "truth_table[%d]", line);
+
+		SIGNAL_SET_BOOL(oc_b, truth_table[line][0]);
+		SIGNAL_SET_BOOL(c, truth_table[line][1]);
+		SIGNAL_SET_BOOL(d1, truth_table[line][2]);
+		SIGNAL_SET_BOOL(d2, truth_table[line][3]);
+		SIGNAL_SET_BOOL(d3, truth_table[line][4]);
+		SIGNAL_SET_BOOL(d4, truth_table[line][5]);
+		SIGNAL_SET_BOOL(d5, truth_table[line][6]);
+		SIGNAL_SET_BOOL(d6, truth_table[line][7]);
+		SIGNAL_SET_BOOL(d7, truth_table[line][8]);
+		SIGNAL_SET_BOOL(d8, truth_table[line][9]);
+
+		chip_74373_latch_process(chip);
+
+		munit_assert(SIGNAL_NEXT_BOOL(q1) == truth_table[line][10]);
+		munit_assert(SIGNAL_NEXT_BOOL(q2) == truth_table[line][11]);
+		munit_assert(SIGNAL_NEXT_BOOL(q3) == truth_table[line][12]);
+		munit_assert(SIGNAL_NEXT_BOOL(q4) == truth_table[line][13]);
+		munit_assert(SIGNAL_NEXT_BOOL(q5) == truth_table[line][14]);
+		munit_assert(SIGNAL_NEXT_BOOL(q6) == truth_table[line][15]);
+		munit_assert(SIGNAL_NEXT_BOOL(q7) == truth_table[line][16]);
+		munit_assert(SIGNAL_NEXT_BOOL(q8) == truth_table[line][17]);
+
+		signal_pool_cycle(chip->signal_pool);
+	}
+
+	chip_74373_latch_destroy(chip);
+	return MUNIT_OK;
+}
+
 MunitTest chip_74xxx_tests[] = {
 	{ "/7400_nand", test_7400_nand, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/7474_d_flipflop", test_7474_d_flipflop, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
@@ -689,5 +733,6 @@ MunitTest chip_74xxx_tests[] = {
 	{ "/74177_binary_counter", test_74177_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74191_binary_counter", test_74191_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74244_octal_buffer", test_74244_octal_buffer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/74373_latch", test_74373_latch, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
