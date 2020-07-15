@@ -199,8 +199,8 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 	// reset both flip-flops
 	SIGNAL_SET_BOOL(clr1_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clr2_b, ACTLO_ASSERT);
-	SIGNAL_SET_BOOL(clk1, false);
-	SIGNAL_SET_BOOL(clk2, false);
+	SIGNAL_SET_BOOL(clk1, true);
+	SIGNAL_SET_BOOL(clk2, true);
 	signal_pool_cycle(chip->signal_pool);
 	chip_74107_jk_flipflop_process(chip);
 	munit_assert_false(SIGNAL_NEXT_BOOL(q1));
@@ -222,11 +222,11 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 	for (int line = 0; line < sizeof(truth_table) / sizeof(truth_table[0]); ++line) {
 		munit_logf(MUNIT_LOG_INFO, "1: truth_table[%d] - j = %d, k = %d", line, truth_table[line][0], truth_table[line][1]);
 
-		// positive edge
+		// negative edge
 		SIGNAL_SET_BOOL(clr1_b, ACTLO_DEASSERT);
 		SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(clk1, true);
-		SIGNAL_SET_BOOL(clk2, false);
+		SIGNAL_SET_BOOL(clk1, false);
+		SIGNAL_SET_BOOL(clk2, true);
 		SIGNAL_SET_BOOL(j1, truth_table[line][0]);
 		SIGNAL_SET_BOOL(k1, truth_table[line][1]);
 		signal_pool_cycle(chip->signal_pool);
@@ -236,11 +236,11 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		munit_assert_false(SIGNAL_NEXT_BOOL(q2));
 		munit_assert_true(SIGNAL_NEXT_BOOL(q2_b));
 
-		// negative edge
+		// positive edge
 		SIGNAL_SET_BOOL(clr1_b, ACTLO_DEASSERT);
 		SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(clk1, false);
-		SIGNAL_SET_BOOL(clk2, false);
+		SIGNAL_SET_BOOL(clk1, true);
+		SIGNAL_SET_BOOL(clk2, true);
 		SIGNAL_SET_BOOL(j1, truth_table[line][0]);
 		SIGNAL_SET_BOOL(k1, truth_table[line][1]);
 		signal_pool_cycle(chip->signal_pool);
@@ -255,11 +255,11 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 	for (int line = 0; line < sizeof(truth_table) / sizeof(truth_table[0]); ++line) {
 		munit_logf(MUNIT_LOG_INFO, "2: truth_table[%d] - j = %d, k = %d", line, truth_table[line][0], truth_table[line][1]);
 
-		// positive edge
+		// negative edge
 		SIGNAL_SET_BOOL(clr1_b, ACTLO_DEASSERT);
 		SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(clk1, false);
-		SIGNAL_SET_BOOL(clk2, true);
+		SIGNAL_SET_BOOL(clk1, true);
+		SIGNAL_SET_BOOL(clk2, false);
 		SIGNAL_SET_BOOL(j2, truth_table[line][0]);
 		SIGNAL_SET_BOOL(k2, truth_table[line][1]);
 		signal_pool_cycle(chip->signal_pool);
@@ -269,11 +269,11 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		munit_assert_false(SIGNAL_NEXT_BOOL(q1));
 		munit_assert_true(SIGNAL_NEXT_BOOL(q1_b));
 
-		// negative edge
+		// positive edge
 		SIGNAL_SET_BOOL(clr1_b, ACTLO_DEASSERT);
 		SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(clk1, false);
-		SIGNAL_SET_BOOL(clk2, false);
+		SIGNAL_SET_BOOL(clk1, true);
+		SIGNAL_SET_BOOL(clk2, true);
 		SIGNAL_SET_BOOL(j2, truth_table[line][0]);
 		SIGNAL_SET_BOOL(k2, truth_table[line][1]);
 		signal_pool_cycle(chip->signal_pool);
