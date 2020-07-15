@@ -78,6 +78,13 @@ typedef struct DevCommodorePetSignals {
 	Signal		horz_drive;
 	Signal		horz_drive_b;
 
+	Signal		tv_sel;
+	Signal		tv_read_b;
+	Signal		a5_12;
+
+	Signal		g6_q;
+	Signal		g6_q_b;
+
 	Signal		reset_b;			// 1-bit - reset line
 	Signal		irq_b;				// 1-bit - interrupt request
 	Signal		nmi_b;				// 1-bit - non-maskable interrupt
@@ -179,6 +186,9 @@ typedef struct DevCommodorePet {
 	Chip7493BinaryCounter * h9;			// refresh address counter
 	Chip7474DFlipFlop *		g9;			// d-flipflop
 	Chip74107JKFlipFlop *	h7;			// jk-flipflop
+
+	// display logic components
+	Chip74107JKFlipFlop *	g6;			// jk-flipflop
 
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1

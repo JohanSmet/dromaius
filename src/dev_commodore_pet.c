@@ -121,6 +121,13 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(horz_drive, 1, "HORZDRIVE");
 	SIGNAL_DEFINE_N(horz_drive_b, 1, "/HORZDRIVE");
 
+	SIGNAL_DEFINE_N(tv_sel, 1, "TVSEL");
+	SIGNAL_DEFINE_N(tv_read_b, 1, "/TVREAD");
+	SIGNAL_DEFINE_N(a5_12, 1, "A512");
+
+	SIGNAL_DEFINE_N(g6_q, 1, "G6Q");
+	SIGNAL_DEFINE_N(g6_q_b, 1, "/G6Q");
+
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
@@ -299,6 +306,18 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.k2 = SIGNAL(ra5and6_b),		// pin 11
 										.q2 = SIGNAL(horz_disp_on),		// pin 5
 										.q2_b = SIGNAL(horz_disp_off)	// pin 6
+	});
+
+	device->g6 = chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
+										.gnd = SIGNAL(low),				// pin 7
+										.vcc = SIGNAL(high),			// pin 14
+
+										.clr1_b = SIGNAL(horz_disp_on),	// pin 13
+										.clk1 = SIGNAL(ra1_b),			// pin 12
+										.j1 = SIGNAL(init_b),			// pin 1
+										.k1 = SIGNAL(init_b),			// pin 4
+										.q1 = SIGNAL(g6_q),				// pin 3
+										.q1_b = SIGNAL(g6_q_b),			// pin 2
 	});
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
@@ -561,6 +580,7 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	chip_7493_binary_counter_destroy(device->h9);
 	chip_7474_d_flipflop_destroy(device->g9);
 	chip_74107_jk_flipflop_destroy(device->h7);
+	chip_74107_jk_flipflop_destroy(device->g6);
 
 	chip_74244_octal_buffer_destroy(device->c3);
 	chip_74244_octal_buffer_destroy(device->b3);
@@ -746,11 +766,35 @@ static inline void process_master_timing(DevCommodorePet *device) {
 	chip_74107_jk_flipflop_process(device->h7);
 }
 
+static inline void process_display_logic(DevCommodorePet *device) {
+
+	// >> jk-flip flop g6
+	chip_74107_jk_flipflop_process(device->g6);
+
+	// glue logic
+	bool buf_rw = SIGNAL_NEXT_BOOL(buf_rw);
+
+	// >> F1 (4,5,6)
+	bool tv_sel = SIGNAL_NEXT_BOOL(ba11_b) && SIGNAL_NEXT_BOOL(sel8);
+	SIGNAL_SET_BOOL(tv_sel, tv_sel);
+
+	// >> A5 (8,9,10,11)
+	bool tv_read_b = !(true && buf_rw && tv_sel);
+	SIGNAL_SET_BOOL(tv_read_b, tv_read_b);
+
+	// >> A5 (1,2,12,13)
+	bool a5_12 = !(tv_sel && buf_rw && SIGNAL_NEXT_BOOL(bphi2));
+	SIGNAL_SET_BOOL(a5_12, a5_12);
+}
+
 void dev_commodore_pet_process(DevCommodorePet *device) {
 	assert(device);
 
 	// master timing (schematic sheet 6)
 	process_master_timing(device);
+
+	// display logic (schematic sheet 7)
+	process_display_logic(device);
 
 	if (signal_changed(device->signal_pool, SIGNAL(clk1))) {
 		// vblank 'fake' logic
