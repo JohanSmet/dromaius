@@ -64,6 +64,9 @@ typedef struct DevCommodorePetSignals {
 	Signal		ra4;				// 1-bit - ram refresh address
 	Signal		ra5;				// 1-bit - ram refresh address
 	Signal		ra6;				// 1-bit - ram refresh address
+	Signal		ra7;				// 1-bit - ram refresh address
+	Signal		ra8;				// 1-bit - ram refresh address
+	Signal		ra9;				// 1-bit - ram refresh address
 	Signal		ra1_b;
 	Signal		ra6_b;
 	Signal		ra1and3;
@@ -78,12 +81,53 @@ typedef struct DevCommodorePetSignals {
 	Signal		horz_drive;
 	Signal		horz_drive_b;
 
+	Signal		video_latch;
+
 	Signal		tv_sel;
 	Signal		tv_read_b;
 	Signal		a5_12;
 
 	Signal		g6_q;
 	Signal		g6_q_b;
+
+	Signal		tv_ram_rw;
+	Signal		f6_y3;
+
+	Signal		bus_sa;				// 10-bit - display ram address bus
+
+	Signal		ga2;
+	Signal		ga3;
+	Signal		ga4;
+	Signal		ga5;
+	Signal		ga6;
+	Signal		ga7;
+	Signal		ga8;
+	Signal		ga9;
+
+	Signal		lga2;
+	Signal		lga3;
+	Signal		lga4;
+	Signal		lga5;
+	Signal		lga6;
+	Signal		lga7;
+	Signal		lga8;
+	Signal		lga9;
+
+	Signal		next;
+	Signal		next_b;
+
+	Signal		reload_b;
+	Signal		reload_next;
+
+	Signal		pullup_1;
+	Signal		pullup_2;
+
+	Signal		lines_20_b;
+	Signal		lines_200_b;
+	Signal		line_220;
+	Signal		lga_hi_b;
+	Signal		lga_hi;
+	Signal		w220_off;
 
 	Signal		reset_b;			// 1-bit - reset line
 	Signal		irq_b;				// 1-bit - interrupt request
@@ -156,6 +200,7 @@ typedef struct DevCommodorePetSignals {
 	Signal		cs1;				// 1-bit
 
 	Signal		video_on;			// 1-bit - vblank
+	Signal		video_on_b;
 
 } DevCommodorePetSignals;
 
@@ -189,6 +234,13 @@ typedef struct DevCommodorePet {
 
 	// display logic components
 	Chip74107JKFlipFlop *	g6;			// jk-flipflop
+	Chip74157Multiplexer *	f6;			// quad 2to1 mux (display address bus)
+	Chip74157Multiplexer *	f5;			// quad 2to1 mux (display address bus)
+	Chip74157Multiplexer *	f3;			// quad 2to1 mux (display address bus)
+	Chip74177BinaryCounter *f4;
+	Chip74177BinaryCounter *f2;
+	Chip74373Latch *		g3;
+	Chip7474DFlipFlop *		g8;
 
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1

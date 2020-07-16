@@ -105,6 +105,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(ra4, 1, "RA4");
 	SIGNAL_DEFINE_N(ra5, 1, "RA5");
 	SIGNAL_DEFINE_N(ra6, 1, "RA6");
+	SIGNAL_DEFINE_N(ra7, 1, "RA7");
+	SIGNAL_DEFINE_N(ra8, 1, "RA8");
+	SIGNAL_DEFINE_N(ra9, 1, "RA9");
 
 	SIGNAL_DEFINE_N(ra1_b, 1, "/RA1");
 	SIGNAL_DEFINE_N(ra6_b, 1, "/RA6");
@@ -121,12 +124,52 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(horz_drive, 1, "HORZDRIVE");
 	SIGNAL_DEFINE_N(horz_drive_b, 1, "/HORZDRIVE");
 
+	SIGNAL_DEFINE_N(video_latch, 1, "VIDEOLATCH");
+
 	SIGNAL_DEFINE_N(tv_sel, 1, "TVSEL");
 	SIGNAL_DEFINE_N(tv_read_b, 1, "/TVREAD");
 	SIGNAL_DEFINE_N(a5_12, 1, "A512");
 
 	SIGNAL_DEFINE_N(g6_q, 1, "G6Q");
 	SIGNAL_DEFINE_N(g6_q_b, 1, "/G6Q");
+
+	SIGNAL_DEFINE_N(tv_ram_rw, 1, "TVRAMRW");
+	SIGNAL_DEFINE_N(f6_y3, 1, "F6Y3");
+	SIGNAL_DEFINE_N(bus_sa, 10, "SA%d");
+
+	SIGNAL_DEFINE_N(ga2, 1, "GA2");
+	SIGNAL_DEFINE_N(ga3, 1, "GA3");
+	SIGNAL_DEFINE_N(ga4, 1, "GA4");
+	SIGNAL_DEFINE_N(ga5, 1, "GA5");
+	SIGNAL_DEFINE_N(ga6, 1, "GA6");
+	SIGNAL_DEFINE_N(ga7, 1, "GA7");
+	SIGNAL_DEFINE_N(ga8, 1, "GA8");
+	SIGNAL_DEFINE_N(ga9, 1, "GA9");
+
+	SIGNAL_DEFINE_N(lga2, 1, "LGA2");
+	SIGNAL_DEFINE_N(lga3, 1, "LGA3");
+	SIGNAL_DEFINE_N(lga4, 1, "LGA4");
+	SIGNAL_DEFINE_N(lga5, 1, "LGA5");
+	SIGNAL_DEFINE_N(lga6, 1, "LGA6");
+	SIGNAL_DEFINE_N(lga7, 1, "LGA7");
+	SIGNAL_DEFINE_N(lga8, 1, "LGA8");
+	SIGNAL_DEFINE_N(lga9, 1, "LGA9");
+
+	SIGNAL_DEFINE_N(next, 1, "NEXT");
+	SIGNAL_DEFINE_N(next_b, 1, "/NEXT");
+
+	SIGNAL_DEFINE_N(reload_b, 1, "/RELOAD");
+	SIGNAL_DEFINE_N(reload_next, 1, "RELOADNEXT");
+
+	SIGNAL_DEFINE_BOOL_N(pullup_1, 1, true, "PULLUP1");
+	SIGNAL_DEFINE_BOOL_N(pullup_2, 1, true, "PULLUP2");
+
+	SIGNAL_DEFINE_N(lines_20_b, 1, "/20LINES");
+	SIGNAL_DEFINE_N(lines_200_b, 1, "/200LINES");
+	SIGNAL_DEFINE_N(line_220, 1, "220LINE");
+	SIGNAL_DEFINE_N(lga_hi_b, 1, "/LGAHI");
+	SIGNAL_DEFINE_N(lga_hi, 1, "LGAHI");
+	SIGNAL_DEFINE_N(w220_off, 1, "220OFF");
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
@@ -180,6 +223,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE(cs1, 1);
 
 	SIGNAL_DEFINE_BOOL_N(video_on, 1, true, "VIDEOON");
+	SIGNAL_DEFINE_BOOL_N(video_on_b, 1, false, "/VIDEOON");
 
 	device->signals.ba6 = signal_split(SIGNAL(bus_ba), 6, 1);
 	device->signals.ba7 = signal_split(SIGNAL(bus_ba), 7, 1);
@@ -318,6 +362,155 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.k1 = SIGNAL(init_b),			// pin 4
 										.q1 = SIGNAL(g6_q),				// pin 3
 										.q1_b = SIGNAL(g6_q_b),			// pin 2
+	});
+
+	device->f6 = chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
+										.gnd = SIGNAL(low),				// pin 8
+										.vcc = SIGNAL(high),			// pin 16
+
+										.i0d = SIGNAL(high),						// pin 11
+										.i1d = SIGNAL(high),						// pin 10
+										.i0b = SIGNAL(high),						// pin 05
+										.i1b = SIGNAL(a5_12),						// pin 06
+										.i0c = SIGNAL(ra1_b),						// pin 14
+										.i1c = signal_split(SIGNAL(bus_ba), 0, 1),	// pin 13
+										.i0a = SIGNAL(g6_q),						// pin 02
+										.i1a = signal_split(SIGNAL(bus_ba), 1, 1),	// pin 03
+
+										.sel = SIGNAL(clk1),						// pin 01
+										.enable_b = SIGNAL(low),					// pin 15
+
+										.zb = SIGNAL(tv_ram_rw),					// pin 07
+										.zd = SIGNAL(f6_y3),						// pin 09
+										.zc = signal_split(SIGNAL(bus_sa), 0, 1),	// pin 12
+										.za = signal_split(SIGNAL(bus_sa), 1, 1)	// pin 04
+	});
+
+	device->f5 = chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
+										.gnd = SIGNAL(low),				// pin 8
+										.vcc = SIGNAL(high),			// pin 16
+
+										.i0d = SIGNAL(ga2),							// pin 11
+										.i1d = signal_split(SIGNAL(bus_ba), 2, 1),	// pin 10
+										.i0b = SIGNAL(ga3),							// pin 05
+										.i1b = signal_split(SIGNAL(bus_ba), 3, 1),	// pin 06
+										.i0c = SIGNAL(ga4),							// pin 14
+										.i1c = signal_split(SIGNAL(bus_ba), 4, 1),	// pin 13
+										.i0a = SIGNAL(ga5),							// pin 02
+										.i1a = signal_split(SIGNAL(bus_ba), 5, 1),	// pin 03
+
+										.sel = SIGNAL(clk1),						// pin 01
+										.enable_b = SIGNAL(low),					// pin 15
+
+										.zd = signal_split(SIGNAL(bus_sa), 2, 1),	// pin 09
+										.zb = signal_split(SIGNAL(bus_sa), 3, 1),	// pin 07
+										.zc = signal_split(SIGNAL(bus_sa), 4, 1),	// pin 12
+										.za = signal_split(SIGNAL(bus_sa), 5, 1)	// pin 04
+	});
+
+	device->f3 = chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
+										.gnd = SIGNAL(low),				// pin 8
+										.vcc = SIGNAL(high),			// pin 16
+
+										.i0a = SIGNAL(ga6),							// pin 02
+										.i1a = signal_split(SIGNAL(bus_ba), 6, 1),	// pin 03
+										.i0c = SIGNAL(ga7),							// pin 14
+										.i1c = signal_split(SIGNAL(bus_ba), 7, 1),	// pin 13
+										.i0b = SIGNAL(ga8),							// pin 05
+										.i1b = signal_split(SIGNAL(bus_ba), 8, 1),	// pin 06
+										.i0d = SIGNAL(ga9),							// pin 11
+										.i1d = signal_split(SIGNAL(bus_ba), 9, 1),	// pin 10
+
+										.sel = SIGNAL(clk1),						// pin 01
+										.enable_b = SIGNAL(low),					// pin 15
+
+										.za = signal_split(SIGNAL(bus_sa), 6, 1),	// pin 04
+										.zc = signal_split(SIGNAL(bus_sa), 7, 1),	// pin 12
+										.zb = signal_split(SIGNAL(bus_sa), 8, 1),	// pin 07
+										.zd = signal_split(SIGNAL(bus_sa), 9, 1)	// pin 09
+	});
+
+	device->f4 = chip_74177_binary_counter_create(device->signal_pool, (Chip74177Signals) {
+										.gnd = SIGNAL(low),					// pin 07
+										.vcc = SIGNAL(high),				// pin 14
+
+										.clk2 = SIGNAL(ga2),				// pin 06
+										.clk1 = SIGNAL(g6_q),				// pin 08
+										.load_b = SIGNAL(horz_disp_on),		// pin 01
+										.clear_b = SIGNAL(next_b),			// pin 13
+										.a = SIGNAL(lga2),					// pin 04
+										.b = SIGNAL(lga3),					// pin 10
+										.c = SIGNAL(lga4),					// pin 03
+										.d = SIGNAL(lga5),					// pin 11
+
+										.qa = SIGNAL(ga2),					// pin 05
+										.qb = SIGNAL(ga3),					// pin 09
+										.qc = SIGNAL(ga4),					// pin 02
+										.qd = SIGNAL(ga5)					// pin 12
+	});
+
+	device->f2 = chip_74177_binary_counter_create(device->signal_pool, (Chip74177Signals) {
+										.gnd = SIGNAL(low),					// pin 07
+										.vcc = SIGNAL(high),				// pin 14
+
+										.clk2 = SIGNAL(ga6),				// pin 06
+										.clk1 = SIGNAL(ga5),				// pin 08
+										.load_b = SIGNAL(horz_disp_on),		// pin 01
+										.clear_b = SIGNAL(next_b),			// pin 13
+										.a = SIGNAL(lga6),					// pin 04
+										.b = SIGNAL(lga7),					// pin 10
+										.c = SIGNAL(lga8),					// pin 03
+										.d = SIGNAL(lga9),					// pin 11
+
+										.qa = SIGNAL(ga6),					// pin 05
+										.qb = SIGNAL(ga7),					// pin 09
+										.qc = SIGNAL(ga8),					// pin 02
+										.qd = SIGNAL(ga9)					// pin 12
+	});
+
+	device->g3 = chip_74373_latch_create(device->signal_pool, (Chip74373Signals) {
+										.gnd = SIGNAL(low),			// pin 10
+										.vcc = SIGNAL(high),		// pin 20
+
+										.d5 = SIGNAL(ga2),			// pin 13
+										.d8 = SIGNAL(ga3),			// pin 18
+										.d6 = SIGNAL(ga4),			// pin 14
+										.d7 = SIGNAL(ga5),			// pin 17
+										.d2 = SIGNAL(ga6),			// pin 04
+										.d3 = SIGNAL(ga7),			// pin 07
+										.d1 = SIGNAL(ga8),			// pin 03
+										.d4 = SIGNAL(ga9),			// pin 08
+
+										.c = SIGNAL(reload_next),	// pin 11 - enable input
+										.oc_b = SIGNAL(low),		// pin 01 - output control
+
+										.q5 = SIGNAL(lga2),			// pin 12
+										.q8 = SIGNAL(lga3),			// pin 19
+										.q6 = SIGNAL(lga4),			// pin 15
+										.q7 = SIGNAL(lga5),			// pin 16
+										.q2 = SIGNAL(lga6),			// pin 05
+										.q3 = SIGNAL(lga7),			// pin 06
+										.q1 = SIGNAL(lga8),			// pin 02
+										.q4 = SIGNAL(lga9)			// pin 09
+	});
+
+	device->g8 = chip_7474_d_flipflop_create(device->signal_pool, (Chip7474Signals) {
+										.gnd = SIGNAL(low),				// pin 7
+										.vcc = SIGNAL(high),			// pin 14
+
+										// .d1 = not used,				// pin 2
+										// .clr1_b = not used,			// pin 1
+										// .clk1 = not used,			// pin 3
+										// .pr1_b = not used,			// pin 4
+										// .q1 = not used,				// pin 5
+										// .q1_b = not used,			// pin 6
+
+										.pr2_b = SIGNAL(pullup_1),		// pin 10
+										.d2 = SIGNAL(w220_off),			// pin 12
+										.clk2 = SIGNAL(video_latch),	// pin 11
+										.clr2_b = SIGNAL(bphi2h),		// pin 13
+										.q2 = SIGNAL(next),				// pin 9
+										.q2_b = SIGNAL(next_b)			// pin 8
 	});
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
@@ -580,7 +773,15 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	chip_7493_binary_counter_destroy(device->h9);
 	chip_7474_d_flipflop_destroy(device->g9);
 	chip_74107_jk_flipflop_destroy(device->h7);
+
 	chip_74107_jk_flipflop_destroy(device->g6);
+	chip_74157_multiplexer_destroy(device->f6);
+	chip_74157_multiplexer_destroy(device->f5);
+	chip_74157_multiplexer_destroy(device->f3);
+	chip_74177_binary_counter_destroy(device->f4);
+	chip_74177_binary_counter_destroy(device->f2);
+	chip_74373_latch_destroy(device->g3);
+	chip_7474_d_flipflop_destroy(device->g8);
 
 	chip_74244_octal_buffer_destroy(device->c3);
 	chip_74244_octal_buffer_destroy(device->b3);
@@ -764,12 +965,31 @@ static inline void process_master_timing(DevCommodorePet *device) {
 	chip_7474_d_flipflop_process(device->g9);
 
 	chip_74107_jk_flipflop_process(device->h7);
+
+	// glue logic - G5 (8,9,10)
+	bool video_latch = NAND(SIGNAL_NEXT_BOOL(bphi2f_b), SIGNAL_NEXT_BOOL(bphi2h));
+	SIGNAL_SET_BOOL(video_latch, video_latch);
 }
 
 static inline void process_display_logic(DevCommodorePet *device) {
 
 	// >> jk-flip flop g6
 	chip_74107_jk_flipflop_process(device->g6);
+
+	// >> display ram address multiplexer f6
+	chip_74157_multiplexer_process(device->f6);
+
+	// >> display ram address multiplexer f5
+	chip_74157_multiplexer_process(device->f5);
+
+	// >> display ram address multiplexer f3
+	chip_74157_multiplexer_process(device->f3);
+
+	// >> counter f4
+	chip_74177_binary_counter_process(device->f4);
+
+	// >> counter f2
+	chip_74177_binary_counter_process(device->f2);
 
 	// glue logic
 	bool buf_rw = SIGNAL_NEXT_BOOL(buf_rw);
@@ -785,6 +1005,43 @@ static inline void process_display_logic(DevCommodorePet *device) {
 	// >> A5 (1,2,12,13)
 	bool a5_12 = !(tv_sel && buf_rw && SIGNAL_NEXT_BOOL(bphi2));
 	SIGNAL_SET_BOOL(a5_12, a5_12);
+
+	// >> I1 (5,6)
+	SIGNAL_SET_BOOL(video_on_b, !SIGNAL_NEXT_BOOL(video_on));
+
+	// >> G2 (1,2,4,5,6)
+	bool lines_20_b = !(SIGNAL_NEXT_BOOL(ga6) && SIGNAL_NEXT_BOOL(pullup_2) && SIGNAL_NEXT_BOOL(video_on_b) && SIGNAL_NEXT_BOOL(ra9));
+	SIGNAL_SET_BOOL(lines_20_b, lines_20_b);
+
+	// >> G2 (8,9,10,12,13)
+	bool lga_hi_b = !(SIGNAL_NEXT_BOOL(ga6) && SIGNAL_NEXT_BOOL(ga7) && SIGNAL_NEXT_BOOL(ga8) && SIGNAL_NEXT_BOOL(ga9));
+	SIGNAL_SET_BOOL(lga_hi_b, lga_hi_b);
+
+	// >> I1 (8,9)
+	SIGNAL_SET_BOOL(lga_hi, !lga_hi_b);
+
+	// >> H5 (4,5,6)
+	bool lines_200_b = NAND(SIGNAL_NEXT_BOOL(lga3), SIGNAL_NEXT_BOOL(lga_hi));
+	SIGNAL_SET_BOOL(lines_200_b, lines_200_b);
+
+	// >> H5 (8,9,10)
+	bool line_220 = NAND(lines_200_b, lines_20_b);
+	SIGNAL_SET_BOOL(line_220, line_220);
+
+	// >> G3 (1,2,3)
+	bool w220_off = line_220 && SIGNAL_NEXT_BOOL(horz_disp_off);
+	SIGNAL_SET_BOOL(w220_off, w220_off);
+
+	// >> G8
+	chip_7474_d_flipflop_process(device->g8);
+
+	// >> H5 (11,12,13)
+	bool reload_next = NAND(SIGNAL_NEXT_BOOL(reload_b), SIGNAL_NEXT_BOOL(next_b));
+	SIGNAL_SET_BOOL(reload_next, reload_next);
+
+	// >> G3 (8-bit latch)
+	chip_74373_latch_process(device->g3);
+
 }
 
 void dev_commodore_pet_process(DevCommodorePet *device) {
