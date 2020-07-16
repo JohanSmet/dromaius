@@ -5,7 +5,7 @@
 #ifndef DROMAIUS_CHIP_74XXX_H
 #define DROMAIUS_CHIP_74XXX_H
 
-#include "types.h"
+#include "chip.h"
 #include "signal_line.h"
 
 #ifdef __cplusplus
@@ -31,6 +31,8 @@ typedef struct Chip7400NandSignals {
 } Chip7400NandSignals;
 
 typedef struct Chip7400Nand {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip7400NandSignals signals;
 } Chip7400Nand;
@@ -54,6 +56,8 @@ typedef struct Chip7474Signals {
 } Chip7474Signals;
 
 typedef struct Chip7474DFlipFlop {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip7474Signals		signals;
 
@@ -80,6 +84,8 @@ typedef struct Chip7493Signals {
 } Chip7493Signals;
 
 typedef struct Chip7493BinaryCounter {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip7493Signals		signals;
 
@@ -108,6 +114,8 @@ typedef struct Chip74107Signals {
 } Chip74107Signals;
 
 typedef struct Chip74107JKFlipFlop {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip74107Signals	signals;
 
@@ -138,6 +146,8 @@ typedef struct Chip74145Signals {
 } Chip74145Signals;
 
 typedef struct Chip74145BcdDecoder {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip74145Signals	signals;
 } Chip74145BcdDecoder;
@@ -171,6 +181,8 @@ typedef struct Chip74154Signals {
 } Chip74154Signals;
 
 typedef struct Chip74154Decoder {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip74154Signals	signals;
 } Chip74154Decoder;
@@ -196,6 +208,8 @@ typedef struct Chip74157Signals {
 } Chip74157Signals;
 
 typedef struct Chip74157Multiplexer {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip74157Signals	signals;
 } Chip74157Multiplexer;
@@ -219,6 +233,8 @@ typedef struct Chip74164Signals {
 } Chip74164Signals;
 
 typedef struct Chip74164ShiftRegister {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip74164Signals	signals;
 
@@ -245,6 +261,8 @@ typedef struct Chip74177Signals {
 } Chip74177Signals;
 
 typedef struct Chip74177BinaryCounter {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip74177Signals	signals;
 
@@ -275,6 +293,8 @@ typedef struct Chip74191Signals {
 } Chip74191Signals;
 
 typedef struct Chip74191BinaryCounter {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip74191Signals	signals;
 
@@ -308,6 +328,8 @@ typedef struct Chip74244Signals {
 } Chip74244Signals;
 
 typedef struct Chip74244OctalBuffer {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip74244Signals	signals;
 } Chip74244OctalBuffer;
@@ -337,6 +359,8 @@ typedef struct Chip74373Signals {
 } Chip74373Signals;
 
 typedef struct Chip74373Latch {
+	CHIP_DECLARE_FUNCTIONS
+
 	SignalPool *		signal_pool;
 	Chip74373Signals	signals;
 
