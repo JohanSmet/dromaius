@@ -44,6 +44,16 @@ static inline void half_clock_cycle(Chip6520 *pia) {
 	chip_6520_process(pia);
 }
 
+static MunitResult test_create(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
+	munit_assert_ptr_not_null(pia);
+	munit_assert_ptr_equal(pia->process, chip_6520_process);
+	munit_assert_ptr_equal(pia->destroy, chip_6520_destroy);
+
+	return MUNIT_OK;
+}
+
 static MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture) {
 	Chip6520 *pia = (Chip6520 *) user_data_or_fixture;
 
@@ -1199,6 +1209,7 @@ static MunitResult test_cb2_out_handshake(const MunitParameter params[], void *u
 }
 
 MunitTest chip_6520_tests[] = {
+	{ "/create", test_create, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/reset", test_reset, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_ddra", test_read_ddra, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_cra", test_read_cra, chip_6520_setup, chip_6520_teardown, MUNIT_TEST_OPTION_NONE, NULL },

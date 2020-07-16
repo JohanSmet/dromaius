@@ -259,6 +259,7 @@ Chip6520 *chip_6520_create(SignalPool *signal_pool, Chip6520Signals signals) {
 
 	Chip6520 *pia = &priv->intf;
 	pia->signal_pool = signal_pool;
+	CHIP_SET_FUNCTIONS(pia, chip_6520_process, chip_6520_destroy);
 
 	memcpy(&pia->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(bus_data,		8);

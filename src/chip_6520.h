@@ -5,7 +5,7 @@
 #ifndef DROMAIUS_CHIP_6520_H
 #define DROMAIUS_CHIP_6520_H
 
-#include "types.h"
+#include "chip.h"
 #include "signal_line.h"
 
 #ifdef __cplusplus
@@ -50,6 +50,8 @@ typedef enum Chip6520ControlFlags {
 } Chip6520ControlFlags;
 
 typedef struct Chip6520 {
+	CHIP_DECLARE_FUNCTIONS
+
 	// interface
 	SignalPool *		signal_pool;
 	Chip6520Signals		signals;
