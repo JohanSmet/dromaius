@@ -24,7 +24,7 @@ Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Ro
 	memset(rom, 0, sizeof(Rom8d16a) + data_size);
 	rom->signal_pool = signal_pool;
 	rom->data_size = data_size;
-	rom->process = (PROCESS_FUNC) rom_8d16a_process;
+	CHIP_SET_FUNCTIONS(rom, rom_8d16a_process, rom_8d16a_destroy);
 
 	memcpy(&rom->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(bus_address, 16);

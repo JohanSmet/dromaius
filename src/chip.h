@@ -7,10 +7,16 @@
 
 #include "types.h"
 
-typedef void (*PROCESS_FUNC)(void *chip);
+typedef void (*CHIP_PROCESS_FUNC)(void *chip);
+typedef void (*CHIP_DESTROY_FUNC)(void *chip);
 
 #define CHIP_DECLARE_FUNCTIONS		\
-	PROCESS_FUNC process;
+	CHIP_PROCESS_FUNC process;		\
+	CHIP_DESTROY_FUNC destroy;
+
+#define CHIP_SET_FUNCTIONS(chip, pf, df)		\
+	(chip)->process = (CHIP_PROCESS_FUNC) (pf);	\
+	(chip)->destroy = (CHIP_DESTROY_FUNC) (df);
 
 typedef struct Chip {
 	CHIP_DECLARE_FUNCTIONS

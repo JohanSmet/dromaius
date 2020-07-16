@@ -79,7 +79,7 @@ MunitResult test_signals_data(const MunitParameter params[], void *user_data_or_
 
 	// 'remove' cpu/ram and inject signals into the pet
 	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
-	device->ram->process = (PROCESS_FUNC) override_ram_process;
+	device->ram->process = (CHIP_PROCESS_FUNC) override_ram_process;
 
 	// data-bus read/write signals
 	for (int addr = 0x0000; addr <= 0xffff; addr += 0x0100) {
@@ -110,11 +110,11 @@ MunitResult test_read_databus(const MunitParameter params[], void *user_data_or_
 
 	// 'remove' cpu/ram and inject signals into the pet
 	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
-	device->ram->process = (PROCESS_FUNC) override_ram_process;
-	device->vram->process = (PROCESS_FUNC) override_do_nothing;
+	device->ram->process = (CHIP_PROCESS_FUNC) override_ram_process;
+	device->vram->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 
 	for (int i = 0; device->roms[i] != NULL; ++i) {
-		device->roms[i]->process = (PROCESS_FUNC) override_do_nothing;
+		device->roms[i]->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 	}
 
 	// reading from the databus
@@ -137,7 +137,7 @@ MunitResult test_write_databus(const MunitParameter params[], void *user_data_or
 	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
 
 	for (int i = 0; device->roms[i] != NULL; ++i) {
-		device->roms[i]->process = (PROCESS_FUNC) override_do_nothing;
+		device->roms[i]->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 	}
 
 	// reading from the databus
