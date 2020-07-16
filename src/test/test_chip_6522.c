@@ -86,6 +86,16 @@ static inline void half_clock_cycle(Chip6522 *via) {
 	chip_6522_process(via);
 }
 
+static MunitResult test_create(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	munit_assert_ptr_not_null(via);
+	munit_assert_ptr_equal(via->process, chip_6522_process);
+	munit_assert_ptr_equal(via->destroy, chip_6522_destroy);
+
+	return MUNIT_OK;
+}
+
 static MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture) {
 	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
 
@@ -3374,6 +3384,7 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 }
 
 MunitTest chip_6522_tests[] = {
+	{ "/create", test_create, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/reset", test_reset, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_ddra", test_read_ddra, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/read_ddrb", test_read_ddrb, chip_6522_setup, chip_6522_teardown, MUNIT_TEST_OPTION_NONE, NULL },

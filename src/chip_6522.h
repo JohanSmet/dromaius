@@ -5,6 +5,7 @@
 #ifndef DROMAIUS_CHIP_6522_H
 #define DROMAIUS_CHIP_6522_H
 
+#include "chip.h"
 #include "signal_line.h"
 
 #ifdef __cplusplus
@@ -117,6 +118,8 @@ typedef enum Chip6522InterruptEnable {
 } Chip6522InterruptEnable;
 
 typedef struct Chip6522 {
+	CHIP_DECLARE_FUNCTIONS
+
 	// interface
 	SignalPool *		signal_pool;
 	Chip6522Signals		signals;
