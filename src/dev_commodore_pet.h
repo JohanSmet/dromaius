@@ -91,6 +91,7 @@ typedef struct DevCommodorePetSignals {
 	Signal		g6_q_b;
 
 	Signal		tv_ram_rw;
+	Signal		tv_ram_rw_b;
 	Signal		f6_y3;
 
 	Signal		bus_sa;				// 10-bit - display ram address bus
@@ -128,6 +129,8 @@ typedef struct DevCommodorePetSignals {
 	Signal		lga_hi_b;
 	Signal		lga_hi;
 	Signal		w220_off;
+
+	Signal		bus_sd;				// 8-bit - display ram databus
 
 	Signal		reset_b;			// 1-bit - reset line
 	Signal		irq_b;				// 1-bit - interrupt request
@@ -241,6 +244,11 @@ typedef struct DevCommodorePet {
 	Chip74177BinaryCounter *f2;
 	Chip74373Latch *		g3;
 	Chip7474DFlipFlop *		g8;
+
+	// display rams components
+	Chip7493BinaryCounter * h11;
+	Chip74244OctalBuffer *  e8;
+	Chip74244OctalBuffer *  e7;
 
 	// glue logic
 	Chip74244OctalBuffer *	e9;			// data-bus buffer 1

@@ -134,6 +134,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(g6_q_b, 1, "/G6Q");
 
 	SIGNAL_DEFINE_N(tv_ram_rw, 1, "TVRAMRW");
+	SIGNAL_DEFINE_N(tv_ram_rw_b, 1, "/TVRAMRW");
 	SIGNAL_DEFINE_N(f6_y3, 1, "F6Y3");
 	SIGNAL_DEFINE_N(bus_sa, 10, "SA%d");
 
@@ -170,6 +171,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(lga_hi_b, 1, "/LGAHI");
 	SIGNAL_DEFINE_N(lga_hi, 1, "LGAHI");
 	SIGNAL_DEFINE_N(w220_off, 1, "220OFF");
+
+	SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
@@ -513,6 +516,67 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.q2_b = SIGNAL(next_b)			// pin 8
 	});
 
+	device->h11 = chip_7493_binary_counter_create(device->signal_pool, (Chip7493Signals) {
+										.gnd = SIGNAL(low),				// pin 10
+										.vcc = SIGNAL(high),			// pin 5
+
+										.a_b = SIGNAL(low),				// pin 14
+										.b_b = SIGNAL(horz_disp_on),	// pin 1
+										.r01 = SIGNAL(next),			// pin 2
+										.r02 = SIGNAL(next),			// pin 3
+										// .qa = not used,				// pin 12
+										.qb = SIGNAL(ra7),				// pin 9
+										.qc = SIGNAL(ra8),				// pin 8
+										.qd = SIGNAL(ra9),				// pin 11
+	});
+
+	// display rams components
+	device->e8 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+										.g2_b = SIGNAL(tv_ram_rw),						// 19
+										.g1_b = SIGNAL(tv_read_b),						// 01
+
+										.a11  = signal_split(SIGNAL(bus_sd), 0, 1),		// 02
+										.y24  = signal_split(SIGNAL(bus_sd), 0, 1),		// 03
+										.a12  = signal_split(SIGNAL(bus_sd), 1, 1),		// 04
+										.y23  = signal_split(SIGNAL(bus_sd), 1, 1),		// 05
+										.a13  = signal_split(SIGNAL(bus_sd), 2, 1),		// 06
+										.y22  = signal_split(SIGNAL(bus_sd), 2, 1),		// 07
+										.a14  = signal_split(SIGNAL(bus_sd), 3, 1),		// 08
+										.y21  = signal_split(SIGNAL(bus_sd), 3, 1),		// 09
+
+										.y11  = signal_split(SIGNAL(bus_bd), 0, 1),		// 18
+										.a24  = signal_split(SIGNAL(bus_bd), 0, 1),		// 17
+										.y12  = signal_split(SIGNAL(bus_bd), 1, 1),		// 16
+										.a23  = signal_split(SIGNAL(bus_bd), 1, 1),		// 15
+										.y13  = signal_split(SIGNAL(bus_bd), 2, 1),		// 14
+										.a22  = signal_split(SIGNAL(bus_bd), 2, 1),		// 13
+										.y14  = signal_split(SIGNAL(bus_bd), 3, 1),		// 12
+										.a21  = signal_split(SIGNAL(bus_bd), 3, 1)		// 11
+	});
+
+	device->e7 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+										.g2_b = SIGNAL(tv_ram_rw),						// 19
+										.g1_b = SIGNAL(tv_read_b),						// 01
+
+										.a11  = signal_split(SIGNAL(bus_sd), 4, 1),		// 02
+										.y24  = signal_split(SIGNAL(bus_sd), 4, 1),		// 03
+										.a12  = signal_split(SIGNAL(bus_sd), 5, 1),		// 04
+										.y23  = signal_split(SIGNAL(bus_sd), 5, 1),		// 05
+										.a13  = signal_split(SIGNAL(bus_sd), 6, 1),		// 06
+										.y22  = signal_split(SIGNAL(bus_sd), 6, 1),		// 07
+										.a14  = signal_split(SIGNAL(bus_sd), 7, 1),		// 08
+										.y21  = signal_split(SIGNAL(bus_sd), 7, 1),		// 09
+
+										.y11  = signal_split(SIGNAL(bus_bd), 4, 1),		// 18
+										.a24  = signal_split(SIGNAL(bus_bd), 4, 1),		// 17
+										.y12  = signal_split(SIGNAL(bus_bd), 5, 1),		// 16
+										.a23  = signal_split(SIGNAL(bus_bd), 5, 1),		// 15
+										.y13  = signal_split(SIGNAL(bus_bd), 6, 1),		// 14
+										.a22  = signal_split(SIGNAL(bus_bd), 6, 1),		// 13
+										.y14  = signal_split(SIGNAL(bus_bd), 7, 1),		// 12
+										.a21  = signal_split(SIGNAL(bus_bd), 7, 1)		// 11
+	});
+
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 
 	// cpu
@@ -783,6 +847,10 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	chip_74373_latch_destroy(device->g3);
 	chip_7474_d_flipflop_destroy(device->g8);
 
+	chip_7493_binary_counter_destroy(device->h11);
+	chip_74244_octal_buffer_destroy(device->e8);
+	chip_74244_octal_buffer_destroy(device->e7);
+
 	chip_74244_octal_buffer_destroy(device->c3);
 	chip_74244_octal_buffer_destroy(device->b3);
 	chip_74244_octal_buffer_destroy(device->e9);
@@ -906,7 +974,6 @@ static inline void process_glue_logic(DevCommodorePet *device, bool video_on) {
 
 	// >> video-ram logic - simplified
 	SIGNAL_SET_BOOL(vram_oe_b, !next_rw);
-
 	// >> rom logic: roms are enabled by the selx_b signals
 	//	- rom-E (editor) is special because it's only a 2k ram and it uses address line 11 as an extra enable to only
 	//	  respond in the lower 2k
@@ -1041,7 +1108,21 @@ static inline void process_display_logic(DevCommodorePet *device) {
 
 	// >> G3 (8-bit latch)
 	chip_74373_latch_process(device->g3);
+}
 
+static inline void process_display_rams(DevCommodorePet *device) {
+
+	SIGNAL_SET_BOOL(tv_ram_rw_b, !SIGNAL_NEXT_BOOL(tv_ram_rw));
+
+	// H11 - binary counter
+	chip_7493_binary_counter_process(device->h11);
+
+	// bridge databus & display ram databus
+	chip_74244_octal_buffer_process(device->e8);
+	chip_74244_octal_buffer_process(device->e7);
+
+	bool reload_b = !(SIGNAL_NEXT_BOOL(horz_disp_on) && SIGNAL_NEXT_BOOL(ra7) && SIGNAL_NEXT_BOOL(ra8) && SIGNAL_NEXT_BOOL(ra9));
+	SIGNAL_SET_BOOL(reload_b, reload_b);
 }
 
 void dev_commodore_pet_process(DevCommodorePet *device) {
@@ -1052,6 +1133,9 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 
 	// display logic (schematic sheet 7)
 	process_display_logic(device);
+
+	// display rams (schematic sheet 8)
+	process_display_rams(device);
 
 	if (signal_changed(device->signal_pool, SIGNAL(clk1))) {
 		// vblank 'fake' logic
