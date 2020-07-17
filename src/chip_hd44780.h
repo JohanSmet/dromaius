@@ -5,7 +5,7 @@
 // Most features should be supported, although this was written with only the Hitachi HD44780U datasheet as a reference.
 // I haven't compared the functionality with real hardware (yet), simply because I don't own one ATM.
 // Overview of stuff that isn't implemented:
-//	- the busy flag - all operations complete on the negative edge of the enable signal 
+//	- the busy flag - all operations complete on the negative edge of the enable signal
 //	- only the A00 character rom is included
 //	- blinking cursor: timing is approximated
 //  - "limited" to 16x1 or 16x2 LCD output
@@ -13,7 +13,7 @@
 #ifndef DROMAIUS_CHIP_HD44780_H
 #define DROMAIUS_CHIP_HD44780_H
 
-#include "types.h"
+#include "chip.h"
 #include "signal_line.h"
 
 #ifdef __cplusplus
@@ -37,6 +37,8 @@ typedef struct ChipHd44780Signals {
 } ChipHd44780Signals;
 
 typedef struct ChipHd44780 {
+	CHIP_DECLARE_FUNCTIONS
+
 	// interface
 	SignalPool *		signal_pool;
 	ChipHd44780Signals	signals;
