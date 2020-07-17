@@ -5,7 +5,7 @@
 #ifndef DROMAIUS_INPUT_KEYPAD_H
 #define DROMAIUS_INPUT_KEYPAD_H
 
-#include "types.h"
+#include "chip.h"
 #include "signal_line.h"
 
 #ifdef __cplusplus
@@ -19,6 +19,8 @@ typedef struct InputKeypadSignals {
 } InputKeypadSignals;
 
 typedef struct InputKeypad {
+	CHIP_DECLARE_FUNCTIONS
+
 	// interface
 	SignalPool *		signal_pool;
 	InputKeypadSignals	signals;

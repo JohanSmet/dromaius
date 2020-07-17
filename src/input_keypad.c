@@ -37,6 +37,7 @@ typedef struct InputKeypadPrivate {
 InputKeypad *input_keypad_create(SignalPool *pool, bool active_high, size_t row_count, size_t col_count, InputKeypadSignals signals) {
 	InputKeypadPrivate *priv = calloc(1, sizeof(InputKeypadPrivate));
 	InputKeypad *keypad = &priv->intf;
+	CHIP_SET_FUNCTIONS(keypad, input_keypad_process, input_keypad_destroy);
 
 	keypad->keys = (bool *) calloc(row_count * col_count, sizeof(bool));
 	priv->key_decay = (int *) calloc(row_count * col_count, sizeof(int));
