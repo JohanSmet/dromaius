@@ -28,6 +28,7 @@ Clock* dev_minimal_6502_get_clock(DevMinimal6502 *device) {
 	return device->clock;
 }
 
+
 DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DevMinimal6502 *device = (DevMinimal6502 *) calloc(1, sizeof(DevMinimal6502));
 
@@ -61,6 +62,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										.clock = SIGNAL(clock)
 	});
 
+#define REGISTER_CHIP(c)	device_register_chip((Device *) device, (Chip *) (c))
+
 	// cpu
 	device->cpu = cpu_6502_create(device->signal_pool, (Cpu6502Signals) {
 										.bus_address = SIGNAL(bus_address),
@@ -73,6 +76,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										.sync = SIGNAL(cpu_sync),
 										.rdy = SIGNAL(cpu_rdy)
 	});
+	REGISTER_CHIP(device->cpu);
 
 	// ram
 	device->ram = ram_8d16a_create(15, device->signal_pool, (Ram8d16aSignals) {
@@ -80,12 +84,14 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										.bus_data = SIGNAL(bus_data),
 										.ce_b = SIGNAL(a15)
 	});
+	REGISTER_CHIP(device->ram);
 
 	// rom
 	device->rom = rom_8d16a_create(14, device->signal_pool, (Rom8d16aSignals) {
 										.bus_address = signal_split(device->signals.bus_address, 0, 14),
 										.bus_data = SIGNAL(bus_data),
 	});
+	REGISTER_CHIP(device->rom);
 
 	if (rom_data) {
 		memcpy(device->rom->data_array, rom_data, arrlenu(rom_data));
@@ -102,6 +108,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										.rs0 = signal_split(SIGNAL(bus_address), 0, 1),
 										.rs1 = signal_split(SIGNAL(bus_address), 1, 1),
 	});
+	REGISTER_CHIP(device->pia);
 
 	// lcd-module
 	device->lcd = chip_hd44780_create(device->clock, device->signal_pool, (ChipHd44780Signals) {
@@ -110,12 +117,14 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										.rw = signal_split(device->pia->signals.port_a, 6, 1),
 										.enable = signal_split(device->pia->signals.port_a, 5, 1)
 	});
+	REGISTER_CHIP(device->lcd);
 
 	// keypad
 	device->keypad = input_keypad_create(device->signal_pool, true, 4, 4, (InputKeypadSignals) {
 										.rows = signal_split(device->pia->signals.port_b, 4, 4),
 										.cols = signal_split(device->pia->signals.port_b, 0, 4)
 	});
+	REGISTER_CHIP(device->keypad);
 	signal_default_uint8(device->signal_pool, device->keypad->signals.cols, false);
 
 	// copy some signals for easy access
@@ -175,23 +184,9 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 	// run all chips on the clock cycle
 	signal_pool_cycle(device->signal_pool);
 
-	// >> cpu
-	device->cpu->process(device->cpu);
-
-	// >> ram
-	device->ram->process(device->ram);
-
-	// >> rom
-	device->rom->process(device->rom);
-
-	// >> pia
-	chip_6520_process(device->pia);
-
-	// >> lcd
-	chip_hd44780_process(device->lcd);
-
-	// >> keypad
-	input_keypad_process(device->keypad);
+	for (size_t idx = 0; idx < arrlenu(device->chips); ++idx) {
+		device->chips[idx]->process(device->chips[idx]);
+	}
 
 	// >> glue logic
 	process_glue_logic(device);
