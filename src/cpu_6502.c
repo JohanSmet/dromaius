@@ -2135,7 +2135,8 @@ Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals) {
 	memset(priv, 0, sizeof(Cpu6502_private));
 
 	cpu->signal_pool = signal_pool;
-	cpu->process = (CPU_PROCESS_FUNC) cpu_6502_process;
+	cpu->process = (CHIP_PROCESS_FUNC) cpu_6502_process;
+	cpu->destroy = (CHIP_DESTROY_FUNC) cpu_6502_destroy;
 	cpu->override_next_instruction_address = (CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS) cpu_6502_override_next_instruction_address;
 	cpu->is_at_start_of_instruction = (CPU_IS_AT_START_OF_INSTRUCTION) cpu_6502_at_start_of_instruction;
 	cpu->irq_is_asserted = (CPU_IRQ_IS_ASSERTED) cpu_6502_irq_is_asserted;

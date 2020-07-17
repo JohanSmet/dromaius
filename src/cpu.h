@@ -5,16 +5,15 @@
 #ifndef DROMAIUS_CPU_H
 #define DROMAIUS_CPU_H
 
-#include "types.h"
+#include "chip.h"
 
-typedef void (*CPU_PROCESS_FUNC)(void *cpu);
 typedef void (*CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS)(void *cpu, uint16_t addr);
 typedef bool (*CPU_IS_AT_START_OF_INSTRUCTION)(void *cpu);
 typedef bool (*CPU_IRQ_IS_ASSERTED)(void *cpu);
 typedef int64_t  (*CPU_PROGRAM_COUNTER)(void *cpu);
 
 #define CPU_DECLARE_FUNCTIONS		\
-	CPU_PROCESS_FUNC process;		\
+	CHIP_DECLARE_FUNCTIONS														\
 	CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS override_next_instruction_address;	\
 	CPU_IS_AT_START_OF_INSTRUCTION is_at_start_of_instruction;					\
 	CPU_IRQ_IS_ASSERTED irq_is_asserted;										\

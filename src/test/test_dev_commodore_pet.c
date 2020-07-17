@@ -46,7 +46,7 @@ MunitResult test_signals_address(const MunitParameter params[], void *user_data_
 	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
 
 	// 'remove' cpu and inject signals into the pet
-	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
+	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 
 	// address area enable signals (selx_b)
 	for (int addr = 0x0000; addr <= 0xffff; addr += 0x0100) {
@@ -78,7 +78,7 @@ MunitResult test_signals_data(const MunitParameter params[], void *user_data_or_
 	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
 
 	// 'remove' cpu/ram and inject signals into the pet
-	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
+	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 	device->ram->process = (CHIP_PROCESS_FUNC) override_ram_process;
 
 	// data-bus read/write signals
@@ -109,7 +109,7 @@ MunitResult test_read_databus(const MunitParameter params[], void *user_data_or_
 	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
 
 	// 'remove' cpu/ram and inject signals into the pet
-	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
+	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 	device->ram->process = (CHIP_PROCESS_FUNC) override_ram_process;
 	device->vram->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 
@@ -134,7 +134,7 @@ MunitResult test_write_databus(const MunitParameter params[], void *user_data_or
 	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
 
 	// 'remove' cpu and inject signals into the pet
-	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
+	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 
 	for (int i = 0; device->roms[i] != NULL; ++i) {
 		device->roms[i]->process = (CHIP_PROCESS_FUNC) override_do_nothing;
@@ -159,7 +159,7 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
 
 	// 'remove' cpu and inject signals into the pet
-	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
+	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 
 	for (int addr = 0x0000; addr <= 0x7fff; ++addr) {
 		override_bus_address = addr & 0xffff;
@@ -193,7 +193,7 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
 
 	// 'remove' cpu and inject signals into the pet
-	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
+	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 
 	for (int addr = 0x8000; addr <= 0x83e8; ++addr) {		// 40x25
 		override_bus_address = addr & 0xffff;
@@ -227,7 +227,7 @@ MunitResult test_rom(const MunitParameter params[], void *user_data_or_fixture) 
 	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
 
 	// 'remove' cpu and inject signals into the pet
-	device->cpu->process = (CPU_PROCESS_FUNC) override_cpu_process;
+	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 
 	static int rom_addr[] = {0xb000, 0xc000, 0xd000, 0xe000, 0xf000};
 
