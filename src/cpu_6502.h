@@ -67,7 +67,7 @@ typedef struct Cpu6502 {
 // functions
 Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals);
 void cpu_6502_destroy(Cpu6502 *cpu);
-void cpu_6502_process(Cpu6502 *cpu, bool delayed);
+void cpu_6502_process(Cpu6502 *cpu);
 
 bool cpu_6502_in_initialization(Cpu6502 *cpu);
 

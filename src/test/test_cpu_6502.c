@@ -32,7 +32,7 @@
 static inline void cpu_process(Cpu6502 *cpu, bool delayed) {
 	SIGNAL_SET_BOOL(clock, SIGNAL_BOOL(clock) ^ !delayed);
 	signal_pool_cycle(cpu->signal_pool);
-	cpu_6502_process(cpu, delayed);
+	cpu_6502_process(cpu);
 }
 
 static void cpu_reset(Cpu6502 *cpu) {

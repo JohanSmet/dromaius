@@ -126,6 +126,8 @@ typedef struct Cpu6502_private {
 	addr_t			i_addr;
 	bool			page_crossed;
 	bool			nmi_triggered;
+
+	bool			delayed_cycle;
 } Cpu6502_private;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -153,6 +155,8 @@ static void process_end(Cpu6502 *cpu) {
 	if (PRIVATE(cpu)->drv_data) {
 		SIGNAL_SET_UINT8(bus_data, PRIVATE(cpu)->out_data);
 	}
+
+	PRIVATE(cpu)->delayed_cycle = !PRIVATE(cpu)->delayed_cycle;
 }
 
 static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTERRUPT_TYPE irq_type) {
@@ -2163,7 +2167,7 @@ void cpu_6502_destroy(Cpu6502 *cpu) {
 	free((Cpu6502_private *) cpu);
 }
 
-void cpu_6502_process(Cpu6502 *cpu, bool delayed) {
+void cpu_6502_process(Cpu6502 *cpu) {
 	assert(cpu);
 	Cpu6502_private *priv = (Cpu6502_private *) cpu;
 
@@ -2181,6 +2185,7 @@ void cpu_6502_process(Cpu6502 *cpu, bool delayed) {
 		priv->prev_reset = reset_b;
 		priv->state = CS_INIT;
 		priv->decode_cycle = -1;
+		priv->delayed_cycle = false;
 	}
 
 	// do nothing:
@@ -2202,17 +2207,17 @@ void cpu_6502_process(Cpu6502 *cpu, bool delayed) {
 	// normal processing
 	if (SIGNAL_BOOL(clock) == false) {
 		// a negative going clock ends the previous cycle and starts a new cycle
-		if (priv->decode_cycle >= 0 && !delayed) {
+		if (priv->decode_cycle >= 0 && !priv->delayed_cycle) {
 			cpu_6502_execute_phase(cpu, CYCLE_END);
 		}
 
-		if (delayed) {
+		if (priv->delayed_cycle) {
 			++priv->decode_cycle;
 			cpu_6502_execute_phase(cpu, CYCLE_BEGIN);
 		}
 	} else {
 		// a positive going clock marks the halfway point of the cycle
-		if (!delayed) {
+		if (!priv->delayed_cycle) {
 			cpu_6502_execute_phase(cpu, CYCLE_MIDDLE);
 		}
 	}

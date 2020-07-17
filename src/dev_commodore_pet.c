@@ -1151,7 +1151,7 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 		signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 
 		// cpu
-		device->cpu->process(device->cpu, false);
+		device->cpu->process(device->cpu);
 
 		// ram
 		device->ram->process(device->ram);
@@ -1183,7 +1183,7 @@ void dev_commodore_pet_process(DevCommodorePet *device) {
 		signal_pool_cycle_domain_no_reset(device->signal_pool, PET_DOMAIN_1MHZ);
 
 		// >> cpu
-		device->cpu->process(device->cpu, true);
+		device->cpu->process(device->cpu);
 
 		// >> glue logic
 		process_glue_logic(device, video_on);
