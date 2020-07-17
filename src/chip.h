@@ -12,10 +12,11 @@ typedef void (*CHIP_DESTROY_FUNC)(void *chip);
 
 #define CHIP_DECLARE_FUNCTIONS		\
 	CHIP_PROCESS_FUNC process;		\
-	CHIP_DESTROY_FUNC destroy;
+	CHIP_DESTROY_FUNC destroy;		\
+	int32_t			  id;
 
-#define CHIP_SET_FUNCTIONS(chip, pf, df)		\
-	(chip)->process = (CHIP_PROCESS_FUNC) (pf);	\
+#define CHIP_SET_FUNCTIONS(chip, pf, df)			\
+	(chip)->process = (CHIP_PROCESS_FUNC) (pf);		\
 	(chip)->destroy = (CHIP_DESTROY_FUNC) (df);
 
 typedef struct Chip {

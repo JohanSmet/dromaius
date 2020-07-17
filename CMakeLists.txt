@@ -122,6 +122,7 @@ target_sources(${LIB_TARGET}
 		src/cpu.h
 		src/cpu_6502.c
 		src/cpu_6502.h
+		src/device.c
 		src/device.h
 		src/dev_commodore_pet.c
 		src/dev_commodore_pet.h
