@@ -69,6 +69,8 @@ typedef struct DevMinimal6502 {
 	InputKeypad *	keypad;
 	Clock *			clock;
 
+	bool			in_reset;
+
 	// signals
 	DevMinimal6502Signals	signals;
 } DevMinimal6502;

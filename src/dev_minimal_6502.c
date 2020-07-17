@@ -13,6 +13,11 @@
 #define SIGNAL_POOL			device->signal_pool
 #define SIGNAL_COLLECTION	device->signals
 
+static inline void activate_reset(DevMinimal6502 *device, bool reset) {
+	device->in_reset = reset;
+	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
+}
+
 Cpu6502* dev_minimal_6502_get_cpu(DevMinimal6502 *device) {
 	assert(device);
 	return device->cpu;
@@ -119,9 +124,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	SIGNAL(rom_ce_b) = device->rom->signals.ce_b;
 	SIGNAL(pia_cs2_b) = device->pia->signals.cs2_b;
 
-	// run CPU for at least one cycle while reset is asserted
-	signal_write_bool(device->signal_pool, SIGNAL(reset_b), ACTLO_ASSERT);
-	device->cpu->process(device->cpu, false);
+	// power on reset
+	dev_minimal_6502_reset(device);
 
 	return device;
 }
@@ -157,6 +161,9 @@ static inline void process_glue_logic(DevMinimal6502 *device) {
 	//  - cs2_b: assert when bits 4-14 are zero
 	uint16_t bus_address = SIGNAL_NEXT_UINT16(bus_address);
 	SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
+
+	// >> reset circuit
+	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
 }
 
 void dev_minimal_6502_process(DevMinimal6502 *device) {
@@ -204,15 +211,18 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 void dev_minimal_6502_reset(DevMinimal6502 *device) {
 
 	// run for a few cycles while reset is asserted
+	activate_reset(device, true);
+
 	for (int i = 0; i < 4; ++i) {
-		SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
 		dev_minimal_6502_process(device);
 	}
 
 	// run CPU init cycle
-	for (int i = 0; i < 15; ++i) {
+	activate_reset(device, false);
+
+	do {
 		dev_minimal_6502_process(device);
-	}
+	} while (cpu_6502_in_initialization(device->cpu));
 
 	// reset clock
 	device->clock->cycle_count = 0;
