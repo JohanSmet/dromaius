@@ -146,6 +146,7 @@ typedef struct Chip6522 {
 
 // functions
 Chip6522 *chip_6522_create(SignalPool *signal_pool, Chip6522Signals signals);
+void chip_6522_register_dependencies(Chip6522 *via);
 void chip_6522_destroy(Chip6522 *via);
 void chip_6522_process(Chip6522 *via);
 

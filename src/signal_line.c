@@ -177,6 +177,19 @@ const char * signal_get_name(SignalPool *pool, Signal signal) {
 	return (name == NULL) ? "" : name;
 }
 
+void signal_add_dependency(SignalPool *pool, Signal signal, int32_t dep_id) {
+	assert(pool);
+
+	if (dep_id < 0) {
+		return;
+	}
+
+	SignalDomain *domain = &pool->domains[signal.domain];
+	for (uint32_t i = 0; i < signal.count; ++i) {
+		arrpush(domain->dependent_components[signal.start + i], dep_id);
+	}
+}
+
 void signal_default_bool(SignalPool *pool, Signal signal, bool value) {
 	assert(pool);
 	assert(signal.count == 1);

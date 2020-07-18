@@ -27,6 +27,7 @@ typedef struct SignalDomain {
 	bool *			signals_next;
 	bool *			signals_default;
 	const char **	signals_name;
+	int32_t **		dependent_components;
 } SignalDomain;
 
 typedef struct SignalNameMap {
@@ -57,6 +58,7 @@ void signal_pool_cycle_domain_no_reset(SignalPool *pool, int8_t domain);
 Signal signal_create(SignalPool *pool, uint32_t size);
 void signal_set_name(SignalPool *pool, Signal Signal, const char *name);
 const char * signal_get_name(SignalPool *pool, Signal signal);
+void signal_add_dependency(SignalPool *pool, Signal signal, int32_t dep_id);
 
 void signal_default_bool(SignalPool *pool, Signal signal, bool value);
 void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value);

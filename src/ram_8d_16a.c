@@ -25,7 +25,7 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, SignalPool *signal_pool, R
 	memset(ram, 0, sizeof(Ram8d16a) + data_size);
 	ram->signal_pool = signal_pool;
 	ram->data_size = data_size;
-	CHIP_SET_FUNCTIONS(ram, ram_8d16a_process, ram_8d16a_destroy);
+	CHIP_SET_FUNCTIONS(ram, ram_8d16a_process, ram_8d16a_destroy, ram_8d16a_register_dependencies);
 
 	memcpy(&ram->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(bus_address, num_address_lines);
@@ -35,6 +35,15 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, SignalPool *signal_pool, R
 	SIGNAL_DEFINE(oe_b, 1);
 
 	return ram;
+}
+
+void ram_8d16a_register_dependencies(Ram8d16a *ram) {
+	assert(ram);
+	signal_add_dependency(ram->signal_pool, SIGNAL(bus_address), ram->id);
+	signal_add_dependency(ram->signal_pool, SIGNAL(bus_data), ram->id);
+	signal_add_dependency(ram->signal_pool, SIGNAL(ce_b), ram->id);
+	signal_add_dependency(ram->signal_pool, SIGNAL(we_b), ram->id);
+	signal_add_dependency(ram->signal_pool, SIGNAL(oe_b), ram->id);
 }
 
 void ram_8d16a_destroy(Ram8d16a *ram) {

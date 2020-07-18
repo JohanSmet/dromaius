@@ -24,7 +24,7 @@ Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Ro
 	memset(rom, 0, sizeof(Rom8d16a) + data_size);
 	rom->signal_pool = signal_pool;
 	rom->data_size = data_size;
-	CHIP_SET_FUNCTIONS(rom, rom_8d16a_process, rom_8d16a_destroy);
+	CHIP_SET_FUNCTIONS(rom, rom_8d16a_process, rom_8d16a_destroy, rom_8d16a_register_dependencies);
 
 	memcpy(&rom->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(bus_address, 16);
@@ -32,6 +32,12 @@ Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Ro
 	SIGNAL_DEFINE(ce_b, 1);
 
 	return rom;
+}
+
+void rom_8d16a_register_dependencies(Rom8d16a *rom) {
+	assert(rom);
+	signal_add_dependency(rom->signal_pool, SIGNAL(bus_address), rom->id);
+	signal_add_dependency(rom->signal_pool, SIGNAL(ce_b), rom->id);
 }
 
 void rom_8d16a_destroy(Rom8d16a *rom) {

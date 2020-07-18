@@ -36,6 +36,7 @@ typedef struct Ram8d16a {
 
 // functions
 Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, SignalPool *pool, Ram8d16aSignals signals);
+void ram_8d16a_register_dependencies(Ram8d16a *ram);
 void ram_8d16a_destroy(Ram8d16a *ram);
 void ram_8d16a_process(Ram8d16a *ram);
 

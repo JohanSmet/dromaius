@@ -35,6 +35,7 @@ typedef struct InputKeypad {
 
 // functions
 InputKeypad *input_keypad_create(SignalPool *pool, bool active_high, size_t row_count, size_t col_count,  InputKeypadSignals signals);
+void input_keypad_register_dependencies(InputKeypad *keypad);
 void input_keypad_destroy(InputKeypad *keypad);
 void input_keypad_process(InputKeypad *keypad);
 

@@ -36,6 +36,7 @@ typedef struct Rom8d16a {
 
 // functions
 Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Rom8d16aSignals signals);
+void rom_8d16a_register_dependencies(Rom8d16a *rom);
 void rom_8d16a_destroy(Rom8d16a *rom);
 void rom_8d16a_process(Rom8d16a *rom);
 

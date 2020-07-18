@@ -369,50 +369,62 @@ typedef struct Chip74373Latch {
 
 // functions
 Chip7400Nand *chip_7400_nand_create(SignalPool *signal_pool, Chip7400NandSignals signals);
+void chip_7400_nand_register_dependencies(Chip7400Nand *chip);
 void chip_7400_nand_destroy(Chip7400Nand *chip);
 void chip_7400_nand_process(Chip7400Nand *chip);
 
 Chip7474DFlipFlop *chip_7474_d_flipflop_create(SignalPool *signal_pool, Chip7474Signals signals);
+void chip_7474_d_flipflop_register_dependencies(Chip7474DFlipFlop *chip);
 void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip);
 void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip);
 
 Chip7493BinaryCounter *chip_7493_binary_counter_create(SignalPool *signal_pool, Chip7493Signals signals);
+void chip_7493_binary_counter_register_dependencies(Chip7493BinaryCounter *chip);
 void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip);
 void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip);
 
 Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(SignalPool *signal_pool, Chip74107Signals signals);
+void chip_74107_jk_flipflop_register_dependencies(Chip74107JKFlipFlop *chip);
 void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip);
 void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip);
 
 Chip74145BcdDecoder *chip_74145_bcd_decoder_create(SignalPool *signal_pool, Chip74145Signals signals);
+void chip_74145_bcd_decoder_register_dependencies(Chip74145BcdDecoder *chip);
 void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip);
 void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip);
 
 Chip74154Decoder *chip_74154_decoder_create(SignalPool *signal_pool, Chip74154Signals signals);
+void chip_74154_decoder_register_dependencies(Chip74154Decoder *chip);
 void chip_74154_decoder_destroy(Chip74154Decoder *chip);
 void chip_74154_decoder_process(Chip74154Decoder *chip);
 
 Chip74157Multiplexer *chip_74157_multiplexer_create(SignalPool *signal_pool, Chip74157Signals signals);
+void chip_74157_multiplexer_register_dependencies(Chip74157Multiplexer *chip);
 void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip);
 void chip_74157_multiplexer_process(Chip74157Multiplexer *chip);
 
 Chip74164ShiftRegister *chip_74164_shift_register_create(SignalPool *signal_pool, Chip74164Signals signals);
+void chip_74164_shift_register_register_dependencies(Chip74164ShiftRegister *chip);
 void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip);
 void chip_74164_shift_register_process(Chip74164ShiftRegister *chip);
 
 Chip74177BinaryCounter *chip_74177_binary_counter_create(SignalPool *signal_pool, Chip74177Signals signals);
+void chip_74177_binary_counter_register_dependencies(Chip74177BinaryCounter *chip);
 void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip);
 void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip);
 
 Chip74191BinaryCounter *chip_74191_binary_counter_create(SignalPool *signal_pool, Chip74191Signals signals);
+void chip_74191_binary_counter_register_dependencies(Chip74191BinaryCounter *chip);
 void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip);
 void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip);
 
 Chip74244OctalBuffer *chip_74244_octal_buffer_create(SignalPool *signal_pool, Chip74244Signals signals);
+void chip_74244_octal_buffer_register_dependencies(Chip74244OctalBuffer *chip);
 void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip);
 void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip);
 
 Chip74373Latch *chip_74373_latch_create(SignalPool *signal_pool, Chip74373Signals signals);
+void chip_74373_latch_register_dependencies(Chip74373Latch *chip);
 void chip_74373_latch_destroy(Chip74373Latch *chip);
 void chip_74373_latch_process(Chip74373Latch *chip);
 

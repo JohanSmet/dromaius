@@ -9,15 +9,18 @@
 
 typedef void (*CHIP_PROCESS_FUNC)(void *chip);
 typedef void (*CHIP_DESTROY_FUNC)(void *chip);
+typedef void (*CHIP_DEPENDENCIES_FUNC)(void *chip);
 
 #define CHIP_DECLARE_FUNCTIONS		\
 	CHIP_PROCESS_FUNC process;		\
 	CHIP_DESTROY_FUNC destroy;		\
+	CHIP_DEPENDENCIES_FUNC register_dependencies;	\
 	int32_t			  id;
 
-#define CHIP_SET_FUNCTIONS(chip, pf, df)			\
+#define CHIP_SET_FUNCTIONS(chip, pf, df, rdf)		\
 	(chip)->process = (CHIP_PROCESS_FUNC) (pf);		\
-	(chip)->destroy = (CHIP_DESTROY_FUNC) (df);
+	(chip)->destroy = (CHIP_DESTROY_FUNC) (df);		\
+	(chip)->register_dependencies = (CHIP_DEPENDENCIES_FUNC) (rdf);
 
 typedef struct Chip {
 	CHIP_DECLARE_FUNCTIONS

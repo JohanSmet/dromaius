@@ -12,7 +12,7 @@
 #define SIGNAL_COLLECTION	chip->signals
 
 #define CHIP_74XXX_SET_FUNCTIONS(prefix)	\
-	CHIP_SET_FUNCTIONS(chip, prefix##_process, prefix##_destroy)
+	CHIP_SET_FUNCTIONS(chip, prefix##_process, prefix##_destroy, prefix##_register_dependencies)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -39,6 +39,18 @@ Chip7400Nand *chip_7400_nand_create(SignalPool *signal_pool, Chip7400NandSignals
 	SIGNAL_DEFINE(y4,	1);
 
 	return chip;
+}
+
+void chip_7400_nand_register_dependencies(Chip7400Nand *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a1), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a2), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a3), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a4), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b1), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b2), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b3), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b4), chip->id);
 }
 
 void chip_7400_nand_destroy(Chip7400Nand *chip) {
@@ -82,6 +94,16 @@ Chip7474DFlipFlop *chip_7474_d_flipflop_create(SignalPool *signal_pool, Chip7474
 	SIGNAL_DEFINE_BOOL(vcc, 1, true);
 
 	return chip;
+}
+
+void chip_7474_d_flipflop_register_dependencies(Chip7474DFlipFlop *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clr1_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(pr1_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk1), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clr2_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(pr2_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk2), chip->id);
 }
 
 void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip) {
@@ -160,6 +182,14 @@ Chip7493BinaryCounter *chip_7493_binary_counter_create(SignalPool *signal_pool, 
 	return chip;
 }
 
+void chip_7493_binary_counter_register_dependencies(Chip7493BinaryCounter *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(r01), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(r02), chip->id);
+}
+
 void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip) {
 	assert(chip);
 	free(chip);
@@ -228,6 +258,14 @@ Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(SignalPool *signal_pool, Chip
 	SIGNAL_DEFINE_BOOL(vcc, 1, true);
 
 	return chip;
+}
+
+void chip_74107_jk_flipflop_register_dependencies(Chip74107JKFlipFlop *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk1), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clr1_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk2), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clr2_b), chip->id);
 }
 
 void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip) {
@@ -319,6 +357,14 @@ Chip74145BcdDecoder *chip_74145_bcd_decoder_create(SignalPool *signal_pool, Chip
 	return chip;
 }
 
+void chip_74145_bcd_decoder_register_dependencies(Chip74145BcdDecoder *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d), chip->id);
+}
+
 void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip) {
 	assert((Chip74145BcdDecoder_private *) chip);
 	free(chip);
@@ -398,6 +444,16 @@ Chip74154Decoder *chip_74154_decoder_create(SignalPool *signal_pool, Chip74154Si
 	return chip;
 }
 
+void chip_74154_decoder_register_dependencies(Chip74154Decoder *chip) {
+	assert((Chip74154Decoder_private *) chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(g1_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(g2_b), chip->id);
+}
+
 void chip_74154_decoder_destroy(Chip74154Decoder *chip) {
 	assert((Chip74154Decoder_private *) chip);
 	free(chip);
@@ -454,6 +510,20 @@ Chip74157Multiplexer *chip_74157_multiplexer_create(SignalPool *signal_pool, Chi
 	return chip;
 }
 
+void chip_74157_multiplexer_register_dependencies(Chip74157Multiplexer *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(i0a), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(i0b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(i0c), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(i0d), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(i1a), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(i1b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(i1c), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(i1d), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(sel), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(enable_b), chip->id);
+}
+
 void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip) {
 	assert(chip);
 	free(chip);
@@ -498,6 +568,12 @@ Chip74164ShiftRegister *chip_74164_shift_register_create(SignalPool *signal_pool
 	SIGNAL_DEFINE(vcc, 1);
 
 	return chip;
+}
+
+void chip_74164_shift_register_register_dependencies(Chip74164ShiftRegister *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clear_b), chip->id);
 }
 
 void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip) {
@@ -561,6 +637,17 @@ Chip74177BinaryCounter *chip_74177_binary_counter_create(SignalPool *signal_pool
 	return chip;
 }
 
+void chip_74177_binary_counter_register_dependencies(Chip74177BinaryCounter *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(load_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clear_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk1), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk2), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d), chip->id);
+}
 void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip) {
 	assert(chip);
 	free(chip);
@@ -635,6 +722,17 @@ Chip74191BinaryCounter *chip_74191_binary_counter_create(SignalPool *signal_pool
 	return chip;
 }
 
+void chip_74191_binary_counter_register_dependencies(Chip74191BinaryCounter *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(enable_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(load_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk), chip->id);
+}
+
 void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip) {
 	assert(chip);
 	free(chip);
@@ -707,6 +805,20 @@ Chip74244OctalBuffer *chip_74244_octal_buffer_create(SignalPool *signal_pool, Ch
 	return chip;
 }
 
+void chip_74244_octal_buffer_register_dependencies(Chip74244OctalBuffer *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a11), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a12), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a13), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a14), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a21), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a22), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a23), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a24), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(g1_b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(g2_b), chip->id);
+}
+
 void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip) {
 	assert(chip);
 	free(chip);
@@ -763,6 +875,20 @@ Chip74373Latch *chip_74373_latch_create(SignalPool *signal_pool, Chip74373Signal
 	SIGNAL_DEFINE_BOOL(vcc, 1, true);
 
 	return chip;
+}
+
+void chip_74373_latch_register_dependencies(Chip74373Latch *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d1), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d2), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d3), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d4), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d5), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d6), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d7), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(d8), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(oc_b), chip->id);
 }
 
 void chip_74373_latch_destroy(Chip74373Latch *chip) {

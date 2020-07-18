@@ -594,7 +594,7 @@ Chip6522 *chip_6522_create(SignalPool *signal_pool, Chip6522Signals signals) {
 
 	Chip6522 *via = &priv->intf;
 	via->signal_pool = signal_pool;
-	CHIP_SET_FUNCTIONS(via, chip_6522_process, chip_6522_destroy);
+	CHIP_SET_FUNCTIONS(via, chip_6522_process, chip_6522_destroy, chip_6522_register_dependencies);
 
 	memcpy(&via->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(bus_data,		8);
@@ -619,6 +619,12 @@ Chip6522 *chip_6522_create(SignalPool *signal_pool, Chip6522Signals signals) {
 	priv->state_b.out_cl2 = true;
 
 	return via;
+}
+
+void chip_6522_register_dependencies(Chip6522 *via) {
+	assert(via);
+	signal_add_dependency(via->signal_pool, SIGNAL(reset_b), via->id);
+	signal_add_dependency(via->signal_pool, SIGNAL(enable), via->id);
 }
 
 void chip_6522_destroy(Chip6522 *via) {

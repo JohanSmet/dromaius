@@ -427,7 +427,7 @@ ChipHd44780 *chip_hd44780_create(struct Clock *clock, SignalPool *signal_pool, C
 	memset(priv, 0, sizeof(ChipHd44780_private));
 	priv->clock = clock;
 	ChipHd44780 *lcd = &priv->intf;
-	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy);
+	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy, chip_hd44780_register_dependencies);
 
 	lcd->signal_pool = signal_pool;
 	memcpy(&lcd->signals, &signals, sizeof(signals));
@@ -461,6 +461,11 @@ ChipHd44780 *chip_hd44780_create(struct Clock *clock, SignalPool *signal_pool, C
 	refresh_screen(lcd);
 
 	return lcd;
+}
+
+void chip_hd44780_register_dependencies(ChipHd44780 *lcd) {
+	assert(lcd);
+	signal_add_dependency(lcd->signal_pool, SIGNAL(enable), lcd->id);
 }
 
 void chip_hd44780_destroy(ChipHd44780 *lcd) {
