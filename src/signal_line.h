@@ -36,6 +36,9 @@ typedef struct SignalNameMap {
 } SignalNameMap;
 
 typedef struct SignalPool {
+	int64_t			current_tick;
+	int64_t			tick_duration_ps;		// in pico-seconds
+
 	int8_t			default_domain;
 	int8_t			num_domains;
 	SignalNameMap	*signal_names;

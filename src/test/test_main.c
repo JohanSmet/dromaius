@@ -11,6 +11,7 @@ extern MunitTest chip_6520_tests[];
 extern MunitTest chip_6522_tests[];
 extern MunitTest chip_74xxx_tests[];
 extern MunitTest chip_hd44780_tests[];
+extern MunitTest chip_oscillator_tests[];
 extern MunitTest dev_commodore_pet_tests[];
 extern MunitTest dev_minimal_6502_tests[];
 extern MunitTest input_keypad_tests[];
@@ -70,6 +71,12 @@ static MunitSuite extern_suites[] = {
 	},
 	{	.prefix = "/chip_hd44780",
 		.tests = chip_hd44780_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
+	{	.prefix = "/chip_oscillator",
+		.tests = chip_oscillator_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE

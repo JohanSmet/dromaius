@@ -115,6 +115,8 @@ target_sources(${LIB_TARGET}
 		src/chip_74xxx.h
 		src/chip_hd44780.c
 		src/chip_hd44780.h
+		src/chip_oscillator.c
+		src/chip_oscillator.h
 		src/clock.c
 		src/clock.h
 		src/context.c
@@ -264,6 +266,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_chip_6522.c
 		src/test/test_chip_74xxx.c
 		src/test/test_chip_hd44780.c
+		src/test/test_chip_oscillator.c
 		src/test/test_clock.c
 		src/test/test_cpu_6502.c
 		src/test/test_dev_commodore_pet.c
