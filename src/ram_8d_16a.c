@@ -10,6 +10,7 @@
 
 #define SIGNAL_POOL			ram->signal_pool
 #define SIGNAL_COLLECTION	ram->signals
+#define SIGNAL_CHIP_ID		ram->id
 
 //////////////////////////////////////////////////////////////////////////////
 //

@@ -86,8 +86,6 @@ MunitResult test_program(const MunitParameter params[], void *user_data_or_fixtu
 	dev->ram->data_array[0x61] = 0;
 
 	// run the computer until the program counter reaches the IRQ-handler
-	signal_write_bool(dev->signal_pool, dev->signals.reset_b, ACTLO_DEASSERT);
-
 	int limit = 1000;
 
 	while (limit > 0 && dev->cpu->reg_pc != 0xfe00) {
@@ -111,8 +109,7 @@ MunitResult test_pia(const MunitParameter params[], void *user_data_or_fixture) 
 	DevMinimal6502 *dev = dev_minimal_6502_setup(1);
 
 	// run the computer until the program counter reaches the IRQ-handler
-	signal_write_bool(dev->signal_pool, dev->signals.reset_b, ACTLO_DEASSERT);
-
+	signal_write_bool(dev->signal_pool, dev->signals.reset_b, ACTLO_DEASSERT, -1);
 	int limit = 1000;
 
 	while (limit > 0 && dev->cpu->reg_pc != 0xfe00) {

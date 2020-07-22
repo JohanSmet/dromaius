@@ -7,6 +7,7 @@
 
 #define SIGNAL_POOL			via->signal_pool
 #define SIGNAL_COLLECTION	via->signals
+#define SIGNAL_CHIP_ID		via->id
 
 #define VIA_CYCLE_START				\
 	for (int i = 0; i < 2; ++i) {

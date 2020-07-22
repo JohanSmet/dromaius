@@ -13,6 +13,7 @@
 
 #define SIGNAL_POOL			lcd->signal_pool
 #define SIGNAL_COLLECTION	lcd->signals
+#define SIGNAL_CHIP_ID		lcd->id
 
 //////////////////////////////////////////////////////////////////////////////
 //

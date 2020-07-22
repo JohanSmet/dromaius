@@ -10,6 +10,7 @@
 
 #define SIGNAL_POOL			rom->signal_pool
 #define SIGNAL_COLLECTION	rom->signals
+#define SIGNAL_CHIP_ID		rom->id
 
 //////////////////////////////////////////////////////////////////////////////
 //

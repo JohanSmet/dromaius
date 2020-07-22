@@ -118,7 +118,7 @@ static MunitResult test_write_bool(const MunitParameter params[], void* user_dat
 	munit_assert_false(pool->domains[0].signals_curr[2]);
 
 	// test
-	signal_write_bool(pool, sig, true);
+	signal_write_bool(pool, sig, true, 0);
 	munit_assert_false(pool->domains[0].signals_next[0]);
 	munit_assert_true(pool->domains[0].signals_next[1]);
 	munit_assert_false(pool->domains[0].signals_next[2]);
@@ -126,7 +126,7 @@ static MunitResult test_write_bool(const MunitParameter params[], void* user_dat
 	munit_assert_false(pool->domains[0].signals_curr[1]);
 	munit_assert_false(pool->domains[0].signals_curr[2]);
 
-	signal_write_bool(pool, sig, false);
+	signal_write_bool(pool, sig, false, 0);
 	munit_assert_false(pool->domains[0].signals_next[0]);
 	munit_assert_false(pool->domains[0].signals_next[1]);
 	munit_assert_false(pool->domains[0].signals_next[2]);
@@ -168,7 +168,7 @@ static MunitResult test_write_uint8(const MunitParameter params[], void* user_da
 	munit_assert_false(pool->domains[0].signals_curr[9]);
 
 	// test
-	signal_write_uint8(pool, sig, 0xff);
+	signal_write_uint8(pool, sig, 0xff, 0);
 	munit_assert_false(pool->domains[0].signals_next[0]);
 	munit_assert_true(pool->domains[0].signals_next[1]);
 	munit_assert_true(pool->domains[0].signals_next[2]);
@@ -190,7 +190,7 @@ static MunitResult test_write_uint8(const MunitParameter params[], void* user_da
 	munit_assert_false(pool->domains[0].signals_curr[8]);
 	munit_assert_false(pool->domains[0].signals_curr[9]);
 
-	signal_write_uint8(pool, sig, 0x0a);
+	signal_write_uint8(pool, sig, 0x0a, 0);
 	munit_assert_false(pool->domains[0].signals_next[0]);
 	munit_assert_false(pool->domains[0].signals_next[1]);
 	munit_assert_true(pool->domains[0].signals_next[2]);
@@ -224,7 +224,7 @@ static MunitResult test_write_uint16(const MunitParameter params[], void* user_d
 	signal_create(pool, 1);
 
 	// test
-	signal_write_uint16(pool, sig, 0x5a);
+	signal_write_uint16(pool, sig, 0x5a, 0);
 	munit_assert_false(pool->domains[0].signals_next[0]);
 	munit_assert_false(pool->domains[0].signals_next[1]);
 	munit_assert_true(pool->domains[0].signals_next[2]);
@@ -254,7 +254,7 @@ static MunitResult test_read_next_bool(const MunitParameter params[], void* user
 	Signal sig_a = signal_create(pool, 1);
 
 	// test
-	signal_write_bool(pool, sig_a, true);
+	signal_write_bool(pool, sig_a, true, 0);
 	munit_assert_false(signal_read_bool(pool, sig_a));
 	munit_assert_true(signal_read_next_bool(pool, sig_a));
 
@@ -268,9 +268,9 @@ static MunitResult test_read_next_uint8(const MunitParameter params[], void* use
 	Signal sig_a = signal_create(pool, 8);
 
 	// test
-	signal_write_uint8(pool, sig_a, 0xaa);
+	signal_write_uint8(pool, sig_a, 0xaa, 0);
 	signal_pool_cycle(pool);
-	signal_write_uint8(pool, sig_a, 0x55);
+	signal_write_uint8(pool, sig_a, 0x55, 0);
 
 	munit_assert_uint8(signal_read_uint8(pool, sig_a), ==, 0xaa);
 	munit_assert_uint8(signal_read_next_uint8(pool, sig_a), ==, 0x55);
@@ -285,9 +285,9 @@ static MunitResult test_read_next_uint16(const MunitParameter params[], void* us
 	Signal sig_a = signal_create(pool, 16);
 
 	// test
-	signal_write_uint16(pool, sig_a, 0xaabb);
+	signal_write_uint16(pool, sig_a, 0xaabb, 0);
 	signal_pool_cycle(pool);
-	signal_write_uint16(pool, sig_a, 0x5566);
+	signal_write_uint16(pool, sig_a, 0x5566, 0);
 
 	munit_assert_uint16(signal_read_uint16(pool, sig_a), ==, 0xaabb);
 	munit_assert_uint16(signal_read_next_uint16(pool, sig_a), ==, 0x5566);
@@ -304,9 +304,9 @@ static MunitResult test_cycle(const MunitParameter params[], void* user_data_or_
 	Signal sig_c = signal_create(pool, 1);
 
 	// write
-	signal_write_bool(pool, sig_a, true);
-	signal_write_bool(pool, sig_b, false);
-	signal_write_bool(pool, sig_c, true);
+	signal_write_bool(pool, sig_a, true, 0);
+	signal_write_bool(pool, sig_b, false, 0);
+	signal_write_bool(pool, sig_c, true, 0);
 
 	munit_assert_false(signal_read_bool(pool, sig_a));
 	munit_assert_false(signal_read_bool(pool, sig_b));
@@ -332,7 +332,7 @@ static MunitResult test_split(const MunitParameter params[], void* user_data_or_
 	Signal sig_nib2 = signal_split(sig_full, 8, 4);
 	Signal sig_nib3 = signal_split(sig_full, 12, 4);
 
-	signal_write_uint16(pool, sig_full, 0xdeaf);
+	signal_write_uint16(pool, sig_full, 0xdeaf, 0);
 	signal_pool_cycle(pool);
 
 	munit_assert_uint16(signal_read_uint16(pool, sig_full), ==, 0xdeaf);
@@ -351,12 +351,12 @@ static MunitResult test_write_uint8_masked(const MunitParameter params[], void* 
 	Signal sig = signal_create(pool, 8);
 
 	// test
-	signal_write_uint8_masked(pool, sig, 0x5a, 0xaf);
+	signal_write_uint8_masked(pool, sig, 0x5a, 0xaf, 0);
 	signal_pool_cycle(pool);
 	munit_assert_uint8(signal_read_uint8(pool, sig), ==, 0x0a);
 
-	signal_write_uint8_masked(pool, sig, 0xde, 0xf0);
-	signal_write_uint8_masked(pool, sig, 0xed, 0x0f);
+	signal_write_uint8_masked(pool, sig, 0xde, 0xf0, 0);
+	signal_write_uint8_masked(pool, sig, 0xed, 0x0f, 0);
 	signal_pool_cycle(pool);
 	munit_assert_uint8(signal_read_uint8(pool, sig), ==, 0xdd);
 
@@ -370,13 +370,13 @@ static MunitResult test_write_uint16_masked(const MunitParameter params[], void*
 	Signal sig = signal_create(pool, 16);
 
 	// test
-	signal_write_uint16_masked(pool, sig, 0xaaaa, 0xaf05);
+	signal_write_uint16_masked(pool, sig, 0xaaaa, 0xaf05, 0);
 	signal_pool_cycle(pool);
 	munit_assert_uint16(signal_read_uint16(pool, sig), ==, 0xaa00);
 
-	signal_write_uint16_masked(pool, sig, 0xabcd, 0xff00);
+	signal_write_uint16_masked(pool, sig, 0xabcd, 0xff00, 0);
 	munit_assert_uint16(signal_read_next_uint16(pool, sig), ==, 0xab00);
-	signal_write_uint16_masked(pool, sig, 0xefcd, 0x00f0);
+	signal_write_uint16_masked(pool, sig, 0xefcd, 0x00f0, 0);
 	munit_assert_uint16(signal_read_next_uint16(pool, sig), ==, 0xabc0);
 	signal_pool_cycle(pool);
 	munit_assert_uint16(signal_read_uint16(pool, sig), ==, 0xabc0);
@@ -397,7 +397,7 @@ static MunitResult test_default_bool(const MunitParameter params[], void* user_d
 	signal_default_bool(pool, sig_c, false);
 
 	// test
-	signal_write_bool(pool, sig_a, true);
+	signal_write_bool(pool, sig_a, true, 0);
 	signal_pool_cycle(pool);
 
 	munit_assert_true(signal_read_bool(pool, sig_a));
@@ -421,8 +421,8 @@ static MunitResult test_default_uint8(const MunitParameter params[], void* user_
 	signal_default_uint8(pool, sig_a, 0xa5);
 
 	// test
-	signal_write_uint8(pool, sig_a, 0xfa);
-	signal_write_uint8(pool, sig_b, 0x13);
+	signal_write_uint8(pool, sig_a, 0xfa, 0);
+	signal_write_uint8(pool, sig_b, 0x13, 0);
 	signal_pool_cycle(pool);
 	munit_assert_uint8(signal_read_uint8(pool, sig_a), ==, 0xfa);
 	munit_assert_uint8(signal_read_uint8(pool, sig_b), ==, 0x13);
@@ -443,8 +443,8 @@ static MunitResult test_default_uint16(const MunitParameter params[], void* user
 	signal_default_uint16(pool, sig_a, 0x5aa5);
 
 	// test
-	signal_write_uint16(pool, sig_a, 0xfaaf);
-	signal_write_uint16(pool, sig_b, 0x1331);
+	signal_write_uint16(pool, sig_a, 0xfaaf, 0);
+	signal_write_uint16(pool, sig_b, 0x1331, 0);
 	signal_pool_cycle(pool);
 	munit_assert_uint16(signal_read_uint16(pool, sig_a), ==, 0xfaaf);
 	munit_assert_uint16(signal_read_uint16(pool, sig_b), ==, 0x1331);
@@ -471,8 +471,8 @@ static MunitResult test_multiple_domains(const MunitParameter params[], void* us
 	Signal sig_b = signal_create(pool, 8);
 	munit_assert_int8(sig_b.domain, ==, 1);
 
-	signal_write_uint8(pool, sig_a, 1);
-	signal_write_uint8(pool, sig_b, 2);
+	signal_write_uint8(pool, sig_a, 1, 0);
+	signal_write_uint8(pool, sig_b, 2, 0);
 	munit_assert_uint8(signal_read_uint8(pool, sig_a), ==, 0);
 	munit_assert_uint8(signal_read_uint8(pool, sig_b), ==, 0);
 	munit_assert_uint8(signal_read_next_uint8(pool, sig_a), ==, 1);
@@ -490,8 +490,8 @@ static MunitResult test_multiple_domains(const MunitParameter params[], void* us
 	munit_assert_uint8(signal_read_next_uint8(pool, sig_a), ==, 0);
 	munit_assert_uint8(signal_read_next_uint8(pool, sig_b), ==, 0);
 
-	signal_write_uint8(pool, sig_a, 9);
-	signal_write_uint8(pool, sig_b, 7);
+	signal_write_uint8(pool, sig_a, 9, 0);
+	signal_write_uint8(pool, sig_b, 7, 0);
 	munit_assert_uint8(signal_read_uint8(pool, sig_a), ==, 1);
 	munit_assert_uint8(signal_read_uint8(pool, sig_b), ==, 2);
 	munit_assert_uint8(signal_read_next_uint8(pool, sig_a), ==, 9);
@@ -516,42 +516,42 @@ static MunitResult test_changed(const MunitParameter params[], void* user_data_o
 	Signal sig_word = signal_create(pool, 16);
 
 	// initial state
-	signal_write_bool(pool, sig_bit, true);
-	signal_write_uint8(pool, sig_byte, 0xaf);
-	signal_write_uint16(pool, sig_word, 0xbeef);
+	signal_write_bool(pool, sig_bit, true, 0);
+	signal_write_uint8(pool, sig_byte, 0xaf, 0);
+	signal_write_uint16(pool, sig_word, 0xbeef, 0);
 
 	// no change
 	signal_pool_cycle_domain(pool, 0);
-	signal_write_bool(pool, sig_bit, true);
-	signal_write_uint8(pool, sig_byte, 0xaf);
-	signal_write_uint16(pool, sig_word, 0xbeef);
+	signal_write_bool(pool, sig_bit, true, 0);
+	signal_write_uint8(pool, sig_byte, 0xaf, 0);
+	signal_write_uint16(pool, sig_word, 0xbeef, 0);
 	munit_assert_false(signal_changed(pool, sig_bit));
 	munit_assert_false(signal_changed(pool, sig_byte));
 	munit_assert_false(signal_changed(pool, sig_word));
 
 	// change bit
 	signal_pool_cycle_domain(pool, 0);
-	signal_write_bool(pool, sig_bit, false);
-	signal_write_uint8(pool, sig_byte, 0xaf);
-	signal_write_uint16(pool, sig_word, 0xbeef);
+	signal_write_bool(pool, sig_bit, false, 0);
+	signal_write_uint8(pool, sig_byte, 0xaf, 0);
+	signal_write_uint16(pool, sig_word, 0xbeef, 0);
 	munit_assert_true(signal_changed(pool, sig_bit));
 	munit_assert_false(signal_changed(pool, sig_byte));
 	munit_assert_false(signal_changed(pool, sig_word));
 
 	// change byte
 	signal_pool_cycle_domain(pool, 0);
-	signal_write_bool(pool, sig_bit, false);
-	signal_write_uint8(pool, sig_byte, 0xfa);
-	signal_write_uint16(pool, sig_word, 0xbeef);
+	signal_write_bool(pool, sig_bit, false, 0);
+	signal_write_uint8(pool, sig_byte, 0xfa, 0);
+	signal_write_uint16(pool, sig_word, 0xbeef, 0);
 	munit_assert_false(signal_changed(pool, sig_bit));
 	munit_assert_true(signal_changed(pool, sig_byte));
 	munit_assert_false(signal_changed(pool, sig_word));
 
 	// change word
 	signal_pool_cycle_domain(pool, 0);
-	signal_write_bool(pool, sig_bit, false);
-	signal_write_uint8(pool, sig_byte, 0xfa);
-	signal_write_uint16(pool, sig_word, 0xdead);
+	signal_write_bool(pool, sig_bit, false, 0);
+	signal_write_uint8(pool, sig_byte, 0xfa, 0);
+	signal_write_uint16(pool, sig_word, 0xdead, 0);
 	munit_assert_false(signal_changed(pool, sig_bit));
 	munit_assert_false(signal_changed(pool, sig_byte));
 	munit_assert_true(signal_changed(pool, sig_word));
@@ -668,7 +668,7 @@ static MunitResult benchmark_write_uint8(const MunitParameter params[], void* us
 
 	for (int j = 0; j < 102400; ++j) {
 		for (int i = 0; i < 1024; ++i) {
-			signal_write_uint8(pool, signals[i], j & 255);
+			signal_write_uint8(pool, signals[i], j & 255, 0);
 		}
 	}
 
@@ -686,7 +686,7 @@ static MunitResult benchmark_write_uint8_masked(const MunitParameter params[], v
 
 	for (int j = 0; j < 102400; ++j) {
 		for (int i = 0; i < 1024; ++i) {
-			signal_write_uint8_masked(pool, signals[i], j & 255, (j >> 2) & 255);
+			signal_write_uint8_masked(pool, signals[i], j & 255, (j >> 2) & 255, 0);
 		}
 	}
 

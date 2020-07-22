@@ -26,6 +26,7 @@ typedef struct SignalDomain {
 	bool *			signals_curr;
 	bool *			signals_next;
 	bool *			signals_default;
+	int32_t *		signals_writer;
 	const char **	signals_name;
 	int32_t **		dependent_components;
 } SignalDomain;
@@ -114,13 +115,14 @@ static inline uint16_t signal_read_uint16(SignalPool *pool, Signal signal) {
 	return signal_read_uint16_internal(pool->domains[signal.domain].signals_curr + signal.start, signal.count);
 }
 
-static inline void signal_write_bool(SignalPool *pool, Signal signal, bool value) {
+static inline void signal_write_bool(SignalPool *pool, Signal signal, bool value, int32_t chip_id) {
 	assert(pool);
 	assert(signal.count == 1);
 	pool->domains[signal.domain].signals_next[signal.start] = value;
+	pool->domains[signal.domain].signals_writer[signal.start] = chip_id;
 }
 
-static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t value) {
+static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t value, int32_t chip_id) {
 	assert(pool);
 	assert(signal.count <= 8);
 
@@ -129,39 +131,53 @@ static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t v
 	} else {
 		memcpy(&pool->domains[signal.domain].signals_next[signal.start], &lut_bit_to_byte[value], signal.count);
 	}
+
+	for (uint32_t i = 0; i < signal.count; ++i) {
+		pool->domains[signal.domain].signals_writer[signal.start + i] = chip_id;
+	}
 }
 
-static inline void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t value) {
+static inline void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t value, int32_t chip_id) {
 	assert(pool);
 	assert(signal.count <= 16);
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		pool->domains[signal.domain].signals_next[signal.start + i] = value & 1;
+		pool->domains[signal.domain].signals_writer[signal.start + i] = chip_id;
 		value = (uint16_t) (value >> 1);
 	}
 }
 
-static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, uint8_t value, uint8_t mask) {
+static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, uint8_t value, uint8_t mask, int32_t chip_id) {
 	assert(pool);
 	assert(signal.count <= 8);
 
 	bool *signals_next = pool->domains[signal.domain].signals_next;
+	int32_t *signals_writer = pool->domains[signal.domain].signals_writer;
 
 	if (signal.count == 8 && (signal.start & 0x7) == 0) {
 		uint64_t byte_mask = lut_bit_to_byte[mask];
 		uint64_t current   = (*(uint64_t *) &signals_next[signal.start]);
 		(*(uint64_t *) &signals_next[signal.start]) = (current & ~byte_mask) | (lut_bit_to_byte[value] & byte_mask);
+
+		for (uint32_t i = 0; i < signal.count; ++i) {
+			bool b = (mask >> i) & 1;
+			if (b) {
+				signals_writer[signal.start + i] = chip_id;
+			}
+		}
 	} else {
 		for (uint32_t i = 0; i < signal.count; ++i) {
 			bool b = (mask >> i) & 1;
 			if (b) {
 				signals_next[signal.start + i] = (value >> i) & 1;
+				signals_writer[signal.start + i] = chip_id;
 			}
 		}
 	}
 }
 
-static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, uint16_t value, uint16_t mask) {
+static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, uint16_t value, uint16_t mask, int32_t chip_id) {
 	assert(pool);
 	assert(signal.count <= 16);
 
@@ -169,6 +185,7 @@ static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, u
 		uint8_t b = (mask >> i) & 1;
 		if (b) {
 			pool->domains[signal.domain].signals_next[signal.start + i] = (value >> i) & 1;
+			pool->domains[signal.domain].signals_writer[signal.start + i] = chip_id;
 		}
 	}
 }
@@ -238,12 +255,12 @@ static inline bool signal_changed(SignalPool *pool, Signal signal) {
 #define SIGNAL_NEXT_UINT8(sig)	signal_read_next_uint8(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
 #define SIGNAL_NEXT_UINT16(sig)	signal_read_next_uint16(SIGNAL_POOL, SIGNAL_COLLECTION.sig)
 
-#define SIGNAL_SET_BOOL(sig,v)		signal_write_bool(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v))
-#define SIGNAL_SET_UINT8(sig,v)		signal_write_uint8(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v))
-#define SIGNAL_SET_UINT16(sig,v)	signal_write_uint16(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v))
+#define SIGNAL_SET_BOOL(sig,v)		signal_write_bool(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), SIGNAL_CHIP_ID)
+#define SIGNAL_SET_UINT8(sig,v)		signal_write_uint8(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), SIGNAL_CHIP_ID)
+#define SIGNAL_SET_UINT16(sig,v)	signal_write_uint16(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), SIGNAL_CHIP_ID)
 
-#define SIGNAL_SET_UINT8_MASKED(sig,v,m)	signal_write_uint8_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m))
-#define SIGNAL_SET_UINT16_MASKED(sig,v,m)	signal_write_uint16_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m))
+#define SIGNAL_SET_UINT8_MASKED(sig,v,m)	signal_write_uint8_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m), SIGNAL_CHIP_ID)
+#define SIGNAL_SET_UINT16_MASKED(sig,v,m)	signal_write_uint16_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m), SIGNAL_CHIP_ID)
 
 #ifdef __cplusplus
 }

@@ -10,6 +10,7 @@
 
 #define SIGNAL_POOL			keypad->signal_pool
 #define SIGNAL_COLLECTION	keypad->signals
+#define SIGNAL_CHIP_ID		keypad->id
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -102,7 +103,7 @@ void input_keypad_process(InputKeypad *keypad) {
 		if (input != keypad->active_high) {
 			continue;
 		}
-		signal_write_bool(keypad->signal_pool, signal_split(SIGNAL(cols), c, 1), input);
+		signal_write_bool(keypad->signal_pool, signal_split(SIGNAL(cols), c, 1), input, keypad->id);
 	}
 }
 

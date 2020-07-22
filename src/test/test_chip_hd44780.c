@@ -5,6 +5,7 @@
 
 #define SIGNAL_POOL			lcd->signal_pool
 #define SIGNAL_COLLECTION	lcd->signals
+#define SIGNAL_CHIP_ID		lcd->id
 
 #define LCD_CYCLE_START				\
 	for (int i = 0; i < 2; ++i) {

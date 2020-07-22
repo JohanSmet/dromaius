@@ -7,6 +7,7 @@
 
 #define SIGNAL_POOL			device->signal_pool
 #define SIGNAL_COLLECTION	device->signals
+#define SIGNAL_CHIP_ID		device->id
 
 static void *dev_commodore_pet_setup(const MunitParameter params[], void *user_data) {
 	DevCommodorePet *dev = dev_commodore_pet_create();
@@ -27,15 +28,15 @@ static bool	    override_cpu_rw = CPU_READ;
 static uint8_t  override_bus_bd = 0;
 
 static void override_cpu_process(Cpu6502 *cpu, bool delayed) {
-	signal_write_uint16(cpu->signal_pool, cpu->signals.bus_address, override_bus_address);
-	signal_write_bool(cpu->signal_pool, cpu->signals.rw, override_cpu_rw);
+	signal_write_uint16(cpu->signal_pool, cpu->signals.bus_address, override_bus_address, cpu->id);
+	signal_write_bool(cpu->signal_pool, cpu->signals.rw, override_cpu_rw, cpu->id);
 	if (override_cpu_rw == CPU_WRITE) {
-		signal_write_uint8(cpu->signal_pool, cpu->signals.bus_data, override_bus_data);
+		signal_write_uint8(cpu->signal_pool, cpu->signals.bus_data, override_bus_data, cpu->id);
 	}
 }
 
 static void override_ram_process(Ram8d16a *ram) {
-	signal_write_uint8(ram->signal_pool, ram->signals.bus_data, override_bus_bd);
+	signal_write_uint8(ram->signal_pool, ram->signals.bus_data, override_bus_bd, ram->id);
 }
 
 static void override_do_nothing(void *device) {

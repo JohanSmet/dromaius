@@ -5,6 +5,7 @@
 
 #define SIGNAL_POOL			rom->signal_pool
 #define SIGNAL_COLLECTION	rom->signals
+#define SIGNAL_CHIP_ID		rom->id
 
 static void *rom_8d16a_setup(const MunitParameter params[], void *user_data) {
 	SignalPool *pool = signal_pool_create(1);

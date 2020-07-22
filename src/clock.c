@@ -50,6 +50,7 @@ typedef struct Clock_private {
 
 #define	SIGNAL_POOL			clock->signal_pool
 #define SIGNAL_COLLECTION	clock->signals
+#define SIGNAL_CHIP_ID		-1
 
 #define PRIVATE(clock)	((Clock_private *) (clock))
 

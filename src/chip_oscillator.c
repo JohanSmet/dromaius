@@ -10,6 +10,7 @@
 
 #define SIGNAL_POOL			tmr->signal_pool
 #define SIGNAL_COLLECTION	tmr->signals
+#define SIGNAL_CHIP_ID		tmr->id
 
 //////////////////////////////////////////////////////////////////////////////
 //

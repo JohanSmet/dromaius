@@ -7,6 +7,7 @@
 
 #define SIGNAL_POOL			pia->signal_pool
 #define SIGNAL_COLLECTION	pia->signals
+#define SIGNAL_CHIP_ID		pia->id
 
 #define PIA_CYCLE_START				\
 	for (int i = 0; i < 2; ++i) {

@@ -16,6 +16,7 @@
 
 #define SIGNAL_POOL			via->signal_pool
 #define SIGNAL_COLLECTION	via->signals
+#define SIGNAL_CHIP_ID		via->id
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -237,8 +238,8 @@ static void process_end(Chip6522 *via) {
 	SIGNAL_SET_BOOL(irq_b, PRIVATE(via)->out_irq);
 
 	// output on the ports
-	signal_write_uint8_masked(via->signal_pool, SIGNAL(port_a), via->reg_ora, via->reg_ddra);
-	signal_write_uint8_masked(via->signal_pool, SIGNAL(port_b), via->reg_orb, via->reg_ddrb);
+	SIGNAL_SET_UINT8_MASKED(port_a, via->reg_ora, via->reg_ddra);
+	SIGNAL_SET_UINT8_MASKED(port_b, via->reg_orb, via->reg_ddrb);
 
 	// optional output on databus
 	if (PRIVATE(via)->out_enabled) {

@@ -12,6 +12,7 @@
 
 #define SIGNAL_POOL			pia->signal_pool
 #define SIGNAL_COLLECTION	pia->signals
+#define SIGNAL_CHIP_ID		pia->id
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -227,8 +228,8 @@ static inline void process_end(Chip6520 *pia) {
 	SIGNAL_SET_BOOL(irqb_b, PRIVATE(pia)->out_irqb_b);
 
 	// output on the ports
-	signal_write_uint8_masked(pia->signal_pool, SIGNAL(port_a), pia->reg_ora, pia->reg_ddra);
-	signal_write_uint8_masked(pia->signal_pool, SIGNAL(port_b), pia->reg_orb, pia->reg_ddrb);
+	SIGNAL_SET_UINT8_MASKED(port_a, pia->reg_ora, pia->reg_ddra);
+	SIGNAL_SET_UINT8_MASKED(port_b, pia->reg_orb, pia->reg_ddrb);
 
 	// output on ca2 if in output mode
 	if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT)) {

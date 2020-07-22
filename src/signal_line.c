@@ -137,6 +137,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 	arrsetcap(domain->signals_curr, arrlenu(domain->signals_curr) + size);
 	arrsetcap(domain->signals_next, arrlenu(domain->signals_next) + size);
 	arrsetcap(domain->signals_default, arrlenu(domain->signals_default) + size);
+	arrsetcap(domain->signals_writer, arrlenu(domain->signals_default) + size);
 	arrsetcap(domain->signals_name, arrlenu(domain->signals_name) + size);
 
 	for (uint32_t i = 0; i < size; ++i) {
@@ -144,6 +145,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 		arrpush(domain->signals_next, false);
 		arrpush(domain->signals_default, false);
 		arrpush(domain->signals_name, NULL);
+		arrpush(domain->signals_writer, -1);
 	}
 
 	return result;

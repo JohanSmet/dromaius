@@ -11,6 +11,7 @@
 
 #define SIGNAL_POOL			cpu->signal_pool
 #define SIGNAL_COLLECTION	cpu->signals
+#define SIGNAL_CHIP_ID		cpu->id
 
 /*
 

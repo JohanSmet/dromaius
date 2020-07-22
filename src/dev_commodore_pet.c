@@ -16,6 +16,7 @@
 
 #define SIGNAL_POOL			device->signal_pool
 #define SIGNAL_COLLECTION	device->signals
+#define SIGNAL_CHIP_ID		-1						// FIXME: need indicator for glue logic components?
 
 static Rom8d16a *load_rom(DevCommodorePet *device, const char *filename, uint32_t num_lines, Signal rom_ce_b) {
 	Rom8d16a *rom = rom_8d16a_create(num_lines, device->signal_pool, (Rom8d16aSignals) {

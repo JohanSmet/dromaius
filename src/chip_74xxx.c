@@ -10,6 +10,7 @@
 
 #define SIGNAL_POOL			chip->signal_pool
 #define SIGNAL_COLLECTION	chip->signals
+#define SIGNAL_CHIP_ID		chip->id
 
 #define CHIP_74XXX_SET_FUNCTIONS(prefix)	\
 	CHIP_SET_FUNCTIONS(chip, prefix##_process, prefix##_destroy, prefix##_register_dependencies)
@@ -376,7 +377,7 @@ void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 	Signal **outputs = ((Chip74145BcdDecoder_private *) chip)->outputs;
 
 	for (int i = 0; i < 10; ++i) {
-		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT);
+		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, chip->id);
 	}
 
 	int value = SIGNAL_NEXT_BOOL(a) |
@@ -385,7 +386,7 @@ void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 				SIGNAL_NEXT_BOOL(d) << 3;
 
 	if (value < 10) {
-		signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT);
+		signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT, chip->id);
 	}
 
 }
@@ -469,14 +470,14 @@ void chip_74154_decoder_process(Chip74154Decoder *chip) {
 	Signal **outputs = ((Chip74154Decoder_private *) chip)->outputs;
 
 	for (int i = 0; i < 16; ++i) {
-		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT);
+		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, chip->id);
 	}
 
 	int value = SIGNAL_NEXT_BOOL(a) |
 				SIGNAL_NEXT_BOOL(b) << 1 |
 				SIGNAL_NEXT_BOOL(c) << 2 |
 				SIGNAL_NEXT_BOOL(d) << 3;
-	signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT);
+	signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT, chip->id);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

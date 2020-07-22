@@ -5,6 +5,7 @@
 
 #define SIGNAL_POOL			chip->signal_pool
 #define SIGNAL_COLLECTION	chip->signals
+#define SIGNAL_CHIP_ID		chip->id
 
 static MunitResult test_7400_nand(const MunitParameter params[], void *user_data_or_fixture) {
 

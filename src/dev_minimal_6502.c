@@ -12,6 +12,7 @@
 
 #define SIGNAL_POOL			device->signal_pool
 #define SIGNAL_COLLECTION	device->signals
+#define SIGNAL_CHIP_ID		-1						// FIXME: need indicator for glue logic components?
 
 static inline void activate_reset(DevMinimal6502 *device, bool reset) {
 	device->in_reset = reset;

@@ -6,6 +6,7 @@
 
 #define SIGNAL_POOL			cpu->signal_pool
 #define SIGNAL_COLLECTION	cpu->signals
+#define SIGNAL_CHIP_ID		cpu->id
 
 #define CPU_CYCLE_START				\
 	for (int i = 0; i < 4; ++i) {

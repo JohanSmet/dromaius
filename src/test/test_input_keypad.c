@@ -5,6 +5,7 @@
 
 #define SIGNAL_POOL			keypad->signal_pool
 #define SIGNAL_COLLECTION	keypad->signals
+#define SIGNAL_CHIP_ID		keypad->id
 
 static void input_keypad_teardown(InputKeypad *keypad) {
 	signal_pool_destroy(keypad->signal_pool);
