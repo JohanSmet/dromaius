@@ -833,6 +833,11 @@ void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 		SIGNAL_SET_BOOL(y12, SIGNAL_NEXT_BOOL(a12));
 		SIGNAL_SET_BOOL(y13, SIGNAL_NEXT_BOOL(a13));
 		SIGNAL_SET_BOOL(y14, SIGNAL_NEXT_BOOL(a14));
+	} else {
+		SIGNAL_NO_WRITE(y11);
+		SIGNAL_NO_WRITE(y12);
+		SIGNAL_NO_WRITE(y13);
+		SIGNAL_NO_WRITE(y14);
 	}
 
 	if (!SIGNAL_NEXT_BOOL(g2_b)) {
@@ -840,6 +845,11 @@ void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 		SIGNAL_SET_BOOL(y22, SIGNAL_NEXT_BOOL(a22));
 		SIGNAL_SET_BOOL(y23, SIGNAL_NEXT_BOOL(a23));
 		SIGNAL_SET_BOOL(y24, SIGNAL_NEXT_BOOL(a24));
+	} else {
+		SIGNAL_NO_WRITE(y21);
+		SIGNAL_NO_WRITE(y22);
+		SIGNAL_NO_WRITE(y23);
+		SIGNAL_NO_WRITE(y24);
 	}
 }
 
@@ -920,5 +930,14 @@ void chip_74373_latch_process(Chip74373Latch *chip) {
 		SIGNAL_SET_BOOL(q6, (chip->state >> 5) & 0x01);
 		SIGNAL_SET_BOOL(q7, (chip->state >> 6) & 0x01);
 		SIGNAL_SET_BOOL(q8, (chip->state >> 7) & 0x01);
+	} else {
+		SIGNAL_NO_WRITE(q1);
+		SIGNAL_NO_WRITE(q2);
+		SIGNAL_NO_WRITE(q3);
+		SIGNAL_NO_WRITE(q4);
+		SIGNAL_NO_WRITE(q5);
+		SIGNAL_NO_WRITE(q6);
+		SIGNAL_NO_WRITE(q7);
+		SIGNAL_NO_WRITE(q8);
 	}
 }

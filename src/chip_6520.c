@@ -72,6 +72,8 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 				PRIVATE(pia)->state_a.write_port = true;
 			} else {
 				pia->reg_ddra = data;
+				// remove ourself as the active writer from all pins of port_a
+				SIGNAL_NO_WRITE(port_a);
 			}
 			break;
 		case 1:
@@ -86,6 +88,8 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 				PRIVATE(pia)->state_b.write_port = true;
 			} else {
 				pia->reg_ddrb = data;
+				// remove ourself as the active writer from all pins of port_b
+				SIGNAL_NO_WRITE(port_b);
 			}
 			break;
 		case 3:
@@ -234,16 +238,22 @@ static inline void process_end(Chip6520 *pia) {
 	// output on ca2 if in output mode
 	if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT)) {
 		SIGNAL_SET_BOOL(ca2, PRIVATE(pia)->internal_ca2);
+	} else {
+		SIGNAL_NO_WRITE(ca2);
 	}
 
 	// output on cb2 if in output mode
 	if (CR_FLAG(pia->reg_crb, CL2_MODE_SELECT)) {
 		SIGNAL_SET_BOOL(cb2, PRIVATE(pia)->internal_cb2);
+	} else  {
+		SIGNAL_NO_WRITE(cb2);
 	}
 
 	// output on databus
 	if (PRIVATE(pia)->out_enabled) {
 		SIGNAL_SET_UINT8(bus_data, PRIVATE(pia)->out_data);
+	} else {
+		SIGNAL_NO_WRITE(bus_data);
 	}
 
 	// store state of the enable pin

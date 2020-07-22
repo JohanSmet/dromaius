@@ -190,6 +190,19 @@ static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, u
 	}
 }
 
+static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t chip_id) {
+	assert(pool);
+
+	SignalDomain *domain = &pool->domains[signal.domain];
+
+	for (uint32_t i = 0; i < signal.count; ++i) {
+		if (domain->signals_writer[signal.start + i] == chip_id) {
+			domain->signals_writer[signal.start + i] = -1;
+			domain->signals_next[signal.start + i] = domain->signals_default[signal.start + i];
+		}
+	}
+}
+
 static inline bool signal_read_next_bool(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count == 1);
@@ -261,6 +274,8 @@ static inline bool signal_changed(SignalPool *pool, Signal signal) {
 
 #define SIGNAL_SET_UINT8_MASKED(sig,v,m)	signal_write_uint8_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m), SIGNAL_CHIP_ID)
 #define SIGNAL_SET_UINT16_MASKED(sig,v,m)	signal_write_uint16_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m), SIGNAL_CHIP_ID)
+
+#define	SIGNAL_NO_WRITE(sig)	signal_clear_writer(SIGNAL_POOL, SIGNAL_COLLECTION.sig, SIGNAL_CHIP_ID)
 
 #ifdef __cplusplus
 }

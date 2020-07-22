@@ -155,6 +155,8 @@ static void process_end(Cpu6502 *cpu) {
 	// optionally drive the line for tri-state outputs
 	if (PRIVATE(cpu)->drv_data) {
 		SIGNAL_SET_UINT8(bus_data, PRIVATE(cpu)->out_data);
+	} else {
+		SIGNAL_NO_WRITE(bus_data);
 	}
 
 	PRIVATE(cpu)->delayed_cycle = !PRIVATE(cpu)->delayed_cycle;

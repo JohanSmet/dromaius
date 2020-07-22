@@ -128,9 +128,13 @@ static inline void write_register(Chip6522 *via, uint8_t data) {
 			break;
 		case ADDR_DDRB:
 			via->reg_ddrb = data;
+			// remove ourself as the active writer from all pins of port_b
+			SIGNAL_NO_WRITE(port_b);
 			break;
 		case ADDR_DDRA:
 			via->reg_ddra = data;
+			// remove ourself as the active writer from all pins of port_a
+			SIGNAL_NO_WRITE(port_a);
 			break;
 		case ADDR_T1C_L:
 			via->reg_t1l_l = data;
@@ -244,21 +248,29 @@ static void process_end(Chip6522 *via) {
 	// optional output on databus
 	if (PRIVATE(via)->out_enabled) {
 		SIGNAL_SET_UINT8(bus_data, PRIVATE(via)->out_data);
+	} else {
+		SIGNAL_NO_WRITE(bus_data);
 	}
 
 	// optional output on ca2
 	if (PRIVATE(via)->state_a.cl2_is_output) {
 		SIGNAL_SET_BOOL(ca2, PRIVATE(via)->state_a.out_cl2);
+	} else {
+		SIGNAL_NO_WRITE(ca2);
 	}
 
 	// optional output on cb1
 	if (PRIVATE(via)->state_b.cl1_is_output) {
 		SIGNAL_SET_BOOL(cb1, PRIVATE(via)->state_b.out_cl1);
+	} else {
+		SIGNAL_NO_WRITE(cb1);
 	}
 
 	// optional output on cb2
 	if (PRIVATE(via)->state_b.cl2_is_output) {
 		SIGNAL_SET_BOOL(cb2, PRIVATE(via)->state_b.out_cl2);
+	} else {
+		SIGNAL_NO_WRITE(cb2);
 	}
 
 	// store state of some pins

@@ -456,6 +456,27 @@ static MunitResult test_default_uint16(const MunitParameter params[], void* user
 	return MUNIT_OK;
 }
 
+static MunitResult test_clear_writer(const MunitParameter params[], void* user_data_or_fixture) {
+	SignalPool *pool = (SignalPool *) user_data_or_fixture;
+
+	// setup
+	Signal sig_a = signal_create(pool, 1);
+	signal_default_bool(pool, sig_a, true);			// pull-up
+
+	// test
+	signal_write_bool(pool, sig_a, false, 5);
+	signal_write_bool(pool, sig_a, false, 3);
+	munit_assert_false(signal_read_next_bool(pool, sig_a));
+
+	signal_clear_writer(pool, sig_a, 5);
+	munit_assert_false(signal_read_next_bool(pool, sig_a));
+
+	signal_clear_writer(pool, sig_a, 3);
+	munit_assert_true(signal_read_next_bool(pool, sig_a));
+
+	return MUNIT_OK;
+}
+
 static MunitResult test_multiple_domains(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
 
@@ -712,6 +733,7 @@ MunitTest signal_tests[] = {
     { "/default_bool", test_default_bool, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/default_uint8", test_default_uint8, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/default_uint16", test_default_uint16, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
+    { "/clear_writer", test_clear_writer, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
     { "/multiple_domains", test_multiple_domains, signal_setup_two, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/changed", test_changed, signal_setup_one, signal_teardown, MUNIT_TEST_OPTION_NONE, NULL },
     { "/names", test_names, signal_setup_one, signal_teardown,  MUNIT_TEST_OPTION_NONE, NULL },
