@@ -269,6 +269,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_chip_oscillator.c
 		src/test/test_clock.c
 		src/test/test_cpu_6502.c
+		src/test/test_device.c
 		src/test/test_dev_commodore_pet.c
 		src/test/test_dev_minimal_6502.c
 		src/test/test_filt_6502_asm.c
