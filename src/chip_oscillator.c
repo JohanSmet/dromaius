@@ -47,6 +47,7 @@ void oscillator_process(Oscillator *tmr) {
 	if (tmr->tick_next_transition <= tmr->signal_pool->current_tick) {
 		SIGNAL_SET_BOOL(clk_out, !SIGNAL_BOOL(clk_out));
 		tmr->tick_next_transition = tmr->signal_pool->current_tick + tmr->half_period_ticks;
+		tmr->schedule_timestamp = tmr->tick_next_transition;
 	} else {
 		SIGNAL_SET_BOOL(clk_out, SIGNAL_BOOL(clk_out));
 	}

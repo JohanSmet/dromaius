@@ -59,6 +59,11 @@ void signal_pool_cycle(SignalPool *pool);
 void signal_pool_cycle_domain(SignalPool *pool, int8_t domain);
 void signal_pool_cycle_domain_no_reset(SignalPool *pool, int8_t domain);
 
+static inline int64_t signal_pool_interval_to_tick_count(SignalPool *pool, int64_t interval_ps) {
+	assert(pool);
+	return interval_ps / pool->tick_duration_ps;
+}
+
 Signal signal_create(SignalPool *pool, uint32_t size);
 void signal_set_name(SignalPool *pool, Signal Signal, const char *name);
 const char * signal_get_name(SignalPool *pool, Signal signal);
