@@ -112,7 +112,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	REGISTER_CHIP(device->pia);
 
 	// lcd-module
-	device->lcd = chip_hd44780_create(device->clock, device->signal_pool, (ChipHd44780Signals) {
+	device->lcd = chip_hd44780_create(device->signal_pool, (ChipHd44780Signals) {
 										.db4_7 = signal_split(device->pia->signals.port_a, 0, 4),
 										.rs = signal_split(device->pia->signals.port_a, 7, 1),
 										.rw = signal_split(device->pia->signals.port_a, 6, 1),

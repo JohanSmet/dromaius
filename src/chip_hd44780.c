@@ -3,7 +3,6 @@
 // Partial emulation of the HD44780 Dot Matrix LCD Controller/Driver
 
 #include "chip_hd44780.h"
-#include "clock.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -38,7 +37,6 @@ typedef enum DataCycle {
 
 typedef struct ChipHd44780_private {
 	ChipHd44780		intf;
-	Clock *			clock;
 
 	uint8_t			ddram_addr;				// continuous 0 - 79 even for two line displays (no gap between 1st & 2nd line)
 	uint8_t			cgram_mask;				// address mask for the cgram character index
@@ -59,12 +57,16 @@ typedef struct ChipHd44780_private {
 	bool			cursor_enabled;			// cursor enable
 	bool			cursor_blink;			// blinking cursor enabled (required cursor_enabled)
 	bool			cursor_block;			// current phase of the blinking cursor (full block or bottom line only)
-	int64_t			cursor_time;			// last time phase of blinking cursor was changed
+
+	int64_t			cursor_blink_cycles;	// cursor blink frequency in timesteps
+	int64_t			cursor_blink_time;		// next time the blinking cursor should change state
 } ChipHd44780_private;
 
 static const uint8_t rom_a00[256][16] = {
 	#include "chip_hd44780_a00.inc"
 };
+
+static const int64_t CURSOR_BLINK_INTERVAL_PS = 409600 * 1000;	// 409.6ms
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -224,6 +226,11 @@ static inline void execute_display_on_off_control(ChipHd44780 *lcd, bool display
 	PRIVATE(lcd)->cursor_enabled = cursor;
 	PRIVATE(lcd)->cursor_blink = cursor_blink;
 	PRIVATE(lcd)->refresh_screen = true;
+
+	if (cursor_blink) {
+		PRIVATE(lcd)->cursor_blink_time = lcd->signal_pool->current_tick + PRIVATE(lcd)->cursor_blink_cycles;
+		lcd->schedule_timestamp = PRIVATE(lcd)->cursor_blink_time;
+	}
 }
 
 static inline void execute_cursor_or_display_shift(ChipHd44780 *lcd, bool display_or_cursor, bool right_or_left) {
@@ -421,14 +428,15 @@ static void process_end(ChipHd44780 *lcd) {
 // interface functions
 //
 
-ChipHd44780 *chip_hd44780_create(struct Clock *clock, SignalPool *signal_pool, ChipHd44780Signals signals) {
+ChipHd44780 *chip_hd44780_create(SignalPool *signal_pool, ChipHd44780Signals signals) {
 	assert(signals.bus_data.count == 0 || (signals.bus_data.count > 0 && signals.db4_7.count == 0 && signals.db0_3.count == 0));
 
 	ChipHd44780_private *priv = (ChipHd44780_private *) calloc(1, sizeof(ChipHd44780_private));
 	memset(priv, 0, sizeof(ChipHd44780_private));
-	priv->clock = clock;
 	ChipHd44780 *lcd = &priv->intf;
 	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy, chip_hd44780_register_dependencies);
+
+	priv->cursor_blink_cycles = signal_pool_interval_to_tick_count(signal_pool, CURSOR_BLINK_INTERVAL_PS);
 
 	lcd->signal_pool = signal_pool;
 	memcpy(&lcd->signals, &signals, sizeof(signals));
@@ -478,18 +486,14 @@ void chip_hd44780_process(ChipHd44780 *lcd) {
 
 	PRIVATE(lcd)->refresh_screen = false;
 
-	// cursor blink - this is a little sketchy
-	//	datasheet states the cursor blinks at a speed of 409.6 ms intervals when the input frequency is standard
-	//	we just assume this function gets called twice for each clock change (on and after the change) so the time passed is
-	//  a quarter of the clock period. This should work reasonably well when stepping through the executable
-	static const int64_t BLINK_INTERVAL = 410 * 1000000 * 2;
-	if (PRIVATE(lcd)->cursor_enabled && PRIVATE(lcd)->cursor_blink && PRIVATE(lcd)->clock) {
-		PRIVATE(lcd)->cursor_time += PRIVATE(lcd)->clock->conf_half_period_ns;
-		if (PRIVATE(lcd)->cursor_time > BLINK_INTERVAL) {
-			PRIVATE(lcd)->cursor_block = !PRIVATE(lcd)->cursor_block;
-			PRIVATE(lcd)->refresh_screen = true;
-			PRIVATE(lcd)->cursor_time -= BLINK_INTERVAL;
-		}
+	// cursor blink: datasheet states the cursor blinks at a speed of 409.6 ms intervals when the input frequency is standard
+	if (PRIVATE(lcd)->cursor_enabled && PRIVATE(lcd)->cursor_blink &&
+		PRIVATE(lcd)->cursor_blink_time >= lcd->signal_pool->current_tick) {
+
+		PRIVATE(lcd)->cursor_block = !PRIVATE(lcd)->cursor_block;
+		PRIVATE(lcd)->refresh_screen = true;
+		PRIVATE(lcd)->cursor_blink_time = lcd->signal_pool->current_tick + PRIVATE(lcd)->cursor_blink_cycles;
+		lcd->schedule_timestamp = PRIVATE(lcd)->cursor_blink_time;
 	}
 
 	// do nothing:
