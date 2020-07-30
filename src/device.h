@@ -29,6 +29,7 @@ typedef struct ChipEvent {
 											\
 	SignalPool *			signal_pool;	\
 	Chip **					chips;			\
+	bool *					chip_is_dirty;	\
 	ChipEvent *				event_schedule; \
 	ChipEvent *				event_pool;
 
@@ -36,8 +37,13 @@ typedef struct Device {
 	DEVICE_DECLARE_FUNCTIONS
 } Device;
 
+// construction
 Chip *device_register_chip(Device *device, Chip *chip);
 
+// simulation
+void device_simulate_timestep(Device *device);
+
+// scheduler
 void device_schedule_event(Device *device, int32_t chip_id, int64_t timestamp);
 int32_t device_pop_scheduled_event(Device *device, int64_t timestamp);
 
@@ -46,5 +52,6 @@ static inline int64_t device_next_scheduled_event_timestamp(Device *device) {
 	assert(device->event_schedule);
 	return device->event_schedule->timestamp;
 }
+
 
 #endif // DROMAIUS_DEVICE_H

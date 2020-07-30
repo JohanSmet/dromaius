@@ -4,7 +4,6 @@
 // define DMS_NO_THREADING to disable multithreading
 
 #include "context.h"
-#include "dev_minimal_6502.h"
 
 #include <assert.h>
 #include <stdio.h>
@@ -16,7 +15,6 @@
 
 #include "cpu.h"
 #include "device.h"
-#include "clock.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -83,12 +81,9 @@ static inline bool signal_breakpoint_triggered(DmsContext *dms) {
 
 static bool context_execute(DmsContext *dms) {
 
-	Clock *clock = dms->device->get_clock(dms->device);
 	Cpu *cpu = dms->device->get_cpu(dms->device);
 
-	clock_mark(clock);
-
-	while (dms->state != DS_WAIT && !clock_is_caught_up(clock)) {
+	while (dms->state != DS_WAIT) {
 
 		bool prev_sync = cpu->is_at_start_of_instruction(cpu);
 		bool prev_irq = cpu->irq_is_asserted(cpu);
@@ -155,10 +150,6 @@ static int context_background_thread(DmsContext *dms) {
 
 static inline void change_state(DmsContext *context, DMS_STATE new_state) {
 	mutex_lock(&context->mtx_wait);
-	if (new_state == DS_RUN) {
-		Clock *clock = context->device->get_clock(context->device);
-		clock_reset(clock);
-	}
 	context->state = new_state;
 	mutex_unlock(&context->mtx_wait);
 	cond_signal(&context->cnd_wait);
@@ -167,11 +158,6 @@ static inline void change_state(DmsContext *context, DMS_STATE new_state) {
 #else
 
 static inline void change_state(DmsContext *context, DMS_STATE new_state) {
-
-	if (new_state == DS_RUN) {
-		Clock *clock = context->device->get_clock(context->device);
-		clock_reset(clock);
-	}
 
 	context->state = new_state;
 }

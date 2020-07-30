@@ -80,6 +80,7 @@ SignalPool *signal_pool_create(size_t num_domains) {
 	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool) + (sizeof(SignalDomain) * num_domains));
 	pool->num_domains = (int8_t) num_domains;
 	sh_new_arena(pool->signal_names);
+	pool->tick_duration_ps = 100000;		// 100ns
 	return pool;
 }
 
@@ -139,6 +140,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 	arrsetcap(domain->signals_default, arrlenu(domain->signals_default) + size);
 	arrsetcap(domain->signals_writer, arrlenu(domain->signals_default) + size);
 	arrsetcap(domain->signals_name, arrlenu(domain->signals_name) + size);
+	arrsetcap(domain->dependent_components, arrlenu(domain->dependent_components) + size);
 
 	for (uint32_t i = 0; i < size; ++i) {
 		arrpush(domain->signals_curr, false);
@@ -146,6 +148,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 		arrpush(domain->signals_default, false);
 		arrpush(domain->signals_name, NULL);
 		arrpush(domain->signals_writer, -1);
+		arrpush(domain->dependent_components, NULL);
 	}
 
 	return result;

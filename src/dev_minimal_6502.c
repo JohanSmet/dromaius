@@ -7,46 +7,115 @@
 #include "utils.h"
 #include "stb/stb_ds.h"
 
+#include "chip_poweronreset.h"
+#include "chip_oscillator.h"
+
 #include <assert.h>
 #include <stdlib.h>
 
 #define SIGNAL_POOL			device->signal_pool
 #define SIGNAL_COLLECTION	device->signals
-#define SIGNAL_CHIP_ID		-1						// FIXME: need indicator for glue logic components?
+#define SIGNAL_CHIP_ID		chip->id
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// internal types / functions
+//
+
+typedef struct ChipGlueLogic {
+	CHIP_DECLARE_FUNCTIONS
+
+	DevMinimal6502 *device;
+} ChipGlueLogic;
+
+static void glue_logic_register_dependencies(ChipGlueLogic *chip);
+static void glue_logic_process(ChipGlueLogic *chip);
+static void glue_logic_destroy(ChipGlueLogic *chip);
+
+static ChipGlueLogic *glue_logic_create(DevMinimal6502 *device) {
+	ChipGlueLogic *chip = (ChipGlueLogic *) calloc(1, sizeof(ChipGlueLogic));
+	chip->device = device;
+
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process, glue_logic_destroy, glue_logic_register_dependencies);
+
+	return chip;
+}
+
+static void glue_logic_register_dependencies(ChipGlueLogic *chip) {
+	assert(chip);
+	DevMinimal6502 *device = chip->device;
+
+	signal_add_dependency(device->signal_pool, SIGNAL(cpu_rw), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(clock), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(bus_address), chip->id);
+}
+
+static void glue_logic_destroy(ChipGlueLogic *chip) {
+	assert(chip);
+	free(chip);
+}
+
+static void glue_logic_process(ChipGlueLogic *chip) {
+	assert(chip);
+	DevMinimal6502 *device = chip->device;
+
+	// >> ram logic
+	//  - ce_b: assert when top bit of address isn't set (copy of a15)
+	//	- oe_b: assert when cpu_rw is high
+	//	- we_b: assert when cpu_rw is low and clock is high
+	bool next_rw = SIGNAL_BOOL(cpu_rw);
+	SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
+	SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_BOOL(clock));
+
+	// >> rom logic
+	//  - ce_b: assert when the top 2 bits of the address is set
+	SIGNAL_SET_BOOL(rom_ce_b, !(SIGNAL_BOOL(a15) & SIGNAL_BOOL(a14)));
+
+	// >> pia logic
+	//  - no peripheral connected, irq lines not connected
+	//	- cs0: assert when top bit of address is set (copy of a15)
+	//	- cs1: always asserted
+	//  - cs2_b: assert when bits 4-14 are zero
+	uint16_t bus_address = SIGNAL_UINT16(bus_address);
+	SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// interface functions
+//
+
+#if 0
 
 static inline void activate_reset(DevMinimal6502 *device, bool reset) {
 	device->in_reset = reset;
 	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
 }
 
+#endif
+
 Cpu6502* dev_minimal_6502_get_cpu(DevMinimal6502 *device) {
 	assert(device);
 	return device->cpu;
 }
 
-Clock* dev_minimal_6502_get_clock(DevMinimal6502 *device) {
-	assert(device);
-	return device->clock;
-}
-
-
 DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DevMinimal6502 *device = (DevMinimal6502 *) calloc(1, sizeof(DevMinimal6502));
 
 	device->get_cpu = (DEVICE_GET_CPU) dev_minimal_6502_get_cpu;
-	device->get_clock = (DEVICE_GET_CLOCK) dev_minimal_6502_get_clock;
 	device->process = (DEVICE_PROCESS) dev_minimal_6502_process;
 	device->reset = (DEVICE_RESET) dev_minimal_6502_reset;
 	device->destroy = (DEVICE_DESTROY) dev_minimal_6502_destroy;
 
 	// signals
 	device->signal_pool = signal_pool_create(1);
+	device->signal_pool->tick_duration_ps = 20000;		// 20ns
 
 	SIGNAL_DEFINE(bus_address, 16);
 	SIGNAL_DEFINE(bus_data, 8);
 	SIGNAL_DEFINE_BOOL(clock, 1, true);
-	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE(cpu_rw, 1);
+	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_ASSERT);
+	SIGNAL_DEFINE_BOOL(cpu_rw, 1, true);
 	SIGNAL_DEFINE_BOOL(cpu_irq_b, 1, ACTLO_DEASSERT);
 	SIGNAL_DEFINE_BOOL(cpu_nmi_b, 1, ACTLO_DEASSERT);
 	SIGNAL_DEFINE(cpu_sync, 1);
@@ -57,11 +126,6 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	device->signals.a15 = signal_split(SIGNAL(bus_address), 15, 1);
 	device->signals.a14 = signal_split(SIGNAL(bus_address), 14, 1);
-
-	// clock
-	device->clock = clock_create(10000, device->signal_pool, (ClockSignals){
-										.clock = SIGNAL(clock)
-	});
 
 #define REGISTER_CHIP(c)	device_register_chip((Device *) device, (Chip *) (c))
 
@@ -78,6 +142,16 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										.rdy = SIGNAL(cpu_rdy)
 	});
 	REGISTER_CHIP(device->cpu);
+
+	// oscillator
+	REGISTER_CHIP(oscillator_create(10000, device->signal_pool, (OscillatorSignals) {
+											.clk_out = SIGNAL(clock)
+	}));
+
+	// power-on-reset
+	REGISTER_CHIP(poweronreset_create(1000000, device->signal_pool, (PowerOnResetSignals) {
+											.reset_b = SIGNAL(reset_b)
+	}));
 
 	// ram
 	device->ram = ram_8d16a_create(15, device->signal_pool, (Ram8d16aSignals) {
@@ -128,14 +202,19 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	REGISTER_CHIP(device->keypad);
 	signal_default_uint8(device->signal_pool, device->keypad->signals.cols, false);
 
+	// custom chip for the glue logic
+	REGISTER_CHIP(glue_logic_create(device));
+
 	// copy some signals for easy access
 	SIGNAL(ram_oe_b) = device->ram->signals.oe_b;
 	SIGNAL(ram_we_b) = device->ram->signals.we_b;
 	SIGNAL(rom_ce_b) = device->rom->signals.ce_b;
 	SIGNAL(pia_cs2_b) = device->pia->signals.cs2_b;
 
-	// power on reset
-	dev_minimal_6502_reset(device);
+	// register dependencies
+	for (int32_t id = 0; id < arrlen(device->chips); ++id) {
+		device->chips[id]->register_dependencies(device->chips[id]);
+	}
 
 	return device;
 }
@@ -143,85 +222,21 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	assert(device);
 
-	clock_destroy(device->clock);
 	cpu_6502_destroy(device->cpu);
 	ram_8d16a_destroy(device->ram);
 	rom_8d16a_destroy(device->rom);
 	free(device);
 }
 
-static inline void process_glue_logic(DevMinimal6502 *device) {
-
-	// >> ram logic
-	//  - ce_b: assert when top bit of address isn't set (copy of a15)
-	//	- oe_b: assert when cpu_rw is high
-	//	- we_b: assert when cpu_rw is low and clock is low
-	bool next_rw = SIGNAL_NEXT_BOOL(cpu_rw);
-	SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
-	SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_NEXT_BOOL(clock));
-
-	// >> rom logic
-	//  - ce_b: assert when the top 2 bits of the address is set
-	SIGNAL_SET_BOOL(rom_ce_b, !(SIGNAL_NEXT_BOOL(a15) & SIGNAL_NEXT_BOOL(a14)));
-
-	// >> pia logic
-	//  - no peripheral connected, irq lines not connected
-	//	- cs0: assert when top bit of address is set (copy of a15)
-	//	- cs1: always asserted
-	//  - cs2_b: assert when bits 4-14 are zero
-	uint16_t bus_address = SIGNAL_NEXT_UINT16(bus_address);
-	SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
-
-	// >> reset circuit
-	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
-}
-
 void dev_minimal_6502_process(DevMinimal6502 *device) {
 	assert(device);
 
-	// clock tick
-	clock_process(device->clock);
-
-	// run all chips on the clock cycle
-	signal_pool_cycle(device->signal_pool);
-
-	for (size_t idx = 0; idx < arrlenu(device->chips); ++idx) {
-		device->chips[idx]->process(device->chips[idx]);
-	}
-
-	// >> glue logic
-	process_glue_logic(device);
-
-	// run the cpu again on the same clock cycle - after the address hold time
-	// make sure the clock signal remains the same
-	clock_refresh(device->clock);
-	signal_pool_cycle_domain_no_reset(device->signal_pool, 0);
-
-	// >> cpu
-	device->cpu->process(device->cpu);
-
-	// >> glue logic
-	process_glue_logic(device);
+	device_simulate_timestep((Device *) device);
 }
 
 void dev_minimal_6502_reset(DevMinimal6502 *device) {
-
-	// run for a few cycles while reset is asserted
-	activate_reset(device, true);
-
-	for (int i = 0; i < 4; ++i) {
-		dev_minimal_6502_process(device);
-	}
-
-	// run CPU init cycle
-	activate_reset(device, false);
-
-	do {
-		dev_minimal_6502_process(device);
-	} while (cpu_6502_in_initialization(device->cpu));
-
-	// reset clock
-	device->clock->cycle_count = 0;
+	// FIXME: trigger the power-on-reset device again
+	(void) device;
 }
 
 void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename) {
