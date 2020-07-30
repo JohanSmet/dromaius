@@ -22,6 +22,7 @@
 #define SET_HI_BYTE(x,h) ((uint16_t) (((x) & 0x00ff) | ((h) << 8)))	// set high byte of a 16-bit word
 
 #define BIT_SET(x,b)	((x) |= (1 << (b)))
+#define BIT_SET_U16(x,b)((x) |= (uint16_t) (1 << (b)))
 #define BIT_CLEAR(x,b)	((x) &= (uint8_t) ~(1 << (b)))
 #define BIT_IS_SET(x,b) ((bool) (((x) & (1 << (b))) >> (b)))
 
@@ -52,5 +53,12 @@
 
 #define ACTHI_ASSERT true
 #define ACTHI_DEASSERT false
+
+// time
+#define MS_TO_PS(t) ((t) * 1000000000ll)		// millisecond to picosecond
+#define US_TO_PS(t) ((t) * 1000000ll)			// microsecond to picosecond
+#define NS_TO_PS(t) ((t) * 1000ll)				// nanosecond to picosecond
+
+#define FREQUENCY_TO_PS(f)	(1000000000000ll / (f)) // frequency (in hertz) to interval in picoseconds
 
 #endif // DROMAIUS_TYPES_H
