@@ -28,6 +28,7 @@ Oscillator *oscillator_create(int64_t frequency, SignalPool *pool, OscillatorSig
 
 	tmr->half_period_ticks = 1000000000000l / (frequency * 2 * pool->tick_duration_ps);
 	tmr->tick_next_transition = tmr->half_period_ticks;
+	tmr->schedule_timestamp = tmr->tick_next_transition;
 
 	return tmr;
 }
