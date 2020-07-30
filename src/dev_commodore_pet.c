@@ -660,7 +660,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_b, 0xff);			// pull-up resistors R18-R25
 
 	// keyboard
-	device->keypad = input_keypad_create(device->signal_pool, false, 10, 8, (InputKeypadSignals) {
+	device->keypad = input_keypad_create(device->signal_pool, false, 10, 8, 500, 100, (InputKeypadSignals) {
 										.cols = device->pia_2->signals.port_b
 	});
 

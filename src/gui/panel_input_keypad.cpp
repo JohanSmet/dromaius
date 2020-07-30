@@ -12,7 +12,7 @@ public:
 		Panel(ctx),
 		position(pos),
 		keypad(keypad) {
-		input_keypad_set_decay(keypad, decay);
+		input_keypad_set_dwell_time_ms(keypad, key_dwell_ms);
 	}
 
 	void display() override {
@@ -41,8 +41,8 @@ public:
 				ImGui::NewLine();
 			}
 
-			if (ImGui::SliderInt("Decay", &decay, 1, 512 * 1024)) {
-				input_keypad_set_decay(keypad, decay);
+			if (ImGui::SliderInt("Dwell Time", &key_dwell_ms, 1, 50000)) {
+				input_keypad_set_dwell_time_ms(keypad, key_dwell_ms);
 			}
 		}
 		ImGui::End();
@@ -61,7 +61,7 @@ private:
 	InputKeypad *	keypad;
 
 	std::vector<std::string>	labels = default_labels();
-	int							decay = 64 * 1024;
+	int							key_dwell_ms = 500;
 
 	constexpr static const char *title = "Keypad 4x4";
 };

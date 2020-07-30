@@ -34,13 +34,19 @@ typedef struct InputKeypad {
 } InputKeypad;
 
 // functions
-InputKeypad *input_keypad_create(SignalPool *pool, bool active_high, size_t row_count, size_t col_count,  InputKeypadSignals signals);
+InputKeypad *input_keypad_create(SignalPool *pool,
+								 bool active_high,
+								 size_t row_count, size_t col_count,
+								 int dwell_ms,
+								 int matrix_scan_frequency,
+							   	 InputKeypadSignals signals);
+
 void input_keypad_register_dependencies(InputKeypad *keypad);
 void input_keypad_destroy(InputKeypad *keypad);
 void input_keypad_process(InputKeypad *keypad);
 
 void input_keypad_key_pressed(InputKeypad *keypad, size_t row, size_t col);
-void input_keypad_set_decay(InputKeypad *keypad, int cycles);
+void input_keypad_set_dwell_time_ms(InputKeypad *keypad, int dwell_ms);
 
 #ifdef __cplusplus
 }

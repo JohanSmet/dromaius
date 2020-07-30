@@ -121,7 +121,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	REGISTER_CHIP(device->lcd);
 
 	// keypad
-	device->keypad = input_keypad_create(device->signal_pool, true, 4, 4, (InputKeypadSignals) {
+	device->keypad = input_keypad_create(device->signal_pool, true, 4, 4, 500, 100, (InputKeypadSignals) {
 										.rows = signal_split(device->pia->signals.port_b, 4, 4),
 										.cols = signal_split(device->pia->signals.port_b, 0, 4)
 	});
