@@ -109,6 +109,7 @@ typedef union addr_t {
 typedef struct Cpu6502_private {
 	Cpu6502			intf;
 
+	bool			prev_clock;
 	bool			prev_reset;
 	bool			prev_nmi;
 
@@ -159,7 +160,7 @@ static void process_end(Cpu6502 *cpu) {
 		SIGNAL_NO_WRITE(bus_data);
 	}
 
-	PRIVATE(cpu)->delayed_cycle = !PRIVATE(cpu)->delayed_cycle;
+	PRIVATE(cpu)->prev_clock = SIGNAL_BOOL(clock);
 }
 
 static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTERRUPT_TYPE irq_type) {
@@ -2138,8 +2139,7 @@ Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals) {
 	memset(priv, 0, sizeof(Cpu6502_private));
 
 	cpu->signal_pool = signal_pool;
-	cpu->process = (CHIP_PROCESS_FUNC) cpu_6502_process;
-	cpu->destroy = (CHIP_DESTROY_FUNC) cpu_6502_destroy;
+	CHIP_SET_FUNCTIONS(cpu, cpu_6502_process, cpu_6502_destroy, cpu_6502_register_dependencies);
 	cpu->override_next_instruction_address = (CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS) cpu_6502_override_next_instruction_address;
 	cpu->is_at_start_of_instruction = (CPU_IS_AT_START_OF_INSTRUCTION) cpu_6502_at_start_of_instruction;
 	cpu->irq_is_asserted = (CPU_IRQ_IS_ASSERTED) cpu_6502_irq_is_asserted;
@@ -2164,6 +2164,12 @@ Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals) {
 	priv->override_pc = 0;
 
 	return cpu;
+}
+
+void cpu_6502_register_dependencies(Cpu6502 *cpu) {
+	assert(cpu);
+	signal_add_dependency(cpu->signal_pool, SIGNAL(clock), cpu->id);
+	signal_add_dependency(cpu->signal_pool, SIGNAL(reset_b), cpu->id);
 }
 
 void cpu_6502_destroy(Cpu6502 *cpu) {
@@ -2209,21 +2215,22 @@ void cpu_6502_process(Cpu6502 *cpu) {
 	}
 
 	// normal processing
-	if (SIGNAL_BOOL(clock) == false) {
-		// a negative going clock ends the previous cycle and starts a new cycle
-		if (priv->decode_cycle >= 0 && !priv->delayed_cycle) {
-			cpu_6502_execute_phase(cpu, CYCLE_END);
-		}
+	bool clock = SIGNAL_BOOL(clock);
 
-		if (priv->delayed_cycle) {
-			++priv->decode_cycle;
-			cpu_6502_execute_phase(cpu, CYCLE_BEGIN);
-		}
-	} else {
+	if (priv->delayed_cycle) {
+		priv->delayed_cycle = false;
+		++priv->decode_cycle;
+		cpu_6502_execute_phase(cpu, CYCLE_BEGIN);
+	} else if (clock && !priv->prev_clock) {
 		// a positive going clock marks the halfway point of the cycle
-		if (!priv->delayed_cycle) {
-			cpu_6502_execute_phase(cpu, CYCLE_MIDDLE);
-		}
+		cpu_6502_execute_phase(cpu, CYCLE_MIDDLE);
+	} else if (!clock && priv->prev_clock) {
+		// a negative going clock ends the previous cycle and starts a new cycle
+		cpu_6502_execute_phase(cpu, CYCLE_END);
+
+		// ask to be woken up next timestep to process the delayed part of the negative edge
+		priv->delayed_cycle = true;
+		cpu->schedule_timestamp = cpu->signal_pool->current_tick + 1;
 	}
 
 	process_end(cpu);
