@@ -55,9 +55,15 @@
 #define ACTHI_DEASSERT false
 
 // time
+#define S_TO_PS(t)  ((t) * 1000000000000ll)		// second to picosecond
 #define MS_TO_PS(t) ((t) * 1000000000ll)		// millisecond to picosecond
 #define US_TO_PS(t) ((t) * 1000000ll)			// microsecond to picosecond
 #define NS_TO_PS(t) ((t) * 1000ll)				// nanosecond to picosecond
+
+#define PS_TO_NS(t) ((t) / 1000ll)
+#define PS_TO_US(t) ((t) / 1000000ll)
+#define PS_TO_MS(t) ((t) / 1000000000ll)
+#define PS_TO_S(t)  ((t) / 1000000000000ll)
 
 #define FREQUENCY_TO_PS(f)	(1000000000000ll / (f)) // frequency (in hertz) to interval in picoseconds
 

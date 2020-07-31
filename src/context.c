@@ -15,6 +15,10 @@
 
 #include "cpu.h"
 #include "device.h"
+#include "stopwatch.h"
+
+#define SYNC_TICK_INTERVAL		1000			/* sync sim & real-time at this interval */
+#define SYNC_MIN_DIFF_PS		MS_TO_PS(20)	/* required skew betweem sim & real-time before sleep */
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -36,6 +40,9 @@ typedef struct DmsContext {
 	int64_t *		breakpoints;
 	Signal *		signal_breakpoints;
 	bool			break_on_irq;
+
+	Stopwatch *		stopwatch;
+	int64_t			tick_start_run;
 
 #ifndef DMS_NO_THREADING
 	thread_t		thread;
@@ -82,8 +89,14 @@ static inline bool signal_breakpoint_triggered(DmsContext *dms) {
 static bool context_execute(DmsContext *dms) {
 
 	Cpu *cpu = dms->device->get_cpu(dms->device);
+	int64_t tick_max = dms->device->signal_pool->current_tick + SYNC_TICK_INTERVAL;
 
-	while (dms->state != DS_WAIT) {
+	while (dms->state != DS_WAIT && dms->device->signal_pool->current_tick < tick_max) {
+
+		if (dms->state == DS_RUN && !dms->stopwatch->running) {
+			stopwatch_start(dms->stopwatch);
+			dms->tick_start_run = dms->device->signal_pool->current_tick;
+		}
 
 		bool prev_sync = cpu->is_at_start_of_instruction(cpu);
 		bool prev_irq = cpu->irq_is_asserted(cpu);
@@ -120,6 +133,20 @@ static bool context_execute(DmsContext *dms) {
 				return false;
 			case DS_WAIT:
 				break;
+		}
+	}
+
+	if (dms->state == DS_WAIT) {
+		stopwatch_stop(dms->stopwatch);
+	}
+
+	// sync simulation time with realtime
+	if (dms->state == DS_RUN) {
+		int64_t real_ps = stopwatch_time_elapsed_ps(dms->stopwatch);
+		int64_t sim_ps  = (dms->device->signal_pool->current_tick - dms->tick_start_run) * dms->device->signal_pool->tick_duration_ps;
+
+		if (sim_ps > real_ps + SYNC_MIN_DIFF_PS) {
+			stopwatch_sleep(sim_ps - real_ps);
 		}
 	}
 
@@ -176,11 +203,13 @@ DmsContext *dms_create_context(void) {
 	ctx->signal_breakpoints = NULL;
 	ctx->break_on_irq = false;
 	ctx->state = DS_WAIT;
+	ctx->stopwatch = stopwatch_create();
 	return ctx;
 }
 
 void dms_release_context(DmsContext *dms) {
 	assert(dms);
+	stopwatch_destroy(dms->stopwatch);
 	free(dms);
 }
 
