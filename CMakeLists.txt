@@ -144,6 +144,8 @@ target_sources(${LIB_TARGET}
 		src/rom_8d_16a.h
 		src/signal_line.c
 		src/signal_line.h
+		src/stopwatch.c
+		src/stopwatch.h
 		src/utils.c
 		src/utils.h
 )
