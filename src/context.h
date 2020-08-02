@@ -33,6 +33,9 @@ void dms_run(struct DmsContext *dms);
 void dms_pause(struct DmsContext *dms);
 void dms_reset(struct DmsContext *dms);
 
+void dms_change_simulation_speed_ratio(struct DmsContext *dms, double ratio);
+double dms_simulation_speed_ratio(struct DmsContext *dms);
+
 void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply);
 
 #ifdef __cplusplus

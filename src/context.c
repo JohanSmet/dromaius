@@ -43,6 +43,8 @@ typedef struct DmsContext {
 
 	Stopwatch *		stopwatch;
 	int64_t			tick_start_run;
+	int64_t			actual_sim_real_ratio;		// (4 decimal places)
+	int64_t			target_sim_real_ratio;		// (4 decimal places)
 
 #ifndef DMS_NO_THREADING
 	thread_t		thread;
@@ -55,6 +57,14 @@ typedef struct DmsContext {
 //
 // internal functions
 //
+
+#ifndef DMS_NO_THREADING
+	#define MUTEX_LOCK(dms)		mutex_lock(&(dms)->mtx_wait)
+	#define MUTEX_UNLOCK(dms)	mutex_unlock(&(dms)->mtx_wait)
+#else
+	#define MUTEX_LOCK(dms)
+	#define MUTEX_UNLOCK(dms)
+#endif
 
 static inline int breakpoint_index(DmsContext *dms, int64_t addr) {
 	for (int i = 0; i < arrlen(dms->breakpoints); ++i) {
@@ -84,6 +94,24 @@ static inline bool signal_breakpoint_triggered(DmsContext *dms) {
 	}
 
 	return false;
+}
+
+static inline void sync_simulation_with_real_time(DmsContext *dms) {
+	// sync simulation time with realtime
+	if (dms->state != DS_RUN) {
+		return;
+	}
+
+	int64_t real_ps = stopwatch_time_elapsed_ps(dms->stopwatch);
+	int64_t sim_ps  = (dms->device->signal_pool->current_tick - dms->tick_start_run) * dms->device->signal_pool->tick_duration_ps;
+
+	dms->actual_sim_real_ratio = (sim_ps * 10000) / real_ps;
+
+	int64_t delta = ((sim_ps * 10000) / dms->target_sim_real_ratio) - real_ps;
+
+	if (delta > SYNC_MIN_DIFF_PS) {
+		stopwatch_sleep(delta);
+	}
 }
 
 static bool context_execute(DmsContext *dms) {
@@ -138,16 +166,7 @@ static bool context_execute(DmsContext *dms) {
 
 	if (dms->state == DS_WAIT) {
 		stopwatch_stop(dms->stopwatch);
-	}
-
-	// sync simulation time with realtime
-	if (dms->state == DS_RUN) {
-		int64_t real_ps = stopwatch_time_elapsed_ps(dms->stopwatch);
-		int64_t sim_ps  = (dms->device->signal_pool->current_tick - dms->tick_start_run) * dms->device->signal_pool->tick_duration_ps;
-
-		if (sim_ps > real_ps + SYNC_MIN_DIFF_PS) {
-			stopwatch_sleep(sim_ps - real_ps);
-		}
+		dms->actual_sim_real_ratio = 0;
 	}
 
 	return true;
@@ -170,6 +189,8 @@ static int context_background_thread(DmsContext *dms) {
 		keep_running = context_execute(dms);
 
 		mutex_unlock(&dms->mtx_wait);
+
+		sync_simulation_with_real_time(dms);
 	}
 
 	return 0;
@@ -204,6 +225,7 @@ DmsContext *dms_create_context(void) {
 	ctx->break_on_irq = false;
 	ctx->state = DS_WAIT;
 	ctx->stopwatch = stopwatch_create();
+	ctx->target_sim_real_ratio = 10000;
 	return ctx;
 }
 
@@ -290,6 +312,31 @@ void dms_reset(DmsContext *dms) {
 	change_state(dms, DS_RESET);
 }
 
+void dms_change_simulation_speed_ratio(DmsContext *dms, double ratio) {
+	assert(dms);
+
+	MUTEX_LOCK(dms);
+
+		dms->target_sim_real_ratio = (int64_t) (ratio * 10000);
+
+		if (dms->stopwatch->running) {
+			stopwatch_stop(dms->stopwatch);
+			stopwatch_start(dms->stopwatch);
+			dms->tick_start_run = dms->device->signal_pool->current_tick;
+		}
+
+	MUTEX_UNLOCK(dms);
+}
+
+double dms_simulation_speed_ratio(DmsContext *dms) {
+	assert(dms);
+
+	MUTEX_LOCK(dms);
+	int64_t ratio = dms->actual_sim_real_ratio;
+	MUTEX_UNLOCK(dms);
+
+	return (double) ratio / 10000.0;
+}
 
 bool dms_toggle_breakpoint(DmsContext *dms, int64_t addr) {
 	int idx = breakpoint_index(dms, addr);
