@@ -4,9 +4,11 @@
 
 #include "panel_control.h"
 #include "ui_context.h"
-#include "context.h"
 
-#include <imgui.h>
+#include "context.h"
+#include "chip_oscillator.h"
+
+#include "widgets.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -15,9 +17,15 @@
 
 class PanelControl : public Panel {
 public:
-	PanelControl(UIContext *ctx, ImVec2 pos) :
+	PanelControl(UIContext *ctx, ImVec2 pos, Oscillator *oscillator) :
 		Panel(ctx),
-		position(pos) {
+		position(pos),
+		oscillator(oscillator)	{
+		if (oscillator->frequency >= 1000000) {
+			ui_freq_unit_idx = 2;
+		} else if (oscillator->frequency >= 1000) {
+			ui_freq_unit_idx = 1;
+		}
 	}
 
 	void display() override {
@@ -50,16 +58,56 @@ public:
 				dms_reset(ui_context->dms_ctx);
 			}
 
+			ImGui::Spacing();
+			ImGui::Separator();
+
+			// real speed of simulation
+			double actual_ratio = dms_simulation_speed_ratio(ui_context->dms_ctx);
+			ui_frequency("Real frequency: ", (int64_t) ((double) oscillator->frequency * actual_ratio));
+
+			// target speed of simulation
+			int freq = (int) ((float) oscillator->frequency * speed_ratio);
+			int new_freq = freq / FREQUENCY_SCALE[ui_freq_unit_idx];
+
+			ImGui::SetNextItemWidth(160);
+			ImGui::DragInt("##freq", &new_freq, 1, 1, 2000);
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(48);
+			ImGui::Combo("Target", &ui_freq_unit_idx, FREQUENCY_UNITS, sizeof(FREQUENCY_UNITS) / sizeof(FREQUENCY_UNITS[0]));
+
+			new_freq *= FREQUENCY_SCALE[ui_freq_unit_idx];
+			if (new_freq != freq) {
+				speed_ratio = (float) new_freq / (float) oscillator->frequency;
+				dms_change_simulation_speed_ratio(ui_context->dms_ctx, speed_ratio);
+			}
+
 		ImGui::End();
+	}
+
+	void ui_frequency(const char *label, int64_t freq) {
+
+		if (freq > 1000000) {
+			ui_key_value(0, label, ImGuiEx::string_format("%3.f MHz", static_cast<float>(freq) / 1000000.0f).c_str(), 64);
+		} else if (freq > 1000) {
+			ui_key_value(0, label, ImGuiEx::string_format("%3.f KHz", static_cast<float>(freq) / 1000.0f).c_str(), 64);
+		} else {
+			ui_key_value(0, label, ImGuiEx::string_format("%ld Hz", freq).c_str(), 64);
+		}
 	}
 
 private:
 	ImVec2					position;
 	const ImVec2			size = {330, 0};
+	Oscillator *			oscillator;
+
+	int						ui_freq_unit_idx = 0;
+	static constexpr const char *FREQUENCY_UNITS[] = {"Hz", "KHz", "MHz"};
+	static constexpr int FREQUENCY_SCALE[] = {1, 1000, 1000000};
 
 	static constexpr const char *title = "Emulator Control";
+	float						speed_ratio = 1.0f;
 };
 
-Panel::uptr_t panel_control_create(UIContext *ctx, ImVec2 pos) {
-	return std::make_unique<PanelControl>(ctx, pos);
+Panel::uptr_t panel_control_create(UIContext *ctx, ImVec2 pos, Oscillator *oscillator) {
+	return std::make_unique<PanelControl>(ctx, pos, oscillator);
 }

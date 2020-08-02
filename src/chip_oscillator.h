@@ -26,6 +26,7 @@ typedef struct Oscillator {
 	OscillatorSignals	signals;
 
 	// data
+	int64_t				frequency;
 	int64_t				half_period_ticks;
 	int64_t				tick_next_transition;
 } Oscillator;

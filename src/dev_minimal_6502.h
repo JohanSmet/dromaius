@@ -67,6 +67,7 @@ typedef struct DevMinimal6502 {
 	Chip6520 *		pia;
 	ChipHd44780 *	lcd;
 	InputKeypad *	keypad;
+	struct Oscillator *oscillator;
 
 	bool			in_reset;
 

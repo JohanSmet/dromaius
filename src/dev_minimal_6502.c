@@ -144,9 +144,10 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	REGISTER_CHIP(device->cpu);
 
 	// oscillator
-	REGISTER_CHIP(oscillator_create(10000, device->signal_pool, (OscillatorSignals) {
+	device->oscillator = oscillator_create(10000, device->signal_pool, (OscillatorSignals) {
 											.clk_out = SIGNAL(clock)
-	}));
+	});
+	REGISTER_CHIP(device->oscillator);
 
 	// power-on-reset
 	REGISTER_CHIP(poweronreset_create(1000000, device->signal_pool, (PowerOnResetSignals) {

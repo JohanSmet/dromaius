@@ -85,7 +85,7 @@ Device *WindowMain::create_minimal_6502() {
 	dms_set_device(ui_context.dms_ctx, (Device *) device);
 
 	// create UI panels
-	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}));
+	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}, device->oscillator));
 
 	//ui_context.panel_add(
 			//panel_clock_create(&ui_context, {0, 310}, device->clock));
@@ -108,7 +108,7 @@ Device *WindowMain::create_commodore_pet() {
 	dms_set_device(ui_context.dms_ctx, (Device *) device);
 
 	// create UI panels
-	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}));
+	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}, NULL));
 
 	ui_context.panel_add(
 			panel_clock_create(&ui_context, {0, 430}, device->clock));
