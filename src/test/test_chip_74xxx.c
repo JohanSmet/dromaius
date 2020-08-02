@@ -30,14 +30,13 @@ static MunitResult test_7400_nand(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(b3, truth_table[(i+2)%4][1]);
 		SIGNAL_SET_BOOL(a4, truth_table[(i+3)%4][0]);
 		SIGNAL_SET_BOOL(b4, truth_table[(i+3)%4][1]);
+		signal_pool_cycle(chip->signal_pool);
 		chip_7400_nand_process(chip);
 
 		munit_assert(SIGNAL_NEXT_BOOL(y1) == truth_table[(i+0)%4][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(y2) == truth_table[(i+1)%4][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(y3) == truth_table[(i+2)%4][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(y4) == truth_table[(i+3)%4][2]);
-
-		signal_pool_cycle(chip->signal_pool);
 	}
 
 	chip_7400_nand_destroy(chip);
@@ -313,7 +312,7 @@ static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *u
 		SIGNAL_SET_BOOL(b, BIT_IS_SET(input, 1));
 		SIGNAL_SET_BOOL(c, BIT_IS_SET(input, 2));
 		SIGNAL_SET_BOOL(d, BIT_IS_SET(input, 3));
-
+		signal_pool_cycle(chip->signal_pool);
 		chip_74145_bcd_decoder_process(chip);
 
 		munit_assert(SIGNAL_NEXT_BOOL(y0_b) == ((input == 0) ? ACTLO_ASSERT : ACTLO_DEASSERT));
@@ -358,6 +357,7 @@ static MunitResult test_74154_decoder(const MunitParameter params[], void *user_
 			SIGNAL_SET_BOOL(c, BIT_IS_SET(input, 2));
 			SIGNAL_SET_BOOL(d, BIT_IS_SET(input, 3));
 
+			signal_pool_cycle(chip->signal_pool);
 			chip_74154_decoder_process(chip);
 
 			bool strobed = !truth_table[i][0] && !truth_table[i][1];
@@ -377,8 +377,6 @@ static MunitResult test_74154_decoder(const MunitParameter params[], void *user_
 			munit_assert(SIGNAL_NEXT_BOOL(y13_b) == ((!strobed || input == 13) ? ACTLO_ASSERT : ACTLO_DEASSERT));
 			munit_assert(SIGNAL_NEXT_BOOL(y14_b) == ((!strobed || input == 14) ? ACTLO_ASSERT : ACTLO_DEASSERT));
 			munit_assert(SIGNAL_NEXT_BOOL(y15_b) == ((!strobed || input == 15) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-
-			signal_pool_cycle(chip->signal_pool);
 		}
 	}
 
@@ -691,6 +689,7 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 			SIGNAL_SET_BOOL(a23, BIT_IS_SET(input, 6));
 			SIGNAL_SET_BOOL(a24, BIT_IS_SET(input, 7));
 
+			signal_pool_cycle(chip->signal_pool);
 			chip_74244_octal_buffer_process(chip);
 
 			munit_assert(SIGNAL_NEXT_BOOL(y11) == (truth_table[i][0] ? false : BIT_IS_SET(input, 0)));
@@ -701,8 +700,6 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 			munit_assert(SIGNAL_NEXT_BOOL(y22) == (truth_table[i][1] ? false : BIT_IS_SET(input, 5)));
 			munit_assert(SIGNAL_NEXT_BOOL(y23) == (truth_table[i][1] ? false : BIT_IS_SET(input, 6)));
 			munit_assert(SIGNAL_NEXT_BOOL(y24) == (truth_table[i][1] ? false : BIT_IS_SET(input, 7)));
-
-			signal_pool_cycle(chip->signal_pool);
 		}
 	}
 
@@ -739,6 +736,7 @@ static MunitResult test_74373_latch(const MunitParameter params[], void *user_da
 		SIGNAL_SET_BOOL(d7, truth_table[line][8]);
 		SIGNAL_SET_BOOL(d8, truth_table[line][9]);
 
+		signal_pool_cycle(chip->signal_pool);
 		chip_74373_latch_process(chip);
 
 		munit_assert(SIGNAL_NEXT_BOOL(q1) == truth_table[line][10]);
@@ -749,8 +747,6 @@ static MunitResult test_74373_latch(const MunitParameter params[], void *user_da
 		munit_assert(SIGNAL_NEXT_BOOL(q6) == truth_table[line][15]);
 		munit_assert(SIGNAL_NEXT_BOOL(q7) == truth_table[line][16]);
 		munit_assert(SIGNAL_NEXT_BOOL(q8) == truth_table[line][17]);
-
-		signal_pool_cycle(chip->signal_pool);
 	}
 
 	chip_74373_latch_destroy(chip);

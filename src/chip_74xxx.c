@@ -62,10 +62,10 @@ void chip_7400_nand_destroy(Chip7400Nand *chip) {
 void chip_7400_nand_process(Chip7400Nand *chip) {
 	assert(chip);
 
-	SIGNAL_SET_BOOL(y1, !(SIGNAL_NEXT_BOOL(a1) && SIGNAL_NEXT_BOOL(b1)));
-	SIGNAL_SET_BOOL(y2, !(SIGNAL_NEXT_BOOL(a2) && SIGNAL_NEXT_BOOL(b2)));
-	SIGNAL_SET_BOOL(y3, !(SIGNAL_NEXT_BOOL(a3) && SIGNAL_NEXT_BOOL(b3)));
-	SIGNAL_SET_BOOL(y4, !(SIGNAL_NEXT_BOOL(a4) && SIGNAL_NEXT_BOOL(b4)));
+	SIGNAL_SET_BOOL(y1, !(SIGNAL_BOOL(a1) && SIGNAL_BOOL(b1)));
+	SIGNAL_SET_BOOL(y2, !(SIGNAL_BOOL(a2) && SIGNAL_BOOL(b2)));
+	SIGNAL_SET_BOOL(y3, !(SIGNAL_BOOL(a3) && SIGNAL_BOOL(b3)));
+	SIGNAL_SET_BOOL(y4, !(SIGNAL_BOOL(a4) && SIGNAL_BOOL(b4)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -380,10 +380,10 @@ void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, chip->id);
 	}
 
-	int value = SIGNAL_NEXT_BOOL(a) |
-				SIGNAL_NEXT_BOOL(b) << 1 |
-				SIGNAL_NEXT_BOOL(c) << 2 |
-				SIGNAL_NEXT_BOOL(d) << 3;
+	int value = SIGNAL_BOOL(a) |
+				SIGNAL_BOOL(b) << 1 |
+				SIGNAL_BOOL(c) << 2 |
+				SIGNAL_BOOL(d) << 3;
 
 	if (value < 10) {
 		signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT, chip->id);
@@ -463,7 +463,7 @@ void chip_74154_decoder_destroy(Chip74154Decoder *chip) {
 void chip_74154_decoder_process(Chip74154Decoder *chip) {
 	assert(chip);
 
-	if (!(ACTLO_ASSERTED(SIGNAL_NEXT_BOOL(g1_b)) && ACTLO_ASSERTED(SIGNAL_NEXT_BOOL(g2_b)))) {
+	if (!(ACTLO_ASSERTED(SIGNAL_BOOL(g1_b)) && ACTLO_ASSERTED(SIGNAL_BOOL(g2_b)))) {
 		return;
 	}
 
@@ -473,10 +473,10 @@ void chip_74154_decoder_process(Chip74154Decoder *chip) {
 		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, chip->id);
 	}
 
-	int value = SIGNAL_NEXT_BOOL(a) |
-				SIGNAL_NEXT_BOOL(b) << 1 |
-				SIGNAL_NEXT_BOOL(c) << 2 |
-				SIGNAL_NEXT_BOOL(d) << 3;
+	int value = SIGNAL_BOOL(a) |
+				SIGNAL_BOOL(b) << 1 |
+				SIGNAL_BOOL(c) << 2 |
+				SIGNAL_BOOL(d) << 3;
 	signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT, chip->id);
 }
 
@@ -828,11 +828,11 @@ void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip) {
 void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 	assert(chip);
 
-	if (!SIGNAL_NEXT_BOOL(g1_b)) {
-		SIGNAL_SET_BOOL(y11, SIGNAL_NEXT_BOOL(a11));
-		SIGNAL_SET_BOOL(y12, SIGNAL_NEXT_BOOL(a12));
-		SIGNAL_SET_BOOL(y13, SIGNAL_NEXT_BOOL(a13));
-		SIGNAL_SET_BOOL(y14, SIGNAL_NEXT_BOOL(a14));
+	if (!SIGNAL_BOOL(g1_b)) {
+		SIGNAL_SET_BOOL(y11, SIGNAL_BOOL(a11));
+		SIGNAL_SET_BOOL(y12, SIGNAL_BOOL(a12));
+		SIGNAL_SET_BOOL(y13, SIGNAL_BOOL(a13));
+		SIGNAL_SET_BOOL(y14, SIGNAL_BOOL(a14));
 	} else {
 		SIGNAL_NO_WRITE(y11);
 		SIGNAL_NO_WRITE(y12);
@@ -840,11 +840,11 @@ void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 		SIGNAL_NO_WRITE(y14);
 	}
 
-	if (!SIGNAL_NEXT_BOOL(g2_b)) {
-		SIGNAL_SET_BOOL(y21, SIGNAL_NEXT_BOOL(a21));
-		SIGNAL_SET_BOOL(y22, SIGNAL_NEXT_BOOL(a22));
-		SIGNAL_SET_BOOL(y23, SIGNAL_NEXT_BOOL(a23));
-		SIGNAL_SET_BOOL(y24, SIGNAL_NEXT_BOOL(a24));
+	if (!SIGNAL_BOOL(g2_b)) {
+		SIGNAL_SET_BOOL(y21, SIGNAL_BOOL(a21));
+		SIGNAL_SET_BOOL(y22, SIGNAL_BOOL(a22));
+		SIGNAL_SET_BOOL(y23, SIGNAL_BOOL(a23));
+		SIGNAL_SET_BOOL(y24, SIGNAL_BOOL(a24));
 	} else {
 		SIGNAL_NO_WRITE(y21);
 		SIGNAL_NO_WRITE(y22);
@@ -908,20 +908,20 @@ void chip_74373_latch_destroy(Chip74373Latch *chip) {
 }
 
 void chip_74373_latch_process(Chip74373Latch *chip) {
-	if (SIGNAL_NEXT_BOOL(c)) {
+	if (SIGNAL_BOOL(c)) {
 		chip->state = (uint8_t)	(
-				(SIGNAL_NEXT_BOOL(d1) << 0) |
-				(SIGNAL_NEXT_BOOL(d2) << 1) |
-				(SIGNAL_NEXT_BOOL(d3) << 2) |
-				(SIGNAL_NEXT_BOOL(d4) << 3) |
-				(SIGNAL_NEXT_BOOL(d5) << 4) |
-				(SIGNAL_NEXT_BOOL(d6) << 5) |
-				(SIGNAL_NEXT_BOOL(d7) << 6) |
-				(SIGNAL_NEXT_BOOL(d8) << 7)
+				(SIGNAL_BOOL(d1) << 0) |
+				(SIGNAL_BOOL(d2) << 1) |
+				(SIGNAL_BOOL(d3) << 2) |
+				(SIGNAL_BOOL(d4) << 3) |
+				(SIGNAL_BOOL(d5) << 4) |
+				(SIGNAL_BOOL(d6) << 5) |
+				(SIGNAL_BOOL(d7) << 6) |
+				(SIGNAL_BOOL(d8) << 7)
 		);
 	}
 
-	if (!SIGNAL_NEXT_BOOL(oc_b)) {
+	if (!SIGNAL_BOOL(oc_b)) {
 		SIGNAL_SET_BOOL(q1, (chip->state >> 0) & 0x01);
 		SIGNAL_SET_BOOL(q2, (chip->state >> 1) & 0x01);
 		SIGNAL_SET_BOOL(q3, (chip->state >> 2) & 0x01);
