@@ -55,7 +55,7 @@ static inline int64_t timestamp_current(void) {
 static inline void stopwatch_platform_sleep(int64_t interval_ps) {
 	struct timespec ts, rem;
 	ts.tv_sec = interval_ps / S_TO_PS(1);
-	ts.tv_nsec = (interval_ps - S_TO_PS(ts.tv_sec)) / 1000;
+	ts.tv_nsec = (long) ((interval_ps - S_TO_PS(ts.tv_sec)) / 1000);
 
 	int result = nanosleep(&ts, &rem);
 

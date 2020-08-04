@@ -270,6 +270,7 @@ void dms_stop_execution(DmsContext *dms) {
 
 void dms_execute(DmsContext *dms) {
 	context_execute(dms);
+	sync_simulation_with_real_time(dms);
 }
 
 #endif // DMS_NO_THREADING
