@@ -101,12 +101,12 @@ static MunitSuite extern_suites[] = {
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE
 	},
-//	{	.prefix = "/dev_commodore_pet",
-//		.tests = dev_commodore_pet_tests,
-//		.suites = NULL,
-//		.iterations = 1,
-//		.options = MUNIT_SUITE_OPTION_NONE
-//	},
+	{	.prefix = "/dev_commodore_pet",
+		.tests = dev_commodore_pet_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
 	{	.prefix = "/dev_minimal_6502",
 		.tests = dev_minimal_6502_tests,
 		.suites = NULL,

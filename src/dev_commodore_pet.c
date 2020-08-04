@@ -5,8 +5,11 @@
 #include "dev_commodore_pet.h"
 
 #include "utils.h"
+#include "chip.h"
 #include "chip_6520.h"
 #include "chip_6522.h"
+#include "chip_oscillator.h"
+#include "chip_poweronreset.h"
 #include "input_keypad.h"
 #include "display_rgba.h"
 #include "stb/stb_ds.h"
@@ -16,7 +19,304 @@
 
 #define SIGNAL_POOL			device->signal_pool
 #define SIGNAL_COLLECTION	device->signals
-#define SIGNAL_CHIP_ID		-1						// FIXME: need indicator for glue logic components?
+#define SIGNAL_CHIP_ID		chip->id
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// internal types / functions
+//
+
+typedef struct ChipGlueLogic {
+	CHIP_DECLARE_FUNCTIONS
+
+	DevCommodorePet *device;
+} ChipGlueLogic;
+
+static void glue_logic_destroy(ChipGlueLogic *chip);
+static void glue_logic_register_dependencies_01(ChipGlueLogic *chip);
+static void glue_logic_process_01(ChipGlueLogic *chip);
+static void glue_logic_register_dependencies_06(ChipGlueLogic *chip);
+static void glue_logic_process_06(ChipGlueLogic *chip);
+static void glue_logic_register_dependencies_07(ChipGlueLogic *chip);
+static void glue_logic_process_07(ChipGlueLogic *chip);
+static void glue_logic_register_dependencies_08(ChipGlueLogic *chip);
+static void glue_logic_process_08(ChipGlueLogic *chip);
+
+static ChipGlueLogic *glue_logic_create(DevCommodorePet *device, int sheet) {
+	ChipGlueLogic *chip = (ChipGlueLogic *) calloc(1, sizeof(ChipGlueLogic));
+	chip->device = device;
+
+	if (sheet == 1) {
+		CHIP_SET_FUNCTIONS(chip, glue_logic_process_01, glue_logic_destroy, glue_logic_register_dependencies_01);
+	} else if (sheet == 6) {
+		CHIP_SET_FUNCTIONS(chip, glue_logic_process_06, glue_logic_destroy, glue_logic_register_dependencies_06);
+	} else if (sheet == 7) {
+		CHIP_SET_FUNCTIONS(chip, glue_logic_process_07, glue_logic_destroy, glue_logic_register_dependencies_07);
+	} else if (sheet == 8) {
+		CHIP_SET_FUNCTIONS(chip, glue_logic_process_08, glue_logic_destroy, glue_logic_register_dependencies_08);
+	} else {
+		assert(false && "bad programmer!");
+	}
+
+	return chip;
+}
+
+static void glue_logic_destroy(ChipGlueLogic *chip) {
+	assert(chip);
+	free(chip);
+}
+
+// glue-logic: micro-processor / memory expansion
+
+static void glue_logic_register_dependencies_01(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	signal_add_dependency(device->signal_pool, SIGNAL(reset_b), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(sel8_b), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(sele_b), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba6), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba8), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba9), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba10), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba11), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba15), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(cpu_rw), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(clk1), chip->id);
+
+	signal_add_dependency(device->signal_pool, device->pia_1->signals.irqa_b, chip->id);
+	signal_add_dependency(device->signal_pool, device->pia_1->signals.irqb_b, chip->id);
+	signal_add_dependency(device->signal_pool, device->pia_2->signals.irqa_b, chip->id);
+	signal_add_dependency(device->signal_pool, device->pia_2->signals.irqb_b, chip->id);
+	signal_add_dependency(device->signal_pool, device->via->signals.irq_b, chip->id);
+}
+
+static void glue_logic_process_01(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	bool ba8 = SIGNAL_BOOL(ba8);
+	bool ba9 = SIGNAL_BOOL(ba9);
+	bool ba10 = SIGNAL_BOOL(ba10);
+	bool ba15 = SIGNAL_BOOL(ba15);
+	bool sel8_b = SIGNAL_BOOL(sel8_b);
+	bool rw   = SIGNAL_BOOL(cpu_rw);
+
+	// A3 (1, 2)
+	bool reset_b = SIGNAL_BOOL(reset_b);
+	SIGNAL_SET_BOOL(reset, !reset_b);
+
+	// A3 (11, 10)
+	bool sel8 = !sel8_b;
+	SIGNAL_SET_BOOL(sel8, sel8);
+
+	// A3 (3, 4)
+	bool ba11_b = !SIGNAL_BOOL(ba11);
+	SIGNAL_SET_BOOL(ba11_b, ba11_b);
+
+	// B2 (1,2,4,5,6)
+	bool x8xx = !(ba8 | ba9 | ba10 | ba11_b);
+	SIGNAL_SET_BOOL(x8xx, x8xx);
+
+	// A4 (4,5,6)
+	bool addr_88xx_b = !(sel8 && x8xx);
+	SIGNAL_SET_BOOL(s_88xx_b, addr_88xx_b);
+
+	// A4 (1,2,3)
+	bool rom_addr_b = !(ba15 && sel8_b);
+	SIGNAL_SET_BOOL(rom_addr_b, rom_addr_b);
+
+	// A5 (3,4,5,6)
+	bool ram_read_b = !(rom_addr_b && addr_88xx_b && rw);
+	SIGNAL_SET_BOOL(ram_read_b, ram_read_b);
+	SIGNAL_SET_BOOL(ram_write_b, !ram_read_b);
+
+	// A10 (3,4)
+	SIGNAL_SET_BOOL(buf_rw, rw);
+
+	// A3 (12,13)
+	SIGNAL_SET_BOOL(buf_rw_b, !rw);
+
+	// A3 (9,8)
+	SIGNAL_SET_BOOL(ram_rw, rw);
+
+	// FIXME: cpu doesn't output phi2 clock signal
+	bool phi2 = SIGNAL_BOOL(clk1);
+	SIGNAL_SET_BOOL(phi2, phi2);
+	SIGNAL_SET_BOOL(bphi2, phi2);
+	SIGNAL_SET_BOOL(cphi2, phi2);
+
+	// >> ram logic - simplified from schematic because were not simulating dram (4116 chips) yet.
+	//  - ce_b: assert when top bit of address isn't set (copy of ba15)
+	//	- oe_b: assert when cpu_rw is high
+	//	- we_b: assert when cpu_rw is low and clock is low
+	//	FIXME: move to its proper simulation function for the page of the schematic
+	SIGNAL_SET_BOOL(ram_oe_b, ram_read_b);
+	SIGNAL_SET_BOOL(ram_we_b, !ram_read_b || !SIGNAL_BOOL(clk1));
+
+	// >> video-ram logic - simplified
+	//	FIXME: move to its proper simulation function for the page of the schematic
+	SIGNAL_SET_BOOL(vram_oe_b, ram_read_b);
+
+	// >> rom logic: roms are enabled by the selx_b signals
+	//	- rom-E (editor) is special because it's only a 2k rom and it uses address line 11 as an extra enable to only
+	//	  respond in the lower 2k
+	//	- pin 18 on the 2k rom is actually cs2, not a11
+	//	FIXME: move to its proper simulation function for the page of the schematic
+	SIGNAL_SET_BOOL(rome_ce_b, SIGNAL_NEXT_BOOL(sele_b) || SIGNAL_BOOL(ba11));
+
+	// >> pia logic
+	bool cs1 = x8xx && SIGNAL_BOOL(ba6);
+	SIGNAL_SET_BOOL(cs1, cs1);
+
+	// >> irq logic: the 2001N wire-or's the irq lines of the chips and connects them to the cpu
+	//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
+	//		-> or the together explicitly
+	bool irq_b = signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqa_b) &&
+				 signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqb_b) &&
+				 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqa_b) &&
+				 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqb_b) &&
+				 signal_read_next_bool(device->signal_pool, device->via->signals.irq_b);
+	SIGNAL_SET_BOOL(irq_b, irq_b);
+}
+
+// glue-logic: master timing
+
+static void glue_logic_register_dependencies_06(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	signal_add_dependency(device->signal_pool, SIGNAL(bphi2a), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(bphi2b), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(bphi2f), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(bphi2g), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(bphi2h), chip->id);
+
+	signal_add_dependency(device->signal_pool, SIGNAL(ra1), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ra3), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ra4), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ra5), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ra6), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ra6_b), chip->id);
+}
+
+static void glue_logic_process_06(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	// H2 (1,2) + (3,4) + (11,10) + (13,12)
+	SIGNAL_SET_BOOL(bphi2a_b, !SIGNAL_BOOL(bphi2a));
+	SIGNAL_SET_BOOL(bphi2b_b, !SIGNAL_BOOL(bphi2b));
+	SIGNAL_SET_BOOL(bphi2f_b, !SIGNAL_BOOL(bphi2f));
+	SIGNAL_SET_BOOL(bphi2g_b, !SIGNAL_BOOL(bphi2g));
+
+	// F1 (8,9,10)
+	SIGNAL_SET_BOOL(ra1and3, SIGNAL_BOOL(ra1) & SIGNAL_BOOL(ra3));
+
+	// H10 (4,5,6)
+	SIGNAL_SET_BOOL(ra4and6, SIGNAL_BOOL(ra4) & SIGNAL_BOOL(ra6));
+
+	// H10 (1,2,3)
+	SIGNAL_SET_BOOL(ra5and6_b, SIGNAL_BOOL(ra5) & SIGNAL_BOOL(ra6_b));
+
+	// G1 (8,9,10)
+	bool video_latch = (!SIGNAL_BOOL(bphi2f) & SIGNAL_BOOL(bphi2h));
+	SIGNAL_SET_BOOL(video_latch, video_latch);
+}
+
+// glue-logic: display logic
+
+static void glue_logic_register_dependencies_07(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	signal_add_dependency(device->signal_pool, SIGNAL(buf_rw), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba11_b), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(bphi2), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ga6), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(lga3), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(lga6), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(lga7), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(lga8), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(lga9), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ra9), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(sel8), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(video_on), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(pullup_2), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(horz_disp_off), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(reload_b), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(next_b), chip->id);
+}
+
+static void glue_logic_process_07(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	bool buf_rw = SIGNAL_BOOL(buf_rw);
+
+	// >> F1 (4,5,6)
+	bool tv_sel = SIGNAL_BOOL(ba11_b) && SIGNAL_BOOL(sel8);
+	SIGNAL_SET_BOOL(tv_sel, tv_sel);
+
+	// >> A5 (8,9,10,11)
+	bool tv_read_b = !(true && buf_rw && tv_sel);
+	SIGNAL_SET_BOOL(tv_read_b, tv_read_b);
+
+	// >> A5 (1,2,12,13)
+	bool a5_12 = !(tv_sel && buf_rw && SIGNAL_BOOL(bphi2));
+	SIGNAL_SET_BOOL(a5_12, a5_12);
+
+	// >> I1 (5,6)
+	SIGNAL_SET_BOOL(video_on_b, !SIGNAL_BOOL(video_on));
+
+	// >> G2 (1,2,4,5,6)
+	bool lines_20_b = !(SIGNAL_BOOL(ga6) && SIGNAL_BOOL(pullup_2) && SIGNAL_BOOL(video_on_b) && SIGNAL_BOOL(ra9));
+	SIGNAL_SET_BOOL(lines_20_b, lines_20_b);
+
+	// >> G2 (8,9,10,12,13)
+	bool lga_hi_b = !(SIGNAL_BOOL(lga6) && SIGNAL_BOOL(lga7) && SIGNAL_BOOL(lga8) && SIGNAL_BOOL(lga9));
+	SIGNAL_SET_BOOL(lga_hi_b, lga_hi_b);
+
+	// >> I1 (8,9)
+	SIGNAL_SET_BOOL(lga_hi, !lga_hi_b);
+
+	// >> H5 (4,5,6)
+	bool lines_200_b = !(SIGNAL_BOOL(lga3) && SIGNAL_BOOL(lga_hi));
+	SIGNAL_SET_BOOL(lines_200_b, lines_200_b);
+
+	// >> H5 (8,9,10)
+	bool line_220 = !(lines_200_b && lines_20_b);
+	SIGNAL_SET_BOOL(line_220, line_220);
+
+	// >> G3 (1,2,3)
+	bool w220_off = line_220 && SIGNAL_BOOL(horz_disp_off);
+	SIGNAL_SET_BOOL(w220_off, w220_off);
+
+	// >> H5 (11,12,13)
+	bool reload_next = !(SIGNAL_BOOL(reload_b), SIGNAL_BOOL(next_b));
+	SIGNAL_SET_BOOL(reload_next, reload_next);
+}
+
+// glue-logic: display rams
+
+static void glue_logic_register_dependencies_08(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	signal_add_dependency(device->signal_pool, SIGNAL(horz_disp_on), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ra7), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ra8), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ra9), chip->id);
+}
+
+static void glue_logic_process_08(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	bool reload_b = !(SIGNAL_BOOL(horz_disp_on) && SIGNAL_BOOL(ra7) && SIGNAL_BOOL(ra8) && SIGNAL_BOOL(ra9));
+	SIGNAL_SET_BOOL(reload_b, reload_b);
+}
+
 
 static Rom8d16a *load_rom(DevCommodorePet *device, const char *filename, uint32_t num_lines, Signal rom_ce_b) {
 	Rom8d16a *rom = rom_8d16a_create(num_lines, device->signal_pool, (Rom8d16aSignals) {
@@ -46,21 +346,14 @@ static Rom8d16a *load_character_rom(DevCommodorePet *device, const char *filenam
 	return rom;
 }
 
-static inline void activate_reset(DevCommodorePet *device, bool reset) {
-	device->in_reset = reset;
-	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
-	SIGNAL_SET_BOOL(init_b, !device->in_reset);
-	SIGNAL_SET_BOOL(init, device->in_reset);
-}
+///////////////////////////////////////////////////////////////////////////////
+//
+// interface functions
+//
 
 Cpu6502* dev_commodore_pet_get_cpu(DevCommodorePet *device) {
 	assert(device);
 	return device->cpu;
-}
-
-Clock* dev_commodore_pet_get_clock(DevCommodorePet *device) {
-	assert(device);
-	return device->clock;
 }
 
 DevCommodorePet *dev_commodore_pet_create() {
@@ -68,13 +361,14 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	// interface
 	device->get_cpu = (DEVICE_GET_CPU) dev_commodore_pet_get_cpu;
-	device->get_clock = (DEVICE_GET_CLOCK) dev_commodore_pet_get_clock;
 	device->process = (DEVICE_PROCESS) dev_commodore_pet_process;
 	device->reset = (DEVICE_RESET) dev_commodore_pet_reset;
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
 
 	// signals
 	device->signal_pool = signal_pool_create(2);
+	device->signal_pool->tick_duration_ps = 6250;		// 6.25 ns - 160 Mhz
+	device->signal_pool->tick_duration_ps = 31250;
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_CLOCK);
 	SIGNAL_DEFINE_BOOL_N(init_b, 1, ACTLO_DEASSERT, "/INIT");
@@ -135,7 +429,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(g6_q_b, 1, "/G6Q");
 
 	SIGNAL_DEFINE_N(tv_ram_rw, 1, "TVRAMRW");
-	SIGNAL_DEFINE_N(tv_ram_rw_b, 1, "/TVRAMRW");
 	SIGNAL_DEFINE_N(f6_y3, 1, "F6Y3");
 	SIGNAL_DEFINE_N(bus_sa, 10, "SA%d");
 
@@ -176,7 +469,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
-	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_DEASSERT, "/RES");
+	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_ASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
 	SIGNAL_DEFINE_BOOL_N(nmi_b, 1, ACTLO_DEASSERT, "/NMI");
 
@@ -245,12 +538,16 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_CLOCK);
 
-	// clock
-	device->clock = clock_create(100000, device->signal_pool, (ClockSignals){
-										.clock = SIGNAL(clk16)
-	});
+	// sheet 06 - master timing
 
-	device->g5 = chip_74191_binary_counter_create(device->signal_pool, (Chip74191Signals) {
+	// >> y1 - oscillator
+	device->oscillator_y1 = oscillator_create(16000000, device->signal_pool, (OscillatorSignals) {
+										.clk_out = SIGNAL(clk16)
+	});
+	DEVICE_REGISTER_CHIP(device->oscillator_y1);
+
+	// >> g5 - binary counter
+	DEVICE_REGISTER_CHIP(chip_74191_binary_counter_create(device->signal_pool, (Chip74191Signals) {
 										.vcc = SIGNAL(high),			// pin 16
 										.gnd = SIGNAL(low),				// pin 08
 										.enable_b = SIGNAL(low),		// pin 04
@@ -259,7 +556,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.b = SIGNAL(low),				// pin 01
 										.c = SIGNAL(low),				// pin 10
 										.d = SIGNAL(low),				// pin 09
-										.load_b = SIGNAL(high),			// pin 11 - FIXME: should be connected to the /INIT signal
+										.load_b = SIGNAL(init_b),		// pin 11
 										.clk = SIGNAL(clk16),			// pin 14
 										.qa = SIGNAL(clk8),				// pin 03
 										.qb = SIGNAL(clk4),				// pin 02
@@ -267,9 +564,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qd = SIGNAL(clk1),				// pin 07
 								//		.max_min = not connected        // pin 12
 								//		.rco_b = not connected          // pin 13
-	});
+	}));
 
-	device->h3 = chip_74164_shift_register_create(device->signal_pool, (Chip74164Signals) {
+	// >> h3 - 8-bit shift register
+	DEVICE_REGISTER_CHIP(chip_74164_shift_register_create(device->signal_pool, (Chip74164Signals) {
 										.a = SIGNAL(clk1),				// pin 01
 										.b = SIGNAL(high),				// pin 02
 										.clk = SIGNAL(clk16),			// pin 08
@@ -284,9 +582,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qh = SIGNAL(bphi2h),			// pin 13
 										.gnd = SIGNAL(low),				// pin 07
 										.vcc = SIGNAL(high)				// pin 14
-	});
+	}));
 
-	device->h6 = chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
+	// >> h6 - JK flip-flop
+	DEVICE_REGISTER_CHIP(chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -303,9 +602,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.k2 = SIGNAL(init_b),			// pin 11
 										.q2 = SIGNAL(ra6),				// pin 5
 										.q2_b = SIGNAL(ra6_b)			// pin 6
-	});
+	}));
 
-	device->h9 = chip_7493_binary_counter_create(device->signal_pool, (Chip7493Signals) {
+	// >> h9 - binary counter
+	DEVICE_REGISTER_CHIP(chip_7493_binary_counter_create(device->signal_pool, (Chip7493Signals) {
 										.gnd = SIGNAL(low),				// pin 10
 										.vcc = SIGNAL(high),			// pin 5
 										.a_b = SIGNAL(ra1),				// pin 14
@@ -316,9 +616,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qb = SIGNAL(ra3),				// pin 9
 										.qc = SIGNAL(ra4),				// pin 8
 										.qd = SIGNAL(ra5),				// pin 11
-	});
+	}));
 
-	device->g9 = chip_7474_d_flipflop_create(device->signal_pool, (Chip7474Signals) {
+	// >> g9 - d flip-flop
+	DEVICE_REGISTER_CHIP(chip_7474_d_flipflop_create(device->signal_pool, (Chip7474Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -335,9 +636,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										// .clk2 = not used,			// pin 11
 										// .d2 = not used,				// pin 12
 										// .clr2_b = not used,			// pin 13
-	});
+	}));
 
-	device->h7 = chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
+	// >> h7 - JK flip-flop
+	DEVICE_REGISTER_CHIP(chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -354,9 +656,12 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.k2 = SIGNAL(ra5and6_b),		// pin 11
 										.q2 = SIGNAL(horz_disp_on),		// pin 5
 										.q2_b = SIGNAL(horz_disp_off)	// pin 6
-	});
+	}));
 
-	device->g6 = chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
+	// sheet 07 - display logic components
+
+	// >> g6 - JK flip-flop
+	DEVICE_REGISTER_CHIP(chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -366,9 +671,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.k1 = SIGNAL(init_b),			// pin 4
 										.q1 = SIGNAL(g6_q),				// pin 3
 										.q1_b = SIGNAL(g6_q_b),			// pin 2
-	});
+	}));
 
-	device->f6 = chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
+	// >> f6 - quad 2-to-1 multiplexer
+	DEVICE_REGISTER_CHIP(chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
 										.gnd = SIGNAL(low),				// pin 8
 										.vcc = SIGNAL(high),			// pin 16
 
@@ -388,9 +694,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.zd = SIGNAL(f6_y3),						// pin 09
 										.zc = signal_split(SIGNAL(bus_sa), 0, 1),	// pin 12
 										.za = signal_split(SIGNAL(bus_sa), 1, 1)	// pin 04
-	});
+	}));
 
-	device->f5 = chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
+	// >> f5 - quad 2-to-1 multiplexer
+	DEVICE_REGISTER_CHIP(chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
 										.gnd = SIGNAL(low),				// pin 8
 										.vcc = SIGNAL(high),			// pin 16
 
@@ -410,9 +717,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.zb = signal_split(SIGNAL(bus_sa), 3, 1),	// pin 07
 										.zc = signal_split(SIGNAL(bus_sa), 4, 1),	// pin 12
 										.za = signal_split(SIGNAL(bus_sa), 5, 1)	// pin 04
-	});
+	}));
 
-	device->f3 = chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
+	// >> f3 - quad 2-to-1 multiplexer
+	DEVICE_REGISTER_CHIP(chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
 										.gnd = SIGNAL(low),				// pin 8
 										.vcc = SIGNAL(high),			// pin 16
 
@@ -432,9 +740,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.zc = signal_split(SIGNAL(bus_sa), 7, 1),	// pin 12
 										.zb = signal_split(SIGNAL(bus_sa), 8, 1),	// pin 07
 										.zd = signal_split(SIGNAL(bus_sa), 9, 1)	// pin 09
-	});
+	}));
 
-	device->f4 = chip_74177_binary_counter_create(device->signal_pool, (Chip74177Signals) {
+	// >> f4 - binary counter
+	DEVICE_REGISTER_CHIP(chip_74177_binary_counter_create(device->signal_pool, (Chip74177Signals) {
 										.gnd = SIGNAL(low),					// pin 07
 										.vcc = SIGNAL(high),				// pin 14
 
@@ -451,9 +760,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qb = SIGNAL(ga3),					// pin 09
 										.qc = SIGNAL(ga4),					// pin 02
 										.qd = SIGNAL(ga5)					// pin 12
-	});
+	}));
 
-	device->f2 = chip_74177_binary_counter_create(device->signal_pool, (Chip74177Signals) {
+	// >> f2 - binary counter
+	DEVICE_REGISTER_CHIP(chip_74177_binary_counter_create(device->signal_pool, (Chip74177Signals) {
 										.gnd = SIGNAL(low),					// pin 07
 										.vcc = SIGNAL(high),				// pin 14
 
@@ -470,9 +780,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qb = SIGNAL(ga7),					// pin 09
 										.qc = SIGNAL(ga8),					// pin 02
 										.qd = SIGNAL(ga9)					// pin 12
-	});
+	}));
 
-	device->g3 = chip_74373_latch_create(device->signal_pool, (Chip74373Signals) {
+	// >> g3 - 8-bit latch
+	DEVICE_REGISTER_CHIP(chip_74373_latch_create(device->signal_pool, (Chip74373Signals) {
 										.gnd = SIGNAL(low),			// pin 10
 										.vcc = SIGNAL(high),		// pin 20
 
@@ -496,9 +807,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.q3 = SIGNAL(lga7),			// pin 06
 										.q1 = SIGNAL(lga8),			// pin 02
 										.q4 = SIGNAL(lga9)			// pin 09
-	});
+	}));
 
-	device->g8 = chip_7474_d_flipflop_create(device->signal_pool, (Chip7474Signals) {
+	// >> g8 - d flip-flop
+	DEVICE_REGISTER_CHIP(chip_7474_d_flipflop_create(device->signal_pool, (Chip7474Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -515,9 +827,12 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.clr2_b = SIGNAL(bphi2h),		// pin 13
 										.q2 = SIGNAL(next),				// pin 9
 										.q2_b = SIGNAL(next_b)			// pin 8
-	});
+	}));
 
-	device->h11 = chip_7493_binary_counter_create(device->signal_pool, (Chip7493Signals) {
+	// display rams components
+
+	// >> h11 - binary counter
+	DEVICE_REGISTER_CHIP(chip_7493_binary_counter_create(device->signal_pool, (Chip7493Signals) {
 										.gnd = SIGNAL(low),				// pin 10
 										.vcc = SIGNAL(high),			// pin 5
 
@@ -529,10 +844,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qb = SIGNAL(ra7),				// pin 9
 										.qc = SIGNAL(ra8),				// pin 8
 										.qd = SIGNAL(ra9),				// pin 11
-	});
+	}));
 
-	// display rams components
-	device->e8 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+	// >> e8 - octal buffer
+	DEVICE_REGISTER_CHIP(chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
 										.g2_b = SIGNAL(tv_ram_rw),						// 19
 										.g1_b = SIGNAL(tv_read_b),						// 01
 
@@ -553,9 +868,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.a22  = signal_split(SIGNAL(bus_bd), 2, 1),		// 13
 										.y14  = signal_split(SIGNAL(bus_bd), 3, 1),		// 12
 										.a21  = signal_split(SIGNAL(bus_bd), 3, 1)		// 11
-	});
+	}));
 
-	device->e7 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+	// >> e7 - octal buffer
+	DEVICE_REGISTER_CHIP(chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
 										.g2_b = SIGNAL(tv_ram_rw),						// 19
 										.g1_b = SIGNAL(tv_read_b),						// 01
 
@@ -576,9 +892,12 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.a22  = signal_split(SIGNAL(bus_bd), 6, 1),		// 13
 										.y14  = signal_split(SIGNAL(bus_bd), 7, 1),		// 12
 										.a21  = signal_split(SIGNAL(bus_bd), 7, 1)		// 11
-	});
+	}));
 
-	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
+	// power-on-reset
+	DEVICE_REGISTER_CHIP(poweronreset_create(1000000, device->signal_pool, (PowerOnResetSignals) {
+											.reset_b = SIGNAL(reset_b)
+	}));
 
 	// cpu
 	device->cpu = cpu_6502_create(device->signal_pool, (Cpu6502Signals) {
@@ -592,6 +911,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.sync = SIGNAL(cpu_sync),
 										.rdy = SIGNAL(cpu_rdy)
 	});
+	DEVICE_REGISTER_CHIP(device->cpu);
 
 	// ram
 	device->ram = ram_8d16a_create(15, device->signal_pool, (Ram8d16aSignals) {
@@ -599,6 +919,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.bus_data = SIGNAL(bus_bd),
 										.ce_b = SIGNAL(ba15)
 	});
+	DEVICE_REGISTER_CHIP(device->ram);
 
 	SIGNAL(ram_oe_b) = device->ram->signals.oe_b;
 	SIGNAL(ram_we_b) = device->ram->signals.we_b;
@@ -610,6 +931,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.ce_b = SIGNAL(sel8_b),
 										.we_b = SIGNAL(ram_we_b)
 	});
+	DEVICE_REGISTER_CHIP(device->vram);
 
 	SIGNAL(vram_oe_b) = device->vram->signals.oe_b;
 
@@ -623,10 +945,12 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	for (int i = 0; i < rom_count; ++i) {
 		assert(device->roms[i]);
+		DEVICE_REGISTER_CHIP(device->roms[i]);
 	}
 
 	device->char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin", 11);
 	assert(device->char_rom);
+	DEVICE_REGISTER_CHIP(device->char_rom);
 
 	SIGNAL(rome_ce_b) = device->roms[3]->signals.ce_b;
 
@@ -642,6 +966,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
 	});
+	DEVICE_REGISTER_CHIP(device->pia_1);
 
 	// pia 2 (C7 - keyboard)
 	device->pia_2 = chip_6520_create(device->signal_pool, (Chip6520Signals) {
@@ -656,6 +981,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
 										.cb1 = SIGNAL(video_on)
 	});
+	DEVICE_REGISTER_CHIP(device->pia_2);
+
 	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_a, 0xff);			// temporary until keyboard connected
 	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_b, 0xff);			// pull-up resistors R18-R25
 
@@ -663,6 +990,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->keypad = input_keypad_create(device->signal_pool, false, 10, 8, 500, 100, (InputKeypadSignals) {
 										.cols = device->pia_2->signals.port_b
 	});
+	DEVICE_REGISTER_CHIP(device->keypad);
 
 	// via (C5)
 	device->via = chip_6522_create(device->signal_pool, (Chip6522Signals) {
@@ -677,12 +1005,15 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.rs2 = signal_split(SIGNAL(bus_ba), 2, 1),
 										.rs3 = signal_split(SIGNAL(bus_ba), 3, 1),
 	});
+	DEVICE_REGISTER_CHIP(device->via);
 
 	// display
 	device->display = display_rgba_create(40 * 8, 25 * 8);
 
 	// glue logic
-	device->c3 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+
+	// >> c3 - octal buffer
+	DEVICE_REGISTER_CHIP(chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
 										.g1_b = SIGNAL(low),									// 01
 										.g2_b = SIGNAL(low),									// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_address), 0, 1),	// 02
@@ -702,9 +1033,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.y14  = signal_split(SIGNAL(bus_ba), 6, 1),				// 12
 										.y21  = signal_split(SIGNAL(bus_ba), 7, 1),				// 09
 
-	});
+	}));
 
-	device->b3 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+	// >> b3 - octal buffer
+	DEVICE_REGISTER_CHIP(chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
 										.g1_b = SIGNAL(low),									// 01
 										.g2_b = SIGNAL(low),									// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_address), 8, 1),	// 02
@@ -724,9 +1056,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.y14  = signal_split(SIGNAL(bus_ba), 14, 1),			// 12
 										.y21  = signal_split(SIGNAL(bus_ba), 15, 1),			// 09
 
-	});
+	}));
 
-	device->d2 = chip_74154_decoder_create(device->signal_pool, (Chip74154Signals) {
+	// >> d2 - 4-to-16 decoder
+	DEVICE_REGISTER_CHIP(chip_74154_decoder_create(device->signal_pool, (Chip74154Signals) {
 										.g1_b = SIGNAL(low),
 										.g2_b = SIGNAL(low),
 										.a  = signal_split(SIGNAL(bus_ba), 12, 1),
@@ -747,9 +1080,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.y13_b = SIGNAL(seld_b),
 										.y14_b = SIGNAL(sele_b),
 										.y15_b = SIGNAL(self_b),
-	});
+	}));
 
-	device->e9 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+	// >> e9 - octal buffer
+	DEVICE_REGISTER_CHIP(chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
 										.g1_b = SIGNAL(ram_write_b),							// 01
 										.g2_b = SIGNAL(ram_read_b),								// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 02
@@ -769,9 +1103,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.a22  = signal_split(SIGNAL(bus_bd), 2, 1),				// 13
 										.y14  = signal_split(SIGNAL(bus_bd), 3, 1),				// 12
 										.a21  = signal_split(SIGNAL(bus_bd), 3, 1)				// 11
-	});
+	}));
 
-	device->e10 = chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+	// >> e10 - octal buffer
+	DEVICE_REGISTER_CHIP(chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
 										.g1_b = SIGNAL(ram_write_b),							// 01
 										.g2_b = SIGNAL(ram_read_b),								// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 02
@@ -791,9 +1126,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.a22  = signal_split(SIGNAL(bus_bd), 6, 1),				// 13
 										.y14  = signal_split(SIGNAL(bus_bd), 7, 1),				// 12
 										.a21  = signal_split(SIGNAL(bus_bd), 7, 1)				// 11
-	});
+	}));
 
-	device->c9 = chip_74145_bcd_decoder_create(device->signal_pool, (Chip74145Signals) {
+	// >> c9 - bcd decoder
+	DEVICE_REGISTER_CHIP(chip_74145_bcd_decoder_create(device->signal_pool, (Chip74145Signals) {
 										.a = signal_split(device->pia_2->signals.port_a, 0, 1),
 										.b = signal_split(device->pia_2->signals.port_a, 1, 1),
 										.c = signal_split(device->pia_2->signals.port_a, 2, 1),
@@ -808,10 +1144,18 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.y7_b = signal_split(device->keypad->signals.rows, 7, 1),
 										.y8_b = signal_split(device->keypad->signals.rows, 8, 1),
 										.y9_b = signal_split(device->keypad->signals.rows, 9, 1)
-	});
+	}));
 
-	// power on reset
-	dev_commodore_pet_reset(device);
+	// custom chips for the glue logic
+	DEVICE_REGISTER_CHIP(glue_logic_create(device, 1));
+	DEVICE_REGISTER_CHIP(glue_logic_create(device, 6));
+	DEVICE_REGISTER_CHIP(glue_logic_create(device, 7));
+	DEVICE_REGISTER_CHIP(glue_logic_create(device, 8));
+
+	// register dependencies
+	for (int32_t id = 0; id < arrlen(device->chips); ++id) {
+		device->chips[id]->register_dependencies(device->chips[id]);
+	}
 
 	return device;
 }
@@ -819,49 +1163,29 @@ DevCommodorePet *dev_commodore_pet_create() {
 void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	assert(device);
 
-	clock_destroy(device->clock);
-	cpu_6502_destroy(device->cpu);
-	ram_8d16a_destroy(device->ram);
-	ram_8d16a_destroy(device->vram);
-	chip_6520_destroy(device->pia_1);
-	chip_6520_destroy(device->pia_2);
-	chip_6522_destroy(device->via);
-	display_rgba_destroy(device->display);
-
-	for (int i = 0; device->roms[i] != NULL; ++i) {
-		rom_8d16a_destroy(device->roms[i]);
+	for (size_t i = 0; i < arrlenu(device->chips); ++i) {
+		device->chips[i]->destroy(device->chips[i]);
 	}
 
-	chip_74191_binary_counter_destroy(device->g5);
-	chip_74164_shift_register_destroy(device->h3);
-	chip_74107_jk_flipflop_destroy(device->h6);
-	chip_7493_binary_counter_destroy(device->h9);
-	chip_7474_d_flipflop_destroy(device->g9);
-	chip_74107_jk_flipflop_destroy(device->h7);
-
-	chip_74107_jk_flipflop_destroy(device->g6);
-	chip_74157_multiplexer_destroy(device->f6);
-	chip_74157_multiplexer_destroy(device->f5);
-	chip_74157_multiplexer_destroy(device->f3);
-	chip_74177_binary_counter_destroy(device->f4);
-	chip_74177_binary_counter_destroy(device->f2);
-	chip_74373_latch_destroy(device->g3);
-	chip_7474_d_flipflop_destroy(device->g8);
-
-	chip_7493_binary_counter_destroy(device->h11);
-	chip_74244_octal_buffer_destroy(device->e8);
-	chip_74244_octal_buffer_destroy(device->e7);
-
-	chip_74244_octal_buffer_destroy(device->c3);
-	chip_74244_octal_buffer_destroy(device->b3);
-	chip_74244_octal_buffer_destroy(device->e9);
-	chip_74244_octal_buffer_destroy(device->e10);
-	chip_74154_decoder_destroy(device->d2);
 	free(device);
 }
 
-#define NAND(a,b)	(!((a)&&(b)))
-#define NOR(a,b)	(!((a)||(b)))
+void dev_commodore_pet_process(DevCommodorePet *device) {
+	assert(device);
+	device_simulate_timestep((Device *) device);
+}
+
+void dev_commodore_pet_process_clk1(DevCommodorePet *device) {
+	bool prev_clk1 = SIGNAL_BOOL(clk1);
+	do {
+		device->process(device);
+	} while (prev_clk1 == SIGNAL_BOOL(clk1));
+}
+
+void dev_commodore_pet_reset(DevCommodorePet *device) {
+	assert(device);
+	(void) device;
+}
 
 void dev_commodore_pet_fake_display(DevCommodorePet *device) {
 // 'fake' display routine to test read from character rom + write to display before properly simulating all electronics required.
@@ -895,332 +1219,6 @@ void dev_commodore_pet_fake_display(DevCommodorePet *device) {
 			}
 		}
 	}
-}
-
-static inline void process_glue_logic(DevCommodorePet *device, bool video_on) {
-
-	// >> cpu & memory expansion
-	chip_74244_octal_buffer_process(device->c3);
-	chip_74244_octal_buffer_process(device->b3);
-	chip_74154_decoder_process(device->d2);
-
-	bool ba6 = SIGNAL_NEXT_BOOL(ba6);
-	bool ba8 = SIGNAL_NEXT_BOOL(ba8);
-	bool ba9 = SIGNAL_NEXT_BOOL(ba9);
-	bool ba10 = SIGNAL_NEXT_BOOL(ba10);
-	bool ba11 = SIGNAL_NEXT_BOOL(ba11);
-	bool ba15 = SIGNAL_NEXT_BOOL(ba15);
-	bool sel8_b = SIGNAL_NEXT_BOOL(sel8_b);
-	bool rw   = SIGNAL_NEXT_BOOL(cpu_rw);
-
-	// reset circuit
-	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
-	SIGNAL_SET_BOOL(init_b, !device->in_reset);
-	SIGNAL_SET_BOOL(init, device->in_reset);
-
-	// A3 (1, 2)
-	bool reset_b = SIGNAL_NEXT_BOOL(reset_b);
-	SIGNAL_SET_BOOL(reset, !reset_b);
-
-	// A3 (11, 10)
-	bool sel8 = !sel8_b;
-	SIGNAL_SET_BOOL(sel8, sel8);
-
-	// A3 (3, 4)
-	bool ba11_b = !ba11;
-	SIGNAL_SET_BOOL(ba11_b, ba11_b);
-
-	// B2 (1,2,4,5,6)
-	bool addr_x8xx = !(ba8 | ba9 | ba10 | ba11_b);
-	SIGNAL_SET_BOOL(x8xx, addr_x8xx);
-
-	// A4 (4,5,6)
-	bool addr_88xx_b = NAND(sel8, addr_x8xx);
-	SIGNAL_SET_BOOL(s_88xx_b, addr_88xx_b);
-
-	// A4 (1,2,3)
-	bool rom_addr_b = NAND(ba15, sel8_b);
-	SIGNAL_SET_BOOL(rom_addr_b, rom_addr_b);
-
-	// A5 (3,4,5,6)
-	bool ram_read_b = !(rom_addr_b && addr_88xx_b && rw);
-	SIGNAL_SET_BOOL(ram_read_b, ram_read_b);
-	SIGNAL_SET_BOOL(ram_write_b, !ram_read_b);
-
-	// A10 (3,4)
-	SIGNAL_SET_BOOL(buf_rw, rw);
-
-	// A3 (12,13)
-	SIGNAL_SET_BOOL(buf_rw_b, !rw);
-
-	// A3 (9,8)
-	SIGNAL_SET_BOOL(ram_rw, rw);
-
-	// FIXME: cpu doesn't output phi2 clock signal
-	bool phi2 = SIGNAL_BOOL(clk1);
-	SIGNAL_SET_BOOL(phi2, phi2);
-	SIGNAL_SET_BOOL(bphi2, phi2);
-	SIGNAL_SET_BOOL(cphi2, phi2);
-
-	chip_74244_octal_buffer_process(device->e9);
-	chip_74244_octal_buffer_process(device->e10);
-
-	// >> ram logic - simplified from schematic because were not simulating dram (4116 chips) yet.
-	//  - ce_b: assert when top bit of address isn't set (copy of ba15)
-	//	- oe_b: assert when cpu_rw is high
-	//	- we_b: assert when cpu_rw is low and clock is low
-	bool next_rw = SIGNAL_NEXT_BOOL(cpu_rw);
-	SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
-	SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_BOOL(clk1));
-
-	// >> video-ram logic - simplified
-	SIGNAL_SET_BOOL(vram_oe_b, !next_rw);
-	// >> rom logic: roms are enabled by the selx_b signals
-	//	- rom-E (editor) is special because it's only a 2k ram and it uses address line 11 as an extra enable to only
-	//	  respond in the lower 2k
-	SIGNAL_SET_BOOL(rome_ce_b, SIGNAL_NEXT_BOOL(sele_b) || ba11);
-
-	// >> pia logic
-	bool cs1 = addr_x8xx && ba6;
-	SIGNAL_SET_BOOL(cs1, cs1);
-
-	// >> video logic
-	SIGNAL_SET_BOOL(video_on, video_on);
-
-	// >> irq logic: the 2001N wire-or's the irq lines of the chips and connects them to the cpu
-	//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
-	//		-> or the together explicitly
-	bool irq_b = signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqa_b) &&
-				 signal_read_next_bool(device->signal_pool, device->pia_1->signals.irqb_b) &&
-				 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqa_b) &&
-				 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqb_b) &&
-				 signal_read_next_bool(device->signal_pool, device->via->signals.irq_b);
-	SIGNAL_SET_BOOL(irq_b, irq_b);
-
-	// >> keyboard logic
-	chip_74145_bcd_decoder_process(device->c9);
-}
-
-static inline void process_master_timing(DevCommodorePet *device) {
-
-	// cycle signal domain
-	signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_CLOCK);
-
-	// >> 16Mhz oscillator (no dependencies)
-	clock_process(device->clock);
-
-	// >> clock divider (depends on clk16)
-	chip_74191_binary_counter_process(device->g5);
-
-	// >> clk phase splitter (depends on clk1 and clk16)
-	chip_74164_shift_register_process(device->h3);
-
-	// >> invert clock phases (depends on h3)
-	SIGNAL_SET_BOOL(bphi2a_b, !SIGNAL_NEXT_BOOL(bphi2a));
-	SIGNAL_SET_BOOL(bphi2b_b, !SIGNAL_NEXT_BOOL(bphi2b));
-	SIGNAL_SET_BOOL(bphi2f_b, !SIGNAL_NEXT_BOOL(bphi2f));
-	SIGNAL_SET_BOOL(bphi2g_b, !SIGNAL_NEXT_BOOL(bphi2g));
-
-	// jk-flip flop (depends on /BPHI2A)
-	chip_74107_jk_flipflop_process(device->h6);
-
-	// refresh address counter (depends on ra1)
-	chip_7493_binary_counter_process(device->h9);
-	SIGNAL_SET_BOOL(ra1and3, SIGNAL_NEXT_BOOL(ra1) & SIGNAL_NEXT_BOOL(ra3));
-	SIGNAL_SET_BOOL(ra4and6, SIGNAL_NEXT_BOOL(ra4) & SIGNAL_NEXT_BOOL(ra6));
-	SIGNAL_SET_BOOL(ra5and6_b, SIGNAL_NEXT_BOOL(ra5) & SIGNAL_NEXT_BOOL(ra6_b));
-
-	chip_7474_d_flipflop_process(device->g9);
-
-	chip_74107_jk_flipflop_process(device->h7);
-
-	// glue logic - G5 (8,9,10)
-	bool video_latch = NAND(SIGNAL_NEXT_BOOL(bphi2f_b), SIGNAL_NEXT_BOOL(bphi2h));
-	SIGNAL_SET_BOOL(video_latch, video_latch);
-}
-
-static inline void process_display_logic(DevCommodorePet *device) {
-
-	// >> jk-flip flop g6
-	chip_74107_jk_flipflop_process(device->g6);
-
-	// >> display ram address multiplexer f6
-	chip_74157_multiplexer_process(device->f6);
-
-	// >> display ram address multiplexer f5
-	chip_74157_multiplexer_process(device->f5);
-
-	// >> display ram address multiplexer f3
-	chip_74157_multiplexer_process(device->f3);
-
-	// >> counter f4
-	chip_74177_binary_counter_process(device->f4);
-
-	// >> counter f2
-	chip_74177_binary_counter_process(device->f2);
-
-	// glue logic
-	bool buf_rw = SIGNAL_NEXT_BOOL(buf_rw);
-
-	// >> F1 (4,5,6)
-	bool tv_sel = SIGNAL_NEXT_BOOL(ba11_b) && SIGNAL_NEXT_BOOL(sel8);
-	SIGNAL_SET_BOOL(tv_sel, tv_sel);
-
-	// >> A5 (8,9,10,11)
-	bool tv_read_b = !(true && buf_rw && tv_sel);
-	SIGNAL_SET_BOOL(tv_read_b, tv_read_b);
-
-	// >> A5 (1,2,12,13)
-	bool a5_12 = !(tv_sel && buf_rw && SIGNAL_NEXT_BOOL(bphi2));
-	SIGNAL_SET_BOOL(a5_12, a5_12);
-
-	// >> I1 (5,6)
-	SIGNAL_SET_BOOL(video_on_b, !SIGNAL_NEXT_BOOL(video_on));
-
-	// >> G2 (1,2,4,5,6)
-	bool lines_20_b = !(SIGNAL_NEXT_BOOL(ga6) && SIGNAL_NEXT_BOOL(pullup_2) && SIGNAL_NEXT_BOOL(video_on_b) && SIGNAL_NEXT_BOOL(ra9));
-	SIGNAL_SET_BOOL(lines_20_b, lines_20_b);
-
-	// >> G2 (8,9,10,12,13)
-	bool lga_hi_b = !(SIGNAL_NEXT_BOOL(ga6) && SIGNAL_NEXT_BOOL(ga7) && SIGNAL_NEXT_BOOL(ga8) && SIGNAL_NEXT_BOOL(ga9));
-	SIGNAL_SET_BOOL(lga_hi_b, lga_hi_b);
-
-	// >> I1 (8,9)
-	SIGNAL_SET_BOOL(lga_hi, !lga_hi_b);
-
-	// >> H5 (4,5,6)
-	bool lines_200_b = NAND(SIGNAL_NEXT_BOOL(lga3), SIGNAL_NEXT_BOOL(lga_hi));
-	SIGNAL_SET_BOOL(lines_200_b, lines_200_b);
-
-	// >> H5 (8,9,10)
-	bool line_220 = NAND(lines_200_b, lines_20_b);
-	SIGNAL_SET_BOOL(line_220, line_220);
-
-	// >> G3 (1,2,3)
-	bool w220_off = line_220 && SIGNAL_NEXT_BOOL(horz_disp_off);
-	SIGNAL_SET_BOOL(w220_off, w220_off);
-
-	// >> G8
-	chip_7474_d_flipflop_process(device->g8);
-
-	// >> H5 (11,12,13)
-	bool reload_next = NAND(SIGNAL_NEXT_BOOL(reload_b), SIGNAL_NEXT_BOOL(next_b));
-	SIGNAL_SET_BOOL(reload_next, reload_next);
-
-	// >> G3 (8-bit latch)
-	chip_74373_latch_process(device->g3);
-}
-
-static inline void process_display_rams(DevCommodorePet *device) {
-
-	SIGNAL_SET_BOOL(tv_ram_rw_b, !SIGNAL_NEXT_BOOL(tv_ram_rw));
-
-	// H11 - binary counter
-	chip_7493_binary_counter_process(device->h11);
-
-	// bridge databus & display ram databus
-	chip_74244_octal_buffer_process(device->e8);
-	chip_74244_octal_buffer_process(device->e7);
-
-	bool reload_b = !(SIGNAL_NEXT_BOOL(horz_disp_on) && SIGNAL_NEXT_BOOL(ra7) && SIGNAL_NEXT_BOOL(ra8) && SIGNAL_NEXT_BOOL(ra9));
-	SIGNAL_SET_BOOL(reload_b, reload_b);
-}
-
-void dev_commodore_pet_process(DevCommodorePet *device) {
-	assert(device);
-
-	// master timing (schematic sheet 6)
-	process_master_timing(device);
-
-	// display logic (schematic sheet 7)
-	process_display_logic(device);
-
-	// display rams (schematic sheet 8)
-	process_display_rams(device);
-
-	if (signal_changed(device->signal_pool, SIGNAL(clk1))) {
-		// vblank 'fake' logic
-		bool video_on = true;
-		device->vblank_counter += SIGNAL_BOOL(clk1);
-
-		if (device->vblank_counter >= 16666)  {		// about 60 hz if clock is running at the normal 1Mhz
-			device->vblank_counter = 0;
-			video_on = false;
-		}
-
-		// run all chips on the clock cycle
-		signal_pool_cycle_domain(device->signal_pool, PET_DOMAIN_1MHZ);
-
-		// cpu
-		device->cpu->process(device->cpu);
-
-		// ram
-		device->ram->process(device->ram);
-
-		// video ram
-		device->vram->process(device->vram);
-
-		// roms
-		for (int i = 0; device->roms[i] != NULL; ++i) {
-			device->roms[i]->process(device->roms[i]);
-		}
-
-		// pia-1 / IEEE-488
-		chip_6520_process(device->pia_1);
-
-		// pia-2 / keyboard
-		chip_6520_process(device->pia_2);
-
-		// via
-		chip_6522_process(device->via);
-
-		// keyboard
-		input_keypad_process(device->keypad);
-
-		// >> glue logic
-		process_glue_logic(device, video_on);
-
-		// run the cpu again on the same clock cycle - after the address hold time
-		signal_pool_cycle_domain_no_reset(device->signal_pool, PET_DOMAIN_1MHZ);
-
-		// >> cpu
-		device->cpu->process(device->cpu);
-
-		// >> glue logic
-		process_glue_logic(device, video_on);
-
-		// video out
-		if ((device->vblank_counter & 1) == 1) {
-			dev_commodore_pet_fake_display(device);
-		}
-	}
-}
-
-void dev_commodore_pet_process_clk1(DevCommodorePet *device) {
-	do {
-		dev_commodore_pet_process(device);
-	} while (!signal_changed(device->signal_pool, SIGNAL(clk1)));
-}
-
-void dev_commodore_pet_reset(DevCommodorePet *device) {
-
-	// run for a few cycles while reset is asserted
-	activate_reset(device, true);
-
-	for (int i = 0; i < 32; ++i) {
-		dev_commodore_pet_process(device);
-	}
-
-	// run CPU init cycle
-	activate_reset(device, false);
-
-	do {
-		dev_commodore_pet_process(device);
-	} while (cpu_6502_in_initialization(device->cpu));
-
-	// reset clock
-	device->clock->cycle_count = 0;
-	device->vblank_counter = 0;
 }
 
 bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {

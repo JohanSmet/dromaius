@@ -20,7 +20,6 @@
 #include "ram_8d_16a.h"
 #include "rom_8d_16a.h"
 #include "chip_74xxx.h"
-#include "clock.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -91,7 +90,6 @@ typedef struct DevCommodorePetSignals {
 	Signal		g6_q_b;
 
 	Signal		tv_ram_rw;
-	Signal		tv_ram_rw_b;
 	Signal		f6_y3;
 
 	Signal		bus_sa;				// 10-bit - display ram address bus
@@ -216,7 +214,7 @@ typedef struct DevCommodorePet {
 	Ram8d16a *      vram;
 	Rom8d16a *		roms[7];
 	Rom8d16a *		char_rom;
-	Clock *			clock;
+	struct Oscillator *		oscillator_y1;
 	struct Chip6520 *		pia_1;
 	struct Chip6520 *		pia_2;
 	struct Chip6522 *		via;
@@ -226,37 +224,6 @@ typedef struct DevCommodorePet {
 
 	bool					in_reset;
 	int						vblank_counter;
-
-	// master timing components
-	Chip74191BinaryCounter *g5;			// clock divider
-	Chip74164ShiftRegister *h3;			// 8 phases of clk1
-	Chip74107JKFlipFlop *	h6;			// jk-flipflop
-	Chip7493BinaryCounter * h9;			// refresh address counter
-	Chip7474DFlipFlop *		g9;			// d-flipflop
-	Chip74107JKFlipFlop *	h7;			// jk-flipflop
-
-	// display logic components
-	Chip74107JKFlipFlop *	g6;			// jk-flipflop
-	Chip74157Multiplexer *	f6;			// quad 2to1 mux (display address bus)
-	Chip74157Multiplexer *	f5;			// quad 2to1 mux (display address bus)
-	Chip74157Multiplexer *	f3;			// quad 2to1 mux (display address bus)
-	Chip74177BinaryCounter *f4;
-	Chip74177BinaryCounter *f2;
-	Chip74373Latch *		g3;
-	Chip7474DFlipFlop *		g8;
-
-	// display rams components
-	Chip7493BinaryCounter * h11;
-	Chip74244OctalBuffer *  e8;
-	Chip74244OctalBuffer *  e7;
-
-	// glue logic
-	Chip74244OctalBuffer *	e9;			// data-bus buffer 1
-	Chip74244OctalBuffer *	e10;		// data-bus buffer 2
-	Chip74244OctalBuffer *	c3;			// address line buffer 1
-	Chip74244OctalBuffer *	b3;			// address line buffer 2
-	Chip74154Decoder *		d2;			// selection of memory areas
-	Chip74145BcdDecoder *	c9;			// keyboard row decoding
 
 	// signals
 	DevCommodorePetSignals	signals;

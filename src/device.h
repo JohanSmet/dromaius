@@ -33,6 +33,8 @@ typedef struct ChipEvent {
 	ChipEvent *				event_schedule; \
 	ChipEvent *				event_pool;
 
+#define DEVICE_REGISTER_CHIP(c)	device_register_chip((Device *) device, (Chip *) (c))
+
 typedef struct Device {
 	DEVICE_DECLARE_FUNCTIONS
 } Device;

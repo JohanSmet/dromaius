@@ -149,6 +149,12 @@ MunitResult test_write_databus(const MunitParameter params[], void *user_data_or
 
 		dev_commodore_pet_process_clk1(device);
 
+		// simulate a few more cycles to let everything settle
+		device->process(device);
+		device->process(device);
+		device->process(device);
+		device->process(device);
+
 		bool ro_addr = (addr >= 0x9000) || (addr & 0xff00) == 0x8800;
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_bd), ==, (!ro_addr) ? override_bus_data : 0);
 	}
@@ -161,6 +167,10 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// 'remove' cpu and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
+
+	if (SIGNAL_BOOL(clk1)) {
+		dev_commodore_pet_process_clk1(device);
+	}
 
 	for (int addr = 0x0000; addr <= 0x7fff; ++addr) {
 		override_bus_address = addr & 0xffff;
@@ -196,6 +206,10 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 	// 'remove' cpu and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 
+	if (SIGNAL_BOOL(clk1)) {
+		dev_commodore_pet_process_clk1(device);
+	}
+
 	for (int addr = 0x8000; addr <= 0x83e8; ++addr) {		// 40x25
 		override_bus_address = addr & 0xffff;
 		override_bus_data = addr & 0xff;
@@ -230,6 +244,10 @@ MunitResult test_rom(const MunitParameter params[], void *user_data_or_fixture) 
 	// 'remove' cpu and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 
+	if (SIGNAL_BOOL(clk1)) {
+		dev_commodore_pet_process_clk1(device);
+	}
+
 	static int rom_addr[] = {0xb000, 0xc000, 0xd000, 0xe000, 0xf000};
 
 	for (int rom = 0; device->roms[rom] != NULL; ++rom) {
@@ -241,6 +259,7 @@ MunitResult test_rom(const MunitParameter params[], void *user_data_or_fixture) 
 			munit_assert_true(SIGNAL_BOOL(clk1));
 
 			dev_commodore_pet_process_clk1(device);
+			device->process(device);
 			munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, device->roms[rom]->data_array[offset]);
 			munit_assert_false(SIGNAL_BOOL(clk1));
 		}
