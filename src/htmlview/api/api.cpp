@@ -26,6 +26,11 @@ public:
 		std::map<std::string, Signal>	names;
 	};
 
+	struct SignalDetails {
+		Signal		signal;
+		int32_t		writer_id;
+	};
+
 	struct ClockInfo {
 		bool	output;
 		int32_t cycle_count;
@@ -105,6 +110,21 @@ public:
 		return result;
 	}
 
+	SignalDetails signal_details(std::string name) {
+		assert(pet_device);
+		auto pool = pet_device->signal_pool;
+		SignalDetails result;
+
+		result.signal = shget(pool->signal_names, name.c_str());
+		result.writer_id = -1;
+
+		if (result.signal.start > 0) {
+			result.writer_id = pool->domains[result.signal.domain].signals_writer[result.signal.start];
+		}
+
+		return result;
+	}
+
 	Cpu6502 cpu_info() {
 		assert(pet_device);
 		return *pet_device->cpu;
@@ -168,6 +188,11 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.field("count", &DmsApi::SignalInfo::count)
 		.field("names", &DmsApi::SignalInfo::names)
 		;
+
+	value_object<DmsApi::SignalDetails>("DmsApi__SignalDetails")
+		.field("signal", &DmsApi::SignalDetails::signal)
+		.field("writer_id", &DmsApi::SignalDetails::writer_id)
+		;
 /*
 	value_object<DmsApi::ClockInfo>("DmsApi__ClockInfo")
 		.field("output", &DmsApi::ClockInfo::output)
@@ -188,6 +213,7 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("signal_data", &DmsApi::signal_data)
 		.function("display_info", &DmsApi::display_info)
 		.function("signal_info", &DmsApi::signal_info)
+		.function("signal_details", &DmsApi::signal_details)
 		.function("cpu_info", &DmsApi::cpu_info)
 		//.function("clock_info", &DmsApi::clock_info)
 		;
