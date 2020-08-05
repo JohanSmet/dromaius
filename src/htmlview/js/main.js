@@ -10,6 +10,7 @@ var display_context = null;
 var display_imdata = null;
 
 var signals_names = [];
+var hovered_signal = '';
 
 var panel_cpu = new PanelCpu6502($('div#cpu'));
 //var panel_clock = new PanelClock($('div#clock'));
@@ -54,6 +55,16 @@ export function setup_emulation(emscripten_mod) {
 	$('#display')[0].width = display_info.width;
 	$('#display')[0].height = display_info.height;
 
+	// signal selection
+	circuit_view.on_signal_hovered = function(signal) {
+		hovered_signal = '--color-' + signal.replace('/', 'bar');
+	}
+
+	circuit_view.on_signal_clicked = function(signal) {
+		alert(signal);
+	}
+
+	// refresh
 	setInterval(execution_timer, 1000 / 25);
 }
 
@@ -72,6 +83,10 @@ function refresh_signals() {
 			var s_name = signals_names[d][s_id];
 			svg_style.setProperty(s_name, colors[sig_data[s_id]]);
 		}
+	}
+
+	if (hovered_signal != '') {
+		svg_style.setProperty(hovered_signal, 'blue');
 	}
 }
 

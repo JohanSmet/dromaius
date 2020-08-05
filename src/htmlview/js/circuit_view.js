@@ -14,6 +14,7 @@ const SCHEMATIC_SHEETS = [
 export class CircuitView {
 	svg_document = null;
 	svg_load_count = 0;
+	svg_hovered_signal = '';
 
 	constructor(container) {
 		var tabbar = $('<div/>').attr('class', 'tab');
@@ -68,6 +69,33 @@ export class CircuitView {
 		// keep reference to selected svg
 		var svg_el = $('object' + obj_id + '.schematic')[0];
 		this.svg_document = svg_el.getSVGDocument();
+
+		var g = this.svg_document.children[0].children.Schematic.children;
+		for (const child in g) {
+			if (g[child].id && g[child].id.startsWith("wire#")) {
+				// extract signal name
+				const end = g[child].id.search('_');
+				const name = g[child].id.substr(5, end - 5);
+
+				g[child].addEventListener('mouseover', () => this.on_wire_mouseover(name));
+				g[child].addEventListener('mouseout', () => this.on_wire_mouseout(name));
+				g[child].addEventListener('click', () => this.on_wire_mouseclick(name));
+			}
+		}
+	}
+
+	on_wire_mouseover(signal) {
+		this.svg_hovered_signal = signal;
+		this.on_signal_hovered(signal);
+	}
+
+	on_wire_mouseout(signal) {
+		this.svg_hovered_signal = '';
+		this.on_signal_hovered('');
+	}
+
+	on_wire_mouseclick(signal) {
+		this.on_signal_clicked(signal);
 	}
 
 	on_svg_loaded() {
@@ -75,4 +103,10 @@ export class CircuitView {
 			this.on_tab_button_click($('.tab_button')[0]);
 		}
 	}
+
+	// public events
+	on_signal_hovered = function(signal) {}
+	on_signal_clicked = function(signal) {}
+
+
 }
