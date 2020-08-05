@@ -26,11 +26,8 @@ export function setup_emulation(emscripten_mod) {
 	var signal_info = dmsapi.signal_info();
 
 	// >> initialize empty name for all signals
-	for (var d = 0; d < signal_info.count.size(); ++d) {
-		signals_names.push([]);
-		for (var i = 0; i < signal_info.count.get(d); ++i) {
-			signals_names[d].push('');
-		}
+	for (var i = 0; i < signal_info.count; ++i) {
+		signals_names.push('');
 	}
 
 	// >> insert named signals
@@ -41,7 +38,7 @@ export function setup_emulation(emscripten_mod) {
 		var signal = signal_info.names.get(sig_name);
 
 		if (signal.count == 1) {
-			signals_names[signal.domain][signal.start] = '--color-' + sig_name.replace('/', 'bar');
+			signals_names[signal.start] = '--color-' + sig_name.replace('/', 'bar');
 		}
 	}
 
@@ -76,13 +73,11 @@ function refresh_signals() {
 	const colors = ["#009900", "#00FF00"];
 	var svg_style = circuit_view.svg_document.documentElement.style;
 
-	for (var d = 0; d < signals_names.length; ++d) {
-		var sig_data = dmsapi.signal_data(d);
+	var sig_data = dmsapi.signal_data();
 
-		for (var s_id = 0; s_id < sig_data.length; ++s_id) {
-			var s_name = signals_names[d][s_id];
-			svg_style.setProperty(s_name, colors[sig_data[s_id]]);
-		}
+	for (var s_id = 0; s_id < sig_data.length; ++s_id) {
+		var s_name = signals_names[s_id];
+		svg_style.setProperty(s_name, colors[sig_data[s_id]]);
 	}
 
 	if (hovered_signal != '') {

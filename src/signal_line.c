@@ -74,81 +74,64 @@ const uint64_t lut_bit_to_byte[256] = {
 	BITS_TO_BYTE(255ul)
 };
 
-SignalPool *signal_pool_create(size_t num_domains) {
-	assert(num_domains > 0);
-	assert(num_domains < 128);
-	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool) + (sizeof(SignalDomain) * num_domains));
-	pool->num_domains = (int8_t) num_domains;
+SignalPool *signal_pool_create() {
+	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool));
 	sh_new_arena(pool->signal_names);
-	pool->tick_duration_ps = 100000;		// 100ns
+	pool->tick_duration_ps = NS_TO_PS(100);		// 100ns
 	return pool;
 }
 
 void signal_pool_destroy(SignalPool *pool) {
 	assert(pool);
 
-	for (int d = 0; d < pool->num_domains; ++d) {
-		arrfree(pool->domains[d].signals_curr);
-		arrfree(pool->domains[d].signals_next);
-		arrfree(pool->domains[d].signals_default);
+	arrfree(pool->signals_curr);
+	arrfree(pool->signals_next);
+	arrfree(pool->signals_default);
+	arrfree(pool->signals_writer);
+	arrfree(pool->signals_name);
+
+	for (ptrdiff_t idx = 0; idx < arrlen(pool->dependent_components); ++idx) {
+		arrfree(pool->dependent_components[idx]);
 	}
+	arrfree(pool->dependent_components);
+
 	free(pool);
 }
 
-void signal_pool_current_domain(SignalPool *pool, int8_t domain) {
-	assert(pool);
-	assert(domain >= 0);
-	assert(domain < pool->num_domains);
-
-	pool->default_domain = domain;
-}
-
 void signal_pool_cycle(SignalPool *pool) {
-	assert(pool);
 
-	for (int8_t d = 0; d < pool->num_domains; ++d) {
-		signal_pool_cycle_domain(pool, d);
-	}
+	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
+	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
+
+	memcpy(pool->signals_curr, pool->signals_next, arrlenu(pool->signals_next));
+	memcpy(pool->signals_next, pool->signals_default, arrlenu(pool->signals_default));
 }
 
-void signal_pool_cycle_domain(SignalPool *pool, int8_t domain_id) {
-	SignalDomain *domain = &pool->domains[domain_id];
-
-	assert(arrlenu(domain->signals_curr) == arrlenu(domain->signals_next));
-	assert(arrlenu(domain->signals_default) == arrlenu(domain->signals_next));
-
-	memcpy(domain->signals_curr, domain->signals_next, arrlenu(domain->signals_next));
-	memcpy(domain->signals_next, domain->signals_default, arrlenu(domain->signals_default));
-}
-
-void signal_pool_cycle_domain_no_reset(SignalPool *pool, int8_t domain_id) {
-	SignalDomain *domain = &pool->domains[domain_id];
-
-	assert(arrlenu(domain->signals_curr) == arrlenu(domain->signals_next));
-	memcpy(domain->signals_curr, domain->signals_next, arrlenu(domain->signals_next));
+void signal_pool_cycle_no_reset(SignalPool *pool) {
+	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
+	memcpy(pool->signals_curr, pool->signals_next, arrlenu(pool->signals_next));
 }
 
 Signal signal_create(SignalPool *pool, uint32_t size) {
 	assert(pool);
 	assert(size > 0);
 
-	SignalDomain *domain = &pool->domains[pool->default_domain];
-	Signal result = {(uint32_t) arrlenu(domain->signals_curr), size, pool->default_domain};
+	Signal result = {(uint32_t) arrlenu(pool->signals_curr), size};
 
-	arrsetcap(domain->signals_curr, arrlenu(domain->signals_curr) + size);
-	arrsetcap(domain->signals_next, arrlenu(domain->signals_next) + size);
-	arrsetcap(domain->signals_default, arrlenu(domain->signals_default) + size);
-	arrsetcap(domain->signals_writer, arrlenu(domain->signals_default) + size);
-	arrsetcap(domain->signals_name, arrlenu(domain->signals_name) + size);
-	arrsetcap(domain->dependent_components, arrlenu(domain->dependent_components) + size);
+	arrsetcap(pool->signals_curr, arrlenu(pool->signals_curr) + size);
+	arrsetcap(pool->signals_next, arrlenu(pool->signals_next) + size);
+	arrsetcap(pool->signals_default, arrlenu(pool->signals_default) + size);
+	arrsetcap(pool->signals_writer, arrlenu(pool->signals_default) + size);
+	arrsetcap(pool->signals_name, arrlenu(pool->signals_name) + size);
+	arrsetcap(pool->dependent_components, arrlenu(pool->dependent_components) + size);
 
 	for (uint32_t i = 0; i < size; ++i) {
-		arrpush(domain->signals_curr, false);
-		arrpush(domain->signals_next, false);
-		arrpush(domain->signals_default, false);
-		arrpush(domain->signals_name, NULL);
-		arrpush(domain->signals_writer, -1);
-		arrpush(domain->dependent_components, NULL);
+		arrpush(pool->signals_curr, false);
+		arrpush(pool->signals_next, false);
+		arrpush(pool->signals_default, false);
+		arrpush(pool->signals_name, NULL);
+		arrpush(pool->signals_writer, -1);
+		arrpush(pool->dependent_components, NULL);
 	}
 
 	return result;
@@ -158,17 +141,15 @@ void signal_set_name(SignalPool *pool, Signal signal, const char *name) {
 	assert(pool);
 	assert(name);
 
-	SignalDomain *domain = &pool->domains[signal.domain];
-
 	if (signal.count == 1) {
 		shput(pool->signal_names, name, signal);
-		domain->signals_name[signal.start] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
+		pool->signals_name[signal.start] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
 	} else {
 		char sub_name[MAX_SIGNAL_NAME];
 		for (uint32_t i = 0; i < signal.count; ++i) {
 			snprintf(sub_name, MAX_SIGNAL_NAME, name, i);
 			shput(pool->signal_names, sub_name, signal_split(signal, i, 1));
-			domain->signals_name[signal.start+i] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
+			pool->signals_name[signal.start+i] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
 		}
 	}
 }
@@ -177,8 +158,7 @@ const char * signal_get_name(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count == 1);
 
-	SignalDomain *domain = &pool->domains[signal.domain];
-	const char *name = domain->signals_name[signal.start];
+	const char *name = pool->signals_name[signal.start];
 	return (name == NULL) ? "" : name;
 }
 
@@ -189,9 +169,8 @@ void signal_add_dependency(SignalPool *pool, Signal signal, int32_t dep_id) {
 		return;
 	}
 
-	SignalDomain *domain = &pool->domains[signal.domain];
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		arrpush(domain->dependent_components[signal.start + i], dep_id);
+		arrpush(pool->dependent_components[signal.start + i], dep_id);
 	}
 }
 
@@ -199,21 +178,19 @@ void signal_default_bool(SignalPool *pool, Signal signal, bool value) {
 	assert(pool);
 	assert(signal.count == 1);
 
-	SignalDomain *domain = &pool->domains[signal.domain];
-	domain->signals_default[signal.start] = value;
-	domain->signals_curr[signal.start] = value;
-	domain->signals_next[signal.start] = value;
+	pool->signals_default[signal.start] = value;
+	pool->signals_curr[signal.start] = value;
+	pool->signals_next[signal.start] = value;
 }
 
 void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value) {
 	assert(pool);
 	assert(signal.count <= 8);
 
-	SignalDomain *domain = &pool->domains[signal.domain];
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		domain->signals_default[signal.start + i] = value & 1;
-		domain->signals_curr[signal.start + i] = value & 1;
-		domain->signals_next[signal.start + i] = value & 1;
+		pool->signals_default[signal.start + i] = value & 1;
+		pool->signals_curr[signal.start + i] = value & 1;
+		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}
 }
@@ -222,11 +199,10 @@ void signal_default_uint16(SignalPool *pool, Signal signal, uint16_t value) {
 	assert(pool);
 	assert(signal.count <= 16);
 
-	SignalDomain *domain = &pool->domains[signal.domain];
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		domain->signals_default[signal.start + i] = value & 1;
-		domain->signals_curr[signal.start + i] = value & 1;
-		domain->signals_next[signal.start + i] = value & 1;
+		pool->signals_default[signal.start + i] = value & 1;
+		pool->signals_curr[signal.start + i] = value & 1;
+		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
 	}
 }

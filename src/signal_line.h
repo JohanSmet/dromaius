@@ -19,17 +19,7 @@ extern "C" {
 typedef struct Signal {
 	uint32_t	start;
 	uint32_t	count;
-	int8_t		domain;
 } Signal;
-
-typedef struct SignalDomain {
-	bool *			signals_curr;
-	bool *			signals_next;
-	bool *			signals_default;
-	int32_t *		signals_writer;
-	const char **	signals_name;
-	int32_t **		dependent_components;
-} SignalDomain;
 
 typedef struct SignalNameMap {
 	const char *key;
@@ -40,10 +30,14 @@ typedef struct SignalPool {
 	int64_t			current_tick;
 	int64_t			tick_duration_ps;		// in pico-seconds
 
-	int8_t			default_domain;
-	int8_t			num_domains;
+	bool *			signals_curr;
+	bool *			signals_next;
+	bool *			signals_default;
+	int32_t *		signals_writer;
+	const char **	signals_name;
+	int32_t **		dependent_components;
+
 	SignalNameMap	*signal_names;
-	SignalDomain	domains[0];
 } SignalPool;
 
 extern const uint64_t lut_bit_to_byte[256];
@@ -51,13 +45,11 @@ extern const uint64_t lut_bit_to_byte[256];
 #define MAX_SIGNAL_NAME		8
 
 // functions
-SignalPool *signal_pool_create(size_t num_domains);
+SignalPool *signal_pool_create();
 void signal_pool_destroy(SignalPool *pool);
-void signal_pool_current_domain(SignalPool *pool, int8_t domain);
 
 void signal_pool_cycle(SignalPool *pool);
-void signal_pool_cycle_domain(SignalPool *pool, int8_t domain);
-void signal_pool_cycle_domain_no_reset(SignalPool *pool, int8_t domain);
+void signal_pool_cycle_no_reset(SignalPool *pool);
 
 static inline int64_t signal_pool_interval_to_tick_count(SignalPool *pool, int64_t interval_ps) {
 	assert(pool);
@@ -77,7 +69,7 @@ static inline Signal signal_split(Signal src, uint32_t start, uint32_t size) {
 	assert(start < src.count);
 	assert(start + size <= src.count);
 
-	Signal result = {src.start + start, size, src.domain};
+	Signal result = {src.start + start, size};
 	return result;
 }
 
@@ -87,7 +79,7 @@ static inline bool signal_read_bool(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count == 1);
 
-	return pool->domains[signal.domain].signals_curr[signal.start];
+	return pool->signals_curr[signal.start];
 }
 
 static inline uint8_t signal_read_uint8_internal(bool *src, size_t len) {
@@ -110,21 +102,21 @@ static inline uint8_t signal_read_uint8(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count <= 8);
 
-	return signal_read_uint8_internal(pool->domains[signal.domain].signals_curr + signal.start, signal.count);
+	return signal_read_uint8_internal(pool->signals_curr + signal.start, signal.count);
 }
 
 static inline uint16_t signal_read_uint16(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count <= 16);
 
-	return signal_read_uint16_internal(pool->domains[signal.domain].signals_curr + signal.start, signal.count);
+	return signal_read_uint16_internal(pool->signals_curr + signal.start, signal.count);
 }
 
 static inline void signal_write_bool(SignalPool *pool, Signal signal, bool value, int32_t chip_id) {
 	assert(pool);
 	assert(signal.count == 1);
-	pool->domains[signal.domain].signals_next[signal.start] = value;
-	pool->domains[signal.domain].signals_writer[signal.start] = chip_id;
+	pool->signals_next[signal.start] = value;
+	pool->signals_writer[signal.start] = chip_id;
 }
 
 static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t value, int32_t chip_id) {
@@ -132,13 +124,13 @@ static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t v
 	assert(signal.count <= 8);
 
 	if (signal.count == 8 && (signal.start & 0x7) == 0) {
-		(*(uint64_t *) &pool->domains[signal.domain].signals_next[signal.start]) = lut_bit_to_byte[value];
+		(*(uint64_t *) &pool->signals_next[signal.start]) = lut_bit_to_byte[value];
 	} else {
-		memcpy(&pool->domains[signal.domain].signals_next[signal.start], &lut_bit_to_byte[value], signal.count);
+		memcpy(&pool->signals_next[signal.start], &lut_bit_to_byte[value], signal.count);
 	}
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		pool->domains[signal.domain].signals_writer[signal.start + i] = chip_id;
+		pool->signals_writer[signal.start + i] = chip_id;
 	}
 }
 
@@ -147,8 +139,8 @@ static inline void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t
 	assert(signal.count <= 16);
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		pool->domains[signal.domain].signals_next[signal.start + i] = value & 1;
-		pool->domains[signal.domain].signals_writer[signal.start + i] = chip_id;
+		pool->signals_next[signal.start + i] = value & 1;
+		pool->signals_writer[signal.start + i] = chip_id;
 		value = (uint16_t) (value >> 1);
 	}
 }
@@ -157,8 +149,8 @@ static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, ui
 	assert(pool);
 	assert(signal.count <= 8);
 
-	bool *signals_next = pool->domains[signal.domain].signals_next;
-	int32_t *signals_writer = pool->domains[signal.domain].signals_writer;
+	bool *signals_next = pool->signals_next;
+	int32_t *signals_writer = pool->signals_writer;
 
 	if (signal.count == 8 && (signal.start & 0x7) == 0) {
 		uint64_t byte_mask = lut_bit_to_byte[mask];
@@ -189,8 +181,8 @@ static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, u
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		uint8_t b = (mask >> i) & 1;
 		if (b) {
-			pool->domains[signal.domain].signals_next[signal.start + i] = (value >> i) & 1;
-			pool->domains[signal.domain].signals_writer[signal.start + i] = chip_id;
+			pool->signals_next[signal.start + i] = (value >> i) & 1;
+			pool->signals_writer[signal.start + i] = chip_id;
 		}
 	}
 }
@@ -198,12 +190,10 @@ static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, u
 static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t chip_id) {
 	assert(pool);
 
-	SignalDomain *domain = &pool->domains[signal.domain];
-
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		if (domain->signals_writer[signal.start + i] == chip_id) {
-			domain->signals_writer[signal.start + i] = -1;
-			domain->signals_next[signal.start + i] = domain->signals_default[signal.start + i];
+		if (pool->signals_writer[signal.start + i] == chip_id) {
+			pool->signals_writer[signal.start + i] = -1;
+			pool->signals_next[signal.start + i] = pool->signals_default[signal.start + i];
 		}
 	}
 }
@@ -212,28 +202,27 @@ static inline bool signal_read_next_bool(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count == 1);
 
-	return pool->domains[signal.domain].signals_next[signal.start];
+	return pool->signals_next[signal.start];
 }
 
 static inline uint8_t signal_read_next_uint8(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count <= 8);
 
-	return signal_read_uint8_internal(pool->domains[signal.domain].signals_next + signal.start, signal.count);
+	return signal_read_uint8_internal(pool->signals_next + signal.start, signal.count);
 }
 
 static inline uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal) {
 	assert(pool);
 	assert(signal.count <= 16);
 
-	return signal_read_uint16_internal(pool->domains[signal.domain].signals_next + signal.start, signal.count);
+	return signal_read_uint16_internal(pool->signals_next + signal.start, signal.count);
 }
 
 static inline bool signal_changed(SignalPool *pool, Signal signal) {
 	assert(pool);
 
-	SignalDomain *domain = &pool->domains[signal.domain];
-	return memcmp(domain->signals_curr + signal.start, domain->signals_next + signal.start, signal.count) != 0;
+	return memcmp(pool->signals_curr + signal.start, pool->signals_next + signal.start, signal.count) != 0;
 }
 
 // macros to make working with signal a little prettier

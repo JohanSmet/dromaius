@@ -370,8 +370,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->signal_pool->tick_duration_ps = 6250;		// 6.25 ns - 160 Mhz
 	device->signal_pool->tick_duration_ps = 31250;
 
-	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_CLOCK);
-	SIGNAL_DEFINE_BOOL_N(init_b, 1, ACTLO_DEASSERT, "/INIT");
 	SIGNAL_DEFINE_BOOL_N(init, 1, ACTHI_DEASSERT, "INIT");
 
 	SIGNAL_DEFINE_BOOL_N(clk16, 1, true, "CLK16");
@@ -468,7 +466,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
 
-	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_1MHZ);
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_ASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
 	SIGNAL_DEFINE_BOOL_N(nmi_b, 1, ACTLO_DEASSERT, "/NMI");
@@ -536,7 +533,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(ba11_b, 1, "/BA11");
 	SIGNAL_DEFINE_N(reset, 1, "RES");
 
-	signal_pool_current_domain(device->signal_pool, PET_DOMAIN_CLOCK);
 
 	// sheet 06 - master timing
 

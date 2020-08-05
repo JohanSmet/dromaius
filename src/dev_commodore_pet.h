@@ -27,11 +27,6 @@ extern "C" {
 
 // types
 
-typedef enum DevCommodorePetDomains {
-	PET_DOMAIN_CLOCK = 0,
-	PET_DOMAIN_1MHZ = 1
-} DevCommodorePetDomains;
-
 typedef struct DevCommodorePetSignals {
 
 	Signal		init_b;				// 1-bit - initialization of the master timing section

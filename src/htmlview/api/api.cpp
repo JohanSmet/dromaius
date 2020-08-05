@@ -22,7 +22,7 @@ public:
 	};
 
 	struct SignalInfo {
-		std::vector<size_t>				count;
+		size_t							count;
 		std::map<std::string, Signal>	names;
 	};
 
@@ -80,11 +80,15 @@ public:
 									 reinterpret_cast<uint8_t *> (pet_device->display->frame)));
 	}
 
-	val signal_data(int8_t domain) const {
+	val signal_data() const {
 		assert(pet_device);
-		auto &d = pet_device->signal_pool->domains[domain];
-		return val(typed_memory_view(arrlenu(d.signals_next), reinterpret_cast<uint8_t *> (d.signals_next)));
+		auto pool = pet_device->signal_pool;
+		return val(typed_memory_view(arrlenu(pool->signals_next), reinterpret_cast<uint8_t *> (pool->signals_next)));
 	}
+
+	// breakpoints
+	//std::vector<std::string> breakpoint_signal_list() const {
+	//}
 
 	// hardware info
 	DisplayInfo display_info() {
@@ -97,9 +101,7 @@ public:
 		auto pool = pet_device->signal_pool;
 		SignalInfo	result;
 
-		for (int d = 0; d < pool->num_domains; ++d) {
-			result.count.push_back(arrlenu(pool->domains[d].signals_curr));
-		}
+		result.count = arrlenu(pool->signals_curr);
 
 		for (int s = 0; s < shlen(pool->signal_names); ++s) {
 			std::string name = pool->signal_names[s].key;
@@ -119,7 +121,7 @@ public:
 		result.writer_id = -1;
 
 		if (result.signal.start > 0) {
-			result.writer_id = pool->domains[result.signal.domain].signals_writer[result.signal.start];
+			result.writer_id = pool->signals_writer[result.signal.start];
 		}
 
 		return result;
@@ -164,7 +166,6 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 	register_map<std::string, Signal>("MapStringSignal");
 
 	value_object<Signal>("Signal")
-		.field("domain", &Signal::domain)
 		.field("start", &Signal::start)
 		.field("count", &Signal::count)
 		;

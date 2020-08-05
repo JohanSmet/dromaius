@@ -56,16 +56,12 @@ void device_simulate_timestep(Device *device) {
 	// determine changed signals and dirty chips for next simulation step
 	memset(device->chip_is_dirty, false, arrlenu(device->chip_is_dirty));
 
-	for (int d = 0; d < device->signal_pool->num_domains; ++d) {
-		SignalDomain *domain = &device->signal_pool->domains[d];
-
-		for (size_t s = 0; s < arrlenu(domain->signals_curr); ++s) {
-			if (domain->signals_curr[s] != domain->signals_next[s]) {
-				for (size_t i = 0; i < arrlenu(domain->dependent_components[s]); ++i) {
-					device->chip_is_dirty[domain->dependent_components[s][i]] = true;
-				}
-				domain->signals_curr[s] = domain->signals_next[s];
+	for (size_t s = 0; s < arrlenu(device->signal_pool->signals_curr); ++s) {
+		if (device->signal_pool->signals_curr[s] != device->signal_pool->signals_next[s]) {
+			for (size_t i = 0; i < arrlenu(device->signal_pool->dependent_components[s]); ++i) {
+				device->chip_is_dirty[device->signal_pool->dependent_components[s][i]] = true;
 			}
+			device->signal_pool->signals_curr[s] = device->signal_pool->signals_next[s];
 		}
 	}
 }
