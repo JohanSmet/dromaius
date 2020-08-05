@@ -485,39 +485,40 @@ static MunitResult test_changed(const MunitParameter params[], void* user_data_o
 	signal_write_bool(pool, sig_bit, true, 0);
 	signal_write_uint8(pool, sig_byte, 0xaf, 0);
 	signal_write_uint16(pool, sig_word, 0xbeef, 0);
+	signal_pool_cycle(pool);
 
 	// no change
-	signal_pool_cycle(pool);
 	signal_write_bool(pool, sig_bit, true, 0);
 	signal_write_uint8(pool, sig_byte, 0xaf, 0);
 	signal_write_uint16(pool, sig_word, 0xbeef, 0);
+	signal_pool_cycle(pool);
 	munit_assert_false(signal_changed(pool, sig_bit));
 	munit_assert_false(signal_changed(pool, sig_byte));
 	munit_assert_false(signal_changed(pool, sig_word));
 
 	// change bit
-	signal_pool_cycle(pool);
 	signal_write_bool(pool, sig_bit, false, 0);
 	signal_write_uint8(pool, sig_byte, 0xaf, 0);
 	signal_write_uint16(pool, sig_word, 0xbeef, 0);
+	signal_pool_cycle(pool);
 	munit_assert_true(signal_changed(pool, sig_bit));
 	munit_assert_false(signal_changed(pool, sig_byte));
 	munit_assert_false(signal_changed(pool, sig_word));
 
 	// change byte
-	signal_pool_cycle(pool);
 	signal_write_bool(pool, sig_bit, false, 0);
 	signal_write_uint8(pool, sig_byte, 0xfa, 0);
 	signal_write_uint16(pool, sig_word, 0xbeef, 0);
+	signal_pool_cycle(pool);
 	munit_assert_false(signal_changed(pool, sig_bit));
 	munit_assert_true(signal_changed(pool, sig_byte));
 	munit_assert_false(signal_changed(pool, sig_word));
 
 	// change word
-	signal_pool_cycle(pool);
 	signal_write_bool(pool, sig_bit, false, 0);
 	signal_write_uint8(pool, sig_byte, 0xfa, 0);
 	signal_write_uint16(pool, sig_word, 0xdead, 0);
+	signal_pool_cycle(pool);
 	munit_assert_false(signal_changed(pool, sig_bit));
 	munit_assert_false(signal_changed(pool, sig_byte));
 	munit_assert_true(signal_changed(pool, sig_word));

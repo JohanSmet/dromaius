@@ -30,6 +30,7 @@ typedef struct SignalPool {
 	int64_t			current_tick;
 	int64_t			tick_duration_ps;		// in pico-seconds
 
+	bool *			signals_prev;
 	bool *			signals_curr;
 	bool *			signals_next;
 	bool *			signals_default;
@@ -222,7 +223,7 @@ static inline uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal) 
 static inline bool signal_changed(SignalPool *pool, Signal signal) {
 	assert(pool);
 
-	return memcmp(pool->signals_curr + signal.start, pool->signals_next + signal.start, signal.count) != 0;
+	return memcmp(pool->signals_curr + signal.start, pool->signals_prev + signal.start, signal.count) != 0;
 }
 
 // macros to make working with signal a little prettier
