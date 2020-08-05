@@ -87,8 +87,31 @@ public:
 	}
 
 	// breakpoints
-	//std::vector<std::string> breakpoint_signal_list() const {
-	//}
+	std::vector<std::string> breakpoint_signal_list() const {
+		std::vector<std::string>	result;
+
+		auto bps = dms_breakpoint_signal_list(dms_ctx);
+
+		for (ptrdiff_t idx = 0; idx < arrlen(bps); ++idx) {
+			result.push_back(pet_device->signal_pool->signals_name[bps[idx].start]);
+		}
+
+		return result;
+	}
+
+	void breakpoint_signal_set(const std::string &signal_name) {
+		auto signal = signal_by_name(pet_device->signal_pool, signal_name.c_str());
+		if (signal.start != 0) {
+			dms_breakpoint_signal_set(dms_ctx, signal);
+		}
+	}
+
+	void breakpoint_signal_clear(const std::string &signal_name) {
+		auto signal = signal_by_name(pet_device->signal_pool, signal_name.c_str());
+		if (signal.start != 0) {
+			dms_breakpoint_signal_clear(dms_ctx, signal);
+		}
+	}
 
 	// hardware info
 	DisplayInfo display_info() {
@@ -212,6 +235,9 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("context_reset", &DmsApi::context_reset)
 		.function("display_data", &DmsApi::display_data)
 		.function("signal_data", &DmsApi::signal_data)
+		.function("breakpoint_signal_list", &DmsApi::breakpoint_signal_list)
+		.function("breakpoint_signal_set", &DmsApi::breakpoint_signal_set)
+		.function("breakpoint_signal_clear", &DmsApi::breakpoint_signal_clear)
 		.function("display_info", &DmsApi::display_info)
 		.function("signal_info", &DmsApi::signal_info)
 		.function("signal_details", &DmsApi::signal_details)

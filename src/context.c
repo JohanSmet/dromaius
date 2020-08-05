@@ -351,6 +351,28 @@ bool dms_toggle_breakpoint(DmsContext *dms, int64_t addr) {
 	}
 }
 
+Signal *dms_breakpoint_signal_list(DmsContext *dms) {
+	assert(dms);
+	return dms->signal_breakpoints;
+}
+
+void dms_breakpoint_signal_set(DmsContext *dms, Signal signal) {
+	assert(dms);
+
+	if (signal_breakpoint_index(dms, signal) < 0) {
+		arrpush(dms->signal_breakpoints, signal);
+	}
+}
+
+void dms_breakpoint_signal_clear(DmsContext *dms, Signal signal) {
+	assert(dms);
+
+	int idx = signal_breakpoint_index(dms, signal);
+	if (idx	>= 0) {
+		arrdelswap(dms->signal_breakpoints, idx);
+	}
+}
+
 bool dms_toggle_signal_breakpoint(DmsContext *dms, Signal signal) {
 	int idx = signal_breakpoint_index(dms, signal);
 

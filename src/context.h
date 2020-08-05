@@ -36,6 +36,10 @@ void dms_reset(struct DmsContext *dms);
 void dms_change_simulation_speed_ratio(struct DmsContext *dms, double ratio);
 double dms_simulation_speed_ratio(struct DmsContext *dms);
 
+struct Signal *dms_breakpoint_signal_list(struct DmsContext *dms);
+void dms_breakpoint_signal_set(struct DmsContext *dms, struct Signal signal);
+void dms_breakpoint_signal_clear(struct DmsContext *dms, struct Signal signal);
+
 void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply);
 
 #ifdef __cplusplus
