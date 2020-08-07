@@ -463,14 +463,14 @@ void chip_74154_decoder_destroy(Chip74154Decoder *chip) {
 void chip_74154_decoder_process(Chip74154Decoder *chip) {
 	assert(chip);
 
-	if (!(ACTLO_ASSERTED(SIGNAL_BOOL(g1_b)) && ACTLO_ASSERTED(SIGNAL_BOOL(g2_b)))) {
-		return;
-	}
-
 	Signal **outputs = ((Chip74154Decoder_private *) chip)->outputs;
 
 	for (int i = 0; i < 16; ++i) {
 		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, chip->id);
+	}
+
+	if (!(ACTLO_ASSERTED(SIGNAL_BOOL(g1_b)) && ACTLO_ASSERTED(SIGNAL_BOOL(g2_b)))) {
+		return;
 	}
 
 	int value = SIGNAL_BOOL(a) |
