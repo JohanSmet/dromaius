@@ -37,9 +37,7 @@ MunitResult test_read(const MunitParameter params[], void *user_data_or_fixture)
 		signal_pool_cycle(ram->signal_pool);
 
 		ram_8d16a_process(ram);
-
-		signal_pool_cycle(ram->signal_pool);
-		munit_assert_uint8(SIGNAL_UINT8(bus_data), ==, i & 0xff);
+		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, i & 0xff);
 	}
 
 	return MUNIT_OK;
@@ -57,11 +55,13 @@ MunitResult test_write(const MunitParameter params[], void *user_data_or_fixture
 		SIGNAL_SET_UINT16(bus_address, i);
 		SIGNAL_SET_UINT8(bus_data, i & 0xff);
 		signal_pool_cycle(ram->signal_pool);
-
 		ram_8d16a_process(ram);
 
+		SIGNAL_SET_BOOL(ce_b, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(we_b, ACTLO_DEASSERT);
 		signal_pool_cycle(ram->signal_pool);
-		munit_assert_uint8(SIGNAL_UINT8(bus_data), ==, 0x00);
+		ram_8d16a_process(ram);
+		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
 	}
 
 	// check memory

@@ -50,6 +50,7 @@ void rom_8d16a_process(Rom8d16a *rom) {
 	assert(rom);
 
 	if (!ACTLO_ASSERTED(SIGNAL_BOOL(ce_b))) {
+		SIGNAL_NO_WRITE(bus_data);
 		return;
 	}
 

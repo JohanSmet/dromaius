@@ -85,6 +85,8 @@ static inline void lcd_write_char_8b(ChipHd44780 *lcd, char c) {
 		SIGNAL_SET_BOOL(rs, true);
 		SIGNAL_SET_UINT8(bus_data, (uint8_t) c);
 	LCD_CYCLE_END
+
+	SIGNAL_SET_BOOL(rw, true);
 }
 
 static inline void lcd_write_cmd_8b(ChipHd44780 *lcd, uint8_t cmd) {
@@ -93,6 +95,8 @@ static inline void lcd_write_cmd_8b(ChipHd44780 *lcd, uint8_t cmd) {
 		SIGNAL_SET_BOOL(rs, false);
 		SIGNAL_SET_UINT8(bus_data, cmd);
 	LCD_CYCLE_END
+
+	SIGNAL_SET_BOOL(rw, true);
 }
 
 static inline uint8_t lcd_read_data_8b(ChipHd44780 *lcd) {
@@ -115,6 +119,8 @@ static inline void lcd_write_char_4b(ChipHd44780 *lcd, char c) {
 		SIGNAL_SET_BOOL(rs, true);
 		SIGNAL_SET_UINT8(db4_7, ((uint8_t) c & 0x0f));
 	LCD_CYCLE_END
+
+	SIGNAL_SET_BOOL(rw, true);
 }
 
 static inline void lcd_write_cmd_4b(ChipHd44780 *lcd, uint8_t cmd) {
@@ -129,6 +135,8 @@ static inline void lcd_write_cmd_4b(ChipHd44780 *lcd, uint8_t cmd) {
 		SIGNAL_SET_BOOL(rs, false);
 		SIGNAL_SET_UINT8(db4_7, (cmd & 0x0f));
 	LCD_CYCLE_END
+
+	SIGNAL_SET_BOOL(rw, true);
 }
 
 static inline uint8_t lcd_read_data_4b(ChipHd44780 *lcd) {

@@ -9,47 +9,49 @@
 #define SIGNAL_CHIP_ID		cpu->id
 
 #define CPU_CYCLE_START				\
-	for (int i = 0; i < 4; ++i) {
-#define CPU_HALF_CYCLE_START		\
 	for (int i = 0; i < 2; ++i) {
+#define CPU_HALF_CYCLE_START		\
+	for (int i = 0; i < 1; ++i) {
 #define CPU_CYCLE_END				\
-		cpu_process(cpu, i & 1);	\
+		cpu_half_cycle(cpu);		\
 	}
 
 #define CPU_HALF_CYCLE()			\
-		CPU_HALF_CYCLE_START		\
-		CPU_CYCLE_END
+		cpu_half_cycle(cpu);		\
 
 #define CPU_CYCLE()					\
-		CPU_CYCLE_START				\
-		CPU_CYCLE_END
+		cpu_half_cycle(cpu);		\
+		cpu_half_cycle(cpu);		\
 
 #define DATABUS_WRITE(val)					\
 	CPU_CYCLE_START							\
 		SIGNAL_SET_UINT8(bus_data,(val));	\
 	CPU_CYCLE_END
 
-
-static inline void cpu_process(Cpu6502 *cpu, bool delayed) {
-	SIGNAL_SET_BOOL(clock, SIGNAL_BOOL(clock) ^ !delayed);
+static inline void cpu_half_cycle(Cpu6502 *cpu) {
+	SIGNAL_SET_BOOL(clock, !SIGNAL_BOOL(clock));
 	signal_pool_cycle(cpu->signal_pool);
-	cpu_6502_process(cpu);
+	cpu->process(cpu);
+	cpu->process(cpu);
 }
 
 static void cpu_reset(Cpu6502 *cpu) {
 
 	// run cpu with reset asserted
-	CPU_HALF_CYCLE_START
-		SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
-	CPU_CYCLE_END
+	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clock, true);
+	CPU_HALF_CYCLE()
 
 	// ignore first 5 cycles
+	SIGNAL_SET_BOOL(reset_b, ACTLO_DEASSERT);
+
 	for (int i = 0; i < 5; ++i) {
-		CPU_CYCLE()
+		CPU_HALF_CYCLE()
+		CPU_HALF_CYCLE()
 	}
 
 	// cpu should now read address 0xfffc - low byte of reset vector
-	CPU_HALF_CYCLE()
+	CPU_HALF_CYCLE();
 	DATABUS_WRITE(0x01);
 
 	// cpu should now read address 0xfffd - high byte of reset vector
@@ -77,20 +79,20 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 	munit_assert_not_null(cpu);
 
 	// run cpu with reset asserted
-	CPU_HALF_CYCLE_START
-		SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
-	CPU_CYCLE_END
+	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clock, true);
+	CPU_HALF_CYCLE()
 
-	// deassert reset - ignore first 5 cycles
+	// ignore first 5 cycles
+	SIGNAL_SET_BOOL(reset_b, ACTLO_DEASSERT);
+
 	for (int i = 0; i < 5; ++i) {
 		CPU_HALF_CYCLE()
-		munit_assert_true(SIGNAL_NEXT_BOOL(rw));
-
 		CPU_HALF_CYCLE()
 	}
 
 	// cpu should now read address 0xfffc - low byte of reset vector
-	CPU_HALF_CYCLE()
+	CPU_HALF_CYCLE();
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xfffc);
 	DATABUS_WRITE(0x01);
 
@@ -285,6 +287,7 @@ MunitResult test_rdy(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
 
 	// stop deassering RDY (default == asserted) - cpu continues operation
+	SIGNAL_SET_BOOL(rdy, ACTHI_ASSERT);
 
 	// >> cycle 02: fetch address - low byte
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
@@ -413,7 +416,7 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_CARRY);
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
-	// >> cycle 01: fetch opcode
+	// >> cycle 00: fetch opcode
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ABS);

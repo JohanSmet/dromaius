@@ -65,10 +65,15 @@ typedef enum Chip6522_regs {
 static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
 	Chip6522 *via = chip_6522_create(signal_pool_create(1), (Chip6522Signals) {0});
 
+	// run chip with reset asserted
 	SIGNAL_SET_BOOL(enable, false);
 	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
 	signal_pool_cycle(via->signal_pool);
 	chip_6522_process(via);
+
+	// deassert reset
+	SIGNAL_SET_BOOL(reset_b, ACTLO_DEASSERT);
+
 	return via;
 }
 
@@ -228,9 +233,6 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ddra, ==, 0x09);
 	ASSERT_REGISTERS_DEFAULT(REG_DDRA);
-
-	// disable via
-	strobe_via(via, false);
 
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
@@ -522,6 +524,7 @@ static MunitResult test_porta_out(const MunitParameter params[], void *user_data
 	// cycle clock
 	half_clock_cycle(via);
 	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
+	SIGNAL_SET_BOOL(rw, true);
 	half_clock_cycle(via);
 	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
 
@@ -559,6 +562,7 @@ static MunitResult test_portb_out(const MunitParameter params[], void *user_data
 	// cycle clock
 	half_clock_cycle(via);
 	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
+	SIGNAL_SET_BOOL(rw, true);
 	half_clock_cycle(via);
 	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
 	munit_assert_uint8(via->reg_ddrb, ==, 0xf0);
@@ -607,6 +611,7 @@ static MunitResult test_read_porta_input(const MunitParameter params[], void *us
 	VIA_CYCLE_START
 		SIGNAL_SET_UINT8(port_a, 0x3e);
 		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x3e);
 
@@ -681,13 +686,16 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 
 	// start writing to port-A, keep CA1 high
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_a, 0x3e);
 		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x3e);
 
 	// bring CA1 low, latching data on the port
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_a, 0x3e);
 		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
 	VIA_CYCLE_END
@@ -695,6 +703,7 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 
 	// bring CA1 high, change data on port, internal register shouldn't change
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_a, 0x15);
 		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -714,6 +723,7 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 
 	// read unlatched port - ila should follow port again
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_a, 0x15);
 		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -760,13 +770,16 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// start writing to port-B, keep CB1 high
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_b, 0x3e);
 		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ilb, ==, 0x3e);
 
 	// bring CB1 low, latching data on the port
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_b, 0x3e);
 		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
 	VIA_CYCLE_END
@@ -774,6 +787,7 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// bring CB1 high, change data on port, internal register shouldn't change
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_b, 0x15);
 		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -793,6 +807,7 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// read unlatched port - ilb should follow port again
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_b, 0x15);
 		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -849,6 +864,7 @@ static MunitResult test_read_portb_output(const MunitParameter params[], void *u
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xfa);
 
@@ -875,6 +891,7 @@ static MunitResult test_hs_porta_read(const MunitParameter params[], void *user_
 	VIA_CYCLE_START
 		SIGNAL_SET_UINT8(port_a, 0xab);
 		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 
 	// another cycle
@@ -941,6 +958,7 @@ static MunitResult test_hs_porta_read_pulse(const MunitParameter params[], void 
 	VIA_CYCLE_START
 		SIGNAL_SET_UINT8(port_a, 0xab);
 		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 
 	// another cycle
@@ -965,6 +983,7 @@ static MunitResult test_hs_porta_read_pulse(const MunitParameter params[], void 
 
 	// clock-cycle - CA2 goes high again
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_a, 0xab);
 		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -1008,18 +1027,22 @@ static MunitResult test_hs_porta_write(const MunitParameter params[], void *user
 
 	// clock cycle - CA2 stays low
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
 
 	// clock cycle - CA2 stays low
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
 
 	// assert CA1 - CA2 goes high
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
@@ -1062,7 +1085,9 @@ static MunitResult test_hs_porta_write_pulse(const MunitParameter params[], void
 
 	// clock cycle - CA2 goes high again
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
 
@@ -1088,13 +1113,16 @@ static MunitResult test_hs_portb_read(const MunitParameter params[], void *user_
 
 	// assert CB1 to indicate there's available data
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_b, 0xab);
 		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
 
 	// another cycle
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_b, 0xab);
 		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -1136,13 +1164,16 @@ static MunitResult test_hs_portb_read_pulse(const MunitParameter params[], void 
 
 	// assert CB1 to indicate there's available data
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_b, 0xab);
 		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
 
 	// another cycle
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_UINT8(port_b, 0xab);
 		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -1254,6 +1285,8 @@ static MunitResult test_hs_portb_write_pulse(const MunitParameter params[], void
 
 	// clock cycle - CB2 goes high again
 	VIA_CYCLE_START
+		strobe_via(via, false);
+		SIGNAL_SET_BOOL(rw, true);
 		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
@@ -1525,6 +1558,8 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(ca2, ACTLO_ASSERT);
 		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
 		SIGNAL_SET_BOOL(cb2, ACTLO_ASSERT);
+		strobe_via(via, false);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
@@ -1535,6 +1570,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
 		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
 		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		strobe_via(via, false);
 	VIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
@@ -1852,6 +1888,9 @@ static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_
 	munit_assert_uint16(via->reg_t1c, ==, 0);
 
 	// run until timer ends
+	SIGNAL_SET_BOOL(rw, true);
+	strobe_via(via, false);
+
 	for (int i = 400; i >= 0; --i) {
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t1c, ==, i);
@@ -1928,6 +1967,8 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 	munit_assert_uint8(via->reg_t1l_h, ==, 0);
 	munit_assert_uint16(via->reg_t1c, ==, 0);
 
+	SIGNAL_SET_BOOL(rw, true);
+
 	for (int j = 0; j < 3; ++j) {
 		// clear t1 interrupt by reading t1c_l
 		VIA_CYCLE_START
@@ -1942,6 +1983,8 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 		munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 		// run until timer ends
+		strobe_via(via, false);
+
 		for (int i = 49; i >= 0; --i) {
 			VIA_CYCLE();
 			munit_assert_uint16(via->reg_t1c, ==, i);
@@ -2023,6 +2066,9 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 	munit_assert_uint16(via->reg_t1c, ==, 0);
 
 	// run until timer ends
+	SIGNAL_SET_BOOL(rw, true);
+	strobe_via(via, false);
+
 	for (int i = 400; i >= 0; --i) {
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t1c, ==, i);
@@ -2105,6 +2151,8 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 	munit_assert_uint16(via->reg_t1c, ==, 0);
 	munit_assert(signal_read_next_bool(via->signal_pool, pb7) == val_pb7);
 
+	SIGNAL_SET_BOOL(rw, true);
+
 	for (int j = 0; j < 3; ++j) {
 
 		// clear t1 interrupt by reading t1c_l
@@ -2120,6 +2168,7 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 		munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 		// run until timer ends
+		strobe_via(via, false);
 		for (int i = 49; i >= 0; --i) {
 			VIA_CYCLE();
 			munit_assert_uint16(via->reg_t1c, ==, i);
@@ -2200,6 +2249,9 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 	munit_assert_uint16(via->reg_t2c, ==, 0);
 
 	// run until timer ends
+	SIGNAL_SET_BOOL(rw, true);
+	strobe_via(via, false);
+
 	for (int i = 10; i >= 0; --i) {
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t2c, ==, i);
@@ -2248,6 +2300,9 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 	munit_assert_uint8(via->reg_t2l_l, ==, 10);
 
 	// run until timer ends
+	SIGNAL_SET_BOOL(rw, true);
+	strobe_via(via, false);
+
 	for (int i = 10; i >= 0; --i) {
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t2c, ==, i);
@@ -2311,6 +2366,9 @@ static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_d
 	munit_assert_uint16(via->reg_t2c, ==, 0);
 
 	// cycle until timer is done
+	SIGNAL_SET_BOOL(rw, true);
+	strobe_via(via, false);
+
 	for (int i = 10; i > 0; --i) {
 		VIA_CYCLE_START
 			SIGNAL_SET_UINT8(port_b, 0b01000000);
@@ -2449,11 +2507,13 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
@@ -2503,6 +2563,7 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
@@ -2585,11 +2646,13 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
@@ -2643,6 +2706,7 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
@@ -2716,11 +2780,13 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 		SIGNAL_SET_BOOL(cb1, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb1, true);
 		SIGNAL_SET_BOOL(cb2, true);
 	VIA_CYCLE_END
@@ -2774,6 +2840,7 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb1, true);
 		SIGNAL_SET_BOOL(cb2, true);
 	VIA_CYCLE_END
@@ -2854,7 +2921,9 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
@@ -2901,7 +2970,9 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
@@ -2987,7 +3058,9 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
@@ -3041,6 +3114,8 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
+		SIGNAL_SET_BOOL(rw, true);
 		SIGNAL_SET_BOOL(cb2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
@@ -3134,7 +3209,9 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
@@ -3208,7 +3285,9 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
@@ -3282,8 +3361,10 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
 		SIGNAL_SET_BOOL(cb1, true);
 		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_SET_BOOL(rw, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
@@ -3340,6 +3421,8 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
+		strobe_via(via, false);
+		SIGNAL_SET_BOOL(rw, true);
 		SIGNAL_SET_BOOL(cb1, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);

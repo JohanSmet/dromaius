@@ -52,6 +52,8 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	// set both flip-flops
 	SIGNAL_SET_BOOL(pr1_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(pr2_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clr1_b, ACTLO_DEASSERT);
+	SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
 	SIGNAL_SET_BOOL(clk1, false);
 	SIGNAL_SET_BOOL(clk2, false);
 	signal_pool_cycle(chip->signal_pool);
@@ -63,8 +65,8 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 
 	// check nonstable state when both clear and preset are asserted
 	SIGNAL_SET_BOOL(pr1_b, ACTLO_ASSERT);
-	SIGNAL_SET_BOOL(clr1_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(pr2_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clr1_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clr2_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clk1, false);
 	SIGNAL_SET_BOOL(clk2, false);
@@ -76,6 +78,8 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	munit_assert_true(SIGNAL_NEXT_BOOL(q2_b));
 
 	// clear both flip-flops
+	SIGNAL_SET_BOOL(pr1_b, ACTLO_DEASSERT);
+	SIGNAL_SET_BOOL(pr2_b, ACTLO_DEASSERT);
 	SIGNAL_SET_BOOL(clr1_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clr2_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clk1, false);
@@ -178,6 +182,9 @@ static MunitResult test_7493_binary_counter(const MunitParameter params[], void 
 	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
 	munit_assert_false(SIGNAL_NEXT_BOOL(qc));
 	munit_assert_false(SIGNAL_NEXT_BOOL(qd));
+
+	SIGNAL_SET_BOOL(r01, ACTHI_DEASSERT);
+	SIGNAL_SET_BOOL(r02, ACTHI_DEASSERT);
 
 	for (int i = 1; i < 20; ++i) {
 		munit_logf(MUNIT_LOG_INFO, "i = %d", i);
@@ -361,22 +368,22 @@ static MunitResult test_74154_decoder(const MunitParameter params[], void *user_
 			chip_74154_decoder_process(chip);
 
 			bool strobed = !truth_table[i][0] && !truth_table[i][1];
-			munit_assert(SIGNAL_NEXT_BOOL(y0_b) == ((!strobed || input == 0) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y1_b) == ((!strobed || input == 1) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y2_b) == ((!strobed || input == 2) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y3_b) == ((!strobed || input == 3) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y4_b) == ((!strobed || input == 4) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y5_b) == ((!strobed || input == 5) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y6_b) == ((!strobed || input == 6) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y7_b) == ((!strobed || input == 7) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y8_b) == ((!strobed || input == 8) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y9_b) == ((!strobed || input == 9) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y10_b) == ((!strobed || input == 10) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y11_b) == ((!strobed || input == 11) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y12_b) == ((!strobed || input == 12) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y13_b) == ((!strobed || input == 13) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y14_b) == ((!strobed || input == 14) ? ACTLO_ASSERT : ACTLO_DEASSERT));
-			munit_assert(SIGNAL_NEXT_BOOL(y15_b) == ((!strobed || input == 15) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y0_b) == ((strobed && input == 0) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y1_b) == ((strobed && input == 1) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y2_b) == ((strobed && input == 2) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y3_b) == ((strobed && input == 3) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y4_b) == ((strobed && input == 4) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y5_b) == ((strobed && input == 5) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y6_b) == ((strobed && input == 6) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y7_b) == ((strobed && input == 7) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y8_b) == ((strobed && input == 8) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y9_b) == ((strobed && input == 9) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y10_b) == ((strobed && input == 10) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y11_b) == ((strobed && input == 11) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y12_b) == ((strobed && input == 12) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y13_b) == ((strobed && input == 13) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y14_b) == ((strobed && input == 14) ? ACTLO_ASSERT : ACTLO_DEASSERT));
+			munit_assert(SIGNAL_NEXT_BOOL(y15_b) == ((strobed && input == 15) ? ACTLO_ASSERT : ACTLO_DEASSERT));
 		}
 	}
 
@@ -547,6 +554,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 
 	// preset counter
 	SIGNAL_SET_BOOL(load_b, ACTLO_ASSERT);
+	SIGNAL_SET_BOOL(clear_b, ACTLO_DEASSERT);
 	SIGNAL_SET_BOOL(a, true);
 	SIGNAL_SET_BOOL(b, false);
 	SIGNAL_SET_BOOL(c, true);
@@ -558,6 +566,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
 	munit_assert_true(SIGNAL_NEXT_BOOL(qc));
 	munit_assert_false(SIGNAL_NEXT_BOOL(qd));
+	SIGNAL_SET_BOOL(load_b, ACTLO_DEASSERT);
 
 	for (int i = 6; i < 20; ++i) {
 		munit_logf(MUNIT_LOG_INFO, "i = %d", i);

@@ -56,6 +56,7 @@ void ram_8d16a_process(Ram8d16a *ram) {
 	assert(ram);
 
 	if (!ACTLO_ASSERTED(SIGNAL_BOOL(ce_b))) {
+		SIGNAL_NO_WRITE(bus_data);
 		return;
 	}
 
@@ -63,7 +64,10 @@ void ram_8d16a_process(Ram8d16a *ram) {
 
 	if (ACTLO_ASSERTED(SIGNAL_BOOL(oe_b))) {
 		SIGNAL_SET_UINT8(bus_data, ram->data_array[address]);
-	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(we_b))) {
-		ram->data_array[address] = SIGNAL_UINT8(bus_data);
+	} else {
+		SIGNAL_NO_WRITE(bus_data);
+		if (ACTLO_ASSERTED(SIGNAL_BOOL(we_b))) {
+			ram->data_array[address] = SIGNAL_UINT8(bus_data);
+		}
 	}
 }

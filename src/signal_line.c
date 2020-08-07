@@ -84,12 +84,12 @@ SignalPool *signal_pool_create() {
 void signal_pool_destroy(SignalPool *pool) {
 	assert(pool);
 
-	arrfree(pool->signals_prev);
 	arrfree(pool->signals_curr);
 	arrfree(pool->signals_next);
 	arrfree(pool->signals_default);
 	arrfree(pool->signals_writer);
 	arrfree(pool->signals_name);
+	arrfree(pool->signals_last_changed);
 
 	for (ptrdiff_t idx = 0; idx < arrlen(pool->dependent_components); ++idx) {
 		arrfree(pool->dependent_components[idx]);
@@ -101,19 +101,31 @@ void signal_pool_destroy(SignalPool *pool) {
 
 void signal_pool_cycle(SignalPool *pool) {
 
-	assert(arrlenu(pool->signals_prev) == arrlenu(pool->signals_curr));
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
 	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
 
-	memcpy(pool->signals_prev, pool->signals_curr, arrlenu(pool->signals_curr));
-	memcpy(pool->signals_curr, pool->signals_next, arrlenu(pool->signals_next));
-	memcpy(pool->signals_next, pool->signals_default, arrlenu(pool->signals_default));
+	for (size_t s = 0; s < arrlenu(pool->signals_curr); ++s) {
+		if (pool->signals_curr[s] != pool->signals_next[s]) {
+			pool->signals_last_changed[s] = pool->current_tick;
+			pool->signals_curr[s] = pool->signals_next[s];
+		}
+	}
 }
 
-void signal_pool_cycle_no_reset(SignalPool *pool) {
+void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags) {
+	assert(is_dirty_flags);
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
-	memcpy(pool->signals_prev, pool->signals_curr, arrlenu(pool->signals_curr));
-	memcpy(pool->signals_curr, pool->signals_next, arrlenu(pool->signals_next));
+	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
+
+	for (size_t s = 0; s < arrlenu(pool->signals_curr); ++s) {
+		if (pool->signals_curr[s] != pool->signals_next[s]) {
+			for (size_t i = 0; i < arrlenu(pool->dependent_components[s]); ++i) {
+				is_dirty_flags[pool->dependent_components[s][i]] = true;
+			}
+			pool->signals_last_changed[s] = pool->current_tick;
+			pool->signals_curr[s] = pool->signals_next[s];
+		}
+	}
 }
 
 Signal signal_create(SignalPool *pool, uint32_t size) {
@@ -122,7 +134,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 
 	Signal result = {(uint32_t) arrlenu(pool->signals_curr), size};
 
-	arrsetcap(pool->signals_prev, arrlenu(pool->signals_prev) + size);
+	arrsetcap(pool->signals_last_changed, arrlenu(pool->signals_last_changed) + size);
 	arrsetcap(pool->signals_curr, arrlenu(pool->signals_curr) + size);
 	arrsetcap(pool->signals_next, arrlenu(pool->signals_next) + size);
 	arrsetcap(pool->signals_default, arrlenu(pool->signals_default) + size);
@@ -131,7 +143,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 	arrsetcap(pool->dependent_components, arrlenu(pool->dependent_components) + size);
 
 	for (uint32_t i = 0; i < size; ++i) {
-		arrpush(pool->signals_prev, false);
+		arrpush(pool->signals_last_changed, -1);
 		arrpush(pool->signals_curr, false);
 		arrpush(pool->signals_next, false);
 		arrpush(pool->signals_default, false);
@@ -185,7 +197,6 @@ void signal_default_bool(SignalPool *pool, Signal signal, bool value) {
 	assert(signal.count == 1);
 
 	pool->signals_default[signal.start] = value;
-	pool->signals_prev[signal.start] = value;
 	pool->signals_curr[signal.start] = value;
 	pool->signals_next[signal.start] = value;
 }
@@ -196,7 +207,6 @@ void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value) {
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		pool->signals_default[signal.start + i] = value & 1;
-		pool->signals_prev[signal.start + i] = value & 1;
 		pool->signals_curr[signal.start + i] = value & 1;
 		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;
@@ -209,7 +219,6 @@ void signal_default_uint16(SignalPool *pool, Signal signal, uint16_t value) {
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		pool->signals_default[signal.start + i] = value & 1;
-		pool->signals_prev[signal.start + i] = value & 1;
 		pool->signals_curr[signal.start + i] = value & 1;
 		pool->signals_next[signal.start + i] = value & 1;
 		value >>= 1;

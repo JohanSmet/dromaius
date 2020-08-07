@@ -33,9 +33,7 @@ static MunitResult test_read(const MunitParameter params[], void *user_data_or_f
 		signal_pool_cycle(rom->signal_pool);
 
 		rom_8d16a_process(rom);
-
-		signal_pool_cycle(rom->signal_pool);
-		munit_assert_uint8(SIGNAL_UINT8(bus_data), ==, i & 0xff);
+		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, i & 0xff);
 	}
 
 	return MUNIT_OK;
@@ -63,7 +61,7 @@ static MunitResult test_ce(const MunitParameter params[], void *user_data_or_fix
 	SIGNAL_SET_UINT16(bus_address, 0x12AF);
 	signal_pool_cycle(rom->signal_pool);
 	rom_8d16a_process(rom);
-	munit_assert_uint8(SIGNAL_UINT8(bus_data), ==, 0);
+	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
 
 	return MUNIT_OK;
 }

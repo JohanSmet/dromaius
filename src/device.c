@@ -55,15 +55,7 @@ void device_simulate_timestep(Device *device) {
 
 	// determine changed signals and dirty chips for next simulation step
 	memset(device->chip_is_dirty, false, arrlenu(device->chip_is_dirty));
-
-	for (size_t s = 0; s < arrlenu(device->signal_pool->signals_curr); ++s) {
-		if (device->signal_pool->signals_curr[s] != device->signal_pool->signals_next[s]) {
-			for (size_t i = 0; i < arrlenu(device->signal_pool->dependent_components[s]); ++i) {
-				device->chip_is_dirty[device->signal_pool->dependent_components[s][i]] = true;
-			}
-			device->signal_pool->signals_curr[s] = device->signal_pool->signals_next[s];
-		}
-	}
+	signal_pool_cycle_dirty_flags(device->signal_pool, device->chip_is_dirty);
 }
 
 void device_schedule_event(Device *device, int32_t chip_id, int64_t timestamp) {

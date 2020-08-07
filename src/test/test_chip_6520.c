@@ -22,10 +22,15 @@
 static void *chip_6520_setup(const MunitParameter params[], void *user_data) {
 	Chip6520 *pia = chip_6520_create(signal_pool_create(1), (Chip6520Signals) {0});
 
+	// run chip with reset asserted
 	SIGNAL_SET_BOOL(enable, false);
 	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
 	signal_pool_cycle(pia->signal_pool);
 	chip_6520_process(pia);
+
+	// deassert reset
+	SIGNAL_SET_BOOL(reset_b, ACTLO_DEASSERT);
+
 	return pia;
 }
 
@@ -328,9 +333,6 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
-	// disable pia
-	strobe_pia(pia, false);
-
 	// try writing again with a disabled pia, register shouldn't change
 	PIA_CYCLE_START
 		strobe_pia(pia, false);
@@ -374,9 +376,6 @@ static MunitResult test_write_cra(const MunitParameter params[], void *user_data
 	munit_assert_uint8(pia->reg_ddrb, ==, 0);
 	munit_assert_uint8(pia->reg_crb, ==, 0);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
-
-	// disable pia
-	strobe_pia(pia, false);
 
 	// try writing again with disabled pia, register shouldn't change
 	PIA_CYCLE_START
@@ -514,9 +513,6 @@ static MunitResult test_write_crb(const MunitParameter params[], void *user_data
 	munit_assert_uint8(pia->reg_crb, ==, 0x3f);
 	munit_assert_uint8(pia->reg_orb, ==, 0);
 
-	// disable pia
-	strobe_pia(pia, false);
-
 	// try writing again to a disable pia, register shouldn't change
 	PIA_CYCLE_START
 		strobe_pia(pia, false);
@@ -590,8 +586,10 @@ static MunitResult test_irqa_neg(const MunitParameter params[], void *user_data_
 	// read port-A - should reset the irq
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
+		SIGNAL_NO_WRITE(bus_data);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
 	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
@@ -667,8 +665,10 @@ static MunitResult test_irqa_pos(const MunitParameter params[], void *user_data_
 	// read port-A - should reset the irq
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
+		SIGNAL_NO_WRITE(bus_data);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqa_b));
 	munit_assert_false(FLAG_IS_SET(pia->reg_cra, FLAG_6520_IRQ1));
@@ -734,6 +734,7 @@ static MunitResult test_irqb_neg(const MunitParameter params[], void *user_data_
 		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
 	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
@@ -809,6 +810,7 @@ static MunitResult test_irqb_pos(const MunitParameter params[], void *user_data_
 		strobe_pia(pia, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
+		SIGNAL_SET_BOOL(rw, true);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(irqb_b));
 	munit_assert_false(FLAG_IS_SET(pia->reg_crb, FLAG_6520_IRQ1));
@@ -843,6 +845,7 @@ static MunitResult test_porta_out(const MunitParameter params[], void *user_data
 	// cycle clock
 	half_clock_cycle(pia);
 	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
+	SIGNAL_SET_BOOL(rw, true);
 
 	half_clock_cycle(pia);
 	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
@@ -879,6 +882,7 @@ static MunitResult test_portb_out(const MunitParameter params[], void *user_data
 	// cycle clock
 	half_clock_cycle(pia);
 	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
+	SIGNAL_SET_BOOL(rw, true);
 
 	half_clock_cycle(pia);
 	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
@@ -917,11 +921,14 @@ static MunitResult test_ca2_out_manual(const MunitParameter params[], void *user
 	// change nothing, ca2 still high
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rw, true);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
 
 	// disable pia, ca2 still high
-	PIA_CYCLE()
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
 
 	// re-enable pia, ca2 still high
@@ -970,13 +977,16 @@ static MunitResult test_ca2_out_pulse(const MunitParameter params[], void *user_
 	// read port-A, ca2 low (for one clock-cycle)
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rw, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
 
 	// cycle clock, don't read port-A, ca2 returns to high
-	PIA_CYCLE();
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
 
 	return MUNIT_OK;
@@ -998,6 +1008,7 @@ static MunitResult test_ca2_out_handshake(const MunitParameter params[], void *u
 	// read ddra, ca2 high
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rw, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 	PIA_CYCLE_END
@@ -1016,13 +1027,16 @@ static MunitResult test_ca2_out_handshake(const MunitParameter params[], void *u
 	// read port-A, ca2 low (until active transition on ca1)
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rw, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
 	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
 
 	// cycle clock, don't read port-A, ca2 stays low
-	PIA_CYCLE()
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
 
 	// cycle clock, don't read port-A, ca2 stays low
@@ -1076,11 +1090,14 @@ static MunitResult test_cb2_out_manual(const MunitParameter params[], void *user
 	// change nothing, cb2 still high
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rw, true);
 	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
 
 	// disable pia, cb2 still high
-	PIA_CYCLE()
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
 
 	// re-enable pia, cb2 still high
@@ -1136,7 +1153,10 @@ static MunitResult test_cb2_out_pulse(const MunitParameter params[], void *user_
 	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
 
 	// cycle clock, don't write port-B, cb2 returns to high
-	PIA_CYCLE();
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+		SIGNAL_SET_BOOL(rw, true);
+	PIA_CYCLE_END
 	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
 
 	return MUNIT_OK;
@@ -1158,6 +1178,7 @@ static MunitResult test_cb2_out_handshake(const MunitParameter params[], void *u
 	// read ddrb, cb2 high
 	PIA_CYCLE_START
 		strobe_pia(pia, true);
+		SIGNAL_SET_BOOL(rw, true);
 		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
 		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
 	PIA_CYCLE_END
@@ -1183,7 +1204,10 @@ static MunitResult test_cb2_out_handshake(const MunitParameter params[], void *u
 	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
 
 	// cycle clock, don't read port-A, cb2 stays low
-	PIA_CYCLE()
+	PIA_CYCLE_START
+		strobe_pia(pia, false);
+		SIGNAL_SET_BOOL(rw, true);
+	PIA_CYCLE_END
 	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
 
 	// cycle clock, don't read port-A, cb2 stays low

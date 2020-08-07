@@ -85,11 +85,13 @@ static inline bool output_register_to_databus(ChipHd44780 *lcd, bool final) {
 	switch (PRIVATE(lcd)->data_cycle) {
 		case DC_4BIT_HI :
 			SIGNAL_SET_UINT8(db4_7, (data & 0xf0) >> 4);
+			SIGNAL_NO_WRITE(db0_3);
 			PRIVATE(lcd)->data_cycle += final;
 			return false;
 
 		case DC_4BIT_LO :
 			SIGNAL_SET_UINT8(db4_7, (data & 0x0f));
+			SIGNAL_NO_WRITE(db0_3);
 			PRIVATE(lcd)->data_cycle -= final;
 			return true;
 

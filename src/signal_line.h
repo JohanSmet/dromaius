@@ -30,9 +30,9 @@ typedef struct SignalPool {
 	int64_t			current_tick;
 	int64_t			tick_duration_ps;		// in pico-seconds
 
-	bool *			signals_prev;
 	bool *			signals_curr;
 	bool *			signals_next;
+	int64_t *		signals_last_changed;
 	bool *			signals_default;
 	int32_t *		signals_writer;
 	const char **	signals_name;
@@ -50,7 +50,7 @@ SignalPool *signal_pool_create();
 void signal_pool_destroy(SignalPool *pool);
 
 void signal_pool_cycle(SignalPool *pool);
-void signal_pool_cycle_no_reset(SignalPool *pool);
+void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags);
 
 static inline int64_t signal_pool_interval_to_tick_count(SignalPool *pool, int64_t interval_ps) {
 	assert(pool);
@@ -223,7 +223,13 @@ static inline uint16_t signal_read_next_uint16(SignalPool *pool, Signal signal) 
 static inline bool signal_changed(SignalPool *pool, Signal signal) {
 	assert(pool);
 
-	return memcmp(pool->signals_curr + signal.start, pool->signals_prev + signal.start, signal.count) != 0;
+	bool result = false;
+
+	for (uint32_t i = 0; i < signal.count; ++i) {
+		result |= (pool->signals_last_changed[signal.start + i] == pool->current_tick);
+	}
+
+	return result;
 }
 
 // macros to make working with signal a little prettier
