@@ -7,11 +7,12 @@
 #include <stb/stb_ds.h>
 #include <assert.h>
 
-Chip *device_register_chip(Device *device, Chip *chip) {
+Chip *device_register_chip(Device *device, Chip *chip, const char *name) {
 	assert(device);
 	assert(chip);
 
 	chip->id = (int32_t) arrlenu(device->chips);
+	chip->name = name;
 	arrpush(device->chips, chip);
 	arrpush(device->chip_is_dirty, true);
 	return chip;

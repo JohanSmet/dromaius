@@ -16,6 +16,7 @@ typedef void (*CHIP_DEPENDENCIES_FUNC)(void *chip);
 	CHIP_DESTROY_FUNC destroy;		\
 	CHIP_DEPENDENCIES_FUNC register_dependencies;	\
 	int32_t			  id;							\
+	const char *	  name;							\
 	int64_t			  schedule_timestamp;
 
 #define CHIP_SET_FUNCTIONS(chip, pf, df, rdf)		\
