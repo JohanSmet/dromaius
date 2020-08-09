@@ -1,7 +1,7 @@
 // js/main.js - Johan Smet - BSD-3-Clause (see LICENSE)
 
 import {PanelCpu6502} from './panel_cpu_6502.js';
-//import {PanelClock} from './panel_clock.js';
+import {PanelClock} from './panel_clock.js';
 import {CircuitView} from './circuit_view.js';
 
 // globals
@@ -13,7 +13,7 @@ var signals_names = [];
 var hovered_signal = '';
 
 var panel_cpu = new PanelCpu6502($('div#cpu'));
-//var panel_clock = new PanelClock($('div#clock'));
+var panel_clock = new PanelClock($('div#clock'));
 var circuit_view = new CircuitView($('div#right_column'));
 
 // functions
@@ -91,8 +91,8 @@ function refresh_cpu_panel() {
 }
 
 function refresh_clock_panel() {
-	//var clock_info = dmsapi.clock_info();
-	//panel_clock.update(clock_info);
+	var clock_info = dmsapi.clock_info();
+	panel_clock.update(clock_info);
 }
 
 function execution_timer() {

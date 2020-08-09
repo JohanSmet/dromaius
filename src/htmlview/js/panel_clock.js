@@ -8,16 +8,16 @@ export class PanelClock {
 		// value  table
 		var table = $('<table>').addClass('panel_info');
 
-		// >> output
+		// >> tick count
 		table.append($('<tr>')
-						.append($('<th>', { text: 'Output: ' }))
-						.append($('<td>', { id: 'clock_output', style: 'width:5em' }))
+						.append($('<th>', { text: 'Current Tick: ' }))
+						.append($('<td>', { id: 'clock_current_tick', style: 'width:10em' }))
 		);
 
-		// >> cycle_count
+		// >> time elapsed since beginning
 		table.append($('<tr>')
-						.append($('<th>', { text: 'Cycle: ' }))
-						.append($('<td>', { id: 'clock_cycle_count' }))
+						.append($('<th>', { text: 'Time: ' }))
+						.append($('<td>', { id: 'clock_elapsed' }))
 		);
 
 		container.append(table);
@@ -25,11 +25,14 @@ export class PanelClock {
 
 	update(clock_info) {
 
-		var format_status_bit = function(reg_p, bit) {
-			$('#reg_p_bit' + bit).text((reg_p & (1 << bit)) >> bit);
-		}
+		$('#clock_current_tick').text(clock_info.current_tick);
 
-		$('#clock_output').text(clock_info.output);
-		$('#clock_cycle_count').text(clock_info.cycle_count);
+		if (clock_info.time_elapsed_ns > 1000000) {
+			$('#clock_elapsed').text((clock_info.time_elapsed_ns / 1000000).toFixed(6) + ' ms');
+		} else if (clock_info.time_elapsed_ns > 1000) {
+			$('#clock_elapsed').text((clock_info.time_elapsed_ns / 1000).toFixed(6) + ' µs');
+		} else {
+			$('#clock_elapsed').text(clock_info.time_elapsed_ns.toFixed(2) + ' ns');
+		}
 	}
 }

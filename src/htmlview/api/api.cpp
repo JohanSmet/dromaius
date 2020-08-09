@@ -32,8 +32,8 @@ public:
 	};
 
 	struct ClockInfo {
-		bool	output;
-		int32_t cycle_count;
+		int32_t current_tick;
+		double time_elapsed_ns;
 	};
 
 public:
@@ -155,12 +155,12 @@ public:
 		return *pet_device->cpu;
 	}
 
-	/* ClockInfo clock_info() {
+	ClockInfo clock_info() {
 		return (ClockInfo) {
-			signal_read_next_bool(pet_device->signal_pool, pet_device->clock->signals.clock),
-			static_cast<int32_t>(pet_device->clock->cycle_count)
+			static_cast<int32_t>(pet_device->signal_pool->current_tick),		// fixme
+			pet_device->signal_pool->current_tick * pet_device->signal_pool->tick_duration_ps / 1000.0
 		};
-	} */
+	}
 
 private:
 	DmsContext *	dms_ctx;
@@ -217,12 +217,11 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.field("signal", &DmsApi::SignalDetails::signal)
 		.field("writer_id", &DmsApi::SignalDetails::writer_id)
 		;
-/*
+
 	value_object<DmsApi::ClockInfo>("DmsApi__ClockInfo")
-		.field("output", &DmsApi::ClockInfo::output)
-		.field("cycle_count", &DmsApi::ClockInfo::cycle_count)
+		.field("current_tick", &DmsApi::ClockInfo::current_tick)
+		.field("time_elapsed_ns", &DmsApi::ClockInfo::time_elapsed_ns)
 		;
-		*/
 
 	class_<DmsApi>("DmsApi")
 		.constructor()
@@ -242,6 +241,6 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("signal_info", &DmsApi::signal_info)
 		.function("signal_details", &DmsApi::signal_details)
 		.function("cpu_info", &DmsApi::cpu_info)
-		//.function("clock_info", &DmsApi::clock_info)
+		.function("clock_info", &DmsApi::clock_info)
 		;
 }
