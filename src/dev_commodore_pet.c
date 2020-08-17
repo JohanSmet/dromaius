@@ -106,6 +106,9 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	bool reset_b = SIGNAL_BOOL(reset_b);
 	SIGNAL_SET_BOOL(reset, !reset_b);
 
+	SIGNAL_SET_BOOL(init_b, reset_b);
+	SIGNAL_SET_BOOL(init, !reset_b);
+
 	// A3 (11, 10)
 	bool sel8 = !sel8_b;
 	SIGNAL_SET_BOOL(sel8, sel8);
@@ -383,7 +386,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->signal_pool->tick_duration_ps = 6250;		// 6.25 ns - 160 Mhz
 	device->signal_pool->tick_duration_ps = 31250;
 
-	SIGNAL_DEFINE_BOOL_N(init, 1, ACTHI_DEASSERT, "INIT");
+	SIGNAL_DEFINE_BOOL_N(init_b, 1, ACTLO_ASSERT, "/INIT");
+	SIGNAL_DEFINE_BOOL_N(init, 1, ACTHI_ASSERT, "INIT");
 
 	SIGNAL_DEFINE_BOOL_N(clk16, 1, true, "CLK16");
 	SIGNAL_DEFINE_BOOL_N(clk8, 1, true, "CLK8");
