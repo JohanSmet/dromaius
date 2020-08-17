@@ -198,6 +198,11 @@ static void glue_logic_register_dependencies_06(ChipGlueLogic *chip) {
 	signal_add_dependency(device->signal_pool, SIGNAL(ra5), chip->id);
 	signal_add_dependency(device->signal_pool, SIGNAL(ra6), chip->id);
 	signal_add_dependency(device->signal_pool, SIGNAL(ra6_b), chip->id);
+
+	signal_add_dependency(device->signal_pool, SIGNAL(h8q), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(h8q_b), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(h8q2), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(h8q2_b), chip->id);
 }
 
 static void glue_logic_process_06(ChipGlueLogic *chip) {
@@ -222,6 +227,14 @@ static void glue_logic_process_06(ChipGlueLogic *chip) {
 	// G1 (8,9,10)
 	bool video_latch = (!SIGNAL_BOOL(bphi2f) & SIGNAL_BOOL(bphi2h));
 	SIGNAL_SET_BOOL(video_latch, video_latch);
+
+	// H10 (11,12,13)
+	bool video_on = SIGNAL_BOOL(h8q) & SIGNAL_BOOL(h8q2);
+	SIGNAL_SET_BOOL(video_on, video_on);
+
+	// G10 (11,12,13)
+	bool vert_drive = !(SIGNAL_BOOL(h8q2_b) & SIGNAL_BOOL(h8q_b));
+	SIGNAL_SET_BOOL(vert_drive, vert_drive);
 }
 
 // glue-logic: display logic
@@ -366,7 +379,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
 
 	// signals
-	device->signal_pool = signal_pool_create(2);
+	device->signal_pool = signal_pool_create();
 	device->signal_pool->tick_duration_ps = 6250;		// 6.25 ns - 160 Mhz
 	device->signal_pool->tick_duration_ps = 31250;
 
@@ -417,7 +430,13 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(horz_drive, 1, "HORZDRIVE");
 	SIGNAL_DEFINE_N(horz_drive_b, 1, "/HORZDRIVE");
 
+	SIGNAL_DEFINE_N(h8q, 1, "H8Q");
+	SIGNAL_DEFINE_N(h8q_b, 1, "/H8Q");
+	SIGNAL_DEFINE_N(h8q2, 1, "H8Q2");
+	SIGNAL_DEFINE_N(h8q2_b, 1, "/H8Q2");
+
 	SIGNAL_DEFINE_N(video_latch, 1, "VIDEOLATCH");
+	SIGNAL_DEFINE_N(vert_drive, 1, "VERTDRIVE");
 
 	SIGNAL_DEFINE_N(tv_sel, 1, "TVSEL");
 	SIGNAL_DEFINE_N(tv_read_b, 1, "/TVREAD");
@@ -448,8 +467,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(lga8, 1, "LGA8");
 	SIGNAL_DEFINE_N(lga9, 1, "LGA9");
 
-	SIGNAL_DEFINE_N(next, 1, "NEXT");
-	SIGNAL_DEFINE_N(next_b, 1, "/NEXT");
+	SIGNAL_DEFINE_BOOL_N(next, 1, true, "NEXT");
+	SIGNAL_DEFINE_BOOL_N(next_b, 1, false, "/NEXT");
 
 	SIGNAL_DEFINE_N(reload_b, 1, "/RELOAD");
 	SIGNAL_DEFINE_N(reload_next, 1, "RELOADNEXT");
@@ -652,6 +671,26 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.k2 = SIGNAL(ra5and6_b),		// pin 11
 										.q2 = SIGNAL(horz_disp_on),		// pin 5
 										.q2_b = SIGNAL(horz_disp_off)	// pin 6
+	}));
+
+	// >> h8 - JK flip-flop
+	DEVICE_REGISTER_CHIP("H8", chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
+										.gnd = SIGNAL(low),				// pin 7
+										.vcc = SIGNAL(high),			// pin 14
+
+										.clr1_b = SIGNAL(init_b),		// pin 13
+										.clk1 = SIGNAL(next),			// pin 12
+										.j1 = SIGNAL(h8q2_b),			// pin 1
+										.k1 = SIGNAL(h8q2),				// pin 4
+										.q1 = SIGNAL(h8q),				// pin 3
+										.q1_b = SIGNAL(h8q_b),			// pin 2
+
+										.clr2_b = SIGNAL(init_b),		// pin 10
+										.clk2 = SIGNAL(next),			// pin 9
+										.j2 = SIGNAL(h8q),				// pin 8
+										.k2 = SIGNAL(h8q_b),			// pin 11
+										.q2 = SIGNAL(h8q2),				// pin 5
+										.q2_b = SIGNAL(h8q2_b)			// pin 6
 	}));
 
 	// sheet 07 - display logic components

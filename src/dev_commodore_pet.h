@@ -75,7 +75,13 @@ typedef struct DevCommodorePetSignals {
 	Signal		horz_drive;
 	Signal		horz_drive_b;
 
+	Signal		h8q;
+	Signal		h8q_b;
+	Signal		h8q2;
+	Signal		h8q2_b;
+
 	Signal		video_latch;
+	Signal		vert_drive;
 
 	Signal		tv_sel;
 	Signal		tv_read_b;
