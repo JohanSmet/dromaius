@@ -309,7 +309,7 @@ static void glue_logic_process_07(ChipGlueLogic *chip) {
 	SIGNAL_SET_BOOL(w220_off, w220_off);
 
 	// >> H5 (11,12,13)
-	bool reload_next = !(SIGNAL_BOOL(reload_b), SIGNAL_BOOL(next_b));
+	bool reload_next = !(SIGNAL_BOOL(reload_b) && SIGNAL_BOOL(next_b));
 	SIGNAL_SET_BOOL(reload_next, reload_next);
 }
 
