@@ -27,8 +27,9 @@ public:
 	};
 
 	struct SignalDetails {
-		Signal		signal;
-		int32_t		writer_id;
+		Signal			signal;
+		int32_t			writer_id;
+		std::string		writer_name;
 	};
 
 	struct ClockInfo {
@@ -143,8 +144,11 @@ public:
 		result.signal = shget(pool->signal_names, name.c_str());
 		result.writer_id = -1;
 
-		if (result.signal.start > 0) {
+		if (result.signal.count > 0) {
 			result.writer_id = pool->signals_writer[result.signal.start];
+			if (result.writer_id >= 0) {
+				result.writer_name = pet_device->chips[result.writer_id]->name;
+			}
 		}
 
 		return result;
@@ -216,6 +220,7 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 	value_object<DmsApi::SignalDetails>("DmsApi__SignalDetails")
 		.field("signal", &DmsApi::SignalDetails::signal)
 		.field("writer_id", &DmsApi::SignalDetails::writer_id)
+		.field("writer_name", &DmsApi::SignalDetails::writer_name)
 		;
 
 	value_object<DmsApi::ClockInfo>("DmsApi__ClockInfo")
