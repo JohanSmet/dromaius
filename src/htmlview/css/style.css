@@ -81,6 +81,10 @@ table.cpu_register td, table.cpu_register th {
 	padding: 0px 8px;
 }
 
+table.panel_info td, table.panel_info th {
+	padding: 0px 8px;
+}
+
 table.cpu_status td, table.cpu_status td {
 	padding: 0px 4px;
 }

@@ -2,6 +2,7 @@
 
 import {PanelCpu6502} from './panel_cpu_6502.js';
 import {PanelClock} from './panel_clock.js';
+import {PanelBreakpointsSignal} from './panel_breakpoints_signal.js';
 import {CircuitView} from './circuit_view.js';
 
 // globals
@@ -14,6 +15,7 @@ var hovered_signal = '';
 
 var panel_cpu = new PanelCpu6502($('div#cpu'));
 var panel_clock = new PanelClock($('div#clock'));
+var panel_breakpoints_signal = null;
 var circuit_view = new CircuitView($('div#right_column'));
 
 // functions
@@ -41,6 +43,10 @@ export function setup_emulation(emscripten_mod) {
 			signals_names[signal.start] = '--color-' + sig_name.replace('/', 'bar');
 		}
 	}
+
+	// panels
+	panel_breakpoints_signal = new PanelBreakpointsSignal($('div#breakpoints_signal'), sigkeys, dmsapi);
+
 
 	// setup image-data for the monitor display
 	var display_info = dmsapi.display_info();
