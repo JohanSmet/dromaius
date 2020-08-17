@@ -286,7 +286,7 @@ static void glue_logic_process_07(ChipGlueLogic *chip) {
 	SIGNAL_SET_BOOL(video_on_b, !SIGNAL_BOOL(video_on));
 
 	// >> G2 (1,2,4,5,6)
-	bool lines_20_b = !(SIGNAL_BOOL(ga6) && SIGNAL_BOOL(pullup_2) && SIGNAL_BOOL(video_on_b) && SIGNAL_BOOL(ra9));
+	bool lines_20_b = !(SIGNAL_BOOL(ga6) && SIGNAL_BOOL(pullup_2) && !SIGNAL_BOOL(video_on) && SIGNAL_BOOL(ra9));
 	SIGNAL_SET_BOOL(lines_20_b, lines_20_b);
 
 	// >> G2 (8,9,10,12,13)
@@ -555,7 +555,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	SIGNAL_DEFINE_N(ba11_b, 1, "/BA11");
 	SIGNAL_DEFINE_N(reset, 1, "RES");
-
 
 	// sheet 06 - master timing
 
