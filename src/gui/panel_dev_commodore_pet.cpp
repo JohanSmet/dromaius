@@ -59,6 +59,7 @@ public:
 					ui_context->panel_add(std::move(pnl));
 				}
 
+				/*
 				ImGui::Text("Video RAM");
 				ImGui::SameLine();
 				if (ImGui::SmallButton("View##view_vram")) {
@@ -66,6 +67,7 @@ public:
 												   device->vram->data_array, 40*25, 0x8000);
 					ui_context->panel_add(std::move(pnl));
 				}
+				*/
 
 				ImGui::Text("Basic ROM (0xb000");
 				ImGui::SameLine();

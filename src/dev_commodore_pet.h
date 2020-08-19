@@ -195,8 +195,6 @@ typedef struct DevCommodorePetSignals {
 	Signal		ram_oe_b;			// 1-bit
 	Signal		ram_we_b;			// 1-bit
 
-	Signal		vram_oe_b;			// 1-bit
-
 	Signal		rome_ce_b;			// 1-bit
 
 	Signal		cs1;				// 1-bit
@@ -212,7 +210,6 @@ typedef struct DevCommodorePet {
 	// major components
 	Cpu6502 *		cpu;
 	Ram8d16a *		ram;
-	Ram8d16a *      vram;
 	Rom8d16a *		roms[7];
 	Rom8d16a *		char_rom;
 	struct Oscillator *		oscillator_y1;

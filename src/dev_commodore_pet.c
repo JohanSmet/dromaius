@@ -10,6 +10,7 @@
 #include "chip_6522.h"
 #include "chip_oscillator.h"
 #include "chip_poweronreset.h"
+#include "chip_ram_static.h"
 #include "input_keypad.h"
 #include "display_rgba.h"
 #include "stb/stb_ds.h"
@@ -156,10 +157,6 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	//	FIXME: move to its proper simulation function for the page of the schematic
 	SIGNAL_SET_BOOL(ram_oe_b, ram_read_b);
 	SIGNAL_SET_BOOL(ram_we_b, !ram_read_b || !SIGNAL_BOOL(clk1));
-
-	// >> video-ram logic - simplified
-	//	FIXME: move to its proper simulation function for the page of the schematic
-	SIGNAL_SET_BOOL(vram_oe_b, ram_read_b);
 
 	// >> rom logic: roms are enabled by the selx_b signals
 	//	- rom-E (editor) is special because it's only a 2k rom and it uses address line 11 as an extra enable to only
@@ -867,7 +864,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.q2_b = SIGNAL(next_b)			// pin 8
 	}));
 
-	// display rams components
+	// sheet 08: display rams components
 
 	// >> h11 - binary counter
 	DEVICE_REGISTER_CHIP("H11", chip_7493_binary_counter_create(device->signal_pool, (Chip7493Signals) {
@@ -883,6 +880,23 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qc = SIGNAL(ra8),				// pin 8
 										.qd = SIGNAL(ra9),				// pin 11
 	}));
+
+	// >> f7 - 1k x 4bit SRAM
+	DEVICE_REGISTER_CHIP("F7", chip_6114_sram_create(device->signal_pool, (Chip6114SRamSignals) {
+										.bus_address = SIGNAL(bus_sa),
+										.bus_io = signal_split(SIGNAL(bus_sd), 4, 4),
+										.ce_b = SIGNAL(low),
+										.rw = SIGNAL(tv_ram_rw)
+	}));
+
+	// >> f8 - 1k x 4bit SRAM
+	DEVICE_REGISTER_CHIP("F8", chip_6114_sram_create(device->signal_pool, (Chip6114SRamSignals) {
+										.bus_address = SIGNAL(bus_sa),
+										.bus_io = signal_split(SIGNAL(bus_sd), 0, 4),
+										.ce_b = SIGNAL(low),
+										.rw = SIGNAL(tv_ram_rw)
+	}));
+
 
 	// >> e8 - octal buffer
 	DEVICE_REGISTER_CHIP("E8", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
@@ -961,17 +975,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	SIGNAL(ram_oe_b) = device->ram->signals.oe_b;
 	SIGNAL(ram_we_b) = device->ram->signals.we_b;
-
-	// video ram
-	device->vram = ram_8d16a_create(10, device->signal_pool, (Ram8d16aSignals) {
-										.bus_address = signal_split(device->signals.bus_ba, 0, 10),
-										.bus_data = SIGNAL(bus_bd),
-										.ce_b = SIGNAL(sel8_b),
-										.we_b = SIGNAL(ram_we_b)
-	});
-	DEVICE_REGISTER_CHIP("VRAM", device->vram);
-
-	SIGNAL(vram_oe_b) = device->vram->signals.oe_b;
 
 	// basic roms
 	int rom_count = 0;
@@ -1225,6 +1228,7 @@ void dev_commodore_pet_reset(DevCommodorePet *device) {
 	(void) device;
 }
 
+/*
 void dev_commodore_pet_fake_display(DevCommodorePet *device) {
 // 'fake' display routine to test read from character rom + write to display before properly simulating all electronics required.
 
@@ -1258,6 +1262,7 @@ void dev_commodore_pet_fake_display(DevCommodorePet *device) {
 		}
 	}
 }
+*/
 
 bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {
 

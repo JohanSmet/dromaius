@@ -3,6 +3,7 @@
 #include "munit/munit.h"
 #include "dev_commodore_pet.h"
 #include "cpu_6502_opcodes.h"
+#include "chip_ram_static.h"
 #include <stdio.h>
 
 #define SIGNAL_POOL			device->signal_pool
@@ -27,7 +28,7 @@ static uint8_t  override_bus_data = 0;
 static bool	    override_cpu_rw = CPU_READ;
 static uint8_t  override_bus_bd = 0;
 
-static void override_cpu_process(Cpu6502 *cpu, bool delayed) {
+static void override_cpu_process(Cpu6502 *cpu) {
 	signal_write_uint16(cpu->signal_pool, cpu->signals.bus_address, override_bus_address, cpu->id);
 	signal_write_bool(cpu->signal_pool, cpu->signals.rw, override_cpu_rw, cpu->id);
 	if (override_cpu_rw == CPU_WRITE) {
@@ -112,7 +113,8 @@ MunitResult test_read_databus(const MunitParameter params[], void *user_data_or_
 	// 'remove' cpu/ram and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
 	device->ram->process = (CHIP_PROCESS_FUNC) override_ram_process;
-	device->vram->process = (CHIP_PROCESS_FUNC) override_do_nothing;
+	device_chip_by_name((Device *)device, "F7")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
+	device_chip_by_name((Device *)device, "F8")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 
 	for (int i = 0; device->roms[i] != NULL; ++i) {
 		device->roms[i]->process = (CHIP_PROCESS_FUNC) override_do_nothing;
@@ -210,6 +212,9 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 		dev_commodore_pet_process_clk1(device);
 	}
 
+	Chip6114SRam *ram_hi = (Chip6114SRam *) device_chip_by_name((Device *)device, "F7");
+	Chip6114SRam *ram_lo = (Chip6114SRam *) device_chip_by_name((Device *)device, "F8");
+
 	for (int addr = 0x8000; addr <= 0x83e8; ++addr) {		// 40x25
 		override_bus_address = addr & 0xffff;
 		override_bus_data = addr & 0xff;
@@ -219,7 +224,8 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 		munit_assert_true(SIGNAL_BOOL(clk1));
 
 		dev_commodore_pet_process_clk1(device);
-		munit_assert_uint8(device->vram->data_array[override_bus_address - 0x8000], ==, override_bus_data);
+		munit_assert_uint8(ram_lo->data_array[override_bus_address - 0x8000], ==, override_bus_data & 0x0f);
+		munit_assert_uint8(ram_hi->data_array[override_bus_address - 0x8000], ==, (override_bus_data & 0xf0) >> 4);
 		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
 
