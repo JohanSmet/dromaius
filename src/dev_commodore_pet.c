@@ -279,7 +279,7 @@ static void glue_logic_process_07(ChipGlueLogic *chip) {
 	SIGNAL_SET_BOOL(tv_read_b, tv_read_b);
 
 	// >> A5 (1,2,12,13)
-	bool a5_12 = !(tv_sel && buf_rw && SIGNAL_BOOL(bphi2));
+	bool a5_12 = !(tv_sel && !buf_rw && SIGNAL_BOOL(bphi2));
 	SIGNAL_SET_BOOL(a5_12, a5_12);
 
 	// >> I1 (5,6)
