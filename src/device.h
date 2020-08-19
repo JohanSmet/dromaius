@@ -41,6 +41,7 @@ typedef struct Device {
 
 // construction
 Chip *device_register_chip(Device *device, Chip *chip, const char *name);
+Chip *device_chip_by_name(Device *device, const char *name);
 
 // simulation
 void device_simulate_timestep(Device *device);

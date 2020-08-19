@@ -18,6 +18,19 @@ Chip *device_register_chip(Device *device, Chip *chip, const char *name) {
 	return chip;
 }
 
+Chip *device_chip_by_name(Device *device, const char *name) {
+	assert(device);
+	assert(name);
+
+	for (int32_t id = 0; id < arrlen(device->chips); ++id) {
+		if (strcmp(device->chips[id]->name, name) == 0) {
+			return device->chips[id];
+		}
+	}
+
+	return NULL;
+}
+
 void device_simulate_timestep(Device *device) {
 	assert(device);
 
