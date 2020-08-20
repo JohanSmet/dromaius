@@ -131,7 +131,7 @@
       <text xml:space="preserve" x="114.71212" y="56.901161" id="text_95" class="text_2"><tspan x="114.71212" y="56.901161" id="tspan_95" class="tspan_6">CS1</tspan></text>
       <text id="text_96" y="54.793118" x="114.67696" xml:space="preserve" class="text_2"><tspan id="tspan_96" y="54.793118" x="114.67696" class="tspan_6">CS2</tspan></text>
       <text id="text_97" y="54.801598" x="122.0771" xml:space="preserve" class="text_2"><tspan id="tspan_97" y="54.801598" x="122.0771" class="tspan_6">CS3</tspan></text>
-      <text id="text_98" y="57.95686" x="118.41254" xml:space="preserve" class="text_2"><tspan id="tspan_98" y="57.95686" x="118.41254" class="tspan_6">CS1</tspan></text>
+      <text id="text_98" y="57.95686" x="118.41254" xml:space="preserve" class="text_2"><tspan id="tspan_98" y="57.95686" x="118.41254" class="tspan_6">VSS</tspan></text>
       <text xml:space="preserve" x="109.52406" y="47.434364" id="text_99" class="text_2"><tspan x="109.52406" y="47.434364" id="tspan_99" class="tspan_6">23</tspan></text>
       <text xml:space="preserve" x="109.57064" y="49.576153" id="text_100" class="text_2"><tspan x="109.57064" y="49.576153" id="tspan_100" class="tspan_6">22</tspan></text>
       <text xml:space="preserve" x="109.43246" y="55.884323" id="text_101" class="text_2"><tspan x="109.43246" y="55.884323" id="tspan_101" class="tspan_6">20</tspan></text>
@@ -567,435 +567,439 @@
       <path id="path_64" d="m 246.24317,44.61701 h -8.42742 v -4.173009" class="path_28"/>
       <ellipse id="ellipse_24" cy="40.413799" cx="237.82706" rx="0.21147294" ry="0.21078888" class="ellipse_9"/>
     </g>
-    <path d="m 132.59881,75.997254 h 27.3151" id="path_65" class="path_2"/>
-    <path id="path_66" d="m 132.73933,78.156292 h 27.3151" class="path_3"/>
-    <path id="path_67" d="m 132.5582,80.24876 h 27.3151" class="path_3"/>
-    <path d="m 132.69872,82.407798 h 27.3151" id="path_68" class="path_3"/>
-    <path id="path_69" d="m 132.57791,84.339578 h 27.3151" class="path_3"/>
-    <path d="m 132.71843,86.498616 h 27.3151" id="path_70" class="path_3"/>
-    <path d="m 132.5373,88.591084 h 27.3151" id="path_71" class="path_3"/>
-    <g id="g_6">
-      <path d="m 132.67782,90.750122 h 27.3151" id="path_72" class="path_3"/>
-      <path id="path_73" d="m 159.93567,73.870295 h -6.32703 v 16.882853" class="path_2"/>
+    <path d="m 132.59881,75.997254 h 27.3151" id="wire#CD0_0" class="path_29"/>
+    <path id="wire#CD1_0" d="m 132.73933,78.156292 h 27.3151" class="path_30"/>
+    <path id="wire#CD2_0" d="m 132.5582,80.24876 h 27.3151" class="path_31"/>
+    <path d="m 132.69872,82.407798 h 27.3151" id="wire#CD3_0" class="path_32"/>
+    <path id="wire#CD4_0" d="m 132.57791,84.339578 h 27.3151" class="path_33"/>
+    <path d="m 132.71843,86.498616 h 27.3151" id="wire#CD5_0" class="path_34"/>
+    <path d="m 132.5373,88.591084 h 27.3151" id="wire#CD6_0" class="path_35"/>
+    <g id="wire#CD7_0">
+      <path d="m 132.67782,90.750122 h 27.3151" id="path_65" class="path_36"/>
+      <path id="path_66" d="m 159.93567,73.870295 h -6.32703 v 16.882853" class="path_37"/>
       <ellipse id="ellipse_25" cy="90.702927" cx="153.6115" rx="0.21147294" ry="0.21078888" class="ellipse_10"/>
     </g>
     <g transform="translate(97.781188,-94.460981)" id="wire#GND_0" class="g_0">
-      <path d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" id="path_74" class="path_29"/>
-      <path d="m 50.828435,168.88631 h 1.469499" id="path_75" class="path_29"/>
-      <path d="m 51.119855,169.40964 h 0.78101" id="path_76" class="path_29"/>
-      <path id="path_77" d="m 61.064022,166.26318 h -9.550574 v 2.03418" class="path_30"/>
+      <path d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" id="path_67" class="path_38"/>
+      <path d="m 50.828435,168.88631 h 1.469499" id="path_68" class="path_38"/>
+      <path d="m 51.119855,169.40964 h 0.78101" id="path_69" class="path_38"/>
+      <path id="path_70" d="m 61.064022,166.26318 h -9.550574 v 2.03418" class="path_39"/>
     </g>
     <g transform="translate(-22.478171,46.79999)" id="pointer#6_5" class="g_0">
-      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_78" class="path_2"/>
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_71" class="path_2"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_348" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_388" class="tspan_1">6</tspan></text>
     </g>
     <g transform="translate(-22.458261,44.648973)" id="pointer#6_6" class="g_0">
-      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_79" class="path_2"/>
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_72" class="path_2"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_349" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_389" class="tspan_1">6</tspan></text>
     </g>
     <g id="wire#/LOADSR_0">
-      <path id="path_80" d="m 144.91232,67.63192 h 14.95774" class="path_31"/>
-      <g transform="translate(-115.57965,23.974035)" id="g_7" class="g_0">
+      <path id="path_73" d="m 144.91232,67.63192 h 14.95774" class="path_40"/>
+      <g transform="translate(-115.57965,23.974035)" id="g_6" class="g_0">
         <text id="text_350" y="43.27169" x="265.24875" xml:space="preserve" class="text_19"><tspan id="tspan_390" y="43.27169" x="265.24875" class="tspan_1">LOAD  SR</tspan></text>
-        <path id="path_81" d="m 262.00983,42.032994 h 6.56955" class="path_32"/>
+        <path id="path_74" d="m 262.00983,42.032994 h 6.56955" class="path_41"/>
       </g>
     </g>
     <g id="wire#CLK8_0">
-      <path id="path_82" d="M 144.89241,69.782935 H 159.8278" class="path_33"/>
+      <path id="path_75" d="M 144.89241,69.782935 H 159.8278" class="path_42"/>
       <text id="text_351" y="69.273376" x="149.98686" xml:space="preserve" class="text_20"><tspan id="tspan_391" y="69.273376" x="149.98686" class="tspan_6">CLK8</tspan></text>
     </g>
     <g id="wire#SA0_0">
-      <path d="m 132.65214,153.73238 h 29.53085" id="path_83" class="path_34"/>
-      <path d="m 120.11457,153.66291 h -13.89801 l -0.64384,-0.62078" id="path_84" class="path_34"/>
+      <path d="m 132.65214,153.73238 h 29.53085" id="path_76" class="path_43"/>
+      <path d="m 120.11457,153.66291 h -13.89801 l -0.64384,-0.62078" id="path_77" class="path_43"/>
       <text xml:space="preserve" x="107.65955" y="153.20142" id="text_352" class="text_21"><tspan x="107.65955" y="153.20142" id="tspan_392" class="tspan_0">SA0</tspan></text>
     </g>
     <g id="wire#SA1_0">
-      <path id="path_85" d="m 132.58697,155.84877 h 29.53085" class="path_35"/>
-      <path id="path_86" d="m 120.13268,155.75221 h -13.89801 l -0.64384,-0.62079" class="path_35"/>
+      <path id="path_78" d="m 132.58697,155.84877 h 29.53085" class="path_44"/>
+      <path id="path_79" d="m 120.13268,155.75221 h -13.89801 l -0.64384,-0.62079" class="path_44"/>
       <text id="text_353" y="155.28003" x="107.61691" xml:space="preserve" class="text_22"><tspan id="tspan_393" y="155.28003" x="107.61691" class="tspan_0">SA1</tspan></text>
     </g>
     <g id="wire#SA2_0">
-      <path id="path_87" d="m 132.64103,157.93839 h 29.53085" class="path_36"/>
-      <path id="path_88" d="m 120.07659,157.86108 h -13.89801 l -0.64384,-0.62079" class="path_36"/>
+      <path id="path_80" d="m 132.64103,157.93839 h 29.53085" class="path_45"/>
+      <path id="path_81" d="m 120.07659,157.86108 h -13.89801 l -0.64384,-0.62079" class="path_45"/>
       <text id="text_354" y="157.35626" x="107.61755" xml:space="preserve" class="text_23"><tspan id="tspan_394" y="157.35626" x="107.61755" class="tspan_0">SA2</tspan></text>
     </g>
     <g id="wire#SA3_0">
-      <path d="m 132.57586,160.05478 h 29.53085" id="path_89" class="path_37"/>
-      <path d="m 120.0947,159.95038 h -13.89801 l -0.64384,-0.62079" id="path_90" class="path_37"/>
+      <path d="m 132.57586,160.05478 h 29.53085" id="path_82" class="path_46"/>
+      <path d="m 120.0947,159.95038 h -13.89801 l -0.64384,-0.62079" id="path_83" class="path_46"/>
       <text xml:space="preserve" x="107.5749" y="159.43488" id="text_355" class="text_24"><tspan x="107.5749" y="159.43488" id="tspan_395" class="tspan_0">SA3</tspan></text>
     </g>
     <g id="wire#SA4_0">
-      <path id="path_91" d="M 132.67884,162.13091 H 162.2097" class="path_38"/>
-      <path d="m 120.09308,162.01969 h -13.89801 l -0.64384,-0.62079" id="path_92" class="path_38"/>
+      <path id="path_84" d="M 132.67884,162.13091 H 162.2097" class="path_47"/>
+      <path d="m 120.09308,162.01969 h -13.89801 l -0.64384,-0.62079" id="path_85" class="path_47"/>
       <text id="text_356" y="161.57066" x="107.65448" xml:space="preserve" class="text_25"><tspan id="tspan_396" y="161.57066" x="107.65448" class="tspan_0">SA4</tspan></text>
     </g>
     <g id="wire#SA5_0">
-      <path d="m 132.61367,164.2473 h 29.53086" id="path_93" class="path_39"/>
-      <path id="path_94" d="m 120.11119,164.10899 h -13.89801 l -0.64384,-0.62079" class="path_39"/>
+      <path d="m 132.61367,164.2473 h 29.53086" id="path_86" class="path_48"/>
+      <path id="path_87" d="m 120.11119,164.10899 h -13.89801 l -0.64384,-0.62079" class="path_48"/>
       <text xml:space="preserve" x="107.61185" y="163.64928" id="text_357" class="text_26"><tspan x="107.61185" y="163.64928" id="tspan_397" class="tspan_0">SA5</tspan></text>
     </g>
     <g id="wire#SA6_0">
-      <path d="m 132.66773,166.33692 h 29.53086" id="path_95" class="path_40"/>
-      <path id="path_96" d="m 120.11057,166.22165 h -13.89801 l -0.64384,-0.62079" class="path_40"/>
+      <path d="m 132.66773,166.33692 h 29.53086" id="path_88" class="path_49"/>
+      <path id="path_89" d="m 120.11057,166.22165 h -13.89801 l -0.64384,-0.62079" class="path_49"/>
       <text xml:space="preserve" x="107.61248" y="165.72551" id="text_358" class="text_27"><tspan x="107.61248" y="165.72551" id="tspan_398" class="tspan_0">SA6</tspan></text>
     </g>
     <g id="wire#SA7_0">
-      <path id="path_97" d="m 132.60256,168.45331 h 29.53086" class="path_41"/>
-      <path d="m 120.12868,168.31095 h -13.898 l -0.64384,-0.62079" id="path_98" class="path_41"/>
+      <path id="path_90" d="m 132.60256,168.45331 h 29.53086" class="path_50"/>
+      <path d="m 120.12868,168.31095 h -13.898 l -0.64384,-0.62079" id="path_91" class="path_50"/>
       <text id="text_359" y="167.80412" x="107.56982" xml:space="preserve" class="text_28"><tspan id="tspan_399" y="167.80412" x="107.56982" class="tspan_0">SA7</tspan></text>
     </g>
     <g id="wire#SA8_0">
-      <path id="path_99" d="m 132.70065,170.52257 h 29.53086" class="path_42"/>
-      <path d="m 120.08323,170.42433 h -13.898 l -0.64384,-0.62079" id="path_100" class="path_42"/>
+      <path id="path_92" d="m 132.70065,170.52257 h 29.53086" class="path_51"/>
+      <path d="m 120.08323,170.42433 h -13.898 l -0.64384,-0.62079" id="path_93" class="path_51"/>
       <text id="text_360" y="169.89841" x="107.65797" xml:space="preserve" class="text_29"><tspan id="tspan_400" y="169.89841" x="107.65797" class="tspan_0">SA8</tspan></text>
     </g>
     <g id="wire#SA9_0">
-      <path d="m 132.63548,172.63896 h 29.53086" id="path_101" class="path_43"/>
-      <path id="path_102" d="m 120.10135,172.51363 h -13.89801 l -0.64384,-0.62079" class="path_43"/>
+      <path d="m 132.63548,172.63896 h 29.53086" id="path_94" class="path_52"/>
+      <path id="path_95" d="m 120.10135,172.51363 h -13.89801 l -0.64384,-0.62079" class="path_52"/>
       <text xml:space="preserve" x="107.6153" y="171.97702" id="text_361" class="text_30"><tspan x="107.6153" y="171.97702" id="tspan_401" class="tspan_0">SA9</tspan></text>
     </g>
     <g id="bus#SA09_0">
-      <path d="m 96.579996,147.35398 h 8.137314 l 0.8639,0.8639 v 23.77572" id="path_103" class="path_44"/>
+      <path d="m 96.579996,147.35398 h 8.137314 l 0.8639,0.8639 v 23.77572" id="path_96" class="path_53"/>
       <text id="text_362" y="146.86859" x="98.236778" xml:space="preserve" class="text_2"><tspan id="tspan_402" y="146.86859" x="98.236778" class="tspan_0">SA0-9  BUS</tspan></text>
     </g>
     <g id="wire#GND_1" transform="translate(64.379007,-16.728742)" class="g_0">
-      <path id="path_104" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_29"/>
-      <path id="path_105" d="m 50.828435,168.88631 h 1.469499" class="path_29"/>
-      <path id="path_106" d="m 51.119855,169.40964 h 0.78101" class="path_29"/>
-      <path d="m 55.615296,164.17393 h -2.494569 -1.607279 v 4.12343" id="path_107" class="path_30"/>
-      <path id="path_108" d="M 55.613819,166.25494 H 51.504174" class="path_30"/>
+      <path id="path_97" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_38"/>
+      <path id="path_98" d="m 50.828435,168.88631 h 1.469499" class="path_38"/>
+      <path id="path_99" d="m 51.119855,169.40964 h 0.78101" class="path_38"/>
+      <path d="m 55.615296,164.17393 h -2.494569 -1.607279 v 4.12343" id="path_100" class="path_39"/>
+      <path id="path_101" d="M 55.613819,166.25494 H 51.504174" class="path_39"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="51.529697" cy="166.2375" id="ellipse_26" class="ellipse_11"/>
     </g>
     <g transform="translate(-105.07957,104.94511)" id="wire#VCC_3" class="g_0">
-      <path id="path_109" d="m 225.02513,40.335888 h -4.16916" class="path_20"/>
+      <path id="path_102" d="m 225.02513,40.335888 h -4.16916" class="path_20"/>
       <text id="text_363" y="40.795902" x="218.35661" xml:space="preserve" class="text_15"><tspan id="tspan_403" y="40.795902" x="218.35661" class="tspan_1">+5V</tspan></text>
       <g transform="translate(211.48849,-121.58974)" id="wire#GND_2" class="g_0">
-        <path d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" id="path_110" class="path_29"/>
-        <path d="m 50.828435,168.88631 h 1.469499" id="path_111" class="path_29"/>
-        <path d="m 51.119855,169.40964 h 0.78101" id="path_112" class="path_29"/>
-        <path id="path_113" d="m 55.615296,164.17393 h -2.494569 -1.607279 v 4.12343" class="path_30"/>
-        <path d="M 55.613819,166.25494 H 51.504174" id="path_114" class="path_30"/>
+        <path d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" id="path_103" class="path_38"/>
+        <path d="m 50.828435,168.88631 h 1.469499" id="path_104" class="path_38"/>
+        <path d="m 51.119855,169.40964 h 0.78101" id="path_105" class="path_38"/>
+        <path id="path_106" d="m 55.615296,164.17393 h -2.494569 -1.607279 v 4.12343" class="path_39"/>
+        <path d="M 55.613819,166.25494 H 51.504174" id="path_107" class="path_39"/>
         <ellipse id="ellipse_27" cy="166.2375" cx="51.529697" rx="0.21147294" ry="0.21078888" class="ellipse_11"/>
       </g>
-      <path d="m 267.05504,40.420007 h -4.16916" id="path_115" class="path_20"/>
+      <path d="m 267.05504,40.420007 h -4.16916" id="path_108" class="path_20"/>
       <text xml:space="preserve" x="260.38654" y="40.880032" id="text_364" class="text_15"><tspan x="260.38654" y="40.880032" id="tspan_404" class="tspan_1">+5V</tspan></text>
     </g>
     <g transform="translate(-70.809894,116.08559)" id="pointer#7_3" class="g_0">
-      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_116" class="path_2"/>
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_109" class="path_2"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_365" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_405" class="tspan_1">7</tspan></text>
     </g>
     <g transform="translate(-70.809894,124.357)" id="pointer#7_4" class="g_0">
-      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_117" class="path_2"/>
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_110" class="path_2"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_366" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_406" class="tspan_1">7</tspan></text>
     </g>
     <g id="wire#TVRAMRW_0">
-      <g id="g_8" class="g_0">
+      <g id="g_7" class="g_0">
         <ellipse ry="0.21078888" rx="0.21147294" cx="126.3754" cy="139.04941" id="ellipse_28" class="ellipse_12"/>
         <ellipse ry="0.21078888" rx="0.21147294" cx="168.44614" cy="139.03893" id="ellipse_29" class="ellipse_12"/>
         <ellipse ry="0.21078888" rx="0.21147294" cx="202.32573" cy="128.41583" id="ellipse_30" class="ellipse_12"/>
       </g>
-      <path id="path_118" d="M 96.572996,139.1157 H 202.34352 V 92.734915 h 7.33031" class="path_45"/>
-      <path id="path_119" d="m 209.76304,128.43744 h -7.36322" class="path_45"/>
-      <path d="m 168.41921,143.17999 v -4.10131" id="path_120" class="path_45"/>
-      <path d="m 126.35695,143.12687 v -4.04335" id="path_121" class="path_45"/>
+      <path id="path_111" d="M 96.572996,139.1157 H 202.34352 V 92.734915 h 7.33031" class="path_54"/>
+      <path id="path_112" d="m 209.76304,128.43744 h -7.36322" class="path_54"/>
+      <path d="m 168.41921,143.17999 v -4.10131" id="path_113" class="path_54"/>
+      <path d="m 126.35695,143.12687 v -4.04335" id="path_114" class="path_54"/>
       <text xml:space="preserve" x="98.15387" y="138.63199" id="text_367" class="text_31"><tspan x="98.15387" y="138.63199" id="tspan_407" class="tspan_0">TV  RAM  R/W</tspan></text>
     </g>
     <g id="wire#SD4_0" transform="translate(42.141933,-0.00429985)" class="g_0">
-      <path id="path_122" d="m 132.54647,145.34723 h 13.99059 l 0.84697,-0.4958" class="path_46"/>
+      <path id="path_115" d="m 132.54647,145.34723 h 13.99059 l 0.84697,-0.4958" class="path_55"/>
       <text xml:space="preserve" x="142.16103" y="144.96184" id="text_368" class="text_32"><tspan x="142.16103" y="144.96184" id="tspan_408" class="tspan_0">SD4</tspan></text>
     </g>
     <g transform="translate(84.295503,-0.09456924)" id="wire#SD6_1" class="g_0">
-      <path d="m 126.30945,120.20127 h -20.29258 l -0.70607,0.40765" id="path_123" class="path_0"/>
+      <path d="m 126.30945,120.20127 h -20.29258 l -0.70607,0.40765" id="path_116" class="path_0"/>
       <text id="text_369" y="119.60442" x="107.49521" xml:space="preserve" class="text_0"><tspan id="tspan_409" y="119.60442" x="107.49521" class="tspan_0">SD6</tspan></text>
-      <path d="m 126.2877,122.30123 h -4.13514 v -2.08118" id="path_124" class="path_0"/>
+      <path d="m 126.2877,122.30123 h -4.13514 v -2.08118" id="path_117" class="path_0"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="122.16325" cy="120.2096" id="ellipse_31" class="ellipse_13"/>
     </g>
     <g id="bus#SD07_0">
-      <path d="m 105.3546,116.23459 v 19.83707 l 0.81609,0.81609 h 82.71277 l 0.69556,-0.69556 V 76.299698" id="path_125" class="path_44"/>
-      <path d="m 189.57902,136.19219 v 15.05266" id="path_126" class="path_44"/>
-      <path d="m 188.88346,136.88775 0.67281,0.67281" id="path_127" class="path_44"/>
-      <path d="m 147.35295,151.35581 v -13.01429 l 0.75901,-1.47068" id="path_128" class="path_44"/>
-      <path d="m 147.35295,137.62985 -0.75264,-0.75264" id="path_129" class="path_44"/>
+      <path d="m 105.3546,116.23459 v 19.83707 l 0.81609,0.81609 h 82.71277 l 0.69556,-0.69556 V 76.299698" id="path_118" class="path_53"/>
+      <path d="m 189.57902,136.19219 v 15.05266" id="path_119" class="path_53"/>
+      <path d="m 188.88346,136.88775 0.67281,0.67281" id="path_120" class="path_53"/>
+      <path d="m 147.35295,151.35581 v -13.01429 l 0.75901,-1.47068" id="path_121" class="path_53"/>
+      <path d="m 147.35295,137.62985 -0.75264,-0.75264" id="path_122" class="path_53"/>
     </g>
     <g id="wire#SD0_0">
-      <path id="path_130" d="m 120.08244,115.94368 h -14.01052 l -0.70607,0.40765" class="path_47"/>
+      <path id="path_123" d="m 120.08244,115.94368 h -14.01052 l -0.70607,0.40765" class="path_56"/>
       <text xml:space="preserve" x="107.49521" y="115.39375" id="text_370" class="text_33"><tspan x="107.49521" y="115.39375" id="tspan_410" class="tspan_0">SD0</tspan></text>
     </g>
     <g id="wire#SD1_0">
-      <path d="m 120.12127,118.06798 h -14.01052 l -0.70607,0.40765" id="path_131" class="path_48"/>
+      <path d="m 120.12127,118.06798 h -14.01052 l -0.70607,0.40765" id="path_124" class="path_57"/>
       <text id="text_371" y="117.44617" x="107.49521" xml:space="preserve" class="text_34"><tspan id="tspan_411" y="117.44617" x="107.49521" class="tspan_0">SD1</tspan></text>
     </g>
     <g id="wire#SD2_0">
-      <path d="m 120.02739,120.20127 h -14.01052 l -0.70607,0.40765" id="path_132" class="path_49"/>
+      <path d="m 120.02739,120.20127 h -14.01052 l -0.70607,0.40765" id="path_125" class="path_58"/>
       <text id="text_372" y="119.60442" x="107.49521" xml:space="preserve" class="text_35"><tspan id="tspan_412" y="119.60442" x="107.49521" class="tspan_0">SD2</tspan></text>
     </g>
     <g id="wire#SD3_0">
-      <path id="path_133" d="M 120.06622,122.32557 H 106.0557 l -0.70607,0.40765" class="path_50"/>
+      <path id="path_126" d="M 120.06622,122.32557 H 106.0557 l -0.70607,0.40765" class="path_59"/>
       <text id="text_373" y="121.65467" x="107.49521" xml:space="preserve" class="text_36"><tspan id="tspan_413" y="121.65467" x="107.49521" class="tspan_0">SD3</tspan></text>
     </g>
     <g id="wire#SD4_1">
-      <path d="M 120.08832,124.28263 H 106.0778 l -0.70607,0.40765" id="path_134" class="path_51"/>
+      <path d="M 120.08832,124.28263 H 106.0778 l -0.70607,0.40765" id="path_127" class="path_60"/>
       <text id="text_374" y="123.77846" x="107.49521" xml:space="preserve" class="text_32"><tspan id="tspan_414" y="123.77846" x="107.49521" class="tspan_0">SD4</tspan></text>
     </g>
     <g id="wire#SD5_1">
-      <path id="path_135" d="m 120.12715,126.40693 h -14.01052 l -0.70607,0.40765" class="path_5"/>
+      <path id="path_128" d="m 120.12715,126.40693 h -14.01052 l -0.70607,0.40765" class="path_5"/>
       <text id="text_375" y="125.78979" x="107.49521" xml:space="preserve" class="text_6"><tspan id="tspan_415" y="125.78979" x="107.49521" class="tspan_0">SD5</tspan></text>
     </g>
     <g id="wire#SD6_2">
-      <path id="path_136" d="m 120.03327,128.54022 h -14.01052 l -0.70607,0.40765" class="path_0"/>
+      <path id="path_129" d="m 120.03327,128.54022 h -14.01052 l -0.70607,0.40765" class="path_0"/>
       <text id="text_376" y="127.98894" x="107.49521" xml:space="preserve" class="text_0"><tspan id="tspan_416" y="127.98894" x="107.49521" class="tspan_0">SD6</tspan></text>
     </g>
     <g id="wire#SD7_1">
-      <path d="m 120.0721,130.66452 h -14.01052 l -0.70607,0.40765" id="path_137" class="path_52"/>
+      <path d="m 120.0721,130.66452 h -14.01052 l -0.70607,0.40765" id="path_130" class="path_61"/>
       <text id="text_377" y="130.10587" x="107.49521" xml:space="preserve" class="text_1"><tspan id="tspan_417" y="130.10587" x="107.49521" class="tspan_0">SD7</tspan></text>
     </g>
     <g id="wire#SD0_1">
-      <path d="m 132.54647,145.34723 h 13.99059 l 0.82392,-0.4757" id="path_138" class="path_53"/>
+      <path d="m 132.54647,145.34723 h 13.99059 l 0.82392,-0.4757" id="path_131" class="path_62"/>
       <text id="text_378" y="144.96184" x="142.16103" xml:space="preserve" class="text_33"><tspan id="tspan_418" y="144.96184" x="142.16103" class="tspan_0">SD0</tspan></text>
     </g>
     <g id="wire#SD1_1">
-      <path id="path_139" d="m 132.50758,147.51948 h 13.99059 l 0.82392,-0.4757" class="path_48"/>
+      <path id="path_132" d="m 132.50758,147.51948 h 13.99059 l 0.82392,-0.4757" class="path_57"/>
       <text xml:space="preserve" x="142.16103" y="147.01425" id="text_379" class="text_34"><tspan x="142.16103" y="147.01425" id="tspan_419" class="tspan_0">SD1</tspan></text>
     </g>
     <g id="wire#SD2_1">
-      <path id="path_140" d="m 132.55728,149.54281 h 13.99059 l 0.82392,-0.4757" class="path_49"/>
+      <path id="path_133" d="m 132.55728,149.54281 h 13.99059 l 0.82392,-0.4757" class="path_58"/>
       <text xml:space="preserve" x="142.16103" y="149.17252" id="text_380" class="text_35"><tspan x="142.16103" y="149.17252" id="tspan_420" class="tspan_0">SD2</tspan></text>
     </g>
     <g id="wire#SD3_1">
-      <path d="m 132.51839,151.71506 h 13.99059 l 0.82392,-0.4757" id="path_141" class="path_50"/>
+      <path d="m 132.51839,151.71506 h 13.99059 l 0.82392,-0.4757" id="path_134" class="path_59"/>
       <text xml:space="preserve" x="142.16103" y="151.22276" id="text_381" class="text_36"><tspan x="142.16103" y="151.22276" id="tspan_421" class="tspan_0">SD3</tspan></text>
     </g>
-    <path d="m 147.34514,123.60273 v -17.19344 l -0.9409,-0.94091 h -42.38789 l -0.83764,-0.83764 V 76.648696" id="bus#LSD07_0" class="path_54"/>
+    <path d="m 147.34514,123.60273 v -17.19344 l -0.9409,-0.94091 h -42.38789 l -0.83764,-0.83764 V 76.648696" id="bus#LSD07_0" class="path_63"/>
     <g id="wire#GND_3" transform="translate(64.317915,-35.609893)" class="g_0">
-      <path id="path_142" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_29"/>
-      <path id="path_143" d="m 50.828435,168.88631 h 1.469499" class="path_29"/>
-      <path id="path_144" d="m 51.119855,169.40964 h 0.78101" class="path_29"/>
-      <path d="m 54.722574,149.44032 h -3.209126 v 18.85704" id="path_145" class="path_30"/>
+      <path id="path_135" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_38"/>
+      <path id="path_136" d="m 50.828435,168.88631 h 1.469499" class="path_38"/>
+      <path id="path_137" d="m 51.119855,169.40964 h 0.78101" class="path_38"/>
+      <path d="m 54.722574,149.44032 h -3.209126 v 18.85704" id="path_138" class="path_39"/>
     </g>
     <g id="pointer#6_7" transform="translate(-83.041928,88.76164)" class="g_0">
-      <path id="path_146" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
+      <path id="path_139" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
       <text id="text_382" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_422" y="23.459679" x="163.86922" class="tspan_1">6</tspan></text>
     </g>
     <g id="wire#VIDEOLATCH_0">
       <text id="text_383" y="111.2056" x="85.498108" xml:space="preserve" class="text_37"><tspan id="tspan_423" y="111.2056" x="85.498108" class="tspan_0">VIDEO  LATCH</tspan></text>
-      <path id="path_147" d="M 120.13733,111.74459 H 84.328652" class="path_55"/>
+      <path id="path_140" d="M 120.13733,111.74459 H 84.328652" class="path_64"/>
     </g>
     <g id="wire#LSD0_0">
-      <path id="path_148" d="M 119.98725,75.979146 H 103.9643 l -0.7653,0.765305" class="path_56"/>
+      <path id="path_141" d="M 119.98725,75.979146 H 103.9643 l -0.7653,0.765305" class="path_65"/>
       <text id="text_384" y="75.554428" x="105.28643" xml:space="preserve" class="text_38"><tspan id="tspan_424" y="75.554428" x="105.28643" class="tspan_0">LSD0</tspan></text>
     </g>
     <g id="wire#LSD1_0">
-      <path d="m 119.95127,78.067952 h -16.02295 l -0.7653,0.765305" id="path_149" class="path_57"/>
+      <path d="m 119.95127,78.067952 h -16.02295 l -0.7653,0.765305" id="path_142" class="path_66"/>
       <text xml:space="preserve" x="105.25045" y="77.643234" id="text_385" class="text_39"><tspan x="105.25045" y="77.643234" id="tspan_425" class="tspan_0">LSD1</tspan></text>
     </g>
     <g id="wire#LSD2_0">
-      <path d="m 119.95878,80.204832 h -16.02295 l -0.7653,0.765305" id="path_150" class="path_58"/>
+      <path d="m 119.95878,80.204832 h -16.02295 l -0.7653,0.765305" id="path_143" class="path_67"/>
       <text xml:space="preserve" x="105.25796" y="79.780113" id="text_386" class="text_40"><tspan x="105.25796" y="79.780113" id="tspan_426" class="tspan_0">LSD2</tspan></text>
     </g>
     <g id="wire#LSD3_0">
-      <path id="path_151" d="m 119.9228,82.293638 h -16.02295 l -0.7653,0.765305" class="path_59"/>
+      <path id="path_144" d="m 119.9228,82.293638 h -16.02295 l -0.7653,0.765305" class="path_68"/>
       <text id="text_387" y="81.868919" x="105.22198" xml:space="preserve" class="text_41"><tspan id="tspan_427" y="81.868919" x="105.22198" class="tspan_0">LSD3</tspan></text>
     </g>
     <g id="wire#LSD4_0">
-      <path id="path_152" d="m 119.96478,84.42616 h -16.02295 l -0.7653,0.765305" class="path_60"/>
+      <path id="path_145" d="m 119.96478,84.42616 h -16.02295 l -0.7653,0.765305" class="path_69"/>
       <text id="text_388" y="84.001442" x="105.26397" xml:space="preserve" class="text_42"><tspan id="tspan_428" y="84.001442" x="105.26397" class="tspan_0">LSD4</tspan></text>
     </g>
     <g id="wire#LSD5_0">
-      <path id="path_153" d="m 119.97229,86.56304 h -16.02295 l -0.7653,0.765305" class="path_61"/>
+      <path id="path_146" d="m 119.97229,86.56304 h -16.02295 l -0.7653,0.765305" class="path_70"/>
       <text id="text_389" y="86.138321" x="105.27147" xml:space="preserve" class="text_43"><tspan id="tspan_429" y="86.138321" x="105.27147" class="tspan_0">LSD5</tspan></text>
     </g>
     <g id="wire#LSD6_0">
-      <path d="m 119.93631,88.651846 h -16.02295 l -0.7653,0.765305" id="path_154" class="path_62"/>
+      <path d="m 119.93631,88.651846 h -16.02295 l -0.7653,0.765305" id="path_147" class="path_71"/>
       <text xml:space="preserve" x="105.23549" y="88.227127" id="text_390" class="text_44"><tspan x="105.23549" y="88.227127" id="tspan_430" class="tspan_0">LSD6</tspan></text>
     </g>
     <g id="wire#LSD0_1">
       <text xml:space="preserve" x="141.01537" y="111.30946" id="text_391" class="text_38"><tspan x="141.01537" y="111.30946" id="tspan_431" class="tspan_0">LSD0</tspan></text>
-      <path id="path_155" d="m 132.76282,111.73709 h 13.74554 l 0.78746,-0.78746" class="path_56"/>
+      <path id="path_148" d="m 132.76282,111.73709 h 13.74554 l 0.78746,-0.78746" class="path_65"/>
     </g>
     <g id="wire#LSD1_1">
       <text id="text_392" y="113.39827" x="140.97939" xml:space="preserve" class="text_39"><tspan id="tspan_432" y="113.39827" x="140.97939" class="tspan_0">LSD1</tspan></text>
-      <path d="m 132.80286,113.83961 h 13.74554 l 0.78746,-0.78746" id="path_156" class="path_57"/>
+      <path d="m 132.80286,113.83961 h 13.74554 l 0.78746,-0.78746" id="path_149" class="path_66"/>
     </g>
     <g id="wire#LSD2_1">
       <text id="text_393" y="115.53515" x="140.98689" xml:space="preserve" class="text_40"><tspan id="tspan_433" y="115.53515" x="140.98689" class="tspan_0">LSD2</tspan></text>
-      <path d="m 132.77314,115.94213 h 13.74554 l 0.78746,-0.78746" id="path_157" class="path_58"/>
+      <path d="m 132.77314,115.94213 h 13.74554 l 0.78746,-0.78746" id="path_150" class="path_67"/>
     </g>
     <g id="wire#LSD3_1">
       <text xml:space="preserve" x="140.95091" y="117.62396" id="text_394" class="text_41"><tspan x="140.95091" y="117.62396" id="tspan_434" class="tspan_0">LSD3</tspan></text>
-      <path id="path_158" d="m 132.81318,118.04465 h 13.74554 l 0.78746,-0.78746" class="path_59"/>
+      <path id="path_151" d="m 132.81318,118.04465 h 13.74554 l 0.78746,-0.78746" class="path_68"/>
     </g>
     <g id="wire#LSD4_1">
       <text xml:space="preserve" x="140.9929" y="119.75648" id="text_395" class="text_42"><tspan x="140.9929" y="119.75648" id="tspan_435" class="tspan_0">LSD4</tspan></text>
-      <path id="path_159" d="m 132.80182,120.08721 h 13.74554 l 0.78746,-0.78746" class="path_60"/>
+      <path id="path_152" d="m 132.80182,120.08721 h 13.74554 l 0.78746,-0.78746" class="path_69"/>
     </g>
     <g id="wire#LSD5_1">
       <text xml:space="preserve" x="141.0004" y="121.89336" id="text_396" class="text_43"><tspan x="141.0004" y="121.89336" id="tspan_436" class="tspan_0">LSD5</tspan></text>
-      <path id="path_160" d="m 132.7721,122.18973 h 13.74554 l 0.78746,-0.78746" class="path_61"/>
+      <path id="path_153" d="m 132.7721,122.18973 h 13.74554 l 0.78746,-0.78746" class="path_70"/>
     </g>
     <g id="wire#LSD6_1">
       <text id="text_397" y="123.98216" x="140.96442" xml:space="preserve" class="text_44"><tspan id="tspan_437" y="123.98216" x="140.96442" class="tspan_0">LSD6</tspan></text>
-      <path d="m 132.81214,124.29225 h 13.74554 l 0.78746,-0.78746" id="path_161" class="path_62"/>
+      <path d="m 132.81214,124.29225 h 13.74554 l 0.78746,-0.78746" id="path_154" class="path_71"/>
     </g>
     <g id="wire#GND_4" transform="translate(74.794863,-67.153742)" class="g_0">
-      <path id="path_162" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_29"/>
-      <path id="path_163" d="m 50.828435,168.88631 h 1.469499" class="path_29"/>
-      <path id="path_164" d="m 51.119855,169.40964 h 0.78101" class="path_29"/>
-      <path d="m 51.513448,164.2085 v 4.08886" id="path_165" class="path_30"/>
-      <path d="m 45.191685,159.95106 h -4.113713 v 6.2425 l 10.340478,0.0318 v 0" id="path_166" class="path_30"/>
-      <path d="M 45.206078,162.09211 H 40.985022" id="path_167" class="path_30"/>
+      <path id="path_155" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="path_38"/>
+      <path id="path_156" d="m 50.828435,168.88631 h 1.469499" class="path_38"/>
+      <path id="path_157" d="m 51.119855,169.40964 h 0.78101" class="path_38"/>
+      <path d="m 51.513448,164.2085 v 4.08886" id="path_158" class="path_39"/>
+      <path d="m 45.191685,159.95106 h -4.113713 v 6.2425 l 10.340478,0.0318 v 0" id="path_159" class="path_39"/>
+      <path d="M 45.206078,162.09211 H 40.985022" id="path_160" class="path_39"/>
       <ellipse id="ellipse_32" cy="162.03912" cx="41.083729" rx="0.21147294" ry="0.21078888" class="ellipse_11"/>
       <ellipse id="ellipse_33" cy="166.23529" cx="51.529453" rx="0.21147294" ry="0.21078888" class="ellipse_11"/>
     </g>
     <g id="wire#GRAPHIC_0" transform="translate(-0.18339025,-21.057806)" class="g_0">
       <text xml:space="preserve" x="85.498108" y="111.2056" id="text_398" class="text_45"><tspan x="85.498108" y="111.2056" id="tspan_438" class="tspan_0">GRAPHIC</tspan></text>
-      <path d="M 120.13733,111.74459 H 84.328652" id="path_168" class="path_63"/>
+      <path d="M 120.13733,111.74459 H 84.328652" id="path_161" class="path_72"/>
     </g>
     <g transform="translate(-83.225318,67.703837)" id="pointer#6_8" class="g_0">
-      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_169" class="path_2"/>
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_162" class="path_2"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_399" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_439" class="tspan_1">3</tspan></text>
     </g>
     <g id="wire#SD0_2" transform="translate(84.272049,-39.944949)" class="g_0">
-      <path d="m 126.32198,115.94368 h -20.25006 l -0.70607,0.40765" id="path_170" class="path_47"/>
+      <path d="m 126.32198,115.94368 h -20.25006 l -0.70607,0.40765" id="path_163" class="path_56"/>
       <text id="text_400" y="115.39375" x="107.49521" xml:space="preserve" class="text_33"><tspan id="tspan_440" y="115.39375" x="107.49521" class="tspan_0">SD0</tspan></text>
       <ellipse ry="0.21078888" rx="0.21147294" cx="122.09607" cy="115.93046" id="ellipse_34" class="ellipse_14"/>
-      <path d="m 126.30452,118.04347 h -4.20261 v -2.15871" id="path_171" class="path_53"/>
+      <path d="m 126.30452,118.04347 h -4.20261 v -2.15871" id="path_164" class="path_62"/>
     </g>
     <g id="wire#SD1_2" transform="translate(84.272049,-37.900784)" class="g_0">
-      <path id="path_172" d="m 126.30936,118.06798 h -20.19861 l -0.80016,0.50314" class="path_48"/>
+      <path id="path_165" d="m 126.30936,118.06798 h -20.19861 l -0.80016,0.50314" class="path_57"/>
       <text xml:space="preserve" x="107.49521" y="117.44617" id="text_401" class="text_34"><tspan x="107.49521" y="117.44617" id="tspan_441" class="tspan_0">SD1</tspan></text>
-      <path d="m 126.32858,120.17689 h -4.13514 v -2.08118" id="path_173" class="path_64"/>
+      <path d="m 126.32858,120.17689 h -4.13514 v -2.08118" id="path_166" class="path_73"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="122.20413" cy="118.08526" id="ellipse_35" class="ellipse_15"/>
     </g>
     <g id="wire#SD2_2" transform="translate(84.272049,-35.811786)" class="g_0">
-      <path id="path_174" d="m 126.30945,120.20127 h -20.29258 l -0.70607,0.40765" class="path_49"/>
+      <path id="path_167" d="m 126.30945,120.20127 h -20.29258 l -0.70607,0.40765" class="path_58"/>
       <text xml:space="preserve" x="107.49521" y="119.60442" id="text_402" class="text_35"><tspan x="107.49521" y="119.60442" id="tspan_442" class="tspan_0">SD2</tspan></text>
-      <path id="path_175" d="m 126.2877,122.30123 h -4.13514 v -2.08118" class="path_49"/>
+      <path id="path_168" d="m 126.2877,122.30123 h -4.13514 v -2.08118" class="path_58"/>
       <ellipse id="ellipse_36" cy="120.2096" cx="122.16325" rx="0.21147294" ry="0.21078888" class="ellipse_16"/>
     </g>
     <g id="wire#SD3_2" transform="translate(84.272049,-33.746722)" class="g_0">
-      <path d="m 126.3438,122.32557 h -20.2881 l -0.70607,0.40765" id="path_176" class="path_50"/>
+      <path d="m 126.3438,122.32557 h -20.2881 l -0.70607,0.40765" id="path_169" class="path_59"/>
       <text xml:space="preserve" x="107.49521" y="121.65467" id="text_403" class="text_36"><tspan x="107.49521" y="121.65467" id="tspan_443" class="tspan_0">SD3</tspan></text>
-      <path id="path_177" d="m 126.3361,124.35441 h -4.13514 v -2.08118" class="path_50"/>
+      <path id="path_170" d="m 126.3361,124.35441 h -4.13514 v -2.08118" class="path_59"/>
       <ellipse id="ellipse_37" cy="122.26278" cx="122.21165" rx="0.21147294" ry="0.21078888" class="ellipse_17"/>
     </g>
     <g transform="translate(84.295503,-4.2277292)" id="wire#SD4_2" class="g_0">
-      <path id="path_178" d="m 126.32198,115.94368 h -20.25006 l -0.70607,0.40765" class="path_51"/>
+      <path id="path_171" d="m 126.32198,115.94368 h -20.25006 l -0.70607,0.40765" class="path_60"/>
       <text xml:space="preserve" x="107.49521" y="115.39375" id="text_404" class="text_32"><tspan x="107.49521" y="115.39375" id="tspan_444" class="tspan_0">SD4</tspan></text>
       <ellipse id="ellipse_38" cy="115.93046" cx="122.09607" rx="0.21147294" ry="0.21078888" class="ellipse_18"/>
-      <path id="path_179" d="m 126.30452,118.04347 h -4.20261 v -2.15871" class="path_46"/>
+      <path id="path_172" d="m 126.30452,118.04347 h -4.20261 v -2.15871" class="path_55"/>
     </g>
     <g transform="translate(84.295503,-2.1835692)" id="wire#SD5_2" class="g_0">
-      <path d="m 126.30936,118.06798 h -20.19861 l -0.80016,0.50314" id="path_180" class="path_5"/>
+      <path d="m 126.30936,118.06798 h -20.19861 l -0.80016,0.50314" id="path_173" class="path_5"/>
       <text id="text_405" y="117.44617" x="107.49521" xml:space="preserve" class="text_6"><tspan id="tspan_445" y="117.44617" x="107.49521" class="tspan_0">SD5</tspan></text>
-      <path id="path_181" d="m 126.32858,120.17689 h -4.13514 v -2.08118" class="path_65"/>
+      <path id="path_174" d="m 126.32858,120.17689 h -4.13514 v -2.08118" class="path_74"/>
       <ellipse id="ellipse_39" cy="118.08526" cx="122.20413" rx="0.21147294" ry="0.21078888" class="ellipse_19"/>
     </g>
     <g transform="translate(84.295503,1.9704908)" id="wire#SD7_2" class="g_0">
-      <path id="path_182" d="m 126.3438,122.32557 h -20.2881 l -0.70607,0.40765" class="path_1"/>
+      <path id="path_175" d="m 126.3438,122.32557 h -20.2881 l -0.70607,0.40765" class="path_1"/>
       <text id="text_406" y="121.65467" x="107.49521" xml:space="preserve" class="text_1"><tspan id="tspan_446" y="121.65467" x="107.49521" class="tspan_0">SD7</tspan></text>
-      <path d="m 126.3361,124.35441 h -4.13514 v -2.08118" id="path_183" class="path_1"/>
+      <path d="m 126.3361,124.35441 h -4.13514 v -2.08118" id="path_176" class="path_1"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="122.21165" cy="122.26278" id="ellipse_40" class="ellipse_20"/>
     </g>
     <g id="pointer#7_5" transform="translate(9.1252038,71.9024)" class="g_0">
-      <path id="path_184" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
+      <path id="path_177" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
       <text id="text_407" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_447" y="23.459679" x="163.86922" class="tspan_1">7</tspan></text>
     </g>
     <g id="wire#/TVREAD_0">
-      <path id="path_185" d="m 176.49578,94.885347 h 33.05457" class="path_66"/>
-      <path id="path_186" d="m 209.75634,130.57052 h -5.34265 V 94.866596" class="path_66"/>
+      <path id="path_178" d="m 176.49578,94.885347 h 33.05457" class="path_75"/>
+      <path id="path_179" d="m 209.75634,130.57052 h -5.34265 V 94.866596" class="path_75"/>
       <ellipse id="ellipse_41" cy="94.871735" cx="204.4306" rx="0.21147294" ry="0.21078888" class="ellipse_21"/>
-      <g transform="translate(-84.065874,51.238187)" id="g_9" class="g_0">
+      <g transform="translate(-84.065874,51.238187)" id="g_8" class="g_0">
         <text id="text_408" y="43.275349" x="265.32123" xml:space="preserve" class="text_46"><tspan id="tspan_448" y="43.275349" x="265.32123" class="tspan_1">TV  READ</tspan></text>
-        <path id="path_187" d="m 262.00983,42.032994 h 6.56955" class="path_67"/>
+        <path id="path_180" d="m 262.00983,42.032994 h 6.56955" class="path_76"/>
       </g>
     </g>
     <g id="label#read_0">
       <text xml:space="preserve" x="195.81497" y="94.421227" id="text_409" class="text_2"><tspan id="tspan_449" x="195.81497" y="94.421227" class="tspan_1">LO=READ</tspan><tspan x="195.81497" y="107.65035" id="tspan_450" class="tspan_1"/></text>
-      <path id="path_188" d="m 201.231,92.90143 h -4.33396 v 0.0376" class="path_68"/>
+      <path id="path_181" d="m 201.231,92.90143 h -4.33396 v 0.0376" class="path_77"/>
     </g>
     <g id="label#write_0">
-      <path d="m 195.78119,136.73967 h 4.33396 v 0.0376" id="path_189" class="path_69"/>
+      <path d="m 195.78119,136.73967 h 4.33396 v 0.0376" id="path_182" class="path_78"/>
       <text id="text_410" y="138.64006" x="196.45026" xml:space="preserve" class="text_2"><tspan y="138.64006" x="196.45026" id="tspan_451" class="tspan_1">LO=WRITE</tspan><tspan id="tspan_452" y="151.86919" x="196.45026" class="tspan_1"/></text>
     </g>
     <g transform="translate(74.519832,53.077377)" id="pointer#1_0" class="g_0">
-      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_190" class="path_2"/>
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_183" class="path_2"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_411" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_453" class="tspan_1">1</tspan></text>
     </g>
     <g id="wire#BD0_0">
       <text xml:space="preserve" x="232.96114" y="75.624313" id="text_412" class="text_47"><tspan x="232.96114" y="75.624313" id="tspan_454" class="tspan_1">BD0</tspan></text>
-      <path id="path_191" d="M 235.87341,76.095036 H 223.15463" class="path_70"/>
-      <path id="path_192" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="path_70"/>
+      <path id="path_184" d="M 235.87341,76.095036 H 223.15463" class="path_79"/>
+      <path id="path_185" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="path_79"/>
       <ellipse id="ellipse_42" cy="76.098312" cx="227.34492" rx="0.21147294" ry="0.21078888" class="ellipse_22"/>
     </g>
     <g id="pointer#1_1" transform="translate(74.503709,57.247405)" class="g_0">
-      <path id="path_193" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
+      <path id="path_186" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
       <text id="text_413" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_455" y="23.459679" x="163.86922" class="tspan_1">1</tspan></text>
     </g>
     <g id="wire#BD1_0" transform="translate(-0.01612104,4.1700282)" class="g_0">
       <text id="text_414" y="75.624313" x="232.96114" xml:space="preserve" class="text_48"><tspan id="tspan_456" y="75.624313" x="232.96114" class="tspan_1">BD1</tspan></text>
-      <path d="M 235.87341,76.095036 H 223.15463" id="path_194" class="path_71"/>
-      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_195" class="path_71"/>
+      <path d="M 235.87341,76.095036 H 223.15463" id="path_187" class="path_80"/>
+      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_188" class="path_80"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="227.34492" cy="76.098312" id="ellipse_43" class="ellipse_23"/>
     </g>
     <g id="pointer#1_2" transform="translate(74.535328,61.455933)" class="g_0">
-      <path id="path_196" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
+      <path id="path_189" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
       <text id="text_415" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_457" y="23.459679" x="163.86922" class="tspan_1">1</tspan></text>
     </g>
     <g id="wire#BD2_0" transform="translate(0.01549829,8.3785555)" class="g_0">
       <text id="text_416" y="75.624313" x="232.96114" xml:space="preserve" class="text_49"><tspan id="tspan_458" y="75.624313" x="232.96114" class="tspan_1">BD2</tspan></text>
-      <path d="M 235.87341,76.095036 H 223.15463" id="path_197" class="path_72"/>
-      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_198" class="path_72"/>
+      <path d="M 235.87341,76.095036 H 223.15463" id="path_190" class="path_81"/>
+      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_191" class="path_81"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="227.34492" cy="76.098312" id="ellipse_44" class="ellipse_24"/>
     </g>
     <g id="pointer#1_3" transform="translate(74.563142,65.626285)" class="g_0">
-      <path id="path_199" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
+      <path id="path_192" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
       <text id="text_417" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_459" y="23.459679" x="163.86922" class="tspan_1">1</tspan></text>
     </g>
     <g id="wire#BD3_0" transform="translate(0.04331206,12.548908)" class="g_0">
       <text id="text_418" y="75.624313" x="232.96114" xml:space="preserve" class="text_50"><tspan id="tspan_460" y="75.624313" x="232.96114" class="tspan_1">BD3</tspan></text>
-      <path d="M 235.87341,76.095036 H 223.15463" id="path_200" class="path_73"/>
-      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_201" class="path_73"/>
+      <path d="M 235.87341,76.095036 H 223.15463" id="path_193" class="path_82"/>
+      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_194" class="path_82"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="227.34492" cy="76.098312" id="ellipse_45" class="ellipse_25"/>
     </g>
     <g id="pointer#1_4" transform="translate(74.650998,88.72312)" class="g_0">
-      <path id="path_202" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
+      <path id="path_195" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_2"/>
       <text id="text_419" y="23.459679" x="163.86922" xml:space="preserve" class="text_2"><tspan id="tspan_461" y="23.459679" x="163.86922" class="tspan_1">1</tspan></text>
     </g>
     <g id="wire#BD4_0" transform="translate(0.13116891,35.645743)" class="g_0">
       <text id="text_420" y="75.624313" x="232.96114" xml:space="preserve" class="text_51"><tspan id="tspan_462" y="75.624313" x="232.96114" class="tspan_1">BD4</tspan></text>
-      <path d="M 235.87341,76.095036 H 223.15463" id="path_203" class="path_74"/>
-      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_204" class="path_74"/>
+      <path d="M 235.87341,76.095036 H 223.15463" id="path_196" class="path_83"/>
+      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_197" class="path_83"/>
       <ellipse ry="0.21078888" rx="0.21147294" cx="227.34492" cy="76.098312" id="ellipse_46" class="ellipse_26"/>
     </g>
     <g transform="translate(74.634878,92.893147)" id="pointer#1_5" class="g_0">
-      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_205" class="path_2"/>
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_198" class="path_2"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_421" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_463" class="tspan_1">1</tspan></text>
     </g>
     <g transform="translate(0.11504891,39.815772)" id="wire#BD5_0" class="g_0">
       <text xml:space="preserve" x="232.96114" y="75.624313" id="text_422" class="text_52"><tspan x="232.96114" y="75.624313" id="tspan_464" class="tspan_1">BD5</tspan></text>
-      <path id="path_206" d="M 235.87341,76.095036 H 223.15463" class="path_75"/>
-      <path id="path_207" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="path_75"/>
+      <path id="path_199" d="M 235.87341,76.095036 H 223.15463" class="path_84"/>
+      <path id="path_200" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="path_84"/>
       <ellipse id="ellipse_47" cy="76.098312" cx="227.34492" rx="0.21147294" ry="0.21078888" class="ellipse_27"/>
     </g>
     <g transform="translate(74.666498,97.101675)" id="pointer#1_6" class="g_0">
-      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_208" class="path_2"/>
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_201" class="path_2"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_423" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_465" class="tspan_1">1</tspan></text>
     </g>
     <g transform="translate(0.14666891,44.024298)" id="wire#BD6_0" class="g_0">
       <text xml:space="preserve" x="232.96114" y="75.624313" id="text_424" class="text_53"><tspan x="232.96114" y="75.624313" id="tspan_466" class="tspan_1">BD6</tspan></text>
-      <path id="path_209" d="M 235.87341,76.095036 H 223.15463" class="path_76"/>
-      <path id="path_210" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="path_76"/>
+      <path id="path_202" d="M 235.87341,76.095036 H 223.15463" class="path_85"/>
+      <path id="path_203" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="path_85"/>
       <ellipse id="ellipse_48" cy="76.098312" cx="227.34492" rx="0.21147294" ry="0.21078888" class="ellipse_28"/>
     </g>
     <g transform="translate(74.694308,101.27203)" id="pointer#1_7" class="g_0">
-      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_211" class="path_2"/>
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_204" class="path_2"/>
       <text xml:space="preserve" x="163.86922" y="23.459679" id="text_425" class="text_2"><tspan x="163.86922" y="23.459679" id="tspan_467" class="tspan_1">1</tspan></text>
     </g>
     <g transform="translate(0.17447891,48.19465)" id="wire#BD7_0" class="g_0">
       <text xml:space="preserve" x="232.96114" y="75.624313" id="text_426" class="text_54"><tspan x="232.96114" y="75.624313" id="tspan_468" class="tspan_1">BD7</tspan></text>
-      <path id="path_212" d="M 235.87341,76.095036 H 223.15463" class="path_77"/>
-      <path id="path_213" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="path_77"/>
+      <path id="path_205" d="M 235.87341,76.095036 H 223.15463" class="path_86"/>
+      <path id="path_206" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="path_86"/>
       <ellipse id="ellipse_49" cy="76.098312" cx="227.34492" rx="0.21147294" ry="0.21078888" class="ellipse_29"/>
+    </g>
+    <g id="wire#VCC_4" transform="translate(-6.2339399,-103.02266)" class="g_0">
+      <path id="wire#VCC_5" d="m 132.52297,168.53879 v -2.37426" class="path_20"/>
+      <text id="text_427" y="165.79825" x="132.368" xml:space="preserve" class="text_15"><tspan y="165.79825" x="132.368" id="tspan_469" class="tspan_1">+5V</tspan><tspan id="tspan_470" y="179.02737" x="132.368" class="tspan_1"/></text>
     </g>
   </g>
 <style>.path_0 {display:inline;fill:none;stroke:var(--color-SD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
@@ -1067,109 +1071,118 @@
 .text_18 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-VIDEO);fill-opacity:1;stroke:none;stroke-width:0.264583}
 .path_28 {fill:none;stroke:var(--color-VIDEO);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_9 {display:inline;fill:var(--color-VIDEO);stroke:var(--color-VIDEO);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.ellipse_10 {display:inline;fill:#000000;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_29 {display:inline;fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_30 {fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_31 {fill:none;stroke:var(--color-barLOADSR);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_29 {fill:none;stroke:var(--color-CD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_30 {display:inline;fill:none;stroke:var(--color-CD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_31 {display:inline;fill:none;stroke:var(--color-CD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_32 {display:inline;fill:none;stroke:var(--color-CD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_33 {display:inline;fill:none;stroke:var(--color-CD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_34 {display:inline;fill:none;stroke:var(--color-CD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_35 {display:inline;fill:none;stroke:var(--color-CD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_36 {display:inline;fill:none;stroke:var(--color-CD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_37 {fill:none;stroke:var(--color-CD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_10 {display:inline;fill:var(--color-CD7);stroke:var(--color-CD7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_38 {display:inline;fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_39 {fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_40 {fill:none;stroke:var(--color-barLOADSR);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_19 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barLOADSR);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_32 {display:inline;fill:none;stroke:var(--color-barLOADSR);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_33 {fill:none;stroke:var(--color-CLK8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_41 {display:inline;fill:none;stroke:var(--color-barLOADSR);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_42 {fill:none;stroke:var(--color-CLK8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_20 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-CLK8);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_34 {display:inline;fill:none;stroke:var(--color-SA0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_43 {display:inline;fill:none;stroke:var(--color-SA0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_21 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA0);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_35 {display:inline;fill:none;stroke:var(--color-SA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_44 {display:inline;fill:none;stroke:var(--color-SA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_22 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA1);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_36 {display:inline;fill:none;stroke:var(--color-SA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_45 {display:inline;fill:none;stroke:var(--color-SA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_23 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA2);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_37 {display:inline;fill:none;stroke:var(--color-SA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_46 {display:inline;fill:none;stroke:var(--color-SA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_24 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA3);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_38 {display:inline;fill:none;stroke:var(--color-SA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_47 {display:inline;fill:none;stroke:var(--color-SA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_25 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA4);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_39 {display:inline;fill:none;stroke:var(--color-SA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_48 {display:inline;fill:none;stroke:var(--color-SA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_26 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA5);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_40 {display:inline;fill:none;stroke:var(--color-SA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_49 {display:inline;fill:none;stroke:var(--color-SA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_27 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA6);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_41 {display:inline;fill:none;stroke:var(--color-SA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_50 {display:inline;fill:none;stroke:var(--color-SA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_28 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA7);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_42 {display:inline;fill:none;stroke:var(--color-SA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_51 {display:inline;fill:none;stroke:var(--color-SA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_29 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA8);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_43 {display:inline;fill:none;stroke:var(--color-SA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_52 {display:inline;fill:none;stroke:var(--color-SA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_30 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SA9);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_44 {display:inline;fill:none;stroke:#000080;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_53 {display:inline;fill:none;stroke:#000080;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_11 {display:inline;fill:var(--color-GND);stroke:var(--color-GND);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .ellipse_12 {display:inline;fill:var(--color-TVRAMRW);stroke:var(--color-TVRAMRW);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_45 {display:inline;fill:none;stroke:var(--color-TVRAMRW);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_54 {display:inline;fill:none;stroke:var(--color-TVRAMRW);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_31 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-TVRAMRW);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_46 {fill:none;stroke:var(--color-SD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_55 {fill:none;stroke:var(--color-SD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_32 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SD4);fill-opacity:1;stroke:none;stroke-width:0.264583}
 .ellipse_13 {display:inline;fill:var(--color-SD6);stroke:var(--color-SD6);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_47 {display:inline;fill:none;stroke:var(--color-SD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_56 {display:inline;fill:none;stroke:var(--color-SD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_33 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SD0);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_48 {display:inline;fill:none;stroke:var(--color-SD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_57 {display:inline;fill:none;stroke:var(--color-SD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_34 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SD1);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_49 {display:inline;fill:none;stroke:var(--color-SD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_58 {display:inline;fill:none;stroke:var(--color-SD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_35 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SD2);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_50 {display:inline;fill:none;stroke:var(--color-SD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_59 {display:inline;fill:none;stroke:var(--color-SD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_36 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-SD3);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_51 {display:inline;fill:none;stroke:var(--color-SD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_52 {fill:none;stroke:var(--color-SD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_53 {fill:none;stroke:var(--color-SD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_54 {fill:none;stroke:#000080;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_60 {display:inline;fill:none;stroke:var(--color-SD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_61 {fill:none;stroke:var(--color-SD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_62 {fill:none;stroke:var(--color-SD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_63 {fill:none;stroke:#000080;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_37 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-VIDEOLATCH);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_55 {display:inline;fill:none;stroke:var(--color-VIDEOLATCH);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
-.path_56 {fill:none;stroke:var(--color-LSD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_64 {display:inline;fill:none;stroke:var(--color-VIDEOLATCH);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_65 {fill:none;stroke:var(--color-LSD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_38 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-LSD0);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_57 {display:inline;fill:none;stroke:var(--color-LSD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_66 {display:inline;fill:none;stroke:var(--color-LSD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_39 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-LSD1);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_58 {display:inline;fill:none;stroke:var(--color-LSD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_67 {display:inline;fill:none;stroke:var(--color-LSD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_40 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-LSD2);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_59 {display:inline;fill:none;stroke:var(--color-LSD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_68 {display:inline;fill:none;stroke:var(--color-LSD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_41 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-LSD3);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_60 {display:inline;fill:none;stroke:var(--color-LSD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_69 {display:inline;fill:none;stroke:var(--color-LSD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_42 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-LSD4);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_61 {display:inline;fill:none;stroke:var(--color-LSD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_70 {display:inline;fill:none;stroke:var(--color-LSD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_43 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-LSD5);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_62 {display:inline;fill:none;stroke:var(--color-LSD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_71 {display:inline;fill:none;stroke:var(--color-LSD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .text_44 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-LSD6);fill-opacity:1;stroke:none;stroke-width:0.264583}
 .text_45 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-GRAPHIC);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_63 {display:inline;fill:none;stroke:var(--color-GRAPHIC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_72 {display:inline;fill:none;stroke:var(--color-GRAPHIC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_14 {display:inline;fill:var(--color-SD0);stroke:var(--color-SD0);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_64 {fill:none;stroke:var(--color-SD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_73 {fill:none;stroke:var(--color-SD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_15 {display:inline;fill:var(--color-SD1);stroke:var(--color-SD1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .ellipse_16 {display:inline;fill:var(--color-SD2);stroke:var(--color-SD2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .ellipse_17 {display:inline;fill:var(--color-SD3);stroke:var(--color-SD3);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .ellipse_18 {display:inline;fill:var(--color-SD4);stroke:var(--color-SD4);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_65 {fill:none;stroke:var(--color-SD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_74 {fill:none;stroke:var(--color-SD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_19 {display:inline;fill:var(--color-SD5);stroke:var(--color-SD5);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .ellipse_20 {display:inline;fill:var(--color-SD7);stroke:var(--color-SD7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_66 {fill:none;stroke:var(--color-barTVREAD);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_75 {fill:none;stroke:var(--color-barTVREAD);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_21 {display:inline;fill:var(--color-barTVREAD);stroke:var(--color-barTVREAD);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_46 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barTVREAD);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_67 {display:inline;fill:none;stroke:var(--color-barTVREAD);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-.path_68 {display:inline;fill:none;stroke:#000000;stroke-width:0.264999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart-6)}
-.path_69 {display:inline;fill:none;stroke:#000000;stroke-width:0.264999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart)}
+.path_76 {display:inline;fill:none;stroke:var(--color-barTVREAD);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_77 {display:inline;fill:none;stroke:#000000;stroke-width:0.264999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart-6)}
+.path_78 {display:inline;fill:none;stroke:#000000;stroke-width:0.264999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart)}
 .text_47 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BD0);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_70 {fill:none;stroke:var(--color-BD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_79 {fill:none;stroke:var(--color-BD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_22 {display:inline;fill:var(--color-BD0);stroke:var(--color-BD0);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_48 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BD1);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_71 {fill:none;stroke:var(--color-BD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_80 {fill:none;stroke:var(--color-BD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_23 {display:inline;fill:var(--color-BD1);stroke:var(--color-BD1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_49 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BD2);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_72 {fill:none;stroke:var(--color-BD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_81 {fill:none;stroke:var(--color-BD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_24 {display:inline;fill:var(--color-BD2);stroke:var(--color-BD2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_50 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BD3);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_73 {fill:none;stroke:var(--color-BD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_82 {fill:none;stroke:var(--color-BD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_25 {display:inline;fill:var(--color-BD3);stroke:var(--color-BD3);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_51 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BD4);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_74 {fill:none;stroke:var(--color-BD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_83 {fill:none;stroke:var(--color-BD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_26 {display:inline;fill:var(--color-BD4);stroke:var(--color-BD4);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_52 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BD5);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_75 {fill:none;stroke:var(--color-BD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_84 {fill:none;stroke:var(--color-BD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_27 {display:inline;fill:var(--color-BD5);stroke:var(--color-BD5);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_53 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BD6);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_76 {fill:none;stroke:var(--color-BD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_85 {fill:none;stroke:var(--color-BD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_28 {display:inline;fill:var(--color-BD6);stroke:var(--color-BD6);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .text_54 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BD7);fill-opacity:1;stroke:none;stroke-width:0.264583}
-.path_77 {fill:none;stroke:var(--color-BD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_86 {fill:none;stroke:var(--color-BD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .ellipse_29 {display:inline;fill:var(--color-BD7);stroke:var(--color-BD7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
-:root {--color-SD6:#000000;--color-SD7:#000000;--color-F9_74LS373:#000000;--color-F10_6316:#000000;--color-G9_74LS74:#000000;--color-E11_74LS165:#000000;--color-E8_74LS244:#000000;--color-E7_74LS244:#000000;--color-H11_74LS93:#000000;--color-F8_6114:#000000;--color-SD5:#000000;--color-F7_6114:#000000;--color-G10_74LS00:#000000;--color-G11_74LS20:#000000;--color-HORZDISPON:#000000;--color-6:#000000;--color-J7:#000000;--color-NEXT:#000000;--color-7:#000000;--color-RA7:#000000;--color-5:#000000;--color-NC:#000000;--color-H11_QA:#000000;--color-RA8:#000000;--color-RA9:#000000;--color-barRELOAD:#000000;--color-LOADSR:#000000;--color-barINIT:#000000;--color-LSD7:#000000;--color-R44:#000000;--color-VCC:#000000;--color-PULLUP1:#000000;--color-67:#000000;--color-G9Q:#000000;--color-E11QH:#000000;--color-barE11QH:#000000;--color-barG9Q:#000000;--color-VIDEOON:#000000;--color-H10_74LS08:#000000;--color-VIDEO:#000000;--color-GND:#000000;--color-barLOADSR:#000000;--color-CLK8:#000000;--color-SA0:#000000;--color-SA1:#000000;--color-SA2:#000000;--color-SA3:#000000;--color-SA4:#000000;--color-SA5:#000000;--color-SA6:#000000;--color-SA7:#000000;--color-SA8:#000000;--color-SA9:#000000;--color-SA09:#000000;--color-TVRAMRW:#000000;--color-SD4:#000000;--color-SD07:#000000;--color-SD0:#000000;--color-SD1:#000000;--color-SD2:#000000;--color-SD3:#000000;--color-LSD07:#000000;--color-VIDEOLATCH:#000000;--color-LSD0:#000000;--color-LSD1:#000000;--color-LSD2:#000000;--color-LSD3:#000000;--color-LSD4:#000000;--color-LSD5:#000000;--color-LSD6:#000000;--color-GRAPHIC:#000000;--color-barTVREAD:#000000;--color-read:#000000;--color-write:#000000;--color-1:#000000;--color-BD0:#000000;--color-BD1:#000000;--color-BD2:#000000;--color-BD3:#000000;--color-BD4:#000000;--color-BD5:#000000;--color-BD6:#000000;--color-BD7:#000000;}</style></svg>
+:root {--color-SD6:#000000;--color-SD7:#000000;--color-F9_74LS373:#000000;--color-F10_6316:#000000;--color-G9_74LS74:#000000;--color-E11_74LS165:#000000;--color-E8_74LS244:#000000;--color-E7_74LS244:#000000;--color-H11_74LS93:#000000;--color-F8_6114:#000000;--color-SD5:#000000;--color-F7_6114:#000000;--color-G10_74LS00:#000000;--color-G11_74LS20:#000000;--color-HORZDISPON:#000000;--color-6:#000000;--color-J7:#000000;--color-NEXT:#000000;--color-7:#000000;--color-RA7:#000000;--color-5:#000000;--color-NC:#000000;--color-H11_QA:#000000;--color-RA8:#000000;--color-RA9:#000000;--color-barRELOAD:#000000;--color-LOADSR:#000000;--color-barINIT:#000000;--color-LSD7:#000000;--color-R44:#000000;--color-VCC:#000000;--color-PULLUP1:#000000;--color-67:#000000;--color-G9Q:#000000;--color-E11QH:#000000;--color-barE11QH:#000000;--color-barG9Q:#000000;--color-VIDEOON:#000000;--color-H10_74LS08:#000000;--color-VIDEO:#000000;--color-CD0:#000000;--color-CD1:#000000;--color-CD2:#000000;--color-CD3:#000000;--color-CD4:#000000;--color-CD5:#000000;--color-CD6:#000000;--color-CD7:#000000;--color-GND:#000000;--color-barLOADSR:#000000;--color-CLK8:#000000;--color-SA0:#000000;--color-SA1:#000000;--color-SA2:#000000;--color-SA3:#000000;--color-SA4:#000000;--color-SA5:#000000;--color-SA6:#000000;--color-SA7:#000000;--color-SA8:#000000;--color-SA9:#000000;--color-SA09:#000000;--color-TVRAMRW:#000000;--color-SD4:#000000;--color-SD07:#000000;--color-SD0:#000000;--color-SD1:#000000;--color-SD2:#000000;--color-SD3:#000000;--color-LSD07:#000000;--color-VIDEOLATCH:#000000;--color-LSD0:#000000;--color-LSD1:#000000;--color-LSD2:#000000;--color-LSD3:#000000;--color-LSD4:#000000;--color-LSD5:#000000;--color-LSD6:#000000;--color-GRAPHIC:#000000;--color-barTVREAD:#000000;--color-read:#000000;--color-write:#000000;--color-1:#000000;--color-BD0:#000000;--color-BD1:#000000;--color-BD2:#000000;--color-BD3:#000000;--color-BD4:#000000;--color-BD5:#000000;--color-BD6:#000000;--color-BD7:#000000;}</style></svg>
