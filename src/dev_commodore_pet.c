@@ -1,6 +1,6 @@
 // dev_commodore_pet.h - Johan Smet - BSD-3-Clause (see LICENSE)
 //
-// Emulates a Commodore PET (Universal Dynamic motherboard)
+// Emulates a Commodore PET 2001N
 
 #include "dev_commodore_pet.h"
 
@@ -346,8 +346,8 @@ static Rom8d16a *load_rom(DevCommodorePet *device, const char *filename, uint32_
 	return rom;
 }
 
-static Rom8d16a *load_character_rom(DevCommodorePet *device, const char *filename, uint32_t num_lines) {
-	Rom8d16a *rom = rom_8d16a_create(num_lines, device->signal_pool, (Rom8d16aSignals) {
+static Rom8d16a *load_character_rom(DevCommodorePet *device, const char *filename) {
+	Rom8d16a *rom = rom_8d16a_create(11, device->signal_pool, (Rom8d16aSignals) {
 										.ce_b = SIGNAL(low)
 	});
 
@@ -485,6 +485,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(w220_off, 1, "220OFF");
 
 	SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
+	SIGNAL_DEFINE_N(bus_lsd, 8, "LSD%d");
 
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_ASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
@@ -534,7 +535,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_BOOL_N(high, 1, true, "VCC");
 	SIGNAL_DEFINE_BOOL_N(low, 1, false, "GND");
 
-	SIGNAL_DEFINE(cs1, 1);
+	SIGNAL_DEFINE_N(cs1, 1, "CS1");
+	SIGNAL_DEFINE_N(ca1, 1, "CA1");
+	SIGNAL_DEFINE_N(graphic, 1, "GRAPHIC");
+	SIGNAL_DEFINE_N(bus_pa, 8, "PA%d");
 
 	SIGNAL_DEFINE_BOOL_N(video_on, 1, true, "VIDEOON");
 	SIGNAL_DEFINE_BOOL_N(video_on_b, 1, false, "/VIDEOON");
@@ -897,7 +901,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.rw = SIGNAL(tv_ram_rw)
 	}));
 
-
 	// >> e8 - octal buffer
 	DEVICE_REGISTER_CHIP("E8", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
 										.g2_b = SIGNAL(tv_ram_rw),						// 19
@@ -946,6 +949,34 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.a21  = signal_split(SIGNAL(bus_bd), 7, 1)		// 11
 	}));
 
+	// >> f9 - 8-bit latch
+	DEVICE_REGISTER_CHIP("F9", chip_74373_latch_create(device->signal_pool, (Chip74373Signals) {
+										.c	  = SIGNAL(video_latch),					// 11
+										.oc_b = SIGNAL(low),							// 1
+										.d1   = signal_split(SIGNAL(bus_sd), 0, 1),		// 3
+										.d8   = signal_split(SIGNAL(bus_sd), 1, 1),		// 18
+										.d2   = signal_split(SIGNAL(bus_sd), 2, 1),		// 4
+										.d7   = signal_split(SIGNAL(bus_sd), 3, 1),		// 17
+										.d3   = signal_split(SIGNAL(bus_sd), 4, 1),		// 7
+										.d6   = signal_split(SIGNAL(bus_sd), 5, 1),		// 14
+										.d4   = signal_split(SIGNAL(bus_sd), 6, 1),		// 8
+										.d5   = signal_split(SIGNAL(bus_sd), 7, 1),		// 13
+
+										.q1   = signal_split(SIGNAL(bus_lsd), 0, 1),	// 2
+										.q8   = signal_split(SIGNAL(bus_lsd), 1, 1),	// 19
+										.q2   = signal_split(SIGNAL(bus_lsd), 2, 1),	// 5
+										.q7   = signal_split(SIGNAL(bus_lsd), 3, 1),	// 16
+										.q3   = signal_split(SIGNAL(bus_lsd), 4, 1),	// 6
+										.q6   = signal_split(SIGNAL(bus_lsd), 5, 1),	// 15
+										.q4   = signal_split(SIGNAL(bus_lsd), 6, 1),	// 9
+										.q5   = signal_split(SIGNAL(bus_lsd), 7, 1),	// 12
+	}));
+
+	// >> f10 - character rom
+	device->char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin");
+	assert(device->char_rom);
+	DEVICE_REGISTER_CHIP("F10", device->char_rom);
+
 	// power-on-reset
 	DEVICE_REGISTER_CHIP("POR", poweronreset_create(1000000, device->signal_pool, (PowerOnResetSignals) {
 											.reset_b = SIGNAL(reset_b)
@@ -989,9 +1020,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 		DEVICE_REGISTER_CHIP("ROM", device->roms[i]);
 	}
 
-	device->char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin", 11);
-	assert(device->char_rom);
-	DEVICE_REGISTER_CHIP("CRAM", device->char_rom);
+	//device->char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin", 11);
+	//assert(device->char_rom);
+	//DEVICE_REGISTER_CHIP("CRAM", device->char_rom);
 
 	SIGNAL(rome_ce_b) = device->roms[3]->signals.ce_b;
 
@@ -1045,6 +1076,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
 										.rs2 = signal_split(SIGNAL(bus_ba), 2, 1),
 										.rs3 = signal_split(SIGNAL(bus_ba), 3, 1),
+										.ca1 = SIGNAL(ca1),
+										.ca2 = SIGNAL(graphic),
+										.port_a = SIGNAL(bus_pa)
 	});
 	DEVICE_REGISTER_CHIP("C5", device->via);
 
