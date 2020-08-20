@@ -14,6 +14,7 @@ extern MunitTest chip_hd44780_tests[];
 extern MunitTest chip_oscillator_tests[];
 extern MunitTest chip_poweronreset_tests[];
 extern MunitTest chip_ram_static_tests[];
+extern MunitTest chip_rom_tests[];
 extern MunitTest device_tests[];
 extern MunitTest dev_commodore_pet_tests[];
 extern MunitTest dev_minimal_6502_tests[];
@@ -92,6 +93,12 @@ static MunitSuite extern_suites[] = {
 	},
 	{	.prefix = "/chip_ram_static",
 		.tests = chip_ram_static_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
+	{	.prefix = "/chip_rom",
+		.tests = chip_rom_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE
