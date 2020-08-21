@@ -202,9 +202,19 @@ typedef struct DevCommodorePetSignals {
 	Signal		ca1;				// 1-bit
 	Signal		graphic;			// 1-bit
 	Signal		bus_pa;				// 8-bit
+	Signal		bus_cd;				// 8-bit
+
+	Signal		g9q;				// 1-bit
+	Signal		g9q_b;				// 1-bit
+	Signal		e11qh;				// 1-bit
+	Signal		e11qh_b;			// 1-bit
+	Signal		g106;				// 1-bit
+	Signal		g108;				// 1-bit
+	Signal		h108;				// 1-bit
 
 	Signal		video_on;			// 1-bit - vblank
 	Signal		video_on_b;
+	Signal		video;
 
 } DevCommodorePetSignals;
 
@@ -215,7 +225,6 @@ typedef struct DevCommodorePet {
 	Cpu6502 *		cpu;
 	Ram8d16a *		ram;
 	Rom8d16a *		roms[7];
-	Rom8d16a *		char_rom;
 	struct Oscillator *		oscillator_y1;
 	struct Chip6520 *		pia_1;
 	struct Chip6520 *		pia_2;

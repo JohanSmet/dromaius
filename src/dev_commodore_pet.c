@@ -11,6 +11,7 @@
 #include "chip_oscillator.h"
 #include "chip_poweronreset.h"
 #include "chip_ram_static.h"
+#include "chip_rom.h"
 #include "input_keypad.h"
 #include "display_rgba.h"
 #include "stb/stb_ds.h"
@@ -320,14 +321,39 @@ static void glue_logic_register_dependencies_08(ChipGlueLogic *chip) {
 	signal_add_dependency(device->signal_pool, SIGNAL(ra7), chip->id);
 	signal_add_dependency(device->signal_pool, SIGNAL(ra8), chip->id);
 	signal_add_dependency(device->signal_pool, SIGNAL(ra9), chip->id);
+
+	signal_add_dependency(device->signal_pool, SIGNAL(g9q), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(g9q_b), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(e11qh), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(e11qh), chip->id);
+
+	signal_add_dependency(device->signal_pool, SIGNAL(video_on), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(horz_disp_on), chip->id);
 }
 
 static void glue_logic_process_08(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
+	// g11 (8,9,10,12,13)
 	bool reload_b = !(SIGNAL_BOOL(horz_disp_on) && SIGNAL_BOOL(ra7) && SIGNAL_BOOL(ra8) && SIGNAL_BOOL(ra9));
 	SIGNAL_SET_BOOL(reload_b, reload_b);
+
+	// g10 (4,5,6)
+	bool g106 = !(SIGNAL_BOOL(g9q) && SIGNAL_BOOL(e11qh));
+	SIGNAL_SET_BOOL(g106, g106);
+
+	// g10 (8,9,10)
+	bool g108 = !(SIGNAL_BOOL(g9q_b) && SIGNAL_BOOL(e11qh_b));
+	SIGNAL_SET_BOOL(g108, g108);
+
+	// h10 (8,9,10)
+	bool h108 = !(SIGNAL_BOOL(g106) && SIGNAL_BOOL(g108));
+	SIGNAL_SET_BOOL(h108, h108);
+
+	// g11 (1,2,5,4,6)
+	bool video = !(h108 && true && SIGNAL_BOOL(video_on) && SIGNAL_BOOL(horz_disp_on));
+	SIGNAL_SET_BOOL(video, video);
 }
 
 
@@ -346,13 +372,35 @@ static Rom8d16a *load_rom(DevCommodorePet *device, const char *filename, uint32_
 	return rom;
 }
 
-static Rom8d16a *load_character_rom(DevCommodorePet *device, const char *filename) {
-	Rom8d16a *rom = rom_8d16a_create(11, device->signal_pool, (Rom8d16aSignals) {
-										.ce_b = SIGNAL(low)
+static Chip6316Rom *load_character_rom(DevCommodorePet *device, const char *filename) {
+
+	Chip6316Rom *rom = chip_6316_rom_create(device->signal_pool, (Chip6316Signals) {
+										.cs1_b = SIGNAL(low),
+										.cs2_b = SIGNAL(low),
+										.cs3 = SIGNAL(init_b),
+										.a0 = SIGNAL(ra7),
+										.a1 = SIGNAL(ra8),
+										.a2 = SIGNAL(ra9),
+										.a3 = signal_split(SIGNAL(bus_lsd), 0, 1),
+										.a4 = signal_split(SIGNAL(bus_lsd), 1, 1),
+										.a5 = signal_split(SIGNAL(bus_lsd), 2, 1),
+										.a6 = signal_split(SIGNAL(bus_lsd), 3, 1),
+										.a7 = signal_split(SIGNAL(bus_lsd), 4, 1),
+										.a8 = signal_split(SIGNAL(bus_lsd), 5, 1),
+										.a9 = signal_split(SIGNAL(bus_lsd), 6, 1),
+										.a10 = SIGNAL(graphic),
+										.d0 = signal_split(SIGNAL(bus_cd), 0, 1),
+										.d1 = signal_split(SIGNAL(bus_cd), 1, 1),
+										.d2 = signal_split(SIGNAL(bus_cd), 2, 1),
+										.d3 = signal_split(SIGNAL(bus_cd), 3, 1),
+										.d4 = signal_split(SIGNAL(bus_cd), 4, 1),
+										.d5 = signal_split(SIGNAL(bus_cd), 5, 1),
+										.d6 = signal_split(SIGNAL(bus_cd), 6, 1),
+										.d7 = signal_split(SIGNAL(bus_cd), 7, 1)
 	});
 
-	if (file_load_binary_fixed(filename, rom->data_array, rom->data_size) == 0) {
-		rom_8d16a_destroy(rom);
+	if (file_load_binary_fixed(filename, rom->data_array, ROM_6316_DATA_SIZE) == 0) {
+		chip_6316_rom_destroy(rom);
 		return NULL;
 	}
 
@@ -539,9 +587,19 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(ca1, 1, "CA1");
 	SIGNAL_DEFINE_N(graphic, 1, "GRAPHIC");
 	SIGNAL_DEFINE_N(bus_pa, 8, "PA%d");
+	SIGNAL_DEFINE_N(bus_cd, 8, "CD%d");
+
+	SIGNAL_DEFINE_N(g9q, 1, "G9Q");
+	SIGNAL_DEFINE_N(g9q_b, 1, "/G9Q");
+	SIGNAL_DEFINE_N(e11qh, 1, "E11QH");
+	SIGNAL_DEFINE_N(e11qh_b, 1, "/E11QH");
+	SIGNAL_DEFINE_N(g106, 1, "G106");
+	SIGNAL_DEFINE_N(g108, 1, "G108");
+	SIGNAL_DEFINE_N(h108, 1, "H108");
 
 	SIGNAL_DEFINE_BOOL_N(video_on, 1, true, "VIDEOON");
 	SIGNAL_DEFINE_BOOL_N(video_on_b, 1, false, "/VIDEOON");
+	SIGNAL_DEFINE_N(video, 1, "VIDEO");
 
 	device->signals.ba6 = signal_split(SIGNAL(bus_ba), 6, 1);
 	device->signals.ba7 = signal_split(SIGNAL(bus_ba), 7, 1);
@@ -637,7 +695,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qd = SIGNAL(ra5),				// pin 11
 	}));
 
-	// >> g9 - d flip-flop
+	// >> g9 - d flip-flop (2 flipflop is used on sheet 8)
 	DEVICE_REGISTER_CHIP("G9", chip_7474_d_flipflop_create(device->signal_pool, (Chip7474Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
@@ -649,12 +707,12 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.q1 = SIGNAL(load_sr),			// pin 5
 										.q1_b = SIGNAL(load_sr_b),		// pin 6
 
-										// .q2_b = not used,			// pin 8
-										// .q2 = not used,				// pin 9
-										// .pr2_b = not used,			// pin 10
-										// .clk2 = not used,			// pin 11
-										// .d2 = not used,				// pin 12
-										// .clr2_b = not used,			// pin 13
+										.d2 = signal_split(SIGNAL(bus_lsd), 7, 1),	// pin 12
+										.clr2_b = SIGNAL(init_b),					// pin 13
+										.clk2 = SIGNAL(load_sr),					// pin 11
+										.pr2_b = SIGNAL(high),						// pin 10
+										.q2 = SIGNAL(g9q),							// pin 9
+										.q2_b = SIGNAL(g9q_b),						// pin 8
 	}));
 
 	// >> h7 - JK flip-flop
@@ -973,9 +1031,27 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f10 - character rom
-	device->char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin");
-	assert(device->char_rom);
-	DEVICE_REGISTER_CHIP("F10", device->char_rom);
+	Chip6316Rom *char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin");
+	assert(char_rom);
+	DEVICE_REGISTER_CHIP("F10", char_rom);
+
+	// >> e11 - shift register
+	DEVICE_REGISTER_CHIP("E11", chip_74165_shift_register_create(device->signal_pool, (Chip74165Signals) {
+										.sl		 = SIGNAL(load_sr_b),					// 1
+										.clk	 = SIGNAL(clk8),						// 2
+										.clk_inh = SIGNAL(low),							// 15
+										.si		 = signal_split(SIGNAL(bus_cd), 7, 1),	// 10
+										.a		 = signal_split(SIGNAL(bus_cd), 0, 1),	// 11
+										.b		 = signal_split(SIGNAL(bus_cd), 1, 1),	// 12
+										.c		 = signal_split(SIGNAL(bus_cd), 2, 1),	// 13
+										.d		 = signal_split(SIGNAL(bus_cd), 3, 1),	// 14
+										.e		 = signal_split(SIGNAL(bus_cd), 4, 1),	// 3
+										.f		 = signal_split(SIGNAL(bus_cd), 5, 1),	// 4
+										.g		 = signal_split(SIGNAL(bus_cd), 6, 1),	// 5
+										.h		 = signal_split(SIGNAL(bus_cd), 7, 1),	// 6
+										.qh		 = SIGNAL(e11qh),						// 9
+										.qh_b	 = SIGNAL(e11qh_b),						// 7
+	}));
 
 	// power-on-reset
 	DEVICE_REGISTER_CHIP("POR", poweronreset_create(1000000, device->signal_pool, (PowerOnResetSignals) {
