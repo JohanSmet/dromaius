@@ -611,6 +611,86 @@ void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 74165 - 8-Bit Parallel In/Serial Out Shift Registers
+//
+
+Chip74165ShiftRegister *chip_74165_shift_register_create(SignalPool *signal_pool, Chip74165Signals signals) {
+
+	Chip74165ShiftRegister *chip = (Chip74165ShiftRegister *) calloc(1, sizeof(Chip74165ShiftRegister));
+	chip->signal_pool = signal_pool;
+	CHIP_74XXX_SET_FUNCTIONS(chip_74165_shift_register);
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+
+	SIGNAL_DEFINE(sl, 1);
+	SIGNAL_DEFINE(clk, 1);
+	SIGNAL_DEFINE(e, 1);
+	SIGNAL_DEFINE(f, 1);
+	SIGNAL_DEFINE(g, 1);
+	SIGNAL_DEFINE(h, 1);
+	SIGNAL_DEFINE(qh_b, 1);
+	SIGNAL_DEFINE(gnd, 1);
+	SIGNAL_DEFINE(qh, 1);
+	SIGNAL_DEFINE(si, 1);
+	SIGNAL_DEFINE(a, 1);
+	SIGNAL_DEFINE(b, 1);
+	SIGNAL_DEFINE(c, 1);
+	SIGNAL_DEFINE(d, 1);
+	SIGNAL_DEFINE(clk_inh, 1);
+	SIGNAL_DEFINE(vcc, 1);
+
+	return chip;
+}
+
+void chip_74165_shift_register_register_dependencies(Chip74165ShiftRegister *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(sl), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(clk_inh), chip->id);
+}
+
+void chip_74165_shift_register_destroy(Chip74165ShiftRegister *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74165_shift_register_process(Chip74165ShiftRegister *chip) {
+	assert(chip);
+
+	// data at the parallel inputs are loaded directly into the register on a HIGH-to-LOW transition of
+	// the shit/load input, regardless of the logic levels on the clock, clock inhibit, or serial inputs.
+	if (!SIGNAL_BOOL(sl) && signal_changed(chip->signal_pool, SIGNAL(sl))) {
+		bool value_h = SIGNAL_BOOL(h);
+
+		chip->state = SIGNAL_BOOL(a);
+		chip->state = (chip->state << 1) | SIGNAL_BOOL(b);
+		chip->state = (chip->state << 1) | SIGNAL_BOOL(c);
+		chip->state = (chip->state << 1) | SIGNAL_BOOL(d);
+		chip->state = (chip->state << 1) | SIGNAL_BOOL(e);
+		chip->state = (chip->state << 1) | SIGNAL_BOOL(f);
+		chip->state = (chip->state << 1) | SIGNAL_BOOL(g);
+		chip->state = (chip->state << 1) | value_h;
+
+		SIGNAL_SET_BOOL(qh, value_h);
+		SIGNAL_SET_BOOL(qh_b, !value_h);
+		return;
+	}
+
+	bool gated_clk = !(SIGNAL_BOOL(clk) || SIGNAL_BOOL(clk_inh));
+
+	if (!gated_clk && chip->prev_gated_clk) {
+		chip->state = ((int) SIGNAL_BOOL(si) << 7) | (chip->state >> 1);
+	}
+
+	bool output = chip->state & 0x01;
+	SIGNAL_SET_BOOL(qh, output);
+	SIGNAL_SET_BOOL(qh_b, !output);
+	chip->prev_gated_clk = gated_clk;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74177 - Presettable Binary Counter/Latch
 //
 

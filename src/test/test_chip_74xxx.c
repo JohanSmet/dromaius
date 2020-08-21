@@ -535,6 +535,88 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 	return MUNIT_OK;
 }
 
+static MunitResult test_74165_shift_register(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip74165ShiftRegister *chip = chip_74165_shift_register_create(signal_pool_create(), (Chip74165Signals) {0});
+
+	// init signals
+	SIGNAL_SET_BOOL(clk_inh, true);		// inhibit clock
+	SIGNAL_SET_BOOL(si, false);			// shift in zeros
+	SIGNAL_SET_BOOL(sl, true);			// shift (not load)
+	SIGNAL_SET_BOOL(clk, false);
+	signal_pool_cycle(chip->signal_pool);
+	chip->process(chip);
+
+	// load shift register
+	SIGNAL_SET_BOOL(sl, false);
+	SIGNAL_SET_BOOL(a, true);
+	SIGNAL_SET_BOOL(b, false);
+	SIGNAL_SET_BOOL(c, true);
+	SIGNAL_SET_BOOL(d, false);
+	SIGNAL_SET_BOOL(e, true);
+	SIGNAL_SET_BOOL(f, false);
+	SIGNAL_SET_BOOL(g, true);
+	SIGNAL_SET_BOOL(h, true);
+	signal_pool_cycle(chip->signal_pool);
+	chip->process(chip);
+	munit_assert_int(chip->state, ==, 0b10101011);
+	munit_assert_true(SIGNAL_NEXT_BOOL(qh));
+	munit_assert_false(SIGNAL_NEXT_BOOL(qh_b));
+	SIGNAL_SET_BOOL(sl, true);
+
+	// run a few cycles with clock inhibited
+	for (int i = 0; i <4; ++i) {
+		SIGNAL_SET_BOOL(clk, !SIGNAL_BOOL(clk));
+		signal_pool_cycle(chip->signal_pool);
+		chip->process(chip);
+		munit_assert_int(chip->state, ==, 0b10101011);
+		munit_assert_true(SIGNAL_NEXT_BOOL(qh));
+		munit_assert_false(SIGNAL_NEXT_BOOL(qh_b));
+	}
+	munit_assert_false(SIGNAL_NEXT_BOOL(clk));
+
+	// stop inhiting the clock
+	SIGNAL_SET_BOOL(clk_inh, false);
+
+	// shift the entire byte out
+	bool expected[8] = {true, true, false, true, false, true, false, true};
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_SET_BOOL(clk, true);
+		signal_pool_cycle(chip->signal_pool);
+		chip->process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qh) == expected[i]);
+		munit_assert(SIGNAL_NEXT_BOOL(qh_b) != expected[i]);
+
+		SIGNAL_SET_BOOL(clk, false);
+		signal_pool_cycle(chip->signal_pool);
+		chip->process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(qh) == expected[i]);
+		munit_assert(SIGNAL_NEXT_BOOL(qh_b) != expected[i]);
+	}
+
+	// test serial input
+	SIGNAL_SET_BOOL(si, !SIGNAL_BOOL(si));
+	SIGNAL_SET_BOOL(clk, true);
+	signal_pool_cycle(chip->signal_pool);
+	chip->process(chip);
+	munit_assert_int(chip->state, ==, 0b10000000);
+
+	SIGNAL_SET_BOOL(clk, false);
+	signal_pool_cycle(chip->signal_pool);
+	chip->process(chip);
+
+	SIGNAL_SET_BOOL(si, !SIGNAL_BOOL(si));
+	SIGNAL_SET_BOOL(clk, true);
+	signal_pool_cycle(chip->signal_pool);
+	chip->process(chip);
+	munit_assert_int(chip->state, ==, 0b01000000);
+
+	signal_pool_destroy(chip->signal_pool);
+	chip_74165_shift_register_destroy(chip);
+	return MUNIT_OK;
+}
+
 static MunitResult test_74177_binary_counter(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Chip74177BinaryCounter *chip = chip_74177_binary_counter_create(signal_pool_create(1), (Chip74177Signals) {0});
@@ -771,6 +853,7 @@ MunitTest chip_74xxx_tests[] = {
 	{ "/74154_decoder", test_74154_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74157_multiplexer", test_74157_multiplexer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74164_shift_register", test_74164_shift_register, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/74165_shift_register", test_74165_shift_register, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74177_binary_counter", test_74177_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74191_binary_counter", test_74191_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74244_octal_buffer", test_74244_octal_buffer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },

@@ -242,6 +242,36 @@ typedef struct Chip74164ShiftRegister {
 	bool				prev_clock;
 } Chip74164ShiftRegister;
 
+// types - 74165 (8-Bit Parallel In/Serial Output Shift Registers)
+typedef struct Chip74165Signals {
+	Signal		sl;			// pin 01 - shift or load
+	Signal		clk;		// pin 02 - clock
+	Signal		e;			// pin 03 - parallel input
+	Signal		f;			// pin 04 - parallel input
+	Signal		g;			// pin 05 - parallel input
+	Signal		h;			// pin 06 - parallel input
+	Signal		qh_b;		// pin 07 - output /Qh
+	Signal		gnd;		// pin 08
+	Signal		qh;			// pin 09 - output Qh
+	Signal		si;			// pîn 10 - serial input
+	Signal		a;			// pin 11 - parallel input
+	Signal		b;			// pin 12 - parallel input
+	Signal		c;			// pin 13 - parallel input
+	Signal		d;			// pin 14 - parallel input
+	Signal		clk_inh;	// pin 15 - clock inhibit
+	Signal		vcc;		// pin 16
+} Chip74165Signals;
+
+typedef struct Chip74165ShiftRegister {
+	CHIP_DECLARE_FUNCTIONS
+
+	SignalPool *		signal_pool;
+	Chip74165Signals	signals;
+
+	int					state;
+	bool				prev_gated_clk;
+} Chip74165ShiftRegister;
+
 // types - 74177 (Presettable Binary Counter/Latch)
 typedef struct Chip74177Signals {
 	Signal		load_b;		// pin 01
@@ -407,6 +437,11 @@ Chip74164ShiftRegister *chip_74164_shift_register_create(SignalPool *signal_pool
 void chip_74164_shift_register_register_dependencies(Chip74164ShiftRegister *chip);
 void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip);
 void chip_74164_shift_register_process(Chip74164ShiftRegister *chip);
+
+Chip74165ShiftRegister *chip_74165_shift_register_create(SignalPool *signal_pool, Chip74165Signals signals);
+void chip_74165_shift_register_register_dependencies(Chip74165ShiftRegister *chip);
+void chip_74165_shift_register_destroy(Chip74165ShiftRegister *chip);
+void chip_74165_shift_register_process(Chip74165ShiftRegister *chip);
 
 Chip74177BinaryCounter *chip_74177_binary_counter_create(SignalPool *signal_pool, Chip74177Signals signals);
 void chip_74177_binary_counter_register_dependencies(Chip74177BinaryCounter *chip);
