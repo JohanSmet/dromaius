@@ -740,12 +740,12 @@ void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip) {
 	bool clk1 = SIGNAL_BOOL(clk1);
 	bool clk2 = SIGNAL_BOOL(clk2);
 
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(load_b))) {
-		chip->count_1 = SIGNAL_BOOL(a);
-		chip->count_2 = SIGNAL_BOOL(b) | (SIGNAL_BOOL(c) << 1) | (SIGNAL_BOOL(d) << 2);
-	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(clear_b))) {
+	if (ACTLO_ASSERTED(SIGNAL_BOOL(clear_b))) {
 		chip->count_1 = false;
 		chip->count_2 = false;
+	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(load_b))) {
+		chip->count_1 = SIGNAL_BOOL(a);
+		chip->count_2 = SIGNAL_BOOL(b) | (SIGNAL_BOOL(c) << 1) | (SIGNAL_BOOL(d) << 2);
 	} else {
 		if (chip->prev_clk1 && !clk1) {
 			chip->count_1 = !chip->count_1;
