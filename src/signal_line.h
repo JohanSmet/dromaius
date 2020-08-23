@@ -232,6 +232,18 @@ static inline bool signal_changed(SignalPool *pool, Signal signal) {
 	return result;
 }
 
+static inline bool signal_changed_last_tick(SignalPool *pool, Signal signal) {
+	assert(pool);
+
+	bool result = false;
+
+	for (uint32_t i = 0; i < signal.count; ++i) {
+		result |= (pool->signals_last_changed[signal.start + i] == pool->current_tick - 1);
+	}
+
+	return result;
+}
+
 // macros to make working with signal a little prettier
 //	define SIGNAL_POOL and SIGNAL_COLLECTION in your source file
 

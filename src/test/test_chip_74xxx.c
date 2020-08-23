@@ -545,6 +545,7 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	SIGNAL_SET_BOOL(sl, true);			// shift (not load)
 	SIGNAL_SET_BOOL(clk, false);
 	signal_pool_cycle(chip->signal_pool);
+	chip->signal_pool->current_tick += 1;
 	chip->process(chip);
 
 	// load shift register
@@ -558,6 +559,7 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	SIGNAL_SET_BOOL(g, true);
 	SIGNAL_SET_BOOL(h, true);
 	signal_pool_cycle(chip->signal_pool);
+	chip->signal_pool->current_tick += 1;
 	chip->process(chip);
 	munit_assert_int(chip->state, ==, 0b10101011);
 	munit_assert_true(SIGNAL_NEXT_BOOL(qh));
@@ -568,6 +570,7 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	for (int i = 0; i <4; ++i) {
 		SIGNAL_SET_BOOL(clk, !SIGNAL_BOOL(clk));
 		signal_pool_cycle(chip->signal_pool);
+		chip->signal_pool->current_tick += 1;
 		chip->process(chip);
 		munit_assert_int(chip->state, ==, 0b10101011);
 		munit_assert_true(SIGNAL_NEXT_BOOL(qh));
@@ -584,12 +587,14 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	for (int i = 0; i < 8; ++i) {
 		SIGNAL_SET_BOOL(clk, true);
 		signal_pool_cycle(chip->signal_pool);
+		chip->signal_pool->current_tick += 1;
 		chip->process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qh) == expected[i]);
 		munit_assert(SIGNAL_NEXT_BOOL(qh_b) != expected[i]);
 
 		SIGNAL_SET_BOOL(clk, false);
 		signal_pool_cycle(chip->signal_pool);
+		chip->signal_pool->current_tick += 1;
 		chip->process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qh) == expected[i]);
 		munit_assert(SIGNAL_NEXT_BOOL(qh_b) != expected[i]);
@@ -599,16 +604,19 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	SIGNAL_SET_BOOL(si, !SIGNAL_BOOL(si));
 	SIGNAL_SET_BOOL(clk, true);
 	signal_pool_cycle(chip->signal_pool);
+	chip->signal_pool->current_tick += 1;
 	chip->process(chip);
 	munit_assert_int(chip->state, ==, 0b10000000);
 
 	SIGNAL_SET_BOOL(clk, false);
 	signal_pool_cycle(chip->signal_pool);
+	chip->signal_pool->current_tick += 1;
 	chip->process(chip);
 
 	SIGNAL_SET_BOOL(si, !SIGNAL_BOOL(si));
 	SIGNAL_SET_BOOL(clk, true);
 	signal_pool_cycle(chip->signal_pool);
+	chip->signal_pool->current_tick += 1;
 	chip->process(chip);
 	munit_assert_int(chip->state, ==, 0b01000000);
 

@@ -659,7 +659,7 @@ void chip_74165_shift_register_process(Chip74165ShiftRegister *chip) {
 
 	// data at the parallel inputs are loaded directly into the register on a HIGH-to-LOW transition of
 	// the shit/load input, regardless of the logic levels on the clock, clock inhibit, or serial inputs.
-	if (!SIGNAL_BOOL(sl) && signal_changed(chip->signal_pool, SIGNAL(sl))) {
+	if (!SIGNAL_BOOL(sl) && signal_changed_last_tick(chip->signal_pool, SIGNAL(sl))) {
 		bool value_h = SIGNAL_BOOL(h);
 
 		chip->state = SIGNAL_BOOL(a);
