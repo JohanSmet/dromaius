@@ -13,7 +13,7 @@
 #include "chip_ram_static.h"
 #include "chip_rom.h"
 #include "input_keypad.h"
-#include "display_rgba.h"
+#include "display_pet_crt.h"
 #include "stb/stb_ds.h"
 
 #include <assert.h>
@@ -429,7 +429,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	// signals
 	device->signal_pool = signal_pool_create();
 	device->signal_pool->tick_duration_ps = 6250;		// 6.25 ns - 160 Mhz
-	device->signal_pool->tick_duration_ps = 31250;
+	//device->signal_pool->tick_duration_ps = 31250;
 
 	SIGNAL_DEFINE_BOOL_N(init_b, 1, ACTLO_ASSERT, "/INIT");
 	SIGNAL_DEFINE_BOOL_N(init, 1, ACTHI_ASSERT, "INIT");
@@ -1159,7 +1159,12 @@ DevCommodorePet *dev_commodore_pet_create() {
 	DEVICE_REGISTER_CHIP("C5", device->via);
 
 	// display
-	device->display = display_rgba_create(40 * 8, 25 * 8);
+	device->crt = display_pet_crt_create(device->signal_pool, (DisplayPetCrtSignals) {
+										.video_in = SIGNAL(video),
+										.horz_drive_in = SIGNAL(horz_drive),
+										.vert_drive_in = SIGNAL(vert_drive)
+	});
+	DEVICE_REGISTER_CHIP("CRT", device->crt);
 
 	// glue logic
 

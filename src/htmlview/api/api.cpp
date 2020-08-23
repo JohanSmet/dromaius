@@ -8,7 +8,7 @@
 #include "context.h"
 #include "cpu_6502.h"
 #include "dev_commodore_pet.h"
-#include "display_rgba.h"
+#include "display_pet_crt.h"
 
 #include "stb/stb_ds.h"
 
@@ -77,8 +77,8 @@ public:
 	// data access
 	val display_data() const {
 		assert(pet_device);
-		return val(typed_memory_view(pet_device->display->width * pet_device->display->height * 4,
-									 reinterpret_cast<uint8_t *> (pet_device->display->frame)));
+		return val(typed_memory_view(pet_device->crt->display->width * pet_device->crt->display->height * 4,
+									 reinterpret_cast<uint8_t *> (pet_device->crt->display->frame)));
 	}
 
 	val signal_data() const {
@@ -117,7 +117,7 @@ public:
 	// hardware info
 	DisplayInfo display_info() {
 		assert(pet_device);
-		return DisplayInfo{pet_device->display->width, pet_device->display->height};
+		return DisplayInfo{pet_device->crt->display->width, pet_device->crt->display->height};
 	}
 
 	SignalInfo signal_info() {
