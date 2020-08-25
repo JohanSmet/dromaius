@@ -39,6 +39,10 @@ typedef struct SignalPool {
 	int32_t **		dependent_components;
 
 	SignalNameMap	*signal_names;
+
+#ifdef DMS_SIGNAL_TRACING
+	struct SignalTrace *trace;
+#endif
 } SignalPool;
 
 extern const uint64_t lut_bit_to_byte[256];

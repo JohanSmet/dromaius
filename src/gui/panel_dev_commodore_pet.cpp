@@ -5,6 +5,10 @@
 #include "dev_commodore_pet.h"
 #include "display_pet_crt.h"
 
+#if DMS_SIGNAL_TRACING
+#include "signal_dumptrace.h"
+#endif
+
 #include "ui_context.h"
 #include "widgets.h"
 
@@ -51,6 +55,39 @@ public:
 		bool load_prg = false;
 
 		if (ImGui::Begin(title)) {
+
+			#if DMS_SIGNAL_TRACING
+
+			if (device->signal_pool->trace) {
+				if (ImGui::Button("Stop trace")) {
+					signal_trace_close(device->signal_pool->trace);
+					device->signal_pool->trace = NULL;
+				}
+			} else {
+				if (ImGui::Button("Start trace")) {
+					device->signal_pool->trace = signal_trace_open("dromaius.lxt", device->signal_pool);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.clk1);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.clk8);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.vert_drive);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.horz_drive);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.video);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.video_on);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.next);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.horz_disp_on);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.horz_disp_off);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.reset_b);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ra1);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ra2);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ra3);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ra4);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ra5);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ra6);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ra7);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ra8);
+					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ra9);
+				}
+			}
+			#endif // DMS_SIGNAL_TRACING
 
 			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
 			if (ImGui::TreeNode("Memory")) {

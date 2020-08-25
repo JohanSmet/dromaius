@@ -4,6 +4,7 @@ project(dromaius)
 
 # options
 option (NO_THREADING "Disable multithreading in the Dromaius context" OFF)
+option (BUILD_SIGNAL_TRACING "Enable dumping of signals to GTKWave" OFF)
 
 # force C11 for all targets
 set(CMAKE_C_STANDARD 11)
@@ -98,6 +99,19 @@ target_include_directories(${IMGUI_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_link_libraries(${IMGUI_TARGET} PUBLIC glfw)
 target_link_libraries(${IMGUI_TARGET} PRIVATE ${OPENGL_LIBRARIES})
 
+if (BUILD_SIGNAL_TRACING)
+	# external library - Zlib
+	find_package(ZLIB REQUIRED)
+
+	# external library - bzip2
+	find_package(BZip2 REQUIRED)
+
+	target_sources(${SFL_TARGET} PRIVATE
+		libs/gtkwave/lxt_write.c
+		libs/gtkwave/lxt_write.h
+	)
+endif()
+
 # simulator library
 set (LIB_TARGET dromaius)
 
@@ -155,6 +169,16 @@ target_sources(${LIB_TARGET}
 		src/utils.c
 		src/utils.h
 )
+
+if (BUILD_SIGNAL_TRACING)
+	target_sources(${LIB_TARGET} PRIVATE
+		src/signal_dumptrace.c
+		src/signal_dumptrace.h
+	)
+	target_link_libraries(${LIB_TARGET} PRIVATE ZLIB::ZLIB BZip2::BZip2)
+	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_SIGNAL_TRACING)
+endif()
+
 target_include_directories(${LIB_TARGET} PRIVATE libs)
 target_link_libraries(${LIB_TARGET} PRIVATE ${SFL_TARGET})
 target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})

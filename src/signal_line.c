@@ -2,6 +2,10 @@
 
 #include "signal_line.h"
 
+#ifdef DMS_SIGNAL_TRACING
+	#include "signal_dumptrace.h"
+#endif
+
 #include <stb/stb_ds.h>
 
 #include <assert.h>
@@ -104,10 +108,17 @@ void signal_pool_cycle(SignalPool *pool) {
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
 	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
 
+	#if DMS_SIGNAL_TRACING
+		signal_trace_mark_timestep(pool->trace);
+	#endif
+
 	for (size_t s = 0; s < arrlenu(pool->signals_curr); ++s) {
 		if (pool->signals_curr[s] != pool->signals_next[s]) {
 			pool->signals_last_changed[s] = pool->current_tick;
 			pool->signals_curr[s] = pool->signals_next[s];
+			#if DMS_SIGNAL_TRACING
+				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
+			#endif
 		}
 	}
 }
@@ -117,6 +128,10 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags) {
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
 	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
 
+	#if DMS_SIGNAL_TRACING
+		signal_trace_mark_timestep(pool->trace);
+	#endif
+
 	for (size_t s = 0; s < arrlenu(pool->signals_curr); ++s) {
 		if (pool->signals_curr[s] != pool->signals_next[s]) {
 			for (size_t i = 0; i < arrlenu(pool->dependent_components[s]); ++i) {
@@ -124,6 +139,10 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags) {
 			}
 			pool->signals_last_changed[s] = pool->current_tick;
 			pool->signals_curr[s] = pool->signals_next[s];
+
+			#if DMS_SIGNAL_TRACING
+				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
+			#endif
 		}
 	}
 }
