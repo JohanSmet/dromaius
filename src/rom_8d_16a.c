@@ -25,6 +25,7 @@ Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Ro
 	memset(rom, 0, sizeof(Rom8d16a) + data_size);
 	rom->signal_pool = signal_pool;
 	rom->data_size = data_size;
+	rom->output_delay = signal_pool_interval_to_tick_count(signal_pool, NS_TO_PS(60));
 	CHIP_SET_FUNCTIONS(rom, rom_8d16a_process, rom_8d16a_destroy, rom_8d16a_register_dependencies);
 
 	memcpy(&rom->signals, &signals, sizeof(signals));
@@ -55,5 +56,13 @@ void rom_8d16a_process(Rom8d16a *rom) {
 	}
 
 	uint16_t address = SIGNAL_UINT16(bus_address);
-	SIGNAL_SET_UINT8(bus_data, rom->data_array[address]);
+
+	if (signal_changed_last_tick(rom->signal_pool, SIGNAL(ce_b)) ||
+		address != rom->last_address) {
+		rom->last_address = address;
+		rom->schedule_timestamp = rom->signal_pool->current_tick + rom->output_delay;
+		return;
+	}
+
+	SIGNAL_SET_UINT8(bus_data, rom->data_array[rom->last_address]);
 }

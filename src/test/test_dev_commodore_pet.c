@@ -4,6 +4,7 @@
 #include "dev_commodore_pet.h"
 #include "cpu_6502_opcodes.h"
 #include "chip_ram_static.h"
+
 #include <stdio.h>
 
 #define SIGNAL_POOL			device->signal_pool
@@ -284,6 +285,77 @@ MunitResult test_startup(const MunitParameter params[], void *user_data_or_fixtu
 	return MUNIT_OK;
 }
 
+MunitResult test_vram_program(const MunitParameter params[], void *user_data_or_fixture) {
+// test display ram with all the components in the system actually running
+
+	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
+
+	// replace the kernal rom with a custom ROM
+	uint8_t *rom = device->roms[4]->data_array;
+	int idx = 0;
+
+	// >> init stack pointer
+	rom[idx++] = OP_6502_LDX_IMM;	// ldx #$ff
+	rom[idx++] = 0xff;
+	rom[idx++] = OP_6502_TXS;		// txs
+	rom[idx++] = OP_6502_INX;		// inx	- reg_x == 0
+
+	// >> disable interrupts
+	rom[idx++] = OP_6502_SEI;		// sei
+
+	// >> write the first 1024 bytes of the vram
+	rom[idx++] = OP_6502_LDA_IMM;	// lda #$5a
+	rom[idx++] = 0x5a;
+	rom[idx++] = OP_6502_STA_ABSX;	// sta $8000,x
+	rom[idx++] = 0x00;
+	rom[idx++] = 0x80;
+	rom[idx++] = OP_6502_STA_ABSX;	// sta $8100,x
+	rom[idx++] = 0x00;
+	rom[idx++] = 0x81;
+	rom[idx++] = OP_6502_STA_ABSX;	// sta $8200,x
+	rom[idx++] = 0x00;
+	rom[idx++] = 0x82;
+	rom[idx++] = OP_6502_STA_ABSX;	// sta $8300,x
+	rom[idx++] = 0x00;
+	rom[idx++] = 0x83;
+	rom[idx++] = OP_6502_DEX;		// dex
+	rom[idx++] = OP_6502_BNE;		// bne $f1
+	rom[idx++] = 0xf1;
+
+	// >> end program
+	rom[idx++] = OP_6502_BRK;
+
+	// >> IRQ / NMI handlers
+	rom[0xfe00 - 0xf000] = OP_6502_JMP_ABS;
+	rom[0xfe01 - 0xf000] = 0x00;
+	rom[0xfe02 - 0xf000] = 0xfe;
+
+	// >> VECTORS
+	rom[0xfffa - 0xf000] = 0x00;		// NMI vector - low
+	rom[0xfffb - 0xf000] = 0xfe;		// NMI vector - high
+	rom[0xfffc - 0xf000] = 0x00;		// reset vector - low
+	rom[0xfffd - 0xf000] = 0xf0;		// reset vector - high
+	rom[0xfffe - 0xf000] = 0x00;		// IRQ vector - low
+	rom[0xffff - 0xf000] = 0xfe;		// IRQ vector - high
+
+	// run the program until the irq handler is executed
+	while (device->cpu->reg_pc != 0xfe00) {
+		dev_commodore_pet_process_clk1(device);
+	}
+
+	// check ram
+	Chip6114SRam *ram_hi = (Chip6114SRam *) device_chip_by_name((Device *)device, "F7");
+	Chip6114SRam *ram_lo = (Chip6114SRam *) device_chip_by_name((Device *)device, "F8");
+
+
+	for (int i = 0; i < 1024; ++i) {
+		munit_assert_uint8(ram_hi->data_array[i], ==, 0x05);
+		munit_assert_uint8(ram_lo->data_array[i], ==, 0x0a);
+	}
+
+	return MUNIT_OK;
+}
+
 MunitTest dev_commodore_pet_tests[] = {
 	{ "/address_signals", test_signals_address, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/address_data", test_signals_data, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -293,5 +365,6 @@ MunitTest dev_commodore_pet_tests[] = {
 	{ "/vram", test_vram, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/rom", test_rom, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/startup", test_startup, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/vram_program", test_vram_program, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

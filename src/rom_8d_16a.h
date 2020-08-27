@@ -28,9 +28,11 @@ typedef struct Rom8d16a {
 	Rom8d16aSignals		signals;
 
 	// data
+	int64_t		output_delay;
+	uint16_t	last_address;
+
 	size_t		data_size;
 	uint8_t		data_array[];
-
 } Rom8d16a;
 
 
