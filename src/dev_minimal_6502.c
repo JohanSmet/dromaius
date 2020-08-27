@@ -106,6 +106,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->process = (DEVICE_PROCESS) dev_minimal_6502_process;
 	device->reset = (DEVICE_RESET) dev_minimal_6502_reset;
 	device->destroy = (DEVICE_DESTROY) dev_minimal_6502_destroy;
+	device->copy_memory = (DEVICE_COPY_MEMORY) dev_minimal_6502_copy_memory;
 
 	// signals
 	device->signal_pool = signal_pool_create(1);
@@ -236,6 +237,52 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 void dev_minimal_6502_reset(DevMinimal6502 *device) {
 	// FIXME: trigger the power-on-reset device again
 	(void) device;
+}
+
+void dev_minimal_6502_copy_memory(DevMinimal6502 *device, size_t start_address, size_t size, uint8_t *output) {
+	assert(device);
+	assert(output);
+
+	// note: this function skips the free rom slots
+	static const size_t	REGION_START[] = {0x0000, 0x8000, 0xc000};
+	static const size_t REGION_SIZE[]  = {0x8000, 0x4000, 0x4000};
+	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
+
+	if (start_address > 0xffff) {
+		memset(output, 0, size);
+		return;
+	}
+
+	// find start region
+	int sr = NUM_REGIONS - 1;
+	while (start_address < REGION_START[sr] && sr > 0) {
+		sr -= 1;
+	}
+
+	size_t remain = size;
+	size_t done = 0;
+	size_t addr = start_address;
+
+	for (int region = sr; remain > 0 && addr <= 0xffff; ++region) {
+		size_t region_offset = addr - REGION_START[region];
+		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
+
+		switch (region) {
+			case 0:				// RAM
+				memcpy(output + done, device->ram->data_array + region_offset, to_copy);
+				break;
+			case 1:				// I/O area + unused
+				memset(output + done, 0, to_copy);
+				break;
+			case 2:				// ROM
+				memcpy(output + done, device->rom->data_array + region_offset, to_copy);
+				break;
+		}
+
+		remain -= to_copy;
+		addr += to_copy;
+		done += to_copy;
+	}
 }
 
 void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename) {

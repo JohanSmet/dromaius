@@ -8,7 +8,7 @@
 #include "panel.h"
 
 Panel::uptr_t panel_memory_create(class UIContext *ctx, struct ImVec2 pos, const char *title,
-								  const uint8_t *data, size_t data_size, size_t data_offset);
+								  size_t data_offset, size_t data_size);
 void panel_memory_load_fonts();
 
 #endif // DROMAIUS_GUI_PANEL_MEMORY_H

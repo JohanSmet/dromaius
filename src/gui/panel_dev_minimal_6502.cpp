@@ -61,7 +61,7 @@ public:
 				ImGui::SameLine();
 				if (ImGui::SmallButton("View##view_ram")) {
 					auto pnl = panel_memory_create(ui_context, {2, 120}, ui_context->unique_panel_id("RAM").c_str(),
-												   device->ram->data_array, 0x8000, 0x0000);
+												   0x0000, 0x8000);
 					ui_context->panel_add(std::move(pnl));
 				}
 				ImGui::SameLine();
@@ -71,7 +71,7 @@ public:
 				ImGui::SameLine();
 				if (ImGui::SmallButton("View##view_rom")) {
 					auto pnl = panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(),
-												   device->rom->data_array, 0x4000, 0xC000);
+												   0xc000, 0x4000);
 					ui_context->panel_add(std::move(pnl));
 				}
 				ImGui::SameLine();

@@ -1,6 +1,8 @@
 // gui/panel_memory.c - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // UI-panel to visualize a block of memory
+//
+// FIXME: optimize by only copying/processing the memory actually displayed by the window
 
 #include "panel_memory.h"
 
@@ -10,6 +12,7 @@
 
 #include "filt_6502_asm.h"
 #include "ui_context.h"
+#include "device.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -19,11 +22,10 @@
 class PanelMemory : public Panel {
 public:
 	PanelMemory(UIContext *ctx, ImVec2 pos, const char *title,
-				const uint8_t *data, size_t data_size, size_t data_offset) :
+				size_t data_size, size_t data_offset) :
 		Panel(ctx),
 		position(pos),
 		title(title),
-		mem(data),
 		mem_size(data_size),
 		mem_offset(data_offset) {
 	}
@@ -60,20 +62,23 @@ public:
 
 		for (auto index = 0u; index < mem_size; ) {
 
+			// copy a line from the device memory
+			uint8_t buffer[16];
+			ui_context->device->copy_memory(ui_context->device, mem_offset + index, 16, buffer);
+
 			ImGui::Text("%.4lx:", mem_offset + index);
 
-			for (int block = 0; block < 4; ++block) {
-
-				if (block > 0) {
+			for (int i = 0; i < 16; ++i) {
+				if (i > 0 && (i % 4) == 0) {
 					ImGui::SameLine(0, 6);
 					ImGui::TextUnformatted("");
 				}
 
-				for (int i = 0; i < 4 && index < mem_size; ++i) {
-					ImGui::SameLine();
-					ImGui::Text("%.2x", mem[index++]);
-				}
+				ImGui::SameLine();
+				ImGui::Text("%.2x", buffer[i]);
 			}
+
+			index += 16;
 		}
 
 		ImGui::EndChild();
@@ -97,7 +102,11 @@ public:
 				ImGui::SetScrollHereY();
 			}
 
-			index += filt_6502_asm_line(mem, mem_size, index, mem_offset, &line);
+			// copy a few bytes from the device memory
+			uint8_t buffer[16];
+			ui_context->device->copy_memory(ui_context->device, mem_offset + index, 16, buffer);
+
+			index += filt_6502_asm_line(buffer, 16, 0, mem_offset + index, &line);
 
 			ImGui::TextColored(colors[is_current], "%s%s", symbols[is_current], line);
 			arrsetlen(line, 0);
@@ -115,12 +124,16 @@ public:
 
 		char buffer[4] = {0};
 
-		for (auto index = 0u; index < mem_size; ++index) {
+		// copy the screen from the device
+		uint8_t screen[1000];
+		ui_context->device->copy_memory(ui_context->device, mem_offset, 1000, screen);
+
+		for (auto index = 0u; index < 1000; ++index) {
 			if (index % 40 > 0) {
 				ImGui::SameLine();
 			}
 
-			int c = 0xE000 + mem[index];
+			int c = 0xE000 + screen[index];
 			buffer[0] = (char)(0xe0 + (c >> 12));
 			buffer[1] = (char)(0x80 + ((c>> 6) & 0x3f));
 			buffer[2] = (char)(0x80 + ((c ) & 0x3f));
@@ -164,7 +177,6 @@ private:
 	const ImVec2			size = {440, 220};
 	std::string				title;
 
-	const uint8_t *			mem;
 	size_t					mem_size;
 	size_t					mem_offset;
 
@@ -177,9 +189,9 @@ private:
 ImFont * PanelMemory::pet_font = nullptr;
 
 Panel::uptr_t panel_memory_create(UIContext *ctx, struct ImVec2 pos, const char *title,
-								  const uint8_t *data, size_t data_size, size_t data_offset) {
+								  size_t data_offset, size_t data_size) {
 
-	return std::make_unique<PanelMemory>(ctx, pos, title, data, data_size, data_offset);
+	return std::make_unique<PanelMemory>(ctx, pos, title, data_size, data_offset);
 }
 
 void panel_memory_load_fonts() {

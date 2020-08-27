@@ -425,6 +425,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->process = (DEVICE_PROCESS) dev_commodore_pet_process;
 	device->reset = (DEVICE_RESET) dev_commodore_pet_reset;
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
+	device->copy_memory = (DEVICE_COPY_MEMORY) dev_commodore_pet_copy_memory;
 
 	// signals
 	device->signal_pool = signal_pool_create();
@@ -1341,6 +1342,70 @@ void dev_commodore_pet_process_clk1(DevCommodorePet *device) {
 void dev_commodore_pet_reset(DevCommodorePet *device) {
 	assert(device);
 	(void) device;
+}
+
+void dev_commodore_pet_copy_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output) {
+	assert(device);
+	assert(output);
+
+	// note: this function skips the free rom slots
+	static const size_t	REGION_START[] = {0x0000, 0x8000, 0x8800, 0xb000, 0xc000, 0xd000, 0xe000, 0xe800, 0xf000};
+	static const size_t REGION_SIZE[]  = {0x8000, 0x0800, 0x2800, 0x1000, 0x1000, 0x1000, 0x0800, 0x0800, 0x1000};
+	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
+
+	if (start_address > 0xffff) {
+		memset(output, 0, size);
+		return;
+	}
+
+	// find start region
+	int sr = NUM_REGIONS - 1;
+	while (start_address < REGION_START[sr] && sr > 0) {
+		sr -= 1;
+	}
+
+	size_t remain = size;
+	size_t done = 0;
+	size_t addr = start_address;
+
+	for (int region = sr; remain > 0 && addr <= 0xffff; ++region) {
+		size_t region_offset = addr - REGION_START[region];
+		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
+
+		switch (region) {
+			case 0:				// RAM
+				memcpy(output + done, device->ram->data_array + region_offset, to_copy);
+				break;
+			case 1:	{			// Screen RAM
+				Chip6114SRam *ram_hi = (Chip6114SRam *) device_chip_by_name((Device *)device, "F7");
+				Chip6114SRam *ram_lo = (Chip6114SRam *) device_chip_by_name((Device *)device, "F8");
+
+				for (size_t i = 0; i < to_copy; ++i) {
+					output[done + i] = (uint8_t) (((ram_hi->data_array[region_offset + i] & 0xf) << 4) |
+												   (ram_lo->data_array[region_offset + i] & 0xf));
+				}
+				break;
+			}
+			case 2:				// unused space between video memory and first rom
+			case 7:				// I/O area (pia-1, pia-2, via)
+				memset(output + done, 0, to_copy);
+				break;
+			case 3:				// basic-rom 1
+			case 4:				// basic-rom 2
+			case 5:				// basic-rom 3
+			case 6:				// editor rom
+				memcpy(output + done, device->roms[region-3]->data_array + region_offset, to_copy);
+				break;
+			case 8:				// kernal rom
+				memcpy(output + done, device->roms[4]->data_array + region_offset, to_copy);
+				break;
+
+		}
+
+		remain -= to_copy;
+		addr += to_copy;
+		done += to_copy;
+	}
 }
 
 /*
