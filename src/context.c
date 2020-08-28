@@ -17,7 +17,6 @@
 #include "device.h"
 #include "stopwatch.h"
 
-#define SYNC_TICK_INTERVAL		1000			/* sync sim & real-time at this interval */
 #define SYNC_MIN_DIFF_PS		MS_TO_PS(20)	/* required skew betweem sim & real-time before sleep */
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -45,6 +44,8 @@ typedef struct DmsContext {
 	int64_t			tick_start_run;
 	int64_t			actual_sim_real_ratio;		// (4 decimal places)
 	int64_t			target_sim_real_ratio;		// (4 decimal places)
+
+	int64_t			sync_tick_interval;			// sync sim & real-time at this interval
 
 #ifndef DMS_NO_THREADING
 	thread_t		thread;
@@ -117,7 +118,7 @@ static inline void sync_simulation_with_real_time(DmsContext *dms) {
 static bool context_execute(DmsContext *dms) {
 
 	Cpu *cpu = dms->device->get_cpu(dms->device);
-	int64_t tick_max = dms->device->signal_pool->current_tick + SYNC_TICK_INTERVAL;
+	int64_t tick_max = dms->device->signal_pool->current_tick + dms->sync_tick_interval;
 
 	while (dms->state != DS_WAIT && dms->device->signal_pool->current_tick < tick_max) {
 
@@ -238,6 +239,8 @@ void dms_release_context(DmsContext *dms) {
 void dms_set_device(DmsContext *dms, Device *device) {
 	assert(dms);
 	dms->device = device;
+
+	dms->sync_tick_interval = signal_pool_interval_to_tick_count(device->signal_pool, US_TO_PS(500));
 }
 
 struct Device *dms_get_device(struct DmsContext *dms) {
