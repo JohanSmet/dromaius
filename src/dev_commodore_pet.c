@@ -348,7 +348,7 @@ static void glue_logic_process_08(ChipGlueLogic *chip) {
 	SIGNAL_SET_BOOL(g108, g108);
 
 	// h10 (8,9,10)
-	bool h108 = !(SIGNAL_BOOL(g106) && SIGNAL_BOOL(g108));
+	bool h108 = g106 && g108;
 	SIGNAL_SET_BOOL(h108, h108);
 
 	// g11 (1,2,5,4,6)
