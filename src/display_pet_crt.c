@@ -31,15 +31,15 @@ DisplayPetCrt *display_pet_crt_create(SignalPool *pool, DisplayPetCrtSignals sig
 
 	// display
 	size_t width = 40 * 8;
-	size_t height = 25 * 8;
+	size_t height = 25 * 8 + 4;
 
 	crt->display = display_rgba_create(width, height);
 
-	// the crt takes 24us to scan on horizontal line
-	crt->pixel_delta_steps = (int) signal_pool_interval_to_tick_count(pool, US_TO_PS(24) / (int) width);
-	crt->schedule_timestamp = crt->pixel_delta_steps;
+	crt->pixel_delta_steps = signal_pool_interval_to_tick_count(pool, NS_TO_PS(125));			// 8 Mhz
 
-	crt->display->frame[0] = COLOR_BEAM;
+	// delays to skip the blank parts at the top and left (or right) of the screen
+	crt->vert_overscan_delay = signal_pool_interval_to_tick_count(crt->signal_pool, US_TO_PS(1225));
+	crt->horz_overscan_delay = signal_pool_interval_to_tick_count(crt->signal_pool, NS_TO_PS(18500 + 30));
 
 	return crt;
 }
@@ -59,46 +59,39 @@ void display_pet_crt_register_dependencies(DisplayPetCrt *crt) {
 void display_pet_crt_process(DisplayPetCrt *crt) {
 	assert(crt);
 
-	bool horz_drive = SIGNAL_BOOL(horz_drive_in);
-	bool vert_drive = SIGNAL_BOOL(vert_drive_in);
 
-	//printf("%lld: last = %lld, horz = %d, vert = %d, x = %d, y = %d => ",
-			//crt->signal_pool->current_tick, crt->last_pixel_transition, horz_drive, vert_drive, crt->pos_x, crt->pos_y);
-
-	if (horz_drive && vert_drive) {
-		if (signal_changed_last_tick(crt->signal_pool, SIGNAL(horz_drive_in)) ||
-			signal_changed_last_tick(crt->signal_pool, SIGNAL(vert_drive_in))) {
-			//printf(" reset ");
-			crt->last_pixel_transition = crt->signal_pool->current_tick;
-		}
-		while (crt->last_pixel_transition + crt->pixel_delta_steps <= crt->signal_pool->current_tick) {
-			crt->pos_x += 1;
-			crt->last_pixel_transition += crt->pixel_delta_steps;
-
-			if (crt->pos_y < crt->display->height && crt->pos_x < crt->display->width) {
-				crt->display->frame[(crt->pos_y * crt->display->width) + crt->pos_x] = (SIGNAL_BOOL(video_in) ? 0 : COLOR_ON);
-			}
-		}
-
-		crt->schedule_timestamp = crt->last_pixel_transition + crt->pixel_delta_steps;
-	}
-
-	if (!horz_drive) {
-		if (crt->pos_x > 0) {
-			crt->pos_y += 1;
-			crt->pos_x = 0;
-		}
-		crt->last_pixel_transition = crt->signal_pool->current_tick;
-	}
-
-	if (!vert_drive) {
-		crt->pos_x = 0;
+	// in vertical retrace?
+	if (!SIGNAL_BOOL(vert_drive_in)) {
 		crt->pos_y = 0;
-		crt->last_pixel_transition = crt->signal_pool->current_tick;
+		return;
 	}
 
-	//printf("x = %d, y = %d\n", crt->pos_x, crt->pos_y);
-	//crt->display->frame[(crt->pos_y * crt->display->width) + crt->pos_x] = COLOR_ON;
+	if (signal_changed_last_tick(crt->signal_pool, SIGNAL(vert_drive_in))) {
+		crt->schedule_timestamp = crt->signal_pool->current_tick + crt->vert_overscan_delay;
+		crt->next_action = MAX(crt->next_action, crt->schedule_timestamp);
+	}
 
+	// positive transition on horzontal drive signal? (== start horizontal retrace)
+	if (SIGNAL_BOOL(horz_drive_in) && signal_changed_last_tick(crt->signal_pool, SIGNAL(horz_drive_in))) {
+		if (crt->pos_x > 0) {
+			crt->pos_x = 0;
+			crt->pos_y += 1;
 
+			// to account for the time it takes the beam to move back to the left
+			crt->schedule_timestamp = crt->signal_pool->current_tick + crt->horz_overscan_delay;
+			crt->next_action = MAX(crt->next_action, crt->schedule_timestamp);
+			return;
+		}
+	}
+
+	if (crt->next_action > crt->signal_pool->current_tick) {
+		return;
+	}
+
+	if (crt->pos_y < crt->display->height && crt->pos_x < crt->display->width) {
+		crt->display->frame[(crt->pos_y * crt->display->width) + crt->pos_x] = (SIGNAL_BOOL(video_in) ? 0 : COLOR_ON);
+	}
+	crt->pos_x += 1;
+	crt->schedule_timestamp = crt->signal_pool->current_tick + crt->pixel_delta_steps;
+	crt->next_action = crt->schedule_timestamp;
 }

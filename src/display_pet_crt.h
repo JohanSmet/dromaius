@@ -30,8 +30,10 @@ typedef struct DisplayPetCrt {
 	uint32_t				pos_x;
 	uint32_t				pos_y;
 
-	int						pixel_delta_steps;
-	int64_t					last_pixel_transition;
+	int64_t					pixel_delta_steps;
+	int64_t					vert_overscan_delay;
+	int64_t					horz_overscan_delay;
+	int64_t					next_action;
 } DisplayPetCrt;
 
 // functions

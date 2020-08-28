@@ -598,8 +598,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(g108, 1, "G108");
 	SIGNAL_DEFINE_N(h108, 1, "H108");
 
-	SIGNAL_DEFINE_BOOL_N(video_on, 1, true, "VIDEOON");
-	SIGNAL_DEFINE_BOOL_N(video_on_b, 1, false, "/VIDEOON");
+	SIGNAL_DEFINE_N(video_on, 1, "VIDEOON");
+	SIGNAL_DEFINE_N(video_on_b, 1, "/VIDEOON");
 	SIGNAL_DEFINE_N(video, 1, "VIDEO");
 
 	device->signals.ba6 = signal_split(SIGNAL(bus_ba), 6, 1);
