@@ -1055,7 +1055,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// power-on-reset
-	DEVICE_REGISTER_CHIP("POR", poweronreset_create(1000000, device->signal_pool, (PowerOnResetSignals) {
+	DEVICE_REGISTER_CHIP("POR", poweronreset_create(US_TO_PS(500), device->signal_pool, (PowerOnResetSignals) {
 											.reset_b = SIGNAL(reset_b)
 	}));
 
