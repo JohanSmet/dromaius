@@ -59,6 +59,10 @@ static void glue_logic_process(ChipGlueLogic *chip) {
 	assert(chip);
 	DevMinimal6502 *device = chip->device;
 
+	// >> reset logic
+	SIGNAL_SET_BOOL(reset_btn_b, !device->in_reset);
+	device->in_reset = false;
+
 	// >> ram logic
 	//  - ce_b: assert when top bit of address isn't set (copy of a15)
 	//	- oe_b: assert when cpu_rw is high
@@ -115,6 +119,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	SIGNAL_DEFINE(bus_address, 16);
 	SIGNAL_DEFINE(bus_data, 8);
 	SIGNAL_DEFINE_BOOL(clock, 1, true);
+	SIGNAL_DEFINE_BOOL(reset_btn_b, 1, ACTLO_DEASSERT);
 	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_ASSERT);
 	SIGNAL_DEFINE_BOOL(cpu_rw, 1, true);
 	SIGNAL_DEFINE_BOOL(cpu_irq_b, 1, ACTLO_DEASSERT);
@@ -150,6 +155,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// power-on-reset
 	DEVICE_REGISTER_CHIP("POR", poweronreset_create(1000000, device->signal_pool, (PowerOnResetSignals) {
+											.trigger_b = SIGNAL(reset_btn_b),
 											.reset_b = SIGNAL(reset_b)
 	}));
 
@@ -235,8 +241,7 @@ void dev_minimal_6502_process(DevMinimal6502 *device) {
 }
 
 void dev_minimal_6502_reset(DevMinimal6502 *device) {
-	// FIXME: trigger the power-on-reset device again
-	(void) device;
+	device->in_reset = true;
 }
 
 void dev_minimal_6502_copy_memory(DevMinimal6502 *device, size_t start_address, size_t size, uint8_t *output) {

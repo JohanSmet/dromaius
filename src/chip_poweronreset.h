@@ -14,6 +14,7 @@ extern "C" {
 
 // types
 typedef struct PowerOnResetSignals {
+	Signal	trigger_b;
 	Signal	reset_b;			// 1-bit reset signal
 } PowerOnResetSignals;
 
@@ -26,7 +27,8 @@ typedef struct PowerOnReset {
 	PowerOnResetSignals	signals;
 
 	// data
-	int64_t				por_ticks;
+	int64_t				duration;
+	int64_t				next_action;
 } PowerOnReset;
 
 // functions

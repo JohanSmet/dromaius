@@ -71,7 +71,7 @@ public:
 
 	void context_reset() {
 		assert(dms_ctx);
-		dms_reset(dms_ctx);
+		pet_device->reset(pet_device);
 	}
 
 	// data access
@@ -180,9 +180,6 @@ void DmsApi::launch_commodore_pet() {
 	dms_ctx = dms_create_context();
 	assert(dms_ctx);
 	dms_set_device(dms_ctx, reinterpret_cast<Device *>(pet_device));
-
-	// reset device
-	pet_device->reset(pet_device);
 }
 
 // binding code

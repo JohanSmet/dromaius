@@ -90,9 +90,6 @@ Device *WindowMain::create_minimal_6502() {
 	ui_context.panel_add(
 			panel_dev_minimal_6502_create(&ui_context, {0, 110}, device));
 
-	// reset device
-	device->reset(device);
-
 	return (Device *) device;
 }
 
@@ -109,9 +106,6 @@ Device *WindowMain::create_commodore_pet() {
 
 	ui_context.panel_add(
 			panel_dev_commodore_pet_create(&ui_context, {0, 110}, device));
-
-	// reset device
-	device->reset(device);
 
 	return (Device *) device;
 }

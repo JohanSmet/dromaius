@@ -25,15 +25,17 @@ PowerOnReset *poweronreset_create(int64_t duration_ps, SignalPool *pool, PowerOn
 
 	memcpy(&por->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(reset_b, 1);
+	SIGNAL_DEFINE_BOOL(trigger_b, 1, ACTLO_DEASSERT);
 
-	por->por_ticks = signal_pool_interval_to_tick_count(pool, duration_ps);
-	por->schedule_timestamp = por->por_ticks;
+	por->duration = signal_pool_interval_to_tick_count(pool, duration_ps);
+	por->next_action = por->duration;
+	por->schedule_timestamp = por->next_action;
 
 	return por;
 }
 
 void poweronreset_register_dependencies(PowerOnReset *por) {
-	(void) por;
+	signal_add_dependency(por->signal_pool, SIGNAL(trigger_b), por->id);
 }
 
 void poweronreset_destroy(PowerOnReset *por) {
@@ -44,7 +46,13 @@ void poweronreset_destroy(PowerOnReset *por) {
 void poweronreset_process(PowerOnReset *por) {
 	assert(por);
 
-	bool output = (por->signal_pool->current_tick >= por->por_ticks);
+	// check for negative transition on the trigger signal
+	if (!SIGNAL_BOOL(trigger_b) && signal_changed_last_tick(por->signal_pool, SIGNAL(trigger_b))) {
+		por->next_action = por->signal_pool->current_tick + por->duration;
+		por->schedule_timestamp = por->next_action;
+	}
+
+	bool output = (por->signal_pool->current_tick >= por->next_action);
 	SIGNAL_SET_BOOL(reset_b, output);
 }
 

@@ -132,6 +132,7 @@ typedef struct DevCommodorePetSignals {
 	Signal		bus_sd;				// 8-bit - display ram databus
 	Signal		bus_lsd;			// 8-bit - latched dispay ram databus
 
+	Signal		reset_btn_b;
 	Signal		reset_b;			// 1-bit - reset line
 	Signal		irq_b;				// 1-bit - interrupt request
 	Signal		nmi_b;				// 1-bit - non-maskable interrupt

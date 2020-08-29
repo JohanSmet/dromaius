@@ -6,6 +6,7 @@
 #include "ui_context.h"
 
 #include "context.h"
+#include "device.h"
 #include "chip_oscillator.h"
 
 #include "widgets.h"
@@ -55,7 +56,8 @@ public:
 			ImGui::SameLine();
 
 			if (ImGui::Button("Reset")) {
-				dms_reset(ui_context->dms_ctx);
+				Device *device = dms_get_device(ui_context->dms_ctx);
+				device->reset(device);
 			}
 
 			ImGui::Spacing();

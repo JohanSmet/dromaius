@@ -34,6 +34,7 @@ typedef struct DevMinimal6502Signals {
 	Signal		bus_address;		// 16-bit address bus
 	Signal		bus_data;			// 8-bit data bus
 
+	Signal		reset_btn_b;		// 1-bit
 	Signal		reset_b;			// 1-bit
 	Signal		clock;				// 1-bit
 

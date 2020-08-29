@@ -104,6 +104,9 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	bool sel8_b = SIGNAL_BOOL(sel8_b);
 	bool rw   = SIGNAL_BOOL(cpu_rw);
 
+	SIGNAL_SET_BOOL(reset_btn_b, !device->in_reset);
+	device->in_reset = false;
+
 	// A3 (1, 2)
 	bool reset_b = SIGNAL_BOOL(reset_b);
 	SIGNAL_SET_BOOL(reset, !reset_b);
@@ -536,6 +539,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
 	SIGNAL_DEFINE_N(bus_lsd, 8, "LSD%d");
 
+	SIGNAL_DEFINE_BOOL_N(reset_btn_b, 1, ACTLO_DEASSERT, "RESBTN");
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_ASSERT, "/RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
 	SIGNAL_DEFINE_BOOL_N(nmi_b, 1, ACTLO_DEASSERT, "/NMI");
@@ -1056,6 +1060,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	// power-on-reset
 	DEVICE_REGISTER_CHIP("POR", poweronreset_create(US_TO_PS(500), device->signal_pool, (PowerOnResetSignals) {
+											.trigger_b = SIGNAL(reset_btn_b),
 											.reset_b = SIGNAL(reset_b)
 	}));
 
@@ -1341,7 +1346,7 @@ void dev_commodore_pet_process_clk1(DevCommodorePet *device) {
 
 void dev_commodore_pet_reset(DevCommodorePet *device) {
 	assert(device);
-	(void) device;
+	device->in_reset = true;
 }
 
 void dev_commodore_pet_copy_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output) {

@@ -29,7 +29,6 @@ typedef enum DMS_STATE {
 	DS_SINGLE_STEP = 1,
 	DS_SINGLE_INSTRUCTION = 2,
 	DS_RUN = 3,
-	DS_RESET = 98,
 	DS_EXIT = 99
 } DMS_STATE;
 
@@ -153,10 +152,6 @@ static bool context_execute(DmsContext *dms) {
 				} else if (signal_breakpoint_triggered(dms)) {
 					dms->state = DS_WAIT;
 				}
-				break;
-			case DS_RESET:
-				dms->device->reset(dms->device);
-				dms->state = DS_WAIT;
 				break;
 			case DS_EXIT:
 				return false;
@@ -308,12 +303,6 @@ void dms_pause(DmsContext *dms) {
 	if (dms->state == DS_RUN) {
 		change_state(dms, DS_WAIT);
 	}
-}
-
-void dms_reset(DmsContext *dms) {
-	assert(dms);
-
-	change_state(dms, DS_RESET);
 }
 
 void dms_change_simulation_speed_ratio(DmsContext *dms, double ratio) {
