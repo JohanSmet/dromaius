@@ -261,7 +261,7 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 				PRIVATE(cpu)->out_address = VECTOR_HIGH[irq_type];
 			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_HI_BYTE(cpu->reg_pc, PRIVATE(cpu)->in_data);
-				CPU_CHANGE_FLAG(I, irq_type != INTR_RESET);
+				CPU_CHANGE_FLAG(I, true);
 				PRIVATE(cpu)->state = CS_RUNNING;
 				PRIVATE(cpu)->decode_cycle = -1;
 			}

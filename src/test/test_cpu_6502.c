@@ -154,7 +154,7 @@ MunitResult test_irq(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fe);
 	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
 	CPU_HALF_CYCLE()
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x03);
+	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x04);
 	CPU_HALF_CYCLE()
 	munit_assert_int8(cpu->reg_sp, ==, 0xfd);
 
