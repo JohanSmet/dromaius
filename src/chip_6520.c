@@ -10,6 +10,9 @@
 
 #include "types.h"
 
+//#define DMS_LOG_TRACE
+#include "log.h"
+
 #define SIGNAL_POOL			pia->signal_pool
 #define SIGNAL_COLLECTION	pia->signals
 #define SIGNAL_CHIP_ID		pia->id
@@ -68,34 +71,44 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 	switch (reg_addr) {
 		case 0:
 			if (CR_FLAG(pia->reg_cra, DDR_OR_SELECT)) {
+				LOG_TRACE("6520 [%s]: set reg_ora = 0x%.2x", pia->name, data);
 				pia->reg_ora = data;
 				PRIVATE(pia)->state_a.write_port = true;
 			} else {
+				LOG_TRACE("6520 [%s]: set reg_ddra = 0x%.2x", pia->name, data);
 				pia->reg_ddra = data;
 				// remove ourself as the active writer from all pins of port_a
 				SIGNAL_NO_WRITE(port_a);
 			}
 			break;
 		case 1:
+			LOG_TRACE("6520 [%s]: reg_cra = 0x%.2x", pia->name, pia->reg_cra);
 			pia->reg_cra = (uint8_t)((pia->reg_cra & 0b11000000) | (data & 0b00111111));
+			LOG_TRACE("6520 [%s]: set reg_cra = 0x%.2x", pia->name, pia->reg_cra);
 			if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT) && !CR_FLAG(pia->reg_cra, CL2_OUTPUT)) {
 				PRIVATE(pia)->internal_ca2 = true;
+				LOG_TRACE("6520 [%s]: cra change causes internal_ca2 to become true", pia->name);
 			}
 			break;
 		case 2:
 			if (CR_FLAG(pia->reg_crb, DDR_OR_SELECT)) {
+				LOG_TRACE("6520 [%s]: set reg_orb = 0x%.2x", pia->name, data);
 				pia->reg_orb = data;
 				PRIVATE(pia)->state_b.write_port = true;
 			} else {
+				LOG_TRACE("6520 [%s]: set reg_ddrb = 0x%.2x", pia->name, data);
 				pia->reg_ddrb = data;
 				// remove ourself as the active writer from all pins of port_b
 				SIGNAL_NO_WRITE(port_b);
 			}
 			break;
 		case 3:
+			LOG_TRACE("6520 [%s]: reg_crb = 0x%.2x", pia->name, pia->reg_crb);
 			pia->reg_crb = (uint8_t)((pia->reg_crb & 0b11000000) | (data & 0b00111111));
+			LOG_TRACE("6520 [%s]: set reg_crb = 0x%.2x", pia->name, pia->reg_crb);
 			if (CR_FLAG(pia->reg_crb, CL2_MODE_SELECT) && !CR_FLAG(pia->reg_crb, CL2_OUTPUT)) {
 				PRIVATE(pia)->internal_cb2 = true;
+				LOG_TRACE("6520 [%s]: cra change causes internal_cb2 to become true", pia->name);
 			}
 			break;
 	}
@@ -128,7 +141,9 @@ static inline uint8_t read_register(Chip6520 *pia) {
 	return 0;
 }
 
-static inline void control_register_irq_routine(uint8_t *reg_ctrl, bool cl1, bool cl2, Chip6520_pstate *state) {
+static inline void control_register_irq_routine(Chip6520 *pia, uint8_t *reg_ctrl, bool cl1, bool cl2, Chip6520_pstate *state) {
+
+	(void) pia;
 
 	// check for active transition of the control lines
 	bool irq1_pt = CR_FLAG(*reg_ctrl, IRQ1_POS_TRANSITION);
@@ -138,10 +153,18 @@ static inline void control_register_irq_routine(uint8_t *reg_ctrl, bool cl1, boo
 	state->act_trans_cl2 = !CR_FLAG(*reg_ctrl, CL2_MODE_SELECT) &&
 						   ((cl2 && !state->prev_cl2 && irq2_pt) || (!cl2 && state->prev_cl2 && !irq2_pt));
 
+#ifdef DMS_LOG_TRACE
+	if (state->act_trans_cl1 || state->act_trans_cl2) {
+		LOG_TRACE("6520 [%s]: >> act_trans_cl1 = %d, act_trans_cl2 = %d", pia->name, state->act_trans_cl1, state->act_trans_cl2);
+	}
+	uint8_t save_ctrl = *reg_ctrl;
+#endif
+
 	// a read of the peripheral I/O port resets both irq flags in reg_ctrl
 	if (state->read_port) {
 		CR_CHANGE_FLAG(*reg_ctrl, IRQ1, ACTHI_DEASSERT);
 		CR_CHANGE_FLAG(*reg_ctrl, IRQ2, ACTHI_DEASSERT);
+		LOG_TRACE("6520 [%s]: >> port was read - reset irq flags, (reg_ctrl becomes 0x%.2x", pia->name, *reg_ctrl);
 	}
 
 	// an active transition of the cl1/cl2-lines sets the irq-flags in reg_ctrl
@@ -152,6 +175,13 @@ static inline void control_register_irq_routine(uint8_t *reg_ctrl, bool cl1, boo
 	if (CR_FLAG(*reg_ctrl, CL2_MODE_SELECT)) {
 		CR_CHANGE_FLAG(*reg_ctrl, IRQ2, ACTHI_DEASSERT);
 	}
+
+#ifdef DMS_LOG_TRACE
+	if (save_ctrl != *reg_ctrl) {
+		LOG_TRACE("6520 [%s]: >> reg_ctrl was 0x%.2x, becomes 0x%.2x", pia->name, save_ctrl, *reg_ctrl);
+	}
+#endif
+
 	// store state of interrupt input/peripheral control lines
 	state->prev_cl1 = cl1;
 	state->prev_cl2 = cl2;
@@ -177,13 +207,15 @@ void process_negative_enable_edge(Chip6520 *pia) {
 	}
 
 	// irq-A routine
-	control_register_irq_routine(
+	LOG_TRACE("6520 [%s]: control_register_irq_routine() for reg_cra", pia->name);
+	control_register_irq_routine(pia,
 			&pia->reg_cra,
 			SIGNAL_BOOL(ca1), SIGNAL_BOOL(ca2),
 			&PRIVATE(pia)->state_a);
 
 	// irq-B routine
-	control_register_irq_routine(
+	LOG_TRACE("6520 [%s]: control_register_irq_routine() for reg_cra", pia->name);
+	control_register_irq_routine(pia,
 			&pia->reg_crb,
 			SIGNAL_BOOL(cb1), SIGNAL_BOOL(cb2),
 			&PRIVATE(pia)->state_b);
@@ -320,6 +352,7 @@ void chip_6520_process(Chip6520 *pia) {
 	PRIVATE(pia)->state_b.write_port = false;
 
 	if (ACTLO_ASSERTED(reset_b)) {
+		LOG_TRACE("6520 [%s]: reset asserted", pia->name);
 		// reset is asserted - clear registers
 		pia->reg_ddra = 0;
 		pia->reg_cra = 0;
@@ -337,6 +370,7 @@ void chip_6520_process(Chip6520 *pia) {
 	bool enable = SIGNAL_BOOL(enable);
 
 	if (ACTLO_ASSERTED(SIGNAL_BOOL(reset_b)) || enable == PRIVATE(pia)->prev_enable) {
+		LOG_TRACE("6520 [%s]: exit without processing", pia->name);
 		process_end(pia);
 		return;
 	}
