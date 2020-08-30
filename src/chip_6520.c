@@ -77,7 +77,7 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			}
 			break;
 		case 1:
-			pia->reg_cra = (uint8_t)((pia->reg_cra & 0b11000011) | (data & 0b00111111));
+			pia->reg_cra = (uint8_t)((pia->reg_cra & 0b11000000) | (data & 0b00111111));
 			if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT) && !CR_FLAG(pia->reg_cra, CL2_OUTPUT)) {
 				PRIVATE(pia)->internal_ca2 = true;
 			}
