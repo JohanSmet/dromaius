@@ -158,6 +158,8 @@ target_sources(${LIB_TARGET}
 		src/filt_6502_asm.h
 		src/input_keypad.c
 		src/input_keypad.h
+		src/log.c
+		src/log.h
 		src/ram_8d_16a.c
 		src/ram_8d_16a.h
 		src/rom_8d_16a.c
