@@ -146,6 +146,8 @@ typedef struct DevCommodorePetSignals {
 	Signal		bus_ba;				// buffered address bus
 	Signal		bus_bd;				// buffered data bus
 
+	Signal		sel0_b;				// 1-bit - accessing memory $0xxx
+	Signal		sel1_b;				// 1-bit - accessing memory $1xxx
 	Signal		sel2_b;				// 1-bit - accessing memory $2xxx
 	Signal		sel3_b;				// 1-bit - accessing memory $3xxx
 	Signal		sel4_b;				// 1-bit - accessing memory $4xxx

@@ -553,6 +553,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(bus_ba, 16, "BA%d");
 	SIGNAL_DEFINE_N(bus_bd, 8, "BD%d");
 
+	SIGNAL_DEFINE_N(sel0_b, 1, "/SEL0");
+	SIGNAL_DEFINE_N(sel1_b, 1, "/SEL1");
 	SIGNAL_DEFINE_N(sel2_b, 1, "/SEL2");
 	SIGNAL_DEFINE_N(sel3_b, 1, "/SEL3");
 	SIGNAL_DEFINE_N(sel4_b, 1, "/SEL4");
@@ -1228,6 +1230,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.b  = signal_split(SIGNAL(bus_ba), 13, 1),
 										.c  = signal_split(SIGNAL(bus_ba), 14, 1),
 										.d  = signal_split(SIGNAL(bus_ba), 15, 1),
+										.y0_b = SIGNAL(sel0_b),
+										.y1_b = SIGNAL(sel1_b),
 										.y2_b = SIGNAL(sel2_b),
 										.y3_b = SIGNAL(sel3_b),
 										.y4_b = SIGNAL(sel4_b),
