@@ -4,6 +4,7 @@
 #include "dev_commodore_pet.h"
 #include "cpu_6502_opcodes.h"
 #include "chip_ram_static.h"
+#include "chip_rom.h"
 
 #include <stdio.h>
 

@@ -377,35 +377,35 @@ static Rom8d16a *load_rom(DevCommodorePet *device, const char *filename, uint32_
 	return rom;
 }
 
-static Chip6316Rom *load_character_rom(DevCommodorePet *device, const char *filename) {
+static Chip63xxRom *load_character_rom(DevCommodorePet *device, const char *filename) {
 
-	Chip6316Rom *rom = chip_6316_rom_create(device->signal_pool, (Chip6316Signals) {
-										.cs1_b = SIGNAL(low),
-										.cs2_b = SIGNAL(low),
-										.cs3 = SIGNAL(init_b),
-										.a0 = SIGNAL(ra7),
-										.a1 = SIGNAL(ra8),
-										.a2 = SIGNAL(ra9),
-										.a3 = signal_split(SIGNAL(bus_lsd), 0, 1),
-										.a4 = signal_split(SIGNAL(bus_lsd), 1, 1),
-										.a5 = signal_split(SIGNAL(bus_lsd), 2, 1),
-										.a6 = signal_split(SIGNAL(bus_lsd), 3, 1),
-										.a7 = signal_split(SIGNAL(bus_lsd), 4, 1),
-										.a8 = signal_split(SIGNAL(bus_lsd), 5, 1),
-										.a9 = signal_split(SIGNAL(bus_lsd), 6, 1),
-										.a10 = SIGNAL(graphic),
-										.d0 = signal_split(SIGNAL(bus_cd), 0, 1),
-										.d1 = signal_split(SIGNAL(bus_cd), 1, 1),
-										.d2 = signal_split(SIGNAL(bus_cd), 2, 1),
-										.d3 = signal_split(SIGNAL(bus_cd), 3, 1),
-										.d4 = signal_split(SIGNAL(bus_cd), 4, 1),
-										.d5 = signal_split(SIGNAL(bus_cd), 5, 1),
-										.d6 = signal_split(SIGNAL(bus_cd), 6, 1),
-										.d7 = signal_split(SIGNAL(bus_cd), 7, 1)
+	Chip63xxRom *rom = chip_6316_rom_create(device->signal_pool, (Signal[24]) {
+										[CHIP_6316_CS1_B] = SIGNAL(low),
+										[CHIP_6316_CS2_B] = SIGNAL(low),
+										[CHIP_6316_CS3] = SIGNAL(init_b),
+										[CHIP_6316_A0] = SIGNAL(ra7),
+										[CHIP_6316_A1] = SIGNAL(ra8),
+										[CHIP_6316_A2] = SIGNAL(ra9),
+										[CHIP_6316_A3] = signal_split(SIGNAL(bus_lsd), 0, 1),
+										[CHIP_6316_A4] = signal_split(SIGNAL(bus_lsd), 1, 1),
+										[CHIP_6316_A5] = signal_split(SIGNAL(bus_lsd), 2, 1),
+										[CHIP_6316_A6] = signal_split(SIGNAL(bus_lsd), 3, 1),
+										[CHIP_6316_A7] = signal_split(SIGNAL(bus_lsd), 4, 1),
+										[CHIP_6316_A8] = signal_split(SIGNAL(bus_lsd), 5, 1),
+										[CHIP_6316_A9] = signal_split(SIGNAL(bus_lsd), 6, 1),
+										[CHIP_6316_A10] = SIGNAL(graphic),
+										[CHIP_6316_D0] = signal_split(SIGNAL(bus_cd), 0, 1),
+										[CHIP_6316_D1] = signal_split(SIGNAL(bus_cd), 1, 1),
+										[CHIP_6316_D2] = signal_split(SIGNAL(bus_cd), 2, 1),
+										[CHIP_6316_D3] = signal_split(SIGNAL(bus_cd), 3, 1),
+										[CHIP_6316_D4] = signal_split(SIGNAL(bus_cd), 4, 1),
+										[CHIP_6316_D5] = signal_split(SIGNAL(bus_cd), 5, 1),
+										[CHIP_6316_D6] = signal_split(SIGNAL(bus_cd), 6, 1),
+										[CHIP_6316_D7] = signal_split(SIGNAL(bus_cd), 7, 1)
 	});
 
 	if (file_load_binary_fixed(filename, rom->data_array, ROM_6316_DATA_SIZE) == 0) {
-		chip_6316_rom_destroy(rom);
+		rom->destroy(rom);
 		return NULL;
 	}
 
@@ -1118,7 +1118,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f10 - character rom
-	Chip6316Rom *char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin");
+	Chip63xxRom *char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin");
 	assert(char_rom);
 	DEVICE_REGISTER_CHIP("F10", char_rom);
 
