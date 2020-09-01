@@ -1,0 +1,1314 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" id="svg2642" version="1.1" viewBox="0 0 297 210">
+  <defs id="defs2636">
+    <marker orient="auto" refY="0.0" refX="0.0" id="Arrow1Send" style="overflow:visible;">
+      <path id="path20770" d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z " style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1" transform="scale(0.2) rotate(180) translate(6,0)"/>
+    </marker>
+    <marker orient="auto" refY="0.0" refX="0.0" id="Arrow2Mend" style="overflow:visible;">
+      <path id="path20782" style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1" d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z " transform="scale(0.6) rotate(180) translate(0,0)"/>
+    </marker>
+    <marker orient="auto" refY="0.0" refX="0.0" id="marker21066" style="overflow:visible">
+      <path id="path21064" d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z " style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1" transform="scale(0.2) translate(6,0)"/>
+    </marker>
+    <marker orient="auto" refY="0.0" refX="0.0" id="Arrow1Sstart" style="overflow:visible">
+      <path id="path20767" d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z " style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1" transform="scale(0.2) translate(6,0)"/>
+    </marker>
+    <marker orient="auto" refY="0.0" refX="0.0" id="marker21018" style="overflow:visible">
+      <path id="path20761" d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z " style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1" transform="scale(0.4) translate(10,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Mstart" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.4,0,0,0.4,4,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path4987"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-7" style="overflow:visible">
+      <path id="path20767-9-7" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-3" style="overflow:visible">
+      <path id="path20770-3-2" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-3" style="overflow:visible">
+      <path id="path20767-4-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-2" style="overflow:visible">
+      <path id="path20770-4-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-6" style="overflow:visible">
+      <path id="path20767-4-3" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-9" style="overflow:visible">
+      <path id="path20770-4-2" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-9" style="overflow:visible">
+      <path id="path20767-9-3" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-6" style="overflow:visible">
+      <path id="path20770-3-0" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-3-3" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-8-7"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-2-0" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-8-0"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-7-7" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-7-4"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-5" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-1"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-1" style="overflow:visible">
+      <path id="path20767-4-4" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-0" style="overflow:visible">
+      <path id="path20770-4-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-6" style="overflow:visible">
+      <path id="path20767-9-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-5" style="overflow:visible">
+      <path id="path20770-3-06" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-3-4" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-8-6"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-2-2" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-8-7"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-7-77" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-7-7"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-3" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-3"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-6-9" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-3-6"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-9-3" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-2-0"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-9-8" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-3-0"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-6-6" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-0-4"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-3-3-3" style="overflow:visible">
+      <path id="path20767-4-8-7-2" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-2-0-3" style="overflow:visible">
+      <path id="path20770-4-8-0-9" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-7-7-6" style="overflow:visible">
+      <path id="path20767-9-7-4-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-3-5-3" style="overflow:visible">
+      <path id="path20770-3-2-1-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-19" style="overflow:visible">
+      <path id="path20767-4-2" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-04" style="overflow:visible">
+      <path id="path20770-4-80" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-0" style="overflow:visible">
+      <path id="path20767-9-1" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-0" style="overflow:visible">
+      <path id="path20770-3-1" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-3-36" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-8-5"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-2-6" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-8-1"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-7-8" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-7-5"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-7" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-5"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-6-1" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-3-5"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-9-0" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-2-2"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-9-2" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-3-08"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-6-3" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-0-2"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-3-3-9" style="overflow:visible">
+      <path id="path20767-4-8-7-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-2-0-5" style="overflow:visible">
+      <path id="path20770-4-8-0-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-7-7-1" style="overflow:visible">
+      <path id="path20767-9-7-4-62" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-3-5-9" style="overflow:visible">
+      <path id="path20770-3-2-1-65" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-7-7-1-1" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-7-4-62-8"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-5-9-4" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-1-65-8"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-7-7-1-2" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-7-4-62-84"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-5-9-48" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-1-65-2"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-7-7-1-1-1" style="overflow:visible">
+      <path id="path20767-9-7-4-62-8-7" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-3-5-9-4-0" style="overflow:visible">
+      <path id="path20770-3-2-1-65-8-2" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-3-5-9-48-6" style="overflow:visible">
+      <path id="path20770-3-2-1-65-2-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-83" style="overflow:visible">
+      <path id="path20767-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-5" style="overflow:visible">
+      <path id="path20770-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-8" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-0"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-3" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-81"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-60" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-63"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-4" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-3"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-3-7" style="overflow:visible">
+      <path id="path20767-4-8-77" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-2-5" style="overflow:visible">
+      <path id="path20770-4-8-5" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-7-2" style="overflow:visible">
+      <path id="path20767-9-7-51" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-3-38" style="overflow:visible">
+      <path id="path20770-3-2-7" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-6-92" style="overflow:visible">
+      <path id="path20767-4-3-61" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-9-01" style="overflow:visible">
+      <path id="path20770-4-2-28" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-9-9" style="overflow:visible">
+      <path id="path20767-9-3-00" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-6-4" style="overflow:visible">
+      <path id="path20770-3-0-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-3-3-1" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-8-7-0"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-2-0-8" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-8-0-0"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-7-7-64" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-7-4-3"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-5-31" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-1-2"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-1-9" style="overflow:visible">
+      <path id="path20767-4-4-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-0-5" style="overflow:visible">
+      <path id="path20770-4-6-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-6-7" style="overflow:visible">
+      <path id="path20767-9-6-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-5-6" style="overflow:visible">
+      <path id="path20770-3-06-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-3-4-7" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-8-6-8"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-2-2-4" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-8-7-9"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-7-77-1" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-7-7-5"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-3-1" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-3-9"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-6-9-6" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-3-6-1"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-9-3-1" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-2-0-1"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-9-8-1" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-3-0-3"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-6-6-3" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-0-4-1"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-3-3-3-3" style="overflow:visible">
+      <path id="path20767-4-8-7-2-9" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-2-0-3-5" style="overflow:visible">
+      <path id="path20770-4-8-0-9-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-7-7-6-3" style="overflow:visible">
+      <path id="path20767-9-7-4-6-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-3-5-3-9" style="overflow:visible">
+      <path id="path20770-3-2-1-6-2" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-19-6" style="overflow:visible">
+      <path id="path20767-4-2-4" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-04-0" style="overflow:visible">
+      <path id="path20770-4-80-5" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-0-4" style="overflow:visible">
+      <path id="path20767-9-1-7" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-0-3" style="overflow:visible">
+      <path id="path20770-3-1-1" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-3-36-5" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-8-5-8"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-2-6-0" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-8-1-8"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-7-8-3" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-7-5-3"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-7-7" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-5-2"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-8-6-1-6" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-4-3-5-9"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-9-9-0-3" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-4-2-2-9"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-9-2-4" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-3-08-6"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-6-3-0" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-0-2-7"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-8-3-3-9-6" style="overflow:visible">
+      <path id="path20767-4-8-7-8-7" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-9-2-0-5-5" style="overflow:visible">
+      <path id="path20770-4-8-0-8-1" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-7-7-1-7" style="overflow:visible">
+      <path id="path20767-9-7-4-62-6" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-3-5-9-3" style="overflow:visible">
+      <path id="path20770-3-2-1-65-5" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Sstart-2-7-7-1-1-2" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.2,0,0,0.2,1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20767-9-7-4-62-8-5"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-5-9-4-2" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-1-65-8-6"/>
+    </marker>
+    <marker style="overflow:visible" id="Arrow1Send-2-3-5-9-48-2" refX="0" refY="0" orient="auto">
+      <path transform="matrix(-0.2,0,0,-0.2,-1.2,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path20770-3-2-1-65-2-60"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Sstart-2-7-7-1-1-1-0" style="overflow:visible">
+      <path id="path20767-9-7-4-62-8-7-4" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.2,0,0,0.2,1.2,0)"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Send-2-3-5-9-48-6-2" style="overflow:visible">
+      <path id="path20770-3-2-1-65-2-6-8" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(-0.2,0,0,-0.2,-1.2,0)"/>
+    </marker>
+  </defs>
+  <g id="Schematic" style="display:inline">
+    <g sodipodi:insensitive="true" id="sheet_0" transform="translate(1.6804206e-4,3.5799873e-4)" class="g_0">
+      <g id="label_0" transform="translate(28.899775,44.483108)" class="g_0">
+        <text xml:space="preserve" x="235.04747" y="130.00014" id="text_0" class="text_0"><tspan x="235.04747" y="130.00014" id="tspan_0" class="tspan_0">DYNAMIC PET</tspan></text>
+        <text id="text_1" y="127.89767" x="235.11844" xml:space="preserve" class="text_0"><tspan id="tspan_1" y="127.89767" x="235.11844" class="tspan_0">LOGIC  DIAGRAM</tspan></text>
+        <text xml:space="preserve" x="235.08778" y="132.17581" id="text_2" class="text_0"><tspan x="235.08778" y="132.17581" id="tspan_2" class="tspan_0">ROMS</tspan></text>
+        <text xml:space="preserve" x="235.19122" y="124.61198" id="text_3" class="text_0"><tspan x="235.19122" y="124.61198" id="tspan_3" class="tspan_1">commodore</tspan></text>
+        <text xml:space="preserve" x="223.98859" y="133.90042" id="text_4" class="text_1"><tspan x="223.98859" y="133.90042" id="tspan_4" class="tspan_2">SIZE</tspan></text>
+        <text id="text_5" y="133.93695" x="246.05711" xml:space="preserve" class="text_1"><tspan id="tspan_5" y="133.93695" x="246.05711" class="tspan_2">REV</tspan></text>
+        <text id="text_6" y="135.84822" x="223.90756" xml:space="preserve" class="text_0"><tspan id="tspan_6" y="135.84822" x="223.90756" class="tspan_3">D</tspan></text>
+        <text xml:space="preserve" x="235.18332" y="135.68661" id="text_7" class="text_2"><tspan x="235.34604" y="135.68661" id="tspan_7" class="tspan_4">320349</tspan></text>
+        <text id="text_8" y="135.91792" x="246.00992" xml:space="preserve" class="text_3"><tspan id="tspan_8" y="135.91792" x="246.00992" class="tspan_4">A</tspan></text>
+        <text id="text_9" y="137.91835" x="224.36774" xml:space="preserve" class="text_1"><tspan id="tspan_9" y="137.91835" x="224.36774" class="tspan_2">SCALE</tspan></text>
+        <text id="text_10" y="137.84587" x="235.57414" xml:space="preserve" class="text_1"><tspan id="tspan_10" y="137.84587" x="235.57414" class="tspan_2">SHEET</tspan></text>
+        <text xml:space="preserve" x="243.03755" y="137.88062" id="text_11" class="text_1"><tspan x="243.03755" y="137.88062" id="tspan_11" class="tspan_2">OF</tspan></text>
+        <text xml:space="preserve" x="239.21062" y="138.15033" id="text_12" class="text_0"><tspan x="239.21062" y="138.15033" id="tspan_12" class="tspan_3">4</tspan></text>
+        <text xml:space="preserve" x="245.75871" y="138.19711" id="text_13" class="text_0"><tspan x="245.75871" y="138.19711" id="tspan_13" class="tspan_3">9</tspan></text>
+        <path id="path_0" d="m 227.66936,137.53725 h 4.64594" class="path_0"/>
+        <path id="path_1" d="m 248.11376,121.86819 h -26.35318 v 16.656" class="path_0"/>
+        <path id="path_2" d="m 221.72613,125.8852 h 26.41184" class="path_0"/>
+        <path d="m 221.82375,132.72346 h 26.41184" id="path_3" class="path_1"/>
+        <path d="m 221.67512,136.52029 h 26.41184" id="path_4" class="path_1"/>
+        <path id="path_5" d="m 226.08433,132.80248 v 3.75441" class="path_0"/>
+        <path id="path_6" d="m 243.95734,132.80718 v 3.6408" class="path_0"/>
+      </g>
+      <rect ry="0" y="8.6991415" x="7.1903315" height="174.39131" width="270.07034" id="rect_0" class="rect_0"/>
+      <path id="path_7" d="m 262.0793,181.05936 v 2.00353" class="path_0"/>
+    </g>
+    <g id="wire#/SELA_0">
+      <path d="m 33.66767,138.26464 h 157.35366 v -24.94019 h 5.98626" id="path_8" class="path_2"/>
+      <g transform="translate(-171.24182,71.512008)" id="g_0" class="g_0">
+        <text id="text_14" y="66.379036" x="208.11308" xml:space="preserve" class="text_4"><tspan id="tspan_14" y="66.379036" x="208.11308" class="tspan_0">SEL A</tspan></text>
+        <path id="path_9" d="m 206.27937,65.17992 h 3.54804 v 0.05265" class="path_3"/>
+      </g>
+    </g>
+    <g transform="translate(-16.890615,-10.290105)" id="chip#D9_6332_0" class="g_0">
+      <rect y="77.651878" x="67.322945" height="48.11087" width="12.526585" id="rect_1" class="rect_1"/>
+      <text id="text_15" y="108.52799" x="81.963753" xml:space="preserve" class="text_0"><tspan id="tspan_15" y="108.52799" x="81.963753" class="tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="81.963753" y="110.63441" id="text_16" class="text_0"><tspan x="81.963753" y="110.63441" id="tspan_16" class="tspan_0">11</tspan></text>
+      <text xml:space="preserve" x="75.742928" y="127.20505" id="text_17" class="text_0"><tspan x="75.742928" y="127.20505" id="tspan_17" class="tspan_0">12</tspan></text>
+      <text id="text_18" y="112.68086" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_18" y="112.68086" x="81.964828" class="tspan_0">13</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="114.70564" id="text_19" class="text_0"><tspan x="81.964828" y="114.70564" id="tspan_19" class="tspan_0">14</tspan></text>
+      <text id="text_20" y="116.81205" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_20" y="116.81205" x="81.964828" class="tspan_0">15</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="118.93896" id="text_21" class="text_0"><tspan x="81.964828" y="118.93896" id="tspan_21" class="tspan_0">16</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="120.98968" id="text_22" class="text_0"><tspan x="81.964828" y="120.98968" id="tspan_22" class="tspan_0">17</tspan></text>
+      <text id="text_23" y="102.1389" x="65.29425" xml:space="preserve" class="text_0"><tspan id="tspan_23" y="102.1389" x="65.29425" class="tspan_0">18</tspan></text>
+      <text id="text_24" y="100.07066" x="65.31926" xml:space="preserve" class="text_0"><tspan id="tspan_24" y="100.07066" x="65.31926" class="tspan_0">19</tspan></text>
+      <text xml:space="preserve" x="81.369797" y="106.39851" id="text_25" class="text_0"><tspan x="81.369797" y="106.39851" id="tspan_25" class="tspan_0">9</tspan></text>
+      <text id="text_26" y="97.989258" x="65.203964" xml:space="preserve" class="text_0"><tspan id="tspan_26" y="97.989258" x="65.203964" class="tspan_0">22</tspan></text>
+      <text id="text_27" y="95.978127" x="65.234222" xml:space="preserve" class="text_0"><tspan id="tspan_27" y="95.978127" x="65.234222" class="tspan_0">23</tspan></text>
+      <text xml:space="preserve" x="78.765038" y="77.220123" id="text_28" class="text_0"><tspan x="78.765038" y="77.220123" id="tspan_28" class="tspan_0">24</tspan></text>
+      <text id="text_29" y="89.731247" x="65.713089" xml:space="preserve" class="text_0"><tspan id="tspan_29" y="89.731247" x="65.713089" class="tspan_0">3</tspan></text>
+      <text id="text_30" y="81.303986" x="65.829613" xml:space="preserve" class="text_0"><tspan id="tspan_30" y="81.303986" x="65.829613" class="tspan_0">7</tspan></text>
+      <text xml:space="preserve" x="65.735718" y="93.808823" id="text_31" class="text_0"><tspan x="65.735718" y="93.808823" id="tspan_31" class="tspan_0">1</tspan></text>
+      <text xml:space="preserve" x="74.587952" y="77.232712" id="text_32" class="text_0"><tspan x="74.587952" y="77.232712" id="tspan_32" class="tspan_0">21</tspan></text>
+      <text xml:space="preserve" x="65.730103" y="87.572159" id="text_33" class="text_0"><tspan x="65.730103" y="87.572159" id="tspan_33" class="tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="65.794868" y="83.369926" id="text_34" class="text_0"><tspan x="65.794868" y="83.369926" id="tspan_34" class="tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="65.80587" y="91.769409" id="text_35" class="text_0"><tspan x="65.80587" y="91.769409" id="tspan_35" class="tspan_0">2</tspan></text>
+      <text id="text_36" y="123.02765" x="65.286018" xml:space="preserve" class="text_0"><tspan id="tspan_36" y="123.02765" x="65.286018" class="tspan_0">20</tspan></text>
+      <text id="text_37" y="83.389633" x="75.552818" xml:space="preserve" class="text_0"><tspan id="tspan_37" y="83.389633" x="75.552818" class="tspan_0">D9</tspan></text>
+      <text id="text_38" y="85.494339" x="75.614197" xml:space="preserve" class="text_0"><tspan id="tspan_38" y="85.494339" x="75.614197" class="tspan_0">6332</tspan></text>
+      <text xml:space="preserve" x="73.494324" y="125.10634" id="text_39" class="text_0"><tspan x="73.494324" y="125.10634" id="tspan_39" class="tspan_0">VSS</tspan></text>
+      <text id="text_40" y="79.256638" x="76.692635" xml:space="preserve" class="text_0"><tspan id="tspan_40" y="79.256638" x="76.692635" class="tspan_0">VCC</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="107.35056" id="text_41" class="text_0"><tspan x="77.61441" y="107.35056" id="tspan_41" class="tspan_0">D0</tspan></text>
+      <text id="text_42" y="109.46482" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_42" y="109.46482" x="77.61441" class="tspan_0">D1</tspan></text>
+      <text id="text_43" y="111.52538" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_43" y="111.52538" x="77.61441" class="tspan_0">D2</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="113.63965" id="text_44" class="text_0"><tspan x="77.61441" y="113.63965" id="tspan_44" class="tspan_0">D3</tspan></text>
+      <text id="text_45" y="115.70589" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_45" y="115.70589" x="77.61441" class="tspan_0">D4</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="117.82016" id="text_46" class="text_0"><tspan x="77.61441" y="117.82016" id="tspan_46" class="tspan_0">D5</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="119.88072" id="text_47" class="text_0"><tspan x="77.61441" y="119.88072" id="tspan_47" class="tspan_0">D6</tspan></text>
+      <text id="text_48" y="121.99499" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_48" y="121.99499" x="77.61441" class="tspan_0">D7</tspan></text>
+      <text id="text_49" y="80.248718" x="69.405136" xml:space="preserve" class="text_0"><tspan id="tspan_49" y="80.248718" x="69.405136" class="tspan_0">A0</tspan></text>
+      <text xml:space="preserve" x="69.44165" y="82.362999" id="text_50" class="text_0"><tspan x="69.44165" y="82.362999" id="tspan_50" class="tspan_0">A1</tspan></text>
+      <text xml:space="preserve" x="69.452675" y="84.423553" id="text_51" class="text_0"><tspan x="69.452675" y="84.423553" id="tspan_51" class="tspan_0">A2</tspan></text>
+      <text id="text_52" y="86.537819" x="69.424423" xml:space="preserve" class="text_0"><tspan id="tspan_52" y="86.537819" x="69.424423" class="tspan_0">A3</tspan></text>
+      <text xml:space="preserve" x="69.390663" y="88.604057" id="text_53" class="text_0"><tspan x="69.390663" y="88.604057" id="tspan_53" class="tspan_0">A4</tspan></text>
+      <text id="text_54" y="90.718323" x="69.434761" xml:space="preserve" class="text_0"><tspan id="tspan_54" y="90.718323" x="69.434761" class="tspan_0">A5</tspan></text>
+      <text id="text_55" y="92.778893" x="69.400314" xml:space="preserve" class="text_0"><tspan id="tspan_55" y="92.778893" x="69.400314" class="tspan_0">A6</tspan></text>
+      <text xml:space="preserve" x="69.432007" y="94.893143" id="text_56" class="text_0"><tspan x="69.432007" y="94.893143" id="tspan_56" class="tspan_0">A7</tspan></text>
+      <text xml:space="preserve" x="75.740204" y="90.707977" id="text_57" class="text_0"><tspan x="75.740204" y="90.707977" id="tspan_57" class="tspan_0">F000 -</tspan></text>
+      <text id="text_58" y="79.229065" x="72.541473" xml:space="preserve" class="text_0"><tspan id="tspan_58" y="79.229065" x="72.541473" class="tspan_0">CS3</tspan></text>
+      <text id="text_59" y="92.751549" x="75.199295" xml:space="preserve" class="text_0"><tspan id="tspan_59" y="92.751549" x="75.199295" class="tspan_0">FFFF</tspan></text>
+      <g transform="translate(-11.740679,-33.455774)" id="g_1" class="g_0">
+        <text id="text_60" y="157.54208" x="81.58876" xml:space="preserve" class="text_0"><tspan id="tspan_60" y="157.54208" x="81.58876" class="tspan_0">CS1</tspan></text>
+        <path id="path_10" d="m 80.265911,156.31378 h 2.704013" class="path_4"/>
+      </g>
+      <text id="text_61" y="85.475166" x="65.748535" xml:space="preserve" class="text_0"><tspan id="tspan_61" y="85.475166" x="65.748535" class="tspan_0">5</tspan></text>
+      <text xml:space="preserve" x="65.7556" y="79.288261" id="text_62" class="text_0"><tspan x="65.7556" y="79.288261" id="tspan_62" class="tspan_0">8</tspan></text>
+      <text id="text_63" y="96.928925" x="69.375725" xml:space="preserve" class="text_0"><tspan id="tspan_63" y="96.928925" x="69.375725" class="tspan_0">A8</tspan></text>
+      <text xml:space="preserve" x="69.419823" y="99.04319" id="text_64" class="text_0"><tspan x="69.419823" y="99.04319" id="tspan_64" class="tspan_0">A9</tspan></text>
+      <text xml:space="preserve" x="69.844879" y="101.17844" id="text_65" class="text_0"><tspan x="69.844879" y="101.17844" id="tspan_65" class="tspan_0">A10</tspan></text>
+      <text id="text_66" y="103.29269" x="69.876572" xml:space="preserve" class="text_0"><tspan id="tspan_66" y="103.29269" x="69.876572" class="tspan_0">A11</tspan></text>
+    </g>
+    <g id="chip#D8_6332_0" transform="translate(12.391432,-10.245408)" class="g_0">
+      <rect id="rect_2" width="12.526585" height="48.11087" x="67.322945" y="77.651878" class="rect_1"/>
+      <text xml:space="preserve" x="81.963753" y="108.52799" id="text_67" class="text_0"><tspan x="81.963753" y="108.52799" id="tspan_67" class="tspan_0">10</tspan></text>
+      <text id="text_68" y="110.63441" x="81.963753" xml:space="preserve" class="text_0"><tspan id="tspan_68" y="110.63441" x="81.963753" class="tspan_0">11</tspan></text>
+      <text id="text_69" y="127.20505" x="75.742928" xml:space="preserve" class="text_0"><tspan id="tspan_69" y="127.20505" x="75.742928" class="tspan_0">12</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="112.68086" id="text_70" class="text_0"><tspan x="81.964828" y="112.68086" id="tspan_70" class="tspan_0">13</tspan></text>
+      <text id="text_71" y="114.70564" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_71" y="114.70564" x="81.964828" class="tspan_0">14</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="116.81205" id="text_72" class="text_0"><tspan x="81.964828" y="116.81205" id="tspan_72" class="tspan_0">15</tspan></text>
+      <text id="text_73" y="118.93896" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_73" y="118.93896" x="81.964828" class="tspan_0">16</tspan></text>
+      <text id="text_74" y="120.98968" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_74" y="120.98968" x="81.964828" class="tspan_0">17</tspan></text>
+      <text xml:space="preserve" x="65.29425" y="102.1389" id="text_75" class="text_0"><tspan x="65.29425" y="102.1389" id="tspan_75" class="tspan_0">18</tspan></text>
+      <text xml:space="preserve" x="65.31926" y="100.07066" id="text_76" class="text_0"><tspan x="65.31926" y="100.07066" id="tspan_76" class="tspan_0">19</tspan></text>
+      <text id="text_77" y="106.39851" x="81.369797" xml:space="preserve" class="text_0"><tspan id="tspan_77" y="106.39851" x="81.369797" class="tspan_0">9</tspan></text>
+      <text xml:space="preserve" x="65.203964" y="97.989258" id="text_78" class="text_0"><tspan x="65.203964" y="97.989258" id="tspan_78" class="tspan_0">22</tspan></text>
+      <text xml:space="preserve" x="65.234222" y="95.978127" id="text_79" class="text_0"><tspan x="65.234222" y="95.978127" id="tspan_79" class="tspan_0">23</tspan></text>
+      <text id="text_80" y="77.220123" x="78.765038" xml:space="preserve" class="text_0"><tspan id="tspan_80" y="77.220123" x="78.765038" class="tspan_0">24</tspan></text>
+      <text xml:space="preserve" x="65.713089" y="89.731247" id="text_81" class="text_0"><tspan x="65.713089" y="89.731247" id="tspan_81" class="tspan_0">3</tspan></text>
+      <text xml:space="preserve" x="65.829613" y="81.303986" id="text_82" class="text_0"><tspan x="65.829613" y="81.303986" id="tspan_82" class="tspan_0">7</tspan></text>
+      <text id="text_83" y="93.808823" x="65.735718" xml:space="preserve" class="text_0"><tspan id="tspan_83" y="93.808823" x="65.735718" class="tspan_0">1</tspan></text>
+      <text id="text_84" y="77.232712" x="74.587952" xml:space="preserve" class="text_0"><tspan id="tspan_84" y="77.232712" x="74.587952" class="tspan_0">21</tspan></text>
+      <text id="text_85" y="87.572159" x="65.730103" xml:space="preserve" class="text_0"><tspan id="tspan_85" y="87.572159" x="65.730103" class="tspan_0">4</tspan></text>
+      <text id="text_86" y="83.369926" x="65.794868" xml:space="preserve" class="text_0"><tspan id="tspan_86" y="83.369926" x="65.794868" class="tspan_0">6</tspan></text>
+      <text id="text_87" y="91.769409" x="65.80587" xml:space="preserve" class="text_0"><tspan id="tspan_87" y="91.769409" x="65.80587" class="tspan_0">2</tspan></text>
+      <text xml:space="preserve" x="65.286018" y="123.02765" id="text_88" class="text_0"><tspan x="65.286018" y="123.02765" id="tspan_88" class="tspan_0">20</tspan></text>
+      <text xml:space="preserve" x="75.552818" y="83.389633" id="text_89" class="text_0"><tspan x="75.552818" y="83.389633" id="tspan_89" class="tspan_0">D8</tspan></text>
+      <text xml:space="preserve" x="75.989174" y="85.52317" id="text_90" class="text_0"><tspan x="75.989174" y="85.52317" id="tspan_90" class="tspan_0">6332 /</tspan></text>
+      <text id="text_91" y="125.10634" x="73.494324" xml:space="preserve" class="text_0"><tspan id="tspan_91" y="125.10634" x="73.494324" class="tspan_0">VSS</tspan></text>
+      <text xml:space="preserve" x="76.692635" y="79.256638" id="text_92" class="text_0"><tspan x="76.692635" y="79.256638" id="tspan_92" class="tspan_0">VCC</tspan></text>
+      <text id="text_93" y="107.35056" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_93" y="107.35056" x="77.61441" class="tspan_0">D0</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="109.46482" id="text_94" class="text_0"><tspan x="77.61441" y="109.46482" id="tspan_94" class="tspan_0">D1</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="111.52538" id="text_95" class="text_0"><tspan x="77.61441" y="111.52538" id="tspan_95" class="tspan_0">D2</tspan></text>
+      <text id="text_96" y="113.63965" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_96" y="113.63965" x="77.61441" class="tspan_0">D3</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="115.70589" id="text_97" class="text_0"><tspan x="77.61441" y="115.70589" id="tspan_97" class="tspan_0">D4</tspan></text>
+      <text id="text_98" y="117.82016" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_98" y="117.82016" x="77.61441" class="tspan_0">D5</tspan></text>
+      <text id="text_99" y="119.88072" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_99" y="119.88072" x="77.61441" class="tspan_0">D6</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="121.99499" id="text_100" class="text_0"><tspan x="77.61441" y="121.99499" id="tspan_100" class="tspan_0">D7</tspan></text>
+      <text xml:space="preserve" x="69.405136" y="80.248718" id="text_101" class="text_0"><tspan x="69.405136" y="80.248718" id="tspan_101" class="tspan_0">A0</tspan></text>
+      <text id="text_102" y="82.362999" x="69.44165" xml:space="preserve" class="text_0"><tspan id="tspan_102" y="82.362999" x="69.44165" class="tspan_0">A1</tspan></text>
+      <text id="text_103" y="84.423553" x="69.452675" xml:space="preserve" class="text_0"><tspan id="tspan_103" y="84.423553" x="69.452675" class="tspan_0">A2</tspan></text>
+      <text xml:space="preserve" x="69.424423" y="86.537819" id="text_104" class="text_0"><tspan x="69.424423" y="86.537819" id="tspan_104" class="tspan_0">A3</tspan></text>
+      <text id="text_105" y="88.604057" x="69.390663" xml:space="preserve" class="text_0"><tspan id="tspan_105" y="88.604057" x="69.390663" class="tspan_0">A4</tspan></text>
+      <text xml:space="preserve" x="69.434761" y="90.718323" id="text_106" class="text_0"><tspan x="69.434761" y="90.718323" id="tspan_106" class="tspan_0">A5</tspan></text>
+      <text xml:space="preserve" x="69.400314" y="92.778893" id="text_107" class="text_0"><tspan x="69.400314" y="92.778893" id="tspan_107" class="tspan_0">A6</tspan></text>
+      <text id="text_108" y="94.893143" x="69.432007" xml:space="preserve" class="text_0"><tspan id="tspan_108" y="94.893143" x="69.432007" class="tspan_0">A7</tspan></text>
+      <text id="text_109" y="90.707977" x="75.740204" xml:space="preserve" class="text_0"><tspan id="tspan_109" y="90.707977" x="75.740204" class="tspan_0">E000 -</tspan></text>
+      <text xml:space="preserve" x="72.541473" y="79.229065" id="text_110" class="text_0"><tspan x="72.541473" y="79.229065" id="tspan_110" class="tspan_0">CS3</tspan></text>
+      <text xml:space="preserve" x="75.199295" y="92.751549" id="text_111" class="text_0"><tspan x="75.199295" y="92.751549" id="tspan_111" class="tspan_0">EFFF</tspan></text>
+      <g id="g_2" transform="translate(-11.740679,-33.455774)" class="g_0">
+        <text xml:space="preserve" x="81.58876" y="157.54208" id="text_112" class="text_0"><tspan x="81.58876" y="157.54208" id="tspan_112" class="tspan_0">CS1</tspan></text>
+        <path d="m 80.265911,156.31378 h 2.704013" id="path_11" class="path_4"/>
+      </g>
+      <text xml:space="preserve" x="65.748535" y="85.475166" id="text_113" class="text_0"><tspan x="65.748535" y="85.475166" id="tspan_113" class="tspan_0">5</tspan></text>
+      <text id="text_114" y="79.288261" x="65.7556" xml:space="preserve" class="text_0"><tspan id="tspan_114" y="79.288261" x="65.7556" class="tspan_0">8</tspan></text>
+      <text xml:space="preserve" x="69.375725" y="96.928925" id="text_115" class="text_0"><tspan x="69.375725" y="96.928925" id="tspan_115" class="tspan_0">A8</tspan></text>
+      <text id="text_116" y="99.04319" x="69.419823" xml:space="preserve" class="text_0"><tspan id="tspan_116" y="99.04319" x="69.419823" class="tspan_0">A9</tspan></text>
+      <text id="text_117" y="101.17844" x="69.844879" xml:space="preserve" class="text_0"><tspan id="tspan_117" y="101.17844" x="69.844879" class="tspan_0">A10</tspan></text>
+      <text xml:space="preserve" x="69.876572" y="103.29269" id="text_118" class="text_0"><tspan x="69.876572" y="103.29269" id="tspan_118" class="tspan_0">A11</tspan></text>
+      <text id="text_119" y="87.607048" x="75.553505" xml:space="preserve" class="text_0"><tspan id="tspan_119" y="87.607048" x="75.553505" class="tspan_0">6316</tspan></text>
+    </g>
+    <g id="chip#D7_6332_0" transform="translate(41.752811,-10.245408)" class="g_0">
+      <rect id="rect_3" width="12.526585" height="48.11087" x="67.322945" y="77.651878" class="rect_1"/>
+      <text xml:space="preserve" x="81.963753" y="108.52799" id="text_120" class="text_0"><tspan x="81.963753" y="108.52799" id="tspan_120" class="tspan_0">10</tspan></text>
+      <text id="text_121" y="110.63441" x="81.963753" xml:space="preserve" class="text_0"><tspan id="tspan_121" y="110.63441" x="81.963753" class="tspan_0">11</tspan></text>
+      <text id="text_122" y="127.20505" x="75.742928" xml:space="preserve" class="text_0"><tspan id="tspan_122" y="127.20505" x="75.742928" class="tspan_0">12</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="112.68086" id="text_123" class="text_0"><tspan x="81.964828" y="112.68086" id="tspan_123" class="tspan_0">13</tspan></text>
+      <text id="text_124" y="114.70564" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_124" y="114.70564" x="81.964828" class="tspan_0">14</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="116.81205" id="text_125" class="text_0"><tspan x="81.964828" y="116.81205" id="tspan_125" class="tspan_0">15</tspan></text>
+      <text id="text_126" y="118.93896" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_126" y="118.93896" x="81.964828" class="tspan_0">16</tspan></text>
+      <text id="text_127" y="120.98968" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_127" y="120.98968" x="81.964828" class="tspan_0">17</tspan></text>
+      <text xml:space="preserve" x="65.29425" y="102.1389" id="text_128" class="text_0"><tspan x="65.29425" y="102.1389" id="tspan_128" class="tspan_0">18</tspan></text>
+      <text xml:space="preserve" x="65.31926" y="100.07066" id="text_129" class="text_0"><tspan x="65.31926" y="100.07066" id="tspan_129" class="tspan_0">19</tspan></text>
+      <text id="text_130" y="106.39851" x="81.369797" xml:space="preserve" class="text_0"><tspan id="tspan_130" y="106.39851" x="81.369797" class="tspan_0">9</tspan></text>
+      <text xml:space="preserve" x="65.203964" y="97.989258" id="text_131" class="text_0"><tspan x="65.203964" y="97.989258" id="tspan_131" class="tspan_0">22</tspan></text>
+      <text xml:space="preserve" x="65.234222" y="95.978127" id="text_132" class="text_0"><tspan x="65.234222" y="95.978127" id="tspan_132" class="tspan_0">23</tspan></text>
+      <text id="text_133" y="77.220123" x="78.765038" xml:space="preserve" class="text_0"><tspan id="tspan_133" y="77.220123" x="78.765038" class="tspan_0">24</tspan></text>
+      <text xml:space="preserve" x="65.713089" y="89.731247" id="text_134" class="text_0"><tspan x="65.713089" y="89.731247" id="tspan_134" class="tspan_0">3</tspan></text>
+      <text xml:space="preserve" x="65.829613" y="81.303986" id="text_135" class="text_0"><tspan x="65.829613" y="81.303986" id="tspan_135" class="tspan_0">7</tspan></text>
+      <text id="text_136" y="93.808823" x="65.735718" xml:space="preserve" class="text_0"><tspan id="tspan_136" y="93.808823" x="65.735718" class="tspan_0">1</tspan></text>
+      <text id="text_137" y="77.232712" x="74.587952" xml:space="preserve" class="text_0"><tspan id="tspan_137" y="77.232712" x="74.587952" class="tspan_0">21</tspan></text>
+      <text id="text_138" y="87.572159" x="65.730103" xml:space="preserve" class="text_0"><tspan id="tspan_138" y="87.572159" x="65.730103" class="tspan_0">4</tspan></text>
+      <text id="text_139" y="83.369926" x="65.794868" xml:space="preserve" class="text_0"><tspan id="tspan_139" y="83.369926" x="65.794868" class="tspan_0">6</tspan></text>
+      <text id="text_140" y="91.769409" x="65.80587" xml:space="preserve" class="text_0"><tspan id="tspan_140" y="91.769409" x="65.80587" class="tspan_0">2</tspan></text>
+      <text xml:space="preserve" x="65.286018" y="123.02765" id="text_141" class="text_0"><tspan x="65.286018" y="123.02765" id="tspan_141" class="tspan_0">20</tspan></text>
+      <text xml:space="preserve" x="75.552818" y="83.389633" id="text_142" class="text_0"><tspan x="75.552818" y="83.389633" id="tspan_142" class="tspan_0">D7</tspan></text>
+      <text xml:space="preserve" x="75.614197" y="85.494339" id="text_143" class="text_0"><tspan x="75.614197" y="85.494339" id="tspan_143" class="tspan_0">6332</tspan></text>
+      <text id="text_144" y="125.10634" x="73.494324" xml:space="preserve" class="text_0"><tspan id="tspan_144" y="125.10634" x="73.494324" class="tspan_0">VSS</tspan></text>
+      <text xml:space="preserve" x="76.692635" y="79.256638" id="text_145" class="text_0"><tspan x="76.692635" y="79.256638" id="tspan_145" class="tspan_0">VCC</tspan></text>
+      <text id="text_146" y="107.35056" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_146" y="107.35056" x="77.61441" class="tspan_0">D0</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="109.46482" id="text_147" class="text_0"><tspan x="77.61441" y="109.46482" id="tspan_147" class="tspan_0">D1</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="111.52538" id="text_148" class="text_0"><tspan x="77.61441" y="111.52538" id="tspan_148" class="tspan_0">D2</tspan></text>
+      <text id="text_149" y="113.63965" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_149" y="113.63965" x="77.61441" class="tspan_0">D3</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="115.70589" id="text_150" class="text_0"><tspan x="77.61441" y="115.70589" id="tspan_150" class="tspan_0">D4</tspan></text>
+      <text id="text_151" y="117.82016" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_151" y="117.82016" x="77.61441" class="tspan_0">D5</tspan></text>
+      <text id="text_152" y="119.88072" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_152" y="119.88072" x="77.61441" class="tspan_0">D6</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="121.99499" id="text_153" class="text_0"><tspan x="77.61441" y="121.99499" id="tspan_153" class="tspan_0">D7</tspan></text>
+      <text xml:space="preserve" x="69.405136" y="80.248718" id="text_154" class="text_0"><tspan x="69.405136" y="80.248718" id="tspan_154" class="tspan_0">A0</tspan></text>
+      <text id="text_155" y="82.362999" x="69.44165" xml:space="preserve" class="text_0"><tspan id="tspan_155" y="82.362999" x="69.44165" class="tspan_0">A1</tspan></text>
+      <text id="text_156" y="84.423553" x="69.452675" xml:space="preserve" class="text_0"><tspan id="tspan_156" y="84.423553" x="69.452675" class="tspan_0">A2</tspan></text>
+      <text xml:space="preserve" x="69.424423" y="86.537819" id="text_157" class="text_0"><tspan x="69.424423" y="86.537819" id="tspan_157" class="tspan_0">A3</tspan></text>
+      <text id="text_158" y="88.604057" x="69.390663" xml:space="preserve" class="text_0"><tspan id="tspan_158" y="88.604057" x="69.390663" class="tspan_0">A4</tspan></text>
+      <text xml:space="preserve" x="69.434761" y="90.718323" id="text_159" class="text_0"><tspan x="69.434761" y="90.718323" id="tspan_159" class="tspan_0">A5</tspan></text>
+      <text xml:space="preserve" x="69.400314" y="92.778893" id="text_160" class="text_0"><tspan x="69.400314" y="92.778893" id="tspan_160" class="tspan_0">A6</tspan></text>
+      <text id="text_161" y="94.893143" x="69.432007" xml:space="preserve" class="text_0"><tspan id="tspan_161" y="94.893143" x="69.432007" class="tspan_0">A7</tspan></text>
+      <text id="text_162" y="90.707977" x="75.740204" xml:space="preserve" class="text_0"><tspan id="tspan_162" y="90.707977" x="75.740204" class="tspan_0">D000 -</tspan></text>
+      <text xml:space="preserve" x="72.541473" y="79.229065" id="text_163" class="text_0"><tspan x="72.541473" y="79.229065" id="tspan_163" class="tspan_0">CS3</tspan></text>
+      <text xml:space="preserve" x="75.199295" y="92.751549" id="text_164" class="text_0"><tspan x="75.199295" y="92.751549" id="tspan_164" class="tspan_0">DFFF</tspan></text>
+      <g id="g_3" transform="translate(-11.740679,-33.455774)" class="g_0">
+        <text xml:space="preserve" x="81.58876" y="157.54208" id="text_165" class="text_0"><tspan x="81.58876" y="157.54208" id="tspan_165" class="tspan_0">CS1</tspan></text>
+        <path d="m 80.265911,156.31378 h 2.704013" id="path_12" class="path_4"/>
+      </g>
+      <text xml:space="preserve" x="65.748535" y="85.475166" id="text_166" class="text_0"><tspan x="65.748535" y="85.475166" id="tspan_166" class="tspan_0">5</tspan></text>
+      <text id="text_167" y="79.288261" x="65.7556" xml:space="preserve" class="text_0"><tspan id="tspan_167" y="79.288261" x="65.7556" class="tspan_0">8</tspan></text>
+      <text xml:space="preserve" x="69.375725" y="96.928925" id="text_168" class="text_0"><tspan x="69.375725" y="96.928925" id="tspan_168" class="tspan_0">A8</tspan></text>
+      <text id="text_169" y="99.04319" x="69.419823" xml:space="preserve" class="text_0"><tspan id="tspan_169" y="99.04319" x="69.419823" class="tspan_0">A9</tspan></text>
+      <text id="text_170" y="101.17844" x="69.844879" xml:space="preserve" class="text_0"><tspan id="tspan_170" y="101.17844" x="69.844879" class="tspan_0">A10</tspan></text>
+      <text xml:space="preserve" x="69.876572" y="103.29269" id="text_171" class="text_0"><tspan x="69.876572" y="103.29269" id="tspan_171" class="tspan_0">A11</tspan></text>
+    </g>
+    <g transform="translate(71.034857,-10.200709)" id="chip#D6_6332_0" class="g_0">
+      <rect y="77.651878" x="67.322945" height="48.11087" width="12.526585" id="rect_4" class="rect_1"/>
+      <text id="text_172" y="108.52799" x="81.963753" xml:space="preserve" class="text_0"><tspan id="tspan_172" y="108.52799" x="81.963753" class="tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="81.963753" y="110.63441" id="text_173" class="text_0"><tspan x="81.963753" y="110.63441" id="tspan_173" class="tspan_0">11</tspan></text>
+      <text xml:space="preserve" x="75.742928" y="127.20505" id="text_174" class="text_0"><tspan x="75.742928" y="127.20505" id="tspan_174" class="tspan_0">12</tspan></text>
+      <text id="text_175" y="112.68086" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_175" y="112.68086" x="81.964828" class="tspan_0">13</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="114.70564" id="text_176" class="text_0"><tspan x="81.964828" y="114.70564" id="tspan_176" class="tspan_0">14</tspan></text>
+      <text id="text_177" y="116.81205" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_177" y="116.81205" x="81.964828" class="tspan_0">15</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="118.93896" id="text_178" class="text_0"><tspan x="81.964828" y="118.93896" id="tspan_178" class="tspan_0">16</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="120.98968" id="text_179" class="text_0"><tspan x="81.964828" y="120.98968" id="tspan_179" class="tspan_0">17</tspan></text>
+      <text id="text_180" y="102.1389" x="65.29425" xml:space="preserve" class="text_0"><tspan id="tspan_180" y="102.1389" x="65.29425" class="tspan_0">18</tspan></text>
+      <text id="text_181" y="100.07066" x="65.31926" xml:space="preserve" class="text_0"><tspan id="tspan_181" y="100.07066" x="65.31926" class="tspan_0">19</tspan></text>
+      <text xml:space="preserve" x="81.369797" y="106.39851" id="text_182" class="text_0"><tspan x="81.369797" y="106.39851" id="tspan_182" class="tspan_0">9</tspan></text>
+      <text id="text_183" y="97.989258" x="65.203964" xml:space="preserve" class="text_0"><tspan id="tspan_183" y="97.989258" x="65.203964" class="tspan_0">22</tspan></text>
+      <text id="text_184" y="95.978127" x="65.234222" xml:space="preserve" class="text_0"><tspan id="tspan_184" y="95.978127" x="65.234222" class="tspan_0">23</tspan></text>
+      <text xml:space="preserve" x="78.765038" y="77.220123" id="text_185" class="text_0"><tspan x="78.765038" y="77.220123" id="tspan_185" class="tspan_0">24</tspan></text>
+      <text id="text_186" y="89.731247" x="65.713089" xml:space="preserve" class="text_0"><tspan id="tspan_186" y="89.731247" x="65.713089" class="tspan_0">3</tspan></text>
+      <text id="text_187" y="81.303986" x="65.829613" xml:space="preserve" class="text_0"><tspan id="tspan_187" y="81.303986" x="65.829613" class="tspan_0">7</tspan></text>
+      <text xml:space="preserve" x="65.735718" y="93.808823" id="text_188" class="text_0"><tspan x="65.735718" y="93.808823" id="tspan_188" class="tspan_0">1</tspan></text>
+      <text xml:space="preserve" x="74.587952" y="77.232712" id="text_189" class="text_0"><tspan x="74.587952" y="77.232712" id="tspan_189" class="tspan_0">21</tspan></text>
+      <text xml:space="preserve" x="65.730103" y="87.572159" id="text_190" class="text_0"><tspan x="65.730103" y="87.572159" id="tspan_190" class="tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="65.794868" y="83.369926" id="text_191" class="text_0"><tspan x="65.794868" y="83.369926" id="tspan_191" class="tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="65.80587" y="91.769409" id="text_192" class="text_0"><tspan x="65.80587" y="91.769409" id="tspan_192" class="tspan_0">2</tspan></text>
+      <text id="text_193" y="123.02765" x="65.286018" xml:space="preserve" class="text_0"><tspan id="tspan_193" y="123.02765" x="65.286018" class="tspan_0">20</tspan></text>
+      <text id="text_194" y="83.389633" x="75.552818" xml:space="preserve" class="text_0"><tspan id="tspan_194" y="83.389633" x="75.552818" class="tspan_0">D6</tspan></text>
+      <text id="text_195" y="85.494339" x="75.614197" xml:space="preserve" class="text_0"><tspan id="tspan_195" y="85.494339" x="75.614197" class="tspan_0">6332</tspan></text>
+      <text xml:space="preserve" x="73.494324" y="125.10634" id="text_196" class="text_0"><tspan x="73.494324" y="125.10634" id="tspan_196" class="tspan_0">VSS</tspan></text>
+      <text id="text_197" y="79.256638" x="76.692635" xml:space="preserve" class="text_0"><tspan id="tspan_197" y="79.256638" x="76.692635" class="tspan_0">VCC</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="107.35056" id="text_198" class="text_0"><tspan x="77.61441" y="107.35056" id="tspan_198" class="tspan_0">D0</tspan></text>
+      <text id="text_199" y="109.46482" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_199" y="109.46482" x="77.61441" class="tspan_0">D1</tspan></text>
+      <text id="text_200" y="111.52538" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_200" y="111.52538" x="77.61441" class="tspan_0">D2</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="113.63965" id="text_201" class="text_0"><tspan x="77.61441" y="113.63965" id="tspan_201" class="tspan_0">D3</tspan></text>
+      <text id="text_202" y="115.70589" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_202" y="115.70589" x="77.61441" class="tspan_0">D4</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="117.82016" id="text_203" class="text_0"><tspan x="77.61441" y="117.82016" id="tspan_203" class="tspan_0">D5</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="119.88072" id="text_204" class="text_0"><tspan x="77.61441" y="119.88072" id="tspan_204" class="tspan_0">D6</tspan></text>
+      <text id="text_205" y="121.99499" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_205" y="121.99499" x="77.61441" class="tspan_0">D7</tspan></text>
+      <text id="text_206" y="80.248718" x="69.405136" xml:space="preserve" class="text_0"><tspan id="tspan_206" y="80.248718" x="69.405136" class="tspan_0">A0</tspan></text>
+      <text xml:space="preserve" x="69.44165" y="82.362999" id="text_207" class="text_0"><tspan x="69.44165" y="82.362999" id="tspan_207" class="tspan_0">A1</tspan></text>
+      <text xml:space="preserve" x="69.452675" y="84.423553" id="text_208" class="text_0"><tspan x="69.452675" y="84.423553" id="tspan_208" class="tspan_0">A2</tspan></text>
+      <text id="text_209" y="86.537819" x="69.424423" xml:space="preserve" class="text_0"><tspan id="tspan_209" y="86.537819" x="69.424423" class="tspan_0">A3</tspan></text>
+      <text xml:space="preserve" x="69.390663" y="88.604057" id="text_210" class="text_0"><tspan x="69.390663" y="88.604057" id="tspan_210" class="tspan_0">A4</tspan></text>
+      <text id="text_211" y="90.718323" x="69.434761" xml:space="preserve" class="text_0"><tspan id="tspan_211" y="90.718323" x="69.434761" class="tspan_0">A5</tspan></text>
+      <text id="text_212" y="92.778893" x="69.400314" xml:space="preserve" class="text_0"><tspan id="tspan_212" y="92.778893" x="69.400314" class="tspan_0">A6</tspan></text>
+      <text xml:space="preserve" x="69.432007" y="94.893143" id="text_213" class="text_0"><tspan x="69.432007" y="94.893143" id="tspan_213" class="tspan_0">A7</tspan></text>
+      <text xml:space="preserve" x="75.740204" y="90.707977" id="text_214" class="text_0"><tspan x="75.740204" y="90.707977" id="tspan_214" class="tspan_0">C000 -</tspan></text>
+      <text id="text_215" y="79.229065" x="72.541473" xml:space="preserve" class="text_0"><tspan id="tspan_215" y="79.229065" x="72.541473" class="tspan_0">CS3</tspan></text>
+      <text id="text_216" y="92.751549" x="75.199295" xml:space="preserve" class="text_0"><tspan id="tspan_216" y="92.751549" x="75.199295" class="tspan_0">CFFF</tspan></text>
+      <g transform="translate(-11.740679,-33.455774)" id="g_4" class="g_0">
+        <text id="text_217" y="157.54208" x="81.58876" xml:space="preserve" class="text_0"><tspan id="tspan_217" y="157.54208" x="81.58876" class="tspan_0">CS1</tspan></text>
+        <path id="path_13" d="m 80.265911,156.31378 h 2.704013" class="path_4"/>
+      </g>
+      <text id="text_218" y="85.475166" x="65.748535" xml:space="preserve" class="text_0"><tspan id="tspan_218" y="85.475166" x="65.748535" class="tspan_0">5</tspan></text>
+      <text xml:space="preserve" x="65.7556" y="79.288261" id="text_219" class="text_0"><tspan x="65.7556" y="79.288261" id="tspan_219" class="tspan_0">8</tspan></text>
+      <text id="text_220" y="96.928925" x="69.375725" xml:space="preserve" class="text_0"><tspan id="tspan_220" y="96.928925" x="69.375725" class="tspan_0">A8</tspan></text>
+      <text xml:space="preserve" x="69.419823" y="99.04319" id="text_221" class="text_0"><tspan x="69.419823" y="99.04319" id="tspan_221" class="tspan_0">A9</tspan></text>
+      <text xml:space="preserve" x="69.844879" y="101.17844" id="text_222" class="text_0"><tspan x="69.844879" y="101.17844" id="tspan_222" class="tspan_0">A10</tspan></text>
+      <text id="text_223" y="103.29269" x="69.876572" xml:space="preserve" class="text_0"><tspan id="tspan_223" y="103.29269" x="69.876572" class="tspan_0">A11</tspan></text>
+    </g>
+    <g transform="translate(100.39049,-10.245408)" id="chip#D5_6332_0" class="g_0">
+      <rect y="77.651878" x="67.322945" height="48.11087" width="12.526585" id="rect_5" class="rect_1"/>
+      <text id="text_224" y="108.52799" x="81.963753" xml:space="preserve" class="text_0"><tspan id="tspan_224" y="108.52799" x="81.963753" class="tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="81.963753" y="110.63441" id="text_225" class="text_0"><tspan x="81.963753" y="110.63441" id="tspan_225" class="tspan_0">11</tspan></text>
+      <text xml:space="preserve" x="75.742928" y="127.20505" id="text_226" class="text_0"><tspan x="75.742928" y="127.20505" id="tspan_226" class="tspan_0">12</tspan></text>
+      <text id="text_227" y="112.68086" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_227" y="112.68086" x="81.964828" class="tspan_0">13</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="114.70564" id="text_228" class="text_0"><tspan x="81.964828" y="114.70564" id="tspan_228" class="tspan_0">14</tspan></text>
+      <text id="text_229" y="116.81205" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_229" y="116.81205" x="81.964828" class="tspan_0">15</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="118.93896" id="text_230" class="text_0"><tspan x="81.964828" y="118.93896" id="tspan_230" class="tspan_0">16</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="120.98968" id="text_231" class="text_0"><tspan x="81.964828" y="120.98968" id="tspan_231" class="tspan_0">17</tspan></text>
+      <text id="text_232" y="102.1389" x="65.29425" xml:space="preserve" class="text_0"><tspan id="tspan_232" y="102.1389" x="65.29425" class="tspan_0">18</tspan></text>
+      <text id="text_233" y="100.07066" x="65.31926" xml:space="preserve" class="text_0"><tspan id="tspan_233" y="100.07066" x="65.31926" class="tspan_0">19</tspan></text>
+      <text xml:space="preserve" x="81.369797" y="106.39851" id="text_234" class="text_0"><tspan x="81.369797" y="106.39851" id="tspan_234" class="tspan_0">9</tspan></text>
+      <text id="text_235" y="97.989258" x="65.203964" xml:space="preserve" class="text_0"><tspan id="tspan_235" y="97.989258" x="65.203964" class="tspan_0">22</tspan></text>
+      <text id="text_236" y="95.978127" x="65.234222" xml:space="preserve" class="text_0"><tspan id="tspan_236" y="95.978127" x="65.234222" class="tspan_0">23</tspan></text>
+      <text xml:space="preserve" x="78.765038" y="77.220123" id="text_237" class="text_0"><tspan x="78.765038" y="77.220123" id="tspan_237" class="tspan_0">24</tspan></text>
+      <text id="text_238" y="89.731247" x="65.713089" xml:space="preserve" class="text_0"><tspan id="tspan_238" y="89.731247" x="65.713089" class="tspan_0">3</tspan></text>
+      <text id="text_239" y="81.303986" x="65.829613" xml:space="preserve" class="text_0"><tspan id="tspan_239" y="81.303986" x="65.829613" class="tspan_0">7</tspan></text>
+      <text xml:space="preserve" x="65.735718" y="93.808823" id="text_240" class="text_0"><tspan x="65.735718" y="93.808823" id="tspan_240" class="tspan_0">1</tspan></text>
+      <text xml:space="preserve" x="74.587952" y="77.232712" id="text_241" class="text_0"><tspan x="74.587952" y="77.232712" id="tspan_241" class="tspan_0">21</tspan></text>
+      <text xml:space="preserve" x="65.730103" y="87.572159" id="text_242" class="text_0"><tspan x="65.730103" y="87.572159" id="tspan_242" class="tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="65.794868" y="83.369926" id="text_243" class="text_0"><tspan x="65.794868" y="83.369926" id="tspan_243" class="tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="65.80587" y="91.769409" id="text_244" class="text_0"><tspan x="65.80587" y="91.769409" id="tspan_244" class="tspan_0">2</tspan></text>
+      <text id="text_245" y="123.02765" x="65.286018" xml:space="preserve" class="text_0"><tspan id="tspan_245" y="123.02765" x="65.286018" class="tspan_0">20</tspan></text>
+      <text id="text_246" y="83.389633" x="75.552818" xml:space="preserve" class="text_0"><tspan id="tspan_246" y="83.389633" x="75.552818" class="tspan_0">D5</tspan></text>
+      <text id="text_247" y="85.494339" x="75.614197" xml:space="preserve" class="text_0"><tspan id="tspan_247" y="85.494339" x="75.614197" class="tspan_0">6332</tspan></text>
+      <text xml:space="preserve" x="73.494324" y="125.10634" id="text_248" class="text_0"><tspan x="73.494324" y="125.10634" id="tspan_248" class="tspan_0">VSS</tspan></text>
+      <text id="text_249" y="79.256638" x="76.692635" xml:space="preserve" class="text_0"><tspan id="tspan_249" y="79.256638" x="76.692635" class="tspan_0">VCC</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="107.35056" id="text_250" class="text_0"><tspan x="77.61441" y="107.35056" id="tspan_250" class="tspan_0">D0</tspan></text>
+      <text id="text_251" y="109.46482" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_251" y="109.46482" x="77.61441" class="tspan_0">D1</tspan></text>
+      <text id="text_252" y="111.52538" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_252" y="111.52538" x="77.61441" class="tspan_0">D2</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="113.63965" id="text_253" class="text_0"><tspan x="77.61441" y="113.63965" id="tspan_253" class="tspan_0">D3</tspan></text>
+      <text id="text_254" y="115.70589" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_254" y="115.70589" x="77.61441" class="tspan_0">D4</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="117.82016" id="text_255" class="text_0"><tspan x="77.61441" y="117.82016" id="tspan_255" class="tspan_0">D5</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="119.88072" id="text_256" class="text_0"><tspan x="77.61441" y="119.88072" id="tspan_256" class="tspan_0">D6</tspan></text>
+      <text id="text_257" y="121.99499" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_257" y="121.99499" x="77.61441" class="tspan_0">D7</tspan></text>
+      <text id="text_258" y="80.248718" x="69.405136" xml:space="preserve" class="text_0"><tspan id="tspan_258" y="80.248718" x="69.405136" class="tspan_0">A0</tspan></text>
+      <text xml:space="preserve" x="69.44165" y="82.362999" id="text_259" class="text_0"><tspan x="69.44165" y="82.362999" id="tspan_259" class="tspan_0">A1</tspan></text>
+      <text xml:space="preserve" x="69.452675" y="84.423553" id="text_260" class="text_0"><tspan x="69.452675" y="84.423553" id="tspan_260" class="tspan_0">A2</tspan></text>
+      <text id="text_261" y="86.537819" x="69.424423" xml:space="preserve" class="text_0"><tspan id="tspan_261" y="86.537819" x="69.424423" class="tspan_0">A3</tspan></text>
+      <text xml:space="preserve" x="69.390663" y="88.604057" id="text_262" class="text_0"><tspan x="69.390663" y="88.604057" id="tspan_262" class="tspan_0">A4</tspan></text>
+      <text id="text_263" y="90.718323" x="69.434761" xml:space="preserve" class="text_0"><tspan id="tspan_263" y="90.718323" x="69.434761" class="tspan_0">A5</tspan></text>
+      <text id="text_264" y="92.778893" x="69.400314" xml:space="preserve" class="text_0"><tspan id="tspan_264" y="92.778893" x="69.400314" class="tspan_0">A6</tspan></text>
+      <text xml:space="preserve" x="69.432007" y="94.893143" id="text_265" class="text_0"><tspan x="69.432007" y="94.893143" id="tspan_265" class="tspan_0">A7</tspan></text>
+      <text xml:space="preserve" x="75.740204" y="90.707977" id="text_266" class="text_0"><tspan x="75.740204" y="90.707977" id="tspan_266" class="tspan_0">B000 -</tspan></text>
+      <text id="text_267" y="79.229065" x="72.541473" xml:space="preserve" class="text_0"><tspan id="tspan_267" y="79.229065" x="72.541473" class="tspan_0">CS3</tspan></text>
+      <text id="text_268" y="92.751549" x="75.199295" xml:space="preserve" class="text_0"><tspan id="tspan_268" y="92.751549" x="75.199295" class="tspan_0">BFFF</tspan></text>
+      <g transform="translate(-11.740679,-33.455774)" id="g_5" class="g_0">
+        <text id="text_269" y="157.54208" x="81.58876" xml:space="preserve" class="text_0"><tspan id="tspan_269" y="157.54208" x="81.58876" class="tspan_0">CS1</tspan></text>
+        <path id="path_14" d="m 80.265911,156.31378 h 2.704013" class="path_4"/>
+      </g>
+      <text id="text_270" y="85.475166" x="65.748535" xml:space="preserve" class="text_0"><tspan id="tspan_270" y="85.475166" x="65.748535" class="tspan_0">5</tspan></text>
+      <text xml:space="preserve" x="65.7556" y="79.288261" id="text_271" class="text_0"><tspan x="65.7556" y="79.288261" id="tspan_271" class="tspan_0">8</tspan></text>
+      <text id="text_272" y="96.928925" x="69.375725" xml:space="preserve" class="text_0"><tspan id="tspan_272" y="96.928925" x="69.375725" class="tspan_0">A8</tspan></text>
+      <text xml:space="preserve" x="69.419823" y="99.04319" id="text_273" class="text_0"><tspan x="69.419823" y="99.04319" id="tspan_273" class="tspan_0">A9</tspan></text>
+      <text xml:space="preserve" x="69.844879" y="101.17844" id="text_274" class="text_0"><tspan x="69.844879" y="101.17844" id="tspan_274" class="tspan_0">A10</tspan></text>
+      <text id="text_275" y="103.29269" x="69.876572" xml:space="preserve" class="text_0"><tspan id="tspan_275" y="103.29269" x="69.876572" class="tspan_0">A11</tspan></text>
+      <text xml:space="preserve" x="75.63517" y="86.980865" id="text_276" class="text_0"><tspan x="75.63517" y="86.980865" id="tspan_276" class="tspan_0">(SPARE)</tspan></text>
+    </g>
+    <g transform="translate(129.66433,-10.335835)" id="chip#D4_6332_0" class="g_0">
+      <rect y="77.651878" x="67.322945" height="48.11087" width="12.526585" id="rect_6" class="rect_1"/>
+      <text id="text_277" y="108.52799" x="81.963753" xml:space="preserve" class="text_0"><tspan id="tspan_277" y="108.52799" x="81.963753" class="tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="81.963753" y="110.63441" id="text_278" class="text_0"><tspan x="81.963753" y="110.63441" id="tspan_278" class="tspan_0">11</tspan></text>
+      <text xml:space="preserve" x="75.742928" y="127.20505" id="text_279" class="text_0"><tspan x="75.742928" y="127.20505" id="tspan_279" class="tspan_0">12</tspan></text>
+      <text id="text_280" y="112.68086" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_280" y="112.68086" x="81.964828" class="tspan_0">13</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="114.70564" id="text_281" class="text_0"><tspan x="81.964828" y="114.70564" id="tspan_281" class="tspan_0">14</tspan></text>
+      <text id="text_282" y="116.81205" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_282" y="116.81205" x="81.964828" class="tspan_0">15</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="118.93896" id="text_283" class="text_0"><tspan x="81.964828" y="118.93896" id="tspan_283" class="tspan_0">16</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="120.98968" id="text_284" class="text_0"><tspan x="81.964828" y="120.98968" id="tspan_284" class="tspan_0">17</tspan></text>
+      <text id="text_285" y="102.1389" x="65.29425" xml:space="preserve" class="text_0"><tspan id="tspan_285" y="102.1389" x="65.29425" class="tspan_0">18</tspan></text>
+      <text id="text_286" y="100.07066" x="65.31926" xml:space="preserve" class="text_0"><tspan id="tspan_286" y="100.07066" x="65.31926" class="tspan_0">19</tspan></text>
+      <text xml:space="preserve" x="81.369797" y="106.39851" id="text_287" class="text_0"><tspan x="81.369797" y="106.39851" id="tspan_287" class="tspan_0">9</tspan></text>
+      <text id="text_288" y="97.989258" x="65.203964" xml:space="preserve" class="text_0"><tspan id="tspan_288" y="97.989258" x="65.203964" class="tspan_0">22</tspan></text>
+      <text id="text_289" y="95.978127" x="65.234222" xml:space="preserve" class="text_0"><tspan id="tspan_289" y="95.978127" x="65.234222" class="tspan_0">23</tspan></text>
+      <text xml:space="preserve" x="78.765038" y="77.220123" id="text_290" class="text_0"><tspan x="78.765038" y="77.220123" id="tspan_290" class="tspan_0">24</tspan></text>
+      <text id="text_291" y="89.731247" x="65.713089" xml:space="preserve" class="text_0"><tspan id="tspan_291" y="89.731247" x="65.713089" class="tspan_0">3</tspan></text>
+      <text id="text_292" y="81.303986" x="65.829613" xml:space="preserve" class="text_0"><tspan id="tspan_292" y="81.303986" x="65.829613" class="tspan_0">7</tspan></text>
+      <text xml:space="preserve" x="65.735718" y="93.808823" id="text_293" class="text_0"><tspan x="65.735718" y="93.808823" id="tspan_293" class="tspan_0">1</tspan></text>
+      <text xml:space="preserve" x="74.587952" y="77.232712" id="text_294" class="text_0"><tspan x="74.587952" y="77.232712" id="tspan_294" class="tspan_0">21</tspan></text>
+      <text xml:space="preserve" x="65.730103" y="87.572159" id="text_295" class="text_0"><tspan x="65.730103" y="87.572159" id="tspan_295" class="tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="65.794868" y="83.369926" id="text_296" class="text_0"><tspan x="65.794868" y="83.369926" id="tspan_296" class="tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="65.80587" y="91.769409" id="text_297" class="text_0"><tspan x="65.80587" y="91.769409" id="tspan_297" class="tspan_0">2</tspan></text>
+      <text id="text_298" y="123.02765" x="65.286018" xml:space="preserve" class="text_0"><tspan id="tspan_298" y="123.02765" x="65.286018" class="tspan_0">20</tspan></text>
+      <text id="text_299" y="83.389633" x="75.552818" xml:space="preserve" class="text_0"><tspan id="tspan_299" y="83.389633" x="75.552818" class="tspan_0">D4</tspan></text>
+      <text id="text_300" y="85.494339" x="75.614197" xml:space="preserve" class="text_0"><tspan id="tspan_300" y="85.494339" x="75.614197" class="tspan_0">6332</tspan></text>
+      <text xml:space="preserve" x="73.494324" y="125.10634" id="text_301" class="text_0"><tspan x="73.494324" y="125.10634" id="tspan_301" class="tspan_0">VSS</tspan></text>
+      <text id="text_302" y="79.256638" x="76.692635" xml:space="preserve" class="text_0"><tspan id="tspan_302" y="79.256638" x="76.692635" class="tspan_0">VCC</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="107.35056" id="text_303" class="text_0"><tspan x="77.61441" y="107.35056" id="tspan_303" class="tspan_0">D0</tspan></text>
+      <text id="text_304" y="109.46482" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_304" y="109.46482" x="77.61441" class="tspan_0">D1</tspan></text>
+      <text id="text_305" y="111.52538" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_305" y="111.52538" x="77.61441" class="tspan_0">D2</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="113.63965" id="text_306" class="text_0"><tspan x="77.61441" y="113.63965" id="tspan_306" class="tspan_0">D3</tspan></text>
+      <text id="text_307" y="115.70589" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_307" y="115.70589" x="77.61441" class="tspan_0">D4</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="117.82016" id="text_308" class="text_0"><tspan x="77.61441" y="117.82016" id="tspan_308" class="tspan_0">D5</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="119.88072" id="text_309" class="text_0"><tspan x="77.61441" y="119.88072" id="tspan_309" class="tspan_0">D6</tspan></text>
+      <text id="text_310" y="121.99499" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_310" y="121.99499" x="77.61441" class="tspan_0">D7</tspan></text>
+      <text id="text_311" y="80.248718" x="69.405136" xml:space="preserve" class="text_0"><tspan id="tspan_311" y="80.248718" x="69.405136" class="tspan_0">A0</tspan></text>
+      <text xml:space="preserve" x="69.44165" y="82.362999" id="text_312" class="text_0"><tspan x="69.44165" y="82.362999" id="tspan_312" class="tspan_0">A1</tspan></text>
+      <text xml:space="preserve" x="69.452675" y="84.423553" id="text_313" class="text_0"><tspan x="69.452675" y="84.423553" id="tspan_313" class="tspan_0">A2</tspan></text>
+      <text id="text_314" y="86.537819" x="69.424423" xml:space="preserve" class="text_0"><tspan id="tspan_314" y="86.537819" x="69.424423" class="tspan_0">A3</tspan></text>
+      <text xml:space="preserve" x="69.390663" y="88.604057" id="text_315" class="text_0"><tspan x="69.390663" y="88.604057" id="tspan_315" class="tspan_0">A4</tspan></text>
+      <text id="text_316" y="90.718323" x="69.434761" xml:space="preserve" class="text_0"><tspan id="tspan_316" y="90.718323" x="69.434761" class="tspan_0">A5</tspan></text>
+      <text id="text_317" y="92.778893" x="69.400314" xml:space="preserve" class="text_0"><tspan id="tspan_317" y="92.778893" x="69.400314" class="tspan_0">A6</tspan></text>
+      <text xml:space="preserve" x="69.432007" y="94.893143" id="text_318" class="text_0"><tspan x="69.432007" y="94.893143" id="tspan_318" class="tspan_0">A7</tspan></text>
+      <text xml:space="preserve" x="75.740204" y="90.707977" id="text_319" class="text_0"><tspan x="75.740204" y="90.707977" id="tspan_319" class="tspan_0">A000 -</tspan></text>
+      <text id="text_320" y="79.229065" x="72.541473" xml:space="preserve" class="text_0"><tspan id="tspan_320" y="79.229065" x="72.541473" class="tspan_0">CS3</tspan></text>
+      <text id="text_321" y="92.751549" x="75.199295" xml:space="preserve" class="text_0"><tspan id="tspan_321" y="92.751549" x="75.199295" class="tspan_0">AFFF</tspan></text>
+      <g transform="translate(-11.740679,-33.455774)" id="g_6" class="g_0">
+        <text id="text_322" y="157.54208" x="81.58876" xml:space="preserve" class="text_0"><tspan id="tspan_322" y="157.54208" x="81.58876" class="tspan_0">CS1</tspan></text>
+        <path id="path_15" d="m 80.265911,156.31378 h 2.704013" class="path_4"/>
+      </g>
+      <text id="text_323" y="85.475166" x="65.748535" xml:space="preserve" class="text_0"><tspan id="tspan_323" y="85.475166" x="65.748535" class="tspan_0">5</tspan></text>
+      <text xml:space="preserve" x="65.7556" y="79.288261" id="text_324" class="text_0"><tspan x="65.7556" y="79.288261" id="tspan_324" class="tspan_0">8</tspan></text>
+      <text id="text_325" y="96.928925" x="69.375725" xml:space="preserve" class="text_0"><tspan id="tspan_325" y="96.928925" x="69.375725" class="tspan_0">A8</tspan></text>
+      <text xml:space="preserve" x="69.419823" y="99.04319" id="text_326" class="text_0"><tspan x="69.419823" y="99.04319" id="tspan_326" class="tspan_0">A9</tspan></text>
+      <text xml:space="preserve" x="69.844879" y="101.17844" id="text_327" class="text_0"><tspan x="69.844879" y="101.17844" id="tspan_327" class="tspan_0">A10</tspan></text>
+      <text id="text_328" y="103.29269" x="69.876572" xml:space="preserve" class="text_0"><tspan id="tspan_328" y="103.29269" x="69.876572" class="tspan_0">A11</tspan></text>
+      <text id="text_329" y="87.0783" x="75.949051" xml:space="preserve" class="text_0"><tspan id="tspan_329" y="87.0783" x="75.949051" class="tspan_0">(SPARE)</tspan></text>
+    </g>
+    <g id="chip#D3_6332_0" transform="translate(158.94638,-10.291136)" class="g_0">
+      <rect id="rect_7" width="12.526585" height="48.11087" x="67.322945" y="77.651878" class="rect_1"/>
+      <text xml:space="preserve" x="81.963753" y="108.52799" id="text_330" class="text_0"><tspan x="81.963753" y="108.52799" id="tspan_330" class="tspan_0">10</tspan></text>
+      <text id="text_331" y="110.63441" x="81.963753" xml:space="preserve" class="text_0"><tspan id="tspan_331" y="110.63441" x="81.963753" class="tspan_0">11</tspan></text>
+      <text id="text_332" y="127.20505" x="75.742928" xml:space="preserve" class="text_0"><tspan id="tspan_332" y="127.20505" x="75.742928" class="tspan_0">12</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="112.68086" id="text_333" class="text_0"><tspan x="81.964828" y="112.68086" id="tspan_333" class="tspan_0">13</tspan></text>
+      <text id="text_334" y="114.70564" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_334" y="114.70564" x="81.964828" class="tspan_0">14</tspan></text>
+      <text xml:space="preserve" x="81.964828" y="116.81205" id="text_335" class="text_0"><tspan x="81.964828" y="116.81205" id="tspan_335" class="tspan_0">15</tspan></text>
+      <text id="text_336" y="118.93896" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_336" y="118.93896" x="81.964828" class="tspan_0">16</tspan></text>
+      <text id="text_337" y="120.98968" x="81.964828" xml:space="preserve" class="text_0"><tspan id="tspan_337" y="120.98968" x="81.964828" class="tspan_0">17</tspan></text>
+      <text xml:space="preserve" x="65.29425" y="102.1389" id="text_338" class="text_0"><tspan x="65.29425" y="102.1389" id="tspan_338" class="tspan_0">18</tspan></text>
+      <text xml:space="preserve" x="65.31926" y="100.07066" id="text_339" class="text_0"><tspan x="65.31926" y="100.07066" id="tspan_339" class="tspan_0">19</tspan></text>
+      <text id="text_340" y="106.39851" x="81.369797" xml:space="preserve" class="text_0"><tspan id="tspan_340" y="106.39851" x="81.369797" class="tspan_0">9</tspan></text>
+      <text xml:space="preserve" x="65.203964" y="97.989258" id="text_341" class="text_0"><tspan x="65.203964" y="97.989258" id="tspan_341" class="tspan_0">22</tspan></text>
+      <text xml:space="preserve" x="65.234222" y="95.978127" id="text_342" class="text_0"><tspan x="65.234222" y="95.978127" id="tspan_342" class="tspan_0">23</tspan></text>
+      <text id="text_343" y="77.220123" x="78.765038" xml:space="preserve" class="text_0"><tspan id="tspan_343" y="77.220123" x="78.765038" class="tspan_0">24</tspan></text>
+      <text xml:space="preserve" x="65.713089" y="89.731247" id="text_344" class="text_0"><tspan x="65.713089" y="89.731247" id="tspan_344" class="tspan_0">3</tspan></text>
+      <text xml:space="preserve" x="65.829613" y="81.303986" id="text_345" class="text_0"><tspan x="65.829613" y="81.303986" id="tspan_345" class="tspan_0">7</tspan></text>
+      <text id="text_346" y="93.808823" x="65.735718" xml:space="preserve" class="text_0"><tspan id="tspan_346" y="93.808823" x="65.735718" class="tspan_0">1</tspan></text>
+      <text id="text_347" y="77.232712" x="74.587952" xml:space="preserve" class="text_0"><tspan id="tspan_347" y="77.232712" x="74.587952" class="tspan_0">21</tspan></text>
+      <text id="text_348" y="87.572159" x="65.730103" xml:space="preserve" class="text_0"><tspan id="tspan_348" y="87.572159" x="65.730103" class="tspan_0">4</tspan></text>
+      <text id="text_349" y="83.369926" x="65.794868" xml:space="preserve" class="text_0"><tspan id="tspan_349" y="83.369926" x="65.794868" class="tspan_0">6</tspan></text>
+      <text id="text_350" y="91.769409" x="65.80587" xml:space="preserve" class="text_0"><tspan id="tspan_350" y="91.769409" x="65.80587" class="tspan_0">2</tspan></text>
+      <text xml:space="preserve" x="65.286018" y="123.02765" id="text_351" class="text_0"><tspan x="65.286018" y="123.02765" id="tspan_351" class="tspan_0">20</tspan></text>
+      <text xml:space="preserve" x="75.552818" y="83.389633" id="text_352" class="text_0"><tspan x="75.552818" y="83.389633" id="tspan_352" class="tspan_0">D3</tspan></text>
+      <text xml:space="preserve" x="75.614197" y="85.494339" id="text_353" class="text_0"><tspan x="75.614197" y="85.494339" id="tspan_353" class="tspan_0">6332</tspan></text>
+      <text id="text_354" y="125.10634" x="73.494324" xml:space="preserve" class="text_0"><tspan id="tspan_354" y="125.10634" x="73.494324" class="tspan_0">VSS</tspan></text>
+      <text xml:space="preserve" x="76.692635" y="79.256638" id="text_355" class="text_0"><tspan x="76.692635" y="79.256638" id="tspan_355" class="tspan_0">VCC</tspan></text>
+      <text id="text_356" y="107.35056" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_356" y="107.35056" x="77.61441" class="tspan_0">D0</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="109.46482" id="text_357" class="text_0"><tspan x="77.61441" y="109.46482" id="tspan_357" class="tspan_0">D1</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="111.52538" id="text_358" class="text_0"><tspan x="77.61441" y="111.52538" id="tspan_358" class="tspan_0">D2</tspan></text>
+      <text id="text_359" y="113.63965" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_359" y="113.63965" x="77.61441" class="tspan_0">D3</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="115.70589" id="text_360" class="text_0"><tspan x="77.61441" y="115.70589" id="tspan_360" class="tspan_0">D4</tspan></text>
+      <text id="text_361" y="117.82016" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_361" y="117.82016" x="77.61441" class="tspan_0">D5</tspan></text>
+      <text id="text_362" y="119.88072" x="77.61441" xml:space="preserve" class="text_0"><tspan id="tspan_362" y="119.88072" x="77.61441" class="tspan_0">D6</tspan></text>
+      <text xml:space="preserve" x="77.61441" y="121.99499" id="text_363" class="text_0"><tspan x="77.61441" y="121.99499" id="tspan_363" class="tspan_0">D7</tspan></text>
+      <text xml:space="preserve" x="69.405136" y="80.248718" id="text_364" class="text_0"><tspan x="69.405136" y="80.248718" id="tspan_364" class="tspan_0">A0</tspan></text>
+      <text id="text_365" y="82.362999" x="69.44165" xml:space="preserve" class="text_0"><tspan id="tspan_365" y="82.362999" x="69.44165" class="tspan_0">A1</tspan></text>
+      <text id="text_366" y="84.423553" x="69.452675" xml:space="preserve" class="text_0"><tspan id="tspan_366" y="84.423553" x="69.452675" class="tspan_0">A2</tspan></text>
+      <text xml:space="preserve" x="69.424423" y="86.537819" id="text_367" class="text_0"><tspan x="69.424423" y="86.537819" id="tspan_367" class="tspan_0">A3</tspan></text>
+      <text id="text_368" y="88.604057" x="69.390663" xml:space="preserve" class="text_0"><tspan id="tspan_368" y="88.604057" x="69.390663" class="tspan_0">A4</tspan></text>
+      <text xml:space="preserve" x="69.434761" y="90.718323" id="text_369" class="text_0"><tspan x="69.434761" y="90.718323" id="tspan_369" class="tspan_0">A5</tspan></text>
+      <text xml:space="preserve" x="69.400314" y="92.778893" id="text_370" class="text_0"><tspan x="69.400314" y="92.778893" id="tspan_370" class="tspan_0">A6</tspan></text>
+      <text id="text_371" y="94.893143" x="69.432007" xml:space="preserve" class="text_0"><tspan id="tspan_371" y="94.893143" x="69.432007" class="tspan_0">A7</tspan></text>
+      <text id="text_372" y="90.707977" x="75.740204" xml:space="preserve" class="text_0"><tspan id="tspan_372" y="90.707977" x="75.740204" class="tspan_0">9000 -</tspan></text>
+      <text xml:space="preserve" x="72.541473" y="79.229065" id="text_373" class="text_0"><tspan x="72.541473" y="79.229065" id="tspan_373" class="tspan_0">CS3</tspan></text>
+      <text xml:space="preserve" x="75.199295" y="92.751549" id="text_374" class="text_0"><tspan x="75.199295" y="92.751549" id="tspan_374" class="tspan_0">9FFF</tspan></text>
+      <g id="g_7" transform="translate(-11.740679,-33.455774)" class="g_0">
+        <text xml:space="preserve" x="81.58876" y="157.54208" id="text_375" class="text_0"><tspan x="81.58876" y="157.54208" id="tspan_375" class="tspan_0">CS1</tspan></text>
+        <path d="m 80.265911,156.31378 h 2.704013" id="path_16" class="path_4"/>
+      </g>
+      <text xml:space="preserve" x="65.748535" y="85.475166" id="text_376" class="text_0"><tspan x="65.748535" y="85.475166" id="tspan_376" class="tspan_0">5</tspan></text>
+      <text id="text_377" y="79.288261" x="65.7556" xml:space="preserve" class="text_0"><tspan id="tspan_377" y="79.288261" x="65.7556" class="tspan_0">8</tspan></text>
+      <text xml:space="preserve" x="69.375725" y="96.928925" id="text_378" class="text_0"><tspan x="69.375725" y="96.928925" id="tspan_378" class="tspan_0">A8</tspan></text>
+      <text id="text_379" y="99.04319" x="69.419823" xml:space="preserve" class="text_0"><tspan id="tspan_379" y="99.04319" x="69.419823" class="tspan_0">A9</tspan></text>
+      <text id="text_380" y="101.17844" x="69.844879" xml:space="preserve" class="text_0"><tspan id="tspan_380" y="101.17844" x="69.844879" class="tspan_0">A10</tspan></text>
+      <text xml:space="preserve" x="69.876572" y="103.29269" id="text_381" class="text_0"><tspan x="69.876572" y="103.29269" id="tspan_381" class="tspan_0">A11</tspan></text>
+      <text id="text_382" y="87.156143" x="75.898338" xml:space="preserve" class="text_0"><tspan id="tspan_382" y="87.156143" x="75.898338" class="tspan_0">(SPARE)</tspan></text>
+    </g>
+    <g transform="translate(-133.68913,46.498039)" id="pointer#1_0" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_17" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_383" class="text_0"><tspan id="tspan_383" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_384" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_1" transform="translate(-133.68916,48.649056)" class="g_0">
+      <path id="path_18" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.278977 0,1.970082 h 3.31157 l 1.90861,-0.926153 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_384" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_385" class="tspan_0">1</tspan><tspan id="tspan_386" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_2" transform="translate(-133.68913,50.624287)" class="g_0">
+      <path id="path_19" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_385" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_387" class="tspan_0">1</tspan><tspan id="tspan_388" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-133.68913,52.775304)" id="pointer#1_3" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_20" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_386" class="text_0"><tspan id="tspan_389" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_390" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_4" transform="translate(-133.68913,54.926321)" class="g_0">
+      <path id="path_21" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_387" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_391" class="tspan_0">1</tspan><tspan id="tspan_392" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-133.68916,57.077338)" id="pointer#1_5" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.328676 0,2.019781 h 3.31157 l 1.90861,-1.101939 -1.8887,-0.922991 z" id="path_22" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_388" class="text_0"><tspan id="tspan_393" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_394" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-133.68913,63.152128)" id="pointer#1_6" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_23" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_389" class="text_0"><tspan id="tspan_395" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_396" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_7" transform="translate(-133.68913,67.317777)" class="g_0">
+      <path id="path_24" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_390" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_397" class="tspan_0">1</tspan><tspan id="tspan_398" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-133.68913,69.463645)" id="pointer#1_8" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_25" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_391" class="text_0"><tspan id="tspan_399" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_400" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_9" transform="translate(-133.68916,59.102268)" class="g_0">
+      <path id="path_26" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.328676 0,2.019781 h 3.31157 l 1.90861,-1.101939 -1.8887,-0.922991 z" class="path_0"/>
+      <text id="text_392" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_401" class="tspan_0">1</tspan><tspan id="tspan_402" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(-133.68916,61.127198)" id="pointer#1_10" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.328676 0,2.019781 h 3.31157 l 1.90861,-1.101939 -1.8887,-0.922991 z" id="path_27" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_393" class="text_0"><tspan id="tspan_403" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_404" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_11" transform="translate(-133.68916,65.297996)" class="g_0">
+      <path id="path_28" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.328676 0,2.019781 h 3.31157 l 1.90861,-1.101939 -1.8887,-0.922991 z" class="path_0"/>
+      <text id="text_394" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_405" class="tspan_0">1</tspan><tspan id="tspan_406" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA0_0">
+      <text xml:space="preserve" x="36.202702" y="69.033051" id="text_395" class="text_5"><tspan id="tspan_407" x="36.202702" y="69.033051" class="tspan_0">BA0</tspan><tspan x="36.202702" y="82.262177" id="tspan_408" class="tspan_0"/></text>
+      <path d="M 33.68145,69.480985 H 50.406326" id="path_29" class="path_5"/>
+    </g>
+    <g id="wire#BA1_0">
+      <path id="path_30" d="M 33.68142,71.632003 H 50.406296" class="path_6"/>
+      <text id="text_396" y="71.287292" x="36.202702" xml:space="preserve" class="text_6"><tspan y="71.287292" x="36.202702" id="tspan_409" class="tspan_0">BA1</tspan><tspan id="tspan_410" y="84.516418" x="36.202702" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA2_0">
+      <path id="path_31" d="M 33.68145,73.607234 H 50.406326" class="path_7"/>
+      <text id="text_397" y="73.196114" x="36.202702" xml:space="preserve" class="text_7"><tspan id="tspan_411" y="73.196114" x="36.202702" class="tspan_0">BA2</tspan></text>
+    </g>
+    <g id="wire#BA3_0">
+      <path id="path_32" d="M 33.68145,75.758251 H 50.406326" class="path_8"/>
+      <text xml:space="preserve" x="36.202702" y="75.450356" id="text_398" class="text_8"><tspan x="36.202702" y="75.450356" id="tspan_412" class="tspan_0">BA3</tspan></text>
+    </g>
+    <g id="wire#BA4_0">
+      <path d="M 33.68145,77.909268 H 50.406326" id="path_33" class="path_9"/>
+      <text id="text_399" y="77.540924" x="36.2062" xml:space="preserve" class="text_9"><tspan id="tspan_413" y="77.540924" x="36.2062" class="tspan_0">BA4</tspan></text>
+    </g>
+    <g id="wire#BA5_0">
+      <path d="M 33.68142,79.934198 H 50.406296" id="path_34" class="path_10"/>
+      <text xml:space="preserve" x="36.202702" y="79.553932" id="text_400" class="text_10"><tspan x="36.202702" y="79.553932" id="tspan_414" class="tspan_0">BA5</tspan></text>
+    </g>
+    <g id="wire#BA6_0">
+      <path d="M 33.68142,81.959128 H 50.406296" id="path_35" class="path_11"/>
+      <text xml:space="preserve" x="36.202702" y="81.541962" id="text_401" class="text_11"><tspan x="36.202702" y="81.541962" id="tspan_415" class="tspan_0">BA6</tspan></text>
+    </g>
+    <g id="wire#BA7_0">
+      <path d="M 33.68142,83.984058 H 50.406296" id="path_36" class="path_12"/>
+      <text id="text_402" y="83.716995" x="36.202702" xml:space="preserve" class="text_12"><tspan id="tspan_416" y="83.716995" x="36.202702" class="tspan_0">BA7</tspan></text>
+    </g>
+    <g id="wire#BA8_0">
+      <path d="M 33.68145,86.135075 H 50.406326" id="path_37" class="path_13"/>
+      <text id="text_403" y="85.676323" x="36.202702" xml:space="preserve" class="text_13"><tspan id="tspan_417" y="85.676323" x="36.202702" class="tspan_0">BA8</tspan></text>
+    </g>
+    <g id="wire#BA9_0">
+      <path d="M 33.68142,88.154856 H 50.406296" id="path_38" class="path_14"/>
+      <text xml:space="preserve" x="36.229919" y="87.805878" id="text_404" class="text_14"><tspan x="36.229919" y="87.805878" id="tspan_418" class="tspan_0">BA9</tspan></text>
+    </g>
+    <g id="wire#BA10_0">
+      <path d="M 33.68145,90.300724 H 50.406326" id="path_39" class="path_15"/>
+      <text xml:space="preserve" x="36.670013" y="89.848915" id="text_405" class="text_15"><tspan id="tspan_419" x="36.670013" y="89.848915" class="tspan_0">BA10</tspan><tspan x="36.670013" y="103.07804" id="tspan_420" class="tspan_0"/></text>
+    </g>
+    <g id="wire#BA11_0">
+      <path d="M 33.68145,92.446592 H 50.406326" id="path_40" class="path_16"/>
+      <text id="text_406" y="92.103157" x="36.670013" xml:space="preserve" class="text_16"><tspan y="92.103157" x="36.670013" id="tspan_421" class="tspan_0">BA11</tspan><tspan id="tspan_422" y="105.33228" x="36.670013" class="tspan_0"/></text>
+    </g>
+    <path d="M 62.990515,69.591313 H 79.715391" id="wire#BA0_1" class="path_17"/>
+    <path id="wire#BA1_1" d="M 62.990485,71.742331 H 79.715361" class="path_6"/>
+    <path id="wire#BA2_1" d="M 62.990515,73.717562 H 79.715391" class="path_7"/>
+    <path id="wire#BA3_1" d="M 62.990515,75.868579 H 79.715391" class="path_8"/>
+    <path d="M 62.990515,78.019597 H 79.715391" id="wire#BA4_1" class="path_9"/>
+    <path d="M 62.990485,80.044527 H 79.715361" id="wire#BA5_1" class="path_10"/>
+    <path d="M 62.990485,82.069457 H 79.715361" id="wire#BA6_1" class="path_11"/>
+    <path d="M 62.990485,84.094387 H 79.715361" id="wire#BA7_1" class="path_12"/>
+    <path d="M 62.990515,86.245404 H 79.715391" id="wire#BA8_1" class="path_13"/>
+    <path d="M 62.990485,88.265185 H 79.715361" id="wire#BA9_1" class="path_14"/>
+    <path d="M 62.990515,90.411053 H 79.715391" id="wire#BA10_1" class="path_15"/>
+    <path d="M 62.990515,92.556921 H 79.715391" id="wire#BA11_1" class="path_16"/>
+    <path id="wire#BA0_2" d="m 92.28434,69.520952 h 16.72487" class="path_17"/>
+    <path d="m 92.28431,71.67197 h 16.72487" id="wire#BA1_2" class="path_6"/>
+    <path d="m 92.28434,73.647201 h 16.72487" id="wire#BA2_2" class="path_7"/>
+    <path d="m 92.28434,75.798218 h 16.72487" id="wire#BA3_2" class="path_8"/>
+    <path id="wire#BA4_2" d="m 92.28434,77.949236 h 16.72487" class="path_9"/>
+    <path id="wire#BA5_2" d="m 92.28431,79.974167 h 16.72487" class="path_10"/>
+    <path id="wire#BA6_2" d="m 92.28431,81.999097 h 16.72487" class="path_11"/>
+    <path id="wire#BA7_2" d="m 92.28431,84.024027 h 16.72487" class="path_12"/>
+    <path id="wire#BA8_2" d="m 92.28434,86.175044 h 16.72487" class="path_13"/>
+    <path id="wire#BA9_2" d="m 92.28431,88.194825 h 16.72487" class="path_14"/>
+    <path id="wire#BA10_2" d="m 92.28434,90.340693 h 16.72487" class="path_15"/>
+    <path id="wire#BA11_2" d="m 92.28434,92.486561 h 16.72487" class="path_16"/>
+    <path id="wire#BA0_3" d="m 121.58259,69.553314 h 16.72488" class="path_17"/>
+    <path d="m 121.58256,71.704332 h 16.72488" id="wire#BA1_3" class="path_6"/>
+    <path d="m 121.58259,73.679563 h 16.72488" id="wire#BA2_3" class="path_7"/>
+    <path d="m 121.58259,75.83058 h 16.72488" id="wire#BA3_3" class="path_8"/>
+    <path id="wire#BA4_3" d="m 121.58259,77.981598 h 16.72488" class="path_9"/>
+    <path id="wire#BA5_3" d="m 121.58256,80.006528 h 16.72488" class="path_10"/>
+    <path id="wire#BA6_3" d="m 121.58256,82.031458 h 16.72488" class="path_11"/>
+    <path id="wire#BA7_3" d="m 121.58256,84.056388 h 16.72488" class="path_12"/>
+    <path id="wire#BA8_3" d="m 121.58259,86.207405 h 16.72488" class="path_13"/>
+    <path id="wire#BA9_3" d="m 121.58256,88.227186 h 16.72488" class="path_14"/>
+    <path id="wire#BA10_3" d="m 121.58259,90.373054 h 16.72488" class="path_15"/>
+    <path id="wire#BA11_3" d="m 121.58259,92.518922 h 16.72488" class="path_16"/>
+    <path id="wire#BA0_4" d="m 150.87978,69.41816 h 16.72487" class="path_17"/>
+    <path d="m 150.87975,71.569178 h 16.72487" id="wire#BA1_4" class="path_6"/>
+    <path d="m 150.87978,73.544409 h 16.72487" id="wire#BA2_4" class="path_7"/>
+    <path d="m 150.87978,75.695426 h 16.72487" id="wire#BA3_4" class="path_8"/>
+    <path id="wire#BA4_4" d="m 150.87978,77.846444 h 16.72487" class="path_9"/>
+    <path id="wire#BA5_4" d="m 150.87975,79.871375 h 16.72487" class="path_10"/>
+    <path id="wire#BA6_4" d="m 150.87975,81.896305 h 16.72487" class="path_11"/>
+    <path id="wire#BA7_4" d="m 150.87975,83.921235 h 16.72487" class="path_12"/>
+    <path id="wire#BA8_4" d="m 150.87978,86.072252 h 16.72487" class="path_13"/>
+    <path id="wire#BA9_4" d="m 150.87975,88.092033 h 16.72487" class="path_14"/>
+    <path id="wire#BA10_4" d="m 150.87978,90.237901 h 16.72487" class="path_15"/>
+    <path id="wire#BA11_4" d="m 150.87978,92.383769 h 16.72487" class="path_16"/>
+    <path id="wire#BA0_5" d="m 180.35309,69.341557 h 16.72488" class="path_17"/>
+    <path d="m 180.35306,71.492575 h 16.72488" id="wire#BA1_5" class="path_6"/>
+    <path d="m 180.35309,73.467806 h 16.72488" id="wire#BA2_5" class="path_7"/>
+    <path d="m 180.35309,75.618823 h 16.72488" id="wire#BA3_5" class="path_8"/>
+    <path id="wire#BA4_5" d="m 180.35309,77.769841 h 16.72488" class="path_9"/>
+    <path id="wire#BA5_5" d="m 180.35306,79.794772 h 16.72488" class="path_10"/>
+    <path id="wire#BA6_5" d="m 180.35306,81.819702 h 16.72488" class="path_11"/>
+    <path id="wire#BA7_5" d="m 180.35306,83.844632 h 16.72488" class="path_12"/>
+    <path id="wire#BA8_5" d="m 180.35309,85.995649 h 16.72488" class="path_13"/>
+    <path id="wire#BA9_5" d="m 180.35306,88.01543 h 16.72488" class="path_14"/>
+    <path id="wire#BA10_5" d="m 180.35309,90.161298 h 16.72488" class="path_15"/>
+    <path id="wire#BA11_5" d="m 180.35309,92.307166 h 16.72488" class="path_16"/>
+    <path id="wire#BA0_6" d="m 209.52241,69.592508 h 16.72488" class="path_17"/>
+    <path d="m 209.52238,71.743526 h 16.72488" id="wire#BA1_6" class="path_6"/>
+    <path d="m 209.52241,73.718757 h 16.72488" id="wire#BA2_6" class="path_7"/>
+    <path d="m 209.52241,75.869774 h 16.72488" id="wire#BA3_6" class="path_8"/>
+    <path id="wire#BA4_6" d="m 209.52241,78.020792 h 16.72488" class="path_9"/>
+    <path id="wire#BA5_6" d="m 209.52238,80.045722 h 16.72488" class="path_10"/>
+    <path id="wire#BA6_6" d="m 209.52238,82.070652 h 16.72488" class="path_11"/>
+    <path id="wire#BA7_6" d="m 209.52238,84.095582 h 16.72488" class="path_12"/>
+    <path id="wire#BA8_6" d="m 209.52241,86.246599 h 16.72488" class="path_13"/>
+    <path id="wire#BA9_6" d="m 209.52238,88.26638 h 16.72488" class="path_14"/>
+    <path id="wire#BA10_6" d="m 209.52241,90.412248 h 16.72488" class="path_15"/>
+    <path id="wire#BA11_6" d="m 209.52241,92.558116 h 16.72488" class="path_16"/>
+    <path d="m 63.003434,96.699112 h 16.72488" id="wire#D0_0" class="path_18"/>
+    <path id="wire#D1_0" d="m 63.003404,98.85013 h 16.72488" class="path_19"/>
+    <path id="wire#D2_0" d="m 63.003434,100.82536 h 16.72488" class="path_20"/>
+    <path id="wire#D3_0" d="m 63.003434,102.97637 h 16.72488" class="path_21"/>
+    <path d="m 63.003434,105.12739 h 16.72488" id="wire#D4_0" class="path_22"/>
+    <path d="m 63.003404,107.15232 h 16.72488" id="wire#D5_0" class="path_23"/>
+    <path d="m 63.003404,109.17725 h 16.72488" id="wire#D6_0" class="path_24"/>
+    <path d="m 63.003404,111.20218 h 16.72488" id="wire#D7_0" class="path_25"/>
+    <path id="wire#D0_1" d="m 92.294,96.691684 h 16.72488" class="path_18"/>
+    <path d="m 92.29397,98.842702 h 16.72488" id="wire#D1_1" class="path_19"/>
+    <path d="m 92.294,100.81793 h 16.72488" id="wire#D2_1" class="path_20"/>
+    <path d="m 92.294,102.96894 h 16.72488" id="wire#D3_1" class="path_21"/>
+    <path id="wire#D4_1" d="m 92.294,105.11996 h 16.72488" class="path_22"/>
+    <path id="wire#D5_1" d="m 92.29397,107.14489 h 16.72488" class="path_23"/>
+    <path id="wire#D6_1" d="m 92.29397,109.16982 h 16.72488" class="path_24"/>
+    <path id="wire#D7_1" d="m 92.29397,111.19475 h 16.72488" class="path_25"/>
+    <path id="wire#D0_2" d="m 121.61515,96.707481 h 16.72488" class="path_18"/>
+    <path d="M 121.61512,98.858499 H 138.34" id="wire#D1_2" class="path_19"/>
+    <path d="m 121.61515,100.83373 h 16.72488" id="wire#D2_2" class="path_20"/>
+    <path d="m 121.61515,102.98474 h 16.72488" id="wire#D3_2" class="path_21"/>
+    <path id="wire#D4_2" d="m 121.61515,105.13576 h 16.72488" class="path_22"/>
+    <path id="wire#D5_2" d="M 121.61512,107.16069 H 138.34" class="path_23"/>
+    <path id="wire#D6_2" d="M 121.61512,109.18562 H 138.34" class="path_24"/>
+    <path id="wire#D7_2" d="M 121.61512,111.21055 H 138.34" class="path_25"/>
+    <path id="wire#D0_3" d="m 150.90618,96.646785 h 16.72488" class="path_18"/>
+    <path d="m 150.90615,98.797803 h 16.72488" id="wire#D1_3" class="path_19"/>
+    <path d="m 150.90618,100.77303 h 16.72488" id="wire#D2_3" class="path_20"/>
+    <path d="m 150.90618,102.92404 h 16.72488" id="wire#D3_3" class="path_21"/>
+    <path id="wire#D4_3" d="m 150.90618,105.07506 h 16.72488" class="path_22"/>
+    <path id="wire#D5_3" d="m 150.90615,107.09999 h 16.72488" class="path_23"/>
+    <path id="wire#D6_3" d="m 150.90615,109.12492 h 16.72488" class="path_24"/>
+    <path id="wire#D7_3" d="m 150.90615,111.14985 h 16.72488" class="path_25"/>
+    <path id="wire#D0_4" d="m 180.35823,96.678501 h 16.72488" class="path_18"/>
+    <path d="m 180.3582,98.829519 h 16.72488" id="wire#D1_4" class="path_19"/>
+    <path d="m 180.35823,100.80475 h 16.72488" id="wire#D2_4" class="path_20"/>
+    <path d="m 180.35823,102.95576 h 16.72488" id="wire#D3_4" class="path_21"/>
+    <path id="wire#D4_4" d="m 180.35823,105.10678 h 16.72488" class="path_22"/>
+    <path id="wire#D5_4" d="m 180.3582,107.13171 h 16.72488" class="path_23"/>
+    <path id="wire#D6_4" d="m 180.3582,109.15664 h 16.72488" class="path_24"/>
+    <path id="wire#D7_4" d="m 180.3582,111.18157 h 16.72488" class="path_25"/>
+    <path id="wire#D0_5" d="m 209.52328,96.763566 h 16.72488" class="path_18"/>
+    <path d="m 209.52325,98.914584 h 16.72488" id="wire#D1_5" class="path_19"/>
+    <path d="m 209.52328,100.88981 h 16.72488" id="wire#D2_5" class="path_20"/>
+    <path d="m 209.52328,103.04082 h 16.72488" id="wire#D3_5" class="path_21"/>
+    <path id="wire#D4_5" d="m 209.52328,105.19185 h 16.72488" class="path_22"/>
+    <path id="wire#D5_5" d="m 209.52325,107.21678 h 16.72488" class="path_23"/>
+    <path id="wire#D6_5" d="m 209.52325,109.24171 h 16.72488" class="path_24"/>
+    <path id="wire#D7_5" d="m 209.52325,111.26664 h 16.72488" class="path_25"/>
+    <g id="pointer#1_12" transform="translate(90.449643,73.604422)" class="g_0">
+      <path id="path_41" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_407" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_423" class="tspan_0">1</tspan><tspan id="tspan_424" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(90.449613,75.75544)" id="pointer#1_13" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.278977 0,1.970082 h 3.31157 l 1.90861,-0.926153 -1.8887,-1.049078 z" id="path_42" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_408" class="text_0"><tspan id="tspan_425" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_426" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(90.449643,77.730671)" id="pointer#1_14" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_43" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_409" class="text_0"><tspan id="tspan_427" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_428" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_15" transform="translate(90.449643,79.881688)" class="g_0">
+      <path id="path_44" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_410" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_429" class="tspan_0">1</tspan><tspan id="tspan_430" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(90.449643,82.032701)" id="pointer#1_16" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_45" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_411" class="text_0"><tspan id="tspan_431" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_432" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_17" transform="translate(90.449613,84.183721)" class="g_0">
+      <path id="path_46" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.328676 0,2.019781 h 3.31157 l 1.90861,-1.101939 -1.8887,-0.922991 z" class="path_0"/>
+      <text id="text_412" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_433" class="tspan_0">1</tspan><tspan id="tspan_434" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g transform="translate(90.449613,86.208651)" id="pointer#1_18" class="g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.328676 0,2.019781 h 3.31157 l 1.90861,-1.101939 -1.8887,-0.922991 z" id="path_47" class="path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_413" class="text_0"><tspan id="tspan_435" x="163.86922" y="23.459679" class="tspan_0">1</tspan><tspan x="163.86922" y="36.688805" id="tspan_436" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_19" transform="translate(90.449613,88.233581)" class="g_0">
+      <path id="path_48" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.328676 0,2.019781 h 3.31157 l 1.90861,-1.101939 -1.8887,-0.922991 z" class="path_0"/>
+      <text id="text_414" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_437" class="tspan_0">1</tspan><tspan id="tspan_438" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="wire#D0_6">
+      <path d="m 238.61757,96.641073 h 13.15694" id="wire#D0_7" class="path_18"/>
+      <text id="text_415" y="96.127861" x="249.55258" xml:space="preserve" class="text_17"><tspan id="tspan_439" y="96.127861" x="249.55258" class="tspan_0">D0</tspan></text>
+    </g>
+    <g id="wire#D1_6">
+      <path id="wire#D1_7" d="m 238.61754,98.792091 h 13.15694" class="path_19"/>
+      <text xml:space="preserve" x="249.55258" y="98.242119" id="text_416" class="text_18"><tspan x="249.55258" y="98.242119" id="tspan_440" class="tspan_0">D1</tspan></text>
+    </g>
+    <g id="wire#D2_6">
+      <path id="wire#D2_7" d="m 238.61757,100.76732 h 13.15694" class="path_20"/>
+      <text xml:space="preserve" x="249.55258" y="100.30268" id="text_417" class="text_19"><tspan x="249.55258" y="100.30268" id="tspan_441" class="tspan_0">D2</tspan></text>
+    </g>
+    <g id="wire#D3_6">
+      <path id="wire#D3_7" d="m 238.61757,102.91833 h 13.15694" class="path_21"/>
+      <text id="text_418" y="102.41695" x="249.55258" xml:space="preserve" class="text_20"><tspan id="tspan_442" y="102.41695" x="249.55258" class="tspan_0">D3</tspan></text>
+    </g>
+    <g id="wire#D4_6">
+      <path d="m 238.61757,105.06935 h 13.15694" id="wire#D4_7" class="path_22"/>
+      <text xml:space="preserve" x="249.55258" y="104.48318" id="text_419" class="text_21"><tspan x="249.55258" y="104.48318" id="tspan_443" class="tspan_0">D4</tspan></text>
+    </g>
+    <g id="wire#D5_6">
+      <path d="m 238.61754,107.09429 h 13.15694" id="wire#D5_7" class="path_23"/>
+      <text id="text_420" y="106.59746" x="249.55258" xml:space="preserve" class="text_22"><tspan id="tspan_444" y="106.59746" x="249.55258" class="tspan_0">D5</tspan></text>
+    </g>
+    <g id="wire#D6_6">
+      <path d="m 238.61754,109.11922 h 13.15694" id="wire#D6_7" class="path_24"/>
+      <text id="text_421" y="108.65802" x="249.55258" xml:space="preserve" class="text_23"><tspan id="tspan_445" y="108.65802" x="249.55258" class="tspan_0">D6</tspan></text>
+    </g>
+    <g id="wire#D7_6">
+      <path d="m 238.61754,111.14415 h 13.15694" id="wire#D7_7" class="path_25"/>
+      <text xml:space="preserve" x="249.55258" y="110.77228" id="text_422" class="text_24"><tspan x="249.55258" y="110.77228" id="tspan_446" class="tspan_0">D7</tspan></text>
+    </g>
+    <g id="pointer#1_20" transform="translate(-133.66809,90.254554)" class="g_0">
+      <path id="path_49" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_423" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_447" class="tspan_0">1</tspan><tspan id="tspan_448" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_21" transform="translate(-133.60375,98.582649)" class="g_0">
+      <path id="path_50" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_424" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_449" class="tspan_0">1</tspan><tspan id="tspan_450" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_22" transform="translate(-133.6683,102.76678)" class="g_0">
+      <path id="path_51" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_425" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_451" class="tspan_0">1</tspan><tspan id="tspan_452" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_23" transform="translate(-133.62843,106.88838)" class="g_0">
+      <path id="path_52" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_426" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_453" class="tspan_0">1</tspan><tspan id="tspan_454" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_24" transform="translate(-133.74591,111.06892)" class="g_0">
+      <path id="path_53" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_427" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_455" class="tspan_0">1</tspan><tspan id="tspan_456" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_25" transform="translate(-133.70291,115.2817)" class="g_0">
+      <path id="path_54" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_428" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_457" class="tspan_0">1</tspan><tspan id="tspan_458" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="pointer#1_26" transform="translate(-133.76201,119.42374)" class="g_0">
+      <path id="path_55" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="path_0"/>
+      <text id="text_429" y="23.459679" x="163.86922" xml:space="preserve" class="text_0"><tspan y="23.459679" x="163.86922" id="tspan_459" class="tspan_0">1</tspan><tspan id="tspan_460" y="36.688805" x="163.86922" class="tspan_0"/></text>
+    </g>
+    <g id="wire#/SELF_0">
+      <g id="g_8" transform="translate(-171.20916,46.390354)" class="g_0">
+        <text xml:space="preserve" x="208.11308" y="66.379036" id="text_430" class="text_25"><tspan x="208.11308" y="66.379036" id="tspan_461" class="tspan_0">SEL F</tspan></text>
+        <path d="m 206.27937,65.17992 h 3.54804 v 0.05265" id="path_56" class="path_26"/>
+      </g>
+      <path d="M 33.70249,113.2375 H 50.467746" id="path_57" class="path_27"/>
+    </g>
+    <g id="wire#/SELE_0">
+      <g id="g_9" transform="translate(-171.25742,54.742708)" class="g_0">
+        <text xml:space="preserve" x="208.11308" y="66.379036" id="text_431" class="text_26"><tspan x="208.11308" y="66.379036" id="tspan_462" class="tspan_0">SEL E</tspan></text>
+        <path d="m 206.27937,65.17992 h 3.54804 v 0.05265" id="path_58" class="path_28"/>
+      </g>
+      <path d="m 33.766828,121.56559 h 39.845557 v -8.33864 h 6.048417" id="path_59" class="path_29"/>
+    </g>
+    <g id="wire#/SELD_0">
+      <g id="g_10" transform="translate(-171.20986,58.854756)" class="g_0">
+        <text xml:space="preserve" x="208.11308" y="66.379036" id="text_432" class="text_27"><tspan x="208.11308" y="66.379036" id="tspan_463" class="tspan_0">SEL D</tspan></text>
+        <path d="m 206.27937,65.17992 h 3.54804 v 0.05265" id="path_60" class="path_30"/>
+      </g>
+      <path d="M 33.702281,125.74973 H 103.01356 V 113.2973 h 6.05889" id="path_61" class="path_31"/>
+    </g>
+    <g id="wire#/SELC_0">
+      <path d="m 33.742151,129.87133 h 98.444269 v -16.48851 h 6.13207 v 0.15581" id="path_62" class="path_32"/>
+      <g transform="translate(-171.24099,63.047205)" id="g_11" class="g_0">
+        <text id="text_433" y="66.379036" x="208.11308" xml:space="preserve" class="text_28"><tspan id="tspan_464" y="66.379036" x="208.11308" class="tspan_0">SEL C</tspan></text>
+        <path id="path_63" d="m 206.27937,65.17992 h 3.54804 v 0.05265" class="path_33"/>
+      </g>
+    </g>
+    <g id="wire#/SELB_0">
+      <path d="m 33.62467,134.05187 h 127.86052 v -20.75431 h 6.20408" id="path_64" class="path_34"/>
+      <g transform="translate(-171.09477,67.215168)" id="g_12" class="g_0">
+        <text id="text_434" y="66.379036" x="208.11308" xml:space="preserve" class="text_29"><tspan id="tspan_465" y="66.379036" x="208.11308" class="tspan_0">SEL B</tspan></text>
+        <path id="path_65" d="m 206.27937,65.17992 h 3.54804 v 0.05265" class="path_35"/>
+      </g>
+    </g>
+    <g id="wire#/SEL9_0">
+      <path d="m 33.60857,142.40669 h 186.7432 v -29.13258 h 5.91207" id="path_66" class="path_36"/>
+      <g transform="translate(-171.1693,75.601326)" id="g_13" class="g_0">
+        <text id="text_435" y="66.379036" x="208.11308" xml:space="preserve" class="text_30"><tspan id="tspan_466" y="66.379036" x="208.11308" class="tspan_0">SEL 9</tspan></text>
+        <path id="path_67" d="m 206.27937,65.17992 h 3.54804 v 0.05265" class="path_37"/>
+      </g>
+    </g>
+    <g transform="translate(3.9013337,-51.862506)" id="wire#GND_0" class="g_0">
+      <path id="path_68" d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" class="path_38"/>
+      <path id="path_69" d="m 52.152167,170.95339 h 1.469499" class="path_38"/>
+      <path id="path_70" d="m 52.443587,171.47672 h 0.78101" class="path_38"/>
+      <path d="m 52.889271,170.41283 v -3.13286" id="path_71" class="path_38"/>
+    </g>
+    <g id="wire#GND_1" transform="translate(33.179497,-51.827342)" class="g_0">
+      <path d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" id="path_72" class="path_38"/>
+      <path d="m 52.152167,170.95339 h 1.469499" id="path_73" class="path_38"/>
+      <path d="m 52.443587,171.47672 h 0.78101" id="path_74" class="path_38"/>
+      <path id="path_75" d="m 52.889271,170.41283 v -3.13286" class="path_38"/>
+    </g>
+    <g id="wire#GND_2" transform="translate(62.579832,-51.764092)" class="g_0">
+      <path d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" id="path_76" class="path_38"/>
+      <path d="m 52.152167,170.95339 h 1.469499" id="path_77" class="path_38"/>
+      <path d="m 52.443587,171.47672 h 0.78101" id="path_78" class="path_38"/>
+      <path id="path_79" d="m 52.889271,170.41283 v -3.13286" class="path_38"/>
+    </g>
+    <g id="wire#GND_3" transform="translate(91.839595,-51.823188)" class="g_0">
+      <path d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" id="path_80" class="path_38"/>
+      <path d="m 52.152167,170.95339 h 1.469499" id="path_81" class="path_38"/>
+      <path d="m 52.443587,171.47672 h 0.78101" id="path_82" class="path_38"/>
+      <path id="path_83" d="m 52.889271,170.41283 v -3.13286" class="path_38"/>
+    </g>
+    <g id="wire#GND_4" transform="translate(121.15425,-51.755955)" class="g_0">
+      <path d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" id="path_84" class="path_38"/>
+      <path d="m 52.152167,170.95339 h 1.469499" id="path_85" class="path_38"/>
+      <path d="m 52.443587,171.47672 h 0.78101" id="path_86" class="path_38"/>
+      <path id="path_87" d="m 52.889271,170.41283 v -3.13286" class="path_38"/>
+    </g>
+    <g id="wire#GND_5" transform="translate(150.6813,-51.896262)" class="g_0">
+      <path d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" id="path_88" class="path_38"/>
+      <path d="m 52.152167,170.95339 h 1.469499" id="path_89" class="path_38"/>
+      <path d="m 52.443587,171.47672 h 0.78101" id="path_90" class="path_38"/>
+      <path id="path_91" d="m 52.889271,170.41283 v -3.13286" class="path_38"/>
+    </g>
+    <g id="wire#GND_6" transform="translate(179.97874,-51.849539)" class="g_0">
+      <path d="m 51.798547,170.4203 c 2.08559,0 2.19854,0 2.19854,0" id="path_92" class="path_38"/>
+      <path d="m 52.152167,170.95339 h 1.469499" id="path_93" class="path_38"/>
+      <path d="m 52.443587,171.47672 h 0.78101" id="path_94" class="path_38"/>
+      <path id="path_95" d="m 52.889271,170.41283 v -3.13286" class="path_38"/>
+    </g>
+    <g id="wire#VCC_0" transform="translate(-72.647928,-105.11089)" class="g_0">
+      <path id="wire#VCC_1" d="m 132.52297,172.42717 v -5.14" class="path_39"/>
+      <text id="text_436" y="166.93489" x="132.38564" xml:space="preserve" class="text_31"><tspan y="166.93489" x="132.38564" id="tspan_467" class="tspan_0">+5V</tspan><tspan id="tspan_468" y="180.16402" x="132.38564" class="tspan_0"/></text>
+      <path id="path_96" d="m 132.50481,169.45111 h -4.10652 v 2.98602" class="path_40"/>
+      <ellipse id="ellipse_0" cy="169.43669" cx="132.53163" rx="0.21147294" ry="0.21078888" class="ellipse_0"/>
+    </g>
+    <g transform="translate(-43.338628,-105.10452)" id="wire#VCC_2" class="g_0">
+      <path d="m 132.52297,172.42717 v -5.14" id="wire#VCC_3" class="path_39"/>
+      <text xml:space="preserve" x="132.38564" y="166.93489" id="text_437" class="text_31"><tspan id="tspan_469" x="132.38564" y="166.93489" class="tspan_0">+5V</tspan><tspan x="132.38564" y="180.16402" id="tspan_470" class="tspan_0"/></text>
+      <path d="m 132.50481,169.45111 h -4.10652 v 2.98602" id="path_97" class="path_40"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="132.53163" cy="169.43669" id="ellipse_1" class="ellipse_0"/>
+    </g>
+    <g transform="translate(-14.065895,-105.15017)" id="wire#VCC_4" class="g_0">
+      <path d="m 132.52297,172.42717 v -5.14" id="wire#VCC_5" class="path_39"/>
+      <text xml:space="preserve" x="132.38564" y="166.93489" id="text_438" class="text_31"><tspan id="tspan_471" x="132.38564" y="166.93489" class="tspan_0">+5V</tspan><tspan x="132.38564" y="180.16402" id="tspan_472" class="tspan_0"/></text>
+      <path d="m 132.50481,169.45111 h -4.10652 v 2.98602" id="path_98" class="path_40"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="132.53163" cy="169.43669" id="ellipse_2" class="ellipse_0"/>
+    </g>
+    <g transform="translate(15.212734,-105.038)" id="wire#VCC_6" class="g_0">
+      <path d="m 132.52297,172.42717 v -5.14" id="wire#VCC_7" class="path_39"/>
+      <text xml:space="preserve" x="132.38564" y="166.93489" id="text_439" class="text_31"><tspan id="tspan_473" x="132.38564" y="166.93489" class="tspan_0">+5V</tspan><tspan x="132.38564" y="180.16402" id="tspan_474" class="tspan_0"/></text>
+      <path d="m 132.50481,169.45111 h -4.10652 v 2.98602" id="path_99" class="path_40"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="132.53163" cy="169.43669" id="ellipse_3" class="ellipse_0"/>
+    </g>
+    <g transform="translate(44.549572,-105.14418)" id="wire#VCC_8" class="g_0">
+      <path d="m 132.52297,172.42717 v -5.14" id="wire#VCC_9" class="path_39"/>
+      <text xml:space="preserve" x="132.38564" y="166.93489" id="text_440" class="text_31"><tspan id="tspan_475" x="132.38564" y="166.93489" class="tspan_0">+5V</tspan><tspan x="132.38564" y="180.16402" id="tspan_476" class="tspan_0"/></text>
+      <path d="m 132.50481,169.45111 h -4.10652 v 2.98602" id="path_100" class="path_40"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="132.53163" cy="169.43669" id="ellipse_4" class="ellipse_0"/>
+    </g>
+    <g transform="translate(74.045628,-105.1493)" id="wire#VCC_10" class="g_0">
+      <path d="m 132.52297,172.42717 v -5.14" id="wire#VCC_11" class="path_39"/>
+      <text xml:space="preserve" x="132.38564" y="166.93489" id="text_441" class="text_31"><tspan id="tspan_477" x="132.38564" y="166.93489" class="tspan_0">+5V</tspan><tspan x="132.38564" y="180.16402" id="tspan_478" class="tspan_0"/></text>
+      <path d="m 132.50481,169.45111 h -4.10652 v 2.98602" id="path_101" class="path_40"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="132.53163" cy="169.43669" id="ellipse_5" class="ellipse_0"/>
+    </g>
+    <g transform="translate(103.20829,-105.07312)" id="wire#VCC_12" class="g_0">
+      <path d="m 132.52297,172.42717 v -5.14" id="wire#VCC_13" class="path_39"/>
+      <text xml:space="preserve" x="132.38564" y="166.93489" id="text_442" class="text_31"><tspan id="tspan_479" x="132.38564" y="166.93489" class="tspan_0">+5V</tspan><tspan x="132.38564" y="180.16402" id="tspan_480" class="tspan_0"/></text>
+      <path d="m 132.50481,169.45111 h -4.10652 v 2.98602" id="path_102" class="path_40"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="132.53163" cy="169.43669" id="ellipse_6" class="ellipse_0"/>
+    </g>
+  </g>
+<style>.tspan_0 {font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.text_0 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.tspan_1 {font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.11667px;font-family:sans-serif;-inkscape-font-specification:'sans-serif Bold';text-align:center;text-anchor:middle;stroke-width:0.264583}
+.tspan_2 {font-size:1.05833px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.text_1 {font-style:normal;font-weight:normal;font-size:1.05833px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.tspan_3 {font-weight:normal;font-size:1.76389px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.tspan_4 {font-weight:normal;font-size:2.11667px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.text_2 {font-style:normal;font-weight:normal;font-size:2.11667px;line-height:1.25;font-family:sans-serif;letter-spacing:0.325437px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_3 {font-style:normal;font-weight:normal;font-size:2.11667px;line-height:1.25;font-family:sans-serif;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_0 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_1 {display:inline;fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.g_0 {display:inline}
+.rect_0 {fill:none;stroke:#000000;stroke-width:0.264999;stroke-linecap:round}
+.path_2 {fill:none;stroke:var(--color-barSELA);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_4 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barSELA);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_3 {fill:none;stroke:var(--color-barSELA);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.rect_1 {fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_4 {fill:none;stroke:#000000;stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.text_5 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_5 {fill:none;stroke:var(--color-BA0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_6 {display:inline;fill:none;stroke:var(--color-BA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_6 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_7 {display:inline;fill:none;stroke:var(--color-BA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_7 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_8 {display:inline;fill:none;stroke:var(--color-BA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_8 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_9 {display:inline;fill:none;stroke:var(--color-BA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_9 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_10 {display:inline;fill:none;stroke:var(--color-BA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_10 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA5);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_11 {display:inline;fill:none;stroke:var(--color-BA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_11 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA6);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_12 {display:inline;fill:none;stroke:var(--color-BA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_12 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_13 {display:inline;fill:none;stroke:var(--color-BA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_13 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA8);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_14 {display:inline;fill:none;stroke:var(--color-BA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_14 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA9);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_15 {display:inline;fill:none;stroke:var(--color-BA10);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_15 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA10);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_16 {display:inline;fill:none;stroke:var(--color-BA11);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_16 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-BA11);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_17 {display:inline;fill:none;stroke:var(--color-BA0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_18 {display:inline;fill:none;stroke:var(--color-D0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_19 {display:inline;fill:none;stroke:var(--color-D1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_20 {display:inline;fill:none;stroke:var(--color-D2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_21 {display:inline;fill:none;stroke:var(--color-D3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_22 {display:inline;fill:none;stroke:var(--color-D4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_23 {display:inline;fill:none;stroke:var(--color-D5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_24 {display:inline;fill:none;stroke:var(--color-D6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_25 {display:inline;fill:none;stroke:var(--color-D7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_17 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_18 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_19 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_20 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_21 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_22 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D5);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_23 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D6);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_24 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-D7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.text_25 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barSELF);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_26 {fill:none;stroke:var(--color-barSELF);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_27 {fill:none;stroke:var(--color-barSELF);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_26 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barSELE);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_28 {fill:none;stroke:var(--color-barSELE);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_29 {display:inline;fill:none;stroke:var(--color-barSELE);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_27 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barSELD);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_30 {fill:none;stroke:var(--color-barSELD);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_31 {fill:none;stroke:var(--color-barSELD);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_32 {fill:none;stroke:var(--color-barSELC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_28 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barSELC);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_33 {fill:none;stroke:var(--color-barSELC);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_34 {fill:none;stroke:var(--color-barSELB);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_29 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barSELB);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_35 {fill:none;stroke:var(--color-barSELB);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_36 {fill:none;stroke:var(--color-barSEL9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_30 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-barSEL9);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_37 {fill:none;stroke:var(--color-barSEL9);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_38 {display:inline;fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.path_39 {display:inline;fill:none;stroke:var(--color-VCC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.text_31 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:sans-serif;display:inline;fill:var(--color-VCC);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.path_40 {fill:none;stroke:var(--color-VCC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.ellipse_0 {display:inline;fill:var(--color-VCC);stroke:var(--color-VCC);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+:root {--color-barSELA:#000000;--color-D9_6332:#000000;--color-D8_6332:#000000;--color-D7_6332:#000000;--color-D6_6332:#000000;--color-D5_6332:#000000;--color-D4_6332:#000000;--color-D3_6332:#000000;--color-1:#000000;--color-BA0:#000000;--color-BA1:#000000;--color-BA2:#000000;--color-BA3:#000000;--color-BA4:#000000;--color-BA5:#000000;--color-BA6:#000000;--color-BA7:#000000;--color-BA8:#000000;--color-BA9:#000000;--color-BA10:#000000;--color-BA11:#000000;--color-D0:#000000;--color-D1:#000000;--color-D2:#000000;--color-D3:#000000;--color-D4:#000000;--color-D5:#000000;--color-D6:#000000;--color-D7:#000000;--color-barSELF:#000000;--color-barSELE:#000000;--color-barSELD:#000000;--color-barSELC:#000000;--color-barSELB:#000000;--color-barSEL9:#000000;--color-GND:#000000;--color-VCC:#000000;}</style></svg>
