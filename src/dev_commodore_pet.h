@@ -18,7 +18,6 @@
 #include "device.h"
 #include "cpu_6502.h"
 #include "ram_8d_16a.h"
-#include "rom_8d_16a.h"
 #include "chip_74xxx.h"
 
 #ifdef __cplusplus
@@ -199,8 +198,6 @@ typedef struct DevCommodorePetSignals {
 	Signal		ram_oe_b;			// 1-bit
 	Signal		ram_we_b;			// 1-bit
 
-	Signal		rome_ce_b;			// 1-bit
-
 	Signal		cs1;				// 1-bit
 	Signal		bus_cd;				// 8-bit
 
@@ -268,7 +265,7 @@ typedef struct DevCommodorePet {
 	// major components
 	Cpu6502 *		cpu;
 	Ram8d16a *		ram;
-	Rom8d16a *		roms[7];
+	struct Chip63xxRom *	roms[7];
 	struct Oscillator *		oscillator_y1;
 	struct Chip6520 *		pia_1;
 	struct Chip6520 *		pia_2;

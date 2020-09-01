@@ -163,13 +163,6 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	SIGNAL_SET_BOOL(ram_oe_b, ram_read_b);
 	SIGNAL_SET_BOOL(ram_we_b, !ram_read_b || !SIGNAL_BOOL(clk1));
 
-	// >> rom logic: roms are enabled by the selx_b signals
-	//	- rom-E (editor) is special because it's only a 2k rom and it uses address line 11 as an extra enable to only
-	//	  respond in the lower 2k
-	//	- pin 18 on the 2k rom is actually cs2, not a11
-	//	FIXME: move to its proper simulation function for the page of the schematic
-	SIGNAL_SET_BOOL(rome_ce_b, SIGNAL_NEXT_BOOL(sele_b) || SIGNAL_BOOL(ba11));
-
 	// >> pia logic
 	bool cs1 = x8xx && SIGNAL_BOOL(ba6);
 	SIGNAL_SET_BOOL(cs1, cs1);
@@ -361,16 +354,41 @@ static void glue_logic_process_08(ChipGlueLogic *chip) {
 	SIGNAL_SET_BOOL(video, video);
 }
 
+static Chip63xxRom *load_rom(DevCommodorePet *device, const char *filename, size_t num_lines, Signal rom_cs1_b) {
 
-static Rom8d16a *load_rom(DevCommodorePet *device, const char *filename, uint32_t num_lines, Signal rom_ce_b) {
-	Rom8d16a *rom = rom_8d16a_create(num_lines, device->signal_pool, (Rom8d16aSignals) {
-										.bus_address = signal_split(device->signals.bus_ba, 0, num_lines),
-										.bus_data = SIGNAL(cpu_bus_data),
-										.ce_b = rom_ce_b
-	});
+	Chip63xxSignals signals = {
+		[CHIP_6332_A0] = signal_split(SIGNAL(bus_ba), 0, 1),
+		[CHIP_6332_A1] = signal_split(SIGNAL(bus_ba), 1, 1),
+		[CHIP_6332_A2] = signal_split(SIGNAL(bus_ba), 2, 1),
+		[CHIP_6332_A3] = signal_split(SIGNAL(bus_ba), 3, 1),
+		[CHIP_6332_A4] = signal_split(SIGNAL(bus_ba), 4, 1),
+		[CHIP_6332_A5] = signal_split(SIGNAL(bus_ba), 5, 1),
+		[CHIP_6332_A6] = signal_split(SIGNAL(bus_ba), 6, 1),
+		[CHIP_6332_A7] = signal_split(SIGNAL(bus_ba), 7, 1),
+		[CHIP_6332_A8] = signal_split(SIGNAL(bus_ba), 8, 1),
+		[CHIP_6332_A9] = signal_split(SIGNAL(bus_ba), 9, 1),
+		[CHIP_6332_A10] = signal_split(SIGNAL(bus_ba), 10, 1),
+		[CHIP_6332_A11] = signal_split(SIGNAL(bus_ba), 11, 1),			// used as cs2_b for 6316 rom
 
-	if (file_load_binary_fixed(filename, rom->data_array, rom->data_size) == 0) {
-		rom_8d16a_destroy(rom);
+		[CHIP_6332_D0] = signal_split(SIGNAL(cpu_bus_data), 0, 1),
+		[CHIP_6332_D1] = signal_split(SIGNAL(cpu_bus_data), 1, 1),
+		[CHIP_6332_D2] = signal_split(SIGNAL(cpu_bus_data), 2, 1),
+		[CHIP_6332_D3] = signal_split(SIGNAL(cpu_bus_data), 3, 1),
+		[CHIP_6332_D4] = signal_split(SIGNAL(cpu_bus_data), 4, 1),
+		[CHIP_6332_D5] = signal_split(SIGNAL(cpu_bus_data), 5, 1),
+		[CHIP_6332_D6] = signal_split(SIGNAL(cpu_bus_data), 6, 1),
+		[CHIP_6332_D7] = signal_split(SIGNAL(cpu_bus_data), 7, 1),
+
+		[CHIP_6332_CS1_B] = rom_cs1_b,
+		[CHIP_6332_CS3] = SIGNAL(high)
+	};
+
+	Chip63xxRom *rom = (num_lines == 12) ?
+		chip_6332_rom_create(device->signal_pool, signals) :
+		chip_6316_rom_create(device->signal_pool, signals);
+
+	if (file_load_binary_fixed(filename, rom->data_array, ROM_6332_DATA_SIZE) == 0) {
+		rom->destroy(rom);
 		return NULL;
 	}
 
@@ -1176,19 +1194,13 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-b000.901465-19.bin", 12, SIGNAL(selb_b));
 	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-c000.901465-20.bin", 12, SIGNAL(selc_b));
 	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-d000.901465-21.bin", 12, SIGNAL(seld_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/edit-4-n.901447-29.bin", 11, (Signal) {0});
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/edit-4-n.901447-29.bin", 11, SIGNAL(sele_b));
 	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/kernal-4.901465-22.bin", 12, SIGNAL(self_b));
 
 	for (int i = 0; i < rom_count; ++i) {
 		assert(device->roms[i]);
 		DEVICE_REGISTER_CHIP("ROM", device->roms[i]);
 	}
-
-	//device->char_rom = load_character_rom(device, "runtime/commodore_pet/characters-2.901447-10.bin", 11);
-	//assert(device->char_rom);
-	//DEVICE_REGISTER_CHIP("CRAM", device->char_rom);
-
-	SIGNAL(rome_ce_b) = device->roms[3]->signals.ce_b;
 
 	// pia 1 (C6 - IEEE-488 interface)
 	device->pia_1 = chip_6520_create(device->signal_pool, (Chip6520Signals) {
@@ -1508,42 +1520,6 @@ void dev_commodore_pet_copy_memory(DevCommodorePet *device, size_t start_address
 		done += to_copy;
 	}
 }
-
-/*
-void dev_commodore_pet_fake_display(DevCommodorePet *device) {
-// 'fake' display routine to test read from character rom + write to display before properly simulating all electronics required.
-
-	static size_t char_x = 0;		// current position on screen
-	static size_t char_y = 0;		//	in characters
-	static size_t line = 0;			// current line in character (0 - 7)
-
-	#define COLOR 0xff55ff55
-
-	uint8_t value = device->vram->data_array[char_y * 40 + char_x];
-	uint8_t invert = (value >> 7) & 0x1;
-	value &= 0x7f;
-
-	int rom_addr = value << 3 | (int) (line & 0b111);
-	uint8_t line_value = device->char_rom->data_array[rom_addr];
-	uint32_t *screen_ptr = device->display->frame + (char_x * 8) + ((char_y * 8 + line) * device->display->width);
-
-
-	for (int i = 7; i >= 0; --i) {
-		*screen_ptr++ = COLOR * (unsigned int) (((line_value >> i) & 0x1) ^ invert) | 0xff000000;
-	}
-
-	// update position
-	if (++char_x >= 40) {
-		char_x = 0;
-		if (++line >= 8) {
-			line = 0;
-			if (++char_y >= 25) {
-				char_y = 0;
-			}
-		}
-	}
-}
-*/
 
 bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {
 
