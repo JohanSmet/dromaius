@@ -113,6 +113,7 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 
 	SIGNAL_SET_BOOL(init_b, reset_b);
 	SIGNAL_SET_BOOL(init, !reset_b);
+	SIGNAL_SET_BOOL(ifc_b, reset_b);
 
 	// A3 (11, 10)
 	bool sel8 = !sel8_b;
@@ -622,6 +623,12 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(ba11_b, 1, "/BA11");
 	SIGNAL_DEFINE_N(reset, 1, "RES");
 
+	// signals - sheet 2: IEEE-488 interface
+	SIGNAL_DEFINE_N(atn_in_b, 1, "/ATNIN");
+	SIGNAL_DEFINE_N(ndac_out_b, 1, "/NDACOUT");
+	SIGNAL_DEFINE_N(ifc_b, 1, "/IFC");
+	SIGNAL_DEFINE_N(srq_in_b, 1, "/SRQIN");
+	SIGNAL_DEFINE_N(dav_out_b, 1, "/DAVOUT");
 	// sheet 06 - master timing
 
 	// >> y1 - oscillator
@@ -1121,6 +1128,12 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
 										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
+										.ca1 = SIGNAL(atn_in_b),
+										.ca2 = SIGNAL(ndac_out_b),
+										.port_a = SIGNAL(bus_di),
+										.port_b = SIGNAL(bus_do),
+										.cb1 = SIGNAL(srq_in_b),
+										.cb2 = SIGNAL(dav_out_b)
 	});
 	DEVICE_REGISTER_CHIP("C6", device->pia_1);
 

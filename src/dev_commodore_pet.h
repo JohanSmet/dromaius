@@ -219,6 +219,15 @@ typedef struct DevCommodorePetSignals {
 	Signal		video_on_b;
 	Signal		video;
 
+	// sheet 2: IEEE-488 interface
+	Signal		atn_in_b;
+	Signal		ndac_out_b;
+	Signal		ifc_b;
+	Signal		srq_in_b;
+	Signal		dav_out_b;
+	Signal		bus_di;
+	Signal		bus_do;
+
 } DevCommodorePetSignals;
 
 typedef struct DevCommodorePet {
