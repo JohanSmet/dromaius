@@ -202,9 +202,6 @@ typedef struct DevCommodorePetSignals {
 	Signal		rome_ce_b;			// 1-bit
 
 	Signal		cs1;				// 1-bit
-	Signal		ca1;				// 1-bit
-	Signal		graphic;			// 1-bit
-	Signal		bus_pa;				// 8-bit
 	Signal		bus_cd;				// 8-bit
 
 	Signal		g9q;				// 1-bit
@@ -227,6 +224,41 @@ typedef struct DevCommodorePetSignals {
 	Signal		dav_out_b;
 	Signal		bus_di;
 	Signal		bus_do;
+
+	// sheet 3: Cassette & Keyboard
+	Signal		ca1;				// 1-bit
+	Signal		cb2;				// 1-bit
+	Signal		graphic;			// 1-bit
+	Signal		eoi_out_b;
+
+	Signal		c5_portb;			// 8-bit
+	Signal		ndac_in_b;			// 1-bit
+	Signal		nrfd_out_b;			// 1-bit
+	Signal		atn_out_b;			// 1-bit
+	Signal		video_on_2;			// 1-bit copy of video_on
+	Signal		nrfd_in_b;			// 1-bit
+	Signal		dav_in_b;			// 1-bit
+
+	Signal		c7_porta;			// 8-bit
+	Signal		keya;				// 1-bit
+	Signal		keyb;				// 1-bit
+	Signal		keyc;				// 1-bit
+	Signal		keyd;				// 1-bit
+	Signal		eoi_in_b;
+	Signal		diag;				// 1-bit
+
+	Signal		cass_motor_1;		// 1-bit
+	Signal		cass_motor_2;		// 1-bit
+	Signal		cass_read_1;		// 1-bit
+	Signal		cass_read_2;		// 1-bit
+	Signal		cass_switch_1;		// 1-bit
+	Signal		cass_switch_2;		// 1-bit
+	Signal		cass_write;			// 1-bit
+
+	Signal		bus_pa;				// 8-bit
+	Signal		bus_kin;			// 8-bit
+	Signal		bus_kout;			// 10-bit
+
 
 } DevCommodorePetSignals;
 

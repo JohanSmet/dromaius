@@ -14,7 +14,8 @@ style_counter = {
     'ellipse': 0,
     'g': 0,
     'path': 0,
-    'rect': 0
+    'rect': 0,
+    'circle': 0
 }
 
 id_counter = {}

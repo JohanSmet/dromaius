@@ -236,6 +236,7 @@ static void glue_logic_process_06(ChipGlueLogic *chip) {
 	// H10 (11,12,13)
 	bool video_on = SIGNAL_BOOL(h8q) & SIGNAL_BOOL(h8q2);
 	SIGNAL_SET_BOOL(video_on, video_on);
+	SIGNAL_SET_BOOL(video_on_2, video_on);
 
 	// G10 (11,12,13)
 	bool vert_drive = !(SIGNAL_BOOL(h8q2_b) & SIGNAL_BOOL(h8q_b));
@@ -592,9 +593,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_BOOL_N(low, 1, false, "GND");
 
 	SIGNAL_DEFINE_N(cs1, 1, "CS1");
-	SIGNAL_DEFINE_N(ca1, 1, "CA1");
-	SIGNAL_DEFINE_N(graphic, 1, "GRAPHIC");
-	SIGNAL_DEFINE_N(bus_pa, 8, "PA%d");
 	SIGNAL_DEFINE_N(bus_cd, 8, "CD%d");
 
 	SIGNAL_DEFINE_N(g9q, 1, "G9Q");
@@ -629,6 +627,81 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(ifc_b, 1, "/IFC");
 	SIGNAL_DEFINE_N(srq_in_b, 1, "/SRQIN");
 	SIGNAL_DEFINE_N(dav_out_b, 1, "/DAVOUT");
+
+	SIGNAL_DEFINE(bus_di, 8);
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_di), 0, 1), "DI1");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_di), 1, 1), "DI2");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_di), 2, 1), "DI3");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_di), 3, 1), "DI4");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_di), 4, 1), "DI5");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_di), 5, 1), "DI6");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_di), 6, 1), "DI7");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_di), 7, 1), "DI8");
+
+	SIGNAL_DEFINE(bus_do, 8);
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 0, 1), "DO1");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 1, 1), "DO2");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 2, 1), "DO3");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 3, 1), "DO4");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 4, 1), "DO5");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 5, 1), "DO6");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 6, 1), "DO7");
+	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 7, 1), "DO8");
+
+	// signals - sheet 3: Cassette & Keyboard
+	SIGNAL_DEFINE_N(ca1, 1, "CA1");
+	SIGNAL_DEFINE_N(graphic, 1, "GRAPHIC");
+
+	SIGNAL_DEFINE(c5_portb, 8);
+	SIGNAL(ndac_in_b) = signal_split(SIGNAL(c5_portb), 0, 1);
+	SIGNAL(nrfd_out_b) = signal_split(SIGNAL(c5_portb), 1, 1);
+	SIGNAL(atn_out_b) = signal_split(SIGNAL(c5_portb), 2, 1);
+	SIGNAL(cass_write) = signal_split(SIGNAL(c5_portb), 3, 1);
+	SIGNAL(cass_motor_2) = signal_split(SIGNAL(c5_portb), 4, 1);
+	SIGNAL(video_on_2) = signal_split(SIGNAL(c5_portb), 5, 1);
+	SIGNAL(nrfd_in_b) = signal_split(SIGNAL(c5_portb), 6, 1);
+	SIGNAL(dav_in_b) = signal_split(SIGNAL(c5_portb), 7, 1);
+	signal_set_name(device->signal_pool, SIGNAL(ndac_in_b), "/NDACIN");
+	signal_set_name(device->signal_pool, SIGNAL(nrfd_out_b), "/NRFDOUT");
+	signal_set_name(device->signal_pool, SIGNAL(atn_out_b), "/ATNOUT");
+	signal_set_name(device->signal_pool, SIGNAL(cass_write), "CASSWRITE");
+	signal_set_name(device->signal_pool, SIGNAL(cass_motor_2), "CASSMOTOR2");
+	signal_set_name(device->signal_pool, SIGNAL(nrfd_in_b), "/NRFDIN");
+	signal_set_name(device->signal_pool, SIGNAL(dav_in_b), "/DAVIN");
+
+	SIGNAL_DEFINE(c7_porta, 8);
+	SIGNAL(keya) = signal_split(SIGNAL(c7_porta), 0, 1);
+	SIGNAL(keyb) = signal_split(SIGNAL(c7_porta), 1, 1);
+	SIGNAL(keyc) = signal_split(SIGNAL(c7_porta), 2, 1);
+	SIGNAL(keyd) = signal_split(SIGNAL(c7_porta), 3, 1);
+	SIGNAL(cass_switch_1) = signal_split(SIGNAL(c7_porta), 4, 1);
+	SIGNAL(cass_switch_2) = signal_split(SIGNAL(c7_porta), 5, 1);
+	SIGNAL(eoi_in_b) = signal_split(SIGNAL(c7_porta), 6, 1);
+	SIGNAL(diag) = signal_split(SIGNAL(c7_porta), 7, 1);
+
+	signal_set_name(device->signal_pool, SIGNAL(keya), "KEYA");
+	signal_set_name(device->signal_pool, SIGNAL(keyb), "KEYB");
+	signal_set_name(device->signal_pool, SIGNAL(keyc), "KEYC");
+	signal_set_name(device->signal_pool, SIGNAL(keyd), "KEYD");
+	signal_set_name(device->signal_pool, SIGNAL(cass_switch_1), "CASSSWITCH1");
+	signal_set_name(device->signal_pool, SIGNAL(cass_switch_2), "CASSSWITCH2");
+	signal_set_name(device->signal_pool, SIGNAL(eoi_in_b), "/EOIIN");
+	signal_set_name(device->signal_pool, SIGNAL(diag), "DIAG");
+
+	SIGNAL_DEFINE_N(cb2, 1, "CB2");
+	SIGNAL_DEFINE_N(eoi_out_b, 1, "/EOIOUT");
+	SIGNAL_DEFINE_N(cass_read_1, 1, "CASSREAD1");
+	SIGNAL_DEFINE_N(cass_read_2, 1, "CASSREAD2");
+	SIGNAL_DEFINE_N(cass_motor_1, 1, "CASSMOTOR1");
+
+	SIGNAL_DEFINE_N(bus_pa, 8, "PA%d");
+	SIGNAL_DEFINE_N(bus_kin, 8, "KIN%d");
+	SIGNAL_DEFINE_N(bus_kout, 10, "KOUT%d");
+
+	signal_default_uint8(device->signal_pool, SIGNAL(bus_kin), 0xff);			// pull-up resistors R18-R25
+	signal_default_bool(device->signal_pool, SIGNAL(diag), true);
+
+
 	// sheet 06 - master timing
 
 	// >> y1 - oscillator
@@ -1148,16 +1221,19 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
 										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
 										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
-										.cb1 = SIGNAL(video_on)
+										.ca1 = SIGNAL(cass_read_1),
+										.ca2 = SIGNAL(eoi_out_b),
+										.port_a = SIGNAL(c7_porta),
+										.port_b = SIGNAL(bus_kin),
+										.cb1 = SIGNAL(video_on),
+										.cb2 = SIGNAL(cass_motor_1)
 	});
 	DEVICE_REGISTER_CHIP("C7", device->pia_2);
 
-	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_a, 0xff);			// temporary until keyboard connected
-	signal_default_uint8(device->signal_pool, device->pia_2->signals.port_b, 0xff);			// pull-up resistors R18-R25
-
 	// keyboard
 	device->keypad = input_keypad_create(device->signal_pool, false, 10, 8, 500, 100, (InputKeypadSignals) {
-										.cols = device->pia_2->signals.port_b
+										.cols = SIGNAL(bus_kin),
+										.rows = SIGNAL(bus_kout)
 	});
 	DEVICE_REGISTER_CHIP("KEYPAD", device->keypad);
 
@@ -1175,7 +1251,10 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.rs3 = signal_split(SIGNAL(bus_ba), 3, 1),
 										.ca1 = SIGNAL(ca1),
 										.ca2 = SIGNAL(graphic),
-										.port_a = SIGNAL(bus_pa)
+										.port_a = SIGNAL(bus_pa),
+										.port_b = SIGNAL(c5_portb),
+										.cb1 = SIGNAL(cass_read_2),
+										.cb2 = SIGNAL(cb2)
 	});
 	DEVICE_REGISTER_CHIP("C5", device->via);
 
@@ -1309,20 +1388,20 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	// >> c9 - bcd decoder
 	DEVICE_REGISTER_CHIP("C9", chip_74145_bcd_decoder_create(device->signal_pool, (Chip74145Signals) {
-										.a = signal_split(device->pia_2->signals.port_a, 0, 1),
-										.b = signal_split(device->pia_2->signals.port_a, 1, 1),
-										.c = signal_split(device->pia_2->signals.port_a, 2, 1),
-										.d = signal_split(device->pia_2->signals.port_a, 3, 1),
-										.y0_b = signal_split(device->keypad->signals.rows, 0, 1),
-										.y1_b = signal_split(device->keypad->signals.rows, 1, 1),
-										.y2_b = signal_split(device->keypad->signals.rows, 2, 1),
-										.y3_b = signal_split(device->keypad->signals.rows, 3, 1),
-										.y4_b = signal_split(device->keypad->signals.rows, 4, 1),
-										.y5_b = signal_split(device->keypad->signals.rows, 5, 1),
-										.y6_b = signal_split(device->keypad->signals.rows, 6, 1),
-										.y7_b = signal_split(device->keypad->signals.rows, 7, 1),
-										.y8_b = signal_split(device->keypad->signals.rows, 8, 1),
-										.y9_b = signal_split(device->keypad->signals.rows, 9, 1)
+										.a = SIGNAL(keya),
+										.b = SIGNAL(keyb),
+										.c = SIGNAL(keyc),
+										.d = SIGNAL(keyd),
+										.y0_b = signal_split(SIGNAL(bus_kout), 0, 1),
+										.y1_b = signal_split(SIGNAL(bus_kout), 1, 1),
+										.y2_b = signal_split(SIGNAL(bus_kout), 2, 1),
+										.y3_b = signal_split(SIGNAL(bus_kout), 3, 1),
+										.y4_b = signal_split(SIGNAL(bus_kout), 4, 1),
+										.y5_b = signal_split(SIGNAL(bus_kout), 5, 1),
+										.y6_b = signal_split(SIGNAL(bus_kout), 6, 1),
+										.y7_b = signal_split(SIGNAL(bus_kout), 7, 1),
+										.y8_b = signal_split(SIGNAL(bus_kout), 8, 1),
+										.y9_b = signal_split(SIGNAL(bus_kout), 9, 1)
 	}));
 
 	// custom chips for the glue logic
