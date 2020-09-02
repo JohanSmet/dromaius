@@ -84,6 +84,19 @@ void device_simulate_timestep(Device *device) {
 void device_schedule_event(Device *device, int32_t chip_id, int64_t timestamp) {
 	assert(device);
 
+	// find the insertion spot
+	ChipEvent *next = device->event_schedule;
+	ChipEvent **prev = &device->event_schedule;
+
+	while (next && next->timestamp < timestamp) {
+		if (next->timestamp == timestamp && next->chip_id == chip_id) {
+			return;				// no duplicates
+		}
+
+		prev = &next->next;
+		next = next->next;
+	}
+
 	// try to get an allocated event structure from the free pool, or allocate a new one
 	ChipEvent *event = device->event_pool;
 
@@ -98,15 +111,7 @@ void device_schedule_event(Device *device, int32_t chip_id, int64_t timestamp) {
 	event->timestamp = timestamp;
 	event->next = NULL;
 
-	// insertion sort
-	ChipEvent *next = device->event_schedule;
-	ChipEvent **prev = &device->event_schedule;
-
-	while (next && next->timestamp < timestamp) {
-		prev = &next->next;
-		next = next->next;
-	}
-
+	// insert the event
 	*prev = event;
 	event->next = next;
 }
