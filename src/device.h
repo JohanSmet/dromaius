@@ -29,6 +29,7 @@ typedef struct ChipEvent {
 											\
 	SignalPool *			signal_pool;	\
 	Chip **					chips;			\
+	int32_t *				dirty_chips;	\
 	bool *					chip_is_dirty;	\
 	ChipEvent *				event_schedule; \
 	ChipEvent *				event_pool;

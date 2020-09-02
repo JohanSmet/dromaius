@@ -15,6 +15,7 @@ Chip *device_register_chip(Device *device, Chip *chip, const char *name) {
 	chip->name = name;
 	arrpush(device->chips, chip);
 	arrpush(device->chip_is_dirty, true);
+	arrpush(device->dirty_chips, chip->id);
 	return chip;
 }
 
@@ -40,11 +41,10 @@ void device_simulate_timestep(Device *device) {
 	// process all chips that have a dependency on signal that was changed in the last timestep
 	bool work_done = false;
 
-	for (int32_t id = 0; id < arrlen(device->chips); ++id) {
-		if (device->chip_is_dirty[id]) {
-			work_done = true;
-			device->chips[id]->process(device->chips[id]);
-		}
+	for (size_t idx = 0; idx < arrlenu(device->dirty_chips); ++idx) {
+		Chip *chip = device->chips[device->dirty_chips[idx]];
+		chip->process(chip);
+		work_done = true;
 	}
 
 	// advance to next schedule event if no chips were processed
@@ -69,7 +69,11 @@ void device_simulate_timestep(Device *device) {
 
 	// determine changed signals and dirty chips for next simulation step
 	memset(device->chip_is_dirty, false, arrlenu(device->chip_is_dirty));
-	signal_pool_cycle_dirty_flags(device->signal_pool, device->chip_is_dirty);
+	if (device->dirty_chips) {
+		stbds_header(device->dirty_chips)->length = 0;
+	}
+
+	signal_pool_cycle_dirty_flags(device->signal_pool, device->chip_is_dirty, &device->dirty_chips);
 }
 
 void device_schedule_event(Device *device, int32_t chip_id, int64_t timestamp) {

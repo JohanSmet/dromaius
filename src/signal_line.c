@@ -128,7 +128,7 @@ void signal_pool_cycle(SignalPool *pool) {
 	}
 }
 
-void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags) {
+void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags, int32_t **dirty_chips) {
 	assert(is_dirty_flags);
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
 	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
@@ -141,8 +141,12 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags) {
 		uint32_t s = pool->signals_written[i];
 
 		if (pool->signals_curr[s] != pool->signals_next[s]) {
-			for (size_t i = 0; i < arrlenu(pool->dependent_components[s]); ++i) {
-				is_dirty_flags[pool->dependent_components[s][i]] = true;
+			for (size_t dep = 0; dep < arrlenu(pool->dependent_components[s]); ++dep) {
+				int32_t chip_id = pool->dependent_components[s][dep];
+				if (!is_dirty_flags[chip_id]) {
+					arrpush(*dirty_chips, chip_id);
+					is_dirty_flags[chip_id] = true;
+				}
 			}
 			pool->signals_last_changed[s] = pool->current_tick;
 			pool->signals_curr[s] = pool->signals_next[s];

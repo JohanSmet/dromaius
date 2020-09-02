@@ -56,7 +56,7 @@ SignalPool *signal_pool_create();
 void signal_pool_destroy(SignalPool *pool);
 
 void signal_pool_cycle(SignalPool *pool);
-void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags);
+void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags, int32_t **dirty_chips);
 
 static inline int64_t signal_pool_interval_to_tick_count(SignalPool *pool, int64_t interval_ps) {
 	assert(pool);
