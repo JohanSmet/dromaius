@@ -10,6 +10,7 @@
 #include "types.h"
 #include <assert.h>
 #include <string.h>
+#include <stb/stb_ds.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +33,7 @@ typedef struct SignalPool {
 
 	bool *			signals_curr;
 	bool *			signals_next;
+	uint32_t *		signals_written;
 	int64_t *		signals_last_changed;
 	bool *			signals_default;
 	int32_t *		signals_writer;
@@ -122,6 +124,7 @@ static inline void signal_write_bool(SignalPool *pool, Signal signal, bool value
 	assert(signal.count == 1);
 	pool->signals_next[signal.start] = value;
 	pool->signals_writer[signal.start] = chip_id;
+	arrpush(pool->signals_written, signal.start);
 }
 
 static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t value, int32_t chip_id) {
@@ -136,6 +139,7 @@ static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t v
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		pool->signals_writer[signal.start + i] = chip_id;
+		arrpush(pool->signals_written, signal.start + i);
 	}
 }
 
@@ -146,6 +150,7 @@ static inline void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		pool->signals_next[signal.start + i] = value & 1;
 		pool->signals_writer[signal.start + i] = chip_id;
+		arrpush(pool->signals_written, signal.start + i);
 		value = (uint16_t) (value >> 1);
 	}
 }
@@ -166,6 +171,7 @@ static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, ui
 			bool b = (mask >> i) & 1;
 			if (b) {
 				signals_writer[signal.start + i] = chip_id;
+				arrpush(pool->signals_written, signal.start + i);
 			}
 		}
 	} else {
@@ -174,6 +180,7 @@ static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, ui
 			if (b) {
 				signals_next[signal.start + i] = (value >> i) & 1;
 				signals_writer[signal.start + i] = chip_id;
+				arrpush(pool->signals_written, signal.start + i);
 			}
 		}
 	}
@@ -188,6 +195,7 @@ static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, u
 		if (b) {
 			pool->signals_next[signal.start + i] = (value >> i) & 1;
 			pool->signals_writer[signal.start + i] = chip_id;
+			arrpush(pool->signals_written, signal.start + i);
 		}
 	}
 }
@@ -199,6 +207,7 @@ static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t 
 		if (pool->signals_writer[signal.start + i] == chip_id) {
 			pool->signals_writer[signal.start + i] = -1;
 			pool->signals_next[signal.start + i] = pool->signals_default[signal.start + i];
+			arrpush(pool->signals_written, signal.start + i);
 		}
 	}
 }

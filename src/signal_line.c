@@ -112,7 +112,8 @@ void signal_pool_cycle(SignalPool *pool) {
 		signal_trace_mark_timestep(pool->trace);
 	#endif
 
-	for (size_t s = 0; s < arrlenu(pool->signals_curr); ++s) {
+	for (size_t i = 0; i < arrlenu(pool->signals_written); ++i) {
+		uint32_t s = pool->signals_written[i];
 		if (pool->signals_curr[s] != pool->signals_next[s]) {
 			pool->signals_last_changed[s] = pool->current_tick;
 			pool->signals_curr[s] = pool->signals_next[s];
@@ -120,6 +121,10 @@ void signal_pool_cycle(SignalPool *pool) {
 				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
 			#endif
 		}
+	}
+
+	if (pool->signals_written) {
+		stbds_header(pool->signals_written)->length = 0;
 	}
 }
 
@@ -132,7 +137,9 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags) {
 		signal_trace_mark_timestep(pool->trace);
 	#endif
 
-	for (size_t s = 0; s < arrlenu(pool->signals_curr); ++s) {
+	for (size_t i = 0; i < arrlenu(pool->signals_written); ++i) {
+		uint32_t s = pool->signals_written[i];
+
 		if (pool->signals_curr[s] != pool->signals_next[s]) {
 			for (size_t i = 0; i < arrlenu(pool->dependent_components[s]); ++i) {
 				is_dirty_flags[pool->dependent_components[s][i]] = true;
@@ -144,6 +151,10 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags) {
 				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
 			#endif
 		}
+	}
+
+	if (pool->signals_written) {
+		stbds_header(pool->signals_written)->length = 0;
 	}
 }
 
