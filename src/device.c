@@ -55,15 +55,20 @@ void device_simulate_timestep(Device *device) {
 	// handle all events scheduled for the current timestamp
 	int32_t chip_id = device_pop_scheduled_event(device, device->signal_pool->current_tick);
 	while (chip_id >= 0) {
-		device->chips[chip_id]->process(device->chips[chip_id]);
+		Chip *chip = device->chips[chip_id];
+
+		chip->process(chip);
+		arrpush(device->dirty_chips, chip->id);
+
 		chip_id = device_pop_scheduled_event(device, device->signal_pool->current_tick);
 	}
 
 	// schedule events
-	for (int32_t id = 0; id < arrlen(device->chips); ++id) {
-		if (device->chips[id]->schedule_timestamp > 0) {
-			device_schedule_event(device, id, device->chips[id]->schedule_timestamp);
-			device->chips[id]->schedule_timestamp = 0;
+	for (size_t idx = 0; idx < arrlenu(device->dirty_chips); ++idx) {
+		Chip *chip = device->chips[device->dirty_chips[idx]];
+		if (chip->schedule_timestamp > 0) {
+			device_schedule_event(device, chip->id, chip->schedule_timestamp);
+			chip->schedule_timestamp = 0;
 		}
 	}
 
