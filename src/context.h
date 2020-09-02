@@ -27,6 +27,8 @@ void dms_stop_execution(struct DmsContext *dms);
 void dms_execute(struct DmsContext *dms);
 #endif // DMS_NO_THREADING
 
+void dms_execute_no_sync(struct DmsContext *dms);
+
 void dms_single_step(struct DmsContext *dms);
 void dms_single_instruction(struct DmsContext *dms);
 void dms_run(struct DmsContext *dms);

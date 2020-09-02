@@ -289,6 +289,17 @@ if (EMSCRIPTEN)
 	target_link_libraries(${HTML_TARGET} PRIVATE "-s MODULARIZE=1")
 endif()
 
+# tools - speedtest
+set (SPEEDTEST_TARGET speedtest)
+
+add_executable(${SPEEDTEST_TARGET})
+target_sources(${SPEEDTEST_TARGET} PRIVATE
+	src/tools/speedtest/speedtest_main.cpp
+)
+target_include_directories(${SPEEDTEST_TARGET} PRIVATE libs src)
+target_link_libraries(${SPEEDTEST_TARGET} PRIVATE ${LIB_TARGET})
+target_link_libraries(${SPEEDTEST_TARGET} PRIVATE glfw)
+
 # unit tests
 enable_testing()
 
