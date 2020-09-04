@@ -37,6 +37,8 @@ typedef struct ChipGlueLogic {
 static void glue_logic_destroy(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_01(ChipGlueLogic *chip);
 static void glue_logic_process_01(ChipGlueLogic *chip);
+static void glue_logic_register_dependencies_05(ChipGlueLogic *chip);
+static void glue_logic_process_05(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_06(ChipGlueLogic *chip);
 static void glue_logic_process_06(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_07(ChipGlueLogic *chip);
@@ -50,6 +52,8 @@ static ChipGlueLogic *glue_logic_create(DevCommodorePet *device, int sheet) {
 
 	if (sheet == 1) {
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_01, glue_logic_destroy, glue_logic_register_dependencies_01);
+	} else if (sheet == 5) {
+		CHIP_SET_FUNCTIONS(chip, glue_logic_process_05, glue_logic_destroy, glue_logic_register_dependencies_05);
 	} else if (sheet == 6) {
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_06, glue_logic_destroy, glue_logic_register_dependencies_06);
 	} else if (sheet == 7) {
@@ -176,6 +180,29 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 				 signal_read_next_bool(device->signal_pool, device->pia_2->signals.irqb_b) &&
 				 signal_read_next_bool(device->signal_pool, device->via->signals.irq_b);
 	SIGNAL_SET_BOOL(irq_b, irq_b);
+}
+
+// glue-logic: rams
+static void glue_logic_register_dependencies_05(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	signal_add_dependency(device->signal_pool, SIGNAL(ba13), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba14), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba15), chip->id);
+}
+
+static void glue_logic_process_05(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	// B2: 8, 9, 10, 12, 13 (4-Input NOR-gate with strobe)
+	bool banksel = !(true && (SIGNAL_BOOL(ba14) || SIGNAL_BOOL(ba13) || false || SIGNAL_BOOL(ba15)));
+	SIGNAL_SET_BOOL(banksel, banksel);
+
+	// G7: 8, 9, 10, 11
+	bool g78 = !(true && banksel && SIGNAL_BOOL(buf_rw));
+	SIGNAL_SET_BOOL(g78, g78);
 }
 
 // glue-logic: master timing
@@ -719,6 +746,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 	signal_default_uint8(device->signal_pool, SIGNAL(bus_kin), 0xff);			// pull-up resistors R18-R25
 	signal_default_bool(device->signal_pool, SIGNAL(diag), true);
 
+	// signals - sheet 5: RAMS
+	SIGNAL_DEFINE_N(banksel, 1, "BANKSEL");
+	SIGNAL_DEFINE_N(g78, 1, "G78");
 
 	// sheet 06 - master timing
 
@@ -1418,6 +1448,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	// custom chips for the glue logic
 	DEVICE_REGISTER_CHIP("LOGIC1", glue_logic_create(device, 1));
+	DEVICE_REGISTER_CHIP("LOGIC5", glue_logic_create(device, 5));
 	DEVICE_REGISTER_CHIP("LOGIC6", glue_logic_create(device, 6));
 	DEVICE_REGISTER_CHIP("LOGIC7", glue_logic_create(device, 7));
 	DEVICE_REGISTER_CHIP("LOGIC8", glue_logic_create(device, 8));

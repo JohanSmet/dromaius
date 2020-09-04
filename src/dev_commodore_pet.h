@@ -256,6 +256,10 @@ typedef struct DevCommodorePetSignals {
 	Signal		bus_kin;			// 8-bit
 	Signal		bus_kout;			// 10-bit
 
+	// sheet 5: RAMS
+	Signal		banksel;
+	Signal		g78;
+
 
 } DevCommodorePetSignals;
 
