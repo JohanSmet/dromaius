@@ -7,6 +7,7 @@ const SCHEMATIC_SHEETS = [
 	{'page' : 2, 'title': 'IEEE-488 Interface'},
 	{'page' : 3, 'title': 'Cassette & Keyboard'},
 	{'page' : 4, 'title': 'ROMS'},
+	{'page' : 5, 'title': 'RAMS'},
 	{'page' : 6, 'title': 'Master Timing'},
 	{'page' : 7, 'title': 'Display Logic'},
 	{'page' : 8, 'title': 'Display RAMs'}
