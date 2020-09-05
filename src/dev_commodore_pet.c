@@ -228,6 +228,15 @@ static void glue_logic_register_dependencies_06(ChipGlueLogic *chip) {
 	signal_add_dependency(device->signal_pool, SIGNAL(h8q_b), chip->id);
 	signal_add_dependency(device->signal_pool, SIGNAL(h8q2), chip->id);
 	signal_add_dependency(device->signal_pool, SIGNAL(h8q2_b), chip->id);
+
+	signal_add_dependency(device->signal_pool, SIGNAL(bphi2), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(banksel), chip->id);
+
+	signal_add_dependency(device->signal_pool, SIGNAL(h1q1_b), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(h1q2_b), chip->id);
+
+	signal_add_dependency(device->signal_pool, SIGNAL(h4y4), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(ba14), chip->id);
 }
 
 static void glue_logic_process_06(ChipGlueLogic *chip) {
@@ -261,6 +270,26 @@ static void glue_logic_process_06(ChipGlueLogic *chip) {
 	// G10 (11,12,13)
 	bool vert_drive = !(SIGNAL_BOOL(h8q2_b) & SIGNAL_BOOL(h8q_b));
 	SIGNAL_SET_BOOL(vert_drive, vert_drive);
+
+	// H5 (1,2,3)
+	bool h53 = !(SIGNAL_BOOL(banksel) && SIGNAL_BOOL(bphi2));
+	SIGNAL_SET_BOOL(h53, h53);
+
+	// G1 (11,12,13)
+	bool ras0_b = SIGNAL_BOOL(h1q1_b) && SIGNAL_BOOL(h1q2_b);
+	SIGNAL_SET_BOOL(ras0_b, ras0_b);
+
+	// G7 (3,4,5,6)
+	bool cas1_b = !(SIGNAL_BOOL(h4y4) && SIGNAL_BOOL(ba14));
+	SIGNAL_SET_BOOL(cas1_b, cas1_b);
+
+	// H2 (8,9)
+	bool ba14_b = !SIGNAL_BOOL(ba14);
+	SIGNAL_SET_BOOL(ba14_b, ba14_b);
+
+	// G7 (1,2,12,13)
+	bool cas0_b = !(SIGNAL_BOOL(h4y4) && ba14_b);
+	SIGNAL_SET_BOOL(cas0_b, cas0_b);
 }
 
 // glue-logic: display logic
@@ -750,6 +779,22 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(banksel, 1, "BANKSEL");
 	SIGNAL_DEFINE_N(g78, 1, "G78");
 
+	// signals - sheet 6: Master timing
+	SIGNAL_DEFINE_N(h53, 1, "H53");
+	SIGNAL_DEFINE_N(h4y1, 1, "H4Y1");
+	SIGNAL_DEFINE_N(muxa, 1, "MUXA");
+	SIGNAL_DEFINE_N(h4y4, 1, "H4Y4");
+
+	SIGNAL_DEFINE_N(h1q1, 1, "H1Q1");
+	SIGNAL_DEFINE_N(h1q1_b, 1, "/H1Q1");
+	SIGNAL_DEFINE_N(h1q2, 1, "H1Q2");
+	SIGNAL_DEFINE_N(h1q2_b, 1, "/H1Q2");
+
+	SIGNAL_DEFINE_N(ras0_b, 1, "/RAS0");
+	SIGNAL_DEFINE_N(cas0_b, 1, "/CAS0");
+	SIGNAL_DEFINE_N(cas1_b, 1, "/CAS1");
+	SIGNAL_DEFINE_N(ba14_b, 1, "/BA14");
+
 	// sheet 06 - master timing
 
 	// >> y1 - oscillator
@@ -783,7 +828,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.a = SIGNAL(clk1),				// pin 01
 										.b = SIGNAL(high),				// pin 02
 										.clk = SIGNAL(clk16),			// pin 08
-										.clear_b = SIGNAL(high),		// pin 09
+										.clear_b = SIGNAL(init_b),		// pin 09
 										.qa = SIGNAL(bphi2a),			// pin 03
 										.qb = SIGNAL(bphi2b),			// pin 04
 										.qc = SIGNAL(bphi2c),			// pin 05
@@ -888,6 +933,44 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.k2 = SIGNAL(h8q_b),			// pin 11
 										.q2 = SIGNAL(h8q2),				// pin 5
 										.q2_b = SIGNAL(h8q2_b)			// pin 6
+	}));
+
+	// >> h4 - Quad 2to1 multiplexer
+	DEVICE_REGISTER_CHIP("H4", chip_74157_multiplexer_create(device->signal_pool, (Chip74157Signals) {
+										.i0a = SIGNAL(bphi2b),			// pin 2
+										.i1a = SIGNAL(bphi2a),			// pin 3
+										.za = SIGNAL(h4y1),				// pin 4
+
+										.i0d = SIGNAL(bphi2c),			// pin 11
+										.i1d = SIGNAL(bphi2b),			// pin 10
+										.zd = SIGNAL(muxa),				// pin 9
+
+										.i0c = SIGNAL(bphi2d),			// pin 14
+										.i1c = SIGNAL(bphi2c),			// pin 13
+										.zc = SIGNAL(h4y4),				// pin 12
+
+										.sel = SIGNAL(buf_rw),			// pin 1
+										.enable_b = SIGNAL(h53)			// pin 15
+	}));
+
+	// >> h1 - d flipflop
+	DEVICE_REGISTER_CHIP("H1", chip_7474_d_flipflop_create(device->signal_pool, (Chip7474Signals) {
+										.gnd = SIGNAL(low),				// pin 7
+										.vcc = SIGNAL(high),			// pin 14
+
+										.d1 = SIGNAL(init_b),			// pin 2
+										.clr1_b = SIGNAL(bphi2g_b),		// pin 1
+										.clk1 = SIGNAL(h4y1),			// pin 3
+										.pr1_b = SIGNAL(init_b),		// pin 4
+										.q1 = SIGNAL(h1q1),				// pin 5
+										.q1_b = SIGNAL(h1q1_b),			// pin 6
+
+										.d2 = SIGNAL(init_b),			// pin 12
+										.clr2_b = SIGNAL(bphi2f),		// pin 13
+										.clk2 = SIGNAL(bphi2b_b),		// pin 11
+										.pr2_b = SIGNAL(pullup_2),		// pin 10
+										.q2 = SIGNAL(h1q2),				// pin 9
+										.q2_b = SIGNAL(h1q2_b)			// pin 8
 	}));
 
 	// sheet 07 - display logic components

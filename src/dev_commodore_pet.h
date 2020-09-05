@@ -260,6 +260,21 @@ typedef struct DevCommodorePetSignals {
 	Signal		banksel;
 	Signal		g78;
 
+	// sheet 6: master timing
+	Signal		h53;
+	Signal		h4y1;
+	Signal		muxa;
+	Signal		h4y4;
+
+	Signal		h1q1;
+	Signal		h1q1_b;
+	Signal		h1q2;
+	Signal		h1q2_b;
+
+	Signal		ras0_b;
+	Signal		cas0_b;
+	Signal		cas1_b;
+	Signal		ba14_b;
 
 } DevCommodorePetSignals;
 
