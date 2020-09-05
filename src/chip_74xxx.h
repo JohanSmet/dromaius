@@ -152,6 +152,35 @@ typedef struct Chip74145BcdDecoder {
 	Chip74145Signals	signals;
 } Chip74145BcdDecoder;
 
+// types - 74153
+typedef struct Chip74153Signals {
+	Signal		g1;			// pin 1 - strobe group 1
+	Signal		b;			// pin 2 - select bit 2
+	Signal		c13;		// pin 3 - data input group 1 bit 3
+	Signal		c12;		// pin 4 - data input group 1 bit 2
+	Signal		c11;		// pin 5 - data input group 1 bit 1
+	Signal		c10;		// pin 6 - data input group 1 bit 0
+	Signal		y1;			// pin 7 - data output group 1
+	Signal		gnd;		// pin 8
+	Signal		y2;			// pin 9 - data output group 1
+	Signal		c20;		// pin 10 - data input group 1 bit 0
+	Signal		c21;		// pin 11 - data input group 1 bit 1
+	Signal		c22;		// pin 12 - data input group 1 bit 2
+	Signal		c23;		// pin 13 - data input group 1 bit 3
+	Signal		a;			// pin 14 - select bit 2
+	Signal		g2;			// pin 15 - strobe group 2
+	Signal		vcc;		// pin 16
+} Chip74153Signals;
+
+typedef struct Chip74153Multiplexer {
+	CHIP_DECLARE_FUNCTIONS
+
+	SignalPool *		signal_pool;
+	Chip74153Signals	signals;
+
+	Signal *			inputs[2][4];
+} Chip74153Multiplexer;
+
 // types - 74154
 typedef struct Chip74154Signals {
 	Signal		y0_b;		// pin 1
@@ -422,6 +451,11 @@ Chip74145BcdDecoder *chip_74145_bcd_decoder_create(SignalPool *signal_pool, Chip
 void chip_74145_bcd_decoder_register_dependencies(Chip74145BcdDecoder *chip);
 void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip);
 void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip);
+
+Chip74153Multiplexer *chip_74153_multiplexer_create(SignalPool *signal_pool, Chip74153Signals signals);
+void chip_74153_multiplexer_register_dependencies(Chip74153Multiplexer *chip);
+void chip_74153_multiplexer_destroy(Chip74153Multiplexer *chip);
+void chip_74153_multiplexer_process(Chip74153Multiplexer *chip);
 
 Chip74154Decoder *chip_74154_decoder_create(SignalPool *signal_pool, Chip74154Signals signals);
 void chip_74154_decoder_register_dependencies(Chip74154Decoder *chip);

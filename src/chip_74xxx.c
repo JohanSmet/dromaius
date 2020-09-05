@@ -393,6 +393,72 @@ void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// 74153 - Dual 4-Line to 1-Line Data Selectors/Multiplexers
+//
+
+Chip74153Multiplexer *chip_74153_multiplexer_create(SignalPool *signal_pool, Chip74153Signals signals) {
+
+	Chip74153Multiplexer *chip = (Chip74153Multiplexer *) calloc(1, sizeof(Chip74153Multiplexer));
+	chip->signal_pool = signal_pool;
+	CHIP_74XXX_SET_FUNCTIONS(chip_74153_multiplexer);
+
+	memcpy(&chip->signals, &signals, sizeof(signals));
+	SIGNAL_DEFINE(g1, 1);
+	SIGNAL_DEFINE(b, 1);
+	SIGNAL_DEFINE(c13, 1);
+	SIGNAL_DEFINE(c12, 1);
+	SIGNAL_DEFINE(c11, 1);
+	SIGNAL_DEFINE(c10, 1);
+	SIGNAL_DEFINE(y1, 1);
+	SIGNAL_DEFINE_BOOL(gnd, 1, false);
+	SIGNAL_DEFINE(y2, 1);
+	SIGNAL_DEFINE(c20, 1);
+	SIGNAL_DEFINE(c21, 1);
+	SIGNAL_DEFINE(c22, 1);
+	SIGNAL_DEFINE(c23, 1);
+	SIGNAL_DEFINE(a, 1);
+	SIGNAL_DEFINE(g2, 1);
+	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+
+	chip->inputs[0][0] = &SIGNAL(c10);	chip->inputs[1][0] = &SIGNAL(c20);
+	chip->inputs[0][1] = &SIGNAL(c11);	chip->inputs[1][1] = &SIGNAL(c21);
+	chip->inputs[0][2] = &SIGNAL(c12);	chip->inputs[1][2] = &SIGNAL(c22);
+	chip->inputs[0][3] = &SIGNAL(c13);	chip->inputs[1][3] = &SIGNAL(c23);
+
+	return chip;
+}
+
+void chip_74153_multiplexer_register_dependencies(Chip74153Multiplexer *chip) {
+	assert(chip);
+	signal_add_dependency(chip->signal_pool, SIGNAL(g1), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(g2), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c10), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c11), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c12), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c13), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c20), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c21), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c22), chip->id);
+	signal_add_dependency(chip->signal_pool, SIGNAL(c23), chip->id);
+}
+
+void chip_74153_multiplexer_destroy(Chip74153Multiplexer *chip) {
+	assert(chip);
+	free(chip);
+}
+
+void chip_74153_multiplexer_process(Chip74153Multiplexer *chip) {
+	assert(chip);
+
+	int index = SIGNAL_BOOL(a) | SIGNAL_BOOL(b) << 1;
+	SIGNAL_SET_BOOL(y1, !SIGNAL_BOOL(g1) && signal_read_bool(chip->signal_pool, *chip->inputs[0][index]));
+	SIGNAL_SET_BOOL(y2, !SIGNAL_BOOL(g2) && signal_read_bool(chip->signal_pool, *chip->inputs[1][index]));
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // 74154 - 4-Line to 16-Line Decoder/Multiplexer
 //
 

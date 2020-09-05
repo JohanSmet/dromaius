@@ -340,6 +340,76 @@ static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *u
 	return MUNIT_OK;
 }
 
+static MunitResult test_74153_multiplexer(const MunitParameter params[], void *user_data_or_fixture) {
+
+	Chip74153Multiplexer *chip = chip_74153_multiplexer_create(signal_pool_create(1), (Chip74153Signals) {0});
+	munit_assert_ptr_not_null(chip);
+	munit_assert_ptr_equal(chip->process, chip_74153_multiplexer_process);
+	munit_assert_ptr_equal(chip->register_dependencies, chip_74153_multiplexer_register_dependencies);
+	munit_assert_ptr_equal(chip->destroy, chip_74153_multiplexer_destroy);
+
+	const bool truth_table[][7] = {
+		// B      A     C0     C1     C2     C3     Y
+		false, false, false, true,  true,  true,  false,
+		false, false, true,  false, false, false, true,
+		false, true,  true,  false, true,  true,  false,
+		false, true,  false, true,  false, false, true,
+		true,  false, true,  true,  false, true,  false,
+		true,  false, false, false, true,  false, true,
+		true,  true,  true,  true,  true,  false, false,
+		true,  true,  false, false, false, true,  true
+	};
+
+	for (int line = 0; line < sizeof(truth_table) / sizeof(truth_table[0]); ++line) {
+		SIGNAL_SET_BOOL(b, truth_table[line][0]);
+		SIGNAL_SET_BOOL(a, truth_table[line][1]);
+		SIGNAL_SET_BOOL(c10, truth_table[line][2]);
+		SIGNAL_SET_BOOL(c11, truth_table[line][3]);
+		SIGNAL_SET_BOOL(c12, truth_table[line][4]);
+		SIGNAL_SET_BOOL(c13, truth_table[line][5]);
+		SIGNAL_SET_BOOL(c20, truth_table[line][2]);
+		SIGNAL_SET_BOOL(c21, truth_table[line][3]);
+		SIGNAL_SET_BOOL(c22, truth_table[line][4]);
+		SIGNAL_SET_BOOL(c23, truth_table[line][5]);
+
+		// no group activated
+		SIGNAL_SET_BOOL(g1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(g2, ACTLO_DEASSERT);
+		signal_pool_cycle(chip->signal_pool);
+		chip->process(chip);
+		munit_assert_false(SIGNAL_NEXT_BOOL(y1));
+		munit_assert_false(SIGNAL_NEXT_BOOL(y2));
+
+		// group-1 activated
+		SIGNAL_SET_BOOL(g1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(g2, ACTLO_DEASSERT);
+		signal_pool_cycle(chip->signal_pool);
+		chip->process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(y1) == truth_table[line][6]);
+		munit_assert_false(SIGNAL_NEXT_BOOL(y2));
+
+		// group-2 activated
+		SIGNAL_SET_BOOL(g1, ACTLO_DEASSERT);
+		SIGNAL_SET_BOOL(g2, ACTLO_ASSERT);
+		signal_pool_cycle(chip->signal_pool);
+		chip->process(chip);
+		munit_assert_false(SIGNAL_NEXT_BOOL(y1));
+		munit_assert(SIGNAL_NEXT_BOOL(y2) == truth_table[line][6]);
+
+		// both groups activated
+		SIGNAL_SET_BOOL(g1, ACTLO_ASSERT);
+		SIGNAL_SET_BOOL(g2, ACTLO_ASSERT);
+		signal_pool_cycle(chip->signal_pool);
+		chip->process(chip);
+		munit_assert(SIGNAL_NEXT_BOOL(y1) == truth_table[line][6]);
+		munit_assert(SIGNAL_NEXT_BOOL(y2) == truth_table[line][6]);
+	}
+
+	chip->destroy(chip);
+	signal_pool_destroy(chip->signal_pool);
+	return MUNIT_OK;
+}
+
 static MunitResult test_74154_decoder(const MunitParameter params[], void *user_data_or_fixture) {
 // TODO: ATM it's not possible to test high impedance output state correctly
 
@@ -858,6 +928,7 @@ MunitTest chip_74xxx_tests[] = {
 	{ "/7493_binary_counter", test_7493_binary_counter, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74107_jk_flipflop", test_74107_jk_flipflop, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74145_bcd_decoder", test_74145_bcd_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/74153_multiplexer", test_74153_multiplexer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74154_decoder", test_74154_decoder, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74157_multiplexer", test_74157_multiplexer, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/74164_shift_register", test_74164_shift_register, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
