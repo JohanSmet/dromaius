@@ -197,7 +197,7 @@ static void glue_logic_process_05(ChipGlueLogic *chip) {
 	DevCommodorePet *device = chip->device;
 
 	// B2: 8, 9, 10, 12, 13 (4-Input NOR-gate with strobe)
-	bool banksel = !(true && (SIGNAL_BOOL(ba14) || SIGNAL_BOOL(ba13) || false || SIGNAL_BOOL(ba15)));
+	bool banksel = !(true && (false || false || false || SIGNAL_BOOL(ba15)));
 	SIGNAL_SET_BOOL(banksel, banksel);
 
 	// G7: 8, 9, 10, 11
