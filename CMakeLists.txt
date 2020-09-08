@@ -7,7 +7,13 @@ option (NO_THREADING "Disable multithreading in the Dromaius context" OFF)
 option (BUILD_SIGNAL_TRACING "Enable dumping of signals to GTKWave" OFF)
 
 # force C11 for all targets
-set(CMAKE_C_STANDARD 11)
+#  - don't do this on MSVC anymore. In march 2020 support for a fully compliant C11 preprocessor
+#	 was added to MSVC, but the compiler itself isn't fully C11 compliant yet. CMake 3.18 passes the
+#	 compiler flag to enable C11 mode which fails to compile code that enables C11 features not yet
+#	 supported by MSVC.
+if (NOT MSVC)
+	set(CMAKE_C_STANDARD 11)
+endif()
 set(CMAKE_CXX_STANDARD 17)
 
 # export a JSON compilation database for clangd
