@@ -4,6 +4,7 @@
 #include "dev_commodore_pet.h"
 #include "cpu_6502_opcodes.h"
 #include "chip_ram_static.h"
+#include "chip_ram_dynamic.h"
 #include "chip_rom.h"
 
 #include <stdio.h>
@@ -38,8 +39,8 @@ static void override_cpu_process(Cpu6502 *cpu) {
 	}
 }
 
-static void override_ram_process(Ram8d16a *ram) {
-	signal_write_uint8(ram->signal_pool, ram->signals.bus_data, override_bus_bd, ram->id);
+static void override_ram_process(Chip8x4116DRam *ram) {
+	signal_write_uint8(ram->signal_pool, ram->signals.bus_do, override_bus_bd, ram->id);
 }
 
 static void override_do_nothing(void *device) {
@@ -83,7 +84,8 @@ MunitResult test_signals_data(const MunitParameter params[], void *user_data_or_
 
 	// 'remove' cpu/ram and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
-	device->ram->process = (CHIP_PROCESS_FUNC) override_ram_process;
+	device_chip_by_name((Device *) device, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
+	device_chip_by_name((Device *) device, "J2-9")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 
 	// data-bus read/write signals
 	for (int addr = 0x0000; addr <= 0xffff; addr += 0x0100) {
@@ -114,7 +116,8 @@ MunitResult test_read_databus(const MunitParameter params[], void *user_data_or_
 
 	// 'remove' cpu/ram and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
-	device->ram->process = (CHIP_PROCESS_FUNC) override_ram_process;
+	device_chip_by_name((Device *) device, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
+	device_chip_by_name((Device *) device, "J2-9")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 	device_chip_by_name((Device *)device, "F7")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 	device_chip_by_name((Device *)device, "F8")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 
@@ -123,7 +126,8 @@ MunitResult test_read_databus(const MunitParameter params[], void *user_data_or_
 	}
 
 	// reading from the databus
-	for (int addr = 0x0000; addr < 0x8800; addr += 0x0100) {
+	for (int addr = 0x0000; addr < 0x8000; addr += 0x0100) {
+		munit_logf(MUNIT_LOG_INFO, "%x", addr);
 		override_bus_address = addr & 0xffff;
 		override_cpu_rw = CPU_READ;
 		override_bus_bd = (addr & 0xff00) >> 8;
@@ -176,6 +180,11 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 		dev_commodore_pet_process_clk1(device);
 	}
 
+	Chip8x4116DRam *ram_chips[] = {
+		(Chip8x4116DRam *) device_chip_by_name((Device *) device, "I2-9"),
+		(Chip8x4116DRam *) device_chip_by_name((Device *) device, "J2-9")
+	};
+
 	for (int addr = 0x0000; addr <= 0x7fff; ++addr) {
 		override_bus_address = addr & 0xffff;
 		override_bus_data = addr & 0xff;
@@ -185,7 +194,6 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 		munit_assert_true(SIGNAL_BOOL(clk1));
 
 		dev_commodore_pet_process_clk1(device);
-		munit_assert_uint8(device->ram->data_array[override_bus_address], ==, override_bus_data);
 		munit_assert_false(SIGNAL_BOOL(clk1));
 	}
 

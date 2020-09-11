@@ -11,6 +11,7 @@
 #include "chip_oscillator.h"
 #include "chip_poweronreset.h"
 #include "chip_ram_static.h"
+#include "chip_ram_dynamic.h"
 #include "chip_rom.h"
 #include "input_keypad.h"
 #include "display_pet_crt.h"
@@ -159,14 +160,6 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	SIGNAL_SET_BOOL(bphi2, phi2);
 	SIGNAL_SET_BOOL(cphi2, phi2);
 
-	// >> ram logic - simplified from schematic because were not simulating dram (4116 chips) yet.
-	//  - ce_b: assert when top bit of address isn't set (copy of ba15)
-	//	- oe_b: assert when cpu_rw is high
-	//	- we_b: assert when cpu_rw is low and clock is low
-	//	FIXME: move to its proper simulation function for the page of the schematic
-	SIGNAL_SET_BOOL(ram_oe_b, ram_read_b);
-	SIGNAL_SET_BOOL(ram_we_b, !ram_read_b || !SIGNAL_BOOL(clk1));
-
 	// >> pia logic
 	bool cs1 = x8xx && SIGNAL_BOOL(ba6);
 	SIGNAL_SET_BOOL(cs1, cs1);
@@ -187,9 +180,8 @@ static void glue_logic_register_dependencies_05(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	signal_add_dependency(device->signal_pool, SIGNAL(ba13), chip->id);
-	signal_add_dependency(device->signal_pool, SIGNAL(ba14), chip->id);
 	signal_add_dependency(device->signal_pool, SIGNAL(ba15), chip->id);
+	signal_add_dependency(device->signal_pool, SIGNAL(buf_rw), chip->id);
 }
 
 static void glue_logic_process_05(ChipGlueLogic *chip) {
@@ -779,6 +771,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(banksel, 1, "BANKSEL");
 	SIGNAL_DEFINE_N(g78, 1, "G78");
 
+	SIGNAL_DEFINE_N(bus_fa, 7, "FA%d");
+	SIGNAL_DEFINE_N(bus_rd, 8, "RD%d");
+
 	// signals - sheet 6: Master timing
 	SIGNAL_DEFINE_N(h53, 1, "H53");
 	SIGNAL_DEFINE_N(h4y1, 1, "H4Y1");
@@ -794,6 +789,140 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(cas0_b, 1, "/CAS0");
 	SIGNAL_DEFINE_N(cas1_b, 1, "/CAS1");
 	SIGNAL_DEFINE_N(ba14_b, 1, "/BA14");
+
+	// components - sheet 05: RAMS
+	DEVICE_REGISTER_CHIP("I11", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+										.g2_b = SIGNAL(buf_rw),							// 19
+										.g1_b = SIGNAL(g78),							// 01
+
+										.a11  = signal_split(SIGNAL(bus_rd), 7, 1),		// 02
+										.y24  = signal_split(SIGNAL(bus_rd), 7, 1),		// 03
+										.a12  = signal_split(SIGNAL(bus_rd), 6, 1),		// 04
+										.y23  = signal_split(SIGNAL(bus_rd), 6, 1),		// 05
+										.a13  = signal_split(SIGNAL(bus_rd), 5, 1),		// 06
+										.y22  = signal_split(SIGNAL(bus_rd), 5, 1),		// 07
+										.a14  = signal_split(SIGNAL(bus_rd), 4, 1),		// 08
+										.y21  = signal_split(SIGNAL(bus_rd), 4, 1),		// 09
+
+										.y11  = signal_split(SIGNAL(bus_bd), 7, 1),		// 18
+										.a24  = signal_split(SIGNAL(bus_bd), 7, 1),		// 17
+										.y12  = signal_split(SIGNAL(bus_bd), 6, 1),		// 16
+										.a23  = signal_split(SIGNAL(bus_bd), 6, 1),		// 15
+										.y13  = signal_split(SIGNAL(bus_bd), 5, 1),		// 14
+										.a22  = signal_split(SIGNAL(bus_bd), 5, 1),		// 13
+										.y14  = signal_split(SIGNAL(bus_bd), 4, 1),		// 12
+										.a21  = signal_split(SIGNAL(bus_bd), 4, 1)		// 11
+	}));
+
+	DEVICE_REGISTER_CHIP("I10", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+										.g2_b = SIGNAL(buf_rw),							// 19
+										.g1_b = SIGNAL(g78),							// 01
+
+										.a11  = signal_split(SIGNAL(bus_rd), 3, 1),		// 02
+										.y24  = signal_split(SIGNAL(bus_rd), 3, 1),		// 03
+										.a12  = signal_split(SIGNAL(bus_rd), 2, 1),		// 04
+										.y23  = signal_split(SIGNAL(bus_rd), 2, 1),		// 05
+										.a13  = signal_split(SIGNAL(bus_rd), 1, 1),		// 06
+										.y22  = signal_split(SIGNAL(bus_rd), 1, 1),		// 07
+										.a14  = signal_split(SIGNAL(bus_rd), 0, 1),		// 08
+										.y21  = signal_split(SIGNAL(bus_rd), 0, 1),		// 09
+
+										.y11  = signal_split(SIGNAL(bus_bd), 3, 1),		// 18
+										.a24  = signal_split(SIGNAL(bus_bd), 3, 1),		// 17
+										.y12  = signal_split(SIGNAL(bus_bd), 2, 1),		// 16
+										.a23  = signal_split(SIGNAL(bus_bd), 2, 1),		// 15
+										.y13  = signal_split(SIGNAL(bus_bd), 1, 1),		// 14
+										.a22  = signal_split(SIGNAL(bus_bd), 1, 1),		// 13
+										.y14  = signal_split(SIGNAL(bus_bd), 0, 1),		// 12
+										.a21  = signal_split(SIGNAL(bus_bd), 0, 1)		// 11
+	}));
+
+	DEVICE_REGISTER_CHIP("E3", chip_74153_multiplexer_create(device->signal_pool, (Chip74153Signals) {
+										.g1 = SIGNAL(low),								// pin 1
+										.c10 = SIGNAL(ra7),								// pin 6
+										.c11 = SIGNAL(ra7),								// pin 5
+										.c12 = signal_split(SIGNAL(bus_ba), 0, 1),		// pin 4
+										.c13 = signal_split(SIGNAL(bus_ba), 13, 1),		// pin 3
+										.y1 = signal_split(SIGNAL(bus_fa), 0, 1),		// pin 7
+
+										.a = SIGNAL(muxa),								// pin 14
+										.b = SIGNAL(clk1),								// pin 2
+
+										.g2 = SIGNAL(low),								// pin 15
+										.c20 = SIGNAL(ra1),								// pin 10
+										.c21 = SIGNAL(ra1),								// pin 11
+										.c22 = signal_split(SIGNAL(bus_ba), 1, 1),		// pin 12
+										.c23 = signal_split(SIGNAL(bus_ba), 7, 1),		// pin 13
+										.y2 = signal_split(SIGNAL(bus_fa), 1, 1),		// pin 9
+	}));
+
+	DEVICE_REGISTER_CHIP("E4", chip_74153_multiplexer_create(device->signal_pool, (Chip74153Signals) {
+										.g1 = SIGNAL(low),								// pin 1
+										.c10 = SIGNAL(ra2),								// pin 6
+										.c11 = SIGNAL(ra2),								// pin 5
+										.c12 = signal_split(SIGNAL(bus_ba), 2, 1),		// pin 4
+										.c13 = signal_split(SIGNAL(bus_ba), 8, 1),		// pin 3
+										.y1 = signal_split(SIGNAL(bus_fa), 2, 1),		// pin 7
+
+										.a = SIGNAL(muxa),								// pin 14
+										.b = SIGNAL(clk1),								// pin 2
+
+										.g2 = SIGNAL(low),								// pin 15
+										.c20 = SIGNAL(ra3),								// pin 10
+										.c21 = SIGNAL(ra3),								// pin 11
+										.c22 = signal_split(SIGNAL(bus_ba), 3, 1),		// pin 12
+										.c23 = signal_split(SIGNAL(bus_ba), 9, 1),		// pin 13
+										.y2 = signal_split(SIGNAL(bus_fa), 3, 1),		// pin 9
+	}));
+
+	DEVICE_REGISTER_CHIP("E5", chip_74153_multiplexer_create(device->signal_pool, (Chip74153Signals) {
+										.g1 = SIGNAL(low),								// pin 1
+										.c10 = SIGNAL(ra4),								// pin 6
+										.c11 = SIGNAL(ra4),								// pin 5
+										.c12 = signal_split(SIGNAL(bus_ba), 4, 1),		// pin 4
+										.c13 = signal_split(SIGNAL(bus_ba), 10, 1),		// pin 3
+										.y1 = signal_split(SIGNAL(bus_fa), 4, 1),		// pin 7
+
+										.a = SIGNAL(muxa),								// pin 14
+										.b = SIGNAL(clk1),								// pin 2
+
+										.g2 = SIGNAL(low),								// pin 15
+										.c20 = SIGNAL(ra5),								// pin 10
+										.c21 = SIGNAL(ra5),								// pin 11
+										.c22 = signal_split(SIGNAL(bus_ba), 5, 1),		// pin 12
+										.c23 = signal_split(SIGNAL(bus_ba), 11, 1),		// pin 13
+										.y2 = signal_split(SIGNAL(bus_fa), 5, 1),		// pin 9
+	}));
+
+	DEVICE_REGISTER_CHIP("E6", chip_74153_multiplexer_create(device->signal_pool, (Chip74153Signals) {
+										.g1 = SIGNAL(low),								// pin 1
+										.c10 = SIGNAL(ra6),								// pin 6
+										.c11 = SIGNAL(ra6),								// pin 5
+										.c12 = signal_split(SIGNAL(bus_ba), 6, 1),		// pin 4
+										.c13 = signal_split(SIGNAL(bus_ba), 12, 1),		// pin 3
+										.y1 = signal_split(SIGNAL(bus_fa), 6, 1),		// pin 7
+
+										.a = SIGNAL(muxa),								// pin 14
+										.b = SIGNAL(clk1),								// pin 2
+	}));
+
+	DEVICE_REGISTER_CHIP("I2-9", chip_8x4116_dram_create(device->signal_pool, (Chip8x4116DRamSignals) {
+										.bus_address = SIGNAL(bus_fa),
+										.we_b = SIGNAL(ram_rw),
+										.ras_b = SIGNAL(ras0_b),
+										.cas_b = SIGNAL(cas0_b),
+										.bus_di = SIGNAL(bus_rd),
+										.bus_do = SIGNAL(bus_rd)
+	}));
+
+	DEVICE_REGISTER_CHIP("J2-9", chip_8x4116_dram_create(device->signal_pool, (Chip8x4116DRamSignals) {
+										.bus_address = SIGNAL(bus_fa),
+										.we_b = SIGNAL(ram_rw),
+										.ras_b = SIGNAL(ras0_b),
+										.cas_b = SIGNAL(cas1_b),
+										.bus_di = SIGNAL(bus_rd),
+										.bus_do = SIGNAL(bus_rd)
+	}));
 
 	// sheet 06 - master timing
 
@@ -1291,17 +1420,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 	});
 	DEVICE_REGISTER_CHIP("C4", device->cpu);
 
-	// ram
-	device->ram = ram_8d16a_create(15, device->signal_pool, (Ram8d16aSignals) {
-										.bus_address = signal_split(device->signals.bus_ba, 0, 15),
-										.bus_data = SIGNAL(bus_bd),
-										.ce_b = SIGNAL(ba15)
-	});
-	DEVICE_REGISTER_CHIP("RAM", device->ram);
-
-	SIGNAL(ram_oe_b) = device->ram->signals.oe_b;
-	SIGNAL(ram_we_b) = device->ram->signals.we_b;
-
 	// basic roms
 	int rom_count = 0;
 	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-b000.901465-19.bin", 12, SIGNAL(selb_b));
@@ -1576,8 +1694,8 @@ void dev_commodore_pet_copy_memory(DevCommodorePet *device, size_t start_address
 	assert(output);
 
 	// note: this function skips the free rom slots
-	static const size_t	REGION_START[] = {0x0000, 0x8000, 0x8800, 0xb000, 0xc000, 0xd000, 0xe000, 0xe800, 0xf000};
-	static const size_t REGION_SIZE[]  = {0x8000, 0x0800, 0x2800, 0x1000, 0x1000, 0x1000, 0x0800, 0x0800, 0x1000};
+	static const size_t	REGION_START[] = {0x0000, 0x4000, 0x8000, 0x8800, 0xb000, 0xc000, 0xd000, 0xe000, 0xe800, 0xf000};
+	static const size_t REGION_SIZE[]  = {0x4000, 0x4000, 0x0800, 0x2800, 0x1000, 0x1000, 0x1000, 0x0800, 0x0800, 0x1000};
 	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
 
 	if (start_address > 0xffff) {
@@ -1600,10 +1718,27 @@ void dev_commodore_pet_copy_memory(DevCommodorePet *device, size_t start_address
 		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
 
 		switch (region) {
-			case 0:				// RAM
-				memcpy(output + done, device->ram->data_array + region_offset, to_copy);
+			case 0:	{			// RAM (0-16k)
+				Chip8x4116DRam *ram = (Chip8x4116DRam *) device_chip_by_name((Device *) device, "I2-9");
+				for (size_t i = 0; i < to_copy; ++i) {
+					size_t row = (region_offset + i) & 0x007f;
+					size_t col = ((region_offset + i) & 0x3f80) >> 7;
+					size_t physical = (row << 7) | ((col & 0x003f) << 1) | ((col & 0x0040) >> 6);
+					output[done+i] = ram->data_array[physical];
+				}
 				break;
-			case 1:	{			// Screen RAM
+			}
+			case 1:	{			// RAM (16-32k)
+				Chip8x4116DRam *ram = (Chip8x4116DRam *) device_chip_by_name((Device *) device, "J2-9");
+				for (size_t i = 0; i < to_copy; ++i) {
+					size_t row = (region_offset + i) & 0x007f;
+					size_t col = ((region_offset + i) & 0x3f80) >> 7;
+					size_t physical = (row << 7) | ((col & 0x003f) << 1) | ((col & 0x0040) >> 6);
+					output[done+i] = ram->data_array[physical];
+				}
+				break;
+			}
+			case 2:	{			// Screen RAM
 				Chip6114SRam *ram_hi = (Chip6114SRam *) device_chip_by_name((Device *)device, "F7");
 				Chip6114SRam *ram_lo = (Chip6114SRam *) device_chip_by_name((Device *)device, "F8");
 
@@ -1613,17 +1748,17 @@ void dev_commodore_pet_copy_memory(DevCommodorePet *device, size_t start_address
 				}
 				break;
 			}
-			case 2:				// unused space between video memory and first rom
-			case 7:				// I/O area (pia-1, pia-2, via)
+			case 3:				// unused space between video memory and first rom
+			case 8:				// I/O area (pia-1, pia-2, via)
 				memset(output + done, 0, to_copy);
 				break;
-			case 3:				// basic-rom 1
-			case 4:				// basic-rom 2
-			case 5:				// basic-rom 3
-			case 6:				// editor rom
-				memcpy(output + done, device->roms[region-3]->data_array + region_offset, to_copy);
+			case 4:				// basic-rom 1
+			case 5:				// basic-rom 2
+			case 6:				// basic-rom 3
+			case 7:				// editor rom
+				memcpy(output + done, device->roms[region-4]->data_array + region_offset, to_copy);
 				break;
-			case 8:				// kernal rom
+			case 9:				// kernal rom
 				memcpy(output + done, device->roms[4]->data_array + region_offset, to_copy);
 				break;
 
@@ -1637,6 +1772,9 @@ void dev_commodore_pet_copy_memory(DevCommodorePet *device, size_t start_address
 
 bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {
 
+	(void)  device;
+	(void) use_prg_address;
+
 	int8_t * prg_buffer = NULL;
 	size_t prg_size = file_load_binary(filename, &prg_buffer);
 
@@ -1645,12 +1783,13 @@ bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, b
 		return false;
 	}
 
-	uint16_t ram_offset = 0x401;
-	if (use_prg_address) {
-		ram_offset = *((uint16_t*)prg_buffer);
-	}
+	// uint16_t ram_offset = 0x401;
+	// if (use_prg_address) {
+		// ram_offset = *((uint16_t*)prg_buffer);
+	// }
 
-	memcpy(device->ram->data_array + ram_offset, prg_buffer + 2, prg_size - 2);
+	assert(false && "not implemented");
+	// memcpy(device->ram->data_array + ram_offset, prg_buffer + 2, prg_size - 2);
 	arrfree(prg_buffer);
 	return true;
 }
