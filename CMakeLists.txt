@@ -139,6 +139,8 @@ target_sources(${LIB_TARGET}
 		src/chip_oscillator.h
 		src/chip_poweronreset.c
 		src/chip_poweronreset.h
+		src/chip_ram_dynamic.c
+		src/chip_ram_dynamic.h
 		src/chip_ram_static.c
 		src/chip_ram_static.h
 		src/chip_rom.c
@@ -321,6 +323,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_chip_hd44780.c
 		src/test/test_chip_oscillator.c
 		src/test/test_chip_poweronreset.c
+		src/test/test_chip_ram_dynamic.c
 		src/test/test_chip_ram_static.c
 		src/test/test_chip_rom.c
 		src/test/test_clock.c
