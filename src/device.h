@@ -8,6 +8,10 @@
 #include "chip.h"
 #include "signal_line.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct Cpu *(*DEVICE_GET_CPU)(void *device);
 typedef void (*DEVICE_PROCESS)(void *device);
 typedef void (*DEVICE_RESET)(void *device);
@@ -57,5 +61,8 @@ static inline int64_t device_next_scheduled_event_timestamp(Device *device) {
 	return device->event_schedule->timestamp;
 }
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif // DROMAIUS_DEVICE_H
