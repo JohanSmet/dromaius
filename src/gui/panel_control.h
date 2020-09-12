@@ -5,6 +5,8 @@
 #ifndef DROMAIUS_GUI_PANEL_CONTROL_H
 #define DROMAIUS_GUI_PANEL_CONTROL_H
 
+#include <initializer_list>
+
 #include "panel.h"
 #include "signal_line.h"
 
@@ -19,7 +21,8 @@ struct StepSignal {
 // functions
 Panel::uptr_t panel_control_create( class UIContext *ctx, struct ImVec2 pos,
 									struct Oscillator *oscillator,
-									StepSignal step_next_instruction
+									StepSignal step_next_instruction,
+									std::initializer_list<StepSignal> step_clocks
 );
 
 #endif // DROMAIUS_GUI_PANEL_CONTROL_H

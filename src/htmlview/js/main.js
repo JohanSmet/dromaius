@@ -127,6 +127,11 @@ $('#btnStepClock').on('click', function (event) {
 	dmsapi.context_step_clock();
 });
 
+$('#cmbStepClock').on('change', function () {
+	const signal_name =	$('#cmbStepClock').children('option:selected').val();
+	dmsapi.context_select_step_clock(signal_name);
+});
+
 $('#btnRun').on('click', function (event) {
 	dmsapi.context_run();
 });

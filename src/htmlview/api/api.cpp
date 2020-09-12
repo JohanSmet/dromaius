@@ -49,9 +49,21 @@ public:
 		dms_execute(dms_ctx);
 	}
 
-	void context_step_clock() {
+	void context_select_step_clock(const std::string &signal_name) {
+		auto signal = signal_by_name(pet_device->signal_pool, signal_name.c_str());
+		if (signal.start != 0) {
+			step_clock = signal;
+		}
+	}
+
+	void context_single_step() {
 		assert(dms_ctx);
 		dms_single_step(dms_ctx);
+	}
+
+	void context_step_clock() {
+		assert(dms_ctx);
+		dms_step_signal(dms_ctx, step_clock, true, true);
 	}
 
 	void context_step_instruction() {
@@ -167,8 +179,9 @@ public:
 	}
 
 private:
-	DmsContext *	dms_ctx;
+	DmsContext *		dms_ctx;
 	DevCommodorePet *	pet_device;
+	Signal				step_clock;
 };
 
 void DmsApi::launch_commodore_pet() {
@@ -180,6 +193,9 @@ void DmsApi::launch_commodore_pet() {
 	dms_ctx = dms_create_context();
 	assert(dms_ctx);
 	dms_set_device(dms_ctx, reinterpret_cast<Device *>(pet_device));
+
+	// default clock to step
+	step_clock = pet_device->signals.clk1;
 }
 
 // binding code
@@ -229,6 +245,8 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.constructor()
 		.function("launch_commodore_pet", &DmsApi::launch_commodore_pet)
 		.function("context_execute", &DmsApi::context_execute)
+		.function("context_select_step_clock", &DmsApi::context_select_step_clock)
+		.function("context_single_step", &DmsApi::context_single_step)
 		.function("context_step_clock", &DmsApi::context_step_clock)
 		.function("context_step_instruction", &DmsApi::context_step_instruction)
 		.function("context_run", &DmsApi::context_run)

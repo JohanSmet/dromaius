@@ -118,7 +118,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	SIGNAL_DEFINE(bus_address, 16);
 	SIGNAL_DEFINE(bus_data, 8);
-	SIGNAL_DEFINE_BOOL(clock, 1, true);
+	SIGNAL_DEFINE_BOOL_N(clock, 1, true, "CLK");
 	SIGNAL_DEFINE_BOOL(reset_btn_b, 1, ACTLO_DEASSERT);
 	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_ASSERT);
 	SIGNAL_DEFINE_BOOL(cpu_rw, 1, true);
