@@ -27,6 +27,11 @@
 			<span>
 				&nbsp;Commands:
 				<input type="button" id="btnStepClock" value="Step Clock" title="Advance simulation until the clock signal changes">
+				<select id="cmbStepClock" autocomplete=off>
+					<option value="CLK1" selected="selected">CLK1</option>
+					<option value="CLK8">CLK8</option>
+					<option value="CLK16">CLK16</option>
+				</select>
 				<input type="button" id="btnStepInstruction" value="Step Instruction" title="Advance simulation until the next CPU instruction">
 				<input type="button" id="btnRun" value="Run" title="Run simulation continuously">
 				<input type="button" id="btnPause" value="Pause" title="Pause a running simulation">

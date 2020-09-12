@@ -8,8 +8,11 @@
 #include "context.h"
 #include "device.h"
 #include "chip_oscillator.h"
+#include "signal_line.h"
 
 #include "widgets.h"
+
+#include <vector>
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -18,11 +21,13 @@
 
 class PanelControl : public Panel {
 public:
-	PanelControl(UIContext *ctx, ImVec2 pos, Oscillator *oscillator, StepSignal step_next_instruction) :
-		Panel(ctx),
-		position(pos),
-		oscillator(oscillator),
-		step_next_instruction(step_next_instruction) {
+	PanelControl(UIContext *ctx, ImVec2 pos, Oscillator *oscillator,
+				 StepSignal step_next_instruction, std::initializer_list<StepSignal> step_clocks) :
+			Panel(ctx),
+			position(pos),
+			oscillator(oscillator),
+			step_next_instruction(step_next_instruction),
+			step_clocks(step_clocks) {
 		if (oscillator->frequency >= 1000000) {
 			ui_freq_unit_idx = 2;
 		} else if (oscillator->frequency >= 1000) {
@@ -40,6 +45,30 @@ public:
 				dms_single_step(ui_context->dms_ctx);
 			}
 			ImGui::SameLine();
+
+			if (!step_clocks.empty()) {
+				if (ImGui::Button("Step Clock")) {
+					auto &clk = step_clocks[step_clock_sel];
+					dms_step_signal(ui_context->dms_ctx, clk.signal, clk.pos_edge, clk.neg_edge);
+				}
+				ImGui::SameLine();
+
+				ImGui::SetNextItemWidth(64);
+				if (ImGui::BeginCombo("##stepClock", signal_get_name(ui_context->device->signal_pool, step_clocks[step_clock_sel].signal))) {
+					for (size_t i = 0; i < step_clocks.size(); ++i) {
+						bool is_selected = (i == step_clock_sel);
+						if (ImGui::Selectable(signal_get_name(ui_context->device->signal_pool, step_clocks[i].signal), is_selected)) {
+							step_clock_sel = i;
+						}
+						if (is_selected) {
+							ImGui::SetItemDefaultFocus();
+						}
+					}
+
+					ImGui::EndCombo();
+				}
+				ImGui::SameLine();
+			}
 
 			if (step_next_instruction.signal.count > 0 && ImGui::Button("Next Instruction")) {
 				dms_step_signal(ui_context->dms_ctx, step_next_instruction.signal, step_next_instruction.pos_edge, step_next_instruction.neg_edge);
@@ -104,7 +133,8 @@ private:
 	Oscillator *			oscillator;
 
 	StepSignal				step_next_instruction;
-
+	std::vector<StepSignal> step_clocks;
+	size_t					step_clock_sel = 0;
 
 	int						ui_freq_unit_idx = 0;
 	static constexpr const char *FREQUENCY_UNITS[] = {"Hz", "KHz", "MHz"};
@@ -114,6 +144,8 @@ private:
 	float						speed_ratio = 1.0f;
 };
 
-Panel::uptr_t panel_control_create(UIContext *ctx, ImVec2 pos, Oscillator *oscillator, StepSignal step_next_instruction) {
-	return std::make_unique<PanelControl>(ctx, pos, oscillator, step_next_instruction);
+Panel::uptr_t panel_control_create(UIContext *ctx, ImVec2 pos, Oscillator *oscillator,
+									StepSignal step_next_instruction,
+									std::initializer_list<StepSignal> step_clocks) {
+	return std::make_unique<PanelControl>(ctx, pos, oscillator, step_next_instruction, step_clocks);
 }

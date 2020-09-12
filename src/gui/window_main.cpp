@@ -86,7 +86,8 @@ Device *WindowMain::create_minimal_6502() {
 
 	// create UI panels
 	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}, device->oscillator,
-											  {device->signals.cpu_sync, true, false}
+											  {device->signals.cpu_sync, true, false},
+											  {{device->signals.clock, true, true}}
 	));
 
 	ui_context.panel_add(
@@ -105,7 +106,10 @@ Device *WindowMain::create_commodore_pet() {
 
 	// create UI panels
 	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}, device->oscillator_y1,
-											  {device->signals.cpu_sync, true, false}
+											  {device->signals.cpu_sync, true, false},
+											  {{device->signals.clk1, true, true},
+											   {device->signals.clk8, true, true},
+											   {device->signals.clk16, true, true}}
 	));
 
 	ui_context.panel_add(
