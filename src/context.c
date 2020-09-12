@@ -27,7 +27,7 @@
 typedef enum DMS_STATE {
 	DS_WAIT = 0,
 	DS_SINGLE_STEP = 1,
-	DS_SINGLE_INSTRUCTION = 2,
+	DS_STEP_SIGNAL = 2,
 	DS_RUN = 3,
 	DS_EXIT = 99
 } DMS_STATE;
@@ -35,6 +35,11 @@ typedef enum DMS_STATE {
 typedef struct DmsContext {
 	Device *		device;
 	DMS_STATE		state;
+
+	Signal			step_signal;
+	bool			step_pos_edge;
+	bool			step_neg_edge;
+
 	int64_t *		breakpoints;
 	Signal *		signal_breakpoints;
 	bool			break_on_irq;
@@ -126,7 +131,6 @@ static bool context_execute(DmsContext *dms) {
 			dms->tick_start_run = dms->device->signal_pool->current_tick;
 		}
 
-		bool prev_sync = cpu->is_at_start_of_instruction(cpu);
 		bool prev_irq = cpu->irq_is_asserted(cpu);
 
 		dms->device->process(dms->device);
@@ -138,9 +142,12 @@ static bool context_execute(DmsContext *dms) {
 			case DS_SINGLE_STEP :
 				dms->state = DS_WAIT;
 				break;
-			case DS_SINGLE_INSTRUCTION :
-				if (!prev_sync && cpu_sync) {
-					dms->state = DS_WAIT;
+			case DS_STEP_SIGNAL :
+				if (signal_changed(dms->device->signal_pool, dms->step_signal)) {
+					bool value = signal_read_bool(dms->device->signal_pool, dms->step_signal);
+					if ((!value && dms->step_neg_edge) || (value && dms->step_pos_edge)) {
+						dms->state = DS_WAIT;
+					}
 				}
 				break;
 			case DS_RUN :
@@ -277,7 +284,6 @@ void dms_execute_no_sync(DmsContext *dms) {
 	context_execute(dms);
 }
 
-
 void dms_single_step(DmsContext *dms) {
 	assert(dms);
 
@@ -286,13 +292,17 @@ void dms_single_step(DmsContext *dms) {
 	}
 }
 
-void dms_single_instruction(DmsContext *dms) {
+void dms_step_signal(struct DmsContext *dms, struct Signal signal, bool pos_edge, bool neg_edge) {
 	assert(dms);
 
 	if (dms->state == DS_WAIT) {
-		change_state(dms, DS_SINGLE_INSTRUCTION);
+		dms->step_signal = signal;
+		dms->step_pos_edge = pos_edge;
+		dms->step_neg_edge = neg_edge;
+		change_state(dms, DS_STEP_SIGNAL);
 	}
 }
+
 
 void dms_run(DmsContext *dms) {
 	assert(dms);

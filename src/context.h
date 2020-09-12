@@ -12,6 +12,7 @@ extern "C" {
 // types
 struct DmsContext;
 struct Device;
+struct Signal;
 
 // functions
 struct DmsContext *dms_create_context(void);
@@ -30,7 +31,7 @@ void dms_execute(struct DmsContext *dms);
 void dms_execute_no_sync(struct DmsContext *dms);
 
 void dms_single_step(struct DmsContext *dms);
-void dms_single_instruction(struct DmsContext *dms);
+void dms_step_signal(struct DmsContext *dms, struct Signal signal, bool pos_edge, bool neg_edge);
 void dms_run(struct DmsContext *dms);
 void dms_pause(struct DmsContext *dms);
 void dms_reset(struct DmsContext *dms);

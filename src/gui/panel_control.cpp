@@ -18,10 +18,11 @@
 
 class PanelControl : public Panel {
 public:
-	PanelControl(UIContext *ctx, ImVec2 pos, Oscillator *oscillator) :
+	PanelControl(UIContext *ctx, ImVec2 pos, Oscillator *oscillator, StepSignal step_next_instruction) :
 		Panel(ctx),
 		position(pos),
-		oscillator(oscillator)	{
+		oscillator(oscillator),
+		step_next_instruction(step_next_instruction) {
 		if (oscillator->frequency >= 1000000) {
 			ui_freq_unit_idx = 2;
 		} else if (oscillator->frequency >= 1000) {
@@ -40,8 +41,8 @@ public:
 			}
 			ImGui::SameLine();
 
-			if (ImGui::Button("Step")) {
-				dms_single_instruction(ui_context->dms_ctx);
+			if (step_next_instruction.signal.count > 0 && ImGui::Button("Next Instruction")) {
+				dms_step_signal(ui_context->dms_ctx, step_next_instruction.signal, step_next_instruction.pos_edge, step_next_instruction.neg_edge);
 			}
 			ImGui::SameLine();
 
@@ -89,9 +90,9 @@ public:
 	void ui_frequency(const char *label, int64_t freq) {
 
 		if (freq > 1000000) {
-			ui_key_value(0, label, ImGuiEx::string_format("%3.f MHz", static_cast<float>(freq) / 1000000.0f).c_str(), 64);
+			ui_key_value(0, label, ImGuiEx::string_format("%3.3f MHz", static_cast<float>(freq) / 1000000.0f).c_str(), 64);
 		} else if (freq > 1000) {
-			ui_key_value(0, label, ImGuiEx::string_format("%3.f KHz", static_cast<float>(freq) / 1000.0f).c_str(), 64);
+			ui_key_value(0, label, ImGuiEx::string_format("%3.3f KHz", static_cast<float>(freq) / 1000.0f).c_str(), 64);
 		} else {
 			ui_key_value(0, label, ImGuiEx::string_format("%ld Hz", freq).c_str(), 64);
 		}
@@ -102,6 +103,9 @@ private:
 	const ImVec2			size = {330, 0};
 	Oscillator *			oscillator;
 
+	StepSignal				step_next_instruction;
+
+
 	int						ui_freq_unit_idx = 0;
 	static constexpr const char *FREQUENCY_UNITS[] = {"Hz", "KHz", "MHz"};
 	static constexpr int FREQUENCY_SCALE[] = {1, 1000, 1000000};
@@ -110,6 +114,6 @@ private:
 	float						speed_ratio = 1.0f;
 };
 
-Panel::uptr_t panel_control_create(UIContext *ctx, ImVec2 pos, Oscillator *oscillator) {
-	return std::make_unique<PanelControl>(ctx, pos, oscillator);
+Panel::uptr_t panel_control_create(UIContext *ctx, ImVec2 pos, Oscillator *oscillator, StepSignal step_next_instruction) {
+	return std::make_unique<PanelControl>(ctx, pos, oscillator, step_next_instruction);
 }

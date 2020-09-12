@@ -6,8 +6,20 @@
 #define DROMAIUS_GUI_PANEL_CONTROL_H
 
 #include "panel.h"
+#include "signal_line.h"
+
+struct StepSignal {
+	Signal	signal;
+	bool	pos_edge;
+	bool	neg_edge;
+};
+
+[[maybe_unused]] constexpr StepSignal STEP_SIGNAL_NONE = {{0, 0}, false, false};
 
 // functions
-Panel::uptr_t panel_control_create(class UIContext *ctx, struct ImVec2 pos, struct Oscillator *oscillator);
+Panel::uptr_t panel_control_create( class UIContext *ctx, struct ImVec2 pos,
+									struct Oscillator *oscillator,
+									StepSignal step_next_instruction
+);
 
 #endif // DROMAIUS_GUI_PANEL_CONTROL_H

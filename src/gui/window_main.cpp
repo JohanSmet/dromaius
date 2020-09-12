@@ -85,7 +85,9 @@ Device *WindowMain::create_minimal_6502() {
 	dms_set_device(ui_context.dms_ctx, (Device *) device);
 
 	// create UI panels
-	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}, device->oscillator));
+	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}, device->oscillator,
+											  {device->signals.cpu_sync, true, false}
+	));
 
 	ui_context.panel_add(
 			panel_dev_minimal_6502_create(&ui_context, {0, 110}, device));
@@ -102,7 +104,9 @@ Device *WindowMain::create_commodore_pet() {
 	dms_set_device(ui_context.dms_ctx, (Device *) device);
 
 	// create UI panels
-	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}, device->oscillator_y1));
+	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}, device->oscillator_y1,
+											  {device->signals.cpu_sync, true, false}
+	));
 
 	ui_context.panel_add(
 			panel_dev_commodore_pet_create(&ui_context, {0, 110}, device));

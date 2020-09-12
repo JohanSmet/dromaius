@@ -56,7 +56,7 @@ public:
 
 	void context_step_instruction() {
 		assert(dms_ctx);
-		dms_single_instruction(dms_ctx);
+		dms_step_signal(dms_ctx, pet_device->signals.cpu_sync, true, false);
 	}
 
 	void context_run() {
