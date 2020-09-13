@@ -185,7 +185,8 @@ def main():
         styles[':root'] += f'{key}:{value};'
 
     style = ET.Element('style')
-    style.text = '\n'.join(['%s {%s}' % kv for kv in styles.items()])
+    style.text = "@import url('http://fonts.googleapis.com/css?family=Roboto');\n" + \
+                 '\n'.join(['%s {%s}' % kv for kv in styles.items()])
     svg_root.insert(2, style)
 
     # --> remove unused namespaces
