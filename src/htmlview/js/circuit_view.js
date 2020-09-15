@@ -34,19 +34,10 @@ export class CircuitView {
 		var sheet_div = $('<div/>')
 			.attr('id', name)
 			.attr('class', 'schematic tab_content')
+			.appendTo(container)
 			;
 
-		var svg = $('<object/>')
-			.attr('id', name)
-			.attr('type', 'image/svg+xml')
-			.attr('class', 'schematic')
-			.attr('data', BASE_PATH + name + '.svg')
-			;
-
-		svg[0].addEventListener('load', () => this.on_svg_loaded());
-
-		container.append(sheet_div);
-		sheet_div.append(svg);
+		sheet_div.load(BASE_PATH + name + '.svg', () => this.on_svg_loaded(name));
 
 		tabbar.append($('<button/>')
 						.attr('class', 'tab_button')
@@ -69,21 +60,7 @@ export class CircuitView {
 		$(button).addClass('active');
 
 		// keep reference to selected svg
-		var svg_el = $('object' + obj_id + '.schematic')[0];
-		this.svg_document = svg_el.getSVGDocument();
-
-		var g = this.svg_document.children[0].children.Schematic.children;
-		for (const child in g) {
-			if (g[child].id && g[child].id.startsWith("wire#")) {
-				// extract signal name
-				const end = g[child].id.search('_');
-				const name = g[child].id.substr(5, end - 5);
-
-				g[child].addEventListener('mouseover', () => this.on_wire_mouseover(name));
-				g[child].addEventListener('mouseout', () => this.on_wire_mouseout(name));
-				g[child].addEventListener('click', () => this.on_wire_mouseclick(name));
-			}
-		}
+		this.svg_document = $('div' + obj_id + ' svg')[0];
 	}
 
 	on_wire_mouseover(signal) {
@@ -100,7 +77,20 @@ export class CircuitView {
 		this.on_signal_clicked(signal);
 	}
 
-	on_svg_loaded() {
+	on_svg_loaded(name) {
+
+		// add event handlers to the signal wires
+		$.each($("div#" + name + " svg g#Schematic [id^='wire#']"), (idx, wire) => {
+			// extract signal name
+			const end = wire.id.search('_');
+			const name = wire.id.substr(5, end - 5);
+
+			wire.addEventListener('mouseover', () => this.on_wire_mouseover(name));
+			wire.addEventListener('mouseout', () => this.on_wire_mouseout(name));
+			wire.addEventListener('click', () => this.on_wire_mouseclick(name));
+		});
+
+		// if all sheets are loaded: select the first one
 		if (++this.svg_load_count >= SCHEMATIC_SHEETS.length) {
 			this.on_tab_button_click($('.tab_button')[0]);
 		}
