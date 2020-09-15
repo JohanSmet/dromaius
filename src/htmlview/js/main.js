@@ -83,7 +83,7 @@ function refresh_signals() {
 	}
 
 	const colors = ["#009900", "#00FF00"];
-	var svg_style = circuit_view.svg_document.documentElement.style;
+	var svg_style = circuit_view.svg_document.style;
 
 	var sig_data = dmsapi.signal_data();
 

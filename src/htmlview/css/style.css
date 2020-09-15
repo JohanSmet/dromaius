@@ -44,7 +44,7 @@ div.schematic {
 	height: calc(100% - 62px); /* subtract height of tab bar */
 }
 
-object.schematic {
+div.schematic svg {
 	width: 100%;
 	height: 100%;
 }
@@ -139,7 +139,7 @@ div#about {
 }
 
 .tab_content {
-/*	display: none; */	/* visible to force chrome to load the svg immediatly */
+	display: none;
 	margin: 10px;
 }
 
