@@ -3,8 +3,10 @@
 # fixup_svg_schematic.py - Johan Smet - BSD-3-Clause (see LICENSE)
 
 import argparse
+import os.path
 from lxml import etree as ET
 
+style_prefix = ""
 styles = { }
 reverse_styles = { }
 
@@ -33,18 +35,6 @@ def color_var_name(raw: str) -> str:
     color_var =  '--color-' + result
     color_vars[color_var] = '#000000'
     return color_var
-
-def replace_styles(root: ET.Element, css_class: str):
-    for child in root:
-        if not 'style' in child.attrib:
-            continue
-        if child.tag == f"{{{ns['svg']}}}text":
-            continue
-
-        styles = child.attrib['style'].split(';')
-        styles_filtered = [x for x in styles if not x.startswith('stroke:')]
-        child.attrib['style'] = ';'.join(styles_filtered)
-        child.attrib['class'] = css_class
 
 def fetch_attribute_value(node: ET.Element, attr: str, namespace: str = None):
     if namespace is not None:
@@ -80,7 +70,7 @@ def unique_css_class_for_style_string(el_type: str, style: str) -> str:
     if style in reverse_styles:
         return reverse_styles[style]
 
-    class_name = f'{el_type}_{style_counter[el_type]}'
+    class_name = f'{style_prefix}{el_type}_{style_counter[el_type]}'
 
     reverse_styles[style] = class_name
     styles['.' + class_name] = style
@@ -133,6 +123,8 @@ def process_node_styles(root: ET.Element, group_type: str = None, color_var: str
         remove_attribute(node, 'label', 'inkscape')
 
 def main():
+    global style_prefix
+
     cmd_args = parse_arguments()
 
     # read svg
@@ -177,6 +169,7 @@ def main():
     remove_attribute(schematic, 'groupmode', 'inkscape')
 
     # --> fix the styles of the schematic elements
+    style_prefix = os.path.splitext(os.path.basename(cmd_args.output))[0] + '_'
     process_node_styles(schematic)
 
     # --> add a style element somewhere in the beginning
