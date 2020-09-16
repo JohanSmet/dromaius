@@ -41,7 +41,7 @@ div#right_column {
 
 div.schematic {
 	width: 100%;
-	height: calc(100% - 62px); /* subtract height of tab bar */
+	height: calc(100% - 82px); /* subtract height of tab bar + margins */
 }
 
 div.schematic svg {
