@@ -1,12 +1,18 @@
 // js/panel_clock.js - Johan Smet - BSD-3-Clause (see LICENSE)
+import {Panel} from './panel.js';
 
-export class PanelClock {
-	constructor(container) {
-		// title
-		container.append($("<h2 />", { text: "Clock" }));
+export class PanelClock extends Panel {
+
+	constructor() {
+		super();
+
+		this.panel_title = 'Clock';
 
 		// value  table
-		var table = $('<table>').addClass('panel_info');
+		var table = $('<table>')
+						.addClass('panel_info')
+						.appendTo(this.panel_content)
+		;
 
 		// >> tick count
 		table.append($('<tr>')
@@ -20,7 +26,7 @@ export class PanelClock {
 						.append($('<td>', { id: 'clock_elapsed' }))
 		);
 
-		container.append(table);
+		this.create_js_panel();
 	}
 
 	update(clock_info) {

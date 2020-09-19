@@ -1,18 +1,19 @@
 // js/panel_signal_details.js - Johan Smet - BSD-3-Clause (see LICENSE)
+import {Panel} from './panel.js';
 
-export class PanelSignalDetails {
-	dmsapi = null;
-	current = '';
+export class PanelSignalDetails extends Panel {
 
-	constructor(container, dmsapi) {
-		this.dmsapi = dmsapi;
+	constructor(dmsapi) {
+		super();
 
-		// title
-		container.append($("<h2 />", { text: "Signal" }));
+		this.dmsapi = dmsapi
+		this.panel_title = 'Signal';
 
+		// data
 		var table = $('<table/>')
 						.addClass('panel_info')
-						.appendTo(container);
+						.appendTo(this.panel_content)
+		;
 
 		table.append($('<tr/>')
 						.append($('<th/>', { text: 'Name' }))
@@ -23,10 +24,15 @@ export class PanelSignalDetails {
 						.append($('<td/>', { id: 'signal_writer' }))
 		);
 
-		$('<button/>', {text: 'Set breakpoint'}).appendTo(container).on('click', () => {
-			this.dmsapi.breakpoint_signal_set(this.current);
-			this.on_breakpoint_set();
-		});
+		$('<button/>', {text: 'Set breakpoint'})
+			.appendTo(this.panel_content)
+			.on('click', () => {
+				this.dmsapi.breakpoint_signal_set(this.current);
+				this.on_breakpoint_set();
+			}
+		);
+
+		this.create_js_panel();
 	}
 
 	update(signal_name) {
@@ -37,6 +43,6 @@ export class PanelSignalDetails {
 		$('#signal_writer').text(details.writer_name);
 	}
 
-	// public events
+	// public callbacks
 	on_breakpoint_set = function() {}
 }

@@ -68,6 +68,7 @@ div.panel {
 }
 
 table.panel_info, table.cpu_register, table.cpu_status {
+	font-size: initial;
 	font-family: monospace;
 	text-align: right;
 	margin-left: 2em;
@@ -95,7 +96,7 @@ table.cpu_status td, table.cpu_status td {
 
 canvas#display {
 	background-color: #808080;
-	margin-left: 2px;
+	margin: 2px;
 }
 
 div#about {

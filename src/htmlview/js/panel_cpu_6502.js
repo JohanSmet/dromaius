@@ -1,7 +1,9 @@
 // js/panel_cpu_6502.js - Johan Smet - BSD-3-Clause (see LICENSE)
+import {Panel} from './panel.js';
 
-export class PanelCpu6502 {
-	constructor(container) {
+export class PanelCpu6502 extends Panel {
+
+	constructor() {
 		var create_row = function(label, reg) {
 			return $('<tr>')
 					.addClass('cpu_register')
@@ -11,11 +13,15 @@ export class PanelCpu6502 {
 			;
 		};
 
-		// title
-		container.append($("<h2 />", { text: "CPU: MOS 6502" }));
+		super();
+
+		this.panel_title = 'CPU: MOS 6502';
 
 		// register table
-		var table = $('<table>').addClass('cpu_register');
+		var table = $('<table>')
+				.addClass('cpu_register')
+				.appendTo(this.panel_content);
+		;
 
 		// >> header
 		table.append($('<tr>')
@@ -32,10 +38,11 @@ export class PanelCpu6502 {
 		table.append(create_row('Program Counter', 'pc'));
 		table.append(create_row('Instruction', 'ir'));
 
-		container.append(table);
-
 		// cpu status/flags table
-		var cpu_status = $('<table>').addClass('cpu_status');
+		var cpu_status = $('<table>')
+				.addClass('cpu_status')
+				.appendTo(this.panel_content)
+		;
 
 		cpu_status.append($('<tr>')
 						.append($('<th>', { text: 'Status' }))
@@ -50,19 +57,18 @@ export class PanelCpu6502 {
 		);
 
 		cpu_status.append($('<tr>')
-						.append($('<td>', { id: 'reg_p_hex' }))
-						.append($('<td>', { id: 'reg_p_bit7' }))
-						.append($('<td>', { id: 'reg_p_bit6' }))
-						.append($('<td>', { id: 'reg_p_bit5' }))
-						.append($('<td>', { id: 'reg_p_bit4' }))
-						.append($('<td>', { id: 'reg_p_bit3' }))
-						.append($('<td>', { id: 'reg_p_bit2' }))
-						.append($('<td>', { id: 'reg_p_bit1' }))
-						.append($('<td>', { id: 'reg_p_bit0' }))
+						.append($('<td>', { id: 'reg_p_hex', text: '0' }))
+						.append($('<td>', { id: 'reg_p_bit7', text: '0' }))
+						.append($('<td>', { id: 'reg_p_bit6', text: '0' }))
+						.append($('<td>', { id: 'reg_p_bit5', text: '0' }))
+						.append($('<td>', { id: 'reg_p_bit4', text: '0' }))
+						.append($('<td>', { id: 'reg_p_bit3', text: '0' }))
+						.append($('<td>', { id: 'reg_p_bit2', text: '0' }))
+						.append($('<td>', { id: 'reg_p_bit1', text: '0' }))
+						.append($('<td>', { id: 'reg_p_bit0', text: '0' }))
 		);
 
-		container.append(cpu_status);
-
+		this.create_js_panel();
 	}
 
 	update(cpu_info) {
