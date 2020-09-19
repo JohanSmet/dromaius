@@ -23,7 +23,10 @@ export class Panel {
 			contentSize:'350px auto',
 			position: 'left-top 0 15 down div#content',
 			content: this.panel_content[0],
-			theme: 'dark'
+			theme: 'dark',
+			resizeit: {
+				handles: 'se'
+			}
 		});
 	}
 }
