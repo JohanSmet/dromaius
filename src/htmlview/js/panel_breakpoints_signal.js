@@ -7,31 +7,38 @@ export class PanelBreakpointsSignal extends Panel {
 	constructor(signal_names, dmsapi) {
 		super();
 
-		// title
 		this.panel_id = 'pnlBreakpointsSignal';
 		this.panel_title = "Signal Breakpoints";
+		this.dmsapi = dmsapi;
+
+		// add new breakpoint
+		var selSignal = $('<select/>', {id: 'bps_add', style:'width: 100%'});
+		for (var s = 0; s < signal_names.size(); ++s) {
+			selSignal.append($('<option/>').attr('value', signal_names.get(s)).text(signal_names.get(s)));
+		}
+
+		var btnAdd = $('<button/>', {style: 'width: 100%'})
+			.text('Add')
+			.on('click', () => {
+				this.dmsapi.breakpoint_signal_set(selSignal[0].selectedOptions[0].value);
+				this.update();
+			})
+		;
+
+		$('<table/>')
+			.addClass('bps_list')
+			.appendTo(this.panel_content)
+			.append($('<tr/>')
+						.append($('<th/>', {style:'width: 65%'}).append(selSignal))
+						.append($('<th/>', {style:'width: 35%'}).append(btnAdd))
+			)
+		;
 
 		// break points table
 		var table = $('<table>', {id: 'bps_table'})
-				.addClass('panel_info')
+				.addClass('bps_list')
 				.appendTo(this.panel_content)
 		;
-
-		// add new breakpoint
-		var div = $('<div/>', {style: 'margin-top:.5em'}).appendTo(this.panel_content);
-
-		var combo = $('<select/>', {id: 'bps_add', style:'margin:.5em'}).appendTo(div);
-
-		for (var s = 0; s < signal_names.size(); ++s) {
-			combo.append($('<option/>').attr('value', signal_names.get(s)).text(signal_names.get(s)));
-		}
-
-		$('<button/>', {text: 'Add'}).appendTo(div).on('click', () => {
-			this.dmsapi.breakpoint_signal_set(($('select#bps_add').children('option:selected').val()));
-			this.update();
-		});
-
-		this.dmsapi = dmsapi;
 
 		this.create_js_panel();
 	}
@@ -44,13 +51,21 @@ export class PanelBreakpointsSignal extends Panel {
 		var bps = this.dmsapi.breakpoint_signal_list();
 
 		for (var s = 0; s < bps.size(); ++s) {
-			table.append($('<tr>')
-							.append($('<td>', { text: bps.get(s) }))
-							.append($('<td>', { text: 'Remove', signal: bps.get(s) }).addClass('actionRemove'))
-							);
+			const name = bps.get(s);
+
+			var button = $('<button/>', {style: 'width:100%'})
+					.text('Remove')
+					.on('click', () => { this.remove_breakpoint(name); })
+			;
+
+			table.append($('<tr/>')
+					.append($('<td/>').addClass('left').text(name))
+					.append($('<td/>').addClass('right').append(button))
+				)
+			;
 		}
 
-		$('table#bps_table td.actionRemove').on('click', (e) => this.remove_breakpoint($(e.target).attr('signal')));
+		this.panel.resize({height: 'auto'});
 	}
 
 	remove_breakpoint(signal_name) {
