@@ -1,18 +1,23 @@
 // js/panel_breakpoints_signal.js - Johan Smet - BSD-3-Clause (see LICENSE)
+import {Panel} from './panel.js';
 
-export class PanelBreakpointsSignal {
+export class PanelBreakpointsSignal extends Panel {
 	dmsapi = null
 
-	constructor(container, signal_names, dmsapi) {
+	constructor(signal_names, dmsapi) {
+		super();
+
 		// title
-		container.append($("<h2 />", { text: "Signal Breakpoints" }));
+		this.panel_title = "Signal Breakpoints";
 
 		// break points table
-		var table = $('<table>', {id: 'bps_table'}).addClass('panel_info');
-		container.append(table);
+		var table = $('<table>', {id: 'bps_table'})
+				.addClass('panel_info')
+				.appendTo(this.panel_content)
+		;
 
 		// add new breakpoint
-		var div = $('<div/>', {style: 'margin-top:.5em'}).appendTo(container);
+		var div = $('<div/>', {style: 'margin-top:.5em'}).appendTo(this.panel_content);
 
 		var combo = $('<select/>', {id: 'bps_add', style:'margin:.5em'}).appendTo(div);
 
@@ -26,6 +31,8 @@ export class PanelBreakpointsSignal {
 		});
 
 		this.dmsapi = dmsapi;
+
+		this.create_js_panel();
 	}
 
 	update() {

@@ -4,20 +4,20 @@ import {PanelCpu6502} from './panel_cpu_6502.js';
 import {PanelClock} from './panel_clock.js';
 import {PanelBreakpointsSignal} from './panel_breakpoints_signal.js';
 import {PanelSignalDetails} from './panel_signal_details.js';
+import {PanelScreen} from './panel_screen.js';
 import {CircuitView} from './circuit_view.js';
 
 // globals
 var dmsapi = null;
-var display_context = null;
-var display_imdata = null;
 
 var signals_names = [];
 var hovered_signal = '';
 
-var panel_cpu = new PanelCpu6502($('div#cpu'));
-var panel_clock = new PanelClock($('div#clock'));
+var panel_cpu = null;
+var panel_clock = null;
 var panel_breakpoints_signal = null;
 var panel_signal_details = null;
+var panel_screen = null;
 var circuit_view = new CircuitView($('div#right_column'));
 
 // functions
@@ -47,22 +47,15 @@ export function setup_emulation(emscripten_mod) {
 	}
 
 	// panels
-	panel_breakpoints_signal = new PanelBreakpointsSignal($('div#breakpoints_signal'), sigkeys, dmsapi);
-	panel_signal_details = new PanelSignalDetails($('div#signal_details'), dmsapi);
+	panel_screen = new PanelScreen(dmsapi.display_info());
+	panel_clock = new PanelClock();
+	panel_cpu = new PanelCpu6502();
+	panel_breakpoints_signal = new PanelBreakpointsSignal(sigkeys, dmsapi);
 
+	panel_signal_details = new PanelSignalDetails(dmsapi);
 	panel_signal_details.on_breakpoint_set = function(signal) {
 		panel_breakpoints_signal.update();
-	}
-
-	// setup image-data for the monitor display
-	var display_info = dmsapi.display_info();
-
-	display_context = $('#display')[0].getContext("2d");
-	display_imdata = display_context.createImageData(display_info.width, display_info.height);
-
-	// resize canvas
-	$('#display')[0].width = display_info.width;
-	$('#display')[0].height = display_info.height;
+	};
 
 	// signal selection
 	circuit_view.on_signal_hovered = function(signal) {
@@ -115,8 +108,7 @@ function execution_timer() {
 	refresh_clock_panel();
 
 	// refresh the screen
-	display_imdata.data.set(dmsapi.display_data());
-	display_context.putImageData(display_imdata, 0, 0);
+	panel_screen.update(dmsapi);
 }
 
 $('#btnStepInstruction').on('click', function (event) {
