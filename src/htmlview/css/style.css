@@ -71,7 +71,29 @@ table.panel_info, table.cpu_register, table.cpu_status {
 	font-size: initial;
 	font-family: monospace;
 	text-align: right;
-	margin-left: 2em;
+	margin: 0em 2em;
+}
+
+table.bps_list {
+	font-size: initial;
+	font-family: monospace;
+	text-align: right;
+	margin: 0.5em 1em;
+	width: calc(100% - 2em);
+	border-spacing: 0;
+}
+
+table.bps_list td.left {
+	width: 65%;
+	text-align: left;
+}
+
+table.bps_list td.right {
+	width: 65%;
+}
+
+table.bps_list td {
+  border-bottom: 1px solid #ddd;
 }
 
 table.cpu_status {
