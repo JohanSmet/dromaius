@@ -6,6 +6,7 @@ export class PanelClock extends Panel {
 	constructor() {
 		super();
 
+		this.panel_id = 'pnlClock';
 		this.panel_title = 'Clock';
 
 		// value  table

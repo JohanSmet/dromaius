@@ -4,12 +4,14 @@ import { jsPanel } from './jspanel/jspanel.js';
 
 export class Panel {
 
+	panel_id = 'panel-id';
 	panel_title = "No Title";
 	panel_content = $('<div/>');
 	panel = null;
 
 	create_js_panel() {
 		this.panel = jsPanel.create({
+			id: this.panel_id,
 			headerTitle: this.panel_title,
 			headerControls : {
 				maximize: 'remove',

@@ -7,6 +7,7 @@ export class PanelSignalDetails extends Panel {
 		super();
 
 		this.dmsapi = dmsapi
+		this.panel_id = 'pnlSignalDetails';
 		this.panel_title = 'Signal';
 
 		// data

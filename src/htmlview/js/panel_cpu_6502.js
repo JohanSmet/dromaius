@@ -15,6 +15,7 @@ export class PanelCpu6502 extends Panel {
 
 		super();
 
+		this.panel_id = 'pnlCpu6502';
 		this.panel_title = 'CPU: MOS 6502';
 
 		// register table
