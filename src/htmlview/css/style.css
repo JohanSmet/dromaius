@@ -96,7 +96,6 @@ table.cpu_status td, table.cpu_status td {
 
 canvas#display {
 	background-color: #808080;
-	margin: 2px;
 }
 
 div#about {
