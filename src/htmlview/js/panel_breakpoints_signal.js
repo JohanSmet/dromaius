@@ -8,6 +8,7 @@ export class PanelBreakpointsSignal extends Panel {
 		super();
 
 		// title
+		this.panel_id = 'pnlBreakpointsSignal';
 		this.panel_title = "Signal Breakpoints";
 
 		// break points table

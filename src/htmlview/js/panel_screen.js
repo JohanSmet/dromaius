@@ -7,6 +7,7 @@ export class PanelScreen extends Panel {
 		super();
 
 		// title
+		this.panel_id = 'pnlScreen';
 		this.panel_title = 'Screen';
 
 		// canvas
