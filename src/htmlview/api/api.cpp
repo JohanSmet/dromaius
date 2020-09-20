@@ -115,14 +115,14 @@ public:
 
 	void breakpoint_signal_set(const std::string &signal_name) {
 		auto signal = signal_by_name(pet_device->signal_pool, signal_name.c_str());
-		if (signal.start != 0) {
+		if (signal.count != 0) {
 			dms_breakpoint_signal_set(dms_ctx, signal);
 		}
 	}
 
 	void breakpoint_signal_clear(const std::string &signal_name) {
 		auto signal = signal_by_name(pet_device->signal_pool, signal_name.c_str());
-		if (signal.start != 0) {
+		if (signal.count != 0) {
 			dms_breakpoint_signal_clear(dms_ctx, signal);
 		}
 	}
