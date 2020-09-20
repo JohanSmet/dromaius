@@ -112,6 +112,10 @@ table.cpu_status td, table.cpu_status td {
 	padding: 0px 4px;
 }
 
+button.panel_button {
+	margin: 4px 1em;
+}
+
 .hidden {
 	display: none;
 }

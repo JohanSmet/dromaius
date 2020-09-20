@@ -50,12 +50,13 @@ export function setup_emulation(emscripten_mod) {
 	panel_screen = new PanelScreen(dmsapi.display_info());
 	panel_clock = new PanelClock();
 	panel_cpu = new PanelCpu6502();
-	panel_breakpoints_signal = new PanelBreakpointsSignal(sigkeys, dmsapi);
 
 	panel_signal_details = new PanelSignalDetails(dmsapi);
 	panel_signal_details.on_breakpoint_set = function(signal) {
 		panel_breakpoints_signal.update();
 	};
+
+	panel_breakpoints_signal = new PanelBreakpointsSignal(sigkeys, dmsapi);
 
 	// signal selection
 	circuit_view.on_signal_hovered = function(signal) {

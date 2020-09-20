@@ -10,10 +10,24 @@ export class PanelSignalDetails extends Panel {
 		this.panel_id = 'pnlSignalDetails';
 		this.panel_title = 'Signal';
 
+		// no data
+		var no_data = $('<p/>')
+			.text('Click on a wire to display signal information')
+			.attr('id', 'no_data')
+			.attr('style', 'text-align: center')
+			.addClass('hidden')
+			.appendTo(this.panel_content)
+		;
+
 		// data
+		var data_div = $('<div/>')
+						.attr('id', 'data')
+						.appendTo(this.panel_content)
+		;
+
 		var table = $('<table/>')
 						.addClass('panel_info')
-						.appendTo(this.panel_content)
+						.appendTo(data_div)
 		;
 
 		table.append($('<tr/>')
@@ -21,27 +35,69 @@ export class PanelSignalDetails extends Panel {
 						.append($('<td/>', { id: 'signal_name' }))
 		);
 		table.append($('<tr/>')
+						.append($('<th/>', { text: 'Value' }))
+						.append($('<td/>', { id: 'signal_value' }))
+		);
+		table.append($('<tr/>')
 						.append($('<th/>', { text: 'Last written by' }))
 						.append($('<td/>', { id: 'signal_writer' }))
 		);
 
 		$('<button/>', {text: 'Set breakpoint'})
-			.appendTo(this.panel_content)
+			.addClass('panel_button')
+			.appendTo(data_div)
 			.on('click', () => {
 				this.dmsapi.breakpoint_signal_set(this.current);
 				this.on_breakpoint_set();
 			}
 		);
 
+		$('<button/>', {text: 'Refresh'})
+			.addClass('panel_button')
+			.appendTo(data_div)
+			.on('click', () => {
+				this.update(this.current);
+			}
+		);
+
 		this.create_js_panel();
+
+		data_div.addClass('hidden');
+		no_data.removeClass('hidden');
+
 	}
 
 	update(signal_name) {
+		const format_bool = function(val) {
+			const str = ['LOW', 'HIGH'];
+			return str[val];
+		};
+
+		const format_hex = function(val, hexlen) {
+			return '$' + ('0000' + val.toString(16)).substr(-hexlen);
+		};
+
 		this.current = signal_name;
 		const details = this.dmsapi.signal_details(signal_name);
 
-		$('#signal_name').text(signal_name);
-		$('#signal_writer').text(details.writer_name);
+		// visibility of data
+		if (details.signal.count > 0) {
+			this.panel_content.children('#data').removeClass('hidden');
+			this.panel_content.children('#no_data').addClass('hidden');
+		} else {
+			this.panel_content.children('#data').addClass('hidden');
+			this.panel_content.children('#no_data').removeClass('hidden');
+			return;
+		}
+
+		this.panel_content.find('#signal_name').text(signal_name);
+		this.panel_content.find('#signal_writer').text(details.writer_name);
+
+		if (details.signal.count == 1) {
+			this.panel_content.find('#signal_value').text(format_bool(details.value));
+		} else {
+			this.panel_content.find('#signal_value').text(format_hex(details.value));
+		}
 	}
 
 	// public callbacks
