@@ -124,6 +124,10 @@ canvas#display {
 	background-color: #808080;
 }
 
+path.pressed {
+	fill: darkblue;
+}
+
 div#about {
 	z-index: 20;
 	position: fixed;
