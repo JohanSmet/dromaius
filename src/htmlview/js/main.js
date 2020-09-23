@@ -5,6 +5,7 @@ import {PanelClock} from './panel_clock.js';
 import {PanelBreakpointsSignal} from './panel_breakpoints_signal.js';
 import {PanelSignalDetails} from './panel_signal_details.js';
 import {PanelScreen} from './panel_screen.js';
+import {PanelKeyboard} from './panel_keyboard.js';
 import {CircuitView} from './circuit_view.js';
 
 // globals
@@ -18,6 +19,7 @@ var panel_clock = null;
 var panel_breakpoints_signal = null;
 var panel_signal_details = null;
 var panel_screen = null;
+var panel_keyboard = null;
 var circuit_view = new CircuitView($('div#right_column'));
 
 // functions
@@ -57,6 +59,8 @@ export function setup_emulation(emscripten_mod) {
 	};
 
 	panel_breakpoints_signal = new PanelBreakpointsSignal(sigkeys, dmsapi);
+
+	panel_keyboard = new PanelKeyboard(dmsapi);
 
 	// signal selection
 	circuit_view.on_signal_hovered = function(signal) {
@@ -102,14 +106,17 @@ function refresh_clock_panel() {
 }
 
 function execution_timer() {
-	dmsapi.context_execute();
+	if (dmsapi.context_execute()) {
+		refresh_signals();
+		refresh_cpu_panel();
+		refresh_clock_panel();
 
-	refresh_signals();
-	refresh_cpu_panel();
-	refresh_clock_panel();
+		// refresh the screen
+		panel_screen.update(dmsapi);
 
-	// refresh the screen
-	panel_screen.update(dmsapi);
+		// refresh the keyboard
+		panel_keyboard.update();
+	}
 }
 
 $('#btnStepInstruction').on('click', function (event) {

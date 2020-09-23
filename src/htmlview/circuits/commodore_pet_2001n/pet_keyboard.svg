@@ -1,0 +1,198 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800.21252 202.83749" version="1.1" id="svg8">
+  <defs id="defs2">
+    <marker orient="auto" refY="0" refX="0" id="TriangleOutM" style="overflow:visible">
+      <path id="path11195" d="M 5.77,0 -2.88,5 V -5 Z" style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:1pt;stroke-opacity:1" transform="scale(0.4)"/>
+    </marker>
+    <marker style="overflow:visible" id="TriangleOutM-1" refX="0" refY="0" orient="auto">
+      <path transform="scale(0.4)" style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:#ffffff;stroke-width:1pt;stroke-opacity:1" d="M 5.77,0 -2.88,5 V -5 Z" id="path11195-5"/>
+    </marker>
+  </defs>
+  <g id="Keyboard">
+    <path id="key_8_1" d="m 0.16875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_0_0" d="m 40.66875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_9_0" d="m 0.16875,40.66875 v 40.5 h 60.75 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_4_0" d="m 71.04375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_2_0" d="m 60.91875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_3_0" d="m 101.41875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_2_1" d="m 141.91875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_3_1" d="m 182.41875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_2_2" d="m 222.91875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_3_2" d="m 263.41875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_2_3" d="m 303.91875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_3_3" d="m 344.41875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_3_4" d="m 425.41875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_2_5" d="m 465.91875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_9_3" d="m 506.41875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_8_4" d="m 546.91875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_1_0" d="m 81.16875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_0_1" d="m 121.66875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_1_1" d="m 162.16875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_0_2" d="m 202.66875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_1_2" d="m 243.16875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_0_3" d="m 283.66875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_1_3" d="m 324.16875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_0_4" d="m 364.66875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_1_4" d="m 405.16875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_0_5" d="m 445.66875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_9_1" d="m 486.16875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_8_2" d="m 526.66875,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_6_0" d="m 91.29375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_7_0" d="m 131.79375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_6_1" d="m 172.29375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_7_1" d="m 212.79375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_6_2" d="m 253.29375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_7_2" d="m 293.79375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_6_3" d="m 334.29375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_7_3" d="m 374.79375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_6_4" d="m 415.29375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_7_4" d="m 455.79375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_5_0" d="m 111.54375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_4_1" d="m 152.04375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_5_1" d="m 192.54375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_4_2" d="m 233.04375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_5_2" d="m 273.54375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_4_3" d="m 314.04375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_5_3" d="m 354.54375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_5_4" d="m 435.54375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_9_4" d="m 476.04375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_7_7" d="m 759.54375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_2_4" d="m 384.91875,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_4_4" d="m 395.04375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_8_0_lock" d="m 10.29375,81.16875 v 40.5 h 60.75 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_8_0" d="m 10.29375,121.66875 v 40.5 h 81 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_6_5" d="m 516.54375,81.16875 v 40.5 h 60.75 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_8_5" d="m 496.29375,121.66875 v 40.5 h 81 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_1_6" d="m 678.54375,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_0_7" d="m 719.04375,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_1_7" d="m 759.54375,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_3_6" d="m 678.54375,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_2_7" d="m 719.04375,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_3_7" d="m 759.54375,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_5_6" d="m 678.54375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_4_7" d="m 719.04375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_5_7" d="m 759.54375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_0_6" d="m 638.04375,0.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_2_6" d="m 638.04375,40.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_4_6" d="m 638.04375,81.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_8_6" d="m 638.04375,162.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_9_6" d="m 678.54375,162.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_8_7" d="m 719.04375,162.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_9_7" d="m 759.54375,162.16875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_6_7" d="m 719.04375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_7_6" d="m 678.54375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_6_6" d="m 638.04375,121.66875 v 40.5 h 40.5 v -40.5 z m 0,0" class="path_0"/>
+    <path id="key_9_2" d="m 101.41875,162.16875 v 40.5 h 364.5 v -40.5 z m 0,0" class="path_0"/>
+    <text xml:space="preserve" x="10.457812" y="18.171543" id="text" class="text_0"><tspan id="tspan" x="10.457812" y="18.171543" class="tspan_0">@</tspan></text>
+    <text id="text_1" y="21.02071" x="56.909962" xml:space="preserve" class="text_0"><tspan y="21.02071" x="56.909962" id="tspan_1" class="tspan_0">!</tspan></text>
+    <text id="text_2" y="21.02071" x="96.819138" xml:space="preserve" class="text_0"><tspan y="21.02071" x="96.819138" id="tspan_2" class="tspan_0">"</tspan></text>
+    <text id="text_3" y="20.796101" x="133.53496" xml:space="preserve" class="text_0"><tspan y="20.796101" x="133.53496" id="tspan_3" class="tspan_0">#</tspan></text>
+    <text xml:space="preserve" x="176.05644" y="21.635944" id="text_4" class="text_0"><tspan id="tspan_4" x="176.05644" y="21.635944" class="tspan_0">$</tspan></text>
+    <text xml:space="preserve" x="213.41679" y="21.284382" id="text_5" class="text_0"><tspan id="tspan_5" x="213.41679" y="21.284382" class="tspan_0">%</tspan></text>
+    <text xml:space="preserve" x="260.66486" y="21.02071" id="text_6" class="text_0"><tspan id="tspan_6" x="260.66486" y="21.02071" class="tspan_0">'</tspan></text>
+    <text xml:space="preserve" x="295.79865" y="21.284382" id="text_7" class="text_0"><tspan id="tspan_7" x="295.79865" y="21.284382" class="tspan_0">&amp;</tspan></text>
+    <text xml:space="preserve" x="341.04962" y="21.02071" id="text_8" class="text_0"><tspan id="tspan_8" x="341.04962" y="21.02071" class="tspan_0">\</tspan></text>
+    <text xml:space="preserve" x="380.9588" y="21.616413" id="text_9" class="text_0"><tspan id="tspan_9" x="380.9588" y="21.616413" class="tspan_0">(</tspan></text>
+    <text id="text_10" y="21.616413" x="421.57599" xml:space="preserve" class="text_0"><tspan y="21.616413" x="421.57599" id="tspan_10" class="tspan_0">)</tspan></text>
+    <text xml:space="preserve" x="502.6297" y="21.635944" id="text_11" class="text_0"><tspan id="tspan_11" x="502.6297" y="21.635944" class="tspan_0">[</tspan></text>
+    <text xml:space="preserve" x="542.90509" y="21.635944" id="text_12" class="text_0"><tspan id="tspan_12" x="542.90509" y="21.635944" class="tspan_0">]</tspan></text>
+    <path d="M 475.7277,15.34688 H 460.94151" id="path" class="path_1"/>
+    <text id="text_13" y="59.199024" x="14.305957" xml:space="preserve" class="text_1"><tspan y="59.199024" x="14.305957" id="tspan_13" dy="0" class="tspan_1">OFF</tspan></text>
+    <text xml:space="preserve" x="14.253222" y="75.69902" id="text_14" class="text_1"><tspan id="tspan_14" x="14.253222" y="75.69902" class="tspan_1">RVS</tspan></text>
+    <text id="text_15" y="59.559864" x="73.297653" xml:space="preserve" class="text_0"><tspan y="59.559864" x="73.297653" id="tspan_15" class="tspan_0">Q</tspan></text>
+    <text xml:space="preserve" x="111.77617" y="59.296192" id="text_16" class="text_0"><tspan id="tspan_16" x="111.77617" y="59.296192" class="tspan_0">W</tspan></text>
+    <text xml:space="preserve" x="155.50859" y="59.296192" id="text_17" class="text_0"><tspan id="tspan_17" x="155.50859" y="59.296192" class="tspan_0">E</tspan></text>
+    <text xml:space="preserve" x="195.02715" y="59.296192" id="text_18" class="text_0"><tspan id="tspan_18" x="195.02715" y="59.296192" class="tspan_0">R</tspan></text>
+    <text id="text_19" y="59.296192" x="237.06035" xml:space="preserve" class="text_0"><tspan y="59.296192" x="237.06035" id="tspan_19" class="tspan_0">T</tspan></text>
+    <text id="text_20" y="59.296192" x="277.56036" xml:space="preserve" class="text_0"><tspan y="59.296192" x="277.56036" id="tspan_20" class="tspan_0">Y</tspan></text>
+    <text id="text_21" y="59.296192" x="316.84943" xml:space="preserve" class="text_0"><tspan y="59.296192" x="316.84943" id="tspan_21" class="tspan_0">U</tspan></text>
+    <text id="text_22" y="59.296192" x="361.71954" xml:space="preserve" class="text_0"><tspan y="59.296192" x="361.71954" id="tspan_22" class="tspan_0">I</tspan></text>
+    <text id="text_23" y="59.559864" x="397.29767" xml:space="preserve" class="text_0"><tspan y="59.559864" x="397.29767" id="tspan_23" class="tspan_0">O</tspan></text>
+    <text id="text_24" y="59.296192" x="438.99884" xml:space="preserve" class="text_0"><tspan y="59.296192" x="438.99884" id="tspan_24" class="tspan_0">P</tspan></text>
+    <text xml:space="preserve" x="518.28986" y="58.673344" id="text_25" class="text_0"><tspan id="tspan_25" x="518.28986" y="58.673344" class="tspan_0">&lt;</tspan></text>
+    <path id="path_1" d="M 486.16875,60.09152 V 49.54782" class="path_2"/>
+    <text id="text_26" y="58.673344" x="558.78986" xml:space="preserve" class="text_0"><tspan y="58.673344" x="558.78986" id="tspan_26" class="tspan_0">&gt;</tspan></text>
+    <text xml:space="preserve" x="14.398242" y="100.82912" id="text_27" class="text_1"><tspan id="tspan_27" x="14.398242" y="100.82912" class="tspan_1">SHIFT</tspan></text>
+    <text id="text_28" y="117.32912" x="15.633105" xml:space="preserve" class="text_2"><tspan y="117.32912" x="15.633105" id="tspan_28" class="tspan_1">LOCK</tspan></text>
+    <text id="text_29" y="148.47099" x="24.523243" xml:space="preserve" class="text_1"><tspan y="148.47099" x="24.523243" id="tspan_29" class="tspan_1">SHIFT</tspan></text>
+    <text id="text_30" y="99.280777" x="481.07013" xml:space="preserve" class="text_3"><tspan y="99.280777" x="481.07013" id="tspan_30" class="tspan_2">RUN</tspan></text>
+    <text xml:space="preserve" x="477.6214" y="115.87306" id="text_31" class="text_4"><tspan id="tspan_31" x="477.6214" y="115.87306" class="tspan_2">STOP</tspan></text>
+    <text xml:space="preserve" x="546.91876" y="106.42265" id="text_32" class="text_3"><tspan id="tspan_32" x="546.91876" y="106.42265" class="tspan_3">RETURN</tspan></text>
+    <text xml:space="preserve" x="510.52325" y="148.47099" id="text_33" class="text_1"><tspan id="tspan_33" x="510.52325" y="148.47099" class="tspan_1">SHIFT</tspan></text>
+    <text xml:space="preserve" x="84.457809" y="101.57759" id="text_34" class="text_0"><tspan id="tspan_34" x="84.457809" y="101.57759" class="tspan_0">A</tspan></text>
+    <text id="text_35" y="101.31392" x="125.34355" xml:space="preserve" class="text_0"><tspan y="101.31392" x="125.34355" id="tspan_35" class="tspan_0">S</tspan></text>
+    <text id="text_36" y="101.31392" x="164.20293" xml:space="preserve" class="text_0"><tspan y="101.31392" x="164.20293" id="tspan_36" class="tspan_0">D</tspan></text>
+    <text id="text_37" y="101.31392" x="206.6414" xml:space="preserve" class="text_0"><tspan y="101.31392" x="206.6414" id="tspan_37" class="tspan_0">F</tspan></text>
+    <text xml:space="preserve" x="245.80351" y="101.31392" id="text_38" class="text_0"><tspan id="tspan_38" x="245.80351" y="101.31392" class="tspan_0">G</tspan></text>
+    <text xml:space="preserve" x="286.27423" y="101.31392" id="text_39" class="text_0"><tspan id="tspan_39" x="286.27423" y="101.31392" class="tspan_0">H</tspan></text>
+    <text xml:space="preserve" x="332.84357" y="101.31392" id="text_40" class="text_0"><tspan id="tspan_40" x="332.84357" y="101.31392" class="tspan_0">J</tspan></text>
+    <text xml:space="preserve" x="367.04474" y="101.31392" id="text_41" class="text_0"><tspan id="tspan_41" x="367.04474" y="101.31392" class="tspan_0">K</tspan></text>
+    <text xml:space="preserve" x="408.79474" y="101.57759" id="text_42" class="text_0"><tspan id="tspan_42" x="408.79474" y="101.57759" class="tspan_0">L</tspan></text>
+    <text xml:space="preserve" x="452.41974" y="101.31392" id="text_43" class="text_0"><tspan id="tspan_43" x="452.41974" y="101.31392" class="tspan_0">:</tspan></text>
+    <text xml:space="preserve" x="104.69315" y="140.47569" id="text_44" class="text_0"><tspan id="tspan_44" x="104.69315" y="140.47569" class="tspan_0">Z</tspan></text>
+    <text id="text_45" y="140.21202" x="145.20781" xml:space="preserve" class="text_0"><tspan y="140.21202" x="145.20781" id="tspan_45" class="tspan_0">X</tspan></text>
+    <text id="text_46" y="140.21202" x="185.54179" xml:space="preserve" class="text_0"><tspan y="140.21202" x="185.54179" id="tspan_46" class="tspan_0">C</tspan></text>
+    <text id="text_47" y="140.21202" x="226.20781" xml:space="preserve" class="text_0"><tspan y="140.21202" x="226.20781" id="tspan_47" class="tspan_0">V</tspan></text>
+    <text xml:space="preserve" x="266.40997" y="140.21202" id="text_48" class="text_0"><tspan id="tspan_48" x="266.40997" y="140.21202" class="tspan_0">B</tspan></text>
+    <text xml:space="preserve" x="306.56329" y="140.21202" id="text_49" class="text_0"><tspan id="tspan_49" x="306.56329" y="140.21202" class="tspan_0">N</tspan></text>
+    <text xml:space="preserve" x="345.91095" y="140.21202" id="text_50" class="text_0"><tspan id="tspan_50" x="345.91095" y="140.21202" class="tspan_0">M</tspan></text>
+    <text xml:space="preserve" x="392.07013" y="140.21202" id="text_51" class="text_0"><tspan id="tspan_51" x="392.07013" y="140.21202" class="tspan_0">,</tspan></text>
+    <text xml:space="preserve" x="432.57013" y="140.47569" id="text_52" class="text_0"><tspan id="tspan_52" x="432.57013" y="140.47569" class="tspan_0">;</tspan></text>
+    <text xml:space="preserve" x="470.71661" y="140.21202" id="text_53" class="text_0"><tspan id="tspan_53" x="470.71661" y="140.21202" class="tspan_0">?</tspan></text>
+    <text xml:space="preserve" x="643.07013" y="16.565434" id="text_54" class="text_3"><tspan id="tspan_54" x="643.07013" y="16.565434" class="tspan_2">RUN</tspan></text>
+    <text id="text_55" y="33.157719" x="639.6214" xml:space="preserve" class="text_4"><tspan y="33.157719" x="639.6214" id="tspan_55" class="tspan_2">STOP</tspan></text>
+    <text id="text_56" y="25.514942" x="679.3421" xml:space="preserve" class="text_3"><tspan y="25.514942" x="679.3421" id="tspan_56" class="tspan_2">CRSR </tspan></text>
+    <g transform="translate(-20.602205,-193.70625)" id="g" class="g_0">
+      <path d="m 712.08129,201.9794 7.29177,-4.20991 7.33756,4.23634" id="path_2" class="path_3"/>
+      <path id="path_3" d="m 723.87306,200.76949 c 0,5.64175 0,5.70577 0,5.70577" class="path_4"/>
+      <path d="m 714.87306,200.76949 c 0,5.64175 0,5.70577 0,5.70577" id="path_4" class="path_4"/>
+    </g>
+    <g id="g_1" transform="rotate(180,709.09486,117.08677)" class="g_0">
+      <path id="path_5" d="m 712.08129,201.9794 7.29177,-4.20991 7.33756,4.23634" class="path_3"/>
+      <path d="m 723.87306,200.76949 c 0,5.64175 0,5.70577 0,5.70577" id="path_6" class="path_4"/>
+      <path id="path_7" d="m 714.87306,200.76949 c 0,5.64175 0,5.70577 0,5.70577" class="path_4"/>
+    </g>
+    <text xml:space="preserve" x="719.8421" y="25.514942" id="text_57" class="text_3"><tspan id="tspan_57" x="719.8421" y="25.514942" class="tspan_2">CRSR </tspan></text>
+    <g transform="rotate(180,749.28819,105.52769)" id="g_2" class="g_0">
+      <path id="path_8" d="m 746.83235,200.88081 h 23.24972" class="path_4"/>
+      <path id="path_9" d="m 746.83235,203.88081 h 23.24972" class="path_4"/>
+      <path d="m 768.08761,197.88081 3.49444,4.5 -3.49444,4.5" id="path_10" class="path_3"/>
+    </g>
+    <g id="g_3" transform="translate(-19.988881,-169.94331)" class="g_0">
+      <path d="m 746.83235,200.88081 h 23.24972" id="path_11" class="path_4"/>
+      <path d="m 746.83235,203.88081 h 23.24972" id="path_12" class="path_4"/>
+      <path id="path_13" d="m 768.08761,197.88081 3.49444,4.5 -3.49444,4.5" class="path_3"/>
+    </g>
+    <text id="text_58" y="16.657719" x="763.06622" xml:space="preserve" class="text_3"><tspan y="16.657719" x="763.06622" id="tspan_58" class="tspan_2">INST</tspan></text>
+    <text xml:space="preserve" x="765.43146" y="33.164555" id="text_59" class="text_4"><tspan id="tspan_59" x="765.43146" y="33.164555" class="tspan_2">DEL</tspan></text>
+    <text xml:space="preserve" x="651.96564" y="61.632328" id="text_60" class="text_0"><tspan id="tspan_60" x="651.96564" y="61.632328" class="tspan_0">7</tspan></text>
+    <text xml:space="preserve" x="692.43634" y="61.896" id="text_61" class="text_0"><tspan id="tspan_61" x="692.43634" y="61.896" class="tspan_0">8</tspan></text>
+    <text xml:space="preserve" x="733.0047" y="61.896" id="text_62" class="text_0"><tspan id="tspan_62" x="733.0047" y="61.896" class="tspan_0">9</tspan></text>
+    <text xml:space="preserve" x="776.42462" y="61.632328" id="text_63" class="text_0"><tspan id="tspan_63" x="776.42462" y="61.632328" class="tspan_0">/</tspan></text>
+    <text id="text_64" y="101.57759" x="650.89032" xml:space="preserve" class="text_0"><tspan y="101.57759" x="650.89032" id="tspan_64" class="tspan_0">4</tspan></text>
+    <text id="text_65" y="101.57759" x="691.36102" xml:space="preserve" class="text_0"><tspan y="101.57759" x="691.36102" id="tspan_65" class="tspan_0">5</tspan></text>
+    <text id="text_66" y="101.84126" x="731.92938" xml:space="preserve" class="text_0"><tspan y="101.84126" x="731.92938" id="tspan_66" class="tspan_0">6</tspan></text>
+    <text id="text_67" y="104.84419" x="775.3493" xml:space="preserve" class="text_0"><tspan y="104.84419" x="775.3493" id="tspan_67" class="tspan_0">*</tspan></text>
+    <text xml:space="preserve" x="651.75568" y="140.21202" id="text_68" class="text_0"><tspan id="tspan_68" x="651.75568" y="140.21202" class="tspan_0">1</tspan></text>
+    <text xml:space="preserve" x="692.70001" y="140.47569" id="text_69" class="text_0"><tspan id="tspan_69" x="692.70001" y="140.47569" class="tspan_0">2</tspan></text>
+    <text xml:space="preserve" x="732.97052" y="140.47569" id="text_70" class="text_0"><tspan id="tspan_70" x="732.97052" y="140.47569" class="tspan_0">3</tspan></text>
+    <text xml:space="preserve" x="771.41486" y="139.46495" id="text_71" class="text_0"><tspan id="tspan_71" x="771.41486" y="139.46495" class="tspan_0">+</tspan></text>
+    <text id="text_72" y="181.13191" x="651.93634" xml:space="preserve" class="text_0"><tspan y="181.13191" x="651.93634" id="tspan_72" class="tspan_0">0</tspan></text>
+    <text id="text_73" y="175.09187" x="695.62482" xml:space="preserve" class="text_0"><tspan y="175.09187" x="695.62482" id="tspan_73" class="tspan_0">.</tspan></text>
+    <text id="text_74" y="179.33015" x="735.68536" xml:space="preserve" class="text_0"><tspan y="179.33015" x="735.68536" id="tspan_74" class="tspan_0">-</tspan></text>
+    <text id="text_75" y="180.1114" x="771.41486" xml:space="preserve" class="text_0"><tspan y="180.1114" x="771.41486" id="tspan_75" class="tspan_0">=</tspan></text>
+  </g>
+<style>.path_0 {fill:#253137;stroke:#ffffff;stroke-width:0.3375;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;fill-opacity:1}
+.tspan_0 {pointer-events:none;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';fill:#ffffff;stroke-width:0.75}
+.text_0 {font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;line-height:1.25;font-family:'Nimbus Roman';-inkscape-font-specification:'Nimbus Roman, ';fill:#ffffff;stroke-width:0.75}
+.path_1 {fill:#ffffff;stroke:#ffffff;stroke-width:1.70079;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM)}
+.tspan_1 {pointer-events:none;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18px;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';fill:#ffffff;stroke-width:0.75}
+.text_1 {font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18px;line-height:1.25;font-family:'Nimbus Roman';-inkscape-font-specification:'Nimbus Roman, ';fill:#ffffff;stroke-width:0.75}
+.path_2 {fill:#ffffff;stroke:#ffffff;stroke-width:1.70079;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM-1)}
+.text_2 {font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:18px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';fill:#ffffff;stroke-width:0.75}
+.tspan_2 {pointer-events:none;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14px;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';fill:#ffffff;stroke-width:0.75}
+.text_3 {font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14px;line-height:1.25;font-family:'Nimbus Roman';-inkscape-font-specification:'Nimbus Roman, ';fill:#ffffff;stroke-width:0.75}
+.text_4 {font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';fill:#ffffff;stroke-width:0.75}
+.tspan_3 {pointer-events:none;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14px;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';text-align:center;text-anchor:middle;fill:#ffffff;stroke-width:0.75}
+.path_3 {fill:none;stroke:#ffffff;stroke-width:1.13386;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.path_4 {fill:none;stroke:#ffffff;stroke-width:1.13386;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.g_0 {fill:none;stroke:#ffffff}</style></svg>

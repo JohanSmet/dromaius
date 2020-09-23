@@ -9,6 +9,7 @@
 #include "cpu_6502.h"
 #include "dev_commodore_pet.h"
 #include "display_pet_crt.h"
+#include "input_keypad.h"
 
 #include "stb/stb_ds.h"
 
@@ -38,6 +39,11 @@ public:
 		double time_elapsed_ns;
 	};
 
+	struct KeyInfo {
+		uint32_t		row;
+		uint32_t		column;
+	};
+
 public:
 	DmsApi() = default;
 
@@ -45,9 +51,13 @@ public:
 	void launch_commodore_pet();
 
 	// dromaius context
-	void context_execute() {
+	bool context_execute() {
 		assert(dms_ctx);
+
+		int64_t save_ts = pet_device->signal_pool->current_tick;
 		dms_execute(dms_ctx);
+
+		return save_ts != pet_device->signal_pool->current_tick;
 	}
 
 	void context_select_step_clock(const std::string &signal_name) {
@@ -85,6 +95,37 @@ public:
 	void context_reset() {
 		assert(dms_ctx);
 		pet_device->reset(pet_device);
+	}
+
+	// input
+	int keyboard_num_rows() const {
+		assert(pet_device);
+		return pet_device->keypad->row_count;
+	}
+
+	int keyboard_num_columns() const {
+		assert(pet_device);
+		return pet_device->keypad->col_count;
+	}
+
+	void keyboard_key_pressed(int row, int col) {
+		assert(pet_device);
+		input_keypad_key_pressed(pet_device->keypad, row, col);
+	}
+
+	std::vector<KeyInfo> keyboard_keys_down() const {
+		assert(pet_device);
+
+		auto count = input_keypad_keys_down_count(pet_device->keypad);
+		auto keys = input_keypad_keys_down(pet_device->keypad);
+
+		std::vector<KeyInfo> result(count);
+
+		for (size_t i = 0; i < count; ++i) {
+			input_keypad_index_to_row_col(pet_device->keypad, keys[i], &result[i].row, &result[i].column);
+		}
+
+		return result;
 	}
 
 	// data access
@@ -209,6 +250,7 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 
 	register_vector<size_t>("VectorSize");
 	register_vector<std::string>("VectorString");
+	register_vector<DmsApi::KeyInfo>("VectorKeyInfo");
 	register_map<std::string, Signal>("MapStringSignal");
 
 	value_object<Signal>("Signal")
@@ -248,6 +290,11 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.field("time_elapsed_ns", &DmsApi::ClockInfo::time_elapsed_ns)
 		;
 
+	value_object<DmsApi::KeyInfo>("DmsApi__KeyInfo")
+		.field("row", &DmsApi::KeyInfo::row)
+		.field("column", &DmsApi::KeyInfo::column)
+		;
+
 	class_<DmsApi>("DmsApi")
 		.constructor()
 		.function("launch_commodore_pet", &DmsApi::launch_commodore_pet)
@@ -259,6 +306,10 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("context_run", &DmsApi::context_run)
 		.function("context_pause", &DmsApi::context_pause)
 		.function("context_reset", &DmsApi::context_reset)
+		.function("keyboard_num_rows", &DmsApi::keyboard_num_rows)
+		.function("keyboard_num_columns", &DmsApi::keyboard_num_columns)
+		.function("keyboard_key_pressed", &DmsApi::keyboard_key_pressed)
+		.function("keyboard_keys_down", &DmsApi::keyboard_keys_down)
 		.function("display_data", &DmsApi::display_data)
 		.function("signal_data", &DmsApi::signal_data)
 		.function("breakpoint_signal_list", &DmsApi::breakpoint_signal_list)

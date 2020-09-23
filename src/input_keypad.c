@@ -153,3 +153,12 @@ void input_keypad_set_dwell_time_ms(InputKeypad *keypad, int dwell_ms) {
 	PRIVATE(keypad)->key_dwell_cycles = signal_pool_interval_to_tick_count(keypad->signal_pool, dwell_ms * 1000000000ll);
 }
 
+size_t input_keypad_keys_down_count(InputKeypad *keypad) {
+	assert(keypad);
+	return PRIVATE(keypad)->keys_down_count;
+}
+
+size_t* input_keypad_keys_down(InputKeypad *keypad) {
+	assert(keypad);
+	return PRIVATE(keypad)->keys_down;
+}
