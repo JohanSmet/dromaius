@@ -64,7 +64,17 @@ export function setup_emulation(emscripten_mod) {
 
 	// signal selection
 	circuit_view.on_signal_hovered = function(signal) {
-		hovered_signal = '--color-' + signal.replace('/', 'bar');
+		var style = circuit_view.svg_document.style;
+
+		if (signal != '') {
+			hovered_signal = '--color-' + signal.replace('/', 'bar');
+			style.setProperty(hovered_signal, 'blue');
+		} else {
+			hovered_signal = '';
+			for (var i = style.length; i--;) {
+				style.removeProperty(style[i]);
+			}
+		}
 	}
 
 	circuit_view.on_signal_clicked = function(signal) {
@@ -81,7 +91,7 @@ function refresh_signals() {
 	}
 
 	const colors = ["#009900", "#00FF00"];
-	var svg_style = circuit_view.svg_document.style;
+	var svg_style = document.documentElement.style;
 
 	var sig_data = dmsapi.signal_data();
 
