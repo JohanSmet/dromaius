@@ -51,7 +51,7 @@ int main() {
 
 		// check screen memory
 		uint8_t first_char;
-		pet_device->copy_memory(pet_device, 0x8000, 1, &first_char);
+		pet_device->read_memory(pet_device, 0x8000, 1, &first_char);
 		ready = first_char == 0x2a;
 	}
 

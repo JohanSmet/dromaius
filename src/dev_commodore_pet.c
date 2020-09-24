@@ -496,7 +496,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->process = (DEVICE_PROCESS) dev_commodore_pet_process;
 	device->reset = (DEVICE_RESET) dev_commodore_pet_reset;
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
-	device->copy_memory = (DEVICE_COPY_MEMORY) dev_commodore_pet_copy_memory;
+	device->read_memory = (DEVICE_READ_MEMORY) dev_commodore_pet_read_memory;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1759,7 +1759,7 @@ void dev_commodore_pet_reset(DevCommodorePet *device) {
 	device->in_reset = true;
 }
 
-void dev_commodore_pet_copy_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output) {
+void dev_commodore_pet_read_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output) {
 	assert(device);
 	assert(output);
 
