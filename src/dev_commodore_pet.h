@@ -27,110 +27,13 @@ extern "C" {
 
 typedef struct DevCommodorePetSignals {
 
-	Signal		init_b;				// 1-bit - initialization of the master timing section
-	Signal		init;				// 1-bit
-
-	Signal		clk16;				// 1-bit - 16Mhz signal straight from the oscillator
-	Signal		clk8;				// 1-bit - 8Mhz clock signal (used for display section)
-	Signal		clk4;				// 1-bit - 4Mhz clock signal (visualisation only)
-	Signal		clk2;				// 1-bit - 2Mhz clock signal (visualisation only)
-	Signal		clk1;				// 1-bit - 1Mhz main clock
-
-	Signal		bphi2a;				// 8 phases of clk1
-	Signal		bphi2b;
-	Signal		bphi2c;
-	Signal		bphi2d;
-	Signal		bphi2e;
-	Signal		bphi2f;
-	Signal		bphi2g;
-	Signal		bphi2h;
-
-	Signal		bphi2a_b;
-	Signal		bphi2b_b;
-	Signal		bphi2f_b;
-	Signal		bphi2g_b;
-
-	Signal		ra1;				// 1-bit - ram refresh address
-	Signal		ra2;				// 1-bit - ram refresh address
-	Signal		ra3;				// 1-bit - ram refresh address
-	Signal		ra4;				// 1-bit - ram refresh address
-	Signal		ra5;				// 1-bit - ram refresh address
-	Signal		ra6;				// 1-bit - ram refresh address
-	Signal		ra7;				// 1-bit - ram refresh address
-	Signal		ra8;				// 1-bit - ram refresh address
-	Signal		ra9;				// 1-bit - ram refresh address
-	Signal		ra1_b;
-	Signal		ra6_b;
-	Signal		ra1and3;
-	Signal		ra4and6;
-	Signal		ra5and6_b;
-
-	Signal		load_sr;
-	Signal		load_sr_b;
-
-	Signal		horz_disp_on;
-	Signal		horz_disp_off;
-	Signal		horz_drive;
-	Signal		horz_drive_b;
-
-	Signal		h8q;
-	Signal		h8q_b;
-	Signal		h8q2;
-	Signal		h8q2_b;
-
-	Signal		video_latch;
-	Signal		vert_drive;
-
-	Signal		tv_sel;
-	Signal		tv_read_b;
-	Signal		a5_12;
-
-	Signal		g6_q;
-	Signal		g6_q_b;
-
-	Signal		tv_ram_rw;
-	Signal		f6_y3;
-
-	Signal		bus_sa;				// 10-bit - display ram address bus
-
-	Signal		ga2;
-	Signal		ga3;
-	Signal		ga4;
-	Signal		ga5;
-	Signal		ga6;
-	Signal		ga7;
-	Signal		ga8;
-	Signal		ga9;
-
-	Signal		lga2;
-	Signal		lga3;
-	Signal		lga4;
-	Signal		lga5;
-	Signal		lga6;
-	Signal		lga7;
-	Signal		lga8;
-	Signal		lga9;
-
-	Signal		next;
-	Signal		next_b;
-
-	Signal		reload_b;
-	Signal		reload_next;
-
-	Signal		pullup_1;
-	Signal		pullup_2;
-
-	Signal		lines_20_b;
-	Signal		lines_200_b;
-	Signal		line_220;
-	Signal		lga_hi_b;
-	Signal		lga_hi;
-	Signal		w220_off;
-
-	Signal		bus_sd;				// 8-bit - display ram databus
-	Signal		bus_lsd;			// 8-bit - latched dispay ram databus
-
+	// general
 	Signal		reset_btn_b;
+	Signal		high;				// 1-bit - always high
+	Signal		low;				// 1-bit - always low
+
+	// sheet 1
+	Signal		reset;				// 1-bit
 	Signal		reset_b;			// 1-bit - reset line
 	Signal		irq_b;				// 1-bit - interrupt request
 	Signal		nmi_b;				// 1-bit - non-maskable interrupt
@@ -166,6 +69,7 @@ typedef struct DevCommodorePetSignals {
 	Signal		x8xx;				// 1-bit - third nibble of address == 8
 	Signal		s_88xx_b;			// 1-bit
 	Signal		rom_addr_b;			// 1-bit - low if ROM is being addressed
+
 	Signal		ram_read_b;			// 1-bit - cpu reads from ram
 	Signal		ram_write_b;		// 1-bit - cpu writes to ram
 
@@ -177,8 +81,7 @@ typedef struct DevCommodorePetSignals {
 	Signal		buf_rw_b;			// 1-bit - buffered inverse RW
 	Signal		ram_rw;				// 1-bit
 
-	Signal		high;				// 1-bit - always high
-	Signal		low;				// 1-bit - always low
+	Signal		a5_12;
 
 	Signal		ba6;				// 1-bit
 	Signal		ba7;				// 1-bit
@@ -192,22 +95,6 @@ typedef struct DevCommodorePetSignals {
 	Signal		ba15;				// 1-bit - top bit of the buffered address bus
 
 	Signal		ba11_b;				// 1-bit
-	Signal		reset;				// 1-bit
-
-	Signal		cs1;				// 1-bit
-	Signal		bus_cd;				// 8-bit
-
-	Signal		g9q;				// 1-bit
-	Signal		g9q_b;				// 1-bit
-	Signal		e11qh;				// 1-bit
-	Signal		e11qh_b;			// 1-bit
-	Signal		g106;				// 1-bit
-	Signal		g108;				// 1-bit
-	Signal		h108;				// 1-bit
-
-	Signal		video_on;			// 1-bit - vblank
-	Signal		video_on_b;
-	Signal		video;
 
 	// sheet 2: IEEE-488 interface
 	Signal		atn_in_b;
@@ -217,6 +104,7 @@ typedef struct DevCommodorePetSignals {
 	Signal		dav_out_b;
 	Signal		bus_di;
 	Signal		bus_do;
+	Signal		cs1;				// 1-bit
 
 	// sheet 3: Cassette & Keyboard
 	Signal		ca1;				// 1-bit
@@ -260,6 +148,58 @@ typedef struct DevCommodorePetSignals {
 	Signal		bus_rd;				// 8-bit
 
 	// sheet 6: master timing
+	Signal		init_b;				// 1-bit - initialization of the master timing section
+	Signal		init;				// 1-bit
+
+	Signal		clk16;				// 1-bit - 16Mhz signal straight from the oscillator
+	Signal		clk8;				// 1-bit - 8Mhz clock signal (used for display section)
+	Signal		clk4;				// 1-bit - 4Mhz clock signal (visualisation only)
+	Signal		clk2;				// 1-bit - 2Mhz clock signal (visualisation only)
+	Signal		clk1;				// 1-bit - 1Mhz main clock
+
+	Signal		bphi2a;				// 8 phases of clk1
+	Signal		bphi2b;
+	Signal		bphi2c;
+	Signal		bphi2d;
+	Signal		bphi2e;
+	Signal		bphi2f;
+	Signal		bphi2g;
+	Signal		bphi2h;
+
+	Signal		bphi2a_b;
+	Signal		bphi2b_b;
+	Signal		bphi2f_b;
+	Signal		bphi2g_b;
+
+	Signal		ra1;				// 1-bit - ram refresh address
+	Signal		ra1_b;
+	Signal		ra2;				// 1-bit - ram refresh address
+	Signal		ra3;				// 1-bit - ram refresh address
+	Signal		ra4;				// 1-bit - ram refresh address
+	Signal		ra5;				// 1-bit - ram refresh address
+	Signal		ra6;				// 1-bit - ram refresh address
+	Signal		ra6_b;
+
+	Signal		ra1and3;
+	Signal		ra4and6;
+	Signal		ra5and6_b;
+
+	Signal		load_sr;
+	Signal		load_sr_b;
+
+	Signal		horz_disp_on;
+	Signal		horz_disp_off;
+	Signal		horz_drive;
+	Signal		horz_drive_b;
+
+	Signal		h8q;
+	Signal		h8q_b;
+	Signal		h8q2;
+	Signal		h8q2_b;
+
+	Signal		video_latch;
+	Signal		vert_drive;
+
 	Signal		h53;
 	Signal		h4y1;
 	Signal		muxa;
@@ -275,6 +215,74 @@ typedef struct DevCommodorePetSignals {
 	Signal		cas1_b;
 	Signal		ba14_b;
 
+	Signal		video_on;			// 1-bit - vblank
+
+	// sheet 7: display logic
+	Signal		tv_sel;
+	Signal		tv_read_b;
+
+	Signal		g6_q;
+	Signal		g6_q_b;
+
+	Signal		tv_ram_rw;
+	Signal		f6_y3;
+
+	Signal		bus_sa;				// 10-bit - display ram address bus
+
+	Signal		ga2;
+	Signal		ga3;
+	Signal		ga4;
+	Signal		ga5;
+	Signal		ga6;
+	Signal		ga7;
+	Signal		ga8;
+	Signal		ga9;
+
+	Signal		lga2;
+	Signal		lga3;
+	Signal		lga4;
+	Signal		lga5;
+	Signal		lga6;
+	Signal		lga7;
+	Signal		lga8;
+	Signal		lga9;
+
+	Signal		next;
+	Signal		next_b;
+
+	Signal		reload_next;
+
+	Signal		pullup_2;
+
+	Signal		lines_20_b;
+	Signal		lines_200_b;
+	Signal		line_220;
+	Signal		lga_hi_b;
+	Signal		lga_hi;
+	Signal		w220_off;
+
+	Signal		video_on_b;
+
+	// sheet 8: display rams
+	Signal		ra7;				// 1-bit - ram refresh address
+	Signal		ra8;				// 1-bit - ram refresh address
+	Signal		ra9;				// 1-bit - ram refresh address
+	Signal		reload_b;
+	Signal		pullup_1;
+
+	Signal		bus_sd;				// 8-bit - display ram databus
+	Signal		bus_lsd;			// 8-bit - latched dispay ram databus
+	Signal		bus_cd;				// 8-bit
+
+	Signal		g9q;				// 1-bit
+	Signal		g9q_b;				// 1-bit
+	Signal		e11qh;				// 1-bit
+	Signal		e11qh_b;			// 1-bit
+	Signal		g106;				// 1-bit
+	Signal		g108;				// 1-bit
+	Signal		h108;				// 1-bit
+
+	Signal		video;
 } DevCommodorePetSignals;
 
 typedef struct DevCommodorePet {

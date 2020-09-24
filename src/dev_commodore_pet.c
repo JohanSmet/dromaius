@@ -498,117 +498,28 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
 	device->copy_memory = (DEVICE_COPY_MEMORY) dev_commodore_pet_copy_memory;
 
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	//
 	// signals
+	//
+
 	device->signal_pool = signal_pool_create();
 	device->signal_pool->tick_duration_ps = 6250;		// 6.25 ns - 160 Mhz
-	//device->signal_pool->tick_duration_ps = 31250;
 
-	SIGNAL_DEFINE_BOOL_N(init_b, 1, ACTLO_ASSERT, "/INIT");
-	SIGNAL_DEFINE_BOOL_N(init, 1, ACTHI_ASSERT, "INIT");
-
-	SIGNAL_DEFINE_BOOL_N(clk16, 1, true, "CLK16");
-	SIGNAL_DEFINE_BOOL_N(clk8, 1, true, "CLK8");
-	SIGNAL_DEFINE_BOOL_N(clk4, 1, true, "CLK4");
-	SIGNAL_DEFINE_BOOL_N(clk2, 1, true, "CLK2");
-	SIGNAL_DEFINE_BOOL_N(clk1, 1, true, "CLK1");
-
-	SIGNAL_DEFINE_N(bphi2a, 1, "BPHI2A");
-	SIGNAL_DEFINE_N(bphi2b, 1, "BPHI2B");
-	SIGNAL_DEFINE_N(bphi2c, 1, "BPHI2C");
-	SIGNAL_DEFINE_N(bphi2d, 1, "BPHI2D");
-	SIGNAL_DEFINE_N(bphi2e, 1, "BPHI2E");
-	SIGNAL_DEFINE_N(bphi2f, 1, "BPHI2F");
-	SIGNAL_DEFINE_N(bphi2g, 1, "BPHI2G");
-	SIGNAL_DEFINE_N(bphi2h, 1, "BPHI2H");
-
-	SIGNAL_DEFINE_N(bphi2a_b, 1, "/BPHI2A");
-	SIGNAL_DEFINE_N(bphi2b_b, 1, "/BPHI2B");
-	SIGNAL_DEFINE_N(bphi2f_b, 1, "/BPHI2F");
-	SIGNAL_DEFINE_N(bphi2g_b, 1, "/BPHI2G");
-
-	SIGNAL_DEFINE_N(ra1, 1, "RA1");
-	SIGNAL_DEFINE_N(ra2, 1, "RA2");
-	SIGNAL_DEFINE_N(ra3, 1, "RA3");
-	SIGNAL_DEFINE_N(ra4, 1, "RA4");
-	SIGNAL_DEFINE_N(ra5, 1, "RA5");
-	SIGNAL_DEFINE_N(ra6, 1, "RA6");
-	SIGNAL_DEFINE_N(ra7, 1, "RA7");
-	SIGNAL_DEFINE_N(ra8, 1, "RA8");
-	SIGNAL_DEFINE_N(ra9, 1, "RA9");
-
-	SIGNAL_DEFINE_N(ra1_b, 1, "/RA1");
-	SIGNAL_DEFINE_N(ra6_b, 1, "/RA6");
-
-	SIGNAL_DEFINE_N(ra1and3, 1, "RA1AND3");
-	SIGNAL_DEFINE_N(ra4and6, 1, "RA4AND6");
-	SIGNAL_DEFINE_N(ra5and6_b, 1, "RA5AND/6");
-
-	SIGNAL_DEFINE_N(load_sr, 1, "LOADSR");
-	SIGNAL_DEFINE_N(load_sr_b, 1, "/LOADSR");
-
-	SIGNAL_DEFINE_N(horz_disp_on, 1, "HORZDISPON");
-	SIGNAL_DEFINE_N(horz_disp_off, 1, "HORZDISPOFF");
-	SIGNAL_DEFINE_N(horz_drive, 1, "HORZDRIVE");
-	SIGNAL_DEFINE_N(horz_drive_b, 1, "/HORZDRIVE");
-
-	SIGNAL_DEFINE_N(h8q, 1, "H8Q");
-	SIGNAL_DEFINE_N(h8q_b, 1, "/H8Q");
-	SIGNAL_DEFINE_N(h8q2, 1, "H8Q2");
-	SIGNAL_DEFINE_N(h8q2_b, 1, "/H8Q2");
-
-	SIGNAL_DEFINE_N(video_latch, 1, "VIDEOLATCH");
-	SIGNAL_DEFINE_N(vert_drive, 1, "VERTDRIVE");
-
-	SIGNAL_DEFINE_N(tv_sel, 1, "TVSEL");
-	SIGNAL_DEFINE_N(tv_read_b, 1, "/TVREAD");
-	SIGNAL_DEFINE_N(a5_12, 1, "A512");
-
-	SIGNAL_DEFINE_N(g6_q, 1, "G6Q");
-	SIGNAL_DEFINE_N(g6_q_b, 1, "/G6Q");
-
-	SIGNAL_DEFINE_N(tv_ram_rw, 1, "TVRAMRW");
-	SIGNAL_DEFINE_N(f6_y3, 1, "F6Y3");
-	SIGNAL_DEFINE_N(bus_sa, 10, "SA%d");
-
-	SIGNAL_DEFINE_N(ga2, 1, "GA2");
-	SIGNAL_DEFINE_N(ga3, 1, "GA3");
-	SIGNAL_DEFINE_N(ga4, 1, "GA4");
-	SIGNAL_DEFINE_N(ga5, 1, "GA5");
-	SIGNAL_DEFINE_N(ga6, 1, "GA6");
-	SIGNAL_DEFINE_N(ga7, 1, "GA7");
-	SIGNAL_DEFINE_N(ga8, 1, "GA8");
-	SIGNAL_DEFINE_N(ga9, 1, "GA9");
-
-	SIGNAL_DEFINE_N(lga2, 1, "LGA2");
-	SIGNAL_DEFINE_N(lga3, 1, "LGA3");
-	SIGNAL_DEFINE_N(lga4, 1, "LGA4");
-	SIGNAL_DEFINE_N(lga5, 1, "LGA5");
-	SIGNAL_DEFINE_N(lga6, 1, "LGA6");
-	SIGNAL_DEFINE_N(lga7, 1, "LGA7");
-	SIGNAL_DEFINE_N(lga8, 1, "LGA8");
-	SIGNAL_DEFINE_N(lga9, 1, "LGA9");
-
-	SIGNAL_DEFINE_BOOL_N(next, 1, true, "NEXT");
-	SIGNAL_DEFINE_BOOL_N(next_b, 1, false, "/NEXT");
-
-	SIGNAL_DEFINE_N(reload_b, 1, "/RELOAD");
-	SIGNAL_DEFINE_N(reload_next, 1, "RELOADNEXT");
-
-	SIGNAL_DEFINE_BOOL_N(pullup_1, 1, true, "PULLUP1");
-	SIGNAL_DEFINE_BOOL_N(pullup_2, 1, true, "PULLUP2");
-
-	SIGNAL_DEFINE_N(lines_20_b, 1, "/20LINES");
-	SIGNAL_DEFINE_N(lines_200_b, 1, "/200LINES");
-	SIGNAL_DEFINE_N(line_220, 1, "220LINE");
-	SIGNAL_DEFINE_N(lga_hi_b, 1, "/LGAHI");
-	SIGNAL_DEFINE_N(lga_hi, 1, "LGAHI");
-	SIGNAL_DEFINE_N(w220_off, 1, "220OFF");
-
-	SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
-	SIGNAL_DEFINE_N(bus_lsd, 8, "LSD%d");
+	//
+	// signals - general
+	//
 
 	SIGNAL_DEFINE_BOOL_N(reset_btn_b, 1, ACTLO_DEASSERT, "RESBTN");
+	SIGNAL_DEFINE_BOOL_N(high, 1, true, "VCC");
+	SIGNAL_DEFINE_BOOL_N(low, 1, false, "GND");
+
+	//
+	// signals - sheet 1: microprocessor / memory expansion
+	//
+
 	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_ASSERT, "/RES");
+	SIGNAL_DEFINE_N(reset, 1, "RES");
 	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
 	SIGNAL_DEFINE_BOOL_N(nmi_b, 1, ACTLO_DEASSERT, "/NMI");
 
@@ -655,23 +566,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(buf_rw_b, 1, "/BRW");
 	SIGNAL_DEFINE_N(ram_rw, 1, "RAMRW");
 
-	SIGNAL_DEFINE_BOOL_N(high, 1, true, "VCC");
-	SIGNAL_DEFINE_BOOL_N(low, 1, false, "GND");
-
-	SIGNAL_DEFINE_N(cs1, 1, "CS1");
-	SIGNAL_DEFINE_N(bus_cd, 8, "CD%d");
-
-	SIGNAL_DEFINE_N(g9q, 1, "G9Q");
-	SIGNAL_DEFINE_N(g9q_b, 1, "/G9Q");
-	SIGNAL_DEFINE_N(e11qh, 1, "E11QH");
-	SIGNAL_DEFINE_N(e11qh_b, 1, "/E11QH");
-	SIGNAL_DEFINE_N(g106, 1, "G106");
-	SIGNAL_DEFINE_N(g108, 1, "G108");
-	SIGNAL_DEFINE_N(h108, 1, "H108");
-
-	SIGNAL_DEFINE_N(video_on, 1, "VIDEOON");
-	SIGNAL_DEFINE_N(video_on_b, 1, "/VIDEOON");
-	SIGNAL_DEFINE_N(video, 1, "VIDEO");
+	SIGNAL_DEFINE_N(a5_12, 1, "A512");
 
 	device->signals.ba6 = signal_split(SIGNAL(bus_ba), 6, 1);
 	device->signals.ba7 = signal_split(SIGNAL(bus_ba), 7, 1);
@@ -685,9 +580,11 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->signals.ba15 = signal_split(SIGNAL(bus_ba), 15, 1);
 
 	SIGNAL_DEFINE_N(ba11_b, 1, "/BA11");
-	SIGNAL_DEFINE_N(reset, 1, "RES");
 
+	//
 	// signals - sheet 2: IEEE-488 interface
+	//
+
 	SIGNAL_DEFINE_N(atn_in_b, 1, "/ATNIN");
 	SIGNAL_DEFINE_N(ndac_out_b, 1, "/NDACOUT");
 	SIGNAL_DEFINE_N(ifc_b, 1, "/IFC");
@@ -714,7 +611,12 @@ DevCommodorePet *dev_commodore_pet_create() {
 	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 6, 1), "DO7");
 	signal_set_name(device->signal_pool, signal_split(SIGNAL(bus_do), 7, 1), "DO8");
 
+	SIGNAL_DEFINE_N(cs1, 1, "CS1");
+
+	//
 	// signals - sheet 3: Cassette & Keyboard
+	//
+
 	SIGNAL_DEFINE_N(ca1, 1, "CA1");
 	SIGNAL_DEFINE_N(graphic, 1, "GRAPHIC");
 
@@ -767,14 +669,72 @@ DevCommodorePet *dev_commodore_pet_create() {
 	signal_default_uint8(device->signal_pool, SIGNAL(bus_kin), 0xff);			// pull-up resistors R18-R25
 	signal_default_bool(device->signal_pool, SIGNAL(diag), true);
 
+	//
 	// signals - sheet 5: RAMS
+	//
+
 	SIGNAL_DEFINE_N(banksel, 1, "BANKSEL");
 	SIGNAL_DEFINE_N(g78, 1, "G78");
 
 	SIGNAL_DEFINE_N(bus_fa, 7, "FA%d");
 	SIGNAL_DEFINE_N(bus_rd, 8, "RD%d");
 
+	//
 	// signals - sheet 6: Master timing
+	//
+
+	SIGNAL_DEFINE_BOOL_N(init_b, 1, ACTLO_ASSERT, "/INIT");
+	SIGNAL_DEFINE_BOOL_N(init, 1, ACTHI_ASSERT, "INIT");
+
+	SIGNAL_DEFINE_BOOL_N(clk16, 1, true, "CLK16");
+	SIGNAL_DEFINE_BOOL_N(clk8, 1, true, "CLK8");
+	SIGNAL_DEFINE_BOOL_N(clk4, 1, true, "CLK4");
+	SIGNAL_DEFINE_BOOL_N(clk2, 1, true, "CLK2");
+	SIGNAL_DEFINE_BOOL_N(clk1, 1, true, "CLK1");
+
+	SIGNAL_DEFINE_N(bphi2a, 1, "BPHI2A");
+	SIGNAL_DEFINE_N(bphi2b, 1, "BPHI2B");
+	SIGNAL_DEFINE_N(bphi2c, 1, "BPHI2C");
+	SIGNAL_DEFINE_N(bphi2d, 1, "BPHI2D");
+	SIGNAL_DEFINE_N(bphi2e, 1, "BPHI2E");
+	SIGNAL_DEFINE_N(bphi2f, 1, "BPHI2F");
+	SIGNAL_DEFINE_N(bphi2g, 1, "BPHI2G");
+	SIGNAL_DEFINE_N(bphi2h, 1, "BPHI2H");
+
+	SIGNAL_DEFINE_N(bphi2a_b, 1, "/BPHI2A");
+	SIGNAL_DEFINE_N(bphi2b_b, 1, "/BPHI2B");
+	SIGNAL_DEFINE_N(bphi2f_b, 1, "/BPHI2F");
+	SIGNAL_DEFINE_N(bphi2g_b, 1, "/BPHI2G");
+
+	SIGNAL_DEFINE_N(ra1, 1, "RA1");
+	SIGNAL_DEFINE_N(ra1_b, 1, "/RA1");
+	SIGNAL_DEFINE_N(ra2, 1, "RA2");
+	SIGNAL_DEFINE_N(ra3, 1, "RA3");
+	SIGNAL_DEFINE_N(ra4, 1, "RA4");
+	SIGNAL_DEFINE_N(ra5, 1, "RA5");
+	SIGNAL_DEFINE_N(ra6, 1, "RA6");
+	SIGNAL_DEFINE_N(ra6_b, 1, "/RA6");
+
+	SIGNAL_DEFINE_N(ra1and3, 1, "RA1AND3");
+	SIGNAL_DEFINE_N(ra4and6, 1, "RA4AND6");
+	SIGNAL_DEFINE_N(ra5and6_b, 1, "RA5AND/6");
+
+	SIGNAL_DEFINE_N(load_sr, 1, "LOADSR");
+	SIGNAL_DEFINE_N(load_sr_b, 1, "/LOADSR");
+
+	SIGNAL_DEFINE_N(horz_disp_on, 1, "HORZDISPON");
+	SIGNAL_DEFINE_N(horz_disp_off, 1, "HORZDISPOFF");
+	SIGNAL_DEFINE_N(horz_drive, 1, "HORZDRIVE");
+	SIGNAL_DEFINE_N(horz_drive_b, 1, "/HORZDRIVE");
+
+	SIGNAL_DEFINE_N(h8q, 1, "H8Q");
+	SIGNAL_DEFINE_N(h8q_b, 1, "/H8Q");
+	SIGNAL_DEFINE_N(h8q2, 1, "H8Q2");
+	SIGNAL_DEFINE_N(h8q2_b, 1, "/H8Q2");
+
+	SIGNAL_DEFINE_N(video_latch, 1, "VIDEOLATCH");
+	SIGNAL_DEFINE_N(vert_drive, 1, "VERTDRIVE");
+
 	SIGNAL_DEFINE_N(h53, 1, "H53");
 	SIGNAL_DEFINE_N(h4y1, 1, "H4Y1");
 	SIGNAL_DEFINE_N(muxa, 1, "MUXA");
@@ -790,7 +750,334 @@ DevCommodorePet *dev_commodore_pet_create() {
 	SIGNAL_DEFINE_N(cas1_b, 1, "/CAS1");
 	SIGNAL_DEFINE_N(ba14_b, 1, "/BA14");
 
+	SIGNAL_DEFINE_N(video_on, 1, "VIDEOON");
+
+	//
+	// signals - sheet 7: display logic
+	//
+
+	SIGNAL_DEFINE_N(tv_sel, 1, "TVSEL");
+	SIGNAL_DEFINE_N(tv_read_b, 1, "/TVREAD");
+	SIGNAL_DEFINE_N(g6_q, 1, "G6Q");
+	SIGNAL_DEFINE_N(g6_q_b, 1, "/G6Q");
+
+	SIGNAL_DEFINE_N(tv_ram_rw, 1, "TVRAMRW");
+	SIGNAL_DEFINE_N(f6_y3, 1, "F6Y3");
+	SIGNAL_DEFINE_N(bus_sa, 10, "SA%d");
+
+	SIGNAL_DEFINE_N(ga2, 1, "GA2");
+	SIGNAL_DEFINE_N(ga3, 1, "GA3");
+	SIGNAL_DEFINE_N(ga4, 1, "GA4");
+	SIGNAL_DEFINE_N(ga5, 1, "GA5");
+	SIGNAL_DEFINE_N(ga6, 1, "GA6");
+	SIGNAL_DEFINE_N(ga7, 1, "GA7");
+	SIGNAL_DEFINE_N(ga8, 1, "GA8");
+	SIGNAL_DEFINE_N(ga9, 1, "GA9");
+
+	SIGNAL_DEFINE_N(lga2, 1, "LGA2");
+	SIGNAL_DEFINE_N(lga3, 1, "LGA3");
+	SIGNAL_DEFINE_N(lga4, 1, "LGA4");
+	SIGNAL_DEFINE_N(lga5, 1, "LGA5");
+	SIGNAL_DEFINE_N(lga6, 1, "LGA6");
+	SIGNAL_DEFINE_N(lga7, 1, "LGA7");
+	SIGNAL_DEFINE_N(lga8, 1, "LGA8");
+	SIGNAL_DEFINE_N(lga9, 1, "LGA9");
+
+	SIGNAL_DEFINE_BOOL_N(next, 1, true, "NEXT");
+	SIGNAL_DEFINE_BOOL_N(next_b, 1, false, "/NEXT");
+
+	SIGNAL_DEFINE_N(reload_next, 1, "RELOADNEXT");
+
+	SIGNAL_DEFINE_BOOL_N(pullup_2, 1, true, "PULLUP2");
+
+	SIGNAL_DEFINE_N(lines_20_b, 1, "/20LINES");
+	SIGNAL_DEFINE_N(lines_200_b, 1, "/200LINES");
+	SIGNAL_DEFINE_N(line_220, 1, "220LINE");
+	SIGNAL_DEFINE_N(lga_hi_b, 1, "/LGAHI");
+	SIGNAL_DEFINE_N(lga_hi, 1, "LGAHI");
+	SIGNAL_DEFINE_N(w220_off, 1, "220OFF");
+
+	SIGNAL_DEFINE_N(video_on_b, 1, "/VIDEOON");
+
+	//
+	// signals - sheet 8: display rams
+	//
+
+	SIGNAL_DEFINE_N(ra7, 1, "RA7");
+	SIGNAL_DEFINE_N(ra8, 1, "RA8");
+	SIGNAL_DEFINE_N(ra9, 1, "RA9");
+	SIGNAL_DEFINE_N(reload_b, 1, "/RELOAD");
+	SIGNAL_DEFINE_BOOL_N(pullup_1, 1, true, "PULLUP1");
+
+	SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
+	SIGNAL_DEFINE_N(bus_lsd, 8, "LSD%d");
+	SIGNAL_DEFINE_N(bus_cd, 8, "CD%d");
+
+	SIGNAL_DEFINE_N(g9q, 1, "G9Q");
+	SIGNAL_DEFINE_N(g9q_b, 1, "/G9Q");
+	SIGNAL_DEFINE_N(e11qh, 1, "E11QH");
+	SIGNAL_DEFINE_N(e11qh_b, 1, "/E11QH");
+	SIGNAL_DEFINE_N(g106, 1, "G106");
+	SIGNAL_DEFINE_N(g108, 1, "G108");
+	SIGNAL_DEFINE_N(h108, 1, "H108");
+
+	SIGNAL_DEFINE_N(video, 1, "VIDEO");
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+	//
+	// components
+	//
+
+	//
+	// components - sheet 01: microprocessor & memory expansion
+	//
+
+	// power-on-reset
+	DEVICE_REGISTER_CHIP("POR", poweronreset_create(US_TO_PS(500), device->signal_pool, (PowerOnResetSignals) {
+											.trigger_b = SIGNAL(reset_btn_b),
+											.reset_b = SIGNAL(reset_b)
+	}));
+
+	// cpu
+	device->cpu = cpu_6502_create(device->signal_pool, (Cpu6502Signals) {
+										.bus_address = SIGNAL(cpu_bus_address),
+										.bus_data = SIGNAL(cpu_bus_data),
+										.clock = SIGNAL(clk1),
+										.reset_b = SIGNAL(reset_b),
+										.rw = SIGNAL(cpu_rw),
+										.irq_b = SIGNAL(irq_b),
+										.nmi_b = SIGNAL(nmi_b),
+										.sync = SIGNAL(cpu_sync),
+										.rdy = SIGNAL(cpu_rdy)
+	});
+	DEVICE_REGISTER_CHIP("C4", device->cpu);
+
+	// >> c3 - octal buffer
+	DEVICE_REGISTER_CHIP("C3", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+										.g1_b = SIGNAL(low),									// 01
+										.g2_b = SIGNAL(low),									// 19
+										.a11  = signal_split(SIGNAL(cpu_bus_address), 0, 1),	// 02
+										.a24  = signal_split(SIGNAL(cpu_bus_address), 1, 1),	// 17
+										.a12  = signal_split(SIGNAL(cpu_bus_address), 2, 1),	// 04
+										.a23  = signal_split(SIGNAL(cpu_bus_address), 3, 1),	// 15
+										.a13  = signal_split(SIGNAL(cpu_bus_address), 4, 1),	// 06
+										.a22  = signal_split(SIGNAL(cpu_bus_address), 5, 1),	// 13
+										.a14  = signal_split(SIGNAL(cpu_bus_address), 6, 1),	// 08
+										.a21  = signal_split(SIGNAL(cpu_bus_address), 7, 1),	// 11
+										.y11  = signal_split(SIGNAL(bus_ba), 0, 1),				// 18
+										.y24  = signal_split(SIGNAL(bus_ba), 1, 1),				// 03
+										.y12  = signal_split(SIGNAL(bus_ba), 2, 1),				// 16
+										.y23  = signal_split(SIGNAL(bus_ba), 3, 1),				// 05
+										.y13  = signal_split(SIGNAL(bus_ba), 4, 1),				// 14
+										.y22  = signal_split(SIGNAL(bus_ba), 5, 1),				// 07
+										.y14  = signal_split(SIGNAL(bus_ba), 6, 1),				// 12
+										.y21  = signal_split(SIGNAL(bus_ba), 7, 1),				// 09
+
+	}));
+
+	// >> b3 - octal buffer
+	DEVICE_REGISTER_CHIP("B3", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+										.g1_b = SIGNAL(low),									// 01
+										.g2_b = SIGNAL(low),									// 19
+										.a11  = signal_split(SIGNAL(cpu_bus_address), 8, 1),	// 02
+										.a24  = signal_split(SIGNAL(cpu_bus_address), 9, 1),	// 17
+										.a12  = signal_split(SIGNAL(cpu_bus_address), 10, 1),	// 04
+										.a23  = signal_split(SIGNAL(cpu_bus_address), 11, 1),	// 15
+										.a13  = signal_split(SIGNAL(cpu_bus_address), 12, 1),	// 06
+										.a22  = signal_split(SIGNAL(cpu_bus_address), 13, 1),	// 13
+										.a14  = signal_split(SIGNAL(cpu_bus_address), 14, 1),	// 08
+										.a21  = signal_split(SIGNAL(cpu_bus_address), 15, 1),	// 11
+										.y11  = signal_split(SIGNAL(bus_ba), 8, 1),				// 18
+										.y24  = signal_split(SIGNAL(bus_ba), 9, 1),				// 03
+										.y12  = signal_split(SIGNAL(bus_ba), 10, 1),			// 16
+										.y23  = signal_split(SIGNAL(bus_ba), 11, 1),			// 05
+										.y13  = signal_split(SIGNAL(bus_ba), 12, 1),			// 14
+										.y22  = signal_split(SIGNAL(bus_ba), 13, 1),			// 07
+										.y14  = signal_split(SIGNAL(bus_ba), 14, 1),			// 12
+										.y21  = signal_split(SIGNAL(bus_ba), 15, 1),			// 09
+
+	}));
+
+	// >> d2 - 4-to-16 decoder
+	DEVICE_REGISTER_CHIP("D2", chip_74154_decoder_create(device->signal_pool, (Chip74154Signals) {
+										.g1_b = SIGNAL(low),
+										.g2_b = SIGNAL(low),
+										.a  = signal_split(SIGNAL(bus_ba), 12, 1),
+										.b  = signal_split(SIGNAL(bus_ba), 13, 1),
+										.c  = signal_split(SIGNAL(bus_ba), 14, 1),
+										.d  = signal_split(SIGNAL(bus_ba), 15, 1),
+										.y0_b = SIGNAL(sel0_b),
+										.y1_b = SIGNAL(sel1_b),
+										.y2_b = SIGNAL(sel2_b),
+										.y3_b = SIGNAL(sel3_b),
+										.y4_b = SIGNAL(sel4_b),
+										.y5_b = SIGNAL(sel5_b),
+										.y6_b = SIGNAL(sel6_b),
+										.y7_b = SIGNAL(sel7_b),
+										.y8_b = SIGNAL(sel8_b),
+										.y9_b = SIGNAL(sel9_b),
+										.y10_b = SIGNAL(sela_b),
+										.y11_b = SIGNAL(selb_b),
+										.y12_b = SIGNAL(selc_b),
+										.y13_b = SIGNAL(seld_b),
+										.y14_b = SIGNAL(sele_b),
+										.y15_b = SIGNAL(self_b),
+	}));
+
+	// >> e9 - octal buffer
+	DEVICE_REGISTER_CHIP("E9", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+										.g1_b = SIGNAL(ram_write_b),							// 01
+										.g2_b = SIGNAL(ram_read_b),								// 19
+										.a11  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 02
+										.y24  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 03
+										.a12  = signal_split(SIGNAL(cpu_bus_data), 1, 1),		// 04
+										.y23  = signal_split(SIGNAL(cpu_bus_data), 1, 1),		// 05
+										.a13  = signal_split(SIGNAL(cpu_bus_data), 2, 1),		// 06
+										.y22  = signal_split(SIGNAL(cpu_bus_data), 2, 1),		// 07
+										.a14  = signal_split(SIGNAL(cpu_bus_data), 3, 1),		// 08
+										.y21  = signal_split(SIGNAL(cpu_bus_data), 3, 1),		// 09
+
+										.y11  = signal_split(SIGNAL(bus_bd), 0, 1),				// 18
+										.a24  = signal_split(SIGNAL(bus_bd), 0, 1),				// 17
+										.y12  = signal_split(SIGNAL(bus_bd), 1, 1),				// 16
+										.a23  = signal_split(SIGNAL(bus_bd), 1, 1),				// 15
+										.y13  = signal_split(SIGNAL(bus_bd), 2, 1),				// 14
+										.a22  = signal_split(SIGNAL(bus_bd), 2, 1),				// 13
+										.y14  = signal_split(SIGNAL(bus_bd), 3, 1),				// 12
+										.a21  = signal_split(SIGNAL(bus_bd), 3, 1)				// 11
+	}));
+
+	// >> e10 - octal buffer
+	DEVICE_REGISTER_CHIP("E10", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
+										.g1_b = SIGNAL(ram_write_b),							// 01
+										.g2_b = SIGNAL(ram_read_b),								// 19
+										.a11  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 02
+										.y24  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 03
+										.a12  = signal_split(SIGNAL(cpu_bus_data), 5, 1),		// 04
+										.y23  = signal_split(SIGNAL(cpu_bus_data), 5, 1),		// 05
+										.a13  = signal_split(SIGNAL(cpu_bus_data), 6, 1),		// 06
+										.y22  = signal_split(SIGNAL(cpu_bus_data), 6, 1),		// 07
+										.a14  = signal_split(SIGNAL(cpu_bus_data), 7, 1),		// 08
+										.y21  = signal_split(SIGNAL(cpu_bus_data), 7, 1),		// 09
+
+										.y11  = signal_split(SIGNAL(bus_bd), 4, 1),				// 18
+										.a24  = signal_split(SIGNAL(bus_bd), 4, 1),				// 17
+										.y12  = signal_split(SIGNAL(bus_bd), 5, 1),				// 16
+										.a23  = signal_split(SIGNAL(bus_bd), 5, 1),				// 15
+										.y13  = signal_split(SIGNAL(bus_bd), 6, 1),				// 14
+										.a22  = signal_split(SIGNAL(bus_bd), 6, 1),				// 13
+										.y14  = signal_split(SIGNAL(bus_bd), 7, 1),				// 12
+										.a21  = signal_split(SIGNAL(bus_bd), 7, 1)				// 11
+	}));
+
+	//
+	// components - sheet 02: IEEE-488 Interface
+	//
+
+	// pia 1 (C6 - IEEE-488 interface)
+	device->pia_1 = chip_6520_create(device->signal_pool, (Chip6520Signals) {
+										.bus_data = SIGNAL(cpu_bus_data),
+										.enable = SIGNAL(clk1),
+										.reset_b = SIGNAL(reset_b),
+										.rw = SIGNAL(cpu_rw),
+										.cs0 = SIGNAL(x8xx),
+										.cs1 = signal_split(SIGNAL(bus_ba), 5, 1),
+										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
+										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
+										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
+										.ca1 = SIGNAL(atn_in_b),
+										.ca2 = SIGNAL(ndac_out_b),
+										.port_a = SIGNAL(bus_di),
+										.port_b = SIGNAL(bus_do),
+										.cb1 = SIGNAL(srq_in_b),
+										.cb2 = SIGNAL(dav_out_b)
+	});
+	DEVICE_REGISTER_CHIP("C6", device->pia_1);
+
+	//
+	// components - sheet 03: cassette & keyboard
+	//
+
+	// pia 2 (C7 - keyboard)
+	device->pia_2 = chip_6520_create(device->signal_pool, (Chip6520Signals) {
+										.bus_data = SIGNAL(cpu_bus_data),
+										.enable = SIGNAL(clk1),
+										.reset_b = SIGNAL(reset_b),
+										.rw = SIGNAL(cpu_rw),
+										.cs0 = SIGNAL(x8xx),
+										.cs1 = signal_split(SIGNAL(bus_ba), 4, 1),
+										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
+										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
+										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
+										.ca1 = SIGNAL(cass_read_1),
+										.ca2 = SIGNAL(eoi_out_b),
+										.port_a = SIGNAL(c7_porta),
+										.port_b = SIGNAL(bus_kin),
+										.cb1 = SIGNAL(video_on),
+										.cb2 = SIGNAL(cass_motor_1)
+	});
+	DEVICE_REGISTER_CHIP("C7", device->pia_2);
+
+	// via (C5)
+	device->via = chip_6522_create(device->signal_pool, (Chip6522Signals) {
+										.bus_data = SIGNAL(cpu_bus_data),
+										.enable = SIGNAL(clk1),
+										.reset_b = SIGNAL(reset_b),
+										.rw = SIGNAL(cpu_rw),
+										.cs1 = SIGNAL(cs1),
+										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
+										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
+										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
+										.rs2 = signal_split(SIGNAL(bus_ba), 2, 1),
+										.rs3 = signal_split(SIGNAL(bus_ba), 3, 1),
+										.ca1 = SIGNAL(ca1),
+										.ca2 = SIGNAL(graphic),
+										.port_a = SIGNAL(bus_pa),
+										.port_b = SIGNAL(c5_portb),
+										.cb1 = SIGNAL(cass_read_2),
+										.cb2 = SIGNAL(cb2)
+	});
+	DEVICE_REGISTER_CHIP("C5", device->via);
+
+	// >> c9 - bcd decoder
+	DEVICE_REGISTER_CHIP("C9", chip_74145_bcd_decoder_create(device->signal_pool, (Chip74145Signals) {
+										.a = SIGNAL(keya),
+										.b = SIGNAL(keyb),
+										.c = SIGNAL(keyc),
+										.d = SIGNAL(keyd),
+										.y0_b = signal_split(SIGNAL(bus_kout), 0, 1),
+										.y1_b = signal_split(SIGNAL(bus_kout), 1, 1),
+										.y2_b = signal_split(SIGNAL(bus_kout), 2, 1),
+										.y3_b = signal_split(SIGNAL(bus_kout), 3, 1),
+										.y4_b = signal_split(SIGNAL(bus_kout), 4, 1),
+										.y5_b = signal_split(SIGNAL(bus_kout), 5, 1),
+										.y6_b = signal_split(SIGNAL(bus_kout), 6, 1),
+										.y7_b = signal_split(SIGNAL(bus_kout), 7, 1),
+										.y8_b = signal_split(SIGNAL(bus_kout), 8, 1),
+										.y9_b = signal_split(SIGNAL(bus_kout), 9, 1)
+	}));
+
+	//
+	// components - sheet 04: roms
+	//
+
+	// basic roms
+	int rom_count = 0;
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-b000.901465-19.bin", 12, SIGNAL(selb_b));
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-c000.901465-20.bin", 12, SIGNAL(selc_b));
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-d000.901465-21.bin", 12, SIGNAL(seld_b));
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/edit-4-n.901447-29.bin", 11, SIGNAL(sele_b));
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/kernal-4.901465-22.bin", 12, SIGNAL(self_b));
+
+	for (int i = 0; i < rom_count; ++i) {
+		assert(device->roms[i]);
+		DEVICE_REGISTER_CHIP("ROM", device->roms[i]);
+	}
+
+	//
 	// components - sheet 05: RAMS
+	//
+
 	DEVICE_REGISTER_CHIP("I11", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
 										.g2_b = SIGNAL(buf_rw),							// 19
 										.g1_b = SIGNAL(g78),							// 01
@@ -924,7 +1211,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.bus_do = SIGNAL(bus_rd)
 	}));
 
+	//
 	// sheet 06 - master timing
+	//
 
 	// >> y1 - oscillator
 	device->oscillator_y1 = oscillator_create(16000000, device->signal_pool, (OscillatorSignals) {
@@ -1102,7 +1391,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.q2_b = SIGNAL(h1q2_b)			// pin 8
 	}));
 
+	//
 	// sheet 07 - display logic components
+	//
 
 	// >> g6 - JK flip-flop
 	DEVICE_REGISTER_CHIP("G6", chip_74107_jk_flipflop_create(device->signal_pool, (Chip74107Signals) {
@@ -1273,7 +1564,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.q2_b = SIGNAL(next_b)			// pin 8
 	}));
 
+	//
 	// sheet 08: display rams components
+	//
 
 	// >> h11 - binary counter
 	DEVICE_REGISTER_CHIP("H11", chip_7493_binary_counter_create(device->signal_pool, (Chip7493Signals) {
@@ -1400,78 +1693,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.qh_b	 = SIGNAL(e11qh_b),						// 7
 	}));
 
-	// power-on-reset
-	DEVICE_REGISTER_CHIP("POR", poweronreset_create(US_TO_PS(500), device->signal_pool, (PowerOnResetSignals) {
-											.trigger_b = SIGNAL(reset_btn_b),
-											.reset_b = SIGNAL(reset_b)
-	}));
-
-	// cpu
-	device->cpu = cpu_6502_create(device->signal_pool, (Cpu6502Signals) {
-										.bus_address = SIGNAL(cpu_bus_address),
-										.bus_data = SIGNAL(cpu_bus_data),
-										.clock = SIGNAL(clk1),
-										.reset_b = SIGNAL(reset_b),
-										.rw = SIGNAL(cpu_rw),
-										.irq_b = SIGNAL(irq_b),
-										.nmi_b = SIGNAL(nmi_b),
-										.sync = SIGNAL(cpu_sync),
-										.rdy = SIGNAL(cpu_rdy)
-	});
-	DEVICE_REGISTER_CHIP("C4", device->cpu);
-
-	// basic roms
-	int rom_count = 0;
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-b000.901465-19.bin", 12, SIGNAL(selb_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-c000.901465-20.bin", 12, SIGNAL(selc_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-d000.901465-21.bin", 12, SIGNAL(seld_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/edit-4-n.901447-29.bin", 11, SIGNAL(sele_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/kernal-4.901465-22.bin", 12, SIGNAL(self_b));
-
-	for (int i = 0; i < rom_count; ++i) {
-		assert(device->roms[i]);
-		DEVICE_REGISTER_CHIP("ROM", device->roms[i]);
-	}
-
-	// pia 1 (C6 - IEEE-488 interface)
-	device->pia_1 = chip_6520_create(device->signal_pool, (Chip6520Signals) {
-										.bus_data = SIGNAL(cpu_bus_data),
-										.enable = SIGNAL(clk1),
-										.reset_b = SIGNAL(reset_b),
-										.rw = SIGNAL(cpu_rw),
-										.cs0 = SIGNAL(x8xx),
-										.cs1 = signal_split(SIGNAL(bus_ba), 5, 1),
-										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
-										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
-										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
-										.ca1 = SIGNAL(atn_in_b),
-										.ca2 = SIGNAL(ndac_out_b),
-										.port_a = SIGNAL(bus_di),
-										.port_b = SIGNAL(bus_do),
-										.cb1 = SIGNAL(srq_in_b),
-										.cb2 = SIGNAL(dav_out_b)
-	});
-	DEVICE_REGISTER_CHIP("C6", device->pia_1);
-
-	// pia 2 (C7 - keyboard)
-	device->pia_2 = chip_6520_create(device->signal_pool, (Chip6520Signals) {
-										.bus_data = SIGNAL(cpu_bus_data),
-										.enable = SIGNAL(clk1),
-										.reset_b = SIGNAL(reset_b),
-										.rw = SIGNAL(cpu_rw),
-										.cs0 = SIGNAL(x8xx),
-										.cs1 = signal_split(SIGNAL(bus_ba), 4, 1),
-										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
-										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
-										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
-										.ca1 = SIGNAL(cass_read_1),
-										.ca2 = SIGNAL(eoi_out_b),
-										.port_a = SIGNAL(c7_porta),
-										.port_b = SIGNAL(bus_kin),
-										.cb1 = SIGNAL(video_on),
-										.cb2 = SIGNAL(cass_motor_1)
-	});
-	DEVICE_REGISTER_CHIP("C7", device->pia_2);
+	//
+	// components - peripherals
+	//
 
 	// keyboard
 	device->keypad = input_keypad_create(device->signal_pool, false, 10, 8, 500, 100, (InputKeypadSignals) {
@@ -1480,26 +1704,6 @@ DevCommodorePet *dev_commodore_pet_create() {
 	});
 	DEVICE_REGISTER_CHIP("KEYPAD", device->keypad);
 
-	// via (C5)
-	device->via = chip_6522_create(device->signal_pool, (Chip6522Signals) {
-										.bus_data = SIGNAL(cpu_bus_data),
-										.enable = SIGNAL(clk1),
-										.reset_b = SIGNAL(reset_b),
-										.rw = SIGNAL(cpu_rw),
-										.cs1 = SIGNAL(cs1),
-										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
-										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
-										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
-										.rs2 = signal_split(SIGNAL(bus_ba), 2, 1),
-										.rs3 = signal_split(SIGNAL(bus_ba), 3, 1),
-										.ca1 = SIGNAL(ca1),
-										.ca2 = SIGNAL(graphic),
-										.port_a = SIGNAL(bus_pa),
-										.port_b = SIGNAL(c5_portb),
-										.cb1 = SIGNAL(cass_read_2),
-										.cb2 = SIGNAL(cb2)
-	});
-	DEVICE_REGISTER_CHIP("C5", device->via);
 
 	// display
 	device->crt = display_pet_crt_create(device->signal_pool, (DisplayPetCrtSignals) {
@@ -1509,143 +1713,9 @@ DevCommodorePet *dev_commodore_pet_create() {
 	});
 	DEVICE_REGISTER_CHIP("CRT", device->crt);
 
-	// glue logic
-
-	// >> c3 - octal buffer
-	DEVICE_REGISTER_CHIP("C3", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
-										.g1_b = SIGNAL(low),									// 01
-										.g2_b = SIGNAL(low),									// 19
-										.a11  = signal_split(SIGNAL(cpu_bus_address), 0, 1),	// 02
-										.a24  = signal_split(SIGNAL(cpu_bus_address), 1, 1),	// 17
-										.a12  = signal_split(SIGNAL(cpu_bus_address), 2, 1),	// 04
-										.a23  = signal_split(SIGNAL(cpu_bus_address), 3, 1),	// 15
-										.a13  = signal_split(SIGNAL(cpu_bus_address), 4, 1),	// 06
-										.a22  = signal_split(SIGNAL(cpu_bus_address), 5, 1),	// 13
-										.a14  = signal_split(SIGNAL(cpu_bus_address), 6, 1),	// 08
-										.a21  = signal_split(SIGNAL(cpu_bus_address), 7, 1),	// 11
-										.y11  = signal_split(SIGNAL(bus_ba), 0, 1),				// 18
-										.y24  = signal_split(SIGNAL(bus_ba), 1, 1),				// 03
-										.y12  = signal_split(SIGNAL(bus_ba), 2, 1),				// 16
-										.y23  = signal_split(SIGNAL(bus_ba), 3, 1),				// 05
-										.y13  = signal_split(SIGNAL(bus_ba), 4, 1),				// 14
-										.y22  = signal_split(SIGNAL(bus_ba), 5, 1),				// 07
-										.y14  = signal_split(SIGNAL(bus_ba), 6, 1),				// 12
-										.y21  = signal_split(SIGNAL(bus_ba), 7, 1),				// 09
-
-	}));
-
-	// >> b3 - octal buffer
-	DEVICE_REGISTER_CHIP("B3", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
-										.g1_b = SIGNAL(low),									// 01
-										.g2_b = SIGNAL(low),									// 19
-										.a11  = signal_split(SIGNAL(cpu_bus_address), 8, 1),	// 02
-										.a24  = signal_split(SIGNAL(cpu_bus_address), 9, 1),	// 17
-										.a12  = signal_split(SIGNAL(cpu_bus_address), 10, 1),	// 04
-										.a23  = signal_split(SIGNAL(cpu_bus_address), 11, 1),	// 15
-										.a13  = signal_split(SIGNAL(cpu_bus_address), 12, 1),	// 06
-										.a22  = signal_split(SIGNAL(cpu_bus_address), 13, 1),	// 13
-										.a14  = signal_split(SIGNAL(cpu_bus_address), 14, 1),	// 08
-										.a21  = signal_split(SIGNAL(cpu_bus_address), 15, 1),	// 11
-										.y11  = signal_split(SIGNAL(bus_ba), 8, 1),				// 18
-										.y24  = signal_split(SIGNAL(bus_ba), 9, 1),				// 03
-										.y12  = signal_split(SIGNAL(bus_ba), 10, 1),			// 16
-										.y23  = signal_split(SIGNAL(bus_ba), 11, 1),			// 05
-										.y13  = signal_split(SIGNAL(bus_ba), 12, 1),			// 14
-										.y22  = signal_split(SIGNAL(bus_ba), 13, 1),			// 07
-										.y14  = signal_split(SIGNAL(bus_ba), 14, 1),			// 12
-										.y21  = signal_split(SIGNAL(bus_ba), 15, 1),			// 09
-
-	}));
-
-	// >> d2 - 4-to-16 decoder
-	DEVICE_REGISTER_CHIP("D2", chip_74154_decoder_create(device->signal_pool, (Chip74154Signals) {
-										.g1_b = SIGNAL(low),
-										.g2_b = SIGNAL(low),
-										.a  = signal_split(SIGNAL(bus_ba), 12, 1),
-										.b  = signal_split(SIGNAL(bus_ba), 13, 1),
-										.c  = signal_split(SIGNAL(bus_ba), 14, 1),
-										.d  = signal_split(SIGNAL(bus_ba), 15, 1),
-										.y0_b = SIGNAL(sel0_b),
-										.y1_b = SIGNAL(sel1_b),
-										.y2_b = SIGNAL(sel2_b),
-										.y3_b = SIGNAL(sel3_b),
-										.y4_b = SIGNAL(sel4_b),
-										.y5_b = SIGNAL(sel5_b),
-										.y6_b = SIGNAL(sel6_b),
-										.y7_b = SIGNAL(sel7_b),
-										.y8_b = SIGNAL(sel8_b),
-										.y9_b = SIGNAL(sel9_b),
-										.y10_b = SIGNAL(sela_b),
-										.y11_b = SIGNAL(selb_b),
-										.y12_b = SIGNAL(selc_b),
-										.y13_b = SIGNAL(seld_b),
-										.y14_b = SIGNAL(sele_b),
-										.y15_b = SIGNAL(self_b),
-	}));
-
-	// >> e9 - octal buffer
-	DEVICE_REGISTER_CHIP("E9", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
-										.g1_b = SIGNAL(ram_write_b),							// 01
-										.g2_b = SIGNAL(ram_read_b),								// 19
-										.a11  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 02
-										.y24  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 03
-										.a12  = signal_split(SIGNAL(cpu_bus_data), 1, 1),		// 04
-										.y23  = signal_split(SIGNAL(cpu_bus_data), 1, 1),		// 05
-										.a13  = signal_split(SIGNAL(cpu_bus_data), 2, 1),		// 06
-										.y22  = signal_split(SIGNAL(cpu_bus_data), 2, 1),		// 07
-										.a14  = signal_split(SIGNAL(cpu_bus_data), 3, 1),		// 08
-										.y21  = signal_split(SIGNAL(cpu_bus_data), 3, 1),		// 09
-
-										.y11  = signal_split(SIGNAL(bus_bd), 0, 1),				// 18
-										.a24  = signal_split(SIGNAL(bus_bd), 0, 1),				// 17
-										.y12  = signal_split(SIGNAL(bus_bd), 1, 1),				// 16
-										.a23  = signal_split(SIGNAL(bus_bd), 1, 1),				// 15
-										.y13  = signal_split(SIGNAL(bus_bd), 2, 1),				// 14
-										.a22  = signal_split(SIGNAL(bus_bd), 2, 1),				// 13
-										.y14  = signal_split(SIGNAL(bus_bd), 3, 1),				// 12
-										.a21  = signal_split(SIGNAL(bus_bd), 3, 1)				// 11
-	}));
-
-	// >> e10 - octal buffer
-	DEVICE_REGISTER_CHIP("E10", chip_74244_octal_buffer_create(device->signal_pool, (Chip74244Signals) {
-										.g1_b = SIGNAL(ram_write_b),							// 01
-										.g2_b = SIGNAL(ram_read_b),								// 19
-										.a11  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 02
-										.y24  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 03
-										.a12  = signal_split(SIGNAL(cpu_bus_data), 5, 1),		// 04
-										.y23  = signal_split(SIGNAL(cpu_bus_data), 5, 1),		// 05
-										.a13  = signal_split(SIGNAL(cpu_bus_data), 6, 1),		// 06
-										.y22  = signal_split(SIGNAL(cpu_bus_data), 6, 1),		// 07
-										.a14  = signal_split(SIGNAL(cpu_bus_data), 7, 1),		// 08
-										.y21  = signal_split(SIGNAL(cpu_bus_data), 7, 1),		// 09
-
-										.y11  = signal_split(SIGNAL(bus_bd), 4, 1),				// 18
-										.a24  = signal_split(SIGNAL(bus_bd), 4, 1),				// 17
-										.y12  = signal_split(SIGNAL(bus_bd), 5, 1),				// 16
-										.a23  = signal_split(SIGNAL(bus_bd), 5, 1),				// 15
-										.y13  = signal_split(SIGNAL(bus_bd), 6, 1),				// 14
-										.a22  = signal_split(SIGNAL(bus_bd), 6, 1),				// 13
-										.y14  = signal_split(SIGNAL(bus_bd), 7, 1),				// 12
-										.a21  = signal_split(SIGNAL(bus_bd), 7, 1)				// 11
-	}));
-
-	// >> c9 - bcd decoder
-	DEVICE_REGISTER_CHIP("C9", chip_74145_bcd_decoder_create(device->signal_pool, (Chip74145Signals) {
-										.a = SIGNAL(keya),
-										.b = SIGNAL(keyb),
-										.c = SIGNAL(keyc),
-										.d = SIGNAL(keyd),
-										.y0_b = signal_split(SIGNAL(bus_kout), 0, 1),
-										.y1_b = signal_split(SIGNAL(bus_kout), 1, 1),
-										.y2_b = signal_split(SIGNAL(bus_kout), 2, 1),
-										.y3_b = signal_split(SIGNAL(bus_kout), 3, 1),
-										.y4_b = signal_split(SIGNAL(bus_kout), 4, 1),
-										.y5_b = signal_split(SIGNAL(bus_kout), 5, 1),
-										.y6_b = signal_split(SIGNAL(bus_kout), 6, 1),
-										.y7_b = signal_split(SIGNAL(bus_kout), 7, 1),
-										.y8_b = signal_split(SIGNAL(bus_kout), 8, 1),
-										.y9_b = signal_split(SIGNAL(bus_kout), 9, 1)
-	}));
+	//
+	// components - glue logic
+	//
 
 	// custom chips for the glue logic
 	DEVICE_REGISTER_CHIP("LOGIC1", glue_logic_create(device, 1));
