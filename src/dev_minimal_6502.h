@@ -81,7 +81,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data);
 void dev_minimal_6502_destroy(DevMinimal6502 *device);
 void dev_minimal_6502_process(DevMinimal6502 *device);
 void dev_minimal_6502_reset(DevMinimal6502 *device);
-void dev_minimal_6502_copy_memory(DevMinimal6502 *device, size_t start_address, size_t size, uint8_t *output);
+void dev_minimal_6502_read_memory(DevMinimal6502 *device, size_t start_address, size_t size, uint8_t *output);
 
 void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename);
 void dev_minimal_6502_ram_from_file(DevMinimal6502 *device, const char *filename);

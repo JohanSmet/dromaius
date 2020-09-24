@@ -64,7 +64,7 @@ public:
 
 			// copy a line from the device memory
 			uint8_t buffer[16];
-			ui_context->device->copy_memory(ui_context->device, mem_offset + index, 16, buffer);
+			ui_context->device->read_memory(ui_context->device, mem_offset + index, 16, buffer);
 
 			ImGui::Text("%.4lx:", mem_offset + index);
 
@@ -104,7 +104,7 @@ public:
 
 			// copy a few bytes from the device memory
 			uint8_t buffer[16];
-			ui_context->device->copy_memory(ui_context->device, mem_offset + index, 16, buffer);
+			ui_context->device->read_memory(ui_context->device, mem_offset + index, 16, buffer);
 
 			index += filt_6502_asm_line(buffer, 16, 0, mem_offset + index, &line);
 
@@ -126,7 +126,7 @@ public:
 
 		// copy the screen from the device
 		uint8_t screen[1000];
-		ui_context->device->copy_memory(ui_context->device, mem_offset, 1000, screen);
+		ui_context->device->read_memory(ui_context->device, mem_offset, 1000, screen);
 
 		for (auto index = 0u; index < 1000; ++index) {
 			if (index % 40 > 0) {

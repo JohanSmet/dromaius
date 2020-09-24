@@ -110,7 +110,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->process = (DEVICE_PROCESS) dev_minimal_6502_process;
 	device->reset = (DEVICE_RESET) dev_minimal_6502_reset;
 	device->destroy = (DEVICE_DESTROY) dev_minimal_6502_destroy;
-	device->copy_memory = (DEVICE_COPY_MEMORY) dev_minimal_6502_copy_memory;
+	device->read_memory = (DEVICE_READ_MEMORY) dev_minimal_6502_read_memory;
 
 	// signals
 	device->signal_pool = signal_pool_create(1);
@@ -244,7 +244,7 @@ void dev_minimal_6502_reset(DevMinimal6502 *device) {
 	device->in_reset = true;
 }
 
-void dev_minimal_6502_copy_memory(DevMinimal6502 *device, size_t start_address, size_t size, uint8_t *output) {
+void dev_minimal_6502_read_memory(DevMinimal6502 *device, size_t start_address, size_t size, uint8_t *output) {
 	assert(device);
 	assert(output);
 
