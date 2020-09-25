@@ -313,6 +313,7 @@ void dev_commodore_pet_process(DevCommodorePet *device);
 void dev_commodore_pet_process_clk1(DevCommodorePet *device);
 void dev_commodore_pet_reset(DevCommodorePet *device);
 void dev_commodore_pet_read_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output);
+void dev_commodore_pet_write_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *input);
 
 bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address);
 

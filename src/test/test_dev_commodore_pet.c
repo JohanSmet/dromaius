@@ -365,6 +365,32 @@ MunitResult test_vram_program(const MunitParameter params[], void *user_data_or_
 	return MUNIT_OK;
 }
 
+static MunitResult test_read_write_memory(const MunitParameter params[], void *user_data_or_fixture) {
+
+	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
+
+	uint8_t src_buffer[16] = {0x01, 0x20, 0x03, 0x40, 0x05, 0x60, 0x07, 0x80, 0x09, 0xa0, 0x0b, 0xc0, 0x0d, 0xe0, 0x0f, 0x15};
+	uint8_t dst_buffer[16];
+
+	// test main memory
+	device->write_memory(device, 0x3ff8, sizeof(src_buffer), src_buffer);
+
+	memset(dst_buffer, 0xaa, sizeof(dst_buffer));
+	device->read_memory(device, 0x3ff8, sizeof(dst_buffer), dst_buffer);
+
+	munit_assert_memory_equal(sizeof(src_buffer), src_buffer, dst_buffer);
+
+	// test display memory
+	device->write_memory(device, 0x8008, sizeof(src_buffer), src_buffer);
+
+	memset(dst_buffer, 0xaa, sizeof(dst_buffer));
+	device->read_memory(device, 0x8008, sizeof(dst_buffer), dst_buffer);
+
+	munit_assert_memory_equal(sizeof(src_buffer), src_buffer, dst_buffer);
+
+	return MUNIT_OK;
+}
+
 MunitTest dev_commodore_pet_tests[] = {
 	{ "/address_signals", test_signals_address, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/address_data", test_signals_data, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
@@ -375,5 +401,6 @@ MunitTest dev_commodore_pet_tests[] = {
 	{ "/rom", test_rom, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/startup", test_startup, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/vram_program", test_vram_program, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_write_memory", test_read_write_memory, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };
