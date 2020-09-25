@@ -1917,13 +1917,13 @@ bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, b
 		return false;
 	}
 
-	// uint16_t ram_offset = 0x401;
-	// if (use_prg_address) {
-		// ram_offset = *((uint16_t*)prg_buffer);
-	// }
+	uint16_t ram_offset = 0x401;
+	if (use_prg_address) {
+		ram_offset = *((uint16_t*)prg_buffer);
+	}
 
-	assert(false && "not implemented");
-	// memcpy(device->ram->data_array + ram_offset, prg_buffer + 2, prg_size - 2);
+	dev_commodore_pet_write_memory(device, ram_offset, prg_size - 2, (uint8_t *) prg_buffer + 2);
+
 	arrfree(prg_buffer);
 	return true;
 }
