@@ -133,8 +133,29 @@ MunitResult test_pia(const MunitParameter params[], void *user_data_or_fixture) 
 	return MUNIT_OK;
 }
 
+static MunitResult test_read_write_memory(const MunitParameter params[], void *user_data_or_fixture) {
+
+	DevMinimal6502 *dev = dev_minimal_6502_setup(0);
+
+	uint8_t src_buffer[16] = {0x01, 0x20, 0x03, 0x40, 0x05, 0x60, 0x07, 0x80, 0x09, 0xa0, 0x0b, 0xc0, 0x0d, 0xe0, 0x0f, 0x15};
+	uint8_t dst_buffer[16];
+
+	// test main memory
+	dev->write_memory(dev, 0x1000, sizeof(src_buffer), src_buffer);
+
+	memset(dst_buffer, 0xaa, sizeof(dst_buffer));
+	dev->read_memory(dev, 0x1000, sizeof(dst_buffer), dst_buffer);
+
+	munit_assert_memory_equal(sizeof(src_buffer), src_buffer, dst_buffer);
+
+	dev_minimal_6502_teardown(dev);
+
+	return MUNIT_OK;
+}
+
 MunitTest dev_minimal_6502_tests[] = {
 	{ "/run_program", test_program, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/pia", test_pia, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/read_write_memory", test_read_write_memory, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

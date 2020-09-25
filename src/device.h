@@ -17,6 +17,7 @@ typedef void (*DEVICE_PROCESS)(void *device);
 typedef void (*DEVICE_RESET)(void *device);
 typedef void (*DEVICE_DESTROY)(void *device);
 typedef void (*DEVICE_READ_MEMORY)(void *device, size_t start_address, size_t size, uint8_t *output);
+typedef void (*DEVICE_WRITE_MEMORY)(void *device, size_t start_address, size_t size, uint8_t *input);
 
 typedef struct ChipEvent {
 	int32_t				chip_id;
@@ -30,6 +31,7 @@ typedef struct ChipEvent {
 	DEVICE_RESET reset;						\
 	DEVICE_DESTROY destroy;					\
 	DEVICE_READ_MEMORY read_memory;			\
+	DEVICE_WRITE_MEMORY write_memory;		\
 											\
 	SignalPool *			signal_pool;	\
 	Chip **					chips;			\

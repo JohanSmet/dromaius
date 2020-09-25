@@ -497,6 +497,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->reset = (DEVICE_RESET) dev_commodore_pet_reset;
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
 	device->read_memory = (DEVICE_READ_MEMORY) dev_commodore_pet_read_memory;
+	device->write_memory = (DEVICE_WRITE_MEMORY) dev_commodore_pet_write_memory;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -1840,10 +1841,73 @@ void dev_commodore_pet_read_memory(DevCommodorePet *device, size_t start_address
 	}
 }
 
-bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {
+void dev_commodore_pet_write_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *input) {
+	assert(device);
+	assert(input);
 
-	(void)  device;
-	(void) use_prg_address;
+	// note: this function only allows writes to the main RAM and video memory
+	static const size_t	REGION_START[] = {0x0000, 0x4000, 0x8000};
+	static const size_t REGION_SIZE[]  = {0x4000, 0x4000, 0x0800};
+	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
+
+	if (start_address > 0x87ff) {
+		return;
+	}
+
+	// find start region
+	int sr = NUM_REGIONS - 1;
+	while (start_address < REGION_START[sr] && sr > 0) {
+		sr -= 1;
+	}
+
+	size_t remain = size;
+	size_t done = 0;
+	size_t addr = start_address;
+
+	for (int region = sr; remain > 0 && addr < 0x8800; ++region) {
+		size_t region_offset = addr - REGION_START[region];
+		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
+
+		switch (region) {
+			case 0:	{			// RAM (0-16k)
+				Chip8x4116DRam *ram = (Chip8x4116DRam *) device_chip_by_name((Device *) device, "I2-9");
+				for (size_t i = 0; i < to_copy; ++i) {
+					size_t row = (region_offset + i) & 0x007f;
+					size_t col = ((region_offset + i) & 0x3f80) >> 7;
+					size_t physical = (row << 7) | ((col & 0x003f) << 1) | ((col & 0x0040) >> 6);
+					ram->data_array[physical] = input[done+i];
+				}
+				break;
+			}
+			case 1:	{			// RAM (16-32k)
+				Chip8x4116DRam *ram = (Chip8x4116DRam *) device_chip_by_name((Device *) device, "J2-9");
+				for (size_t i = 0; i < to_copy; ++i) {
+					size_t row = (region_offset + i) & 0x007f;
+					size_t col = ((region_offset + i) & 0x3f80) >> 7;
+					size_t physical = (row << 7) | ((col & 0x003f) << 1) | ((col & 0x0040) >> 6);
+					ram->data_array[physical] = input[done+i];
+				}
+				break;
+			}
+			case 2:	{			// Screen RAM
+				Chip6114SRam *ram_hi = (Chip6114SRam *) device_chip_by_name((Device *)device, "F7");
+				Chip6114SRam *ram_lo = (Chip6114SRam *) device_chip_by_name((Device *)device, "F8");
+
+				for (size_t i = 0; i < to_copy; ++i) {
+					ram_hi->data_array[region_offset+i] = (input[done+i] & 0xf0) >> 4;
+					ram_lo->data_array[region_offset+i] = (input[done+i] & 0x0f);
+				}
+				break;
+			}
+		}
+
+		remain -= to_copy;
+		addr += to_copy;
+		done += to_copy;
+	}
+}
+
+bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {
 
 	int8_t * prg_buffer = NULL;
 	size_t prg_size = file_load_binary(filename, &prg_buffer);

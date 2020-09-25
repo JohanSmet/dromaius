@@ -111,6 +111,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->reset = (DEVICE_RESET) dev_minimal_6502_reset;
 	device->destroy = (DEVICE_DESTROY) dev_minimal_6502_destroy;
 	device->read_memory = (DEVICE_READ_MEMORY) dev_minimal_6502_read_memory;
+	device->write_memory = (DEVICE_WRITE_MEMORY) dev_minimal_6502_write_memory;
 
 	// signals
 	device->signal_pool = signal_pool_create(1);
@@ -248,7 +249,6 @@ void dev_minimal_6502_read_memory(DevMinimal6502 *device, size_t start_address, 
 	assert(device);
 	assert(output);
 
-	// note: this function skips the free rom slots
 	static const size_t	REGION_START[] = {0x0000, 0x8000, 0xc000};
 	static const size_t REGION_SIZE[]  = {0x8000, 0x4000, 0x4000};
 	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
@@ -288,6 +288,23 @@ void dev_minimal_6502_read_memory(DevMinimal6502 *device, size_t start_address, 
 		addr += to_copy;
 		done += to_copy;
 	}
+}
+
+void dev_minimal_6502_write_memory(DevMinimal6502 *device, size_t start_address, size_t size, uint8_t *input) {
+	assert(device);
+	assert(input);
+
+	// only allow writes to the RAM area
+	if (start_address > 0x7fff) {
+		return;
+	}
+
+	size_t real_size = size;
+	if (start_address + size > 0x8000) {
+		real_size -= start_address + size - 0x8000;
+	}
+
+	memcpy(device->ram->data_array + start_address, input, real_size);
 }
 
 void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename) {
