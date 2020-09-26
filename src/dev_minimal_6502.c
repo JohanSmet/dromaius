@@ -7,8 +7,14 @@
 #include "utils.h"
 #include "stb/stb_ds.h"
 
-#include "chip_poweronreset.h"
+#include "chip_6520.h"
+#include "chip_hd44780.h"
 #include "chip_oscillator.h"
+#include "chip_poweronreset.h"
+#include "cpu_6502.h"
+#include "input_keypad.h"
+#include "ram_8d_16a.h"
+#include "rom_8d_16a.h"
 
 #include <assert.h>
 #include <stdlib.h>

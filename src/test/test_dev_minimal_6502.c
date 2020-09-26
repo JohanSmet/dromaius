@@ -2,7 +2,11 @@
 
 #include "munit/munit.h"
 #include "dev_minimal_6502.h"
+
+#include "chip_6520.h"
+#include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
+#include "ram_8d_16a.h"
 
 #include "stb/stb_ds.h"
 

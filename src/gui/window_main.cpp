@@ -14,6 +14,7 @@
 #include "panel_memory.h"
 
 #include "context.h"
+#include "cpu.h"
 
 namespace {
 	enum {

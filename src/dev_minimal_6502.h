@@ -17,13 +17,6 @@
 #define DROMAIUS_DEV_MINIMAL_6502_H
 
 #include "device.h"
-#include "cpu_6502.h"
-#include "ram_8d_16a.h"
-#include "rom_8d_16a.h"
-#include "chip_6520.h"
-#include "chip_hd44780.h"
-#include "input_keypad.h"
-#include "clock.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,13 +55,13 @@ typedef struct DevMinimal6502 {
 	DEVICE_DECLARE_FUNCTIONS
 
 	// components
-	Cpu6502 *		cpu;
-	Ram8d16a *		ram;
-	Rom8d16a *		rom;
-	Chip6520 *		pia;
-	ChipHd44780 *	lcd;
-	InputKeypad *	keypad;
-	struct Oscillator *oscillator;
+	struct Cpu6502 *	cpu;
+	struct Ram8d16a *	ram;
+	struct Rom8d16a *	rom;
+	struct Chip6520 *	pia;
+	struct ChipHd44780 *lcd;
+	struct InputKeypad *keypad;
+	struct Oscillator *	oscillator;
 
 	bool			in_reset;
 
