@@ -36,36 +36,29 @@ void device_simulate_timestep(Device *device) {
 	assert(device);
 
 	// advance to next timestamp
-	++device->signal_pool->current_tick;
-
-	// process all chips that have a dependency on signal that was changed in the last timestep
-	bool work_done = false;
-
-	for (size_t idx = 0; idx < arrlenu(device->dirty_chips); ++idx) {
-		Chip *chip = device->chips[device->dirty_chips[idx]];
-		chip->process(chip);
-		work_done = true;
-	}
-
-	// advance to next schedule event if no chips were processed
-	if (!work_done) {
+	if (arrlenu(device->dirty_chips)) {
+		++device->signal_pool->current_tick;
+	} else {
+		// advance to next scheduled event if no chips to be processed
 		device->signal_pool->current_tick = device_next_scheduled_event_timestamp(device);
 	}
 
-	// handle all events scheduled for the current timestamp
+	// handle scheduled events for the current timestamp
 	int32_t chip_id = device_pop_scheduled_event(device, device->signal_pool->current_tick);
 	while (chip_id >= 0) {
-		Chip *chip = device->chips[chip_id];
-
-		chip->process(chip);
-		arrpush(device->dirty_chips, chip->id);
+		if (!device->chip_is_dirty[chip_id]) {
+			arrpush(device->dirty_chips, chip_id);
+			device->chip_is_dirty[chip_id] = true;
+		}
 
 		chip_id = device_pop_scheduled_event(device, device->signal_pool->current_tick);
 	}
 
-	// schedule events
+	// process all chips that have a dependency on signal that was changed in the last timestep or have a scheduled wakeup
 	for (size_t idx = 0; idx < arrlenu(device->dirty_chips); ++idx) {
 		Chip *chip = device->chips[device->dirty_chips[idx]];
+		chip->process(chip);
+
 		if (chip->schedule_timestamp > 0) {
 			device_schedule_event(device, chip->id, chip->schedule_timestamp);
 			chip->schedule_timestamp = 0;
