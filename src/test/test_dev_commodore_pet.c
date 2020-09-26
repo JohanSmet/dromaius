@@ -2,10 +2,12 @@
 
 #include "munit/munit.h"
 #include "dev_commodore_pet.h"
-#include "cpu_6502_opcodes.h"
 #include "chip_ram_static.h"
 #include "chip_ram_dynamic.h"
 #include "chip_rom.h"
+
+#include "cpu_6502.h"
+#include "cpu_6502_opcodes.h"
 
 #include <stdio.h>
 
@@ -288,7 +290,7 @@ MunitResult test_startup(const MunitParameter params[], void *user_data_or_fixtu
 	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
 
 	for (int cycle = 0; cycle < 10000; ++cycle) {
-		dev_commodore_pet_process(device);
+		device->process(device);
 	}
 
 	return MUNIT_OK;

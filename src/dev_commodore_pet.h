@@ -16,8 +16,6 @@
 #define DROMAIUS_DEV_COMMODORE_PET_H
 
 #include "device.h"
-#include "cpu_6502.h"
-#include "chip_74xxx.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -289,7 +287,7 @@ typedef struct DevCommodorePet {
 	DEVICE_DECLARE_FUNCTIONS
 
 	// major components
-	Cpu6502 *		cpu;
+	struct Cpu6502 *		cpu;
 	struct Chip63xxRom *	roms[7];
 	struct Oscillator *		oscillator_y1;
 	struct Chip6520 *		pia_1;
@@ -300,7 +298,6 @@ typedef struct DevCommodorePet {
 	struct DisplayPetCrt *	crt;
 
 	bool					in_reset;
-	int						vblank_counter;
 
 	// signals
 	DevCommodorePetSignals	signals;

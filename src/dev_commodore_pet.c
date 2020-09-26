@@ -8,11 +8,13 @@
 #include "chip.h"
 #include "chip_6520.h"
 #include "chip_6522.h"
+#include "chip_74xxx.h"
 #include "chip_oscillator.h"
 #include "chip_poweronreset.h"
 #include "chip_ram_static.h"
 #include "chip_ram_dynamic.h"
 #include "chip_rom.h"
+#include "cpu_6502.h"
 #include "input_keypad.h"
 #include "display_pet_crt.h"
 #include "stb/stb_ds.h"
@@ -493,7 +495,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 	// interface
 	device->get_cpu = (DEVICE_GET_CPU) dev_commodore_pet_get_cpu;
-	device->process = (DEVICE_PROCESS) dev_commodore_pet_process;
+	device->process = (DEVICE_PROCESS) device_simulate_timestep;
 	device->reset = (DEVICE_RESET) dev_commodore_pet_reset;
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
 	device->read_memory = (DEVICE_READ_MEMORY) dev_commodore_pet_read_memory;
@@ -1741,11 +1743,6 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	}
 
 	free(device);
-}
-
-void dev_commodore_pet_process(DevCommodorePet *device) {
-	assert(device);
-	device_simulate_timestep((Device *) device);
 }
 
 void dev_commodore_pet_process_clk1(DevCommodorePet *device) {

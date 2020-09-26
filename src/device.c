@@ -32,6 +32,31 @@ Chip *device_chip_by_name(Device *device, const char *name) {
 	return NULL;
 }
 
+static inline void sim_handle_event_schedule(Device *device) {
+	int32_t chip_id = device_pop_scheduled_event(device, device->signal_pool->current_tick);
+
+	while (chip_id >= 0) {
+		if (!device->chip_is_dirty[chip_id]) {
+			arrpush(device->dirty_chips, chip_id);
+			device->chip_is_dirty[chip_id] = true;
+		}
+
+		chip_id = device_pop_scheduled_event(device, device->signal_pool->current_tick);
+	}
+}
+
+static inline void sim_process_sequential(Device *device) {
+	for (size_t idx = 0; idx < arrlenu(device->dirty_chips); ++idx) {
+		Chip *chip = device->chips[device->dirty_chips[idx]];
+		chip->process(chip);
+
+		if (chip->schedule_timestamp > 0) {
+			device_schedule_event(device, chip->id, chip->schedule_timestamp);
+			chip->schedule_timestamp = 0;
+		}
+	}
+}
+
 void device_simulate_timestep(Device *device) {
 	assert(device);
 
@@ -44,26 +69,10 @@ void device_simulate_timestep(Device *device) {
 	}
 
 	// handle scheduled events for the current timestamp
-	int32_t chip_id = device_pop_scheduled_event(device, device->signal_pool->current_tick);
-	while (chip_id >= 0) {
-		if (!device->chip_is_dirty[chip_id]) {
-			arrpush(device->dirty_chips, chip_id);
-			device->chip_is_dirty[chip_id] = true;
-		}
-
-		chip_id = device_pop_scheduled_event(device, device->signal_pool->current_tick);
-	}
+	sim_handle_event_schedule(device);
 
 	// process all chips that have a dependency on signal that was changed in the last timestep or have a scheduled wakeup
-	for (size_t idx = 0; idx < arrlenu(device->dirty_chips); ++idx) {
-		Chip *chip = device->chips[device->dirty_chips[idx]];
-		chip->process(chip);
-
-		if (chip->schedule_timestamp > 0) {
-			device_schedule_event(device, chip->id, chip->schedule_timestamp);
-			chip->schedule_timestamp = 0;
-		}
-	}
+	sim_process_sequential(device);
 
 	// determine changed signals and dirty chips for next simulation step
 	memset(device->chip_is_dirty, false, arrlenu(device->chip_is_dirty));
