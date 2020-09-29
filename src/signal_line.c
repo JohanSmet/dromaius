@@ -78,7 +78,7 @@ const uint64_t lut_bit_to_byte[256] = {
 	BITS_TO_BYTE(255ul)
 };
 
-SignalPool *signal_pool_create() {
+SignalPool *signal_pool_create(void) {
 	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool));
 	sh_new_arena(pool->signal_names);
 	pool->tick_duration_ps = NS_TO_PS(100);		// 100ns

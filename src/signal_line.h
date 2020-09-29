@@ -52,7 +52,7 @@ extern const uint64_t lut_bit_to_byte[256];
 #define MAX_SIGNAL_NAME		8
 
 // functions
-SignalPool *signal_pool_create();
+SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
 
 void signal_pool_cycle(SignalPool *pool);
