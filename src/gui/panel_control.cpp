@@ -54,10 +54,11 @@ public:
 				ImGui::SameLine();
 
 				ImGui::SetNextItemWidth(64);
-				if (ImGui::BeginCombo("##stepClock", signal_get_name(ui_context->device->signal_pool, step_clocks[step_clock_sel].signal))) {
+				auto *signal_pool = ui_context->device->simulator->signal_pool;
+				if (ImGui::BeginCombo("##stepClock", signal_get_name(signal_pool, step_clocks[step_clock_sel].signal))) {
 					for (size_t i = 0; i < step_clocks.size(); ++i) {
 						bool is_selected = (i == step_clock_sel);
-						if (ImGui::Selectable(signal_get_name(ui_context->device->signal_pool, step_clocks[i].signal), is_selected)) {
+						if (ImGui::Selectable(signal_get_name(signal_pool, step_clocks[i].signal), is_selected)) {
 							step_clock_sel = i;
 						}
 						if (is_selected) {

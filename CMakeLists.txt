@@ -174,6 +174,8 @@ target_sources(${LIB_TARGET}
 		src/rom_8d_16a.h
 		src/signal_line.c
 		src/signal_line.h
+		src/simulator.c
+		src/simulator.h
 		src/stopwatch.c
 		src/stopwatch.h
 		src/utils.c
@@ -328,7 +330,6 @@ target_sources(${TEST_TARGET}
 		src/test/test_chip_rom.c
 		src/test/test_clock.c
 		src/test/test_cpu_6502.c
-		src/test/test_device.c
 		src/test/test_dev_commodore_pet.c
 		src/test/test_dev_minimal_6502.c
 		src/test/test_filt_6502_asm.c
@@ -336,6 +337,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_ram_8d_16a.c
 		src/test/test_rom_8d_16a.c
 		src/test/test_signal_line.c
+		src/test/test_simulator.c
 		src/test/test_utils.c
 		libs/munit/munit.c
 		libs/munit/munit.h

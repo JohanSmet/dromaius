@@ -93,7 +93,7 @@ MunitResult test_program(const MunitParameter params[], void *user_data_or_fixtu
 	int limit = 1000;
 
 	while (limit > 0 && dev->cpu->reg_pc != 0xfe00) {
-		dev_minimal_6502_process(dev);
+		dev->process(dev);
 		--limit;
 	}
 
@@ -113,11 +113,11 @@ MunitResult test_pia(const MunitParameter params[], void *user_data_or_fixture) 
 	DevMinimal6502 *dev = dev_minimal_6502_setup(1);
 
 	// run the computer until the program counter reaches the IRQ-handler
-	signal_write_bool(dev->signal_pool, dev->signals.reset_b, ACTLO_DEASSERT, -1);
+	signal_write_bool(dev->simulator->signal_pool, dev->signals.reset_b, ACTLO_DEASSERT, -1);
 	int limit = 1000;
 
 	while (limit > 0 && dev->cpu->reg_pc != 0xfe00) {
-		dev_minimal_6502_process(dev);
+		dev->process(dev);
 		--limit;
 	}
 
@@ -129,8 +129,8 @@ MunitResult test_pia(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(dev->pia->reg_crb, ==, 0x04);
 	munit_assert_uint8(dev->pia->reg_ora, ==, 0x55);
 	munit_assert_uint8(dev->pia->reg_orb, ==, 0x55);
-	munit_assert_uint8(signal_read_uint8(dev->signal_pool, dev->pia->signals.port_a), ==, 0x55);
-	munit_assert_uint8(signal_read_uint8(dev->signal_pool, dev->pia->signals.port_b), ==, 0x50);	// lower nibble == keypad output
+	munit_assert_uint8(signal_read_uint8(dev->simulator->signal_pool, dev->pia->signals.port_a), ==, 0x55);
+	munit_assert_uint8(signal_read_uint8(dev->simulator->signal_pool, dev->pia->signals.port_b), ==, 0x50);	// lower nibble == keypad output
 
 	dev_minimal_6502_teardown(dev);
 

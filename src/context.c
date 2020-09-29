@@ -16,6 +16,7 @@
 #include "cpu.h"
 #include "device.h"
 #include "stopwatch.h"
+#include "simulator.h"
 
 #define SYNC_MIN_DIFF_PS		MS_TO_PS(20)	/* required skew betweem sim & real-time before sleep */
 
@@ -33,6 +34,7 @@ typedef enum DMS_STATE {
 } DMS_STATE;
 
 typedef struct DmsContext {
+	Simulator *		simulator;
 	Device *		device;
 	DMS_STATE		state;
 
@@ -93,7 +95,7 @@ static inline int signal_breakpoint_index(DmsContext *dms, Signal signal) {
 
 static inline bool signal_breakpoint_triggered(DmsContext *dms) {
 	for (int i = 0; i < arrlen(dms->signal_breakpoints); ++i) {
-		if (signal_changed(dms->device->signal_pool, dms->signal_breakpoints[i])) {
+		if (signal_changed(dms->simulator->signal_pool, dms->signal_breakpoints[i])) {
 			return true;
 		}
 	}
@@ -108,7 +110,7 @@ static inline void sync_simulation_with_real_time(DmsContext *dms) {
 	}
 
 	int64_t real_ps = stopwatch_time_elapsed_ps(dms->stopwatch);
-	int64_t sim_ps  = (dms->device->signal_pool->current_tick - dms->tick_start_run) * dms->device->signal_pool->tick_duration_ps;
+	int64_t sim_ps  = (dms->simulator->signal_pool->current_tick - dms->tick_start_run) * dms->simulator->signal_pool->tick_duration_ps;
 
 	dms->actual_sim_real_ratio = (sim_ps * 10000) / real_ps;
 
@@ -122,13 +124,13 @@ static inline void sync_simulation_with_real_time(DmsContext *dms) {
 static bool context_execute(DmsContext *dms) {
 
 	Cpu *cpu = dms->device->get_cpu(dms->device);
-	int64_t tick_max = dms->device->signal_pool->current_tick + dms->sync_tick_interval;
+	int64_t tick_max = dms->simulator->signal_pool->current_tick + dms->sync_tick_interval;
 
-	while (dms->state != DS_WAIT && dms->device->signal_pool->current_tick < tick_max) {
+	while (dms->state != DS_WAIT && dms->simulator->signal_pool->current_tick < tick_max) {
 
 		if (dms->state == DS_RUN && !dms->stopwatch->running) {
 			stopwatch_start(dms->stopwatch);
-			dms->tick_start_run = dms->device->signal_pool->current_tick;
+			dms->tick_start_run = dms->simulator->signal_pool->current_tick;
 		}
 
 		bool prev_irq = cpu->irq_is_asserted(cpu);
@@ -143,8 +145,8 @@ static bool context_execute(DmsContext *dms) {
 				dms->state = DS_WAIT;
 				break;
 			case DS_STEP_SIGNAL :
-				if (signal_changed(dms->device->signal_pool, dms->step_signal)) {
-					bool value = signal_read_bool(dms->device->signal_pool, dms->step_signal);
+				if (signal_changed(dms->simulator->signal_pool, dms->step_signal)) {
+					bool value = signal_read_bool(dms->simulator->signal_pool, dms->step_signal);
 					if ((!value && dms->step_neg_edge) || (value && dms->step_pos_edge)) {
 						dms->state = DS_WAIT;
 					}
@@ -220,8 +222,9 @@ static inline void change_state(DmsContext *context, DMS_STATE new_state) {
 // interface functions
 //
 
-DmsContext *dms_create_context(void) {
+DmsContext *dms_create_context() {
 	DmsContext *ctx = (DmsContext *) malloc(sizeof(DmsContext));
+	ctx->simulator = NULL;
 	ctx->device = NULL;
 	ctx->breakpoints = NULL;
 	ctx->signal_breakpoints = NULL;
@@ -241,8 +244,9 @@ void dms_release_context(DmsContext *dms) {
 void dms_set_device(DmsContext *dms, Device *device) {
 	assert(dms);
 	dms->device = device;
+	dms->simulator = device->simulator;
 
-	dms->sync_tick_interval = signal_pool_interval_to_tick_count(device->signal_pool, US_TO_PS(500));
+	dms->sync_tick_interval = signal_pool_interval_to_tick_count(dms->simulator->signal_pool, US_TO_PS(500));
 }
 
 struct Device *dms_get_device(struct DmsContext *dms) {
@@ -330,7 +334,7 @@ void dms_change_simulation_speed_ratio(DmsContext *dms, double ratio) {
 		if (dms->stopwatch->running) {
 			stopwatch_stop(dms->stopwatch);
 			stopwatch_start(dms->stopwatch);
-			dms->tick_start_run = dms->device->signal_pool->current_tick;
+			dms->tick_start_run = dms->simulator->signal_pool->current_tick;
 		}
 
 	MUTEX_UNLOCK(dms);
@@ -424,7 +428,7 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 		static const char *disp_enabled[] = {"disabled", "enabled"};
 		arr_printf(*reply, "OK: break-on-irq %s", disp_enabled[dms->break_on_irq]);
 	} else if (cmd[0] == 'b' && cmd[1] == 's') {		// toggle "b"reak on signal change
-		Signal signal = signal_by_name(dms->device->signal_pool, cmd + 3);
+		Signal signal = signal_by_name(dms->simulator->signal_pool, cmd + 3);
 
 		if (signal.count != 0) {
 			static const char *disp_break[] = {"unset", "set"};
