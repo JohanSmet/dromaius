@@ -57,7 +57,7 @@ int main() {
 
 
     double duration = chrono_report();
-	double sim_time = (pet_device->signal_pool->current_tick * pet_device->signal_pool->tick_duration_ps) / 1e12;
+	double sim_time = (pet_device->simulator->signal_pool->current_tick * pet_device->simulator->signal_pool->tick_duration_ps) / 1e12;
 	double speed = (1000000 * sim_time) / duration;
     std::printf("+++ done (%f seconds) sim-time = %f seconds (speed = %.2f hz, %.3f Mhz)\n", duration, sim_time, speed, speed / 1000000.0);
 

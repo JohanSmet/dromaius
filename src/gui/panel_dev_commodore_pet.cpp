@@ -60,55 +60,57 @@ public:
 
 			#if DMS_SIGNAL_TRACING
 
-			if (device->signal_pool->trace) {
+			if (device->simulator->signal_pool->trace) {
 				if (ImGui::Button("Stop trace")) {
-					signal_trace_close(device->signal_pool->trace);
-					device->signal_pool->trace = NULL;
+					signal_trace_close(device->simulator->signal_pool->trace);
+					device->simulator->signal_pool->trace = NULL;
 				}
 			} else {
 				if (ImGui::Button("Start trace")) {
-					device->signal_pool->trace = signal_trace_open("dromaius.lxt", device->signal_pool);
-					signal_trace_enable_signal(device->signal_pool->trace, device->signals.reset_b);
-					signal_trace_enable_signal(device->signal_pool->trace, device->signals.clk1);
-					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ram_rw);
-					signal_trace_enable_signal(device->signal_pool->trace, device->signals.ras0_b);
-					signal_trace_enable_signal(device->signal_pool->trace, device->signals.cas0_b);
-					signal_trace_enable_signal(device->signal_pool->trace, device->signals.cas1_b);
+					device->simulator->signal_pool->trace = signal_trace_open("dromaius.lxt", device->simulator->signal_pool);
+					auto *trace = device->simulator->signal_pool->trace;
 
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 0, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 1, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 2, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 3, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 4, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 5, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 6, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 7, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 8, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 9, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 10, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 11, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 12, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 13, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 14, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_ba, 15, 1));
+					signal_trace_enable_signal(trace, device->signals.reset_b);
+					signal_trace_enable_signal(trace, device->signals.clk1);
+					signal_trace_enable_signal(trace, device->signals.ram_rw);
+					signal_trace_enable_signal(trace, device->signals.ras0_b);
+					signal_trace_enable_signal(trace, device->signals.cas0_b);
+					signal_trace_enable_signal(trace, device->signals.cas1_b);
 
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_fa, 0, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_fa, 1, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_fa, 2, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_fa, 3, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_fa, 4, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_fa, 5, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(device->signals.bus_fa, 6, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 0, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 1, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 2, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 3, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 4, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 5, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 6, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 7, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 8, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 9, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 10, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 11, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 12, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 13, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 14, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 15, 1));
 
-					Chip8x4116DRam *ram = (Chip8x4116DRam *) device_chip_by_name((Device *) device, "I2-9");
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(ram->signals.bus_do, 0, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(ram->signals.bus_do, 1, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(ram->signals.bus_do, 2, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(ram->signals.bus_do, 3, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(ram->signals.bus_do, 4, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(ram->signals.bus_do, 5, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(ram->signals.bus_do, 6, 1));
-					signal_trace_enable_signal(device->signal_pool->trace, signal_split(ram->signals.bus_do, 7, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 0, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 1, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 2, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 3, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 4, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 5, 1));
+					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 6, 1));
+
+					Chip8x4116DRam *ram = (Chip8x4116DRam *) simulator_chip_by_name(device->simulator, "I2-9");
+					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 0, 1));
+					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 1, 1));
+					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 2, 1));
+					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 3, 1));
+					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 4, 1));
+					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 5, 1));
+					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 6, 1));
+					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 7, 1));
 				}
 			}
 			#endif // DMS_SIGNAL_TRACING

@@ -16,6 +16,7 @@
 #define DROMAIUS_DEV_COMMODORE_PET_H
 
 #include "device.h"
+#include "signal_line.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -16,7 +16,7 @@ extern MunitTest chip_poweronreset_tests[];
 extern MunitTest chip_ram_dynamic_tests[];
 extern MunitTest chip_ram_static_tests[];
 extern MunitTest chip_rom_tests[];
-extern MunitTest device_tests[];
+extern MunitTest simulator_tests[];
 extern MunitTest dev_commodore_pet_tests[];
 extern MunitTest dev_minimal_6502_tests[];
 extern MunitTest input_keypad_tests[];
@@ -116,8 +116,8 @@ static MunitSuite extern_suites[] = {
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE
 	},
-	{	.prefix = "/device",
-		.tests = device_tests,
+	{	.prefix = "/simulator",
+		.tests = simulator_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE

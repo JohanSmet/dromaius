@@ -19,7 +19,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define SIGNAL_POOL			device->signal_pool
+#define SIGNAL_POOL			device->simulator->signal_pool
 #define SIGNAL_COLLECTION	device->signals
 #define SIGNAL_CHIP_ID		chip->id
 
@@ -51,9 +51,9 @@ static void glue_logic_register_dependencies(ChipGlueLogic *chip) {
 	assert(chip);
 	DevMinimal6502 *device = chip->device;
 
-	signal_add_dependency(device->signal_pool, SIGNAL(cpu_rw), chip->id);
-	signal_add_dependency(device->signal_pool, SIGNAL(clock), chip->id);
-	signal_add_dependency(device->signal_pool, SIGNAL(bus_address), chip->id);
+	signal_add_dependency(SIGNAL_POOL, SIGNAL(cpu_rw), chip->id);
+	signal_add_dependency(SIGNAL_POOL, SIGNAL(clock), chip->id);
+	signal_add_dependency(SIGNAL_POOL, SIGNAL(bus_address), chip->id);
 }
 
 static void glue_logic_destroy(ChipGlueLogic *chip) {
@@ -113,16 +113,15 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DevMinimal6502 *device = (DevMinimal6502 *) calloc(1, sizeof(DevMinimal6502));
 
 	device->get_cpu = (DEVICE_GET_CPU) dev_minimal_6502_get_cpu;
-	device->process = (DEVICE_PROCESS) dev_minimal_6502_process;
+	device->process = (DEVICE_PROCESS) device_process;
 	device->reset = (DEVICE_RESET) dev_minimal_6502_reset;
 	device->destroy = (DEVICE_DESTROY) dev_minimal_6502_destroy;
 	device->read_memory = (DEVICE_READ_MEMORY) dev_minimal_6502_read_memory;
 	device->write_memory = (DEVICE_WRITE_MEMORY) dev_minimal_6502_write_memory;
 
-	// signals
-	device->signal_pool = signal_pool_create(1);
-	device->signal_pool->tick_duration_ps = 20000;		// 20ns
+	device->simulator = simulator_create(NS_TO_PS(20));
 
+	// signals
 	SIGNAL_DEFINE(bus_address, 16);
 	SIGNAL_DEFINE(bus_data, 8);
 	SIGNAL_DEFINE_BOOL_N(clock, 1, true, "CLK");
@@ -141,7 +140,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->signals.a14 = signal_split(SIGNAL(bus_address), 14, 1);
 
 	// cpu
-	device->cpu = cpu_6502_create(device->signal_pool, (Cpu6502Signals) {
+	device->cpu = cpu_6502_create(SIGNAL_POOL, (Cpu6502Signals) {
 										.bus_address = SIGNAL(bus_address),
 										.bus_data = SIGNAL(bus_data),
 										.clock = SIGNAL(clock),
@@ -155,19 +154,19 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DEVICE_REGISTER_CHIP("CPU", device->cpu);
 
 	// oscillator
-	device->oscillator = oscillator_create(10000, device->signal_pool, (OscillatorSignals) {
+	device->oscillator = oscillator_create(10000, SIGNAL_POOL, (OscillatorSignals) {
 											.clk_out = SIGNAL(clock)
 	});
 	DEVICE_REGISTER_CHIP("OSC", device->oscillator);
 
 	// power-on-reset
-	DEVICE_REGISTER_CHIP("POR", poweronreset_create(1000000, device->signal_pool, (PowerOnResetSignals) {
+	DEVICE_REGISTER_CHIP("POR", poweronreset_create(1000000, SIGNAL_POOL, (PowerOnResetSignals) {
 											.trigger_b = SIGNAL(reset_btn_b),
 											.reset_b = SIGNAL(reset_b)
 	}));
 
 	// ram
-	device->ram = ram_8d16a_create(15, device->signal_pool, (Ram8d16aSignals) {
+	device->ram = ram_8d16a_create(15, SIGNAL_POOL, (Ram8d16aSignals) {
 										.bus_address = signal_split(device->signals.bus_address, 0, 15),
 										.bus_data = SIGNAL(bus_data),
 										.ce_b = SIGNAL(a15)
@@ -175,7 +174,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DEVICE_REGISTER_CHIP("RAM", device->ram);
 
 	// rom
-	device->rom = rom_8d16a_create(14, device->signal_pool, (Rom8d16aSignals) {
+	device->rom = rom_8d16a_create(14, SIGNAL_POOL, (Rom8d16aSignals) {
 										.bus_address = signal_split(device->signals.bus_address, 0, 14),
 										.bus_data = SIGNAL(bus_data),
 	});
@@ -186,7 +185,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	}
 
 	// pia
-	device->pia = chip_6520_create(device->signal_pool, (Chip6520Signals) {
+	device->pia = chip_6520_create(SIGNAL_POOL, (Chip6520Signals) {
 										.bus_data = SIGNAL(bus_data),
 										.enable = SIGNAL(clock),
 										.reset_b = SIGNAL(reset_b),
@@ -199,7 +198,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DEVICE_REGISTER_CHIP("PIA", device->pia);
 
 	// lcd-module
-	device->lcd = chip_hd44780_create(device->signal_pool, (ChipHd44780Signals) {
+	device->lcd = chip_hd44780_create(SIGNAL_POOL, (ChipHd44780Signals) {
 										.db4_7 = signal_split(device->pia->signals.port_a, 0, 4),
 										.rs = signal_split(device->pia->signals.port_a, 7, 1),
 										.rw = signal_split(device->pia->signals.port_a, 6, 1),
@@ -208,12 +207,12 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DEVICE_REGISTER_CHIP("LCD", device->lcd);
 
 	// keypad
-	device->keypad = input_keypad_create(device->signal_pool, true, 4, 4, 500, 100, (InputKeypadSignals) {
+	device->keypad = input_keypad_create(SIGNAL_POOL, true, 4, 4, 500, 100, (InputKeypadSignals) {
 										.rows = signal_split(device->pia->signals.port_b, 4, 4),
 										.cols = signal_split(device->pia->signals.port_b, 0, 4)
 	});
 	DEVICE_REGISTER_CHIP("KEYPAD", device->keypad);
-	signal_default_uint8(device->signal_pool, device->keypad->signals.cols, false);
+	signal_default_uint8(SIGNAL_POOL, device->keypad->signals.cols, false);
 
 	// custom chip for the glue logic
 	DEVICE_REGISTER_CHIP("LOGIC", glue_logic_create(device));
@@ -224,10 +223,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	SIGNAL(rom_ce_b) = device->rom->signals.ce_b;
 	SIGNAL(pia_cs2_b) = device->pia->signals.cs2_b;
 
-	// register dependencies
-	for (int32_t id = 0; id < arrlen(device->chips); ++id) {
-		device->chips[id]->register_dependencies(device->chips[id]);
-	}
+	// let the simulator know no more chips will be added
+	simulator_device_complete(device->simulator);
 
 	return device;
 }
@@ -235,16 +232,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	assert(device);
 
-	cpu_6502_destroy(device->cpu);
-	ram_8d16a_destroy(device->ram);
-	rom_8d16a_destroy(device->rom);
+	simulator_destroy(device->simulator);
 	free(device);
-}
-
-void dev_minimal_6502_process(DevMinimal6502 *device) {
-	assert(device);
-
-	device_simulate_timestep((Device *) device);
 }
 
 void dev_minimal_6502_reset(DevMinimal6502 *device) {

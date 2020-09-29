@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 
-#define SIGNAL_POOL			device->signal_pool
+#define SIGNAL_POOL			device->simulator->signal_pool
 #define SIGNAL_COLLECTION	device->signals
 #define SIGNAL_CHIP_ID		device->id
 
@@ -86,8 +86,8 @@ MunitResult test_signals_data(const MunitParameter params[], void *user_data_or_
 
 	// 'remove' cpu/ram and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
-	device_chip_by_name((Device *) device, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
-	device_chip_by_name((Device *) device, "J2-9")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
+	simulator_chip_by_name(device->simulator, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
+	simulator_chip_by_name(device->simulator, "J2-9")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 
 	// data-bus read/write signals
 	for (int addr = 0x0000; addr <= 0xffff; addr += 0x0100) {
@@ -118,10 +118,10 @@ MunitResult test_read_databus(const MunitParameter params[], void *user_data_or_
 
 	// 'remove' cpu/ram and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
-	device_chip_by_name((Device *) device, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
-	device_chip_by_name((Device *) device, "J2-9")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
-	device_chip_by_name((Device *)device, "F7")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
-	device_chip_by_name((Device *)device, "F8")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
+	simulator_chip_by_name(device->simulator, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
+	simulator_chip_by_name(device->simulator, "J2-9")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
+	simulator_chip_by_name(device->simulator, "F7")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
+	simulator_chip_by_name(device->simulator, "F8")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 
 	for (int i = 0; device->roms[i] != NULL; ++i) {
 		device->roms[i]->process = (CHIP_PROCESS_FUNC) override_do_nothing;
@@ -183,8 +183,8 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 	}
 
 	Chip8x4116DRam *ram_chips[] = {
-		(Chip8x4116DRam *) device_chip_by_name((Device *) device, "I2-9"),
-		(Chip8x4116DRam *) device_chip_by_name((Device *) device, "J2-9")
+		(Chip8x4116DRam *) simulator_chip_by_name(device->simulator, "I2-9"),
+		(Chip8x4116DRam *) simulator_chip_by_name(device->simulator, "J2-9")
 	};
 
 	for (int addr = 0x0000; addr <= 0x7fff; ++addr) {
@@ -224,8 +224,8 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 		dev_commodore_pet_process_clk1(device);
 	}
 
-	Chip6114SRam *ram_hi = (Chip6114SRam *) device_chip_by_name((Device *)device, "F7");
-	Chip6114SRam *ram_lo = (Chip6114SRam *) device_chip_by_name((Device *)device, "F8");
+	Chip6114SRam *ram_hi = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F7");
+	Chip6114SRam *ram_lo = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F8");
 
 	for (int addr = 0x8000; addr <= 0x83e8; ++addr) {		// 40x25
 		override_bus_address = addr & 0xffff;
@@ -355,8 +355,8 @@ MunitResult test_vram_program(const MunitParameter params[], void *user_data_or_
 	}
 
 	// check ram
-	Chip6114SRam *ram_hi = (Chip6114SRam *) device_chip_by_name((Device *)device, "F7");
-	Chip6114SRam *ram_lo = (Chip6114SRam *) device_chip_by_name((Device *)device, "F8");
+	Chip6114SRam *ram_hi = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F7");
+	Chip6114SRam *ram_lo = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F8");
 
 
 	for (int i = 0; i < 1024; ++i) {
