@@ -189,32 +189,6 @@ Chip63xxRom *chip_6332_rom_create(SignalPool *signal_pool, Chip63xxSignals signa
 	return chip;
 }
 
-#if 0
-void chip_6332_rom_register_dependencies(Chip6332Rom *chip) {
-	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a0), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a1), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a2), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a3), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a4), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a5), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a6), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a7), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a8), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a9), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a10), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a11), chip->id);
-
-	signal_add_dependency(chip->signal_pool, SIGNAL(cs1_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(cs3), chip->id);
-}
-
-void chip_6332_rom_destroy(Chip6332Rom *chip) {
-	assert(chip);
-	free(chip);
-}
-
-#endif
 
 void chip_6332_rom_process(Chip63xxRom *chip) {
 	assert(chip);
