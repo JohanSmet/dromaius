@@ -39,14 +39,7 @@ Chip8x4116DRam *chip_8x4116_dram_create(SignalPool *pool, Chip8x4116DRamSignals 
 	SIGNAL_DEFINE(cas_b, 1);
 
 	SIGNAL_DEFINE(bus_di, 8);
-
-	static bool fuck = false;
-	if (!fuck) {
-		SIGNAL_DEFINE_N(bus_do, 8, "IRAMDO%d");
-		fuck = true;
-	} else {
-		SIGNAL_DEFINE_N(bus_do, 8, "JRAMDO%d");
-	}
+	SIGNAL_DEFINE_N(bus_do, 8, "JRAMDO%d");
 
 	return chip;
 }
