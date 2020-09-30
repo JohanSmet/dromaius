@@ -3,6 +3,7 @@
 // Emulation of the PET 2001N 9" CRT Display
 
 #include "display_pet_crt.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -16,14 +17,15 @@
 #define COLOR_ON	0xff55ff55
 #define COLOR_BEAM  0xffffffff
 
-DisplayPetCrt *display_pet_crt_create(SignalPool *pool, DisplayPetCrtSignals signals) {
+DisplayPetCrt *display_pet_crt_create(Simulator *sim, DisplayPetCrtSignals signals) {
 	DisplayPetCrt *crt = (DisplayPetCrt *) calloc(1, sizeof(DisplayPetCrt));
 
 	// chip
 	CHIP_SET_FUNCTIONS(crt, display_pet_crt_process, display_pet_crt_destroy, display_pet_crt_register_dependencies);
 
 	// signals
-	crt->signal_pool = pool;
+	crt->simulator = sim;
+	crt->signal_pool = sim->signal_pool;
 	memcpy(&crt->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(video_in, 1);
 	SIGNAL_DEFINE(vert_drive_in, 1);
@@ -35,11 +37,11 @@ DisplayPetCrt *display_pet_crt_create(SignalPool *pool, DisplayPetCrtSignals sig
 
 	crt->display = display_rgba_create(width, height);
 
-	crt->pixel_delta_steps = signal_pool_interval_to_tick_count(pool, NS_TO_PS(125));			// 8 Mhz
+	crt->pixel_delta_steps = simulator_interval_to_tick_count(crt->simulator, NS_TO_PS(125));			// 8 Mhz
 
 	// delays to skip the blank parts at the top and left (or right) of the screen
-	crt->vert_overscan_delay = signal_pool_interval_to_tick_count(crt->signal_pool, US_TO_PS(1225));
-	crt->horz_overscan_delay = signal_pool_interval_to_tick_count(crt->signal_pool, NS_TO_PS(18500 + 30));
+	crt->vert_overscan_delay = simulator_interval_to_tick_count(crt->simulator, US_TO_PS(1225));
+	crt->horz_overscan_delay = simulator_interval_to_tick_count(crt->simulator, NS_TO_PS(18500 + 30));
 
 	return crt;
 }
@@ -66,25 +68,25 @@ void display_pet_crt_process(DisplayPetCrt *crt) {
 		return;
 	}
 
-	if (signal_changed_last_tick(crt->signal_pool, SIGNAL(vert_drive_in))) {
-		crt->schedule_timestamp = crt->signal_pool->current_tick + crt->vert_overscan_delay;
+	if (signal_changed(crt->signal_pool, SIGNAL(vert_drive_in))) {
+		crt->schedule_timestamp = crt->simulator->current_tick + crt->vert_overscan_delay;
 		crt->next_action = MAX(crt->next_action, crt->schedule_timestamp);
 	}
 
 	// positive transition on horzontal drive signal? (== start horizontal retrace)
-	if (SIGNAL_BOOL(horz_drive_in) && signal_changed_last_tick(crt->signal_pool, SIGNAL(horz_drive_in))) {
+	if (SIGNAL_BOOL(horz_drive_in) && signal_changed(crt->signal_pool, SIGNAL(horz_drive_in))) {
 		if (crt->pos_x > 0) {
 			crt->pos_x = 0;
 			crt->pos_y += 1;
 
 			// to account for the time it takes the beam to move back to the left
-			crt->schedule_timestamp = crt->signal_pool->current_tick + crt->horz_overscan_delay;
+			crt->schedule_timestamp = crt->simulator->current_tick + crt->horz_overscan_delay;
 			crt->next_action = MAX(crt->next_action, crt->schedule_timestamp);
 			return;
 		}
 	}
 
-	if (crt->next_action > crt->signal_pool->current_tick) {
+	if (crt->next_action > crt->simulator->current_tick) {
 		return;
 	}
 
@@ -92,6 +94,6 @@ void display_pet_crt_process(DisplayPetCrt *crt) {
 		crt->display->frame[(crt->pos_y * crt->display->width) + crt->pos_x] = (SIGNAL_BOOL(video_in) ? 0 : COLOR_ON);
 	}
 	crt->pos_x += 1;
-	crt->schedule_timestamp = crt->signal_pool->current_tick + crt->pixel_delta_steps;
+	crt->schedule_timestamp = crt->simulator->current_tick + crt->pixel_delta_steps;
 	crt->next_action = crt->schedule_timestamp;
 }

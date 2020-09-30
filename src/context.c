@@ -110,7 +110,7 @@ static inline void sync_simulation_with_real_time(DmsContext *dms) {
 	}
 
 	int64_t real_ps = stopwatch_time_elapsed_ps(dms->stopwatch);
-	int64_t sim_ps  = (dms->simulator->signal_pool->current_tick - dms->tick_start_run) * dms->simulator->signal_pool->tick_duration_ps;
+	int64_t sim_ps  = (dms->simulator->current_tick - dms->tick_start_run) * dms->simulator->tick_duration_ps;
 
 	dms->actual_sim_real_ratio = (sim_ps * 10000) / real_ps;
 
@@ -124,13 +124,13 @@ static inline void sync_simulation_with_real_time(DmsContext *dms) {
 static bool context_execute(DmsContext *dms) {
 
 	Cpu *cpu = dms->device->get_cpu(dms->device);
-	int64_t tick_max = dms->simulator->signal_pool->current_tick + dms->sync_tick_interval;
+	int64_t tick_max = dms->simulator->current_tick + dms->sync_tick_interval;
 
-	while (dms->state != DS_WAIT && dms->simulator->signal_pool->current_tick < tick_max) {
+	while (dms->state != DS_WAIT && dms->simulator->current_tick < tick_max) {
 
 		if (dms->state == DS_RUN && !dms->stopwatch->running) {
 			stopwatch_start(dms->stopwatch);
-			dms->tick_start_run = dms->simulator->signal_pool->current_tick;
+			dms->tick_start_run = dms->simulator->current_tick;
 		}
 
 		bool prev_irq = cpu->irq_is_asserted(cpu);
@@ -246,7 +246,7 @@ void dms_set_device(DmsContext *dms, Device *device) {
 	dms->device = device;
 	dms->simulator = device->simulator;
 
-	dms->sync_tick_interval = signal_pool_interval_to_tick_count(dms->simulator->signal_pool, US_TO_PS(500));
+	dms->sync_tick_interval = simulator_interval_to_tick_count(dms->simulator, US_TO_PS(500));
 }
 
 struct Device *dms_get_device(struct DmsContext *dms) {
@@ -334,7 +334,7 @@ void dms_change_simulation_speed_ratio(DmsContext *dms, double ratio) {
 		if (dms->stopwatch->running) {
 			stopwatch_stop(dms->stopwatch);
 			stopwatch_start(dms->stopwatch);
-			dms->tick_start_run = dms->simulator->signal_pool->current_tick;
+			dms->tick_start_run = dms->simulator->current_tick;
 		}
 
 	MUTEX_UNLOCK(dms);

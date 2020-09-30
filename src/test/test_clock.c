@@ -5,7 +5,7 @@
 #include "clock.h"
 
 static void *clock_setup(const MunitParameter params[], void *user_data) {
-	return clock_create(10, signal_pool_create(1), (ClockSignals) {0});
+	return clock_create(10, signal_pool_create(), (ClockSignals) {0});
 }
 
 static void clock_teardown(void *fixture) {
@@ -18,16 +18,16 @@ MunitResult test_cycle_count(const MunitParameter params[], void* user_data_or_f
 
 	munit_assert_int64(clock->cycle_count, ==, 0);
 	clock_process(clock);
-	signal_pool_cycle(clock->signal_pool);
+	signal_pool_cycle(clock->signal_pool, 1);
 	munit_assert_int64(clock->cycle_count, ==, 1);
 	clock_process(clock);
-	signal_pool_cycle(clock->signal_pool);
+	signal_pool_cycle(clock->signal_pool, 1);
 	munit_assert_int64(clock->cycle_count, ==, 1);
 	clock_process(clock);
-	signal_pool_cycle(clock->signal_pool);
+	signal_pool_cycle(clock->signal_pool, 1);
 	munit_assert_int64(clock->cycle_count, ==, 2);
 	clock_process(clock);
-	signal_pool_cycle(clock->signal_pool);
+	signal_pool_cycle(clock->signal_pool, 1);
 	munit_assert_int64(clock->cycle_count, ==, 2);
 
 	return MUNIT_OK;

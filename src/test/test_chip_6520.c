@@ -2,6 +2,7 @@
 
 #include "munit/munit.h"
 #include "chip_6520.h"
+#include "simulator.h"
 
 #include "stb/stb_ds.h"
 
@@ -20,12 +21,12 @@
 	PIA_CYCLE_END
 
 static void *chip_6520_setup(const MunitParameter params[], void *user_data) {
-	Chip6520 *pia = chip_6520_create(signal_pool_create(1), (Chip6520Signals) {0});
+	Chip6520 *pia = chip_6520_create(simulator_create(NS_TO_PS(100)), (Chip6520Signals) {0});
 
 	// run chip with reset asserted
 	SIGNAL_SET_BOOL(enable, false);
 	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
-	signal_pool_cycle(pia->signal_pool);
+	signal_pool_cycle(pia->signal_pool, 1);
 	chip_6520_process(pia);
 
 	// deassert reset
@@ -46,7 +47,7 @@ static inline void strobe_pia(Chip6520 *pia, bool strobe) {
 
 static inline void half_clock_cycle(Chip6520 *pia) {
 	SIGNAL_SET_BOOL(enable, !SIGNAL_BOOL(enable));
-	signal_pool_cycle(pia->signal_pool);
+	signal_pool_cycle(pia->signal_pool, 1);
 	chip_6520_process(pia);
 }
 
@@ -74,7 +75,7 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 
 	// run pia with reset asserted
 	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
-	signal_pool_cycle(pia->signal_pool);
+	signal_pool_cycle(pia->signal_pool, 1);
 	chip_6520_process(pia);
 
 	// registers should have been reset

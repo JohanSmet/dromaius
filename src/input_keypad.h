@@ -34,7 +34,7 @@ typedef struct InputKeypad {
 } InputKeypad;
 
 // functions
-InputKeypad *input_keypad_create(SignalPool *pool,
+InputKeypad *input_keypad_create(struct Simulator *sim,
 								 bool active_high,
 								 size_t row_count, size_t col_count,
 								 int dwell_ms,

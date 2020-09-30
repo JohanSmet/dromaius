@@ -70,6 +70,8 @@ public:
 					device->simulator->signal_pool->trace = signal_trace_open("dromaius.lxt", device->simulator->signal_pool);
 					auto *trace = device->simulator->signal_pool->trace;
 
+					signal_trace_set_timestep_duration(trace, device->simulator->tick_duration_ps);
+
 					signal_trace_enable_signal(trace, device->signals.reset_b);
 					signal_trace_enable_signal(trace, device->signals.clk1);
 					signal_trace_enable_signal(trace, device->signals.ram_rw);

@@ -2,20 +2,20 @@
 
 #include "munit/munit.h"
 #include "ram_8d_16a.h"
+#include "simulator.h"
 
 #define SIGNAL_POOL			ram->signal_pool
 #define SIGNAL_COLLECTION	ram->signals
 #define SIGNAL_CHIP_ID		ram->id
 
 static void *ram_8d16a_setup(const MunitParameter params[], void *user_data) {
-	SignalPool *pool = signal_pool_create(1);
-	Ram8d16a *ram = ram_8d16a_create(16, pool, (Ram8d16aSignals){0});
+	Ram8d16a *ram = ram_8d16a_create(16, simulator_create(NS_TO_PS(100)), (Ram8d16aSignals){0});
 	return ram;
 }
 
 static void ram_8d16a_teardown(void *fixture) {
 	Ram8d16a *ram = (Ram8d16a *) fixture;
-	signal_pool_destroy(ram->signal_pool);
+	simulator_destroy(ram->simulator);
 	ram_8d16a_destroy(ram);
 }
 
@@ -34,7 +34,7 @@ MunitResult test_read(const MunitParameter params[], void *user_data_or_fixture)
 		SIGNAL_SET_BOOL(oe_b, ACTLO_ASSERT);
 		SIGNAL_SET_BOOL(we_b, ACTLO_DEASSERT);
 		SIGNAL_SET_UINT16(bus_address, i);
-		signal_pool_cycle(ram->signal_pool);
+		signal_pool_cycle(ram->signal_pool, 1);
 
 		ram_8d16a_process(ram);
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, i & 0xff);
@@ -54,12 +54,12 @@ MunitResult test_write(const MunitParameter params[], void *user_data_or_fixture
 		SIGNAL_SET_BOOL(we_b, ACTLO_ASSERT);
 		SIGNAL_SET_UINT16(bus_address, i);
 		SIGNAL_SET_UINT8(bus_data, i & 0xff);
-		signal_pool_cycle(ram->signal_pool);
+		signal_pool_cycle(ram->signal_pool, 1);
 		ram_8d16a_process(ram);
 
 		SIGNAL_SET_BOOL(ce_b, ACTLO_DEASSERT);
 		SIGNAL_SET_BOOL(we_b, ACTLO_DEASSERT);
-		signal_pool_cycle(ram->signal_pool);
+		signal_pool_cycle(ram->signal_pool, 1);
 		ram_8d16a_process(ram);
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
 	}

@@ -3,6 +3,7 @@
 // Emulation of various dynamic random access memory chips
 
 #include "chip_ram_dynamic.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -25,10 +26,11 @@ void chip_8x4116_dram_register_dependencies(Chip8x4116DRam *chip);
 void chip_8x4116_dram_destroy(Chip8x4116DRam *chip);
 void chip_8x4116_dram_process(Chip8x4116DRam *chip);
 
-Chip8x4116DRam *chip_8x4116_dram_create(SignalPool *pool, Chip8x4116DRamSignals signals) {
+Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals signals) {
 	Chip8x4116DRam *chip = (Chip8x4116DRam *) calloc(1, sizeof(Chip8x4116DRam));
-	chip->signal_pool = pool;
-	chip->access_time = signal_pool_interval_to_tick_count(chip->signal_pool, NS_TO_PS(100));
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
+	chip->access_time = simulator_interval_to_tick_count(sim, NS_TO_PS(100));
 
 	CHIP_SET_FUNCTIONS(chip, chip_8x4116_dram_process, chip_8x4116_dram_destroy, chip_8x4116_dram_register_dependencies);
 
@@ -63,20 +65,20 @@ void chip_8x4116_dram_process(Chip8x4116DRam *chip) {
 	bool cas_b = SIGNAL_BOOL(cas_b);
 
 	// negative edge on ras_b: latch row address
-	if (!ras_b && signal_changed_last_tick(chip->signal_pool, SIGNAL(ras_b))) {
+	if (!ras_b && signal_changed(chip->signal_pool, SIGNAL(ras_b))) {
 		chip->row = SIGNAL_UINT8(bus_address);
 		return;
 	}
 
 	// negative adge on cas_b: latch col address
-	if (!ras_b && !cas_b && signal_changed_last_tick(chip->signal_pool, SIGNAL(cas_b))) {
+	if (!ras_b && !cas_b && signal_changed(chip->signal_pool, SIGNAL(cas_b))) {
 		chip->col = SIGNAL_UINT8(bus_address);
 
 		// if write-enable is already asserted: perform early write
 		if (ACTLO_ASSERTED(SIGNAL_BOOL(we_b))) {
 			chip->data_array[chip->row * 128 + chip->col] = SIGNAL_UINT8(bus_di);
 		} else {
-			chip->schedule_timestamp = chip->signal_pool->current_tick + chip->access_time;
+			chip->schedule_timestamp = chip->simulator->current_tick + chip->access_time;
 			chip->next_state_transition = chip->schedule_timestamp;
 			chip->state = CHIP_8x4116_OUTPUT_BEGIN;
 		}
@@ -84,12 +86,12 @@ void chip_8x4116_dram_process(Chip8x4116DRam *chip) {
 	}
 
 	// negative edge on write while ras_b and cas_b are asserted
-	if (!ras_b && !cas_b && !SIGNAL_BOOL(we_b) && signal_changed_last_tick(chip->signal_pool, SIGNAL(we_b))) {
+	if (!ras_b && !cas_b && !SIGNAL_BOOL(we_b) && signal_changed(chip->signal_pool, SIGNAL(we_b))) {
 		chip->data_array[chip->row * 128 + chip->col] = SIGNAL_UINT8(bus_di);
 		return;
 	}
 
-	if (chip->state == CHIP_8x4116_OUTPUT_BEGIN && chip->next_state_transition >= chip->signal_pool->current_tick) {
+	if (chip->state == CHIP_8x4116_OUTPUT_BEGIN && chip->next_state_transition >= chip->simulator->current_tick) {
 		chip->do_latch = chip->data_array[chip->row * 128 + chip->col];
 		SIGNAL_SET_UINT8(bus_do, chip->do_latch);
 		chip->state = CHIP_8x4116_OUTPUT;

@@ -3,6 +3,7 @@
 // Emulation of read-only memory modules
 
 #include "chip_rom.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -37,17 +38,17 @@ void chip_63xx_rom_register_dependencies(Chip63xxRom *chip);
 void chip_63xx_rom_destroy(Chip63xxRom *chip);
 void chip_6316_rom_process(Chip63xxRom *chip);
 
-Chip63xxRom *chip_6316_rom_create(SignalPool *signal_pool, Chip63xxSignals signals) {
+Chip63xxRom *chip_6316_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
 	Chip63xxRom *chip = (Chip63xxRom *) calloc(1, sizeof(Chip63xxRom) + ROM_6316_DATA_SIZE);
 
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	chip->data_size = ROM_6316_DATA_SIZE;
-	chip->output_delay = signal_pool_interval_to_tick_count(signal_pool, NS_TO_PS(60));
+	chip->output_delay = simulator_interval_to_tick_count(chip->simulator, NS_TO_PS(60));
 	CHIP_SET_FUNCTIONS(chip, chip_6316_rom_process, chip_63xx_rom_destroy, chip_63xx_rom_register_dependencies);
 
 	memcpy(chip->signals, signals, sizeof(Chip63xxSignals));
-
 	SIGNAL_DEFINE(CHIP_6316_A0, 1);
 	SIGNAL_DEFINE(CHIP_6316_A1, 1);
 	SIGNAL_DEFINE(CHIP_6316_A2, 1);
@@ -122,12 +123,12 @@ void chip_6316_rom_process(Chip63xxRom *chip) {
 					(SIGNAL_BOOL(CHIP_6316_A8) << 8) | (SIGNAL_BOOL(CHIP_6316_A9) << 9) |
 					(SIGNAL_BOOL(CHIP_6316_A10) << 10);
 
-	if (signal_changed_last_tick(chip->signal_pool, chip->signals[CHIP_6316_CS1_B]) ||
-		signal_changed_last_tick(chip->signal_pool, chip->signals[CHIP_6316_CS2_B]) ||
-		signal_changed_last_tick(chip->signal_pool, chip->signals[CHIP_6316_CS3]) ||
+	if (signal_changed(chip->signal_pool, chip->signals[CHIP_6316_CS1_B]) ||
+		signal_changed(chip->signal_pool, chip->signals[CHIP_6316_CS2_B]) ||
+		signal_changed(chip->signal_pool, chip->signals[CHIP_6316_CS3]) ||
 		address != chip->last_address) {
 		chip->last_address = address;
-		chip->schedule_timestamp = chip->signal_pool->current_tick + chip->output_delay;
+		chip->schedule_timestamp = chip->simulator->current_tick + chip->output_delay;
 		return;
 	}
 
@@ -150,17 +151,17 @@ void chip_6316_rom_process(Chip63xxRom *chip) {
 
 void chip_6332_rom_process(Chip63xxRom *chip);
 
-Chip63xxRom *chip_6332_rom_create(SignalPool *signal_pool, Chip63xxSignals signals) {
+Chip63xxRom *chip_6332_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
 	Chip63xxRom *chip = (Chip63xxRom *) calloc(1, sizeof(Chip63xxRom) + ROM_6332_DATA_SIZE);
 
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	chip->data_size = ROM_6332_DATA_SIZE;
-	chip->output_delay = signal_pool_interval_to_tick_count(signal_pool, NS_TO_PS(60));
+	chip->output_delay = simulator_interval_to_tick_count(chip->simulator, NS_TO_PS(60));
 	CHIP_SET_FUNCTIONS(chip, chip_6332_rom_process, chip_63xx_rom_destroy, chip_63xx_rom_register_dependencies);
 
 	memcpy(chip->signals, signals, sizeof(Chip63xxSignals));
-
 	SIGNAL_DEFINE(CHIP_6332_A0, 1);
 	SIGNAL_DEFINE(CHIP_6332_A1, 1);
 	SIGNAL_DEFINE(CHIP_6332_A2, 1);
@@ -189,7 +190,6 @@ Chip63xxRom *chip_6332_rom_create(SignalPool *signal_pool, Chip63xxSignals signa
 	return chip;
 }
 
-
 void chip_6332_rom_process(Chip63xxRom *chip) {
 	assert(chip);
 
@@ -212,11 +212,11 @@ void chip_6332_rom_process(Chip63xxRom *chip) {
 					(SIGNAL_BOOL(CHIP_6332_A8) << 8) | (SIGNAL_BOOL(CHIP_6332_A9) << 9) |
 					(SIGNAL_BOOL(CHIP_6332_A10) << 10) | (SIGNAL_BOOL(CHIP_6332_A11) << 11);
 
-	if (signal_changed_last_tick(chip->signal_pool, chip->signals[CHIP_6332_CS1_B]) ||
-		signal_changed_last_tick(chip->signal_pool, chip->signals[CHIP_6332_CS3]) ||
+	if (signal_changed(chip->signal_pool, chip->signals[CHIP_6332_CS1_B]) ||
+		signal_changed(chip->signal_pool, chip->signals[CHIP_6332_CS3]) ||
 		address != chip->last_address) {
 		chip->last_address = address;
-		chip->schedule_timestamp = chip->signal_pool->current_tick + chip->output_delay;
+		chip->schedule_timestamp = chip->simulator->current_tick + chip->output_delay;
 		return;
 	}
 

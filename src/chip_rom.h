@@ -93,8 +93,8 @@ typedef struct Chip63xxRom {
 } Chip63xxRom;
 
 // functions
-Chip63xxRom *chip_6316_rom_create(SignalPool *signal_pool, Chip63xxSignals signals);
-Chip63xxRom *chip_6332_rom_create(SignalPool *signal_pool, Chip63xxSignals signals);
+Chip63xxRom *chip_6316_rom_create(struct Simulator *sim, Chip63xxSignals signals);
+Chip63xxRom *chip_6332_rom_create(struct Simulator *sim, Chip63xxSignals signals);
 
 #ifdef __cplusplus
 }

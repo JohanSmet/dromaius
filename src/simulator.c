@@ -37,7 +37,7 @@ static inline int64_t simulator_next_scheduled_event_timestamp(Simulator_private
 }
 
 static inline void sim_handle_event_schedule(Simulator_private *sim) {
-	int32_t chip_id = simulator_pop_scheduled_event(PUBLIC(sim), PUBLIC(sim)->signal_pool->current_tick);
+	int32_t chip_id = simulator_pop_scheduled_event(PUBLIC(sim), PUBLIC(sim)->current_tick);
 
 	while (chip_id >= 0) {
 		if (!sim->chip_is_dirty[chip_id]) {
@@ -45,7 +45,7 @@ static inline void sim_handle_event_schedule(Simulator_private *sim) {
 			sim->chip_is_dirty[chip_id] = true;
 		}
 
-		chip_id = simulator_pop_scheduled_event(PUBLIC(sim), PUBLIC(sim)->signal_pool->current_tick);
+		chip_id = simulator_pop_scheduled_event(PUBLIC(sim), PUBLIC(sim)->current_tick);
 	}
 }
 
@@ -75,8 +75,8 @@ static inline void sim_process_threadpool(Simulator_private *sim) {
 Simulator *simulator_create(int64_t tick_duration_ps) {
 	Simulator_private *priv_sim = (Simulator_private *) calloc(1, sizeof(Simulator_private));
 
-	priv_sim->public.signal_pool = signal_pool_create();
-	priv_sim->public.signal_pool->tick_duration_ps = tick_duration_ps;
+	PUBLIC(priv_sim)->signal_pool = signal_pool_create();
+	PUBLIC(priv_sim)->tick_duration_ps = tick_duration_ps;
 
 	return &priv_sim->public;
 }
@@ -102,6 +102,7 @@ Chip *simulator_register_chip(Simulator *sim, Chip *chip, const char *name) {
 
 	chip->id = (int32_t) arrlenu(PRIVATE(sim)->chips);
 	chip->name = name;
+	chip->simulator = sim;
 	arrpush(PRIVATE(sim)->chips, chip);
 	arrpush(PRIVATE(sim)->chip_is_dirty, true);
 	arrpush(PRIVATE(sim)->dirty_chips, chip->id);
@@ -135,10 +136,10 @@ void simulator_simulate_timestep(Simulator *sim) {
 
 	// advance to next timestamp
 	if (arrlenu(PRIVATE(sim)->dirty_chips)) {
-		++sim->signal_pool->current_tick;
+		++sim->current_tick;
 	} else {
 		// advance to next scheduled event if no chips to be processed
-		sim->signal_pool->current_tick = simulator_next_scheduled_event_timestamp(PRIVATE(sim));
+		sim->current_tick = simulator_next_scheduled_event_timestamp(PRIVATE(sim));
 	}
 
 	// handle scheduled events for the current timestamp
@@ -153,7 +154,7 @@ void simulator_simulate_timestep(Simulator *sim) {
 		stbds_header(PRIVATE(sim)->dirty_chips)->length = 0;
 	}
 
-	signal_pool_cycle_dirty_flags(sim->signal_pool, PRIVATE(sim)->chip_is_dirty, &PRIVATE(sim)->dirty_chips);
+	signal_pool_cycle_dirty_flags(sim->signal_pool, sim->current_tick, PRIVATE(sim)->chip_is_dirty, &PRIVATE(sim)->dirty_chips);
 }
 
 void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp) {

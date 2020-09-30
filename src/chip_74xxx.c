@@ -3,6 +3,7 @@
 // Emulation of 74-family logic chips
 
 #include "chip_74xxx.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -13,16 +14,17 @@
 #define SIGNAL_CHIP_ID		chip->id
 
 #define CHIP_74XXX_SET_FUNCTIONS(prefix)	\
-	CHIP_SET_FUNCTIONS(chip, prefix##_process, prefix##_destroy, prefix##_register_dependencies)
+		CHIP_SET_FUNCTIONS(chip, prefix##_process, prefix##_destroy, prefix##_register_dependencies)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // 7400 - Quad 2 Input NAND gates
 //
 
-Chip7400Nand *chip_7400_nand_create(SignalPool *signal_pool, Chip7400NandSignals signals) {
+Chip7400Nand *chip_7400_nand_create(Simulator *sim, Chip7400NandSignals signals) {
 	Chip7400Nand *chip = (Chip7400Nand *) calloc(1, sizeof(Chip7400Nand));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_7400_nand);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -73,9 +75,10 @@ void chip_7400_nand_process(Chip7400Nand *chip) {
 // 7474 - Dual Positive-Edge-Triggered D Flip-Flops with preset/clear
 //
 
-Chip7474DFlipFlop *chip_7474_d_flipflop_create(SignalPool *signal_pool, Chip7474Signals signals) {
+Chip7474DFlipFlop *chip_7474_d_flipflop_create(Simulator *sim, Chip7474Signals signals) {
 	Chip7474DFlipFlop *chip = (Chip7474DFlipFlop *) calloc(1, sizeof(Chip7474DFlipFlop));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_7474_d_flipflop);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -163,9 +166,10 @@ void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
 // 7493 - 4-Bit Binary Counter
 //
 
-Chip7493BinaryCounter *chip_7493_binary_counter_create(SignalPool *signal_pool, Chip7493Signals signals) {
+Chip7493BinaryCounter *chip_7493_binary_counter_create(Simulator *sim, Chip7493Signals signals) {
 	Chip7493BinaryCounter *chip = (Chip7493BinaryCounter *) calloc(1, sizeof(Chip7493BinaryCounter));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_7493_binary_counter);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -236,9 +240,10 @@ void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip) {
 // 74107 - Dual J-K Flip-Flops with clear
 //
 
-Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(SignalPool *signal_pool, Chip74107Signals signals) {
+Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(Simulator *sim, Chip74107Signals signals) {
 	Chip74107JKFlipFlop *chip = (Chip74107JKFlipFlop *) calloc(1, sizeof(Chip74107JKFlipFlop));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74107_jk_flipflop);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -325,10 +330,11 @@ typedef struct Chip74145BcdDecoder_private {
 	Signal *			outputs[10];
 } Chip74145BcdDecoder_private;
 
-Chip74145BcdDecoder *chip_74145_bcd_decoder_create(SignalPool *signal_pool, Chip74145Signals signals) {
+Chip74145BcdDecoder *chip_74145_bcd_decoder_create(Simulator *sim, Chip74145Signals signals) {
 	Chip74145BcdDecoder_private *priv = (Chip74145BcdDecoder_private *) calloc(1, sizeof(Chip74145BcdDecoder_private));
 	Chip74145BcdDecoder *chip = &priv->intf;
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74145_bcd_decoder);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -396,10 +402,11 @@ void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 // 74153 - Dual 4-Line to 1-Line Data Selectors/Multiplexers
 //
 
-Chip74153Multiplexer *chip_74153_multiplexer_create(SignalPool *signal_pool, Chip74153Signals signals) {
+Chip74153Multiplexer *chip_74153_multiplexer_create(Simulator *sim, Chip74153Signals signals) {
 
 	Chip74153Multiplexer *chip = (Chip74153Multiplexer *) calloc(1, sizeof(Chip74153Multiplexer));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74153_multiplexer);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -467,10 +474,11 @@ typedef struct Chip74154Decoder_private {
 	Signal *			outputs[16];
 } Chip74154Decoder_private;
 
-Chip74154Decoder *chip_74154_decoder_create(SignalPool *signal_pool, Chip74154Signals signals) {
+Chip74154Decoder *chip_74154_decoder_create(Simulator *sim, Chip74154Signals signals) {
 	Chip74154Decoder_private *priv = (Chip74154Decoder_private *) calloc(1, sizeof(Chip74154Decoder_private));
 	Chip74154Decoder *chip = &priv->intf;
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74154_decoder);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -551,9 +559,10 @@ void chip_74154_decoder_process(Chip74154Decoder *chip) {
 // 74157 - Quad 2-Input Multiplexer
 //
 
-Chip74157Multiplexer *chip_74157_multiplexer_create(SignalPool *signal_pool, Chip74157Signals signals) {
+Chip74157Multiplexer *chip_74157_multiplexer_create(Simulator *sim, Chip74157Signals signals) {
 	Chip74157Multiplexer *chip = (Chip74157Multiplexer *) calloc(1, sizeof(Chip74157Multiplexer));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74157_multiplexer);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -613,9 +622,10 @@ void chip_74157_multiplexer_process(Chip74157Multiplexer *chip) {
 // 74164 - 8-Bit Serial In/Parallel Out Shift Register
 //
 
-Chip74164ShiftRegister *chip_74164_shift_register_create(SignalPool *signal_pool, Chip74164Signals signals) {
+Chip74164ShiftRegister *chip_74164_shift_register_create(Simulator *sim, Chip74164Signals signals) {
 	Chip74164ShiftRegister *chip = (Chip74164ShiftRegister *) calloc(1, sizeof(Chip74164ShiftRegister));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74164_shift_register);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -680,10 +690,11 @@ void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
 // 74165 - 8-Bit Parallel In/Serial Out Shift Registers
 //
 
-Chip74165ShiftRegister *chip_74165_shift_register_create(SignalPool *signal_pool, Chip74165Signals signals) {
+Chip74165ShiftRegister *chip_74165_shift_register_create(Simulator *sim, Chip74165Signals signals) {
 
 	Chip74165ShiftRegister *chip = (Chip74165ShiftRegister *) calloc(1, sizeof(Chip74165ShiftRegister));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74165_shift_register);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -725,7 +736,7 @@ void chip_74165_shift_register_process(Chip74165ShiftRegister *chip) {
 
 	// data at the parallel inputs are loaded directly into the register on a HIGH-to-LOW transition of
 	// the shit/load input, regardless of the logic levels on the clock, clock inhibit, or serial inputs.
-	if (!SIGNAL_BOOL(sl) && signal_changed_last_tick(chip->signal_pool, SIGNAL(sl))) {
+	if (!SIGNAL_BOOL(sl) && signal_changed(chip->signal_pool, SIGNAL(sl))) {
 		bool value_h = SIGNAL_BOOL(h);
 
 		chip->state = SIGNAL_BOOL(a);
@@ -760,9 +771,10 @@ void chip_74165_shift_register_process(Chip74165ShiftRegister *chip) {
 // 74177 - Presettable Binary Counter/Latch
 //
 
-Chip74177BinaryCounter *chip_74177_binary_counter_create(SignalPool *signal_pool, Chip74177Signals signals) {
+Chip74177BinaryCounter *chip_74177_binary_counter_create(Simulator *sim, Chip74177Signals signals) {
 	Chip74177BinaryCounter *chip = (Chip74177BinaryCounter *) calloc(1, sizeof(Chip74177BinaryCounter));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74177_binary_counter);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -842,10 +854,11 @@ void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip) {
 // 74191 - 4-Bit Synchronous Up/Down Binary Counter
 //
 
-Chip74191BinaryCounter *chip_74191_binary_counter_create(SignalPool *signal_pool, Chip74191Signals signals) {
+Chip74191BinaryCounter *chip_74191_binary_counter_create(Simulator *sim, Chip74191Signals signals) {
 
 	Chip74191BinaryCounter *chip = (Chip74191BinaryCounter *) calloc(1, sizeof(Chip74191BinaryCounter));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74191_binary_counter);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -922,9 +935,10 @@ void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip) {
 // 74244 - Octal 3-STATE Buffer/Line Driver/Line Receiver
 //
 
-Chip74244OctalBuffer *chip_74244_octal_buffer_create(SignalPool *signal_pool, Chip74244Signals signals) {
+Chip74244OctalBuffer *chip_74244_octal_buffer_create(Simulator *sim, Chip74244Signals signals) {
 	Chip74244OctalBuffer *chip = (Chip74244OctalBuffer *) calloc(1, sizeof(Chip74244OctalBuffer));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74244_octal_buffer);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));
@@ -1004,9 +1018,10 @@ void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 // 74373 - Octal D-Type Transparant Latches
 //
 
-Chip74373Latch *chip_74373_latch_create(SignalPool *signal_pool, Chip74373Signals signals) {
+Chip74373Latch *chip_74373_latch_create(Simulator *sim, Chip74373Signals signals) {
 	Chip74373Latch *chip = (Chip74373Latch *) calloc(1, sizeof(Chip74373Latch));
-	chip->signal_pool = signal_pool;
+	chip->simulator = sim;
+	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74373_latch);
 
 	memcpy(&chip->signals, &signals, sizeof(signals));

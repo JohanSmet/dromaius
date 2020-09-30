@@ -2,6 +2,7 @@
 
 #include "munit/munit.h"
 #include "chip_6522.h"
+#include "simulator.h"
 
 #include "stb/stb_ds.h"
 
@@ -63,12 +64,12 @@ typedef enum Chip6522_regs {
 
 
 static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
-	Chip6522 *via = chip_6522_create(signal_pool_create(1), (Chip6522Signals) {0});
+	Chip6522 *via = chip_6522_create(simulator_create(NS_TO_PS(100)), (Chip6522Signals) {0});
 
 	// run chip with reset asserted
 	SIGNAL_SET_BOOL(enable, false);
 	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
-	signal_pool_cycle(via->signal_pool);
+	signal_pool_cycle(via->signal_pool, 1);
 	chip_6522_process(via);
 
 	// deassert reset
@@ -88,7 +89,7 @@ static inline void strobe_via(Chip6522 *via, bool strobe) {
 
 static inline void half_clock_cycle(Chip6522 *via) {
 	SIGNAL_SET_BOOL(enable, !SIGNAL_BOOL(enable));
-	signal_pool_cycle(via->signal_pool);
+	signal_pool_cycle(via->signal_pool, 1);
 	chip_6522_process(via);
 }
 
@@ -125,7 +126,7 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 
 	// run via with reset asserted
 	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
-	signal_pool_cycle(via->signal_pool);
+	signal_pool_cycle(via->signal_pool, 1);
 	chip_6522_process(via);
 
 	// registers should have been cleared (except T1, T2 and SR)

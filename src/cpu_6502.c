@@ -4,6 +4,7 @@
 
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -2132,13 +2133,14 @@ int64_t cpu_6502_program_counter(Cpu6502 *cpu) {
 // interface functions
 //
 
-Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals) {
+Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 
 	Cpu6502_private *priv = (Cpu6502_private *) malloc(sizeof(Cpu6502_private));
 	Cpu6502 *cpu = &priv->intf;
 	memset(priv, 0, sizeof(Cpu6502_private));
 
-	cpu->signal_pool = signal_pool;
+	cpu->simulator = sim;
+	cpu->signal_pool = sim->signal_pool;
 	CHIP_SET_FUNCTIONS(cpu, cpu_6502_process, cpu_6502_destroy, cpu_6502_register_dependencies);
 	cpu->override_next_instruction_address = (CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS) cpu_6502_override_next_instruction_address;
 	cpu->is_at_start_of_instruction = (CPU_IS_AT_START_OF_INSTRUCTION) cpu_6502_at_start_of_instruction;
@@ -2230,7 +2232,7 @@ void cpu_6502_process(Cpu6502 *cpu) {
 
 		// ask to be woken up next timestep to process the delayed part of the negative edge
 		priv->delayed_cycle = true;
-		cpu->schedule_timestamp = cpu->signal_pool->current_tick + 1;
+		cpu->schedule_timestamp = cpu->simulator->current_tick + 1;
 	}
 
 	process_end(cpu);

@@ -47,7 +47,7 @@ typedef struct Chip8x4116DRam {
 } Chip8x4116DRam;
 
 // functions - 8x MK 4116
-Chip8x4116DRam *chip_8x4116_dram_create(SignalPool *pool, Chip8x4116DRamSignals signals);
+Chip8x4116DRam *chip_8x4116_dram_create(struct Simulator *simulator, Chip8x4116DRamSignals signals);
 
 #ifdef __cplusplus
 }

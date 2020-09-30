@@ -32,7 +32,7 @@ typedef struct Oscillator {
 } Oscillator;
 
 // functions
-Oscillator *oscillator_create(int64_t frequency, SignalPool *pool, OscillatorSignals signals);
+Oscillator *oscillator_create(int64_t frequency, struct Simulator *sim, OscillatorSignals signals);
 void oscillator_register_dependencies(Oscillator *tmr);
 void oscillator_destroy(Oscillator *tmr);
 void oscillator_process(Oscillator *tmr);

@@ -434,8 +434,8 @@ static Chip63xxRom *load_rom(DevCommodorePet *device, const char *filename, size
 	};
 
 	Chip63xxRom *rom = (num_lines == 12) ?
-		chip_6332_rom_create(SIGNAL_POOL, signals) :
-		chip_6316_rom_create(SIGNAL_POOL, signals);
+		chip_6332_rom_create(device->simulator, signals) :
+		chip_6316_rom_create(device->simulator, signals);
 
 	if (file_load_binary_fixed(filename, rom->data_array, ROM_6332_DATA_SIZE) == 0) {
 		rom->destroy(rom);
@@ -447,7 +447,7 @@ static Chip63xxRom *load_rom(DevCommodorePet *device, const char *filename, size
 
 static Chip63xxRom *load_character_rom(DevCommodorePet *device, const char *filename) {
 
-	Chip63xxRom *rom = chip_6316_rom_create(SIGNAL_POOL, (Signal[24]) {
+	Chip63xxRom *rom = chip_6316_rom_create(device->simulator, (Signal[24]) {
 										[CHIP_6316_CS1_B] = SIGNAL(low),
 										[CHIP_6316_CS2_B] = SIGNAL(low),
 										[CHIP_6316_CS3] = SIGNAL(init_b),
@@ -835,13 +835,13 @@ DevCommodorePet *dev_commodore_pet_create() {
 	//
 
 	// power-on-reset
-	DEVICE_REGISTER_CHIP("POR", poweronreset_create(US_TO_PS(500), SIGNAL_POOL, (PowerOnResetSignals) {
+	DEVICE_REGISTER_CHIP("POR", poweronreset_create(US_TO_PS(500), device->simulator, (PowerOnResetSignals) {
 											.trigger_b = SIGNAL(reset_btn_b),
 											.reset_b = SIGNAL(reset_b)
 	}));
 
 	// cpu
-	device->cpu = cpu_6502_create(SIGNAL_POOL, (Cpu6502Signals) {
+	device->cpu = cpu_6502_create(device->simulator, (Cpu6502Signals) {
 										.bus_address = SIGNAL(cpu_bus_address),
 										.bus_data = SIGNAL(cpu_bus_data),
 										.clock = SIGNAL(clk1),
@@ -855,7 +855,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	DEVICE_REGISTER_CHIP("C4", device->cpu);
 
 	// >> c3 - octal buffer
-	DEVICE_REGISTER_CHIP("C3", chip_74244_octal_buffer_create(SIGNAL_POOL, (Chip74244Signals) {
+	DEVICE_REGISTER_CHIP("C3", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
 										.g1_b = SIGNAL(low),									// 01
 										.g2_b = SIGNAL(low),									// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_address), 0, 1),	// 02
@@ -878,7 +878,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> b3 - octal buffer
-	DEVICE_REGISTER_CHIP("B3", chip_74244_octal_buffer_create(SIGNAL_POOL, (Chip74244Signals) {
+	DEVICE_REGISTER_CHIP("B3", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
 										.g1_b = SIGNAL(low),									// 01
 										.g2_b = SIGNAL(low),									// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_address), 8, 1),	// 02
@@ -901,7 +901,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> d2 - 4-to-16 decoder
-	DEVICE_REGISTER_CHIP("D2", chip_74154_decoder_create(SIGNAL_POOL, (Chip74154Signals) {
+	DEVICE_REGISTER_CHIP("D2", chip_74154_decoder_create(device->simulator, (Chip74154Signals) {
 										.g1_b = SIGNAL(low),
 										.g2_b = SIGNAL(low),
 										.a  = signal_split(SIGNAL(bus_ba), 12, 1),
@@ -927,7 +927,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> e9 - octal buffer
-	DEVICE_REGISTER_CHIP("E9", chip_74244_octal_buffer_create(SIGNAL_POOL, (Chip74244Signals) {
+	DEVICE_REGISTER_CHIP("E9", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
 										.g1_b = SIGNAL(ram_write_b),							// 01
 										.g2_b = SIGNAL(ram_read_b),								// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 02
@@ -950,7 +950,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> e10 - octal buffer
-	DEVICE_REGISTER_CHIP("E10", chip_74244_octal_buffer_create(SIGNAL_POOL, (Chip74244Signals) {
+	DEVICE_REGISTER_CHIP("E10", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
 										.g1_b = SIGNAL(ram_write_b),							// 01
 										.g2_b = SIGNAL(ram_read_b),								// 19
 										.a11  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 02
@@ -977,7 +977,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	//
 
 	// pia 1 (C6 - IEEE-488 interface)
-	device->pia_1 = chip_6520_create(SIGNAL_POOL, (Chip6520Signals) {
+	device->pia_1 = chip_6520_create(device->simulator, (Chip6520Signals) {
 										.bus_data = SIGNAL(cpu_bus_data),
 										.enable = SIGNAL(clk1),
 										.reset_b = SIGNAL(reset_b),
@@ -1001,7 +1001,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	//
 
 	// pia 2 (C7 - keyboard)
-	device->pia_2 = chip_6520_create(SIGNAL_POOL, (Chip6520Signals) {
+	device->pia_2 = chip_6520_create(device->simulator, (Chip6520Signals) {
 										.bus_data = SIGNAL(cpu_bus_data),
 										.enable = SIGNAL(clk1),
 										.reset_b = SIGNAL(reset_b),
@@ -1021,7 +1021,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	DEVICE_REGISTER_CHIP("C7", device->pia_2);
 
 	// via (C5)
-	device->via = chip_6522_create(SIGNAL_POOL, (Chip6522Signals) {
+	device->via = chip_6522_create(device->simulator, (Chip6522Signals) {
 										.bus_data = SIGNAL(cpu_bus_data),
 										.enable = SIGNAL(clk1),
 										.reset_b = SIGNAL(reset_b),
@@ -1042,7 +1042,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	DEVICE_REGISTER_CHIP("C5", device->via);
 
 	// >> c9 - bcd decoder
-	DEVICE_REGISTER_CHIP("C9", chip_74145_bcd_decoder_create(SIGNAL_POOL, (Chip74145Signals) {
+	DEVICE_REGISTER_CHIP("C9", chip_74145_bcd_decoder_create(device->simulator, (Chip74145Signals) {
 										.a = SIGNAL(keya),
 										.b = SIGNAL(keyb),
 										.c = SIGNAL(keyc),
@@ -1080,7 +1080,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	// components - sheet 05: RAMS
 	//
 
-	DEVICE_REGISTER_CHIP("I11", chip_74244_octal_buffer_create(SIGNAL_POOL, (Chip74244Signals) {
+	DEVICE_REGISTER_CHIP("I11", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
 										.g2_b = SIGNAL(buf_rw),							// 19
 										.g1_b = SIGNAL(g78),							// 01
 
@@ -1103,7 +1103,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.a21  = signal_split(SIGNAL(bus_bd), 4, 1)		// 11
 	}));
 
-	DEVICE_REGISTER_CHIP("I10", chip_74244_octal_buffer_create(SIGNAL_POOL, (Chip74244Signals) {
+	DEVICE_REGISTER_CHIP("I10", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
 										.g2_b = SIGNAL(buf_rw),							// 19
 										.g1_b = SIGNAL(g78),							// 01
 
@@ -1126,7 +1126,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.a21  = signal_split(SIGNAL(bus_bd), 0, 1)		// 11
 	}));
 
-	DEVICE_REGISTER_CHIP("E3", chip_74153_multiplexer_create(SIGNAL_POOL, (Chip74153Signals) {
+	DEVICE_REGISTER_CHIP("E3", chip_74153_multiplexer_create(device->simulator, (Chip74153Signals) {
 										.g1 = SIGNAL(low),								// pin 1
 										.c10 = SIGNAL(ra7),								// pin 6
 										.c11 = SIGNAL(ra7),								// pin 5
@@ -1145,7 +1145,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.y2 = signal_split(SIGNAL(bus_fa), 1, 1),		// pin 9
 	}));
 
-	DEVICE_REGISTER_CHIP("E4", chip_74153_multiplexer_create(SIGNAL_POOL, (Chip74153Signals) {
+	DEVICE_REGISTER_CHIP("E4", chip_74153_multiplexer_create(device->simulator, (Chip74153Signals) {
 										.g1 = SIGNAL(low),								// pin 1
 										.c10 = SIGNAL(ra2),								// pin 6
 										.c11 = SIGNAL(ra2),								// pin 5
@@ -1164,7 +1164,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.y2 = signal_split(SIGNAL(bus_fa), 3, 1),		// pin 9
 	}));
 
-	DEVICE_REGISTER_CHIP("E5", chip_74153_multiplexer_create(SIGNAL_POOL, (Chip74153Signals) {
+	DEVICE_REGISTER_CHIP("E5", chip_74153_multiplexer_create(device->simulator, (Chip74153Signals) {
 										.g1 = SIGNAL(low),								// pin 1
 										.c10 = SIGNAL(ra4),								// pin 6
 										.c11 = SIGNAL(ra4),								// pin 5
@@ -1183,7 +1183,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.y2 = signal_split(SIGNAL(bus_fa), 5, 1),		// pin 9
 	}));
 
-	DEVICE_REGISTER_CHIP("E6", chip_74153_multiplexer_create(SIGNAL_POOL, (Chip74153Signals) {
+	DEVICE_REGISTER_CHIP("E6", chip_74153_multiplexer_create(device->simulator, (Chip74153Signals) {
 										.g1 = SIGNAL(low),								// pin 1
 										.c10 = SIGNAL(ra6),								// pin 6
 										.c11 = SIGNAL(ra6),								// pin 5
@@ -1195,7 +1195,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.b = SIGNAL(clk1),								// pin 2
 	}));
 
-	DEVICE_REGISTER_CHIP("I2-9", chip_8x4116_dram_create(SIGNAL_POOL, (Chip8x4116DRamSignals) {
+	DEVICE_REGISTER_CHIP("I2-9", chip_8x4116_dram_create(device->simulator, (Chip8x4116DRamSignals) {
 										.bus_address = SIGNAL(bus_fa),
 										.we_b = SIGNAL(ram_rw),
 										.ras_b = SIGNAL(ras0_b),
@@ -1204,7 +1204,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 										.bus_do = SIGNAL(bus_rd)
 	}));
 
-	DEVICE_REGISTER_CHIP("J2-9", chip_8x4116_dram_create(SIGNAL_POOL, (Chip8x4116DRamSignals) {
+	DEVICE_REGISTER_CHIP("J2-9", chip_8x4116_dram_create(device->simulator, (Chip8x4116DRamSignals) {
 										.bus_address = SIGNAL(bus_fa),
 										.we_b = SIGNAL(ram_rw),
 										.ras_b = SIGNAL(ras0_b),
@@ -1218,13 +1218,13 @@ DevCommodorePet *dev_commodore_pet_create() {
 	//
 
 	// >> y1 - oscillator
-	device->oscillator_y1 = oscillator_create(16000000, SIGNAL_POOL, (OscillatorSignals) {
+	device->oscillator_y1 = oscillator_create(16000000, device->simulator, (OscillatorSignals) {
 										.clk_out = SIGNAL(clk16)
 	});
 	DEVICE_REGISTER_CHIP("Y1", device->oscillator_y1);
 
 	// >> g5 - binary counter
-	DEVICE_REGISTER_CHIP("G5", chip_74191_binary_counter_create(SIGNAL_POOL, (Chip74191Signals) {
+	DEVICE_REGISTER_CHIP("G5", chip_74191_binary_counter_create(device->simulator, (Chip74191Signals) {
 										.vcc = SIGNAL(high),			// pin 16
 										.gnd = SIGNAL(low),				// pin 08
 										.enable_b = SIGNAL(low),		// pin 04
@@ -1244,7 +1244,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> h3 - 8-bit shift register
-	DEVICE_REGISTER_CHIP("H3", chip_74164_shift_register_create(SIGNAL_POOL, (Chip74164Signals) {
+	DEVICE_REGISTER_CHIP("H3", chip_74164_shift_register_create(device->simulator, (Chip74164Signals) {
 										.a = SIGNAL(clk1),				// pin 01
 										.b = SIGNAL(high),				// pin 02
 										.clk = SIGNAL(clk16),			// pin 08
@@ -1262,7 +1262,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> h6 - JK flip-flop
-	DEVICE_REGISTER_CHIP("H6", chip_74107_jk_flipflop_create(SIGNAL_POOL, (Chip74107Signals) {
+	DEVICE_REGISTER_CHIP("H6", chip_74107_jk_flipflop_create(device->simulator, (Chip74107Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -1282,7 +1282,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> h9 - binary counter
-	DEVICE_REGISTER_CHIP("H9", chip_7493_binary_counter_create(SIGNAL_POOL, (Chip7493Signals) {
+	DEVICE_REGISTER_CHIP("H9", chip_7493_binary_counter_create(device->simulator, (Chip7493Signals) {
 										.gnd = SIGNAL(low),				// pin 10
 										.vcc = SIGNAL(high),			// pin 5
 										.a_b = SIGNAL(ra1),				// pin 14
@@ -1296,7 +1296,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> g9 - d flip-flop (2 flipflop is used on sheet 8)
-	DEVICE_REGISTER_CHIP("G9", chip_7474_d_flipflop_create(SIGNAL_POOL, (Chip7474Signals) {
+	DEVICE_REGISTER_CHIP("G9", chip_7474_d_flipflop_create(device->simulator, (Chip7474Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -1316,7 +1316,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> h7 - JK flip-flop
-	DEVICE_REGISTER_CHIP("H7", chip_74107_jk_flipflop_create(SIGNAL_POOL, (Chip74107Signals) {
+	DEVICE_REGISTER_CHIP("H7", chip_74107_jk_flipflop_create(device->simulator, (Chip74107Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -1336,7 +1336,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> h8 - JK flip-flop
-	DEVICE_REGISTER_CHIP("H8", chip_74107_jk_flipflop_create(SIGNAL_POOL, (Chip74107Signals) {
+	DEVICE_REGISTER_CHIP("H8", chip_74107_jk_flipflop_create(device->simulator, (Chip74107Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -1356,7 +1356,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> h4 - Quad 2to1 multiplexer
-	DEVICE_REGISTER_CHIP("H4", chip_74157_multiplexer_create(SIGNAL_POOL, (Chip74157Signals) {
+	DEVICE_REGISTER_CHIP("H4", chip_74157_multiplexer_create(device->simulator, (Chip74157Signals) {
 										.i0a = SIGNAL(bphi2b),			// pin 2
 										.i1a = SIGNAL(bphi2a),			// pin 3
 										.za = SIGNAL(h4y1),				// pin 4
@@ -1374,7 +1374,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> h1 - d flipflop
-	DEVICE_REGISTER_CHIP("H1", chip_7474_d_flipflop_create(SIGNAL_POOL, (Chip7474Signals) {
+	DEVICE_REGISTER_CHIP("H1", chip_7474_d_flipflop_create(device->simulator, (Chip7474Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -1398,7 +1398,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	//
 
 	// >> g6 - JK flip-flop
-	DEVICE_REGISTER_CHIP("G6", chip_74107_jk_flipflop_create(SIGNAL_POOL, (Chip74107Signals) {
+	DEVICE_REGISTER_CHIP("G6", chip_74107_jk_flipflop_create(device->simulator, (Chip74107Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -1411,7 +1411,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f6 - quad 2-to-1 multiplexer
-	DEVICE_REGISTER_CHIP("F6", chip_74157_multiplexer_create(SIGNAL_POOL, (Chip74157Signals) {
+	DEVICE_REGISTER_CHIP("F6", chip_74157_multiplexer_create(device->simulator, (Chip74157Signals) {
 										.gnd = SIGNAL(low),				// pin 8
 										.vcc = SIGNAL(high),			// pin 16
 
@@ -1434,7 +1434,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f5 - quad 2-to-1 multiplexer
-	DEVICE_REGISTER_CHIP("F5", chip_74157_multiplexer_create(SIGNAL_POOL, (Chip74157Signals) {
+	DEVICE_REGISTER_CHIP("F5", chip_74157_multiplexer_create(device->simulator, (Chip74157Signals) {
 										.gnd = SIGNAL(low),				// pin 8
 										.vcc = SIGNAL(high),			// pin 16
 
@@ -1457,7 +1457,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f3 - quad 2-to-1 multiplexer
-	DEVICE_REGISTER_CHIP("F3", chip_74157_multiplexer_create(SIGNAL_POOL, (Chip74157Signals) {
+	DEVICE_REGISTER_CHIP("F3", chip_74157_multiplexer_create(device->simulator, (Chip74157Signals) {
 										.gnd = SIGNAL(low),				// pin 8
 										.vcc = SIGNAL(high),			// pin 16
 
@@ -1480,7 +1480,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f4 - binary counter
-	DEVICE_REGISTER_CHIP("F4", chip_74177_binary_counter_create(SIGNAL_POOL, (Chip74177Signals) {
+	DEVICE_REGISTER_CHIP("F4", chip_74177_binary_counter_create(device->simulator, (Chip74177Signals) {
 										.gnd = SIGNAL(low),					// pin 07
 										.vcc = SIGNAL(high),				// pin 14
 
@@ -1500,7 +1500,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f2 - binary counter
-	DEVICE_REGISTER_CHIP("F2", chip_74177_binary_counter_create(SIGNAL_POOL, (Chip74177Signals) {
+	DEVICE_REGISTER_CHIP("F2", chip_74177_binary_counter_create(device->simulator, (Chip74177Signals) {
 										.gnd = SIGNAL(low),					// pin 07
 										.vcc = SIGNAL(high),				// pin 14
 
@@ -1520,7 +1520,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> g3 - 8-bit latch
-	DEVICE_REGISTER_CHIP("G3", chip_74373_latch_create(SIGNAL_POOL, (Chip74373Signals) {
+	DEVICE_REGISTER_CHIP("G3", chip_74373_latch_create(device->simulator, (Chip74373Signals) {
 										.gnd = SIGNAL(low),			// pin 10
 										.vcc = SIGNAL(high),		// pin 20
 
@@ -1547,7 +1547,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> g8 - d flip-flop
-	DEVICE_REGISTER_CHIP("G8", chip_7474_d_flipflop_create(SIGNAL_POOL, (Chip7474Signals) {
+	DEVICE_REGISTER_CHIP("G8", chip_7474_d_flipflop_create(device->simulator, (Chip7474Signals) {
 										.gnd = SIGNAL(low),				// pin 7
 										.vcc = SIGNAL(high),			// pin 14
 
@@ -1571,7 +1571,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	//
 
 	// >> h11 - binary counter
-	DEVICE_REGISTER_CHIP("H11", chip_7493_binary_counter_create(SIGNAL_POOL, (Chip7493Signals) {
+	DEVICE_REGISTER_CHIP("H11", chip_7493_binary_counter_create(device->simulator, (Chip7493Signals) {
 										.gnd = SIGNAL(low),				// pin 10
 										.vcc = SIGNAL(high),			// pin 5
 
@@ -1586,7 +1586,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f7 - 1k x 4bit SRAM
-	DEVICE_REGISTER_CHIP("F7", chip_6114_sram_create(SIGNAL_POOL, (Chip6114SRamSignals) {
+	DEVICE_REGISTER_CHIP("F7", chip_6114_sram_create(device->simulator, (Chip6114SRamSignals) {
 										.bus_address = SIGNAL(bus_sa),
 										.bus_io = signal_split(SIGNAL(bus_sd), 4, 4),
 										.ce_b = SIGNAL(low),
@@ -1594,7 +1594,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f8 - 1k x 4bit SRAM
-	DEVICE_REGISTER_CHIP("F8", chip_6114_sram_create(SIGNAL_POOL, (Chip6114SRamSignals) {
+	DEVICE_REGISTER_CHIP("F8", chip_6114_sram_create(device->simulator, (Chip6114SRamSignals) {
 										.bus_address = SIGNAL(bus_sa),
 										.bus_io = signal_split(SIGNAL(bus_sd), 0, 4),
 										.ce_b = SIGNAL(low),
@@ -1602,7 +1602,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> e8 - octal buffer
-	DEVICE_REGISTER_CHIP("E8", chip_74244_octal_buffer_create(SIGNAL_POOL, (Chip74244Signals) {
+	DEVICE_REGISTER_CHIP("E8", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
 										.g2_b = SIGNAL(tv_ram_rw),						// 19
 										.g1_b = SIGNAL(tv_read_b),						// 01
 
@@ -1626,7 +1626,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> e7 - octal buffer
-	DEVICE_REGISTER_CHIP("E7", chip_74244_octal_buffer_create(SIGNAL_POOL, (Chip74244Signals) {
+	DEVICE_REGISTER_CHIP("E7", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
 										.g2_b = SIGNAL(tv_ram_rw),						// 19
 										.g1_b = SIGNAL(tv_read_b),						// 01
 
@@ -1650,7 +1650,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	}));
 
 	// >> f9 - 8-bit latch
-	DEVICE_REGISTER_CHIP("F9", chip_74373_latch_create(SIGNAL_POOL, (Chip74373Signals) {
+	DEVICE_REGISTER_CHIP("F9", chip_74373_latch_create(device->simulator, (Chip74373Signals) {
 										.c	  = SIGNAL(video_latch),					// 11
 										.oc_b = SIGNAL(low),							// 1
 										.d1   = signal_split(SIGNAL(bus_sd), 0, 1),		// 3
@@ -1678,7 +1678,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	DEVICE_REGISTER_CHIP("F10", char_rom);
 
 	// >> e11 - shift register
-	DEVICE_REGISTER_CHIP("E11", chip_74165_shift_register_create(SIGNAL_POOL, (Chip74165Signals) {
+	DEVICE_REGISTER_CHIP("E11", chip_74165_shift_register_create(device->simulator, (Chip74165Signals) {
 										.sl		 = SIGNAL(load_sr_b),					// 1
 										.clk	 = SIGNAL(clk8),						// 2
 										.clk_inh = SIGNAL(low),							// 15
@@ -1700,7 +1700,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 	//
 
 	// keyboard
-	device->keypad = input_keypad_create(SIGNAL_POOL, false, 10, 8, 500, 100, (InputKeypadSignals) {
+	device->keypad = input_keypad_create(device->simulator, false, 10, 8, 500, 100, (InputKeypadSignals) {
 										.cols = SIGNAL(bus_kin),
 										.rows = SIGNAL(bus_kout)
 	});
@@ -1708,7 +1708,7 @@ DevCommodorePet *dev_commodore_pet_create() {
 
 
 	// display
-	device->crt = display_pet_crt_create(SIGNAL_POOL, (DisplayPetCrtSignals) {
+	device->crt = display_pet_crt_create(device->simulator, (DisplayPetCrtSignals) {
 										.video_in = SIGNAL(video),
 										.horz_drive_in = SIGNAL(horz_drive),
 										.vert_drive_in = SIGNAL(vert_drive)

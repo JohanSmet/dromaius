@@ -28,9 +28,6 @@ typedef struct SignalNameMap {
 } SignalNameMap;
 
 typedef struct SignalPool {
-	int64_t			current_tick;
-	int64_t			tick_duration_ps;		// in pico-seconds
-
 	bool *			signals_curr;
 	bool *			signals_next;
 	uint32_t *		signals_written;
@@ -41,6 +38,8 @@ typedef struct SignalPool {
 	int32_t **		dependent_components;
 
 	SignalNameMap	*signal_names;
+
+	int64_t			tick_last_cycle;
 
 #ifdef DMS_SIGNAL_TRACING
 	struct SignalTrace *trace;
@@ -55,13 +54,8 @@ extern const uint64_t lut_bit_to_byte[256];
 SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
 
-void signal_pool_cycle(SignalPool *pool);
-void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags, int32_t **dirty_chips);
-
-static inline int64_t signal_pool_interval_to_tick_count(SignalPool *pool, int64_t interval_ps) {
-	assert(pool);
-	return interval_ps / pool->tick_duration_ps;
-}
+void signal_pool_cycle(SignalPool *pool, int64_t current_tick);
+void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool *is_dirty_flags, int32_t **dirty_chips);
 
 Signal signal_create(SignalPool *pool, uint32_t size);
 void signal_set_name(SignalPool *pool, Signal Signal, const char *name);
@@ -239,19 +233,7 @@ static inline bool signal_changed(SignalPool *pool, Signal signal) {
 	bool result = false;
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		result |= (pool->signals_last_changed[signal.start + i] == pool->current_tick);
-	}
-
-	return result;
-}
-
-static inline bool signal_changed_last_tick(SignalPool *pool, Signal signal) {
-	assert(pool);
-
-	bool result = false;
-
-	for (uint32_t i = 0; i < signal.count; ++i) {
-		result |= (pool->signals_last_changed[signal.start + i] == pool->current_tick - 1);
+		result |= (pool->signals_last_changed[signal.start + i] == pool->tick_last_cycle);
 	}
 
 	return result;

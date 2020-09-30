@@ -2,6 +2,7 @@
 
 #include "munit/munit.h"
 #include "chip_74xxx.h"
+#include "simulator.h"
 
 #define SIGNAL_POOL			chip->signal_pool
 #define SIGNAL_COLLECTION	chip->signals
@@ -16,7 +17,7 @@ static MunitResult test_7400_nand(const MunitParameter params[], void *user_data
 		true,  true,  false
 	};
 
-	Chip7400Nand *chip = chip_7400_nand_create(signal_pool_create(1), (Chip7400NandSignals) {0});
+	Chip7400Nand *chip = chip_7400_nand_create(simulator_create(NS_TO_PS(100)), (Chip7400NandSignals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_7400_nand_process);
 	munit_assert_ptr_equal(chip->destroy, chip_7400_nand_destroy);
@@ -30,7 +31,7 @@ static MunitResult test_7400_nand(const MunitParameter params[], void *user_data
 		SIGNAL_SET_BOOL(b3, truth_table[(i+2)%4][1]);
 		SIGNAL_SET_BOOL(a4, truth_table[(i+3)%4][0]);
 		SIGNAL_SET_BOOL(b4, truth_table[(i+3)%4][1]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_7400_nand_process(chip);
 
 		munit_assert(SIGNAL_NEXT_BOOL(y1) == truth_table[(i+0)%4][2]);
@@ -39,12 +40,13 @@ static MunitResult test_7400_nand(const MunitParameter params[], void *user_data
 		munit_assert(SIGNAL_NEXT_BOOL(y4) == truth_table[(i+3)%4][2]);
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_7400_nand_destroy(chip);
 	return MUNIT_OK;
 }
 
 static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip7474DFlipFlop *chip = chip_7474_d_flipflop_create(signal_pool_create(1), (Chip7474Signals) {0});
+	Chip7474DFlipFlop *chip = chip_7474_d_flipflop_create(simulator_create(NS_TO_PS(100)), (Chip7474Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_7474_d_flipflop_process);
 	munit_assert_ptr_equal(chip->destroy, chip_7474_d_flipflop_destroy);
@@ -56,7 +58,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	SIGNAL_SET_BOOL(clr2_b, ACTLO_DEASSERT);
 	SIGNAL_SET_BOOL(clk1, false);
 	SIGNAL_SET_BOOL(clk2, false);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_7474_d_flipflop_process(chip);
 	munit_assert_true(SIGNAL_NEXT_BOOL(q1));
 	munit_assert_false(SIGNAL_NEXT_BOOL(q1_b));
@@ -70,7 +72,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	SIGNAL_SET_BOOL(clr2_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clk1, false);
 	SIGNAL_SET_BOOL(clk2, false);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_7474_d_flipflop_process(chip);
 	munit_assert_true(SIGNAL_NEXT_BOOL(q1));
 	munit_assert_true(SIGNAL_NEXT_BOOL(q1_b));
@@ -84,7 +86,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	SIGNAL_SET_BOOL(clr2_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clk1, false);
 	SIGNAL_SET_BOOL(clk2, false);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_7474_d_flipflop_process(chip);
 	munit_assert_false(SIGNAL_NEXT_BOOL(q1));
 	munit_assert_true(SIGNAL_NEXT_BOOL(q1_b));
@@ -107,7 +109,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 		SIGNAL_SET_BOOL(clk1, true);
 		SIGNAL_SET_BOOL(clk2, false);
 		SIGNAL_SET_BOOL(d1, truth_table[line][0]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_7474_d_flipflop_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(q1) == truth_table[line][1]);
 		munit_assert(SIGNAL_NEXT_BOOL(q1_b) == truth_table[line][2]);
@@ -120,7 +122,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 		SIGNAL_SET_BOOL(clk1, false);
 		SIGNAL_SET_BOOL(clk2, false);
 		SIGNAL_SET_BOOL(d1, truth_table[line][0]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_7474_d_flipflop_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(q1) == truth_table[line][1]);
 		munit_assert(SIGNAL_NEXT_BOOL(q1_b) == truth_table[line][2]);
@@ -138,7 +140,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 		SIGNAL_SET_BOOL(clk1, false);
 		SIGNAL_SET_BOOL(clk2, true);
 		SIGNAL_SET_BOOL(d2, truth_table[line][0]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_7474_d_flipflop_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(q2) == truth_table[line][1]);
 		munit_assert(SIGNAL_NEXT_BOOL(q2_b) == truth_table[line][2]);
@@ -151,7 +153,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 		SIGNAL_SET_BOOL(clk1, false);
 		SIGNAL_SET_BOOL(clk2, false);
 		SIGNAL_SET_BOOL(d2, truth_table[line][0]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_7474_d_flipflop_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(q2) == truth_table[line][1]);
 		munit_assert(SIGNAL_NEXT_BOOL(q2_b) == truth_table[line][2]);
@@ -159,13 +161,14 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 		munit_assert_true(SIGNAL_NEXT_BOOL(q1_b));
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_7474_d_flipflop_destroy(chip);
 	return MUNIT_OK;
 }
 
 static MunitResult test_7493_binary_counter(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip7493BinaryCounter *chip = chip_7493_binary_counter_create(signal_pool_create(1), (Chip7493Signals) {0});
+	Chip7493BinaryCounter *chip = chip_7493_binary_counter_create(simulator_create(NS_TO_PS(100)), (Chip7493Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_7493_binary_counter_process);
 	munit_assert_ptr_equal(chip->destroy, chip_7493_binary_counter_destroy);
@@ -176,7 +179,7 @@ static MunitResult test_7493_binary_counter(const MunitParameter params[], void 
 	SIGNAL_SET_BOOL(r01, ACTHI_ASSERT);
 	SIGNAL_SET_BOOL(r02, ACTHI_ASSERT);
 	SIGNAL_SET_BOOL(a_b, true);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_7493_binary_counter_process(chip);
 	munit_assert_false(SIGNAL_NEXT_BOOL(qa));
 	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
@@ -190,7 +193,7 @@ static MunitResult test_7493_binary_counter(const MunitParameter params[], void 
 		munit_logf(MUNIT_LOG_INFO, "i = %d", i);
 
 		SIGNAL_SET_BOOL(a_b, false);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_7493_binary_counter_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qa) == ((i & 0b0001) >> 0));
 		munit_assert(SIGNAL_NEXT_BOOL(qb) == ((i & 0b0010) >> 1));
@@ -198,7 +201,7 @@ static MunitResult test_7493_binary_counter(const MunitParameter params[], void 
 		munit_assert(SIGNAL_NEXT_BOOL(qd) == ((i & 0b1000) >> 3));
 
 		SIGNAL_SET_BOOL(a_b, true);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_7493_binary_counter_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qa) == ((i & 0b0001) >> 0));
 		munit_assert(SIGNAL_NEXT_BOOL(qb) == ((i & 0b0010) >> 1));
@@ -206,12 +209,13 @@ static MunitResult test_7493_binary_counter(const MunitParameter params[], void 
 		munit_assert(SIGNAL_NEXT_BOOL(qd) == ((i & 0b1000) >> 3));
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_7493_binary_counter_destroy(chip);
 	return MUNIT_OK;
 };
 
 static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip74107JKFlipFlop *chip = chip_74107_jk_flipflop_create(signal_pool_create(1), (Chip74107Signals) {0});
+	Chip74107JKFlipFlop *chip = chip_74107_jk_flipflop_create(simulator_create(NS_TO_PS(100)), (Chip74107Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74107_jk_flipflop_process);
 	munit_assert_ptr_equal(chip->destroy, chip_74107_jk_flipflop_destroy);
@@ -221,7 +225,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 	SIGNAL_SET_BOOL(clr2_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clk1, true);
 	SIGNAL_SET_BOOL(clk2, true);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_74107_jk_flipflop_process(chip);
 	munit_assert_false(SIGNAL_NEXT_BOOL(q1));
 	munit_assert_true(SIGNAL_NEXT_BOOL(q1_b));
@@ -249,7 +253,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		SIGNAL_SET_BOOL(clk2, true);
 		SIGNAL_SET_BOOL(j1, truth_table[line][0]);
 		SIGNAL_SET_BOOL(k1, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74107_jk_flipflop_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(q1) == truth_table[line][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(q1_b) == truth_table[line][3]);
@@ -263,7 +267,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		SIGNAL_SET_BOOL(clk2, true);
 		SIGNAL_SET_BOOL(j1, truth_table[line][0]);
 		SIGNAL_SET_BOOL(k1, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74107_jk_flipflop_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(q1) == truth_table[line][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(q1_b) == truth_table[line][3]);
@@ -282,7 +286,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		SIGNAL_SET_BOOL(clk2, false);
 		SIGNAL_SET_BOOL(j2, truth_table[line][0]);
 		SIGNAL_SET_BOOL(k2, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74107_jk_flipflop_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(q2) == truth_table[line][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(q2_b) == truth_table[line][3]);
@@ -296,7 +300,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		SIGNAL_SET_BOOL(clk2, true);
 		SIGNAL_SET_BOOL(j2, truth_table[line][0]);
 		SIGNAL_SET_BOOL(k2, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74107_jk_flipflop_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(q2) == truth_table[line][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(q2_b) == truth_table[line][3]);
@@ -304,12 +308,13 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		munit_assert_true(SIGNAL_NEXT_BOOL(q1_b));
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_74107_jk_flipflop_destroy(chip);
 	return MUNIT_OK;
 }
 
 static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip74145BcdDecoder *chip = chip_74145_bcd_decoder_create(signal_pool_create(1), (Chip74145Signals) {0});
+	Chip74145BcdDecoder *chip = chip_74145_bcd_decoder_create(simulator_create(NS_TO_PS(100)), (Chip74145Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74145_bcd_decoder_process);
 	munit_assert_ptr_equal(chip->destroy, chip_74145_bcd_decoder_destroy);
@@ -319,7 +324,7 @@ static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *u
 		SIGNAL_SET_BOOL(b, BIT_IS_SET(input, 1));
 		SIGNAL_SET_BOOL(c, BIT_IS_SET(input, 2));
 		SIGNAL_SET_BOOL(d, BIT_IS_SET(input, 3));
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74145_bcd_decoder_process(chip);
 
 		munit_assert(SIGNAL_NEXT_BOOL(y0_b) == ((input == 0) ? ACTLO_ASSERT : ACTLO_DEASSERT));
@@ -333,16 +338,17 @@ static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *u
 		munit_assert(SIGNAL_NEXT_BOOL(y8_b) == ((input == 8) ? ACTLO_ASSERT : ACTLO_DEASSERT));
 		munit_assert(SIGNAL_NEXT_BOOL(y9_b) == ((input == 9) ? ACTLO_ASSERT : ACTLO_DEASSERT));
 
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_74145_bcd_decoder_destroy(chip);
 	return MUNIT_OK;
 }
 
 static MunitResult test_74153_multiplexer(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip74153Multiplexer *chip = chip_74153_multiplexer_create(signal_pool_create(1), (Chip74153Signals) {0});
+	Chip74153Multiplexer *chip = chip_74153_multiplexer_create(simulator_create(NS_TO_PS(100)), (Chip74153Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74153_multiplexer_process);
 	munit_assert_ptr_equal(chip->register_dependencies, chip_74153_multiplexer_register_dependencies);
@@ -375,7 +381,7 @@ static MunitResult test_74153_multiplexer(const MunitParameter params[], void *u
 		// no group activated
 		SIGNAL_SET_BOOL(g1, ACTLO_DEASSERT);
 		SIGNAL_SET_BOOL(g2, ACTLO_DEASSERT);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip->process(chip);
 		munit_assert_false(SIGNAL_NEXT_BOOL(y1));
 		munit_assert_false(SIGNAL_NEXT_BOOL(y2));
@@ -383,7 +389,7 @@ static MunitResult test_74153_multiplexer(const MunitParameter params[], void *u
 		// group-1 activated
 		SIGNAL_SET_BOOL(g1, ACTLO_ASSERT);
 		SIGNAL_SET_BOOL(g2, ACTLO_DEASSERT);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip->process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(y1) == truth_table[line][6]);
 		munit_assert_false(SIGNAL_NEXT_BOOL(y2));
@@ -391,7 +397,7 @@ static MunitResult test_74153_multiplexer(const MunitParameter params[], void *u
 		// group-2 activated
 		SIGNAL_SET_BOOL(g1, ACTLO_DEASSERT);
 		SIGNAL_SET_BOOL(g2, ACTLO_ASSERT);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip->process(chip);
 		munit_assert_false(SIGNAL_NEXT_BOOL(y1));
 		munit_assert(SIGNAL_NEXT_BOOL(y2) == truth_table[line][6]);
@@ -399,21 +405,21 @@ static MunitResult test_74153_multiplexer(const MunitParameter params[], void *u
 		// both groups activated
 		SIGNAL_SET_BOOL(g1, ACTLO_ASSERT);
 		SIGNAL_SET_BOOL(g2, ACTLO_ASSERT);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip->process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(y1) == truth_table[line][6]);
 		munit_assert(SIGNAL_NEXT_BOOL(y2) == truth_table[line][6]);
 	}
 
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
-	signal_pool_destroy(chip->signal_pool);
 	return MUNIT_OK;
 }
 
 static MunitResult test_74154_decoder(const MunitParameter params[], void *user_data_or_fixture) {
 // TODO: ATM it's not possible to test high impedance output state correctly
 
-	Chip74154Decoder *chip = chip_74154_decoder_create(signal_pool_create(1), (Chip74154Signals) {0});
+	Chip74154Decoder *chip = chip_74154_decoder_create(simulator_create(NS_TO_PS(100)), (Chip74154Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74154_decoder_process);
 	munit_assert_ptr_equal(chip->destroy, chip_74154_decoder_destroy);
@@ -434,7 +440,7 @@ static MunitResult test_74154_decoder(const MunitParameter params[], void *user_
 			SIGNAL_SET_BOOL(c, BIT_IS_SET(input, 2));
 			SIGNAL_SET_BOOL(d, BIT_IS_SET(input, 3));
 
-			signal_pool_cycle(chip->signal_pool);
+			signal_pool_cycle(chip->signal_pool, 1);
 			chip_74154_decoder_process(chip);
 
 			bool strobed = !truth_table[i][0] && !truth_table[i][1];
@@ -457,20 +463,21 @@ static MunitResult test_74154_decoder(const MunitParameter params[], void *user_
 		}
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_74154_decoder_destroy(chip);
 	return MUNIT_OK;
 }
 
 static MunitResult test_74157_multiplexer(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip74157Multiplexer *chip = chip_74157_multiplexer_create(signal_pool_create(1), (Chip74157Signals) {0});
+	Chip74157Multiplexer *chip = chip_74157_multiplexer_create(simulator_create(NS_TO_PS(100)), (Chip74157Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74157_multiplexer_process);
 	munit_assert_ptr_equal(chip->destroy, chip_74157_multiplexer_destroy);
 
 	// all outputs false when chip is not enabled
 	SIGNAL_SET_BOOL(enable_b, ACTLO_DEASSERT);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_74157_multiplexer_process(chip);
 	munit_assert_false(SIGNAL_NEXT_BOOL(za));
 	munit_assert_false(SIGNAL_NEXT_BOOL(zb));
@@ -497,7 +504,7 @@ static MunitResult test_74157_multiplexer(const MunitParameter params[], void *u
 		SIGNAL_SET_BOOL(i1b, truth_table[line][2]);
 		SIGNAL_SET_BOOL(i1c, truth_table[line][2]);
 		SIGNAL_SET_BOOL(i1d, truth_table[line][2]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74157_multiplexer_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(za) == truth_table[line][3]);
 		munit_assert(SIGNAL_NEXT_BOOL(zb) == truth_table[line][3]);
@@ -505,13 +512,14 @@ static MunitResult test_74157_multiplexer(const MunitParameter params[], void *u
 		munit_assert(SIGNAL_NEXT_BOOL(zd) == truth_table[line][3]);
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_74157_multiplexer_destroy(chip);
 	return MUNIT_OK;
 }
 
 static MunitResult test_74164_shift_register(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip74164ShiftRegister *chip = chip_74164_shift_register_create(signal_pool_create(1), (Chip74164Signals) {0});
+	Chip74164ShiftRegister *chip = chip_74164_shift_register_create(simulator_create(NS_TO_PS(100)), (Chip74164Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74164_shift_register_process);
 	munit_assert_ptr_equal(chip->destroy, chip_74164_shift_register_destroy);
@@ -536,7 +544,7 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 	// reset the shift register
 	SIGNAL_SET_BOOL(clear_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clk, false);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_74164_shift_register_process(chip);
 	munit_assert_uint8(chip->state, ==, 0);
 	munit_assert_false(SIGNAL_NEXT_BOOL(qa));
@@ -557,7 +565,7 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 		SIGNAL_SET_BOOL(clk, true);
 		SIGNAL_SET_BOOL(a, truth_table[line][0]);
 		SIGNAL_SET_BOOL(b, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74164_shift_register_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qa) == truth_table[line][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(qb) == truth_table[line][3]);
@@ -573,7 +581,7 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 		SIGNAL_SET_BOOL(clk, false);
 		SIGNAL_SET_BOOL(a, truth_table[line][0]);
 		SIGNAL_SET_BOOL(b, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74164_shift_register_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qa) == truth_table[line][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(qb) == truth_table[line][3]);
@@ -588,7 +596,7 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 	// reset the shift register again
 	SIGNAL_SET_BOOL(clear_b, ACTLO_ASSERT);
 	SIGNAL_SET_BOOL(clk, false);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_74164_shift_register_process(chip);
 	munit_assert_uint8(chip->state, ==, 0);
 	munit_assert_false(SIGNAL_NEXT_BOOL(qa));
@@ -600,6 +608,7 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 	munit_assert_false(SIGNAL_NEXT_BOOL(qg));
 	munit_assert_false(SIGNAL_NEXT_BOOL(qh));
 
+	simulator_destroy(chip->simulator);
 	chip_74164_shift_register_destroy(chip);
 
 	return MUNIT_OK;
@@ -607,15 +616,16 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 
 static MunitResult test_74165_shift_register(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip74165ShiftRegister *chip = chip_74165_shift_register_create(signal_pool_create(), (Chip74165Signals) {0});
+	Chip74165ShiftRegister *chip = chip_74165_shift_register_create(simulator_create(NS_TO_PS(100)), (Chip74165Signals) {0});
+	chip->simulator = simulator_create(NS_TO_PS(100));
 
 	// init signals
 	SIGNAL_SET_BOOL(clk_inh, true);		// inhibit clock
 	SIGNAL_SET_BOOL(si, false);			// shift in zeros
 	SIGNAL_SET_BOOL(sl, true);			// shift (not load)
 	SIGNAL_SET_BOOL(clk, false);
-	signal_pool_cycle(chip->signal_pool);
-	chip->signal_pool->current_tick += 1;
+	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	chip->simulator->current_tick += 1;
 	chip->process(chip);
 
 	// load shift register
@@ -628,8 +638,8 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	SIGNAL_SET_BOOL(f, false);
 	SIGNAL_SET_BOOL(g, true);
 	SIGNAL_SET_BOOL(h, true);
-	signal_pool_cycle(chip->signal_pool);
-	chip->signal_pool->current_tick += 1;
+	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	chip->simulator->current_tick += 1;
 	chip->process(chip);
 	munit_assert_int(chip->state, ==, 0b10101011);
 	munit_assert_true(SIGNAL_NEXT_BOOL(qh));
@@ -639,8 +649,8 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	// run a few cycles with clock inhibited
 	for (int i = 0; i <4; ++i) {
 		SIGNAL_SET_BOOL(clk, !SIGNAL_BOOL(clk));
-		signal_pool_cycle(chip->signal_pool);
-		chip->signal_pool->current_tick += 1;
+		signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+		chip->simulator->current_tick += 1;
 		chip->process(chip);
 		munit_assert_int(chip->state, ==, 0b10101011);
 		munit_assert_true(SIGNAL_NEXT_BOOL(qh));
@@ -656,15 +666,15 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 
 	for (int i = 0; i < 8; ++i) {
 		SIGNAL_SET_BOOL(clk, true);
-		signal_pool_cycle(chip->signal_pool);
-		chip->signal_pool->current_tick += 1;
+		signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+		chip->simulator->current_tick += 1;
 		chip->process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qh) == expected[i]);
 		munit_assert(SIGNAL_NEXT_BOOL(qh_b) != expected[i]);
 
 		SIGNAL_SET_BOOL(clk, false);
-		signal_pool_cycle(chip->signal_pool);
-		chip->signal_pool->current_tick += 1;
+		signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+		chip->simulator->current_tick += 1;
 		chip->process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qh) == expected[i]);
 		munit_assert(SIGNAL_NEXT_BOOL(qh_b) != expected[i]);
@@ -673,31 +683,31 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	// test serial input
 	SIGNAL_SET_BOOL(si, !SIGNAL_BOOL(si));
 	SIGNAL_SET_BOOL(clk, true);
-	signal_pool_cycle(chip->signal_pool);
-	chip->signal_pool->current_tick += 1;
+	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	chip->simulator->current_tick += 1;
 	chip->process(chip);
 	munit_assert_int(chip->state, ==, 0b10000000);
 
 	SIGNAL_SET_BOOL(clk, false);
-	signal_pool_cycle(chip->signal_pool);
-	chip->signal_pool->current_tick += 1;
+	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	chip->simulator->current_tick += 1;
 	chip->process(chip);
 
 	SIGNAL_SET_BOOL(si, !SIGNAL_BOOL(si));
 	SIGNAL_SET_BOOL(clk, true);
-	signal_pool_cycle(chip->signal_pool);
-	chip->signal_pool->current_tick += 1;
+	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	chip->simulator->current_tick += 1;
 	chip->process(chip);
 	munit_assert_int(chip->state, ==, 0b01000000);
 
-	signal_pool_destroy(chip->signal_pool);
+	simulator_destroy(chip->simulator);
 	chip_74165_shift_register_destroy(chip);
 	return MUNIT_OK;
 }
 
 static MunitResult test_74177_binary_counter(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip74177BinaryCounter *chip = chip_74177_binary_counter_create(signal_pool_create(1), (Chip74177Signals) {0});
+	Chip74177BinaryCounter *chip = chip_74177_binary_counter_create(simulator_create(NS_TO_PS(100)), (Chip74177Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74177_binary_counter_process);
 	munit_assert_ptr_equal(chip->destroy, chip_74177_binary_counter_destroy);
@@ -705,7 +715,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 
 	// reset counter
 	SIGNAL_SET_BOOL(clear_b, ACTLO_ASSERT);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_74177_binary_counter_process(chip);
 	munit_assert_false(SIGNAL_NEXT_BOOL(qa));
 	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
@@ -720,7 +730,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 	SIGNAL_SET_BOOL(c, true);
 	SIGNAL_SET_BOOL(d, false);
 	SIGNAL_SET_BOOL(clk1, true);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_74177_binary_counter_process(chip);
 	munit_assert_true(SIGNAL_NEXT_BOOL(qa));
 	munit_assert_false(SIGNAL_NEXT_BOOL(qb));
@@ -732,7 +742,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 		munit_logf(MUNIT_LOG_INFO, "i = %d", i);
 
 		SIGNAL_SET_BOOL(clk1, false);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74177_binary_counter_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qa) == ((i & 0b0001) >> 0));
 		munit_assert(SIGNAL_NEXT_BOOL(qb) == ((i & 0b0010) >> 1));
@@ -740,7 +750,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 		munit_assert(SIGNAL_NEXT_BOOL(qd) == ((i & 0b1000) >> 3));
 
 		SIGNAL_SET_BOOL(clk1, true);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74177_binary_counter_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qa) == ((i & 0b0001) >> 0));
 		munit_assert(SIGNAL_NEXT_BOOL(qb) == ((i & 0b0010) >> 1));
@@ -748,13 +758,14 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 		munit_assert(SIGNAL_NEXT_BOOL(qd) == ((i & 0b1000) >> 3));
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_74177_binary_counter_destroy(chip);
 	return MUNIT_OK;
 };
 
 static MunitResult test_74191_binary_counter(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip74191BinaryCounter *chip = chip_74191_binary_counter_create(signal_pool_create(1), (Chip74191Signals) {0});
+	Chip74191BinaryCounter *chip = chip_74191_binary_counter_create(simulator_create(NS_TO_PS(100)), (Chip74191Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74191_binary_counter_process);
 	munit_assert_ptr_equal(chip->destroy, chip_74191_binary_counter_destroy);
@@ -769,7 +780,7 @@ static MunitResult test_74191_binary_counter(const MunitParameter params[], void
 	SIGNAL_SET_BOOL(b, false);
 	SIGNAL_SET_BOOL(c, true);
 	SIGNAL_SET_BOOL(d, true);
-	signal_pool_cycle(chip->signal_pool);
+	signal_pool_cycle(chip->signal_pool, 1);
 	chip_74191_binary_counter_process(chip);
 	munit_assert_uint8(chip->state, ==, 13);
 
@@ -798,7 +809,7 @@ static MunitResult test_74191_binary_counter(const MunitParameter params[], void
 		SIGNAL_SET_BOOL(clk, true);
 		SIGNAL_SET_BOOL(d_u, truth_table[line][0]);
 		SIGNAL_SET_BOOL(enable_b, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74191_binary_counter_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qa) == truth_table[line][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(qb) == truth_table[line][3]);
@@ -812,7 +823,7 @@ static MunitResult test_74191_binary_counter(const MunitParameter params[], void
 		SIGNAL_SET_BOOL(clk, false);
 		SIGNAL_SET_BOOL(d_u, truth_table[line][0]);
 		SIGNAL_SET_BOOL(enable_b, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74191_binary_counter_process(chip);
 		munit_assert(SIGNAL_NEXT_BOOL(qa) == truth_table[line][2]);
 		munit_assert(SIGNAL_NEXT_BOOL(qb) == truth_table[line][3]);
@@ -822,8 +833,7 @@ static MunitResult test_74191_binary_counter(const MunitParameter params[], void
 		munit_assert(SIGNAL_NEXT_BOOL(rco_b) == truth_table[line][7]);
 	}
 
-
-
+	simulator_destroy(chip->simulator);
 	chip_74191_binary_counter_destroy(chip);
 	return MUNIT_OK;
 }
@@ -838,7 +848,7 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 		true,  true
 	};
 
-	Chip74244OctalBuffer *chip = chip_74244_octal_buffer_create(signal_pool_create(1), (Chip74244Signals) {0});
+	Chip74244OctalBuffer *chip = chip_74244_octal_buffer_create(simulator_create(NS_TO_PS(100)), (Chip74244Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74244_octal_buffer_process);
 	munit_assert_ptr_equal(chip->destroy, chip_74244_octal_buffer_destroy);
@@ -858,7 +868,7 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 			SIGNAL_SET_BOOL(a23, BIT_IS_SET(input, 6));
 			SIGNAL_SET_BOOL(a24, BIT_IS_SET(input, 7));
 
-			signal_pool_cycle(chip->signal_pool);
+			signal_pool_cycle(chip->signal_pool, 1);
 			chip_74244_octal_buffer_process(chip);
 
 			munit_assert(SIGNAL_NEXT_BOOL(y11) == (truth_table[i][0] ? false : BIT_IS_SET(input, 0)));
@@ -872,6 +882,7 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 		}
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_74244_octal_buffer_destroy(chip);
 
 	return MUNIT_OK;
@@ -879,7 +890,7 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 
 static MunitResult test_74373_latch(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip74373Latch *chip = chip_74373_latch_create(signal_pool_create(1), (Chip74373Signals) {0});
+	Chip74373Latch *chip = chip_74373_latch_create(simulator_create(NS_TO_PS(100)), (Chip74373Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_equal(chip->process, chip_74373_latch_process);
 	munit_assert_ptr_equal(chip->destroy, chip_74373_latch_destroy);
@@ -905,7 +916,7 @@ static MunitResult test_74373_latch(const MunitParameter params[], void *user_da
 		SIGNAL_SET_BOOL(d7, truth_table[line][8]);
 		SIGNAL_SET_BOOL(d8, truth_table[line][9]);
 
-		signal_pool_cycle(chip->signal_pool);
+		signal_pool_cycle(chip->signal_pool, 1);
 		chip_74373_latch_process(chip);
 
 		munit_assert(SIGNAL_NEXT_BOOL(q1) == truth_table[line][10]);
@@ -918,6 +929,7 @@ static MunitResult test_74373_latch(const MunitParameter params[], void *user_da
 		munit_assert(SIGNAL_NEXT_BOOL(q8) == truth_table[line][17]);
 	}
 
+	simulator_destroy(chip->simulator);
 	chip_74373_latch_destroy(chip);
 	return MUNIT_OK;
 }

@@ -18,8 +18,9 @@ struct SignalTrace *signal_trace_open(const char *filename, SignalPool *signal_p
 void signal_trace_close(struct SignalTrace *trace);
 
 void signal_trace_enable_signal(struct SignalTrace *trace, Signal signal);
+void signal_trace_set_timestep_duration(struct SignalTrace *trace, int64_t timestep_duration_ps);
 
-void signal_trace_mark_timestep(struct SignalTrace *trace);
+void signal_trace_mark_timestep(struct SignalTrace *trace, int64_t current_time);
 void signal_trace_value(struct SignalTrace *trace, Signal signal);
 
 #ifdef __cplusplus
