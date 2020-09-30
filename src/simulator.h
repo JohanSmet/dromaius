@@ -22,7 +22,9 @@ typedef struct Simulator {
 	struct SignalPool *		signal_pool;
 	ChipEvent *				event_schedule;			// scheduled event
 
-	// TODO: timestep stuff
+	// time keeping
+	int64_t			current_tick;
+	int64_t			tick_duration_ps;		// in pico-seconds
 } Simulator;
 
 struct Chip;
@@ -34,6 +36,7 @@ void simulator_destroy(Simulator *sim);
 struct Chip *simulator_register_chip(Simulator *sim, struct Chip *chip, const char *name);
 struct Chip *simulator_chip_by_name(Simulator *sim, const char *name);
 void simulator_device_complete(Simulator *sim);
+const char *simulator_chip_name(Simulator *sim, int32_t chip_id);
 
 // simulation
 void simulator_simulate_timestep(Simulator *sim);
@@ -41,6 +44,12 @@ void simulator_simulate_timestep(Simulator *sim);
 // scheduler
 void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp);
 int32_t simulator_pop_scheduled_event(Simulator *sim, int64_t timestamp);
+
+// time keeping
+static inline int64_t simulator_interval_to_tick_count(Simulator *sim, int64_t interval_ps) {
+	return interval_ps / sim->tick_duration_ps;
+}
+
 
 #ifdef __cplusplus
 }

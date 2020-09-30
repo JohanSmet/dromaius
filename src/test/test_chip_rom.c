@@ -2,6 +2,7 @@
 
 #include "munit/munit.h"
 #include "chip_rom.h"
+#include "simulator.h"
 
 #define SIGNAL_POOL			chip->signal_pool
 #define SIGNAL_COLLECTION	chip->signals
@@ -51,19 +52,19 @@ static inline void rom_6332_strobe(Chip63xxRom *rom, bool cs1_b, bool cs3) {
 }
 
 static inline void rom_63xx_cycle(Chip63xxRom *chip) {
-	signal_pool_cycle(chip->signal_pool);
-	chip->signal_pool->current_tick += 1;
+	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	chip->simulator->current_tick += 1;
 	chip->process(chip);
 }
 
-///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 //
 // tests
 //
 
 static MunitResult test_6316_read(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip63xxRom *chip = chip_6316_rom_create(signal_pool_create(), (Chip63xxSignals) {0});
+	Chip63xxRom *chip = chip_6316_rom_create(simulator_create(NS_TO_PS(100)), (Chip63xxSignals) {0});
 	fill_rom_8bit(chip->data_array, chip->data_size);
 
 	for (uint32_t i = 0; i <= ROM_6316_DATA_SIZE; ++i) {
@@ -78,7 +79,7 @@ static MunitResult test_6316_read(const MunitParameter params[], void *user_data
 		munit_assert_uint8(rom_63xx_read_data(chip), ==, i & 0xff);
 	}
 
-	signal_pool_destroy(chip->signal_pool);
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
 
 	return MUNIT_OK;
@@ -86,7 +87,7 @@ static MunitResult test_6316_read(const MunitParameter params[], void *user_data
 
 static MunitResult test_6316_cs(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip63xxRom *chip = chip_6316_rom_create(signal_pool_create(), (Chip63xxSignals) {0});
+	Chip63xxRom *chip = chip_6316_rom_create(simulator_create(NS_TO_PS(100)), (Chip63xxSignals) {0});
 	fill_rom_8bit(chip->data_array, chip->data_size);
 
 	rom_6316_strobe(chip, ACTLO_DEASSERT, ACTLO_DEASSERT, ACTHI_DEASSERT);
@@ -119,7 +120,7 @@ static MunitResult test_6316_cs(const MunitParameter params[], void *user_data_o
 	rom_63xx_cycle(chip);
 	munit_assert_uint8(rom_63xx_read_data(chip), ==, 0x0);
 
-	signal_pool_destroy(chip->signal_pool);
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
 
 	return MUNIT_OK;
@@ -127,7 +128,7 @@ static MunitResult test_6316_cs(const MunitParameter params[], void *user_data_o
 
 static MunitResult test_6332_read(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip63xxRom *chip = chip_6332_rom_create(signal_pool_create(), (Chip63xxSignals) {0});
+	Chip63xxRom *chip = chip_6332_rom_create(simulator_create(NS_TO_PS(100)), (Chip63xxSignals) {0});
 	fill_rom_8bit(chip->data_array, chip->data_size);
 
 	for (uint32_t i = 0; i <= chip->data_size; ++i) {
@@ -142,7 +143,7 @@ static MunitResult test_6332_read(const MunitParameter params[], void *user_data
 		munit_assert_uint8(rom_63xx_read_data(chip), ==, i & 0xff);
 	}
 
-	signal_pool_destroy(chip->signal_pool);
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
 
 	return MUNIT_OK;
@@ -150,7 +151,7 @@ static MunitResult test_6332_read(const MunitParameter params[], void *user_data
 
 static MunitResult test_6332_cs(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip63xxRom *chip = chip_6332_rom_create(signal_pool_create(), (Chip63xxSignals) {0});
+	Chip63xxRom *chip = chip_6332_rom_create(simulator_create(NS_TO_PS(100)), (Chip63xxSignals) {0});
 	fill_rom_8bit(chip->data_array, chip->data_size);
 
 	rom_6332_strobe(chip, ACTLO_DEASSERT, ACTHI_DEASSERT);
@@ -177,7 +178,7 @@ static MunitResult test_6332_cs(const MunitParameter params[], void *user_data_o
 	rom_63xx_cycle(chip);
 	munit_assert_uint8(rom_63xx_read_data(chip), ==, 0x0);
 
-	signal_pool_destroy(chip->signal_pool);
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
 
 	return MUNIT_OK;

@@ -33,7 +33,7 @@ typedef struct Chip6114SRam {
 } Chip6114SRam;
 
 // functions - UM6114
-Chip6114SRam *chip_6114_sram_create(SignalPool *pool, Chip6114SRamSignals signals);
+Chip6114SRam *chip_6114_sram_create(struct Simulator *sim, Chip6114SRamSignals signals);
 void chip_6114_sram_register_dependencies(Chip6114SRam *chip);
 void chip_6114_sram_destroy(Chip6114SRam *chip);
 void chip_6114_sram_process(Chip6114SRam *chip);

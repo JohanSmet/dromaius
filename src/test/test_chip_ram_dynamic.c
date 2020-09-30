@@ -2,20 +2,21 @@
 
 #include "munit/munit.h"
 #include "chip_ram_dynamic.h"
+#include "simulator.h"
 
 #define SIGNAL_POOL			chip->signal_pool
 #define SIGNAL_COLLECTION	chip->signals
 #define SIGNAL_CHIP_ID		chip->id
 
 static inline void ram_8x4116_cycle(Chip8x4116DRam *chip) {
-	signal_pool_cycle(chip->signal_pool);
-	chip->signal_pool->current_tick += 1;
+	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	chip->simulator->current_tick += 1;
 	chip->process(chip);
 }
 
 MunitResult test_8x4116_read(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip8x4116DRam *chip = chip_8x4116_dram_create(signal_pool_create(), (Chip8x4116DRamSignals) {0});
+	Chip8x4116DRam *chip = chip_8x4116_dram_create(simulator_create(NS_TO_PS(100)), (Chip8x4116DRamSignals) {0});
 
 	// initialize the memory
 	for (uint32_t i = 0; i < 128; ++i) {
@@ -71,15 +72,15 @@ MunitResult test_8x4116_read(const MunitParameter params[], void *user_data_or_f
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_do), ==, 0);
 	}
 
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
-	signal_pool_destroy(chip->signal_pool);
 
 	return MUNIT_OK;
 }
 
 MunitResult test_8x4116_write(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip8x4116DRam *chip = chip_8x4116_dram_create(signal_pool_create(), (Chip8x4116DRamSignals) {0});
+	Chip8x4116DRam *chip = chip_8x4116_dram_create(simulator_create(NS_TO_PS(100)), (Chip8x4116DRamSignals) {0});
 
 	// initialize the memory
 	for (uint32_t i = 0; i < 128; ++i) {
@@ -161,15 +162,15 @@ MunitResult test_8x4116_write(const MunitParameter params[], void *user_data_or_
 		}
 	}
 
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
-	signal_pool_destroy(chip->signal_pool);
 	return MUNIT_OK;
 }
 
 
 MunitResult test_8x4116_early_write(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip8x4116DRam *chip = chip_8x4116_dram_create(signal_pool_create(), (Chip8x4116DRamSignals) {0});
+	Chip8x4116DRam *chip = chip_8x4116_dram_create(simulator_create(NS_TO_PS(100)), (Chip8x4116DRamSignals) {0});
 
 	// initialize the memory
 	for (uint32_t i = 0; i < 128; ++i) {
@@ -247,14 +248,14 @@ MunitResult test_8x4116_early_write(const MunitParameter params[], void *user_da
 		}
 	}
 
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
-	signal_pool_destroy(chip->signal_pool);
 	return MUNIT_OK;
 }
 
 MunitResult test_8x4116_page_mode_read(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip8x4116DRam *chip = chip_8x4116_dram_create(signal_pool_create(), (Chip8x4116DRamSignals) {0});
+	Chip8x4116DRam *chip = chip_8x4116_dram_create(simulator_create(NS_TO_PS(100)), (Chip8x4116DRamSignals) {0});
 
 	// initialize the memory
 	for (uint32_t i = 0; i < 128; ++i) {
@@ -317,15 +318,15 @@ MunitResult test_8x4116_page_mode_read(const MunitParameter params[], void *user
 		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_do), ==, 0);
 	}
 
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
-	signal_pool_destroy(chip->signal_pool);
 
 	return MUNIT_OK;
 }
 
 MunitResult test_8x4116_page_mode_write(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip8x4116DRam *chip = chip_8x4116_dram_create(signal_pool_create(), (Chip8x4116DRamSignals) {0});
+	Chip8x4116DRam *chip = chip_8x4116_dram_create(simulator_create(NS_TO_PS(100)), (Chip8x4116DRamSignals) {0});
 
 	// initialize the memory
 	for (uint32_t i = 0; i < 128; ++i) {
@@ -409,8 +410,8 @@ MunitResult test_8x4116_page_mode_write(const MunitParameter params[], void *use
 		}
 	}
 
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
-	signal_pool_destroy(chip->signal_pool);
 	return MUNIT_OK;
 }
 

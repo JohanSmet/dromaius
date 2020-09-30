@@ -2,6 +2,7 @@
 
 #include "munit/munit.h"
 #include "chip_hd44780.h"
+#include "simulator.h"
 
 #define SIGNAL_POOL			lcd->signal_pool
 #define SIGNAL_COLLECTION	lcd->signals
@@ -52,7 +53,7 @@
 
 static inline void half_clock_cycle(ChipHd44780 *lcd) {
 	SIGNAL_SET_BOOL(enable, !SIGNAL_BOOL(enable));
-	signal_pool_cycle(lcd->signal_pool);
+	signal_pool_cycle(lcd->signal_pool, 1);
 	chip_hd44780_process(lcd);
 }
 
@@ -156,12 +157,12 @@ static inline uint8_t lcd_read_data_4b(ChipHd44780 *lcd) {
 }
 
 static void *chip_hd44780_setup(const MunitParameter params[], void *user_data) {
-	ChipHd44780 *lcd = chip_hd44780_create(signal_pool_create(1), (ChipHd44780Signals) {0});
+	ChipHd44780 *lcd = chip_hd44780_create(simulator_create(NS_TO_PS(100)), (ChipHd44780Signals) {0});
 	return lcd;
 }
 
 static void *chip_hd44780_setup_4b(const MunitParameter params[], void *user_data) {
-	ChipHd44780 *lcd = chip_hd44780_create(signal_pool_create(1), (ChipHd44780Signals) {0});
+	ChipHd44780 *lcd = chip_hd44780_create(simulator_create(NS_TO_PS(100)), (ChipHd44780Signals) {0});
 
 	// switch LCD to 4-bit interface mode
 	lcd_write_cmd_8b(lcd, 0b00100000);

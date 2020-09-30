@@ -60,7 +60,8 @@ typedef void (*CHIP_DEPENDENCIES_FUNC)(void *chip);
 	CHIP_DEPENDENCIES_FUNC register_dependencies;	\
 	int32_t			  id;							\
 	const char *	  name;							\
-	int64_t			  schedule_timestamp;
+	int64_t			  schedule_timestamp;			\
+	struct Simulator *simulator;
 
 #define CHIP_SET_FUNCTIONS(chip, pf, df, rdf)		\
 	(chip)->process = (CHIP_PROCESS_FUNC) (pf);		\

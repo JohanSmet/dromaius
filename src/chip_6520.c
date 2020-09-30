@@ -3,6 +3,7 @@
 // Emulation of the 6520 Peripheral Interface Adapter
 
 #include "chip_6520.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -11,6 +12,7 @@
 #include "types.h"
 
 //#define DMS_LOG_TRACE
+#define LOG_SIMULATOR		pia->simulator
 #include "log.h"
 
 #define SIGNAL_POOL			pia->signal_pool
@@ -301,11 +303,12 @@ static inline void process_end(Chip6520 *pia) {
 // interface functions
 //
 
-Chip6520 *chip_6520_create(SignalPool *signal_pool, Chip6520Signals signals) {
+Chip6520 *chip_6520_create(Simulator *sim, Chip6520Signals signals) {
 	Chip6520_private *priv = (Chip6520_private *) calloc(1, sizeof(Chip6520_private));
 
 	Chip6520 *pia = &priv->intf;
-	pia->signal_pool = signal_pool;
+	pia->simulator = sim;
+	pia->signal_pool = sim->signal_pool;
 	CHIP_SET_FUNCTIONS(pia, chip_6520_process, chip_6520_destroy, chip_6520_register_dependencies);
 
 	memcpy(&pia->signals, &signals, sizeof(signals));

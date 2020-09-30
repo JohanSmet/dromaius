@@ -3,6 +3,7 @@
 // Partial emulation of the HD44780 Dot Matrix LCD Controller/Driver
 
 #include "chip_hd44780.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -230,7 +231,7 @@ static inline void execute_display_on_off_control(ChipHd44780 *lcd, bool display
 	PRIVATE(lcd)->refresh_screen = true;
 
 	if (cursor_blink) {
-		PRIVATE(lcd)->cursor_blink_time = lcd->signal_pool->current_tick + PRIVATE(lcd)->cursor_blink_cycles;
+		PRIVATE(lcd)->cursor_blink_time = lcd->simulator->current_tick + PRIVATE(lcd)->cursor_blink_cycles;
 		lcd->schedule_timestamp = PRIVATE(lcd)->cursor_blink_time;
 	}
 }
@@ -430,7 +431,7 @@ static void process_end(ChipHd44780 *lcd) {
 // interface functions
 //
 
-ChipHd44780 *chip_hd44780_create(SignalPool *signal_pool, ChipHd44780Signals signals) {
+ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 	assert(signals.bus_data.count == 0 || (signals.bus_data.count > 0 && signals.db4_7.count == 0 && signals.db0_3.count == 0));
 
 	ChipHd44780_private *priv = (ChipHd44780_private *) calloc(1, sizeof(ChipHd44780_private));
@@ -438,9 +439,10 @@ ChipHd44780 *chip_hd44780_create(SignalPool *signal_pool, ChipHd44780Signals sig
 	ChipHd44780 *lcd = &priv->intf;
 	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy, chip_hd44780_register_dependencies);
 
-	priv->cursor_blink_cycles = signal_pool_interval_to_tick_count(signal_pool, CURSOR_BLINK_INTERVAL_PS);
+	lcd->simulator = sim;
+	lcd->signal_pool = sim->signal_pool;
+	PRIVATE(lcd)->cursor_blink_cycles = simulator_interval_to_tick_count(lcd->simulator, CURSOR_BLINK_INTERVAL_PS);
 
-	lcd->signal_pool = signal_pool;
 	memcpy(&lcd->signals, &signals, sizeof(signals));
 
 	// the databus is setup differently than other modules. In 4-bit interface mode only the upper nibble is used.
@@ -490,11 +492,11 @@ void chip_hd44780_process(ChipHd44780 *lcd) {
 
 	// cursor blink: datasheet states the cursor blinks at a speed of 409.6 ms intervals when the input frequency is standard
 	if (PRIVATE(lcd)->cursor_enabled && PRIVATE(lcd)->cursor_blink &&
-		PRIVATE(lcd)->cursor_blink_time >= lcd->signal_pool->current_tick) {
+		PRIVATE(lcd)->cursor_blink_time >= lcd->simulator->current_tick) {
 
 		PRIVATE(lcd)->cursor_block = !PRIVATE(lcd)->cursor_block;
 		PRIVATE(lcd)->refresh_screen = true;
-		PRIVATE(lcd)->cursor_blink_time = lcd->signal_pool->current_tick + PRIVATE(lcd)->cursor_blink_cycles;
+		PRIVATE(lcd)->cursor_blink_time = lcd->simulator->current_tick + PRIVATE(lcd)->cursor_blink_cycles;
 		lcd->schedule_timestamp = PRIVATE(lcd)->cursor_blink_time;
 	}
 

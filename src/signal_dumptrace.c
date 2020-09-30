@@ -15,6 +15,7 @@ typedef struct SignalTrace {
 	struct lt_trace	*	lxt;
 	struct lt_symbol ** symbols;
 
+	int64_t		timestep_duration_ps;
 } SignalTrace;
 
 // interface
@@ -44,6 +45,11 @@ void signal_trace_close(struct SignalTrace *trace) {
 	free(trace);
 }
 
+void signal_trace_set_timestep_duration(SignalTrace *trace, int64_t timestep_duration_ps) {
+	assert(trace);
+	trace->timestep_duration_ps = timestep_duration_ps;
+}
+
 void signal_trace_enable_signal(struct SignalTrace *trace, Signal signal) {
 	assert(trace);
 	assert(trace->symbols[signal.start] == NULL);
@@ -53,9 +59,9 @@ void signal_trace_enable_signal(struct SignalTrace *trace, Signal signal) {
 	assert(trace->symbols[signal.start]);
 }
 
-void signal_trace_mark_timestep(struct SignalTrace *trace) {
+void signal_trace_mark_timestep(struct SignalTrace *trace, int64_t current_time_ps) {
 	if (trace) {
-		lt_set_time64(trace->lxt, (lxttime_t) (trace->signal_pool->current_tick * trace->signal_pool->tick_duration_ps));
+		lt_set_time64(trace->lxt, (lxttime_t) (current_time_ps * trace->timestep_duration_ps));
 	}
 }
 

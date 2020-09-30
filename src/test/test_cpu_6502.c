@@ -3,6 +3,7 @@
 #include "munit/munit.h"
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
+#include "simulator.h"
 
 #define SIGNAL_POOL			cpu->signal_pool
 #define SIGNAL_COLLECTION	cpu->signals
@@ -30,7 +31,7 @@
 
 static inline void cpu_half_cycle(Cpu6502 *cpu) {
 	SIGNAL_SET_BOOL(clock, !SIGNAL_BOOL(clock));
-	signal_pool_cycle(cpu->signal_pool);
+	signal_pool_cycle(cpu->signal_pool, 1);
 	cpu->process(cpu);
 	cpu->process(cpu);
 }
@@ -61,7 +62,7 @@ static void cpu_reset(Cpu6502 *cpu) {
 static void *cpu_6502_setup(const MunitParameter params[], void *user_data) {
 
 	// create the cpu with no signals connected to anything else
-	Cpu6502 *cpu = cpu_6502_create(signal_pool_create(1), (Cpu6502Signals) {0});
+	Cpu6502 *cpu = cpu_6502_create(simulator_create(NS_TO_PS(100)), (Cpu6502Signals) {0});
 
 	// initialize the machine
 	cpu_reset(cpu);
@@ -75,7 +76,7 @@ static void cpu_6502_teardown(void *fixture) {
 
 MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Cpu6502 *cpu = cpu_6502_create(signal_pool_create(1), (Cpu6502Signals) {0});
+	Cpu6502 *cpu = cpu_6502_create(simulator_create(NS_TO_PS(100)), (Cpu6502Signals) {0});
 	munit_assert_not_null(cpu);
 
 	// run cpu with reset asserted

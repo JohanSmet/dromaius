@@ -37,7 +37,7 @@ typedef struct DisplayPetCrt {
 } DisplayPetCrt;
 
 // functions
-DisplayPetCrt *display_pet_crt_create(SignalPool *pool, DisplayPetCrtSignals signals);
+DisplayPetCrt *display_pet_crt_create(struct Simulator *sim, DisplayPetCrtSignals signals);
 void display_pet_crt_destroy(DisplayPetCrt *crt);
 void display_pet_crt_register_dependencies(DisplayPetCrt *crt);
 void display_pet_crt_process(DisplayPetCrt *crt);

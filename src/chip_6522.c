@@ -9,6 +9,7 @@
 //	- ...
 
 #include "chip_6522.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -602,11 +603,12 @@ static void process_negative_enable_edge(Chip6522 *via) {
 // interface functions
 //
 
-Chip6522 *chip_6522_create(SignalPool *signal_pool, Chip6522Signals signals) {
+Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
 	Chip6522_private *priv = (Chip6522_private *) calloc(1, sizeof(Chip6522_private));
 
 	Chip6522 *via = &priv->intf;
-	via->signal_pool = signal_pool;
+	via->simulator = sim;
+	via->signal_pool = sim->signal_pool;
 	CHIP_SET_FUNCTIONS(via, chip_6522_process, chip_6522_destroy, chip_6522_register_dependencies);
 
 	memcpy(&via->signals, &signals, sizeof(signals));

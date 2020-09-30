@@ -3,6 +3,7 @@
 // configurable keypad
 
 #include "input_keypad.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -28,6 +29,9 @@ typedef struct InputKeypadPrivate {
 
 	size_t			*keys_down;
 	size_t			keys_down_count;
+
+	int				dwell_ms;
+	int				matrix_scan_frequency;
 } InputKeypadPrivate;
 
 #define PRIVATE(x)	((InputKeypadPrivate *) (x))
@@ -37,7 +41,7 @@ typedef struct InputKeypadPrivate {
 // interface functions
 //
 
-InputKeypad *input_keypad_create(SignalPool *pool,
+InputKeypad *input_keypad_create(Simulator *sim,
 								 bool active_high,
 								 size_t row_count, size_t col_count,
 								 int dwell_ms,
@@ -51,14 +55,18 @@ InputKeypad *input_keypad_create(SignalPool *pool,
 	priv->key_release_ticks = (int64_t *) calloc(row_count * col_count, sizeof(int64_t));
 	priv->keys_down = (size_t *) calloc(row_count * col_count, sizeof(size_t));
 
-	keypad->signal_pool = pool;
+	keypad->simulator = sim;
+	keypad->signal_pool = sim->signal_pool;
 	keypad->active_high = active_high;
 	keypad->row_count = row_count;
 	keypad->col_count = col_count;
 	keypad->key_count = row_count * col_count;
-	priv->keypad_scan_interval = signal_pool_interval_to_tick_count(pool, FREQUENCY_TO_PS(matrix_scan_frequency));
+	priv->dwell_ms = dwell_ms;
+	priv->matrix_scan_frequency = matrix_scan_frequency;
+
+	priv->keypad_scan_interval = simulator_interval_to_tick_count(keypad->simulator, FREQUENCY_TO_PS(priv->matrix_scan_frequency));
 	priv->next_keypad_scan_tick = priv->keypad_scan_interval;
-	priv->key_dwell_cycles = signal_pool_interval_to_tick_count(pool, MS_TO_PS(dwell_ms));
+	priv->key_dwell_cycles = simulator_interval_to_tick_count(keypad->simulator, MS_TO_PS(priv->dwell_ms));
 
 	memcpy(&keypad->signals, &signals, sizeof(signals));
 	SIGNAL_DEFINE(rows, (uint32_t) row_count);
@@ -88,7 +96,7 @@ void input_keypad_process(InputKeypad *keypad) {
 	}
 
 	// update key-decay and refresh keys_down array
-	int64_t current_tick = keypad->signal_pool->current_tick;
+	int64_t current_tick = keypad->simulator->current_tick;
 
 	if (current_tick >= PRIVATE(keypad)->next_keypad_scan_tick) {
 		size_t kdw = 0;
@@ -135,7 +143,7 @@ void input_keypad_key_pressed(InputKeypad *keypad, size_t row, size_t col) {
 	assert(row < keypad->row_count);
 	assert(col < keypad->col_count);
 
-	const int64_t current_tick = keypad->signal_pool->current_tick;
+	const int64_t current_tick = keypad->simulator->current_tick;
 	size_t k = (row * keypad->col_count) + col;
 
 	if (PRIVATE(keypad)->key_release_ticks[k] <= current_tick) {
@@ -150,7 +158,7 @@ void input_keypad_set_dwell_time_ms(InputKeypad *keypad, int dwell_ms) {
 	assert(keypad);
 	assert(dwell_ms > 0);
 
-	PRIVATE(keypad)->key_dwell_cycles = signal_pool_interval_to_tick_count(keypad->signal_pool, dwell_ms * 1000000000ll);
+	PRIVATE(keypad)->key_dwell_cycles = simulator_interval_to_tick_count(keypad->simulator, dwell_ms * 1000000000ll);
 }
 
 size_t input_keypad_keys_down_count(InputKeypad *keypad) {

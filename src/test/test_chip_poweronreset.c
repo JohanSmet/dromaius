@@ -2,35 +2,35 @@
 
 #include "munit/munit.h"
 #include "chip_poweronreset.h"
+#include "simulator.h"
 
 #define SIGNAL_POOL			por->signal_pool
 #define SIGNAL_COLLECTION	por->signals
 
 static MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture) {
 
-	SignalPool *pool = signal_pool_create(1);
-	pool->tick_duration_ps = 1000;
+	Simulator *sim = simulator_create(1000);
 
-	Signal sig_reset_b = signal_create(pool, 1);
-	signal_default_bool(pool, sig_reset_b, ACTLO_ASSERT);
+	Signal sig_reset_b = signal_create(sim->signal_pool, 1);
+	signal_default_bool(sim->signal_pool, sig_reset_b, ACTLO_ASSERT);
 
-	PowerOnReset *por = poweronreset_create(250000, pool, (PowerOnResetSignals) {sig_reset_b});
+	PowerOnReset *por = poweronreset_create(250000, sim, (PowerOnResetSignals) {sig_reset_b});
 
 	munit_assert_false(SIGNAL_NEXT_BOOL(reset_b));
 
-	por->signal_pool->current_tick += 100;
+	sim->current_tick += 100;
 	por->process(por);
 	munit_assert_false(SIGNAL_NEXT_BOOL(reset_b));
 
-	por->signal_pool->current_tick += 100;
+	sim->current_tick += 100;
 	por->process(por);
 	munit_assert_false(SIGNAL_NEXT_BOOL(reset_b));
 
-	por->signal_pool->current_tick += 100;
+	sim->current_tick += 100;
 	por->process(por);
 	munit_assert_true(SIGNAL_NEXT_BOOL(reset_b));
 
-	por->signal_pool->current_tick += 100;
+	sim->current_tick += 100;
 	por->process(por);
 	munit_assert_true(SIGNAL_NEXT_BOOL(reset_b));
 

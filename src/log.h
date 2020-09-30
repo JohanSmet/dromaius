@@ -12,7 +12,11 @@ extern "C" {
 void log_printf(int64_t tick, const char *fmt, ...);
 
 #ifdef DMS_LOG_TRACE
-	#define LOG_TRACE(f, ...)	log_printf(SIGNAL_POOL->current_tick, (f), __VA_ARGS__)
+	#ifdef LOG_SIMULATOR
+		#define LOG_TRACE(f, ...)	log_printf(LOG_SIMULATOR->current_tick, (f), __VA_ARGS__)
+	#else
+		#define LOG_TRACE(f, ...)	log_printf(-1, (f), __VA_ARGS__)
+	#endif
 #else
 	#define LOG_TRACE(f, ...)
 #endif

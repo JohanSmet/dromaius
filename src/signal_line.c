@@ -81,7 +81,6 @@ const uint64_t lut_bit_to_byte[256] = {
 SignalPool *signal_pool_create(void) {
 	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool));
 	sh_new_arena(pool->signal_names);
-	pool->tick_duration_ps = NS_TO_PS(100);		// 100ns
 	return pool;
 }
 
@@ -103,19 +102,19 @@ void signal_pool_destroy(SignalPool *pool) {
 	free(pool);
 }
 
-void signal_pool_cycle(SignalPool *pool) {
+void signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
 
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
 	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
 
 	#if DMS_SIGNAL_TRACING
-		signal_trace_mark_timestep(pool->trace);
+		signal_trace_mark_timestep(pool->trace, current_tick);
 	#endif
 
 	for (size_t i = 0; i < arrlenu(pool->signals_written); ++i) {
 		uint32_t s = pool->signals_written[i];
 		if (pool->signals_curr[s] != pool->signals_next[s]) {
-			pool->signals_last_changed[s] = pool->current_tick;
+			pool->signals_last_changed[s] = current_tick;
 			pool->signals_curr[s] = pool->signals_next[s];
 			#if DMS_SIGNAL_TRACING
 				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
@@ -123,18 +122,20 @@ void signal_pool_cycle(SignalPool *pool) {
 		}
 	}
 
+	pool->tick_last_cycle = current_tick;
+
 	if (pool->signals_written) {
 		stbds_header(pool->signals_written)->length = 0;
 	}
 }
 
-void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags, int32_t **dirty_chips) {
+void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool *is_dirty_flags, int32_t **dirty_chips) {
 	assert(is_dirty_flags);
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
 	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
 
 	#if DMS_SIGNAL_TRACING
-		signal_trace_mark_timestep(pool->trace);
+		signal_trace_mark_timestep(pool->trace, current_tick);
 	#endif
 
 	for (size_t i = 0; i < arrlenu(pool->signals_written); ++i) {
@@ -148,7 +149,7 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags, int32
 					is_dirty_flags[chip_id] = true;
 				}
 			}
-			pool->signals_last_changed[s] = pool->current_tick;
+			pool->signals_last_changed[s] = current_tick;
 			pool->signals_curr[s] = pool->signals_next[s];
 
 			#if DMS_SIGNAL_TRACING
@@ -156,6 +157,8 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, bool *is_dirty_flags, int32
 			#endif
 		}
 	}
+
+	pool->tick_last_cycle = current_tick;
 
 	if (pool->signals_written) {
 		stbds_header(pool->signals_written)->length = 0;

@@ -54,14 +54,14 @@ public:
 	bool context_execute() {
 		assert(dms_ctx);
 
-		int64_t save_ts = pet_device->signal_pool->current_tick;
+		int64_t save_ts = pet_device->simulator->current_tick;
 		dms_execute(dms_ctx);
 
-		return save_ts != pet_device->signal_pool->current_tick;
+		return save_ts != pet_device->simulator->current_tick;
 	}
 
 	void context_select_step_clock(const std::string &signal_name) {
-		auto signal = signal_by_name(pet_device->signal_pool, signal_name.c_str());
+		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
 		if (signal.start != 0) {
 			step_clock = signal;
 		}
@@ -137,7 +137,7 @@ public:
 
 	val signal_data() const {
 		assert(pet_device);
-		auto pool = pet_device->signal_pool;
+		auto pool = pet_device->simulator->signal_pool;
 		return val(typed_memory_view(arrlenu(pool->signals_next), reinterpret_cast<uint8_t *> (pool->signals_next)));
 	}
 
@@ -146,23 +146,24 @@ public:
 		std::vector<std::string>	result;
 
 		auto bps = dms_breakpoint_signal_list(dms_ctx);
+		auto pool = pet_device->simulator->signal_pool;
 
 		for (ptrdiff_t idx = 0; idx < arrlen(bps); ++idx) {
-			result.push_back(pet_device->signal_pool->signals_name[bps[idx].start]);
+			result.push_back(pool->signals_name[bps[idx].start]);
 		}
 
 		return result;
 	}
 
 	void breakpoint_signal_set(const std::string &signal_name) {
-		auto signal = signal_by_name(pet_device->signal_pool, signal_name.c_str());
+		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
 		if (signal.count != 0) {
 			dms_breakpoint_signal_set(dms_ctx, signal);
 		}
 	}
 
 	void breakpoint_signal_clear(const std::string &signal_name) {
-		auto signal = signal_by_name(pet_device->signal_pool, signal_name.c_str());
+		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
 		if (signal.count != 0) {
 			dms_breakpoint_signal_clear(dms_ctx, signal);
 		}
@@ -176,7 +177,7 @@ public:
 
 	SignalInfo signal_info() {
 		assert(pet_device);
-		auto pool = pet_device->signal_pool;
+		auto pool = pet_device->simulator->signal_pool;
 		SignalInfo	result;
 
 		result.count = arrlenu(pool->signals_curr);
@@ -192,7 +193,7 @@ public:
 
 	SignalDetails signal_details(std::string name) {
 		assert(pet_device);
-		auto pool = pet_device->signal_pool;
+		auto pool = pet_device->simulator->signal_pool;
 		SignalDetails result;
 
 		result.signal = shget(pool->signal_names, name.c_str());
@@ -202,12 +203,10 @@ public:
 		if (result.signal.count > 0) {
 			// writer
 			result.writer_id = pool->signals_writer[result.signal.start];
-			if (result.writer_id >= 0) {
-				result.writer_name = pet_device->chips[result.writer_id]->name;
-			}
+			result.writer_name = simulator_chip_name(pet_device->simulator, result.writer_id);
 
 			// value
-			result.value = signal_read_next_uint16(pet_device->signal_pool, result.signal);
+			result.value = signal_read_next_uint16(pet_device->simulator->signal_pool, result.signal);
 		}
 
 		return result;
@@ -220,8 +219,8 @@ public:
 
 	ClockInfo clock_info() {
 		return (ClockInfo) {
-			static_cast<int32_t>(pet_device->signal_pool->current_tick),		// fixme
-			pet_device->signal_pool->current_tick * pet_device->signal_pool->tick_duration_ps / 1000.0
+			static_cast<int32_t>(pet_device->simulator->current_tick),		// fixme
+			pet_device->simulator->current_tick * pet_device->simulator->tick_duration_ps / 1000.0
 		};
 	}
 

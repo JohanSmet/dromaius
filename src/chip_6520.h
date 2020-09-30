@@ -70,7 +70,7 @@ typedef struct Chip6520 {
 } Chip6520;
 
 // functions
-Chip6520 *chip_6520_create(SignalPool *signal_pool, Chip6520Signals signals);
+Chip6520 *chip_6520_create(struct Simulator *sim, Chip6520Signals signals);
 void chip_6520_register_dependencies(Chip6520 *pia);
 void chip_6520_destroy(Chip6520 *pia);
 void chip_6520_process(Chip6520 *pia);

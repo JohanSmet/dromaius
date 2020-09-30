@@ -61,7 +61,7 @@ typedef struct ChipHd44780 {
 } ChipHd44780;
 
 // functions
-ChipHd44780 *chip_hd44780_create(SignalPool *signal_pool, ChipHd44780Signals signals);
+ChipHd44780 *chip_hd44780_create(struct Simulator *sim, ChipHd44780Signals signals);
 void chip_hd44780_register_dependencies(ChipHd44780 *lcd);
 void chip_hd44780_destroy(ChipHd44780 *lcd);
 void chip_hd44780_process(ChipHd44780 *lcd);

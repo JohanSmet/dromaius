@@ -2,19 +2,20 @@
 
 #include "munit/munit.h"
 #include "input_keypad.h"
+#include "simulator.h"
 
 #define SIGNAL_POOL			keypad->signal_pool
 #define SIGNAL_COLLECTION	keypad->signals
 #define SIGNAL_CHIP_ID		keypad->id
 
 static void input_keypad_teardown(InputKeypad *keypad) {
-	signal_pool_destroy(keypad->signal_pool);
+	simulator_destroy(keypad->simulator);
 	input_keypad_destroy(keypad);
 }
 
 static inline void run_cycle(InputKeypad *keypad) {
-	signal_pool_cycle(keypad->signal_pool);
-	++keypad->signal_pool->current_tick;
+	signal_pool_cycle(keypad->signal_pool, keypad->simulator->current_tick);
+	++keypad->simulator->current_tick;
 	input_keypad_process(keypad);
 }
 
@@ -25,9 +26,9 @@ static inline void run_cycle(InputKeypad *keypad) {
 
 MunitResult test_keypad_4x4(const MunitParameter params[], void *user_data_or_fixture) {
 
-	InputKeypad *keypad = input_keypad_create(signal_pool_create(1), true, 4, 4, 5, 1000, (InputKeypadSignals) {0});
+	InputKeypad *keypad = input_keypad_create(simulator_create(NS_TO_PS(100)), true, 4, 4, 5, 1000, (InputKeypadSignals) {0});
 
-	int64_t tick_interval = signal_pool_interval_to_tick_count(keypad->signal_pool, FREQUENCY_TO_PS(1000));
+	int64_t tick_interval = simulator_interval_to_tick_count(keypad->simulator, FREQUENCY_TO_PS(1000));
 
 	// no keys pressed
 	CHECK_ROW(0b0001, 0b0000);
@@ -46,7 +47,7 @@ MunitResult test_keypad_4x4(const MunitParameter params[], void *user_data_or_fi
 				CHECK_ROW(0b0010, (r == 1) ? 1 << c : 0);
 				CHECK_ROW(0b0100, (r == 2) ? 1 << c : 0);
 				CHECK_ROW(0b1000, (r == 3) ? 1 << c : 0);
-				keypad->signal_pool->current_tick += tick_interval;
+				keypad->simulator->current_tick += tick_interval;
 			}
 
 			CHECK_ROW(0b0001, 0b0000);
@@ -63,10 +64,10 @@ MunitResult test_keypad_4x4(const MunitParameter params[], void *user_data_or_fi
 
 MunitResult test_keypad_10x8(const MunitParameter params[], void *user_data_or_fixture) {
 
-	InputKeypad *keypad = input_keypad_create(signal_pool_create(1), false, 10, 8, 5, 1000, (InputKeypadSignals) {0});
+	InputKeypad *keypad = input_keypad_create(simulator_create(NS_TO_PS(100)), false, 10, 8, 5, 1000, (InputKeypadSignals) {0});
 	signal_default_uint8(keypad->signal_pool, SIGNAL(cols), 0xff);
 
-	int64_t tick_interval = signal_pool_interval_to_tick_count(keypad->signal_pool, FREQUENCY_TO_PS(1000));
+	int64_t tick_interval = simulator_interval_to_tick_count(keypad->simulator, FREQUENCY_TO_PS(1000));
 
 	// no keys pressed
 	CHECK_ROW(0b1111111110, 0xff);
@@ -97,7 +98,7 @@ MunitResult test_keypad_10x8(const MunitParameter params[], void *user_data_or_f
 				CHECK_ROW(0b1101111111, (r == 7) ? ~(1 << c) : 0xff);
 				CHECK_ROW(0b1011111111, (r == 8) ? ~(1 << c) : 0xff);
 				CHECK_ROW(0b0111111111, (r == 9) ? ~(1 << c) : 0xff);
-				keypad->signal_pool->current_tick += tick_interval;
+				keypad->simulator->current_tick += tick_interval;
 			}
 
 			CHECK_ROW(0b1111111110, 0xff);

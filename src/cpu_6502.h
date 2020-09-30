@@ -65,7 +65,7 @@ typedef struct Cpu6502 {
 } Cpu6502;
 
 // functions
-Cpu6502 *cpu_6502_create(SignalPool *signal_pool, Cpu6502Signals signals);
+Cpu6502 *cpu_6502_create(struct Simulator *sim, Cpu6502Signals signals);
 void cpu_6502_destroy(Cpu6502 *cpu);
 void cpu_6502_register_dependencies(Cpu6502 *cpu);
 void cpu_6502_process(Cpu6502 *cpu);

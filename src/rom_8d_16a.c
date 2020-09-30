@@ -3,6 +3,7 @@
 // Emulation of a read-only memory module with an 8-bit wide databus and a maximum of 16 datalines (e.g. a 27c512)
 
 #include "rom_8d_16a.h"
+#include "simulator.h"
 
 #include <assert.h>
 #include <stdlib.h>
@@ -17,15 +18,16 @@
 // interface functions
 //
 
-Rom8d16a *rom_8d16a_create(size_t num_address_lines, SignalPool *signal_pool, Rom8d16aSignals signals) {
+Rom8d16a *rom_8d16a_create(size_t num_address_lines, Simulator *sim, Rom8d16aSignals signals) {
 
 	size_t data_size = (size_t) 1 << num_address_lines;
 	Rom8d16a *rom = (Rom8d16a *) malloc(sizeof(Rom8d16a) + data_size);
 
 	memset(rom, 0, sizeof(Rom8d16a) + data_size);
-	rom->signal_pool = signal_pool;
+	rom->simulator = sim;
+	rom->signal_pool = sim->signal_pool;
 	rom->data_size = data_size;
-	rom->output_delay = signal_pool_interval_to_tick_count(signal_pool, NS_TO_PS(60));
+	rom->output_delay = simulator_interval_to_tick_count(rom->simulator, NS_TO_PS(60));
 	CHIP_SET_FUNCTIONS(rom, rom_8d16a_process, rom_8d16a_destroy, rom_8d16a_register_dependencies);
 
 	memcpy(&rom->signals, &signals, sizeof(signals));
@@ -57,10 +59,10 @@ void rom_8d16a_process(Rom8d16a *rom) {
 
 	uint16_t address = SIGNAL_UINT16(bus_address);
 
-	if (signal_changed_last_tick(rom->signal_pool, SIGNAL(ce_b)) ||
+	if (signal_changed(rom->signal_pool, SIGNAL(ce_b)) ||
 		address != rom->last_address) {
 		rom->last_address = address;
-		rom->schedule_timestamp = rom->signal_pool->current_tick + rom->output_delay;
+		rom->schedule_timestamp = rom->simulator->current_tick + rom->output_delay;
 		return;
 	}
 
