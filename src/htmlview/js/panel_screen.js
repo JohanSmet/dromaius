@@ -25,7 +25,7 @@ export class PanelScreen extends Panel {
 
 		// resizing
 		this.panel.options.resizeit.aspectRatio = 'content';
-		this.panel.options.resizeit.stop.push((panel, paneldata, event) => resize_canvas(canvas));
+		this.panel.options.resizeit.stop.push((panel, paneldata, event) => this.resize_canvas(canvas));
 		this.resize_canvas(canvas);
 	}
 
