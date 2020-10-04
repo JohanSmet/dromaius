@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stb/stb_ds.h>
+#include "sys/threads.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,7 +31,7 @@ typedef struct SignalNameMap {
 typedef struct SignalPool {
 	bool *			signals_curr;
 	bool *			signals_next;
-	uint32_t *		signals_written;
+	uint32_t **		signals_written;
 	int64_t *		signals_last_changed;
 	bool *			signals_default;
 	int32_t *		signals_writer;
@@ -41,18 +42,26 @@ typedef struct SignalPool {
 
 	int64_t			tick_last_cycle;
 
+	size_t			thread_count;
+
+#ifndef DMS_NO_THREADING
+	mutex_t			mtx_signals_written;
+#endif
+
 #ifdef DMS_SIGNAL_TRACING
 	struct SignalTrace *trace;
 #endif
 } SignalPool;
 
 extern const uint64_t lut_bit_to_byte[256];
+extern __thread size_t signal_pool_queue_id;
 
 #define MAX_SIGNAL_NAME		8
 
 // functions
 SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
+void signal_pool_thread_count(SignalPool *pool, size_t count);
 
 void signal_pool_cycle(SignalPool *pool, int64_t current_tick);
 void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool *is_dirty_flags, int32_t **dirty_chips);
@@ -113,12 +122,23 @@ static inline uint16_t signal_read_uint16(SignalPool *pool, Signal signal) {
 	return signal_read_uint16_internal(pool->signals_curr + signal.start, signal.count);
 }
 
+#ifndef DMS_NO_THREADING
+	#define MUTEX_LOCK(pool)	mutex_lock(&(pool)->mtx_signals_written)
+	#define MUTEX_UNLOCK(pool)	mutex_unlock(&(pool)->mtx_signals_written)
+#else
+	#define MUTEX_LOCK(pool)
+	#define MUTEX_UNLOCK(pool)
+#endif
+
 static inline void signal_write_bool(SignalPool *pool, Signal signal, bool value, int32_t chip_id) {
 	assert(pool);
 	assert(signal.count == 1);
 	pool->signals_next[signal.start] = value;
 	pool->signals_writer[signal.start] = chip_id;
-	arrpush(pool->signals_written, signal.start);
+	//MUTEX_LOCK(pool);
+	uint32_t **queue = &pool->signals_written[signal_pool_queue_id];
+	arrpush(*queue, signal.start);
+	//MUTEX_UNLOCK(pool);
 }
 
 static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t value, int32_t chip_id) {
@@ -131,22 +151,26 @@ static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t v
 		memcpy(&pool->signals_next[signal.start], &lut_bit_to_byte[value], signal.count);
 	}
 
+	//MUTEX_LOCK(pool);
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		pool->signals_writer[signal.start + i] = chip_id;
-		arrpush(pool->signals_written, signal.start + i);
+		arrpush(pool->signals_written[signal_pool_queue_id], signal.start + i);
 	}
+	//MUTEX_UNLOCK(pool);
 }
 
 static inline void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t value, int32_t chip_id) {
 	assert(pool);
 	assert(signal.count <= 16);
 
+	//MUTEX_LOCK(pool);
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		pool->signals_next[signal.start + i] = value & 1;
 		pool->signals_writer[signal.start + i] = chip_id;
-		arrpush(pool->signals_written, signal.start + i);
+		arrpush(pool->signals_written[signal_pool_queue_id], signal.start + i);
 		value = (uint16_t) (value >> 1);
 	}
+	//MUTEX_UNLOCK(pool);
 }
 
 static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, uint8_t value, uint8_t mask, int32_t chip_id) {
@@ -161,22 +185,26 @@ static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, ui
 		uint64_t current   = (*(uint64_t *) &signals_next[signal.start]);
 		(*(uint64_t *) &signals_next[signal.start]) = (current & ~byte_mask) | (lut_bit_to_byte[value] & byte_mask);
 
+		//MUTEX_LOCK(pool);
 		for (uint32_t i = 0; i < signal.count; ++i) {
 			bool b = (mask >> i) & 1;
 			if (b) {
 				signals_writer[signal.start + i] = chip_id;
-				arrpush(pool->signals_written, signal.start + i);
+				arrpush(pool->signals_written[signal_pool_queue_id], signal.start + i);
 			}
 		}
+		//MUTEX_UNLOCK(pool);
 	} else {
+		//MUTEX_LOCK(pool);
 		for (uint32_t i = 0; i < signal.count; ++i) {
 			bool b = (mask >> i) & 1;
 			if (b) {
 				signals_next[signal.start + i] = (value >> i) & 1;
 				signals_writer[signal.start + i] = chip_id;
-				arrpush(pool->signals_written, signal.start + i);
+				arrpush(pool->signals_written[signal_pool_queue_id], signal.start + i);
 			}
 		}
+		//MUTEX_UNLOCK(pool);
 	}
 }
 
@@ -184,26 +212,30 @@ static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, u
 	assert(pool);
 	assert(signal.count <= 16);
 
+	//MUTEX_LOCK(pool);
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		uint8_t b = (mask >> i) & 1;
 		if (b) {
 			pool->signals_next[signal.start + i] = (value >> i) & 1;
 			pool->signals_writer[signal.start + i] = chip_id;
-			arrpush(pool->signals_written, signal.start + i);
+			arrpush(pool->signals_written[signal_pool_queue_id], signal.start + i);
 		}
 	}
+	//MUTEX_UNLOCK(pool);
 }
 
 static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t chip_id) {
 	assert(pool);
 
+	//MUTEX_LOCK(pool);
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		if (pool->signals_writer[signal.start + i] == chip_id) {
 			pool->signals_writer[signal.start + i] = -1;
 			pool->signals_next[signal.start + i] = pool->signals_default[signal.start + i];
-			arrpush(pool->signals_written, signal.start + i);
+			arrpush(pool->signals_written[signal_pool_queue_id], signal.start + i);
 		}
 	}
+	//MUTEX_UNLOCK(pool);
 }
 
 static inline bool signal_read_next_bool(SignalPool *pool, Signal signal) {
@@ -284,6 +316,9 @@ static inline bool signal_changed(SignalPool *pool, Signal signal) {
 #define SIGNAL_SET_UINT16_MASKED(sig,v,m)	signal_write_uint16_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m), SIGNAL_CHIP_ID)
 
 #define	SIGNAL_NO_WRITE(sig)	signal_clear_writer(SIGNAL_POOL, SIGNAL_COLLECTION.sig, SIGNAL_CHIP_ID)
+
+#undef MUTEX_LOCK
+#undef MUTEX_UNLOCK
 
 #ifdef __cplusplus
 }

@@ -194,7 +194,7 @@ endif()
 target_include_directories(${LIB_TARGET} PRIVATE libs)
 target_link_libraries(${LIB_TARGET} PRIVATE ${SFL_TARGET})
 target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
-target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
+target_compile_definitions(${LIB_TARGET} PUBLIC ${PLATFORM_DEF})
 if (NO_THREADING OR EMSCRIPTEN)
 	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_NO_THREADING)
 endif()
@@ -344,6 +344,7 @@ target_sources(${TEST_TARGET}
 )
 target_include_directories(${TEST_TARGET} PRIVATE libs src)
 target_link_libraries(${TEST_TARGET} PRIVATE ${LIB_TARGET})
+target_link_libraries(${TEST_TARGET} PRIVATE glfw)
 
 add_test(NAME unittests COMMAND ${TEST_TARGET} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 

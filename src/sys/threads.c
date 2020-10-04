@@ -111,4 +111,9 @@ bool cond_signal(cond_t* cond) {
 	return true;
 }
 
+bool cond_signal_all(cond_t *cond) {
+	WakeAllConditionVariable(cond);
+	return true;
+}
+
 #endif // DMS_THREADS_WIN32

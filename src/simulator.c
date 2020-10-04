@@ -6,13 +6,28 @@
 #include "chip.h"
 #include "signal_line.h"
 
+#include "sys/threads.h"
+
 #include <stb/stb_ds.h>
 #include <assert.h>
+
+//#define DMS_LOG_TRACE
+#include "log.h"
+
+#define LOG_SIMULATOR		PUBLIC(sim)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // types
 //
+
+#ifndef DMS_NO_THREADING
+	typedef struct WorkerInfo {
+		thread_t				  thread;
+		size_t					  thread_id;
+		struct Simulator_private *sim;
+	} WorkerInfo;
+#endif
 
 typedef struct Simulator_private {
 	Simulator				public;
@@ -22,6 +37,16 @@ typedef struct Simulator_private {
 	bool *					chip_is_dirty;
 
 	ChipEvent *				event_pool;				// re-use pool
+
+#ifndef DMS_NO_THREADING
+	size_t					jobs_to_start;
+	size_t					jobs_to_finish;
+	mutex_t					mtx_process;
+	cond_t					cnd_work_available;
+	cond_t					cnd_work_done;
+	WorkerInfo				thrd_workers[1];
+#endif
+
 } Simulator_private;
 
 #define PRIVATE(sim)	((Simulator_private *) (sim))
@@ -61,11 +86,80 @@ static inline void sim_process_sequential(Simulator_private *sim) {
 	}
 }
 
-/*
+#ifndef DMS_NO_THREADING
+
+static int sim_worker_thread(WorkerInfo *worker) {
+	Simulator_private *sim = worker->sim;
+	LOG_TRACE("SimWorker [%d]: worker thread starting", worker->thread_id);
+
+	int32_t chip_id = -1;
+	signal_pool_queue_id = worker->thread_id;
+
+	while (true) {
+
+		// wait for a new job
+		mutex_lock(&sim->mtx_process);
+			while (sim->jobs_to_start == 0) {
+				LOG_TRACE("SimWorker [%d]: wait for work (work=%d/%d)", worker->thread_id, sim->jobs_to_start, sim->jobs_to_finish);
+				cond_wait(&sim->cnd_work_available, &sim->mtx_process);
+			}
+
+			LOG_TRACE("SimWorker [%d]: have work (chips=%d/%d)", worker->thread_id, sim->jobs_to_start, sim->jobs_to_finish);
+			chip_id = arrpop(sim->dirty_chips);
+			sim->jobs_to_start -= 1;
+			LOG_TRACE("SimWorker [%d]: process chip %d", worker->thread_id, chip_id);
+		mutex_unlock(&sim->mtx_process);
+
+		// process the chip
+		Chip *chip = sim->chips[chip_id];
+		chip->process(chip);
+
+		// scheduling
+		if (chip->schedule_timestamp > 0) {
+			mutex_lock(&sim->mtx_process);
+			simulator_schedule_event(PUBLIC(sim), chip->id, chip->schedule_timestamp);
+			mutex_unlock(&sim->mtx_process);
+			chip->schedule_timestamp = 0;
+		}
+
+		// mark job as done
+		mutex_lock(&sim->mtx_process);
+			LOG_TRACE("SimWorker [%d]: process chip %d done (%d/%d left)", worker->thread_id, chip_id, sim->jobs_to_start, sim->jobs_to_finish);
+			sim->jobs_to_finish -= 1;
+			bool all_done = sim->jobs_to_finish == 0;
+		mutex_unlock(&sim->mtx_process);
+
+		if (all_done) {
+			cnd_signal(&sim->cnd_work_done);
+		}
+	}
+
+	return 0;
+}
+
 static inline void sim_process_threadpool(Simulator_private *sim) {
 
+	if (arrlen(sim->dirty_chips) <= 2) {
+		return sim_process_sequential(sim);
+	}
 
-} */
+	// wake up the worker threads
+	mutex_lock(&sim->mtx_process);
+	sim->jobs_to_start = arrlenu(sim->dirty_chips);
+	sim->jobs_to_finish = sim->jobs_to_start;
+	LOG_TRACE("Simulator [manager]: wake up worker threads (todo=%d/%d)", sim->jobs_to_start, sim->jobs_to_finish);
+	cond_signal_all(&sim->cnd_work_available);
+
+	// wait until all work is done
+	while (sim->jobs_to_finish > 0) {
+		LOG_TRACE("Simulator [manager]: wait for worker threads (todo=%d/%d)", sim->jobs_to_start, sim->jobs_to_finish);
+		cond_wait(&sim->cnd_work_done, &sim->mtx_process);
+	}
+	LOG_TRACE("Simulator [manager]: work done (%d)", 0);
+	mutex_unlock(&sim->mtx_process);
+}
+
+#endif // DMS_NO_THREADING
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -77,6 +171,21 @@ Simulator *simulator_create(int64_t tick_duration_ps) {
 
 	PUBLIC(priv_sim)->signal_pool = signal_pool_create();
 	PUBLIC(priv_sim)->tick_duration_ps = tick_duration_ps;
+
+#ifndef DMS_NO_THREADING
+	size_t num_workers = sizeof(priv_sim->thrd_workers) / sizeof(priv_sim->thrd_workers[0]);
+
+	signal_pool_thread_count(PUBLIC(priv_sim)->signal_pool, num_workers);
+
+	mutex_init_plain(&priv_sim->mtx_process);
+	cond_init(&priv_sim->cnd_work_available);
+	cond_init(&priv_sim->cnd_work_done);
+	for (size_t i = 0; i < num_workers; ++i) {
+		priv_sim->thrd_workers[i].thread_id = i;
+		priv_sim->thrd_workers[i].sim = priv_sim;
+		thread_create_joinable(&priv_sim->thrd_workers[i].thread, (thread_func_t) sim_worker_thread, &priv_sim->thrd_workers[i]);
+	}
+#endif
 
 	return &priv_sim->public;
 }
@@ -146,7 +255,11 @@ void simulator_simulate_timestep(Simulator *sim) {
 	sim_handle_event_schedule(PRIVATE(sim));
 
 	// process all chips that have a dependency on signal that was changed in the last timestep or have a scheduled wakeup
-	sim_process_sequential(PRIVATE(sim));
+	#ifdef DMS_NO_THREADING
+		sim_process_sequential(PRIVATE(sim));
+	#else
+		sim_process_threadpool(PRIVATE(sim));
+	#endif
 
 	// determine changed signals and dirty chips for next simulation step
 	memset(PRIVATE(sim)->chip_is_dirty, false, arrlenu(PRIVATE(sim)->chip_is_dirty));

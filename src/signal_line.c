@@ -78,9 +78,19 @@ const uint64_t lut_bit_to_byte[256] = {
 	BITS_TO_BYTE(255ul)
 };
 
+__thread size_t signal_pool_queue_id = 0;
+
 SignalPool *signal_pool_create(void) {
 	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool));
 	sh_new_arena(pool->signal_names);
+
+	pool->thread_count = 1;
+	pool->signals_written = calloc(pool->thread_count, sizeof(uint32_t *));
+
+#ifndef DMS_NO_THREADING
+	mutex_init_plain(&pool->mtx_signals_written);
+#endif
+
 	return pool;
 }
 
@@ -102,6 +112,23 @@ void signal_pool_destroy(SignalPool *pool) {
 	free(pool);
 }
 
+void signal_pool_thread_count(SignalPool *pool, size_t count) {
+	assert(pool);
+	assert(count > 0);
+
+	for (size_t i = pool->thread_count; i > count; ++i) {
+		arrfree(pool->signals_written[i]);
+	}
+
+	pool->signals_written = realloc(pool->signals_written, sizeof(uint32_t *) * count);
+
+	for (size_t i = pool->thread_count; i < count; ++i) {
+		pool->signals_written[i] = NULL;
+	}
+
+	pool->thread_count = count;
+}
+
 void signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
 
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
@@ -111,22 +138,24 @@ void signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
 		signal_trace_mark_timestep(pool->trace, current_tick);
 	#endif
 
-	for (size_t i = 0; i < arrlenu(pool->signals_written); ++i) {
-		uint32_t s = pool->signals_written[i];
-		if (pool->signals_curr[s] != pool->signals_next[s]) {
-			pool->signals_last_changed[s] = current_tick;
-			pool->signals_curr[s] = pool->signals_next[s];
-			#if DMS_SIGNAL_TRACING
-				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
-			#endif
+	for (size_t q = 0; q < pool->thread_count; ++q) {
+		for (size_t i = 0; i < arrlenu(pool->signals_written[q]); ++i) {
+			uint32_t s = pool->signals_written[q][i];
+			if (pool->signals_curr[s] != pool->signals_next[s]) {
+				pool->signals_last_changed[s] = current_tick;
+				pool->signals_curr[s] = pool->signals_next[s];
+				#if DMS_SIGNAL_TRACING
+					signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
+				#endif
+			}
+		}
+
+		if (pool->signals_written[q]) {
+			stbds_header(pool->signals_written[q])->length = 0;
 		}
 	}
 
 	pool->tick_last_cycle = current_tick;
-
-	if (pool->signals_written) {
-		stbds_header(pool->signals_written)->length = 0;
-	}
 }
 
 void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool *is_dirty_flags, int32_t **dirty_chips) {
@@ -138,31 +167,33 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool 
 		signal_trace_mark_timestep(pool->trace, current_tick);
 	#endif
 
-	for (size_t i = 0; i < arrlenu(pool->signals_written); ++i) {
-		uint32_t s = pool->signals_written[i];
+	for (size_t q = 0; q < pool->thread_count; ++q) {
+		for (size_t i = 0; i < arrlenu(pool->signals_written[q]); ++i) {
+			uint32_t s = pool->signals_written[q][i];
 
-		if (pool->signals_curr[s] != pool->signals_next[s]) {
-			for (size_t dep = 0; dep < arrlenu(pool->dependent_components[s]); ++dep) {
-				int32_t chip_id = pool->dependent_components[s][dep];
-				if (!is_dirty_flags[chip_id]) {
-					arrpush(*dirty_chips, chip_id);
-					is_dirty_flags[chip_id] = true;
+			if (pool->signals_curr[s] != pool->signals_next[s]) {
+				for (size_t dep = 0; dep < arrlenu(pool->dependent_components[s]); ++dep) {
+					int32_t chip_id = pool->dependent_components[s][dep];
+					if (!is_dirty_flags[chip_id]) {
+						arrpush(*dirty_chips, chip_id);
+						is_dirty_flags[chip_id] = true;
+					}
 				}
-			}
-			pool->signals_last_changed[s] = current_tick;
-			pool->signals_curr[s] = pool->signals_next[s];
+				pool->signals_last_changed[s] = current_tick;
+				pool->signals_curr[s] = pool->signals_next[s];
 
-			#if DMS_SIGNAL_TRACING
-				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
-			#endif
+				#if DMS_SIGNAL_TRACING
+					signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
+				#endif
+			}
+		}
+
+		if (pool->signals_written[q]) {
+			stbds_header(pool->signals_written[q])->length = 0;
 		}
 	}
 
 	pool->tick_last_cycle = current_tick;
-
-	if (pool->signals_written) {
-		stbds_header(pool->signals_written)->length = 0;
-	}
 }
 
 Signal signal_create(SignalPool *pool, uint32_t size) {
