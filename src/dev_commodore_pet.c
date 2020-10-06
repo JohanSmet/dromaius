@@ -19,6 +19,8 @@
 #include "display_pet_crt.h"
 #include "stb/stb_ds.h"
 
+#include "ram_8d_16a.h"
+
 #include <assert.h>
 #include <stdlib.h>
 
@@ -1386,17 +1388,35 @@ void circuit_create_glue_logic(DevCommodorePet *device) {
 	DEVICE_REGISTER_CHIP("LOGIC8", glue_logic_create(device, 8));
 }
 
+// lite-PET: RAM circuitry
+void circuit_lite_create_ram(DevCommodorePet *device) {
+
+	Ram8d16a *ram = ram_8d16a_create(15, device->simulator, (Ram8d16aSignals) {
+										.bus_address = signal_split(device->signals.bus_ba, 0, 15),
+										.bus_data = SIGNAL(bus_bd),
+										.ce_b = SIGNAL(ba15),
+										.oe_b = SIGNAL(g78),
+										.we_b = SIGNAL(ram_rw)
+	});
+	DEVICE_REGISTER_CHIP("RAM", ram);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
 //
+
+void dev_commodore_pet_read_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output);
+void dev_commodore_pet_write_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *input);
+void dev_commodore_pet_lite_read_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output);
+void dev_commodore_pet_lite_write_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *input);
 
 Cpu6502* dev_commodore_pet_get_cpu(DevCommodorePet *device) {
 	assert(device);
 	return device->cpu;
 }
 
-DevCommodorePet *dev_commodore_pet_create() {
+DevCommodorePet *create_pet_device(bool lite) {
 	DevCommodorePet *device = (DevCommodorePet *) calloc(1, sizeof(DevCommodorePet));
 
 	// interface
@@ -1404,8 +1424,8 @@ DevCommodorePet *dev_commodore_pet_create() {
 	device->process = (DEVICE_PROCESS) device_process;
 	device->reset = (DEVICE_RESET) dev_commodore_pet_reset;
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
-	device->read_memory = (DEVICE_READ_MEMORY) dev_commodore_pet_read_memory;
-	device->write_memory = (DEVICE_WRITE_MEMORY) dev_commodore_pet_write_memory;
+	device->read_memory = (DEVICE_READ_MEMORY) ((!lite) ? dev_commodore_pet_read_memory : dev_commodore_pet_lite_read_memory);
+	device->write_memory = (DEVICE_WRITE_MEMORY) ((!lite) ? dev_commodore_pet_write_memory : dev_commodore_pet_lite_write_memory);
 
 	device->simulator = simulator_create(6250);		// // 6.25 ns - 160 Mhz
 
@@ -1749,7 +1769,11 @@ DevCommodorePet *dev_commodore_pet_create() {
 	circuit_create_04(device);
 
 	// sheet 05: RAMS
-	circuit_create_05(device);
+	if (!lite) {
+		circuit_create_05(device);
+	} else {
+		circuit_lite_create_ram(device);
+	}
 
 	// sheet 06: master timing
 	circuit_create_06(device);
@@ -1770,6 +1794,14 @@ DevCommodorePet *dev_commodore_pet_create() {
 	simulator_device_complete(device->simulator);
 
 	return device;
+}
+
+DevCommodorePet *dev_commodore_pet_create(void) {
+	return create_pet_device(false);
+}
+
+DevCommodorePet *dev_commodore_pet_lite_create(void) {
+	return create_pet_device(true);
 }
 
 void dev_commodore_pet_destroy(DevCommodorePet *device) {
@@ -1938,6 +1970,123 @@ void dev_commodore_pet_write_memory(DevCommodorePet *device, size_t start_addres
 	}
 }
 
+
+void dev_commodore_pet_lite_read_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output) {
+	assert(device);
+	assert(output);
+
+	// note: this function skips the free rom slots
+	static const size_t	REGION_START[] = {0x0000, 0x8000, 0x8800, 0xb000, 0xc000, 0xd000, 0xe000, 0xe800, 0xf000};
+	static const size_t REGION_SIZE[]  = {0x8000, 0x0800, 0x2800, 0x1000, 0x1000, 0x1000, 0x0800, 0x0800, 0x1000};
+	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
+
+	if (start_address > 0xffff) {
+		memset(output, 0, size);
+		return;
+	}
+
+	// find start region
+	int sr = NUM_REGIONS - 1;
+	while (start_address < REGION_START[sr] && sr > 0) {
+		sr -= 1;
+	}
+
+	size_t remain = size;
+	size_t done = 0;
+	size_t addr = start_address;
+
+	for (int region = sr; remain > 0 && addr <= 0xffff; ++region) {
+		size_t region_offset = addr - REGION_START[region];
+		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
+
+		switch (region) {
+			case 0:	{			// RAM (0-32k)
+				Ram8d16a *ram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "RAM");
+				memcpy(output + done, ram->data_array + region_offset, to_copy);
+				break;
+			}
+			case 1:	{			// Screen RAM
+				Chip6114SRam *ram_hi = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F7");
+				Chip6114SRam *ram_lo = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F8");
+
+				for (size_t i = 0; i < to_copy; ++i) {
+					output[done + i] = (uint8_t) (((ram_hi->data_array[region_offset + i] & 0xf) << 4) |
+												   (ram_lo->data_array[region_offset + i] & 0xf));
+				}
+				break;
+			}
+			case 2:				// unused space between video memory and first rom
+			case 7:				// I/O area (pia-1, pia-2, via)
+				memset(output + done, 0, to_copy);
+				break;
+			case 3:				// basic-rom 1
+			case 4:				// basic-rom 2
+			case 5:				// basic-rom 3
+			case 6:				// editor rom
+				memcpy(output + done, device->roms[region-4]->data_array + region_offset, to_copy);
+				break;
+			case 8:				// kernal rom
+				memcpy(output + done, device->roms[4]->data_array + region_offset, to_copy);
+				break;
+		}
+
+		remain -= to_copy;
+		addr += to_copy;
+		done += to_copy;
+	}
+}
+
+void dev_commodore_pet_lite_write_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *input) {
+	assert(device);
+	assert(input);
+
+	// note: this function only allows writes to the main RAM and video memory
+	static const size_t	REGION_START[] = {0x0000, 0x8000};
+	static const size_t REGION_SIZE[]  = {0x8000, 0x0800};
+	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
+
+	if (start_address > 0x87ff) {
+		return;
+	}
+
+	// find start region
+	int sr = NUM_REGIONS - 1;
+	while (start_address < REGION_START[sr] && sr > 0) {
+		sr -= 1;
+	}
+
+	size_t remain = size;
+	size_t done = 0;
+	size_t addr = start_address;
+
+	for (int region = sr; remain > 0 && addr < 0x8800; ++region) {
+		size_t region_offset = addr - REGION_START[region];
+		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
+
+		switch (region) {
+			case 0:	{			// RAM (0-32k)
+				Ram8d16a *ram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "RAM");
+				memcpy(ram->data_array + region_offset, input + done, to_copy);
+				break;
+			}
+			case 1:	{			// Screen RAM
+				Chip6114SRam *ram_hi = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F7");
+				Chip6114SRam *ram_lo = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F8");
+
+				for (size_t i = 0; i < to_copy; ++i) {
+					ram_hi->data_array[region_offset+i] = (input[done+i] & 0xf0) >> 4;
+					ram_lo->data_array[region_offset+i] = (input[done+i] & 0x0f);
+				}
+				break;
+			}
+		}
+
+		remain -= to_copy;
+		addr += to_copy;
+		done += to_copy;
+	}
+}
+
 bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {
 
 	int8_t * prg_buffer = NULL;
@@ -1953,7 +2102,8 @@ bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, b
 		ram_offset = *((uint16_t*)prg_buffer);
 	}
 
-	dev_commodore_pet_write_memory(device, ram_offset, prg_size - 2, (uint8_t *) prg_buffer + 2);
+
+	device->write_memory(device, ram_offset, prg_size - 2, (uint8_t *) prg_buffer + 2);
 
 	arrfree(prg_buffer);
 	return true;

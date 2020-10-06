@@ -9,6 +9,8 @@
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
 
+#include "ram_8d_16a.h"
+
 #include <stdio.h>
 
 #define SIGNAL_POOL			device->simulator->signal_pool
@@ -16,8 +18,11 @@
 #define SIGNAL_CHIP_ID		device->id
 
 static void *dev_commodore_pet_setup(const MunitParameter params[], void *user_data) {
-	DevCommodorePet *dev = dev_commodore_pet_create();
-	return dev;
+	return  dev_commodore_pet_create();
+}
+
+static void *dev_commodore_pet_lite_setup(const MunitParameter params[], void *user_data) {
+	return  dev_commodore_pet_lite_create();
 }
 
 static void dev_commodore_pet_teardown(void *fixture) {
@@ -43,6 +48,10 @@ static void override_cpu_process(Cpu6502 *cpu) {
 
 static void override_ram_process(Chip8x4116DRam *ram) {
 	signal_write_uint8(ram->signal_pool, ram->signals.bus_do, override_bus_bd, ram->id);
+}
+
+static void override_ram_process_lite(Ram8d16a *ram) {
+	signal_write_uint8(ram->signal_pool, ram->signals.bus_data, override_bus_bd, ram->id);
 }
 
 static void override_do_nothing(void *device) {
@@ -86,8 +95,14 @@ MunitResult test_signals_data(const MunitParameter params[], void *user_data_or_
 
 	// 'remove' cpu/ram and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
-	simulator_chip_by_name(device->simulator, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
-	simulator_chip_by_name(device->simulator, "J2-9")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
+
+	Chip *ram = simulator_chip_by_name(device->simulator, "RAM");
+	if (!ram) {
+		simulator_chip_by_name(device->simulator, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
+		simulator_chip_by_name(device->simulator, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
+	} else {
+		ram->process = (CHIP_PROCESS_FUNC) override_ram_process;
+	}
 
 	// data-bus read/write signals
 	for (int addr = 0x0000; addr <= 0xffff; addr += 0x0100) {
@@ -118,8 +133,14 @@ MunitResult test_read_databus(const MunitParameter params[], void *user_data_or_
 
 	// 'remove' cpu/ram and inject signals into the pet
 	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
-	simulator_chip_by_name(device->simulator, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
-	simulator_chip_by_name(device->simulator, "J2-9")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
+
+	Chip *ram = simulator_chip_by_name(device->simulator, "RAM");
+	if (!ram) {
+		simulator_chip_by_name(device->simulator, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
+		simulator_chip_by_name(device->simulator, "J2-9")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
+	} else {
+		ram->process = (CHIP_PROCESS_FUNC) override_ram_process_lite;
+	}
 	simulator_chip_by_name(device->simulator, "F7")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 	simulator_chip_by_name(device->simulator, "F8")->process = (CHIP_PROCESS_FUNC) override_do_nothing;
 
@@ -181,11 +202,6 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 	if (SIGNAL_BOOL(clk1)) {
 		dev_commodore_pet_process_clk1(device);
 	}
-
-	Chip8x4116DRam *ram_chips[] = {
-		(Chip8x4116DRam *) simulator_chip_by_name(device->simulator, "I2-9"),
-		(Chip8x4116DRam *) simulator_chip_by_name(device->simulator, "J2-9")
-	};
 
 	for (int addr = 0x0000; addr <= 0x7fff; ++addr) {
 		override_bus_address = addr & 0xffff;
@@ -403,6 +419,12 @@ MunitTest dev_commodore_pet_tests[] = {
 	{ "/rom", test_rom, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/startup", test_startup, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/vram_program", test_vram_program, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
-	{ "/read_write_memory", test_read_write_memory, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/access_mem", test_read_write_memory, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/lite__ram", test_ram, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/lite__vram", test_vram, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/lite__rom", test_rom, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/lite__startup", test_startup, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/lite__vram_prog", test_vram_program, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/lite__access_mem", test_read_write_memory, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ NULL, NULL, NULL, NULL, MUNIT_TEST_OPTION_NONE, NULL }
 };

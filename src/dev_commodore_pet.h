@@ -305,7 +305,8 @@ typedef struct DevCommodorePet {
 } DevCommodorePet;
 
 // functions
-DevCommodorePet *dev_commodore_pet_create();
+DevCommodorePet *dev_commodore_pet_create(void);
+DevCommodorePet *dev_commodore_pet_lite_create(void);
 void dev_commodore_pet_destroy(DevCommodorePet *device);
 void dev_commodore_pet_process(DevCommodorePet *device);
 void dev_commodore_pet_process_clk1(DevCommodorePet *device);
