@@ -25,11 +25,15 @@ inline double chrono_report() {
 
 } // unnamed namespace
 
-int main() {
-    std::printf("--- setting up Dromaius\n");
+int main(int argc, char *argv[]) {
+
+	// basic (read: stupid) command line argument handling
+	bool arg_lite = (argc == 2 && !strcmp(argv[1], "--lite"));
+
+    std::printf("--- setting up Dromaius (%s PET)\n", (arg_lite) ? "lite" : "full");
     chrono_reset();
 
-	auto pet_device = dev_commodore_pet_create();
+	auto pet_device = (!arg_lite) ? dev_commodore_pet_create() : dev_commodore_pet_lite_create();
 	assert(pet_device);
 
 	// create dromaius context
