@@ -656,6 +656,9 @@ void circuit_create_02(DevCommodorePet *device) {
 										.cb2 = SIGNAL(dav_out_b)
 	});
 	DEVICE_REGISTER_CHIP("C6", device->pia_1);
+
+	// glue-logic
+	DEVICE_REGISTER_CHIP("LOGIC1", glue_logic_create(device, 1));
 }
 
 // sheet 03: cassette & keyboard
@@ -873,6 +876,9 @@ void circuit_create_05(DevCommodorePet *device) {
 										.bus_di = SIGNAL(bus_rd),
 										.bus_do = SIGNAL(bus_rd)
 	}));
+
+	// glue-logic
+	DEVICE_REGISTER_CHIP("LOGIC5", glue_logic_create(device, 5));
 }
 
 // sheet 06 - master timing
@@ -1053,6 +1059,9 @@ void circuit_create_06(DevCommodorePet *device) {
 										.q2 = SIGNAL(h1q2),				// pin 9
 										.q2_b = SIGNAL(h1q2_b)			// pin 8
 	}));
+
+	// glue-logic
+	DEVICE_REGISTER_CHIP("LOGIC6", glue_logic_create(device, 6));
 }
 
 // sheet 07 - display logic components
@@ -1226,6 +1235,9 @@ void circuit_create_07(DevCommodorePet *device) {
 										.q2 = SIGNAL(next),				// pin 9
 										.q2_b = SIGNAL(next_b)			// pin 8
 	}));
+
+	// glue-logic
+	DEVICE_REGISTER_CHIP("LOGIC7", glue_logic_create(device, 7));
 }
 
 // sheet 08: display rams components
@@ -1355,6 +1367,9 @@ void circuit_create_08(DevCommodorePet *device) {
 										.qh		 = SIGNAL(e11qh),						// 9
 										.qh_b	 = SIGNAL(e11qh_b),						// 7
 	}));
+
+	// glue-logic
+	DEVICE_REGISTER_CHIP("LOGIC8", glue_logic_create(device, 8));
 }
 
 // peripherals
@@ -1378,16 +1393,6 @@ void circuit_create_pheriperals(DevCommodorePet *device) {
 
 }
 
-// glue-logic
-void circuit_create_glue_logic(DevCommodorePet *device) {
-
-	DEVICE_REGISTER_CHIP("LOGIC1", glue_logic_create(device, 1));
-	DEVICE_REGISTER_CHIP("LOGIC5", glue_logic_create(device, 5));
-	DEVICE_REGISTER_CHIP("LOGIC6", glue_logic_create(device, 6));
-	DEVICE_REGISTER_CHIP("LOGIC7", glue_logic_create(device, 7));
-	DEVICE_REGISTER_CHIP("LOGIC8", glue_logic_create(device, 8));
-}
-
 // lite-PET: RAM circuitry
 void circuit_lite_create_ram(DevCommodorePet *device) {
 
@@ -1399,6 +1404,9 @@ void circuit_lite_create_ram(DevCommodorePet *device) {
 										.we_b = SIGNAL(ram_rw)
 	});
 	DEVICE_REGISTER_CHIP("RAM", ram);
+
+	// glue-logic
+	DEVICE_REGISTER_CHIP("LOGIC5", glue_logic_create(device, 5));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1786,9 +1794,6 @@ DevCommodorePet *create_pet_device(bool lite) {
 
 	// peripherals
 	circuit_create_pheriperals(device);
-
-	// glue logic
-	circuit_create_glue_logic(device);
 
 	// let the simulator know no more chips will be added
 	simulator_device_complete(device->simulator);
