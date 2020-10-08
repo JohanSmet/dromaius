@@ -138,11 +138,11 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool 
 		signal_trace_mark_timestep(pool->trace, current_tick);
 	#endif
 
-	for (size_t i = 0; i < arrlenu(pool->signals_written); ++i) {
+	for (size_t i = 0, n = arrlenu(pool->signals_written); i < n;  ++i) {
 		uint32_t s = pool->signals_written[i];
 
 		if (pool->signals_curr[s] != pool->signals_next[s]) {
-			for (size_t dep = 0; dep < arrlenu(pool->dependent_components[s]); ++dep) {
+			for (size_t dep = 0, dep_n = arrlenu(pool->dependent_components[s]); dep < dep_n; ++dep) {
 				int32_t chip_id = pool->dependent_components[s][dep];
 				if (!is_dirty_flags[chip_id]) {
 					arrpush(*dirty_chips, chip_id);
