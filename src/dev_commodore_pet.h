@@ -297,6 +297,7 @@ typedef struct DevCommodorePet {
 
 	struct InputKeypad *	keypad;
 	struct DisplayPetCrt *	crt;
+	struct DisplayRGBA *	screen;
 
 	bool					in_reset;
 

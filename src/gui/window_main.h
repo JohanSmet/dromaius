@@ -16,7 +16,7 @@ public:
 private:
 	void create_device(int index);
 	Device *create_minimal_6502();
-	Device *create_commodore_pet();
+	Device *create_commodore_pet(bool lite);
 
 	void panel_select_machine();
 	void switch_machine(int index);

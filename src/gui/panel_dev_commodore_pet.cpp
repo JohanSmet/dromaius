@@ -257,7 +257,7 @@ Panel::uptr_t panel_dev_commodore_pet_create(UIContext *ctx, ImVec2 pos, DevComm
 	ctx->panel_add(std::move(keyboard_pnl));
 
 	// display panel
-	auto display_pnl = panel_display_rgba_create(ctx, {340, 20}, device->crt->display);
+	auto display_pnl = panel_display_rgba_create(ctx, {340, 20}, device->screen);
 	ctx->panel_add(std::move(display_pnl));
 
 	// create panel for the commodore pet

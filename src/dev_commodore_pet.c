@@ -1416,7 +1416,10 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 											.horz_drive_in = SIGNAL(horz_drive),
 											.vert_drive_in = SIGNAL(vert_drive)
 		});
+		device->screen = device->crt->display;
 		DEVICE_REGISTER_CHIP("CRT", device->crt);
+	} else {
+		device->screen = display_rgba_create(40 * 8, 25 * 8);
 	}
 }
 
@@ -1438,9 +1441,10 @@ void circuit_lite_create_ram(DevCommodorePet *device) {
 
 // lite-PET: master timing
 void circuit_lite_create_timing(DevCommodorePet *device) {
-	DEVICE_REGISTER_CHIP("OSC", oscillator_create(1000000, device->simulator, (OscillatorSignals) {
+	device->oscillator_y1 = oscillator_create(1000000, device->simulator, (OscillatorSignals) {
 										.clk_out = SIGNAL(clk1)
-	}));
+	});
+	DEVICE_REGISTER_CHIP("OSC", device->oscillator_y1);
 }
 
 // lite-PET: display ram

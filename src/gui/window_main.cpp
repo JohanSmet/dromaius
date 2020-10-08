@@ -19,11 +19,13 @@
 namespace {
 	enum {
 		MACHINE_COMMODORE_PET = 0,
-		MACHINE_MINIMAL_6502 = 1
+		MACHINE_COMMODORE_PET_LITE = 1,
+		MACHINE_MINIMAL_6502 = 2
 	};
 
 	constexpr static const char *MACHINE_NAMES[] = {
 		"Commodore PET - 2001N",
+		"Commodore PET - 2001N (lite)",
 		"Minimal 6502"
 	};
 
@@ -63,7 +65,10 @@ void WindowMain::create_device(int index) {
 	// create device
 	switch (index) {
 		case MACHINE_COMMODORE_PET:
-			ui_context.device = create_commodore_pet();
+			ui_context.device = create_commodore_pet(false);
+			break;
+		case MACHINE_COMMODORE_PET_LITE:
+			ui_context.device = create_commodore_pet(true);
 			break;
 		case MACHINE_MINIMAL_6502:
 			ui_context.device = create_minimal_6502();
@@ -97,9 +102,9 @@ Device *WindowMain::create_minimal_6502() {
 	return (Device *) device;
 }
 
-Device *WindowMain::create_commodore_pet() {
+Device *WindowMain::create_commodore_pet(bool lite) {
 
-	DevCommodorePet *device = dev_commodore_pet_create();
+	DevCommodorePet *device = (lite) ? dev_commodore_pet_lite_create() : dev_commodore_pet_create();
 
 	// create dromaius context
 	ui_context.dms_ctx = dms_create_context();
