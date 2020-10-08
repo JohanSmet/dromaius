@@ -1400,7 +1400,7 @@ void circuit_create_08(DevCommodorePet *device) {
 }
 
 // peripherals
-void circuit_create_pheriperals(DevCommodorePet *device, bool lite) {
+void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 
 	// keyboard
 	device->keypad = input_keypad_create(device->simulator, false, 10, 8, 500, 100, (InputKeypadSignals) {
@@ -1848,7 +1848,7 @@ DevCommodorePet *create_pet_device(bool lite) {
 	}
 
 	// peripherals
-	circuit_create_pheriperals(device, lite);
+	circuit_create_peripherals(device, lite);
 
 	// let the simulator know no more chips will be added
 	simulator_device_complete(device->simulator);
