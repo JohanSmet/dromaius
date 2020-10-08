@@ -272,6 +272,46 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 	return MUNIT_OK;
 }
 
+MunitResult test_vram_lite(const MunitParameter params[], void *user_data_or_fixture) {
+	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
+
+	// 'remove' cpu and inject signals into the pet
+	device->cpu->process = (CHIP_PROCESS_FUNC) override_cpu_process;
+
+	if (SIGNAL_BOOL(clk1)) {
+		dev_commodore_pet_process_clk1(device);
+	}
+
+	Ram8d16a *ram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "VRAM");
+
+	for (int addr = 0x8000; addr <= 0x83e8; ++addr) {		// 40x25
+		override_bus_address = addr & 0xffff;
+		override_bus_data = addr & 0xff;
+		override_cpu_rw = CPU_WRITE;
+
+		dev_commodore_pet_process_clk1(device);
+		munit_assert_true(SIGNAL_BOOL(clk1));
+
+		dev_commodore_pet_process_clk1(device);
+		munit_assert_uint8(ram->data_array[override_bus_address - 0x8000], ==, override_bus_data);
+		munit_assert_false(SIGNAL_BOOL(clk1));
+	}
+
+	for (int addr = 0x8000; addr <= 0x83e8; ++addr) {		// 40x25
+		override_bus_address = addr & 0xffff;
+		override_cpu_rw = CPU_READ;
+
+		dev_commodore_pet_process_clk1(device);
+		munit_assert_true(SIGNAL_BOOL(clk1));
+
+		dev_commodore_pet_process_clk1(device);
+		munit_assert_uint8(SIGNAL_NEXT_UINT8(cpu_bus_data), ==, addr & 0xff);
+		munit_assert_false(SIGNAL_BOOL(clk1));
+	}
+
+	return MUNIT_OK;
+}
+
 MunitResult test_rom(const MunitParameter params[], void *user_data_or_fixture) {
 	DevCommodorePet *device = (DevCommodorePet *) user_data_or_fixture;
 
@@ -371,13 +411,11 @@ MunitResult test_vram_program(const MunitParameter params[], void *user_data_or_
 	}
 
 	// check ram
-	Chip6114SRam *ram_hi = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F7");
-	Chip6114SRam *ram_lo = (Chip6114SRam *) simulator_chip_by_name(device->simulator, "F8");
-
+	uint8_t vram[1024];
+	device->read_memory(device, 0x8000, 1024, vram);
 
 	for (int i = 0; i < 1024; ++i) {
-		munit_assert_uint8(ram_hi->data_array[i], ==, 0x05);
-		munit_assert_uint8(ram_lo->data_array[i], ==, 0x0a);
+		munit_assert_uint8(vram[i], ==, 0x5a);
 	}
 
 	return MUNIT_OK;
@@ -421,7 +459,7 @@ MunitTest dev_commodore_pet_tests[] = {
 	{ "/vram_program", test_vram_program, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/access_mem", test_read_write_memory, dev_commodore_pet_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/lite__ram", test_ram, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
-	{ "/lite__vram", test_vram, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
+	{ "/lite__vram", test_vram_lite, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/lite__rom", test_rom, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/lite__startup", test_startup, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
 	{ "/lite__vram_prog", test_vram_program, dev_commodore_pet_lite_setup, dev_commodore_pet_teardown, MUNIT_TEST_OPTION_NONE, NULL },
