@@ -435,6 +435,103 @@ static void glue_logic_process_08(ChipGlueLogic *chip) {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// internal - pet-lite 'fake' display
+//
+
+typedef struct ChipLiteDisplay {
+	CHIP_DECLARE_FUNCTIONS
+
+	DevCommodorePet *	device;
+	Ram8d16a *			vram;
+	uint8_t				char_rom[ROM_6316_DATA_SIZE];
+
+	int64_t				refresh_delay;
+	int64_t				retrace_hold;
+} ChipLiteDisplay;
+
+static void lite_display_destroy(ChipLiteDisplay *chip);
+static void lite_display_register_dependencies(ChipLiteDisplay *chip);
+static void lite_display_process(ChipLiteDisplay *chip);
+
+static ChipLiteDisplay *lite_display_create(DevCommodorePet *device) {
+	ChipLiteDisplay *chip = (ChipLiteDisplay *) calloc(1, sizeof(ChipLiteDisplay));
+
+	CHIP_SET_FUNCTIONS(chip, lite_display_process, lite_display_destroy, lite_display_register_dependencies);
+	chip->device = device;
+	chip->vram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "VRAM");
+
+	file_load_binary_fixed("runtime/commodore_pet/characters-2.901447-10.bin", chip->char_rom, ROM_6316_DATA_SIZE);
+
+	chip->refresh_delay = simulator_interval_to_tick_count(device->simulator, FREQUENCY_TO_PS(60));
+	chip->retrace_hold = simulator_interval_to_tick_count(device->simulator, US_TO_PS(1));
+
+	return chip;
+}
+
+static void lite_display_destroy(ChipLiteDisplay *chip) {
+	assert(chip);
+	free(chip);
+}
+
+static void lite_display_register_dependencies(ChipLiteDisplay *chip) {
+	(void) chip;
+}
+
+void pet_lite_fake_display(ChipLiteDisplay *chip) {
+	DevCommodorePet *device = chip->device;
+
+	const uint32_t COLOR = 0xff55ff55;
+
+	const size_t SCREEN_WIDTH = 40;
+	const size_t SCREEN_HEIGHT = 25;
+	const size_t CHAR_HEIGHT = 8;
+
+	for (size_t pos_char_y = 0; pos_char_y < SCREEN_HEIGHT; ++pos_char_y) {
+		uint8_t *vram_row = chip->vram->data_array + (pos_char_y * SCREEN_WIDTH);
+		for (uint8_t pos_line = 0; pos_line < 8; ++pos_line) {
+			uint32_t *screen_ptr = device->screen->frame + ((pos_char_y * CHAR_HEIGHT + pos_line) * device->screen->width);
+
+			for (size_t pos_char_x = 0; pos_char_x < SCREEN_WIDTH; ++pos_char_x) {
+				// get character to display & check for inverted char
+				uint8_t value = vram_row[pos_char_x];
+				unsigned int invert = (value >> 7) & 0x1;
+				value &= 0x7f;
+
+				// get approriate data from the character rom
+				int rom_addr = (int) value << 3 | pos_line;
+				uint8_t line_value = chip->char_rom[rom_addr];
+
+				// write character line to screen
+				for (int i = 7; i >= 0; --i) {
+					*screen_ptr++ = COLOR * (unsigned int) (((line_value >> i) & 0x1) ^ invert) | 0xff000000;
+				}
+			}
+		}
+	}
+}
+
+static void lite_display_process(ChipLiteDisplay *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	if (SIGNAL_BOOL(video_on)) {
+		// redraw screen
+		pet_lite_fake_display(chip);
+
+		// signal vertical retrace
+		SIGNAL_SET_BOOL(video_on, false);
+
+		// hold vertical retrace for a bit
+		chip->schedule_timestamp = chip->simulator->current_tick + chip->retrace_hold;
+	} else {
+		// end of vertical retrace
+		SIGNAL_SET_BOOL(video_on, true);
+		chip->schedule_timestamp = chip->simulator->current_tick + chip->refresh_delay;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // internal - rom functions
 //
 
@@ -1420,6 +1517,7 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 		DEVICE_REGISTER_CHIP("CRT", device->crt);
 	} else {
 		device->screen = display_rgba_create(40 * 8, 25 * 8);
+		DEVICE_REGISTER_CHIP("DISPLAY", lite_display_create(device));
 	}
 }
 

@@ -53,6 +53,9 @@ private:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 		// define texture
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
 					 static_cast<GLsizei>(display_rgba->width), static_cast<GLsizei>(display_rgba->height), 0,
