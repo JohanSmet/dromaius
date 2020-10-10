@@ -568,7 +568,7 @@ static Chip63xxRom *load_rom(DevCommodorePet *device, const char *filename, size
 		chip_6332_rom_create(device->simulator, signals) :
 		chip_6316_rom_create(device->simulator, signals);
 
-	if (file_load_binary_fixed(filename, rom->data_array, ROM_6332_DATA_SIZE) == 0) {
+	if (file_load_binary_fixed(filename, rom->data_array, (num_lines == 12) ? ROM_6332_DATA_SIZE : ROM_6316_DATA_SIZE) == 0) {
 		rom->destroy(rom);
 		return NULL;
 	}
