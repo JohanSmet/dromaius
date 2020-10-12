@@ -153,6 +153,8 @@ void simulator_simulate_timestep(Simulator *sim) {
 	// process all chips that have a dependency on signal that was changed in the last timestep or have a scheduled wakeup
 	sim_process_sequential(PRIVATE(sim), PRIVATE(sim)->dirty_chips);
 
+	// process any chips that wrote to a signal of which the active writers changed
+	sim_process_sequential(PRIVATE(sim), sim->signal_pool->rerun_chips);
 
 	// determine changed signals and dirty chips for next simulation step
 	PRIVATE(sim)->dirty_chips = signal_pool_cycle_dirty_flags(sim->signal_pool, sim->current_tick);

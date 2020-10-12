@@ -90,7 +90,7 @@ void signal_pool_destroy(SignalPool *pool) {
 	arrfree(pool->signals_curr);
 	arrfree(pool->signals_next);
 	arrfree(pool->signals_default);
-	arrfree(pool->signals_writer);
+	arrfree(pool->signals_writers);
 	arrfree(pool->signals_name);
 	arrfree(pool->signals_last_changed);
 	arrfree(pool->dependent_components);
@@ -119,6 +119,7 @@ void signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
 	}
 
 	pool->tick_last_cycle = current_tick;
+	pool->rerun_chips = 0;
 
 	if (pool->signals_written) {
 		stbds_header(pool->signals_written)->length = 0;
@@ -150,6 +151,7 @@ uint64_t signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick) {
 	}
 
 	pool->tick_last_cycle = current_tick;
+	pool->rerun_chips = 0;
 
 	if (pool->signals_written) {
 		stbds_header(pool->signals_written)->length = 0;
@@ -168,7 +170,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 	arrsetcap(pool->signals_curr, arrlenu(pool->signals_curr) + size);
 	arrsetcap(pool->signals_next, arrlenu(pool->signals_next) + size);
 	arrsetcap(pool->signals_default, arrlenu(pool->signals_default) + size);
-	arrsetcap(pool->signals_writer, arrlenu(pool->signals_default) + size);
+	arrsetcap(pool->signals_writers, arrlenu(pool->signals_default) + size);
 	arrsetcap(pool->signals_name, arrlenu(pool->signals_name) + size);
 	arrsetcap(pool->dependent_components, arrlenu(pool->dependent_components) + size);
 
@@ -178,7 +180,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 		arrpush(pool->signals_next, false);
 		arrpush(pool->signals_default, false);
 		arrpush(pool->signals_name, NULL);
-		arrpush(pool->signals_writer, -1);
+		arrpush(pool->signals_writers, 0);
 		arrpush(pool->dependent_components, 0);
 	}
 

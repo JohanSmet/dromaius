@@ -33,10 +33,12 @@ typedef struct SignalPool {
 	uint32_t *		signals_written;
 	int64_t *		signals_last_changed;
 	bool *			signals_default;
-	int32_t *		signals_writer;
 	const char **	signals_name;
 
+	uint64_t *		signals_writers;
 	uint64_t *		dependent_components;
+	uint64_t		rerun_chips;
+
 	SignalNameMap	*signal_names;
 
 	int64_t			tick_last_cycle;
@@ -117,7 +119,7 @@ static inline void signal_write_bool(SignalPool *pool, Signal signal, bool value
 	assert(pool);
 	assert(signal.count == 1);
 	pool->signals_next[signal.start] = value;
-	pool->signals_writer[signal.start] = chip_id;
+	pool->signals_writers[signal.start] |= 1ull << chip_id;
 	arrpush(pool->signals_written, signal.start);
 }
 
@@ -132,7 +134,7 @@ static inline void signal_write_uint8(SignalPool *pool, Signal signal, uint8_t v
 	}
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		pool->signals_writer[signal.start + i] = chip_id;
+		pool->signals_writers[signal.start + i] |= 1ull << chip_id;
 		arrpush(pool->signals_written, signal.start + i);
 	}
 }
@@ -143,7 +145,7 @@ static inline void signal_write_uint16(SignalPool *pool, Signal signal, uint16_t
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
 		pool->signals_next[signal.start + i] = value & 1;
-		pool->signals_writer[signal.start + i] = chip_id;
+		pool->signals_writers[signal.start + i] |= 1ull << chip_id;
 		arrpush(pool->signals_written, signal.start + i);
 		value = (uint16_t) (value >> 1);
 	}
@@ -154,7 +156,7 @@ static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, ui
 	assert(signal.count <= 8);
 
 	bool *signals_next = pool->signals_next;
-	int32_t *signals_writer = pool->signals_writer;
+	uint64_t *signals_writers = pool->signals_writers;
 
 	if (signal.count == 8 && (signal.start & 0x7) == 0) {
 		uint64_t byte_mask = lut_bit_to_byte[mask];
@@ -164,7 +166,7 @@ static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, ui
 		for (uint32_t i = 0; i < signal.count; ++i) {
 			bool b = (mask >> i) & 1;
 			if (b) {
-				signals_writer[signal.start + i] = chip_id;
+				signals_writers[signal.start + i] |= 1ull << chip_id;
 				arrpush(pool->signals_written, signal.start + i);
 			}
 		}
@@ -173,7 +175,7 @@ static inline void signal_write_uint8_masked(SignalPool *pool, Signal signal, ui
 			bool b = (mask >> i) & 1;
 			if (b) {
 				signals_next[signal.start + i] = (value >> i) & 1;
-				signals_writer[signal.start + i] = chip_id;
+				signals_writers[signal.start + i] |= 1ull << chip_id;
 				arrpush(pool->signals_written, signal.start + i);
 			}
 		}
@@ -188,7 +190,7 @@ static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, u
 		uint8_t b = (mask >> i) & 1;
 		if (b) {
 			pool->signals_next[signal.start + i] = (value >> i) & 1;
-			pool->signals_writer[signal.start + i] = chip_id;
+			pool->signals_writers[signal.start + i] |= 1ull << chip_id;
 			arrpush(pool->signals_written, signal.start + i);
 		}
 	}
@@ -197,11 +199,20 @@ static inline void signal_write_uint16_masked(SignalPool *pool, Signal signal, u
 static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t chip_id) {
 	assert(pool);
 
+	uint64_t dep_mask = 1ull << chip_id;
+
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		if (pool->signals_writer[signal.start + i] == chip_id) {
-			pool->signals_writer[signal.start + i] = -1;
-			pool->signals_next[signal.start + i] = pool->signals_default[signal.start + i];
-			arrpush(pool->signals_written, signal.start + i);
+		if (pool->signals_writers[signal.start + i] & dep_mask) {
+			// clear the correspondig bit
+			pool->signals_writers[signal.start + i] &= ~dep_mask;
+
+			// prod the dormant writers, or set to default if no writers left
+			if (pool->signals_writers[signal.start + i] != 0) {
+				pool->rerun_chips |= pool->signals_writers[signal.start + i];
+			} else {
+				pool->signals_next[signal.start + i] = pool->signals_default[signal.start + i];
+				arrpush(pool->signals_written, signal.start + i);
+			}
 		}
 	}
 }
