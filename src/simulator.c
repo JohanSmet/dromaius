@@ -18,8 +18,7 @@ typedef struct Simulator_private {
 	Simulator				public;
 
 	Chip **					chips;
-	int32_t *				dirty_chips;
-	bool *					chip_is_dirty;
+	uint64_t				dirty_chips;
 
 	ChipEvent *				event_pool;				// re-use pool
 } Simulator_private;
@@ -40,32 +39,31 @@ static inline void sim_handle_event_schedule(Simulator_private *sim) {
 	int32_t chip_id = simulator_pop_scheduled_event(PUBLIC(sim), PUBLIC(sim)->current_tick);
 
 	while (chip_id >= 0) {
-		if (!sim->chip_is_dirty[chip_id]) {
-			arrpush(sim->dirty_chips, chip_id);
-			sim->chip_is_dirty[chip_id] = true;
-		}
-
+		sim->dirty_chips |= 1ull << chip_id;
 		chip_id = simulator_pop_scheduled_event(PUBLIC(sim), PUBLIC(sim)->current_tick);
 	}
 }
 
-static inline void sim_process_sequential(Simulator_private *sim) {
-	for (size_t idx = 0; idx < arrlenu(sim->dirty_chips); ++idx) {
-		Chip *chip = sim->chips[sim->dirty_chips[idx]];
+static inline void sim_process_sequential(Simulator_private *sim, uint64_t dirty_chips) {
+
+	while (dirty_chips > 0) {
+
+		// find the lowest set bit
+		int32_t chip_id = __builtin_ctzll(dirty_chips);
+
+		// process
+		Chip *chip = sim->chips[chip_id];
 		chip->process(chip);
 
 		if (chip->schedule_timestamp > 0) {
 			simulator_schedule_event(PUBLIC(sim), chip->id, chip->schedule_timestamp);
 			chip->schedule_timestamp = 0;
 		}
+
+		// clear the lowest bit
+		dirty_chips &= ~(1ull << chip_id);
 	}
 }
-
-/*
-static inline void sim_process_threadpool(Simulator_private *sim) {
-
-
-} */
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -89,8 +87,6 @@ void simulator_destroy(Simulator *sim) {
 	}
 
 	arrfree(PRIVATE(sim)->chips);
-	arrfree(PRIVATE(sim)->chip_is_dirty);
-	arrfree(PRIVATE(sim)->dirty_chips);
 
 	signal_pool_destroy(sim->signal_pool);
 	free(PRIVATE(sim));
@@ -104,8 +100,7 @@ Chip *simulator_register_chip(Simulator *sim, Chip *chip, const char *name) {
 	chip->name = name;
 	chip->simulator = sim;
 	arrpush(PRIVATE(sim)->chips, chip);
-	arrpush(PRIVATE(sim)->chip_is_dirty, true);
-	arrpush(PRIVATE(sim)->dirty_chips, chip->id);
+	PRIVATE(sim)->dirty_chips |= 1ull << chip->id;
 	return chip;
 }
 
@@ -145,7 +140,7 @@ void simulator_simulate_timestep(Simulator *sim) {
 	assert(sim);
 
 	// advance to next timestamp
-	if (arrlenu(PRIVATE(sim)->dirty_chips)) {
+	if (PRIVATE(sim)->dirty_chips > 0) {
 		++sim->current_tick;
 	} else {
 		// advance to next scheduled event if no chips to be processed
@@ -156,15 +151,11 @@ void simulator_simulate_timestep(Simulator *sim) {
 	sim_handle_event_schedule(PRIVATE(sim));
 
 	// process all chips that have a dependency on signal that was changed in the last timestep or have a scheduled wakeup
-	sim_process_sequential(PRIVATE(sim));
+	sim_process_sequential(PRIVATE(sim), PRIVATE(sim)->dirty_chips);
+
 
 	// determine changed signals and dirty chips for next simulation step
-	memset(PRIVATE(sim)->chip_is_dirty, false, arrlenu(PRIVATE(sim)->chip_is_dirty));
-	if (PRIVATE(sim)->dirty_chips) {
-		stbds_header(PRIVATE(sim)->dirty_chips)->length = 0;
-	}
-
-	signal_pool_cycle_dirty_flags(sim->signal_pool, sim->current_tick, PRIVATE(sim)->chip_is_dirty, &PRIVATE(sim)->dirty_chips);
+	PRIVATE(sim)->dirty_chips = signal_pool_cycle_dirty_flags(sim->signal_pool, sim->current_tick);
 }
 
 void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp) {

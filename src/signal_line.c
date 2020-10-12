@@ -93,10 +93,6 @@ void signal_pool_destroy(SignalPool *pool) {
 	arrfree(pool->signals_writer);
 	arrfree(pool->signals_name);
 	arrfree(pool->signals_last_changed);
-
-	for (ptrdiff_t idx = 0; idx < arrlen(pool->dependent_components); ++idx) {
-		arrfree(pool->dependent_components[idx]);
-	}
 	arrfree(pool->dependent_components);
 
 	free(pool);
@@ -129,8 +125,7 @@ void signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
 	}
 }
 
-void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool *is_dirty_flags, int32_t **dirty_chips) {
-	assert(is_dirty_flags);
+uint64_t signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick) {
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
 	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
 
@@ -138,17 +133,13 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool 
 		signal_trace_mark_timestep(pool->trace, current_tick);
 	#endif
 
+	uint64_t dirty_chips = 0;
+
 	for (size_t i = 0, n = arrlenu(pool->signals_written); i < n;  ++i) {
 		uint32_t s = pool->signals_written[i];
 
 		if (pool->signals_curr[s] != pool->signals_next[s]) {
-			for (size_t dep = 0, dep_n = arrlenu(pool->dependent_components[s]); dep < dep_n; ++dep) {
-				int32_t chip_id = pool->dependent_components[s][dep];
-				if (!is_dirty_flags[chip_id]) {
-					arrpush(*dirty_chips, chip_id);
-					is_dirty_flags[chip_id] = true;
-				}
-			}
+			dirty_chips |= pool->dependent_components[s];
 			pool->signals_last_changed[s] = current_tick;
 			pool->signals_curr[s] = pool->signals_next[s];
 
@@ -163,6 +154,8 @@ void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool 
 	if (pool->signals_written) {
 		stbds_header(pool->signals_written)->length = 0;
 	}
+
+	return dirty_chips;
 }
 
 Signal signal_create(SignalPool *pool, uint32_t size) {
@@ -186,7 +179,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 		arrpush(pool->signals_default, false);
 		arrpush(pool->signals_name, NULL);
 		arrpush(pool->signals_writer, -1);
-		arrpush(pool->dependent_components, NULL);
+		arrpush(pool->dependent_components, 0);
 	}
 
 	return result;
@@ -217,15 +210,14 @@ const char * signal_get_name(SignalPool *pool, Signal signal) {
 	return (name == NULL) ? "" : name;
 }
 
-void signal_add_dependency(SignalPool *pool, Signal signal, int32_t dep_id) {
+void signal_add_dependency(SignalPool *pool, Signal signal, int32_t chip_id) {
 	assert(pool);
+	assert(chip_id >= 0 && chip_id < 64);
 
-	if (dep_id < 0) {
-		return;
-	}
+	uint64_t dep_mask = 1ull << chip_id;
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		arrpush(pool->dependent_components[signal.start + i], dep_id);
+		pool->dependent_components[signal.start + i] |= dep_mask;
 	}
 }
 

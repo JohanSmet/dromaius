@@ -35,8 +35,8 @@ typedef struct SignalPool {
 	bool *			signals_default;
 	int32_t *		signals_writer;
 	const char **	signals_name;
-	int32_t **		dependent_components;
 
+	uint64_t *		dependent_components;
 	SignalNameMap	*signal_names;
 
 	int64_t			tick_last_cycle;
@@ -55,12 +55,12 @@ SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
 
 void signal_pool_cycle(SignalPool *pool, int64_t current_tick);
-void signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick, bool *is_dirty_flags, int32_t **dirty_chips);
+uint64_t signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick);
 
 Signal signal_create(SignalPool *pool, uint32_t size);
 void signal_set_name(SignalPool *pool, Signal Signal, const char *name);
 const char * signal_get_name(SignalPool *pool, Signal signal);
-void signal_add_dependency(SignalPool *pool, Signal signal, int32_t dep_id);
+void signal_add_dependency(SignalPool *pool, Signal signal, int32_t chip_id);
 
 void signal_default_bool(SignalPool *pool, Signal signal, bool value);
 void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value);
