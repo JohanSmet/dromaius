@@ -202,7 +202,7 @@ public:
 
 		if (result.signal.count > 0) {
 			// writer (FIXME: return multiple writers)
-			result.writer_id = BIT_LOWEST_SET(pool->signals_writers[result.signal.start]);
+			result.writer_id = bit_lowest_set(pool->signals_writers[result.signal.start]);
 			result.writer_name = simulator_chip_name(pet_device->simulator, result.writer_id);
 
 			// value

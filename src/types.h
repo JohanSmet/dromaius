@@ -26,6 +26,18 @@
 #define BIT_CLEAR(x,b)	((x) &= (uint8_t) ~(1 << (b)))
 #define BIT_IS_SET(x,b) ((bool) (((x) & (1 << (b))) >> (b)))
 
+#ifdef _MSC_VER
+	inline int bit_lowest_set(uint64_t x) {
+		unsigned long index;
+		_BitScanForward64(&index, x);
+		return index;
+	}
+#else
+	static inline int bit_lowest_set(uint64_t x) {
+		return	__builtin_ctzll(x);
+	}
+#endif
+
 #define FLAG_SET(x,f)			((x) |= (f))
 #define FLAG_CLEAR_U8(x,f)		((x) &= (uint8_t) ~(f))
 #define FLAG_IS_SET(x,f)		((bool) (((x) & (f)) == (f)))

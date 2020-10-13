@@ -49,7 +49,7 @@ static inline void sim_process_sequential(Simulator_private *sim, uint64_t dirty
 	while (dirty_chips > 0) {
 
 		// find the lowest set bit
-		int32_t chip_id = __builtin_ctzll(dirty_chips);
+		int32_t chip_id = bit_lowest_set(dirty_chips);
 
 		// process
 		Chip *chip = sim->chips[chip_id];
