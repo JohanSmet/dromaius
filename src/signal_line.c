@@ -92,7 +92,7 @@ void signal_pool_destroy(SignalPool *pool) {
 	arrfree(pool->signals_default);
 	arrfree(pool->signals_writers);
 	arrfree(pool->signals_name);
-	arrfree(pool->signals_last_changed);
+	arrfree(pool->signals_changed);
 	arrfree(pool->dependent_components);
 
 	free(pool);
@@ -107,10 +107,12 @@ void signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
 		signal_trace_mark_timestep(pool->trace, current_tick);
 	#endif
 
+	memset(pool->signals_changed, false, arrlenu(pool->signals_changed));
+
 	for (size_t i = 0; i < arrlenu(pool->signals_written); ++i) {
 		uint32_t s = pool->signals_written[i];
 		if (pool->signals_curr[s] != pool->signals_next[s]) {
-			pool->signals_last_changed[s] = current_tick;
+			pool->signals_changed[s] = true;
 			pool->signals_curr[s] = pool->signals_next[s];
 			#if DMS_SIGNAL_TRACING
 				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
@@ -134,20 +136,23 @@ uint64_t signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick) {
 		signal_trace_mark_timestep(pool->trace, current_tick);
 	#endif
 
+	memset(pool->signals_changed, false, arrlenu(pool->signals_changed));
 	uint64_t dirty_chips = 0;
 
 	for (size_t i = 0, n = arrlenu(pool->signals_written); i < n;  ++i) {
 		uint32_t s = pool->signals_written[i];
 
-		if (pool->signals_curr[s] != pool->signals_next[s]) {
-			dirty_chips |= pool->dependent_components[s];
-			pool->signals_last_changed[s] = current_tick;
-			pool->signals_curr[s] = pool->signals_next[s];
+		pool->signals_changed[s] = pool->signals_curr[s] ^ pool->signals_next[s];
+		pool->signals_curr[s] = pool->signals_next[s];
 
-			#if DMS_SIGNAL_TRACING
+		uint64_t mask = (uint64_t) (!pool->signals_changed[s] - 1);
+		dirty_chips |= mask & pool->dependent_components[s];
+
+		#if DMS_SIGNAL_TRACING
+			if (pool->signals_changed[s]) {
 				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
-			#endif
-		}
+			}
+		#endif
 	}
 
 	pool->tick_last_cycle = current_tick;
@@ -166,7 +171,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 
 	Signal result = {(uint32_t) arrlenu(pool->signals_curr), size};
 
-	arrsetcap(pool->signals_last_changed, arrlenu(pool->signals_last_changed) + size);
+	arrsetcap(pool->signals_changed, arrlenu(pool->signals_changed) + size);
 	arrsetcap(pool->signals_curr, arrlenu(pool->signals_curr) + size);
 	arrsetcap(pool->signals_next, arrlenu(pool->signals_next) + size);
 	arrsetcap(pool->signals_default, arrlenu(pool->signals_default) + size);
@@ -175,7 +180,7 @@ Signal signal_create(SignalPool *pool, uint32_t size) {
 	arrsetcap(pool->dependent_components, arrlenu(pool->dependent_components) + size);
 
 	for (uint32_t i = 0; i < size; ++i) {
-		arrpush(pool->signals_last_changed, -1);
+		arrpush(pool->signals_changed, false);
 		arrpush(pool->signals_curr, false);
 		arrpush(pool->signals_next, false);
 		arrpush(pool->signals_default, false);

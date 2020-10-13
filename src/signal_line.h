@@ -30,8 +30,8 @@ typedef struct SignalNameMap {
 typedef struct SignalPool {
 	bool *			signals_curr;
 	bool *			signals_next;
+	bool  *			signals_changed;
 	uint32_t *		signals_written;
-	int64_t *		signals_last_changed;
 	bool *			signals_default;
 	const char **	signals_name;
 
@@ -244,7 +244,7 @@ static inline bool signal_changed(SignalPool *pool, Signal signal) {
 	bool result = false;
 
 	for (uint32_t i = 0; i < signal.count; ++i) {
-		result |= (pool->signals_last_changed[signal.start + i] == pool->tick_last_cycle);
+		result |= pool->signals_changed[signal.start + i];
 	}
 
 	return result;
