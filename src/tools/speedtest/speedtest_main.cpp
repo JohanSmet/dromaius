@@ -48,8 +48,6 @@ int main(int argc, char *argv[]) {
 
 	bool ready = false;
 
-	dms_run(dms_ctx);
-
 	while (!ready) {
 		dms_execute_no_sync(dms_ctx);
 

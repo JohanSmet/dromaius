@@ -285,6 +285,7 @@ void dms_execute(DmsContext *dms) {
 #endif // DMS_NO_THREADING
 
 void dms_execute_no_sync(DmsContext *dms) {
+	dms->state = DS_RUN;
 	context_execute(dms);
 }
 
