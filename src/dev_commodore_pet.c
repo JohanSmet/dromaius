@@ -1772,71 +1772,75 @@ DevCommodorePet *create_pet_device(bool lite) {
 	SIGNAL_DEFINE_BOOL_N(init_b, 1, ACTLO_ASSERT, "/INIT");
 	SIGNAL_DEFINE_BOOL_N(init, 1, ACTHI_ASSERT, "INIT");
 
-	SIGNAL_DEFINE_BOOL_N(clk16, 1, true, "CLK16");
-	SIGNAL_DEFINE_BOOL_N(clk8, 1, true, "CLK8");
-	SIGNAL_DEFINE_BOOL_N(clk4, 1, true, "CLK4");
-	SIGNAL_DEFINE_BOOL_N(clk2, 1, true, "CLK2");
 	SIGNAL_DEFINE_BOOL_N(clk1, 1, true, "CLK1");
 
-	SIGNAL_DEFINE_N(bphi2a, 1, "BPHI2A");
-	SIGNAL_DEFINE_N(bphi2b, 1, "BPHI2B");
-	SIGNAL_DEFINE_N(bphi2c, 1, "BPHI2C");
-	SIGNAL_DEFINE_N(bphi2d, 1, "BPHI2D");
-	SIGNAL_DEFINE_N(bphi2e, 1, "BPHI2E");
-	SIGNAL_DEFINE_N(bphi2f, 1, "BPHI2F");
-	SIGNAL_DEFINE_N(bphi2g, 1, "BPHI2G");
-	SIGNAL_DEFINE_N(bphi2h, 1, "BPHI2H");
-
-	SIGNAL_DEFINE_N(bphi2a_b, 1, "/BPHI2A");
-	SIGNAL_DEFINE_N(bphi2b_b, 1, "/BPHI2B");
-	SIGNAL_DEFINE_N(bphi2f_b, 1, "/BPHI2F");
-	SIGNAL_DEFINE_N(bphi2g_b, 1, "/BPHI2G");
-
-	SIGNAL_DEFINE_N(ra1, 1, "RA1");
-	SIGNAL_DEFINE_N(ra1_b, 1, "/RA1");
-	SIGNAL_DEFINE_N(ra2, 1, "RA2");
-	SIGNAL_DEFINE_N(ra3, 1, "RA3");
-	SIGNAL_DEFINE_N(ra4, 1, "RA4");
-	SIGNAL_DEFINE_N(ra5, 1, "RA5");
-	SIGNAL_DEFINE_N(ra6, 1, "RA6");
-	SIGNAL_DEFINE_N(ra6_b, 1, "/RA6");
-
-	SIGNAL_DEFINE_N(ra1and3, 1, "RA1AND3");
-	SIGNAL_DEFINE_N(ra4and6, 1, "RA4AND6");
-	SIGNAL_DEFINE_N(ra5and6_b, 1, "RA5AND/6");
-
-	SIGNAL_DEFINE_N(load_sr, 1, "LOADSR");
-	SIGNAL_DEFINE_N(load_sr_b, 1, "/LOADSR");
-
-	SIGNAL_DEFINE_N(horz_disp_on, 1, "HORZDISPON");
-	SIGNAL_DEFINE_N(horz_disp_off, 1, "HORZDISPOFF");
-	SIGNAL_DEFINE_N(horz_drive, 1, "HORZDRIVE");
-	SIGNAL_DEFINE_N(horz_drive_b, 1, "/HORZDRIVE");
-
-	SIGNAL_DEFINE_N(h8q, 1, "H8Q");
-	SIGNAL_DEFINE_N(h8q_b, 1, "/H8Q");
-	SIGNAL_DEFINE_N(h8q2, 1, "H8Q2");
-	SIGNAL_DEFINE_N(h8q2_b, 1, "/H8Q2");
-
-	SIGNAL_DEFINE_N(video_latch, 1, "VIDEOLATCH");
-	SIGNAL_DEFINE_N(vert_drive, 1, "VERTDRIVE");
-
-	SIGNAL_DEFINE_N(h53, 1, "H53");
-	SIGNAL_DEFINE_N(h4y1, 1, "H4Y1");
-	SIGNAL_DEFINE_N(muxa, 1, "MUXA");
-	SIGNAL_DEFINE_N(h4y4, 1, "H4Y4");
-
-	SIGNAL_DEFINE_N(h1q1, 1, "H1Q1");
-	SIGNAL_DEFINE_N(h1q1_b, 1, "/H1Q1");
-	SIGNAL_DEFINE_N(h1q2, 1, "H1Q2");
-	SIGNAL_DEFINE_N(h1q2_b, 1, "/H1Q2");
-
-	SIGNAL_DEFINE_N(ras0_b, 1, "/RAS0");
-	SIGNAL_DEFINE_N(cas0_b, 1, "/CAS0");
-	SIGNAL_DEFINE_N(cas1_b, 1, "/CAS1");
-	SIGNAL_DEFINE_N(ba14_b, 1, "/BA14");
-
 	SIGNAL_DEFINE_N(video_on, 1, "VIDEOON");
+
+	if (!lite) {
+
+		SIGNAL_DEFINE_BOOL_N(clk16, 1, true, "CLK16");
+		SIGNAL_DEFINE_BOOL_N(clk8, 1, true, "CLK8");
+		SIGNAL_DEFINE_BOOL_N(clk4, 1, true, "CLK4");
+		SIGNAL_DEFINE_BOOL_N(clk2, 1, true, "CLK2");
+
+		SIGNAL_DEFINE_N(bphi2a, 1, "BPHI2A");
+		SIGNAL_DEFINE_N(bphi2b, 1, "BPHI2B");
+		SIGNAL_DEFINE_N(bphi2c, 1, "BPHI2C");
+		SIGNAL_DEFINE_N(bphi2d, 1, "BPHI2D");
+		SIGNAL_DEFINE_N(bphi2e, 1, "BPHI2E");
+		SIGNAL_DEFINE_N(bphi2f, 1, "BPHI2F");
+		SIGNAL_DEFINE_N(bphi2g, 1, "BPHI2G");
+		SIGNAL_DEFINE_N(bphi2h, 1, "BPHI2H");
+
+		SIGNAL_DEFINE_N(bphi2a_b, 1, "/BPHI2A");
+		SIGNAL_DEFINE_N(bphi2b_b, 1, "/BPHI2B");
+		SIGNAL_DEFINE_N(bphi2f_b, 1, "/BPHI2F");
+		SIGNAL_DEFINE_N(bphi2g_b, 1, "/BPHI2G");
+
+		SIGNAL_DEFINE_N(ra1, 1, "RA1");
+		SIGNAL_DEFINE_N(ra1_b, 1, "/RA1");
+		SIGNAL_DEFINE_N(ra2, 1, "RA2");
+		SIGNAL_DEFINE_N(ra3, 1, "RA3");
+		SIGNAL_DEFINE_N(ra4, 1, "RA4");
+		SIGNAL_DEFINE_N(ra5, 1, "RA5");
+		SIGNAL_DEFINE_N(ra6, 1, "RA6");
+		SIGNAL_DEFINE_N(ra6_b, 1, "/RA6");
+
+		SIGNAL_DEFINE_N(ra1and3, 1, "RA1AND3");
+		SIGNAL_DEFINE_N(ra4and6, 1, "RA4AND6");
+		SIGNAL_DEFINE_N(ra5and6_b, 1, "RA5AND/6");
+
+		SIGNAL_DEFINE_N(load_sr, 1, "LOADSR");
+		SIGNAL_DEFINE_N(load_sr_b, 1, "/LOADSR");
+
+		SIGNAL_DEFINE_N(horz_disp_on, 1, "HORZDISPON");
+		SIGNAL_DEFINE_N(horz_disp_off, 1, "HORZDISPOFF");
+		SIGNAL_DEFINE_N(horz_drive, 1, "HORZDRIVE");
+		SIGNAL_DEFINE_N(horz_drive_b, 1, "/HORZDRIVE");
+
+		SIGNAL_DEFINE_N(h8q, 1, "H8Q");
+		SIGNAL_DEFINE_N(h8q_b, 1, "/H8Q");
+		SIGNAL_DEFINE_N(h8q2, 1, "H8Q2");
+		SIGNAL_DEFINE_N(h8q2_b, 1, "/H8Q2");
+
+		SIGNAL_DEFINE_N(video_latch, 1, "VIDEOLATCH");
+		SIGNAL_DEFINE_N(vert_drive, 1, "VERTDRIVE");
+
+		SIGNAL_DEFINE_N(h53, 1, "H53");
+		SIGNAL_DEFINE_N(h4y1, 1, "H4Y1");
+		SIGNAL_DEFINE_N(muxa, 1, "MUXA");
+		SIGNAL_DEFINE_N(h4y4, 1, "H4Y4");
+
+		SIGNAL_DEFINE_N(h1q1, 1, "H1Q1");
+		SIGNAL_DEFINE_N(h1q1_b, 1, "/H1Q1");
+		SIGNAL_DEFINE_N(h1q2, 1, "H1Q2");
+		SIGNAL_DEFINE_N(h1q2_b, 1, "/H1Q2");
+
+		SIGNAL_DEFINE_N(ras0_b, 1, "/RAS0");
+		SIGNAL_DEFINE_N(cas0_b, 1, "/CAS0");
+		SIGNAL_DEFINE_N(cas1_b, 1, "/CAS1");
+		SIGNAL_DEFINE_N(ba14_b, 1, "/BA14");
+	}
 
 	//
 	// signals - sheet 7: display logic
@@ -1844,70 +1848,75 @@ DevCommodorePet *create_pet_device(bool lite) {
 
 	SIGNAL_DEFINE_N(tv_sel, 1, "TVSEL");
 	SIGNAL_DEFINE_N(tv_read_b, 1, "/TVREAD");
-	SIGNAL_DEFINE_N(g6_q, 1, "G6Q");
-	SIGNAL_DEFINE_N(g6_q_b, 1, "/G6Q");
 
-	SIGNAL_DEFINE_N(tv_ram_rw, 1, "TVRAMRW");
-	SIGNAL_DEFINE_N(f6_y3, 1, "F6Y3");
-	SIGNAL_DEFINE_N(bus_sa, 10, "SA%d");
+	if (!lite) {
+		SIGNAL_DEFINE_N(g6_q, 1, "G6Q");
+		SIGNAL_DEFINE_N(g6_q_b, 1, "/G6Q");
 
-	SIGNAL_DEFINE_N(ga2, 1, "GA2");
-	SIGNAL_DEFINE_N(ga3, 1, "GA3");
-	SIGNAL_DEFINE_N(ga4, 1, "GA4");
-	SIGNAL_DEFINE_N(ga5, 1, "GA5");
-	SIGNAL_DEFINE_N(ga6, 1, "GA6");
-	SIGNAL_DEFINE_N(ga7, 1, "GA7");
-	SIGNAL_DEFINE_N(ga8, 1, "GA8");
-	SIGNAL_DEFINE_N(ga9, 1, "GA9");
+		SIGNAL_DEFINE_N(tv_ram_rw, 1, "TVRAMRW");
+		SIGNAL_DEFINE_N(f6_y3, 1, "F6Y3");
+		SIGNAL_DEFINE_N(bus_sa, 10, "SA%d");
 
-	SIGNAL_DEFINE_N(lga2, 1, "LGA2");
-	SIGNAL_DEFINE_N(lga3, 1, "LGA3");
-	SIGNAL_DEFINE_N(lga4, 1, "LGA4");
-	SIGNAL_DEFINE_N(lga5, 1, "LGA5");
-	SIGNAL_DEFINE_N(lga6, 1, "LGA6");
-	SIGNAL_DEFINE_N(lga7, 1, "LGA7");
-	SIGNAL_DEFINE_N(lga8, 1, "LGA8");
-	SIGNAL_DEFINE_N(lga9, 1, "LGA9");
+		SIGNAL_DEFINE_N(ga2, 1, "GA2");
+		SIGNAL_DEFINE_N(ga3, 1, "GA3");
+		SIGNAL_DEFINE_N(ga4, 1, "GA4");
+		SIGNAL_DEFINE_N(ga5, 1, "GA5");
+		SIGNAL_DEFINE_N(ga6, 1, "GA6");
+		SIGNAL_DEFINE_N(ga7, 1, "GA7");
+		SIGNAL_DEFINE_N(ga8, 1, "GA8");
+		SIGNAL_DEFINE_N(ga9, 1, "GA9");
 
-	SIGNAL_DEFINE_BOOL_N(next, 1, true, "NEXT");
-	SIGNAL_DEFINE_BOOL_N(next_b, 1, false, "/NEXT");
+		SIGNAL_DEFINE_N(lga2, 1, "LGA2");
+		SIGNAL_DEFINE_N(lga3, 1, "LGA3");
+		SIGNAL_DEFINE_N(lga4, 1, "LGA4");
+		SIGNAL_DEFINE_N(lga5, 1, "LGA5");
+		SIGNAL_DEFINE_N(lga6, 1, "LGA6");
+		SIGNAL_DEFINE_N(lga7, 1, "LGA7");
+		SIGNAL_DEFINE_N(lga8, 1, "LGA8");
+		SIGNAL_DEFINE_N(lga9, 1, "LGA9");
 
-	SIGNAL_DEFINE_N(reload_next, 1, "RELOADNEXT");
+		SIGNAL_DEFINE_BOOL_N(next, 1, true, "NEXT");
+		SIGNAL_DEFINE_BOOL_N(next_b, 1, false, "/NEXT");
 
-	SIGNAL_DEFINE_BOOL_N(pullup_2, 1, true, "PULLUP2");
+		SIGNAL_DEFINE_N(reload_next, 1, "RELOADNEXT");
 
-	SIGNAL_DEFINE_N(lines_20_b, 1, "/20LINES");
-	SIGNAL_DEFINE_N(lines_200_b, 1, "/200LINES");
-	SIGNAL_DEFINE_N(line_220, 1, "220LINE");
-	SIGNAL_DEFINE_N(lga_hi_b, 1, "/LGAHI");
-	SIGNAL_DEFINE_N(lga_hi, 1, "LGAHI");
-	SIGNAL_DEFINE_N(w220_off, 1, "220OFF");
+		SIGNAL_DEFINE_BOOL_N(pullup_2, 1, true, "PULLUP2");
 
-	SIGNAL_DEFINE_N(video_on_b, 1, "/VIDEOON");
+		SIGNAL_DEFINE_N(lines_20_b, 1, "/20LINES");
+		SIGNAL_DEFINE_N(lines_200_b, 1, "/200LINES");
+		SIGNAL_DEFINE_N(line_220, 1, "220LINE");
+		SIGNAL_DEFINE_N(lga_hi_b, 1, "/LGAHI");
+		SIGNAL_DEFINE_N(lga_hi, 1, "LGAHI");
+		SIGNAL_DEFINE_N(w220_off, 1, "220OFF");
+
+		SIGNAL_DEFINE_N(video_on_b, 1, "/VIDEOON");
+	}
 
 	//
 	// signals - sheet 8: display rams
 	//
 
-	SIGNAL_DEFINE_N(ra7, 1, "RA7");
-	SIGNAL_DEFINE_N(ra8, 1, "RA8");
-	SIGNAL_DEFINE_N(ra9, 1, "RA9");
-	SIGNAL_DEFINE_N(reload_b, 1, "/RELOAD");
-	SIGNAL_DEFINE_BOOL_N(pullup_1, 1, true, "PULLUP1");
+	if (!lite) {
+		SIGNAL_DEFINE_N(ra7, 1, "RA7");
+		SIGNAL_DEFINE_N(ra8, 1, "RA8");
+		SIGNAL_DEFINE_N(ra9, 1, "RA9");
+		SIGNAL_DEFINE_N(reload_b, 1, "/RELOAD");
+		SIGNAL_DEFINE_BOOL_N(pullup_1, 1, true, "PULLUP1");
 
-	SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
-	SIGNAL_DEFINE_N(bus_lsd, 8, "LSD%d");
-	SIGNAL_DEFINE_N(bus_cd, 8, "CD%d");
+		SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
+		SIGNAL_DEFINE_N(bus_lsd, 8, "LSD%d");
+		SIGNAL_DEFINE_N(bus_cd, 8, "CD%d");
 
-	SIGNAL_DEFINE_N(g9q, 1, "G9Q");
-	SIGNAL_DEFINE_N(g9q_b, 1, "/G9Q");
-	SIGNAL_DEFINE_N(e11qh, 1, "E11QH");
-	SIGNAL_DEFINE_N(e11qh_b, 1, "/E11QH");
-	SIGNAL_DEFINE_N(g106, 1, "G106");
-	SIGNAL_DEFINE_N(g108, 1, "G108");
-	SIGNAL_DEFINE_N(h108, 1, "H108");
+		SIGNAL_DEFINE_N(g9q, 1, "G9Q");
+		SIGNAL_DEFINE_N(g9q_b, 1, "/G9Q");
+		SIGNAL_DEFINE_N(e11qh, 1, "E11QH");
+		SIGNAL_DEFINE_N(e11qh_b, 1, "/E11QH");
+		SIGNAL_DEFINE_N(g106, 1, "G106");
+		SIGNAL_DEFINE_N(g108, 1, "G108");
+		SIGNAL_DEFINE_N(h108, 1, "H108");
 
-	SIGNAL_DEFINE_N(video, 1, "VIDEO");
+		SIGNAL_DEFINE_N(video, 1, "VIDEO");
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//
