@@ -3,7 +3,7 @@
 #include "panel_dev_commodore_pet.h"
 
 #include "dev_commodore_pet.h"
-#include "display_pet_crt.h"
+#include "perif_pet_crt.h"
 
 #if DMS_SIGNAL_TRACING
 #include "signal_dumptrace.h"

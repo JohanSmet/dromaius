@@ -296,7 +296,7 @@ typedef struct DevCommodorePet {
 	struct Chip6522 *		via;
 
 	struct InputKeypad *	keypad;
-	struct DisplayPetCrt *	crt;
+	struct PerifPetCrt *	crt;
 	struct DisplayRGBA *	screen;
 
 	bool					in_reset;

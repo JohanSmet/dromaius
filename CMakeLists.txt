@@ -158,8 +158,6 @@ target_sources(${LIB_TARGET}
 		src/dev_commodore_pet.h
 		src/dev_minimal_6502.c
 		src/dev_minimal_6502.h
-		src/display_pet_crt.c
-		src/display_pet_crt.h
 		src/display_rgba.c
 		src/display_rgba.h
 		src/filt_6502_asm.c
@@ -168,6 +166,8 @@ target_sources(${LIB_TARGET}
 		src/input_keypad.h
 		src/log.c
 		src/log.h
+		src/perif_pet_crt.c
+		src/perif_pet_crt.h
 		src/ram_8d_16a.c
 		src/ram_8d_16a.h
 		src/rom_8d_16a.c

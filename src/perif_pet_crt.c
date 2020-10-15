@@ -1,8 +1,8 @@
-// display_pet_crt.c - Johan Smet - BSD-3-Clause (see LICENSE)
+// perif_pet_crt.c - Johan Smet - BSD-3-Clause (see LICENSE)
 //
 // Emulation of the PET 2001N 9" CRT Display
 
-#include "display_pet_crt.h"
+#include "perif_pet_crt.h"
 #include "simulator.h"
 
 #include <assert.h>
@@ -17,11 +17,11 @@
 #define COLOR_ON	0xff55ff55
 #define COLOR_BEAM  0xffffffff
 
-DisplayPetCrt *display_pet_crt_create(Simulator *sim, DisplayPetCrtSignals signals) {
-	DisplayPetCrt *crt = (DisplayPetCrt *) calloc(1, sizeof(DisplayPetCrt));
+PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
+	PerifPetCrt *crt = (PerifPetCrt *) calloc(1, sizeof(PerifPetCrt));
 
 	// chip
-	CHIP_SET_FUNCTIONS(crt, display_pet_crt_process, display_pet_crt_destroy, display_pet_crt_register_dependencies);
+	CHIP_SET_FUNCTIONS(crt, perif_pet_crt_process, perif_pet_crt_destroy, perif_pet_crt_register_dependencies);
 
 	// signals
 	crt->simulator = sim;
@@ -46,21 +46,20 @@ DisplayPetCrt *display_pet_crt_create(Simulator *sim, DisplayPetCrtSignals signa
 	return crt;
 }
 
-void display_pet_crt_destroy(DisplayPetCrt *crt) {
+void perif_pet_crt_destroy(PerifPetCrt *crt) {
 	assert(crt);
 	display_rgba_destroy(crt->display);
 	free(crt);
 }
 
-void display_pet_crt_register_dependencies(DisplayPetCrt *crt) {
+void perif_pet_crt_register_dependencies(PerifPetCrt *crt) {
 	assert(crt);
 	signal_add_dependency(crt->signal_pool, SIGNAL(horz_drive_in), crt->id);
 	signal_add_dependency(crt->signal_pool, SIGNAL(vert_drive_in), crt->id);
 }
 
-void display_pet_crt_process(DisplayPetCrt *crt) {
+void perif_pet_crt_process(PerifPetCrt *crt) {
 	assert(crt);
-
 
 	// in vertical retrace?
 	if (!SIGNAL_BOOL(vert_drive_in)) {

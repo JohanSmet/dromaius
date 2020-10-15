@@ -16,7 +16,7 @@
 #include "chip_rom.h"
 #include "cpu_6502.h"
 #include "input_keypad.h"
-#include "display_pet_crt.h"
+#include "perif_pet_crt.h"
 #include "stb/stb_ds.h"
 
 #include "ram_8d_16a.h"
@@ -1508,7 +1508,7 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 
 	// display
 	if (!lite) {
-		device->crt = display_pet_crt_create(device->simulator, (DisplayPetCrtSignals) {
+		device->crt = perif_pet_crt_create(device->simulator, (PerifPetCrtSignals) {
 											.video_in = SIGNAL(video),
 											.horz_drive_in = SIGNAL(horz_drive),
 											.vert_drive_in = SIGNAL(vert_drive)
