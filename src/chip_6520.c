@@ -330,6 +330,9 @@ Chip6520 *chip_6520_create(Simulator *sim, Chip6520Signals signals) {
 	SIGNAL_DEFINE_BOOL(cs2_b,	1, ACTLO_DEASSERT);
 	SIGNAL_DEFINE_BOOL(rw,		1, true);
 
+	// port-A has passive resistive pull-ups
+	signal_default_uint8(SIGNAL_POOL, SIGNAL(port_a), 0xff);
+
 	return pia;
 }
 
