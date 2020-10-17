@@ -8,7 +8,7 @@
 #include "context.h"
 #include "cpu_6502.h"
 #include "dev_commodore_pet.h"
-#include "display_pet_crt.h"
+#include "perif_pet_crt.h"
 #include "input_keypad.h"
 
 #include "stb/stb_ds.h"
