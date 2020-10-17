@@ -166,6 +166,8 @@ target_sources(${LIB_TARGET}
 		src/input_keypad.h
 		src/log.c
 		src/log.h
+		src/perif_datassette_1530.h
+		src/perif_datassette_1530.c
 		src/perif_pet_crt.c
 		src/perif_pet_crt.h
 		src/ram_8d_16a.c

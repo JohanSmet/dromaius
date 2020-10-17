@@ -300,6 +300,7 @@ typedef struct DevCommodorePet {
 	struct InputKeypad *	keypad;
 	struct PerifPetCrt *	crt;
 	struct DisplayRGBA *	screen;
+	struct PerifDatassette *datassette;
 
 	bool					in_reset;
 

@@ -17,6 +17,7 @@
 #include "cpu_6502.h"
 #include "input_keypad.h"
 #include "perif_pet_crt.h"
+#include "perif_datassette_1530.h"
 #include "stb/stb_ds.h"
 
 #include "ram_8d_16a.h"
@@ -826,7 +827,7 @@ void circuit_create_03(DevCommodorePet *device) {
 										.port_a = SIGNAL(c7_porta),
 										.port_b = SIGNAL(bus_kin),
 										.cb1 = SIGNAL(video_on),
-										.cb2 = SIGNAL(cass_motor_1)
+										.cb2 = SIGNAL(cass_motor_1_b)
 	});
 	DEVICE_REGISTER_CHIP("C7", device->pia_2);
 
@@ -1544,6 +1545,15 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 		device->screen = display_rgba_create(40 * 8, 25 * 8);
 		DEVICE_REGISTER_CHIP("DISPLAY", lite_display_create(device));
 	}
+
+	// datassette
+	device->datassette = perif_datassette_create(device->simulator, (PerifDatassetteSignals) {
+											.sense = SIGNAL(cass_switch_1),
+											.motor = SIGNAL(cass_motor_1),
+											.data_from_ds = SIGNAL(cass_read_1),
+											.data_to_ds = SIGNAL(cass_write)
+	});
+	DEVICE_REGISTER_CHIP("CASS1", device->datassette);
 }
 
 // lite-PET: RAM circuitry
