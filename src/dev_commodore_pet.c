@@ -42,6 +42,8 @@ typedef struct ChipGlueLogic {
 static void glue_logic_destroy(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_01(ChipGlueLogic *chip);
 static void glue_logic_process_01(ChipGlueLogic *chip);
+static void glue_logic_register_dependencies_03(ChipGlueLogic *chip);
+static void glue_logic_process_03(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_05(ChipGlueLogic *chip);
 static void glue_logic_process_05(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_06(ChipGlueLogic *chip);
@@ -60,6 +62,8 @@ static ChipGlueLogic *glue_logic_create(DevCommodorePet *device, int sheet) {
 
 	if (sheet == 1) {
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_01, glue_logic_destroy, glue_logic_register_dependencies_01);
+	} else if (sheet == 3) {
+		CHIP_SET_FUNCTIONS(chip, glue_logic_process_03, glue_logic_destroy, glue_logic_register_dependencies_03);
 	} else if (sheet == 5) {
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_05, glue_logic_destroy, glue_logic_register_dependencies_05);
 	} else if (sheet == 6) {
@@ -182,6 +186,24 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals.irqb_b) &&
 				 signal_read_next_bool(SIGNAL_POOL, device->via->signals.irq_b);
 	SIGNAL_SET_BOOL(irq_b, irq_b);
+}
+
+// glue-logic: cassette & keyboard
+
+static void glue_logic_register_dependencies_03(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	signal_add_dependency(SIGNAL_POOL, SIGNAL(cass_motor_1_b), chip->id);
+	signal_add_dependency(SIGNAL_POOL, SIGNAL(cass_motor_2_b), chip->id);
+}
+
+static void glue_logic_process_03(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	SIGNAL_SET_BOOL(cass_motor_1, !SIGNAL_BOOL(cass_motor_1_b));
+	SIGNAL_SET_BOOL(cass_motor_2, !SIGNAL_BOOL(cass_motor_2_b));
 }
 
 // glue-logic: rams
@@ -756,6 +778,9 @@ static void circuit_create_01(DevCommodorePet *device) {
 										.y14  = signal_split(SIGNAL(bus_bd), 7, 1),				// 12
 										.a21  = signal_split(SIGNAL(bus_bd), 7, 1)				// 11
 	}));
+
+	// glue-logic
+	DEVICE_REGISTER_CHIP("LOGIC1", glue_logic_create(device, 1));
 }
 
 // sheet 02: IEEE-488 Interface
@@ -780,9 +805,6 @@ void circuit_create_02(DevCommodorePet *device) {
 										.cb2 = SIGNAL(dav_out_b)
 	});
 	DEVICE_REGISTER_CHIP("C6", device->pia_1);
-
-	// glue-logic
-	DEVICE_REGISTER_CHIP("LOGIC1", glue_logic_create(device, 1));
 }
 
 // sheet 03: cassette & keyboard
@@ -846,6 +868,9 @@ void circuit_create_03(DevCommodorePet *device) {
 										.y8_b = signal_split(SIGNAL(bus_kout), 8, 1),
 										.y9_b = signal_split(SIGNAL(bus_kout), 9, 1)
 	}));
+
+	// glue-logic
+	DEVICE_REGISTER_CHIP("LOGIC3", glue_logic_create(device, 3));
 }
 
 
@@ -1707,13 +1732,14 @@ DevCommodorePet *create_pet_device(bool lite) {
 
 	SIGNAL_DEFINE_N(ca1, 1, "CA1");
 	SIGNAL_DEFINE_N(graphic, 1, "GRAPHIC");
+	SIGNAL_DEFINE_N(cass_motor_2, 1, "CASSMOTOR2");
 
 	SIGNAL_DEFINE(c5_portb, 8);
 	SIGNAL(ndac_in_b) = signal_split(SIGNAL(c5_portb), 0, 1);
 	SIGNAL(nrfd_out_b) = signal_split(SIGNAL(c5_portb), 1, 1);
 	SIGNAL(atn_out_b) = signal_split(SIGNAL(c5_portb), 2, 1);
 	SIGNAL(cass_write) = signal_split(SIGNAL(c5_portb), 3, 1);
-	SIGNAL(cass_motor_2) = signal_split(SIGNAL(c5_portb), 4, 1);
+	SIGNAL(cass_motor_2_b) = signal_split(SIGNAL(c5_portb), 4, 1);
 	SIGNAL(video_on_2) = signal_split(SIGNAL(c5_portb), 5, 1);
 	SIGNAL(nrfd_in_b) = signal_split(SIGNAL(c5_portb), 6, 1);
 	SIGNAL(dav_in_b) = signal_split(SIGNAL(c5_portb), 7, 1);
@@ -1721,7 +1747,7 @@ DevCommodorePet *create_pet_device(bool lite) {
 	signal_set_name(SIGNAL_POOL, SIGNAL(nrfd_out_b), "/NRFDOUT");
 	signal_set_name(SIGNAL_POOL, SIGNAL(atn_out_b), "/ATNOUT");
 	signal_set_name(SIGNAL_POOL, SIGNAL(cass_write), "CASSWRITE");
-	signal_set_name(SIGNAL_POOL, SIGNAL(cass_motor_2), "CASSMOTOR2");
+	signal_set_name(SIGNAL_POOL, SIGNAL(cass_motor_2_b), "/CASSMOTOR2");
 	signal_set_name(SIGNAL_POOL, SIGNAL(nrfd_in_b), "/NRFDIN");
 	signal_set_name(SIGNAL_POOL, SIGNAL(dav_in_b), "/DAVIN");
 
@@ -1749,6 +1775,7 @@ DevCommodorePet *create_pet_device(bool lite) {
 	SIGNAL_DEFINE_N(cass_read_1, 1, "CASSREAD1");
 	SIGNAL_DEFINE_N(cass_read_2, 1, "CASSREAD2");
 	SIGNAL_DEFINE_N(cass_motor_1, 1, "CASSMOTOR1");
+	SIGNAL_DEFINE_N(cass_motor_1_b, 1, "/CASSMOTOR1");
 
 	SIGNAL_DEFINE_N(bus_pa, 8, "PA%d");
 	SIGNAL_DEFINE_N(bus_kin, 8, "KIN%d");

@@ -128,7 +128,9 @@ typedef struct DevCommodorePetSignals {
 	Signal		diag;				// 1-bit
 
 	Signal		cass_motor_1;		// 1-bit
+	Signal		cass_motor_1_b;		// 1-bit
 	Signal		cass_motor_2;		// 1-bit
+	Signal		cass_motor_2_b;		// 1-bit
 	Signal		cass_read_1;		// 1-bit
 	Signal		cass_read_2;		// 1-bit
 	Signal		cass_switch_1;		// 1-bit
