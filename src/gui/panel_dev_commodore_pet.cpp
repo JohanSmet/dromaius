@@ -20,6 +20,7 @@
 #include "panel_input_pet.h"
 #include "panel_display_rgba.h"
 #include "panel_signals.h"
+#include "panel_datassette.h"
 
 #include "popup_file_selector.h"
 
@@ -194,6 +195,18 @@ public:
 				ImGui::SameLine();
 				if (ImGui::SmallButton("View##view_via")) {
 					auto pnl = panel_chip_6522_create(ui_context, {420, 342}, device->via);
+					ui_context->panel_add(std::move(pnl));
+				}
+
+				ImGui::TreePop();
+			}
+
+			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+			if (ImGui::TreeNode("Peripherals")) {
+				ImGui::Text("Datasette #1");
+				ImGui::SameLine();
+				if (ImGui::SmallButton("Open##open_datasette")) {
+					auto pnl = panel_datassette_create(ui_context, {340, 310}, device->datassette);
 					ui_context->panel_add(std::move(pnl));
 				}
 
