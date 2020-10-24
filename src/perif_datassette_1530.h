@@ -34,9 +34,12 @@ typedef struct PerifDatassetteSignals {
 typedef struct TapData {
 	int8_t *	raw;
 
+	char *		file_path;
+
 	int			version;
 	uint8_t	*	data;		// pointer into raw, do not free
 	uint8_t *	current;
+	uint8_t *	end;
 
 } TapData;
 
@@ -57,6 +60,9 @@ typedef struct PerifDatassette {
 	int64_t					tick_next_transition;
 	int64_t					offset_ps;
 
+	int64_t					record_prev_tick;
+	int32_t					record_count;
+
 	TapData					tap;
 
 } PerifDatassette;
@@ -65,7 +71,8 @@ typedef struct PerifDatassette {
 PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteSignals signals);
 
 void perif_datassette_key_pressed(PerifDatassette *datassette, PerifDatassetteKeys key);
-void perif_datassette_load(PerifDatassette *datassette, const char *filename);
+void perif_datassette_load_tap(PerifDatassette *datassette, const char *filename);
+void perif_datassette_new_tap(PerifDatassette *datassette, const char *filename);
 
 #ifdef __cplusplus
 }

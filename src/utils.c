@@ -12,7 +12,7 @@
 
 size_t file_load_binary_fixed(const char *filename, uint8_t *buffer, size_t max_len) {
 	assert(filename);
-	
+
 	FILE *fp = fopen(filename, "rb");
 	if (!fp) {
 		// FIXME: an error message would be nice
@@ -49,6 +49,20 @@ size_t file_load_binary(const char* filename, int8_t** buffer) {
 
 	arrsetlen(*buffer, total_size);
 	return total_size;
+}
+
+bool file_save_binary(const char *filename, int8_t *data, size_t size) {
+
+	FILE *fp = fopen(filename, "wb");
+	if (!fp) {
+		// FIXME: an error message would be nice
+		return false;
+	}
+
+	size_t written = fwrite(data, 1, size, fp);
+	fclose(fp);
+
+	return written == size;
 }
 
 void dir_list_files(const char *path, const char *ext, const char *prefix, const char ***file_list) {

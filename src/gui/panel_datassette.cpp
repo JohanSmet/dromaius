@@ -7,6 +7,7 @@
 
 #include "widgets.h"
 #include "imgui_ex.h"
+#include <imgui/misc/cpp/imgui_stdlib.h>
 
 #include "popup_file_selector.h"
 
@@ -71,22 +72,30 @@ public:
 			if (ImGui::Button("Eject")) {
 				perif_datassette_key_pressed(datassette, DS_KEY_EJECT);
 			}
-			ImGui::SameLine();
 
 			load_tap = ImGui::Button("Load");
+			ImGui::SameLine();
 
-			ImGui::Text("Position %.3lld (%s)", PS_TO_S(datassette->offset_ps), ds_state_strings[datassette->state]);
+			if (ImGui::Button("New")) {
+				perif_datassette_new_tap(datassette, path_for_tap_file(tap_filename).c_str());
+			}
+			ImGui::SameLine();
+			ImGui::InputText("##new_tap", &tap_filename);
 
+			auto origin = ImGui::GetCursorPos();
 			ui_signal(20, "/SENSE", SIGNAL_NEXT_BOOL(sense), ACTLO_ASSERT);
 			ui_signal(20, "MOTOR", SIGNAL_NEXT_BOOL(motor), ACTHI_ASSERT);
 			ui_signal(20, "READ", SIGNAL_NEXT_BOOL(data_from_ds), ACTHI_ASSERT);
 			ui_signal(20, "WRITE", SIGNAL_NEXT_BOOL(data_to_ds), ACTHI_ASSERT);
+
+			ImGui::SetCursorPos({140, origin.y});
+			ImGui::Text("Position %.3lld (%s)", PS_TO_S(datassette->offset_ps), ds_state_strings[datassette->state]);
 		}
 
 		tap_selection->define_popup();
 		if (load_tap) {
 			tap_selection->display_popup([&](std::string selected_file) {
-				perif_datassette_load(datassette, path_for_tap_file(selected_file).c_str());
+				perif_datassette_load_tap(datassette, path_for_tap_file(selected_file).c_str());
 			});
 		}
 
@@ -97,6 +106,8 @@ private:
 	ImVec2					position;
 	const ImVec2			size = {330, 0};
 	PerifDatassette *		datassette;
+
+	std::string				tap_filename = "new.tap";
 
 	PopupFileSelector::uptr_t tap_selection = PopupFileSelector::make_unique(ui_context, tap_path.c_str() , ".tap", "");
 

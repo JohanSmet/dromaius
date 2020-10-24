@@ -98,6 +98,8 @@ target_sources(${IMGUI_TARGET}
 		libs/imgui/examples/imgui_impl_glfw.h
 		libs/imgui/examples/imgui_impl_opengl3.cpp
 		libs/imgui/examples/imgui_impl_opengl3.h
+		libs/imgui/misc/cpp/imgui_stdlib.cpp
+		libs/imgui/misc/cpp/imgui_stdlib.h
 )
 target_compile_definitions(${IMGUI_TARGET} PUBLIC -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 target_include_directories(${IMGUI_TARGET} SYSTEM PUBLIC libs libs/imgui libs/glad)
