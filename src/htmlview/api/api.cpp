@@ -9,6 +9,7 @@
 #include "cpu_6502.h"
 #include "dev_commodore_pet.h"
 #include "perif_pet_crt.h"
+#include "perif_datassette_1530.h"
 #include "input_keypad.h"
 
 #include "stb/stb_ds.h"
@@ -131,6 +132,27 @@ public:
 		}
 
 		return result;
+	}
+
+	// datassette control
+	void datassette_load_tap(std::string tap_data) {
+		perif_datassette_load_tap_from_memory(
+				pet_device->datassette,
+				reinterpret_cast<const int8_t *> (tap_data.c_str()),
+				tap_data.size());
+	}
+
+	std::string datassette_status() {
+		static constexpr const char *ds_state_strings[] = {"Idle", "Tape Loaded", "Playing", "Recording", "Rewinding", "Fast-Forwarding"};
+		return ds_state_strings[pet_device->datassette->state];
+	}
+
+	void datassette_play() {
+		perif_datassette_key_pressed(pet_device->datassette, DS_KEY_PLAY);
+	}
+
+	void datassette_stop() {
+		perif_datassette_key_pressed(pet_device->datassette, DS_KEY_STOP);
 	}
 
 	// data access
@@ -319,6 +341,10 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("keyboard_num_columns", &DmsApi::keyboard_num_columns)
 		.function("keyboard_key_pressed", &DmsApi::keyboard_key_pressed)
 		.function("keyboard_keys_down", &DmsApi::keyboard_keys_down)
+		.function("datassette_load_tap", &DmsApi::datassette_load_tap)
+		.function("datassette_status", &DmsApi::datassette_status)
+		.function("datassette_play", &DmsApi::datassette_play)
+		.function("datassette_stop", &DmsApi::datassette_stop)
 		.function("display_data", &DmsApi::display_data)
 		.function("signal_data", &DmsApi::signal_data)
 		.function("breakpoint_signal_list", &DmsApi::breakpoint_signal_list)
