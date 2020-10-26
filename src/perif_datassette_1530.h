@@ -71,7 +71,8 @@ typedef struct PerifDatassette {
 PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteSignals signals);
 
 void perif_datassette_key_pressed(PerifDatassette *datassette, PerifDatassetteKeys key);
-void perif_datassette_load_tap(PerifDatassette *datassette, const char *filename);
+void perif_datassette_load_tap_from_file(PerifDatassette *datassette, const char *filename);
+void perif_datassette_load_tap_from_memory(PerifDatassette *datassette, const int8_t *data, size_t data_len);
 void perif_datassette_new_tap(PerifDatassette *datassette, const char *filename);
 
 #ifdef __cplusplus

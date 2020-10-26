@@ -37,15 +37,11 @@ typedef enum {
 #define TAP_FILE_SIGNATURE "C64-TAPE-RAW"
 #define TAP_REW_FFWD_SAMPLES	1000
 
-static bool tap_load(const char *filename, TapData *tap) {
-	assert(filename);
+static bool tap_parse_raw_buffer(TapData *tap) {
 	assert(tap);
+	assert(tap->raw);
 
-	if (!file_load_binary(filename, &tap->raw)) {
-		return false;
-	}
-
-	// parse header
+	// check header signature
 	if (!strncmp((const char *) tap->raw, TAP_FILE_SIGNATURE, sizeof(TAP_FILE_SIGNATURE))) {
 		return false;
 	}
@@ -54,16 +50,31 @@ static bool tap_load(const char *filename, TapData *tap) {
 	tap->data    = (uint8_t *) (tap->raw + 0x14);
 	tap->current = tap->data;
 
-	uint32_t tap_size = *((uint32_t *) (tap->raw + 0x10));
+	uint8_t *version = (uint8_t *) tap->raw + 0x10;
+	uint32_t tap_size = (uint32_t) (version[0] | version[1] << 8 | version[2] << 16 | version[3] << 24);
 
 	if (arrlenu(tap->raw) != tap_size + 0x14) {
 		return false;
 	}
 
 	tap->end = tap->data + tap_size;
-	tap->file_path = strdup(filename);
 
 	return true;
+}
+
+static bool tap_load(const char *filename, TapData *tap) {
+	assert(filename);
+	assert(tap);
+
+	// load file into memory
+	tap->file_path = strdup(filename);
+
+	if (!file_load_binary(filename, &tap->raw)) {
+		return false;
+	}
+
+	// parse the raw tap data
+	return tap_parse_raw_buffer(tap);
 }
 
 static bool tap_new(const char *filename, TapData *tap) {
@@ -360,11 +371,25 @@ void perif_datassette_key_pressed(PerifDatassette *datassette, PerifDatassetteKe
 	}
 }
 
-void perif_datassette_load_tap(PerifDatassette *datassette, const char *filename) {
+void perif_datassette_load_tap_from_file(PerifDatassette *datassette, const char *filename) {
 	assert(datassette);
 	assert(filename);
 
 	if (tap_load(filename, &datassette->tap)) {
+		ds_change_state(datassette, STATE_TAPE_LOADED);
+	}
+}
+
+void perif_datassette_load_tap_from_memory(PerifDatassette *datassette, const int8_t *data, size_t data_len) {
+	assert(datassette);
+	assert(data);
+
+	// copy the data to a buffer owned by us
+	arrsetlen(datassette->tap.raw, data_len);
+	memcpy(datassette->tap.raw, data, data_len);
+
+	// parse the tap data
+	if (tap_parse_raw_buffer(&datassette->tap)) {
 		ds_change_state(datassette, STATE_TAPE_LOADED);
 	}
 }

@@ -95,7 +95,7 @@ public:
 		tap_selection->define_popup();
 		if (load_tap) {
 			tap_selection->display_popup([&](std::string selected_file) {
-				perif_datassette_load_tap(datassette, path_for_tap_file(selected_file).c_str());
+				perif_datassette_load_tap_from_file(datassette, path_for_tap_file(selected_file).c_str());
 			});
 		}
 
