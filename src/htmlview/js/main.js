@@ -45,6 +45,7 @@ export class MainUI {
 		this.panel_breakpoints_signal = new PanelBreakpointsSignal(this.dmsapi);
 		this.panel_datassette = new PanelDatassette(this.dmsapi);
 		this.panel_keyboard = new PanelKeyboard(this.dmsapi);
+		this.panel_datassette = new PanelDatassette(this.dmsapi);
 
 		// UI - signal hovering
 		this.hovered_signal = '';
@@ -94,7 +95,6 @@ export class MainUI {
 		var svg_style = document.documentElement.style;
 
 		const sig_data = this.dmsapi.signal_data();
-
 		for (var s_id = 0; s_id < sig_data.length; ++s_id) {
 			var s_name = this.signal_css_vars[s_id];
 			svg_style.setProperty(s_name, UI_SIGNAL_COLORS[sig_data[s_id]]);
