@@ -33,10 +33,20 @@ typedef enum DMS_STATE {
 	DS_EXIT = 99
 } DMS_STATE;
 
+// TODO: all variables that can be modified by a user should be moved to the config struct
+struct Config {
+	DMS_STATE		state;
+
+	int64_t			target_sim_real_ratio;		// (4 decimal places)
+};
+
 typedef struct DmsContext {
 	Simulator *		simulator;
 	Device *		device;
-	DMS_STATE		state;
+
+	struct Config	config_ui;					// configuration that is set/changed by the user
+	struct Config	config;						// configuration that is in use by the context
+	bool			config_changed;				// ui-config was changed, context should update config
 
 	Signal			step_signal;
 	bool			step_pos_edge;
@@ -49,7 +59,6 @@ typedef struct DmsContext {
 	Stopwatch *		stopwatch;
 	int64_t			tick_start_run;
 	int64_t			actual_sim_real_ratio;		// (4 decimal places)
-	int64_t			target_sim_real_ratio;		// (4 decimal places)
 
 	int64_t			sync_tick_interval;			// sync sim & real-time at this interval
 
@@ -57,6 +66,8 @@ typedef struct DmsContext {
 	thread_t		thread;
 	mutex_t			mtx_wait;
 	cond_t			cnd_wait;
+
+	mutex_t			mtx_config;
 #endif // DMS_NO_THREADING
 } DmsContext;
 
@@ -66,11 +77,15 @@ typedef struct DmsContext {
 //
 
 #ifndef DMS_NO_THREADING
-	#define MUTEX_LOCK(dms)		mutex_lock(&(dms)->mtx_wait)
-	#define MUTEX_UNLOCK(dms)	mutex_unlock(&(dms)->mtx_wait)
+	#define MUTEX_LOCK(dms)				mutex_lock(&(dms)->mtx_wait)
+	#define MUTEX_UNLOCK(dms)			mutex_unlock(&(dms)->mtx_wait)
+	#define MUTEX_CONFIG_LOCK(dms)		mutex_lock(&(dms)->mtx_config)
+	#define MUTEX_CONFIG_UNLOCK(dms)	mutex_unlock(&(dms)->mtx_config)
 #else
 	#define MUTEX_LOCK(dms)
 	#define MUTEX_UNLOCK(dms)
+	#define MUTEX_CONFIG_LOCK(dms)
+	#define MUTEX_CONFIG_UNLOCK(dms)
 #endif
 
 static inline int breakpoint_index(DmsContext *dms, int64_t addr) {
@@ -105,19 +120,46 @@ static inline bool signal_breakpoint_triggered(DmsContext *dms) {
 
 static inline void sync_simulation_with_real_time(DmsContext *dms) {
 	// sync simulation time with realtime
-	if (dms->state != DS_RUN) {
+	if (dms->config.state != DS_RUN) {
 		return;
 	}
 
 	int64_t real_ps = stopwatch_time_elapsed_ps(dms->stopwatch);
 	int64_t sim_ps  = (dms->simulator->current_tick - dms->tick_start_run) * dms->simulator->tick_duration_ps;
 
+	MUTEX_CONFIG_LOCK(dms);
 	dms->actual_sim_real_ratio = (sim_ps * 10000) / real_ps;
+	MUTEX_CONFIG_UNLOCK(dms);
 
-	int64_t delta = ((sim_ps * 10000) / dms->target_sim_real_ratio) - real_ps;
+	int64_t delta = ((sim_ps * 10000) / dms->config.target_sim_real_ratio) - real_ps;
 
 	if (delta > SYNC_MIN_DIFF_PS) {
 		stopwatch_sleep(delta);
+	}
+}
+
+static inline void context_change_state(DmsContext *dms, DMS_STATE new_state) {
+	MUTEX_CONFIG_LOCK(dms);
+	dms->config.state = new_state;
+	dms->config_ui.state = new_state;
+	MUTEX_CONFIG_UNLOCK(dms);
+}
+
+static inline void context_update_config(DmsContext *dms) {
+	bool reset_stopwatch = false;
+
+	MUTEX_CONFIG_LOCK(dms);
+	if (dms->config_changed) {
+		reset_stopwatch = dms->config.target_sim_real_ratio != dms->config_ui.target_sim_real_ratio;
+		memcpy(&dms->config, &dms->config_ui, sizeof(struct Config));
+		dms->config_changed = false;
+	}
+	MUTEX_CONFIG_UNLOCK(dms);
+
+	if (reset_stopwatch && dms->stopwatch->running) {
+		stopwatch_stop(dms->stopwatch);
+		stopwatch_start(dms->stopwatch);
+		dms->tick_start_run = dms->simulator->current_tick;
 	}
 }
 
@@ -126,40 +168,45 @@ static bool context_execute(DmsContext *dms) {
 	Cpu *cpu = dms->device->get_cpu(dms->device);
 	int64_t tick_max = dms->simulator->current_tick + dms->sync_tick_interval;
 
-	while (dms->state != DS_WAIT && dms->simulator->current_tick < tick_max) {
+	// check for changed config by UI
+	context_update_config(dms);
 
-		if (dms->state == DS_RUN && !dms->stopwatch->running) {
+	while (dms->config.state != DS_WAIT && dms->simulator->current_tick < tick_max) {
+
+		// start stopwatch if not already activated
+		if (dms->config.state == DS_RUN && !dms->stopwatch->running) {
 			stopwatch_start(dms->stopwatch);
 			dms->tick_start_run = dms->simulator->current_tick;
 		}
 
+		// save some stuff (XXX: is this still necessary -- signal_changed is available and cheap)
 		bool prev_irq = cpu->irq_is_asserted(cpu);
 
+		// process the device
 		dms->device->process(dms->device);
 
+		// post-process state changes
 		bool cpu_sync = cpu->is_at_start_of_instruction(cpu);
 		bool irq = cpu->irq_is_asserted(cpu);
 
-		switch (dms->state) {
+		switch (dms->config.state) {
 			case DS_SINGLE_STEP :
-				dms->state = DS_WAIT;
+				context_change_state(dms, DS_WAIT);
 				break;
 			case DS_STEP_SIGNAL :
 				if (signal_changed(dms->simulator->signal_pool, dms->step_signal)) {
 					bool value = signal_read_bool(dms->simulator->signal_pool, dms->step_signal);
 					if ((!value && dms->step_neg_edge) || (value && dms->step_pos_edge)) {
-						dms->state = DS_WAIT;
+						context_change_state(dms, DS_WAIT);
 					}
 				}
 				break;
 			case DS_RUN :
 				// check for breakpoints
-				if (!prev_irq && irq && dms->break_on_irq) {
-					dms->state = DS_WAIT;
-				} else if (cpu_sync && breakpoint_index(dms, cpu->program_counter(cpu)) >= 0) {
-					dms->state = DS_WAIT;
-				} else if (signal_breakpoint_triggered(dms)) {
-					dms->state = DS_WAIT;
+				if ((!prev_irq && irq && dms->break_on_irq) ||
+					(cpu_sync && breakpoint_index(dms, cpu->program_counter(cpu)) >= 0) ||
+					(signal_breakpoint_triggered(dms))) {
+					context_change_state(dms, DS_WAIT);
 				}
 				break;
 			case DS_EXIT:
@@ -167,9 +214,12 @@ static bool context_execute(DmsContext *dms) {
 			case DS_WAIT:
 				break;
 		}
+
+		// check for changed config by UI
+		context_update_config(dms);
 	}
 
-	if (dms->state == DS_WAIT) {
+	if (dms->config.state == DS_WAIT) {
 		stopwatch_stop(dms->stopwatch);
 		dms->actual_sim_real_ratio = 0;
 	}
@@ -187,8 +237,11 @@ static int context_background_thread(DmsContext *dms) {
 
 		mutex_lock(&dms->mtx_wait);
 
-		while (dms->state == DS_WAIT) {
+		// wait until execution is requested
+		context_update_config(dms);
+		while (dms->config.state == DS_WAIT) {
 			cond_wait(&dms->cnd_wait, &dms->mtx_wait);
+			context_update_config(dms);
 		}
 
 		keep_running = context_execute(dms);
@@ -201,21 +254,18 @@ static int context_background_thread(DmsContext *dms) {
 	return 0;
 }
 
-static inline void change_state(DmsContext *context, DMS_STATE new_state) {
-	mutex_lock(&context->mtx_wait);
-	context->state = new_state;
-	mutex_unlock(&context->mtx_wait);
-	cond_signal(&context->cnd_wait);
-}
-
-#else
-
-static inline void change_state(DmsContext *context, DMS_STATE new_state) {
-
-	context->state = new_state;
-}
-
 #endif // DMS_NO_THREADING
+
+static inline void change_state(DmsContext *context, DMS_STATE new_state) {
+
+	MUTEX_CONFIG_LOCK(context);
+	context->config_ui.state = new_state;
+	context->config_changed = true;
+	MUTEX_CONFIG_UNLOCK(context);
+	#ifndef DMS_NO_THREADING
+		cond_signal(&context->cnd_wait);
+	#endif // DMS_NO_THREADING
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -229,9 +279,10 @@ DmsContext *dms_create_context() {
 	ctx->breakpoints = NULL;
 	ctx->signal_breakpoints = NULL;
 	ctx->break_on_irq = false;
-	ctx->state = DS_WAIT;
+	ctx->config.state = DS_WAIT;
+	ctx->config.target_sim_real_ratio = 10000;
+	memcpy(&ctx->config_ui, &ctx->config, sizeof(ctx->config));
 	ctx->stopwatch = stopwatch_create();
-	ctx->target_sim_real_ratio = 10000;
 	return ctx;
 }
 
@@ -260,8 +311,12 @@ void dms_start_execution(DmsContext *dms) {
 	assert(dms);
 	assert(dms->device);
 
-	dms->state = DS_WAIT;
+	// initialize context configuration
+	dms->config.state = DS_WAIT;
+	memcpy(&dms->config_ui, &dms->config, sizeof(dms->config));
+
 	mutex_init_plain(&dms->mtx_wait);
+	mutex_init_plain(&dms->mtx_config);
 	cond_init(&dms->cnd_wait);
 	thread_create_joinable(&dms->thread, (thread_func_t) context_background_thread, dms);
 }
@@ -285,14 +340,14 @@ void dms_execute(DmsContext *dms) {
 #endif // DMS_NO_THREADING
 
 void dms_execute_no_sync(DmsContext *dms) {
-	dms->state = DS_RUN;
+	dms->config.state = DS_RUN;
 	context_execute(dms);
 }
 
 void dms_single_step(DmsContext *dms) {
 	assert(dms);
 
-	if (dms->state == DS_WAIT) {
+	if (dms->config_ui.state == DS_WAIT) {
 		change_state(dms, DS_SINGLE_STEP);
 	}
 }
@@ -300,7 +355,7 @@ void dms_single_step(DmsContext *dms) {
 void dms_step_signal(struct DmsContext *dms, struct Signal signal, bool pos_edge, bool neg_edge) {
 	assert(dms);
 
-	if (dms->state == DS_WAIT) {
+	if (dms->config_ui.state == DS_WAIT) {
 		dms->step_signal = signal;
 		dms->step_pos_edge = pos_edge;
 		dms->step_neg_edge = neg_edge;
@@ -312,7 +367,7 @@ void dms_step_signal(struct DmsContext *dms, struct Signal signal, bool pos_edge
 void dms_run(DmsContext *dms) {
 	assert(dms);
 
-	if (dms->state == DS_WAIT) {
+	if (dms->config_ui.state == DS_WAIT) {
 		change_state(dms, DS_RUN);
 	}
 }
@@ -320,7 +375,7 @@ void dms_run(DmsContext *dms) {
 void dms_pause(DmsContext *dms) {
 	assert(dms);
 
-	if (dms->state == DS_RUN) {
+	if (dms->config_ui.state == DS_RUN) {
 		change_state(dms, DS_WAIT);
 	}
 }
@@ -328,25 +383,21 @@ void dms_pause(DmsContext *dms) {
 void dms_change_simulation_speed_ratio(DmsContext *dms, double ratio) {
 	assert(dms);
 
-	MUTEX_LOCK(dms);
+	MUTEX_CONFIG_LOCK(dms);
 
-		dms->target_sim_real_ratio = (int64_t) (ratio * 10000);
+		dms->config_ui.target_sim_real_ratio = (int64_t) (ratio * 10000);
+		dms->config_changed = true;
 
-		if (dms->stopwatch->running) {
-			stopwatch_stop(dms->stopwatch);
-			stopwatch_start(dms->stopwatch);
-			dms->tick_start_run = dms->simulator->current_tick;
-		}
+	MUTEX_CONFIG_UNLOCK(dms);
 
-	MUTEX_UNLOCK(dms);
 }
 
 double dms_simulation_speed_ratio(DmsContext *dms) {
 	assert(dms);
 
-	MUTEX_LOCK(dms);
+	MUTEX_CONFIG_LOCK(dms);
 	int64_t ratio = dms->actual_sim_real_ratio;
-	MUTEX_UNLOCK(dms);
+	MUTEX_CONFIG_UNLOCK(dms);
 
 	return (double) ratio / 10000.0;
 }
