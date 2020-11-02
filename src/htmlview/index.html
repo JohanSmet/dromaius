@@ -94,7 +94,7 @@
 			if (window.wasmLoaded) {
 				clearInterval(tmrId);
 				$("#main").show();
-				Main.setup_emulation(Module);
+				new Main.MainUI(Module);
 			}
 		}, 10);
 	</script>

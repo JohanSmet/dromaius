@@ -8,161 +8,181 @@ import {PanelScreen} from './panel_screen.js';
 import {PanelKeyboard} from './panel_keyboard.js';
 import {CircuitView} from './circuit_view.js';
 
-// globals
-var dmsapi = null;
+// configuration
+const UI_REFRESH_RATE = 30;
+const UI_SIGNAL_COLORS = ["#009900", "#00FF00"];
 
-var signals_names = [];
-var hovered_signal = '';
+export class MainUI {
 
-var panel_cpu = null;
-var panel_clock = null;
-var panel_breakpoints_signal = null;
-var panel_signal_details = null;
-var panel_screen = null;
-var panel_keyboard = null;
-var circuit_view = new CircuitView($('div#right_column'));
+	constructor(emscripten_module) {
+		// get access to the dromaius API
+		this.dmsapi = new emscripten_module.DmsApi();
 
-// functions
-export function setup_emulation(emscripten_mod) {
-	dmsapi = new emscripten_mod.DmsApi();
+		// start the emulator
+		this.dmsapi.launch_commodore_pet();
 
-	dmsapi.launch_commodore_pet();
+		// build list of css variables used to control the display color of a signal
+		this.signal_css_vars = []
+		this.setup_signal_css_variables();
 
-	// signals
-	var signal_info = dmsapi.signal_info();
+		// UI - menu bar
+		this.ui_setup_menubar();
 
-	// >> initialize empty name for all signals
-	for (var i = 0; i < signal_info.count; ++i) {
-		signals_names.push('');
+		// UI - circuit viewport
+		this.circuit_view = new CircuitView($('div#right_column'));
+
+		// UI - panels
+		this.panel_screen = new PanelScreen(this.dmsapi.display_info());
+		this.panel_clock = new PanelClock();
+		this.panel_cpu = new PanelCpu6502();
+
+		this.panel_signal_details = new PanelSignalDetails(this.dmsapi);
+		this.panel_signal_details.on_breakpoint_set = (signal) => {
+			this.panel_breakpoints_signal.update();
+		};
+
+		this.panel_breakpoints_signal = new PanelBreakpointsSignal(this.dmsapi);
+		this.panel_keyboard = new PanelKeyboard(this.dmsapi);
+
+		// UI - signal hovering
+		this.hovered_signal = '';
+		this.ui_setup_signal_hovering()
+
+		// start ui refresh timer
+		setInterval(() => { this.refresh_handler()}, 1000 / UI_REFRESH_RATE);
 	}
 
-	// >> insert named signals
-	var sigkeys = signal_info.names.keys();
+	refresh_handler() {
+		if (this.dmsapi.context_execute()) {
+			this.refresh_signals();
+			this.refresh_cpu_panel();
+			this.refresh_clock_panel();
 
-	for (var s = 0; s < sigkeys.size(); ++s) {
-		var sig_name = sigkeys.get(s);
-		var signal = signal_info.names.get(sig_name);
+			// refresh the screen
+			this.panel_screen.update(this.dmsapi);
 
-		if (signal.count == 1) {
-			signals_names[signal.start] = '--color-' + sig_name.replace('/', 'bar');
+			// refresh the keyboard
+			this.panel_keyboard.update();
 		}
 	}
 
-	// menu
-	setup_menu_bar();
+	refresh_signals() {
+		if (this.circuit_view.svg_document == null) {
+			return;
+		}
 
-	// panels
-	panel_screen = new PanelScreen(dmsapi.display_info());
-	panel_clock = new PanelClock();
-	panel_cpu = new PanelCpu6502();
+		var svg_style = document.documentElement.style;
 
-	panel_signal_details = new PanelSignalDetails(dmsapi);
-	panel_signal_details.on_breakpoint_set = function(signal) {
-		panel_breakpoints_signal.update();
-	};
+		const sig_data = this.dmsapi.signal_data();
 
-	panel_breakpoints_signal = new PanelBreakpointsSignal(sigkeys, dmsapi);
+		for (var s_id = 0; s_id < sig_data.length; ++s_id) {
+			var s_name = this.signal_css_vars[s_id];
+			svg_style.setProperty(s_name, UI_SIGNAL_COLORS[sig_data[s_id]]);
+		}
 
-	panel_keyboard = new PanelKeyboard(dmsapi);
+		if (this.hovered_signal != '') {
+			svg_style.setProperty(this.hovered_signal, 'blue');
+		}
+	}
 
-	// signal selection
-	circuit_view.on_signal_hovered = function(signal) {
-		var style = circuit_view.svg_document.style;
+	refresh_cpu_panel() {
+		var cpu_info = this.dmsapi.cpu_info();
+		this.panel_cpu.update(cpu_info);
+	}
 
-		if (signal != '') {
-			hovered_signal = '--color-' + signal.replace('/', 'bar');
-			style.setProperty(hovered_signal, 'blue');
-		} else {
-			hovered_signal = '';
-			for (var i = style.length; i--;) {
-				style.removeProperty(style[i]);
+	refresh_clock_panel() {
+		var clock_info = this.dmsapi.clock_info();
+		this.panel_clock.update(clock_info);
+	}
+
+	setup_signal_css_variables() {
+		const signal_info = this.dmsapi.signal_info();
+
+		// >> initialize to empty for all signals (even unnamed signals)
+		for (var i = 0; i < signal_info.count; ++i) {
+			this.signal_css_vars.push('');
+		}
+
+		// >> define variable for each named signal
+		var sigkeys = signal_info.names.keys();
+
+		for (var s = 0; s < sigkeys.size(); ++s) {
+			var sig_name = sigkeys.get(s);
+			var signal = signal_info.names.get(sig_name);
+
+			if (signal.count == 1) {
+				this.signal_css_vars[signal.start] = this.css_variable_for_signal(sig_name);
 			}
 		}
 	}
 
-	circuit_view.on_signal_clicked = function(signal) {
-		panel_signal_details.update(signal);
+	css_variable_for_signal(name) {
+		return '--color-' + name.replace('/', 'bar');
 	}
 
-	// refresh
-	setInterval(execution_timer, 1000 / 60);
-}
+	ui_setup_menubar() {
+		$('#btnStepInstruction').on('click', () => { this.ui_cmd_step_instruction(); });
+		$('#btnStepClock').on('click', () => { this.ui_cmd_step_clock(); });
 
-function refresh_signals() {
-	if (circuit_view.svg_document == null) {
-		return;
+		$('#cmbStepClock').on('change', () => {
+			const signal_name =	$('#cmbStepClock').children('option:selected').val();
+			this.ui_cmd_change_set_clock_signal(signal_name);
+		});
+
+		$('#btnRun').on('click', () => { this.ui_cmd_run(); });
+		$('#btnPause').on('click', () => { this.ui_cmd_pause(); });
+		$('#btnReset').on('click', () => { this.ui_cmd_reset(); });
+
+		$("#btnAboutOpen").on("click", function (event) {
+			$("#about").show();
+		});
+
+		$("#btnAboutClose").on("click", function (event) {
+			$("#about").hide();
+		});
 	}
 
-	const colors = ["#009900", "#00FF00"];
-	var svg_style = document.documentElement.style;
+	ui_setup_signal_hovering() {
+		this.circuit_view.on_signal_hovered = (signal) => {
+			var style = this.circuit_view.svg_document.style;
 
-	var sig_data = dmsapi.signal_data();
+			if (signal != '') {
+				this.hovered_signal = this.css_variable_for_signal(signal);
+				style.setProperty(this.hovered_signal, 'blue');
+			} else {
+				this.hovered_signal = '';
+				for (var i = style.length; i--;) {
+					style.removeProperty(style[i]);
+				}
+			}
+		}
 
-	for (var s_id = 0; s_id < sig_data.length; ++s_id) {
-		var s_name = signals_names[s_id];
-		svg_style.setProperty(s_name, colors[sig_data[s_id]]);
+		this.circuit_view.on_signal_clicked = (signal) => {
+			this.panel_signal_details.update(signal);
+		}
 	}
 
-	if (hovered_signal != '') {
-		svg_style.setProperty(hovered_signal, 'blue');
+	ui_cmd_step_instruction() {
+		this.dmsapi.context_step_instruction();
 	}
-}
 
-function refresh_cpu_panel() {
-	var cpu_info = dmsapi.cpu_info();
-	panel_cpu.update(cpu_info);
-}
-
-function refresh_clock_panel() {
-	var clock_info = dmsapi.clock_info();
-	panel_clock.update(clock_info);
-}
-
-function execution_timer() {
-	if (dmsapi.context_execute()) {
-		refresh_signals();
-		refresh_cpu_panel();
-		refresh_clock_panel();
-
-		// refresh the screen
-		panel_screen.update(dmsapi);
-
-		// refresh the keyboard
-		panel_keyboard.update();
+	ui_cmd_step_clock() {
+		this.dmsapi.context_step_clock();
 	}
-}
 
-function setup_menu_bar() {
-	$('#btnStepInstruction').on('click', function (event) {
-		dmsapi.context_step_instruction();
-	});
+	ui_cmd_change_set_clock_signal(signal_name) {
+		this.dmsapi.context_select_step_clock(signal_name);
+	}
 
-	$('#btnStepClock').on('click', function (event) {
-		dmsapi.context_step_clock();
-	});
+	ui_cmd_run() {
+		this.dmsapi.context_run();
+	}
 
-	$('#cmbStepClock').on('change', function () {
-		const signal_name =	$('#cmbStepClock').children('option:selected').val();
-		dmsapi.context_select_step_clock(signal_name);
-	});
+	ui_cmd_pause() {
+		this.dmsapi.context_pause();
+	}
 
-	$('#btnRun').on('click', function (event) {
-		dmsapi.context_run();
-	});
-
-	$('#btnPause').on('click', function (event) {
-		dmsapi.context_pause();
-	});
-
-	$('#btnReset').on('click', function (event) {
-		dmsapi.context_reset();
-	});
-
-	$("#btnAboutOpen").on("click", function (event) {
-		$("#about").show();
-	});
-
-	$("#btnAboutClose").on("click", function (event) {
-		$("#about").hide();
-	});
-}
+	ui_cmd_reset() {
+		this.dmsapi.context_reset();
+	}
+};

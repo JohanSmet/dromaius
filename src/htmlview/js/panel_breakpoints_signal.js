@@ -4,12 +4,16 @@ import {Panel} from './panel.js';
 export class PanelBreakpointsSignal extends Panel {
 	dmsapi = null
 
-	constructor(signal_names, dmsapi) {
+	constructor(dmsapi) {
 		super();
 
 		this.panel_id = 'pnlBreakpointsSignal';
 		this.panel_title = "Signal Breakpoints";
 		this.dmsapi = dmsapi;
+
+		// retrieve list of all signals
+		const signal_info = this.dmsapi.signal_info();
+		var signal_names = signal_info.names.keys();
 
 		// add new breakpoint
 		var selSignal = $('<select/>', {id: 'bps_add', style:'width: 100%'});
