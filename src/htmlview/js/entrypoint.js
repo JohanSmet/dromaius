@@ -1,9 +1,6 @@
 // js/entrypoint.js - Johan Smet - BSD-3-Clause (see LICENSE)
 
-import Module from '../wasm/htmlview.js';
-import * as Main from './main.js';
-
-var DmsModule = {
+var Module = {
 
 	print: function(text) {
 		if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
@@ -62,9 +59,3 @@ var DmsModule = {
 							  'All downloads complete.');
 	}
 };
-
-
-Module(DmsModule).then(function(emscripten_mod) {
-	$("#main").show();
-	Main.setup_emulation(emscripten_mod);
-});

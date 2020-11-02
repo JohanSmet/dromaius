@@ -195,7 +195,7 @@ target_include_directories(${LIB_TARGET} PRIVATE libs)
 target_link_libraries(${LIB_TARGET} PRIVATE ${SFL_TARGET})
 target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
 target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
-if (NO_THREADING OR EMSCRIPTEN)
+if (NO_THREADING)
 	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_NO_THREADING)
 endif()
 target_compile_warning(${LIB_TARGET})
@@ -255,11 +255,22 @@ if (WIN32)
 	target_link_options(${GUI_TARGET} PRIVATE "/ENTRY:mainCRTStartup")
 endif()
 
+# emscripten options for all previous targets
 if (EMSCRIPTEN)
+	if (NOT NO_THREADING)
+		target_compile_options(${IMGUI_TARGET} PRIVATE -sUSE_PTHREADS=1)
+
+		target_compile_options(${GUI_TARGET} PRIVATE -sUSE_PTHREADS=1)
+
+		target_link_libraries(${GUI_TARGET} PRIVATE
+			"-s USE_PTHREADS=1"
+			"-s PTHREAD_POOL_SIZE=2"
+		)
+	endif()
+
 	target_link_libraries(${GUI_TARGET} PRIVATE
 		"-s USE_GLFW=3"
 		"-s WASM=1"
-		"-s ALLOW_MEMORY_GROWTH=1"
 		"-s ASSERTIONS=2"
 		"-s USE_WEBGL2=1"
 		"-s FULL_ES3=1"
@@ -279,9 +290,9 @@ if (EMSCRIPTEN)
 endif()
 
 # html viewer
-set (HTML_TARGET htmlview)
-
 if (EMSCRIPTEN)
+	set (HTML_TARGET htmlview)
+
 	add_executable(${HTML_TARGET})
 	target_sources(${HTML_TARGET}
 					PRIVATE
@@ -295,8 +306,11 @@ if (EMSCRIPTEN)
 			"--exclude-file *.cfg"
 	)
 	target_link_libraries(${HTML_TARGET} PRIVATE "--bind")
-	target_link_libraries(${HTML_TARGET} PRIVATE "-s EXPORT_ES6=1")
-	target_link_libraries(${HTML_TARGET} PRIVATE "-s MODULARIZE=1")
+
+	if (NOT NO_THREADING)
+		target_link_libraries(${HTML_TARGET} PRIVATE "-s USE_PTHREADS=1")
+		target_link_libraries(${HTML_TARGET} PRIVATE "-s PTHREAD_POOL_SIZE=2")
+	endif()
 endif()
 
 # tools - speedtest

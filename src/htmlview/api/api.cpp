@@ -54,10 +54,15 @@ public:
 	bool context_execute() {
 		assert(dms_ctx);
 
+#ifdef DMS_NO_THREADING
 		int64_t save_ts = pet_device->simulator->current_tick;
+
 		dms_execute(dms_ctx);
 
 		return save_ts != pet_device->simulator->current_tick;
+#else
+		return true;
+#endif
 	}
 
 	void context_select_step_clock(const std::string &signal_name) {
@@ -242,6 +247,11 @@ void DmsApi::launch_commodore_pet() {
 
 	// default clock to step
 	step_clock = pet_device->signals.clk1;
+
+	// launch background thread
+#ifndef DMS_NO_THREADING
+	dms_start_execution(dms_ctx);
+#endif // DMS_NO_THREADING
 }
 
 // binding code

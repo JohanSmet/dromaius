@@ -48,6 +48,9 @@ export function setup_emulation(emscripten_mod) {
 		}
 	}
 
+	// menu
+	setup_menu_bar();
+
 	// panels
 	panel_screen = new PanelScreen(dmsapi.display_info());
 	panel_clock = new PanelClock();
@@ -82,7 +85,7 @@ export function setup_emulation(emscripten_mod) {
 	}
 
 	// refresh
-	setInterval(execution_timer, 1000 / 25);
+	setInterval(execution_timer, 1000 / 60);
 }
 
 function refresh_signals() {
@@ -129,35 +132,37 @@ function execution_timer() {
 	}
 }
 
-$('#btnStepInstruction').on('click', function (event) {
-	dmsapi.context_step_instruction();
-});
+function setup_menu_bar() {
+	$('#btnStepInstruction').on('click', function (event) {
+		dmsapi.context_step_instruction();
+	});
 
-$('#btnStepClock').on('click', function (event) {
-	dmsapi.context_step_clock();
-});
+	$('#btnStepClock').on('click', function (event) {
+		dmsapi.context_step_clock();
+	});
 
-$('#cmbStepClock').on('change', function () {
-	const signal_name =	$('#cmbStepClock').children('option:selected').val();
-	dmsapi.context_select_step_clock(signal_name);
-});
+	$('#cmbStepClock').on('change', function () {
+		const signal_name =	$('#cmbStepClock').children('option:selected').val();
+		dmsapi.context_select_step_clock(signal_name);
+	});
 
-$('#btnRun').on('click', function (event) {
-	dmsapi.context_run();
-});
+	$('#btnRun').on('click', function (event) {
+		dmsapi.context_run();
+	});
 
-$('#btnPause').on('click', function (event) {
-	dmsapi.context_pause();
-});
+	$('#btnPause').on('click', function (event) {
+		dmsapi.context_pause();
+	});
 
-$('#btnReset').on('click', function (event) {
-	dmsapi.context_reset();
-});
+	$('#btnReset').on('click', function (event) {
+		dmsapi.context_reset();
+	});
 
-$("#btnAboutOpen").on("click", function (event) {
-	$("#about").show();
-});
+	$("#btnAboutOpen").on("click", function (event) {
+		$("#about").show();
+	});
 
-$("#btnAboutClose").on("click", function (event) {
-	$("#about").hide();
-});
+	$("#btnAboutClose").on("click", function (event) {
+		$("#about").hide();
+	});
+}

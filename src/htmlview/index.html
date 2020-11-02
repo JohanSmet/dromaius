@@ -62,14 +62,41 @@
 		</div>
 	</div>
 
-	<script type="module" src="js/entrypoint.js"></script>
-
+	<!--
+		Load the WebAssembly and start the application.
+		Note: I don't really like how this works ATM. It's kind of hacky.
+			-> the "application" uses ES6 modules
+			-> while Emscripten also supports ES6 modules, this doesn't seem to work entirely correctly with pthreads support.
+			-> I haven't found a good way to combine 'old' style javascript with ES6 modules that works with the global
+			   Module object that's used by the Emscripten javascript wrapper.
+			-> Both the wasm wrapper and the ES6 load asynchronously - the ES6 module uses a timer to wait until the wasm is loaded
+	-->
+	<script type="text/javascript" src="js/entrypoint.js"></script>
+	<script async type="text/javascript" src="wasm/htmlview.js"></script>
 	<script type="text/javascript">
+		window.wasmLoaded = false;
+
+		Module.onRuntimeInitialized = function() {
+			window.wasmLoaded = true;
+		}
+
 		// override error-handler
 		window.onerror = function() {
 			$('#status').text('Exception thrown, see JavaScript console');
 			$('#spinner').hide();
 		};
+	</script>
+
+	<script type="module">
+		import * as Main from './js/main.js';
+
+		var tmrId = setInterval(function() {
+			if (window.wasmLoaded) {
+				clearInterval(tmrId);
+				$("#main").show();
+				Main.setup_emulation(Module);
+			}
+		}, 10);
 	</script>
   </body>
 </html>
