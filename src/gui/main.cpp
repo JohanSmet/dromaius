@@ -94,7 +94,10 @@ int main(int, char**)
     if (g_window == NULL)
         return 1;
     glfwMakeContextCurrent(g_window);
+
+#ifndef __EMSCRIPTEN__
     glfwSwapInterval(1); // Enable vsync
+#endif
 
     // Initialize OpenGL loader
 #if defined(IMGUI_IMPL_OPENGL_LOADER_GL3W)
