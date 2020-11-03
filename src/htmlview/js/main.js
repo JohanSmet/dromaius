@@ -49,10 +49,12 @@ export class MainUI {
 		this.ui_setup_signal_hovering()
 
 		// start ui refresh timer
-		setInterval(() => { this.refresh_handler()}, 1000 / UI_REFRESH_RATE);
+		this.refresh_timer = 0
+		this.last_simulation_tick = 0;
+		this.activate_refresh_timer();
 	}
 
-	refresh_handler() {
+	refresh_timer_func() {
 		if (this.dmsapi.context_execute()) {
 			this.refresh_signals();
 			this.refresh_cpu_panel();
@@ -63,6 +65,19 @@ export class MainUI {
 
 			// refresh the keyboard
 			this.panel_keyboard.update();
+		}
+	}
+
+	activate_refresh_timer() {
+		if (this.refresh_timer == 0) {
+			this.refresh_timer = setInterval(() => { this.refresh_timer_func()}, 1000 / UI_REFRESH_RATE);
+		}
+	}
+
+	deactivate_refresh_timer() {
+		if (this.refresh_timer != 0) {
+			clearInterval(this.refresh_timer);
+			this.refresh_timer = 0;
 		}
 	}
 
@@ -93,6 +108,12 @@ export class MainUI {
 	refresh_clock_panel() {
 		var clock_info = this.dmsapi.clock_info();
 		this.panel_clock.update(clock_info);
+
+		if (clock_info.current_tick == this.last_simulation_tick) {
+			this.deactivate_refresh_timer();
+		}
+
+		this.last_simulation_tick = clock_info.current_tick;
 	}
 
 	setup_signal_css_variables() {
@@ -164,10 +185,12 @@ export class MainUI {
 
 	ui_cmd_step_instruction() {
 		this.dmsapi.context_step_instruction();
+		this.activate_refresh_timer();
 	}
 
 	ui_cmd_step_clock() {
 		this.dmsapi.context_step_clock();
+		this.activate_refresh_timer();
 	}
 
 	ui_cmd_change_set_clock_signal(signal_name) {
@@ -176,6 +199,7 @@ export class MainUI {
 
 	ui_cmd_run() {
 		this.dmsapi.context_run();
+		this.activate_refresh_timer();
 	}
 
 	ui_cmd_pause() {
@@ -184,5 +208,6 @@ export class MainUI {
 
 	ui_cmd_reset() {
 		this.dmsapi.context_reset();
+		this.activate_refresh_timer();
 	}
 };
