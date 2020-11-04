@@ -137,12 +137,15 @@ uint64_t signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick) {
 	#endif
 
 	memset(pool->signals_changed, false, arrlenu(pool->signals_changed));
-	uint64_t dirty_chips = 0;
+	for (size_t i = 0, n = arrlenu(pool->signals_written); i < n;  ++i) {
+		uint32_t s = pool->signals_written[i];
+		pool->signals_changed[s] = pool->signals_curr[s] ^ pool->signals_next[s];
+	}
 
+	uint64_t dirty_chips = 0;
 	for (size_t i = 0, n = arrlenu(pool->signals_written); i < n;  ++i) {
 		uint32_t s = pool->signals_written[i];
 
-		pool->signals_changed[s] = pool->signals_curr[s] ^ pool->signals_next[s];
 		pool->signals_curr[s] = pool->signals_next[s];
 
 		uint64_t mask = (uint64_t) (!pool->signals_changed[s] - 1);
