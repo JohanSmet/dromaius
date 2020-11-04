@@ -84,7 +84,7 @@ jobs:
                   key: ${{ runner.os }}--emsdk-2.0.8
 
             - name: Setup Emscripten
-              uses: mymindstorm/setup-emsdk@v6
+              uses: mymindstorm/setup-emsdk@v7
               with:
                   version: 2.0.8
                   actions-cache-folder: 'emsdk-cache'
