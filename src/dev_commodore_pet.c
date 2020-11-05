@@ -1568,6 +1568,7 @@ void dev_commodore_pet_read_memory(DevCommodorePet *device, size_t start_address
 void dev_commodore_pet_write_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *input);
 void dev_commodore_pet_lite_read_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output);
 void dev_commodore_pet_lite_write_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *input);
+size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, struct SignalBreak **irq_signals);
 
 Cpu6502* dev_commodore_pet_get_cpu(DevCommodorePet *device) {
 	assert(device);
@@ -1584,6 +1585,7 @@ DevCommodorePet *create_pet_device(bool lite) {
 	device->destroy = (DEVICE_DESTROY) dev_commodore_pet_destroy;
 	device->read_memory = (DEVICE_READ_MEMORY) ((!lite) ? dev_commodore_pet_read_memory : dev_commodore_pet_lite_read_memory);
 	device->write_memory = (DEVICE_WRITE_MEMORY) ((!lite) ? dev_commodore_pet_write_memory : dev_commodore_pet_lite_write_memory);
+	device->get_irq_signals = (DEVICE_GET_IRQ_SIGNALS) dev_commodore_pet_get_irq_signals;
 
 	device->simulator = simulator_create(6250);		// 6.25 ns - 160 Mhz
 
@@ -2246,6 +2248,20 @@ void dev_commodore_pet_lite_write_memory(DevCommodorePet *device, size_t start_a
 		addr += to_copy;
 		done += to_copy;
 	}
+}
+
+size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, struct SignalBreak **irq_signals) {
+	assert(device);
+	assert(irq_signals);
+
+	static SignalBreak pet_irq[1] = {0};
+
+	if (pet_irq[0].signal.count == 0) {
+		pet_irq[0] = (SignalBreak) {device->signals.irq_b, false, true};
+	}
+
+	*irq_signals = pet_irq;
+	return sizeof(pet_irq) / sizeof(pet_irq[0]);
 }
 
 bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {

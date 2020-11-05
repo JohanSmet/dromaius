@@ -48,12 +48,10 @@ typedef struct DmsContext {
 	struct Config	config;						// configuration that is in use by the context
 	bool			config_changed;				// ui-config was changed, context should update config
 
-	Signal			step_signal;
-	bool			step_pos_edge;
-	bool			step_neg_edge;
+	SignalBreak		step_signal;
 
 	int64_t *		breakpoints;
-	Signal *		signal_breakpoints;
+	SignalBreak *	signal_breakpoints;
 	bool			break_on_irq;
 
 	Stopwatch *		stopwatch;
@@ -100,7 +98,7 @@ static inline int breakpoint_index(DmsContext *dms, int64_t addr) {
 
 static inline int signal_breakpoint_index(DmsContext *dms, Signal signal) {
 	for (int i = 0; i < arrlen(dms->signal_breakpoints); ++i) {
-		if (memcmp(&dms->signal_breakpoints[i], &signal, sizeof(signal)) == 0) {
+		if (memcmp(&dms->signal_breakpoints[i].signal, &signal, sizeof(signal)) == 0) {
 			return i;
 		}
 	}
@@ -108,9 +106,19 @@ static inline int signal_breakpoint_index(DmsContext *dms, Signal signal) {
 	return -1;
 }
 
+static inline bool signal_breakpoint_check(DmsContext *dms, SignalBreak *bp) {
+
+	if (!signal_changed(dms->simulator->signal_pool, bp->signal)) {
+		return false;
+	}
+
+	bool value = signal_read_bool(dms->simulator->signal_pool, bp->signal);
+	return ((!value && bp->neg_edge) || (value && bp->pos_edge));
+}
+
 static inline bool signal_breakpoint_triggered(DmsContext *dms) {
 	for (int i = 0; i < arrlen(dms->signal_breakpoints); ++i) {
-		if (signal_changed(dms->simulator->signal_pool, dms->signal_breakpoints[i])) {
+		if (signal_breakpoint_check(dms, &dms->signal_breakpoints[i])) {
 			return true;
 		}
 	}
@@ -179,32 +187,24 @@ static bool context_execute(DmsContext *dms) {
 			dms->tick_start_run = dms->simulator->current_tick;
 		}
 
-		// save some stuff (XXX: is this still necessary -- signal_changed is available and cheap)
-		bool prev_irq = cpu->irq_is_asserted(cpu);
-
 		// process the device
 		dms->device->process(dms->device);
 
 		// post-process state changes
 		bool cpu_sync = cpu->is_at_start_of_instruction(cpu);
-		bool irq = cpu->irq_is_asserted(cpu);
 
 		switch (dms->config.state) {
 			case DS_SINGLE_STEP :
 				context_change_state(dms, DS_WAIT);
 				break;
 			case DS_STEP_SIGNAL :
-				if (signal_changed(dms->simulator->signal_pool, dms->step_signal)) {
-					bool value = signal_read_bool(dms->simulator->signal_pool, dms->step_signal);
-					if ((!value && dms->step_neg_edge) || (value && dms->step_pos_edge)) {
-						context_change_state(dms, DS_WAIT);
-					}
+				if (signal_breakpoint_check(dms, &dms->step_signal)) {
+					context_change_state(dms, DS_WAIT);
 				}
 				break;
 			case DS_RUN :
 				// check for breakpoints
-				if ((!prev_irq && irq && dms->break_on_irq) ||
-					(cpu_sync && breakpoint_index(dms, cpu->program_counter(cpu)) >= 0) ||
+				if ((cpu_sync && breakpoint_index(dms, cpu->program_counter(cpu)) >= 0) ||
 					(signal_breakpoint_triggered(dms))) {
 					context_change_state(dms, DS_WAIT);
 				}
@@ -356,9 +356,11 @@ void dms_step_signal(struct DmsContext *dms, struct Signal signal, bool pos_edge
 	assert(dms);
 
 	if (dms->config_ui.state == DS_WAIT) {
-		dms->step_signal = signal;
-		dms->step_pos_edge = pos_edge;
-		dms->step_neg_edge = neg_edge;
+		dms->step_signal = (SignalBreak) {
+			.signal = signal,
+			.pos_edge = pos_edge,
+			.neg_edge = neg_edge
+		};
 		change_state(dms, DS_STEP_SIGNAL);
 	}
 }
@@ -414,16 +416,16 @@ bool dms_toggle_breakpoint(DmsContext *dms, int64_t addr) {
 	}
 }
 
-Signal *dms_breakpoint_signal_list(DmsContext *dms) {
+SignalBreak *dms_breakpoint_signal_list(DmsContext *dms) {
 	assert(dms);
 	return dms->signal_breakpoints;
 }
 
-void dms_breakpoint_signal_set(DmsContext *dms, Signal signal) {
+void dms_breakpoint_signal_set(DmsContext *dms, Signal signal, bool pos_edge, bool neg_edge) {
 	assert(dms);
 
 	if (signal_breakpoint_index(dms, signal) < 0) {
-		arrpush(dms->signal_breakpoints, signal);
+		arrpush(dms->signal_breakpoints, ((SignalBreak) {signal, pos_edge, neg_edge}));
 	}
 }
 
@@ -440,11 +442,33 @@ bool dms_toggle_signal_breakpoint(DmsContext *dms, Signal signal) {
 	int idx = signal_breakpoint_index(dms, signal);
 
 	if (idx < 0) {
-		arrpush(dms->signal_breakpoints, signal);
+		arrpush(dms->signal_breakpoints, ((SignalBreak) {signal, true, true}));
 		return true;
 	} else {
 		arrdelswap(dms->signal_breakpoints, idx);
 		return false;
+	}
+}
+
+void dms_break_on_irq_set(struct DmsContext *dms) {
+	assert(dms);
+
+	SignalBreak *irq_signals = NULL;
+	size_t count = dms->device->get_irq_signals(dms->device, &irq_signals);
+
+	for (size_t i = 0; i < count; ++i) {
+		dms_breakpoint_signal_set(dms, irq_signals[i].signal, irq_signals[i].pos_edge, irq_signals[i].neg_edge);
+	}
+}
+
+void dms_break_on_irq_clear(struct DmsContext *dms) {
+	assert(dms);
+
+	SignalBreak *irq_signals = NULL;
+	size_t count = dms->device->get_irq_signals(dms->device, &irq_signals);
+
+	for (size_t i = 0; i < count; ++i) {
+		dms_breakpoint_signal_clear(dms, irq_signals[i].signal);
 	}
 }
 
@@ -476,6 +500,11 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 		}
 	} else if (cmd[0] == 'b' && cmd[1] == 'i') {		// toggle "b"reak on "i"rq
 		dms->break_on_irq = !dms->break_on_irq;
+		if (dms->break_on_irq) {
+			dms_break_on_irq_set(dms);
+		} else {
+			dms_break_on_irq_clear(dms);
+		}
 
 		static const char *disp_enabled[] = {"disabled", "enabled"};
 		arr_printf(*reply, "OK: break-on-irq %s", disp_enabled[dms->break_on_irq]);

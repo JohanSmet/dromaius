@@ -154,7 +154,7 @@ public:
 		auto pool = pet_device->simulator->signal_pool;
 
 		for (ptrdiff_t idx = 0; idx < arrlen(bps); ++idx) {
-			result.push_back(pool->signals_name[bps[idx].start]);
+			result.push_back(pool->signals_name[bps[idx].signal.start]);
 		}
 
 		return result;
@@ -163,7 +163,7 @@ public:
 	void breakpoint_signal_set(const std::string &signal_name) {
 		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
 		if (signal.count != 0) {
-			dms_breakpoint_signal_set(dms_ctx, signal);
+			dms_breakpoint_signal_set(dms_ctx, signal, true, true);
 		}
 	}
 

@@ -13,6 +13,7 @@ extern "C" {
 struct DmsContext;
 struct Device;
 struct Signal;
+struct SignalBreak;
 
 // functions
 struct DmsContext *dms_create_context(void);
@@ -39,9 +40,12 @@ void dms_reset(struct DmsContext *dms);
 void dms_change_simulation_speed_ratio(struct DmsContext *dms, double ratio);
 double dms_simulation_speed_ratio(struct DmsContext *dms);
 
-struct Signal *dms_breakpoint_signal_list(struct DmsContext *dms);
-void dms_breakpoint_signal_set(struct DmsContext *dms, struct Signal signal);
+struct SignalBreak *dms_breakpoint_signal_list(struct DmsContext *dms);
+void dms_breakpoint_signal_set(struct DmsContext *dms, struct Signal signal, bool pos_edge, bool neg_edge);
 void dms_breakpoint_signal_clear(struct DmsContext *dms, struct Signal signal);
+
+void dms_break_on_irq_set(struct DmsContext *dms);
+void dms_break_on_irq_clear(struct DmsContext *dms);
 
 void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply);
 

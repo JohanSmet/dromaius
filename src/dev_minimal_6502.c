@@ -109,6 +109,8 @@ Cpu6502* dev_minimal_6502_get_cpu(DevMinimal6502 *device) {
 	return device->cpu;
 }
 
+size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, struct SignalBreak **irq_signals);
+
 DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DevMinimal6502 *device = (DevMinimal6502 *) calloc(1, sizeof(DevMinimal6502));
 
@@ -118,6 +120,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->destroy = (DEVICE_DESTROY) dev_minimal_6502_destroy;
 	device->read_memory = (DEVICE_READ_MEMORY) dev_minimal_6502_read_memory;
 	device->write_memory = (DEVICE_WRITE_MEMORY) dev_minimal_6502_write_memory;
+	device->get_irq_signals = (DEVICE_GET_IRQ_SIGNALS) dev_minimal_6502_get_irq_signals;
 
 	device->simulator = simulator_create(NS_TO_PS(20));
 
@@ -300,6 +303,20 @@ void dev_minimal_6502_write_memory(DevMinimal6502 *device, size_t start_address,
 	}
 
 	memcpy(device->ram->data_array + start_address, input, real_size);
+}
+
+size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, struct SignalBreak **irq_signals) {
+	assert(device);
+	assert(irq_signals);
+
+	static SignalBreak irqs[1] = {0};
+
+	if (irqs[0].signal.count == 0) {
+		irqs[0] = (SignalBreak) {device->signals.cpu_irq_b, false, true};
+	}
+
+	*irq_signals = irqs;
+	return sizeof(irqs) / sizeof(irqs[0]);
 }
 
 void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename) {

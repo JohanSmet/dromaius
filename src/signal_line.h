@@ -22,6 +22,12 @@ typedef struct Signal {
 	uint32_t	count;
 } Signal;
 
+typedef struct SignalBreak {
+	Signal		signal;							// signal to monitor
+	bool		pos_edge;						// break on positive edge
+	bool		neg_edge;						// break on negative edge
+} SignalBreak;
+
 typedef struct SignalNameMap {
 	const char *key;
 	Signal		value;
