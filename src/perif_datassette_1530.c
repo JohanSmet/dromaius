@@ -154,7 +154,7 @@ static inline void tap_write_pulse(TapData *tap, int64_t length_ps) {
 		tap_write_byte(tap, (uint8_t) ((length_cycles >> 8) & 0xff));
 		tap_write_byte(tap, (uint8_t) ((length_cycles >> 16) & 0xff));
 	} else {
-		tap_write_byte(tap, (uint8_t) (length_cycles / 8) + ((length_cycles >> 2) & 0x01));
+		tap_write_byte(tap, (uint8_t) ((length_cycles / 8) + ((length_cycles >> 2) & 0x01)));
 	}
 }
 
