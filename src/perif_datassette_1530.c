@@ -256,7 +256,7 @@ PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteS
 	// data
 	datassette->sense_out = ACTLO_DEASSERT;
 	datassette->data_out = true;
-	datassette->valid_keys = DS_KEY_PLAY;
+	datassette->valid_keys = 0;
 	datassette->idle_interval = simulator_interval_to_tick_count(datassette->simulator, MS_TO_PS(100));
 
 	return datassette;
