@@ -147,12 +147,36 @@ public:
 		return ds_state_strings[pet_device->datassette->state];
 	}
 
+	void datassette_record() {
+		perif_datassette_key_pressed(pet_device->datassette, DS_KEY_RECORD);
+	}
+
 	void datassette_play() {
 		perif_datassette_key_pressed(pet_device->datassette, DS_KEY_PLAY);
 	}
 
+	void datassette_rewind() {
+		perif_datassette_key_pressed(pet_device->datassette, DS_KEY_REWIND);
+	}
+
+	void datassette_fast_forward() {
+		perif_datassette_key_pressed(pet_device->datassette, DS_KEY_FFWD);
+	}
+
 	void datassette_stop() {
 		perif_datassette_key_pressed(pet_device->datassette, DS_KEY_STOP);
+	}
+
+	void datassette_eject() {
+		perif_datassette_key_pressed(pet_device->datassette, DS_KEY_EJECT);
+	}
+
+	int datassette_valid_buttons() {
+		return pet_device->datassette->valid_keys;
+	}
+
+	float datassette_position() {
+		return PS_TO_S(pet_device->datassette->offset_ps);
 	}
 
 	// data access
@@ -343,8 +367,14 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("keyboard_keys_down", &DmsApi::keyboard_keys_down)
 		.function("datassette_load_tap", &DmsApi::datassette_load_tap)
 		.function("datassette_status", &DmsApi::datassette_status)
+		.function("datassette_record", &DmsApi::datassette_record)
 		.function("datassette_play", &DmsApi::datassette_play)
+		.function("datassette_rewind", &DmsApi::datassette_rewind)
+		.function("datassette_fast_forward", &DmsApi::datassette_fast_forward)
 		.function("datassette_stop", &DmsApi::datassette_stop)
+		.function("datassette_eject", &DmsApi::datassette_eject)
+		.function("datassette_valid_buttons", &DmsApi::datassette_valid_buttons)
+		.function("datassette_position", &DmsApi::datassette_position)
 		.function("display_data", &DmsApi::display_data)
 		.function("signal_data", &DmsApi::signal_data)
 		.function("breakpoint_signal_list", &DmsApi::breakpoint_signal_list)

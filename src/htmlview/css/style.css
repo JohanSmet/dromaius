@@ -116,6 +116,45 @@ button.panel_button {
 	margin: 4px 1em;
 }
 
+button.ds_button {
+	margin: 4px 2px;
+	border: none;
+	border-radius: 8px;
+	background-color: #555555;
+	color: white;
+	width: 52px;
+	height: 56px;
+	text-align: center;
+	text-decoration: none;
+}
+
+button.ds_button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+button.ds_button:hover {
+	background-color: #666666;
+}
+
+button.ds_button:active {
+	background-color: #777777;
+}
+
+span.info {
+	font-size: initial;
+	font-family: monospace;
+}
+
+span.left {
+	margin-left: 1em;
+}
+
+span.right {
+	margin-right: 1em;
+	float: right;
+}
+
 .hidden {
 	display: none;
 }

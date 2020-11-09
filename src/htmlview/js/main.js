@@ -45,7 +45,6 @@ export class MainUI {
 		this.panel_breakpoints_signal = new PanelBreakpointsSignal(this.dmsapi);
 		this.panel_datassette = new PanelDatassette(this.dmsapi);
 		this.panel_keyboard = new PanelKeyboard(this.dmsapi);
-		this.panel_datassette = new PanelDatassette(this.dmsapi);
 
 		// UI - signal hovering
 		this.hovered_signal = '';
