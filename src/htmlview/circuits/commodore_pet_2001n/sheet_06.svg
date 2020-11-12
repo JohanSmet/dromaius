@@ -1250,8 +1250,7 @@
       <path id="path_267" d="m 262.0793,181.05936 v 2.00353" class="sheet_06_path_3"/>
     </g>
   </g>
-<style>@import url('http://fonts.googleapis.com/css?family=Roboto');
-.sheet_06_path_0 {fill:none;stroke:var(--color-VERTDRIVE);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+<style>.sheet_06_path_0 {fill:none;stroke:var(--color-VERTDRIVE);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .sheet_06_ellipse_0 {display:inline;fill:var(--color-VERTDRIVE);stroke:var(--color-VERTDRIVE);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .sheet_06_tspan_0 {font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583}
 .sheet_06_text_0 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-VERTDRIVE);fill-opacity:1;stroke:none;stroke-width:0.264583}

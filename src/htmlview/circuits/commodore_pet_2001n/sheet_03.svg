@@ -1684,8 +1684,7 @@
       <path d="m 262.0793,181.05936 v 2.00353" id="path_349" class="sheet_03_path_57"/>
     </g>
   </g>
-<style>@import url('http://fonts.googleapis.com/css?family=Roboto');
-.sheet_03_ellipse_0 {display:inline;fill:var(--color-VCC);stroke:var(--color-VCC);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+<style>.sheet_03_ellipse_0 {display:inline;fill:var(--color-VCC);stroke:var(--color-VCC);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .sheet_03_path_0 {display:inline;fill:none;stroke:var(--color-VCC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .sheet_03_path_1 {fill:none;stroke:var(--color-VCC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
 .sheet_03_tspan_0 {font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583}

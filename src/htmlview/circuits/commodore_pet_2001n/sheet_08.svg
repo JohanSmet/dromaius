@@ -1002,8 +1002,7 @@
       <text id="text_427" y="165.79825" x="132.368" xml:space="preserve" class="sheet_08_text_15"><tspan y="165.79825" x="132.368" id="tspan_469" class="sheet_08_tspan_0">+5V</tspan><tspan id="tspan_470" y="179.02737" x="132.368" class="sheet_08_tspan_0"/></text>
     </g>
   </g>
-<style>@import url('http://fonts.googleapis.com/css?family=Roboto');
-.sheet_08_tspan_0 {font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+<style>.sheet_08_tspan_0 {font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583}
 .sheet_08_text_0 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
 .sheet_08_tspan_1 {font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.11667px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';text-align:center;text-anchor:middle;stroke-width:0.264583}
 .sheet_08_tspan_2 {font-size:1.05833px;text-align:center;text-anchor:middle;stroke-width:0.264583}

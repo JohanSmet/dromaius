@@ -953,8 +953,7 @@
       <path d="m 262.0793,181.05936 v 2.00353" id="path_185" class="sheet_07_path_0"/>
     </g>
   </g>
-<style>@import url('http://fonts.googleapis.com/css?family=Roboto');
-.sheet_07_rect_0 {fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:round}
+<style>.sheet_07_rect_0 {fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:round}
 .sheet_07_tspan_0 {font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583}
 .sheet_07_text_0 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
 .sheet_07_tspan_1 {font-size:1.41111px;text-align:end;text-anchor:end;stroke-width:0.264583}
