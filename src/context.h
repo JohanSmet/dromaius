@@ -10,6 +10,15 @@ extern "C" {
 #endif
 
 // types
+
+typedef enum DMS_STATE {
+	DS_WAIT = 0,
+	DS_SINGLE_STEP = 1,
+	DS_STEP_SIGNAL = 2,
+	DS_RUN = 3,
+	DS_EXIT = 99
+} DMS_STATE;
+
 struct DmsContext;
 struct Device;
 struct Signal;
@@ -21,6 +30,8 @@ void dms_release_context(struct DmsContext *dms);
 
 void dms_set_device(struct DmsContext *dms, struct Device *device);
 struct Device *dms_get_device(struct DmsContext *dms);
+
+DMS_STATE dms_get_state(struct DmsContext *dms);
 
 #ifndef DMS_NO_THREADING
 void dms_start_execution(struct DmsContext *dms);

@@ -103,6 +103,20 @@ public:
 		pet_device->reset(pet_device);
 	}
 
+	std::string context_status() {
+		assert(dms_ctx);
+
+		static constexpr const char *state_strings[] = {"wait", "single_step", "step_signal", "run"};
+
+		auto state = dms_get_state(dms_ctx);
+
+		if (state < 4) {
+			return state_strings[state];
+		} else {
+			return "exiting";
+		}
+	}
+
 	// input
 	int keyboard_num_rows() const {
 		assert(pet_device);
@@ -361,6 +375,7 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("context_run", &DmsApi::context_run)
 		.function("context_pause", &DmsApi::context_pause)
 		.function("context_reset", &DmsApi::context_reset)
+		.function("context_status", &DmsApi::context_status)
 		.function("keyboard_num_rows", &DmsApi::keyboard_num_rows)
 		.function("keyboard_num_columns", &DmsApi::keyboard_num_columns)
 		.function("keyboard_key_pressed", &DmsApi::keyboard_key_pressed)

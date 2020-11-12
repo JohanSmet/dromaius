@@ -25,14 +25,6 @@
 // internal types
 //
 
-typedef enum DMS_STATE {
-	DS_WAIT = 0,
-	DS_SINGLE_STEP = 1,
-	DS_STEP_SIGNAL = 2,
-	DS_RUN = 3,
-	DS_EXIT = 99
-} DMS_STATE;
-
 struct Config {
 	DMS_STATE		state;
 
@@ -342,6 +334,13 @@ void dms_set_device(DmsContext *dms, Device *device) {
 struct Device *dms_get_device(struct DmsContext *dms) {
 	assert(dms);
 	return dms->device;
+}
+
+DMS_STATE dms_get_state(DmsContext *dms) {
+	MUTEX_CONFIG_LOCK(dms);
+		DMS_STATE result = dms->config_usr.state;
+	MUTEX_CONFIG_UNLOCK(dms);
+	return result;
 }
 
 #ifndef DMS_NO_THREADING

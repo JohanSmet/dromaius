@@ -28,19 +28,19 @@
 			</span>
 			<span>
 				&nbsp;Commands:
-				<input type="button" id="btnStepClock" value="Step Clock" title="Advance simulation until the clock signal changes">
+				<button id="btnStepClock" title="Advance simulation until the clock signal changes">Step Clock</button>
 				<select id="cmbStepClock" autocomplete=off>
 					<option value="CLK1" selected="selected">CLK1</option>
 					<option value="CLK8">CLK8</option>
 					<option value="CLK16">CLK16</option>
 				</select>
-				<input type="button" id="btnStepInstruction" value="Step Instruction" title="Advance simulation until the next CPU instruction">
-				<input type="button" id="btnRun" value="Run" title="Run simulation continuously">
-				<input type="button" id="btnPause" value="Pause" title="Pause a running simulation">
-				<input type="button" id="btnReset" value="Reset" title="Reset the simulation">
+				<button type="button" id="btnStepInstruction" title="Advance simulation until the next CPU instruction">Step Instruction</button>
+				<button type="button" id="btnRun" title="Run simulation continuously">Run</button>
+				<button type="button" id="btnPause" title="Pause a running simulation">Pause</button>
+				<button type="button" id="btnReset" title="Reset the simulation">Reset</button>
 			</span>
 			<span style="margin-left: 10em">
-				<input type="button" id="btnAboutOpen" value="About">
+				<button type="button" id="btnAboutOpen">About</button>
 			</span>
 		</div>
 		<div id="content">
@@ -92,6 +92,7 @@
 		var tmrId = setInterval(function() {
 			if (window.wasmLoaded) {
 				clearInterval(tmrId);
+				$("#loading").hide();
 				$("#main").show();
 				new Main.MainUI(Module);
 			}

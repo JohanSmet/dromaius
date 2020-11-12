@@ -70,6 +70,9 @@ export class MainUI {
 
 			// refresh datassette
 			this.panel_datassette.update();
+
+			// enable/disable approriate menu buttons
+			this.ui_refresh_menubar();
 		}
 	}
 
@@ -165,6 +168,25 @@ export class MainUI {
 		$("#btnAboutClose").on("click", function (event) {
 			$("#about").hide();
 		});
+	}
+
+	ui_refresh_menubar(state) {
+		var enable_btn = function(btn, enable) {
+			if (enable) {
+				btn.removeAttr('disabled');
+			} else {
+				btn.attr('disabled', '');
+			}
+		}
+
+		const context_state = this.dmsapi.context_status();
+		const waiting = context_state == "wait";
+
+		enable_btn($('#btnStepInstruction'), waiting);
+		enable_btn($('#btnStepClock'), waiting);
+		enable_btn($('#cmbStepClock'), waiting);
+		enable_btn($('#btnRun'), waiting);
+		enable_btn($('#btnPause'), context_state == "run");
 	}
 
 	ui_setup_signal_hovering() {
