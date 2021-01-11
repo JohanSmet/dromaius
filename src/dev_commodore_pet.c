@@ -105,10 +105,10 @@ static void glue_logic_register_dependencies_01(ChipGlueLogic *chip) {
 	signal_add_dependency(SIGNAL_POOL, SIGNAL(cpu_rw), chip->id);
 	signal_add_dependency(SIGNAL_POOL, SIGNAL(clk1), chip->id);
 
-	signal_add_dependency(SIGNAL_POOL, device->pia_1->signals.irqa_b, chip->id);
-	signal_add_dependency(SIGNAL_POOL, device->pia_1->signals.irqb_b, chip->id);
-	signal_add_dependency(SIGNAL_POOL, device->pia_2->signals.irqa_b, chip->id);
-	signal_add_dependency(SIGNAL_POOL, device->pia_2->signals.irqb_b, chip->id);
+	signal_add_dependency(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQA_B], chip->id);
+	signal_add_dependency(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B], chip->id);
+	signal_add_dependency(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQA_B], chip->id);
+	signal_add_dependency(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQB_B], chip->id);
 	signal_add_dependency(SIGNAL_POOL, device->via->signals.irq_b, chip->id);
 }
 
@@ -181,10 +181,10 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	// >> irq logic: the 2001N wire-or's the irq lines of the chips and connects them to the cpu
 	//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
 	//		-> or the together explicitly
-	bool irq_b = signal_read_next_bool(SIGNAL_POOL, device->pia_1->signals.irqa_b) &&
-				 signal_read_next_bool(SIGNAL_POOL, device->pia_1->signals.irqb_b) &&
-				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals.irqa_b) &&
-				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals.irqb_b) &&
+	bool irq_b = signal_read_next_bool(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQA_B]) &&
+				 signal_read_next_bool(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B]) &&
+				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQA_B]) &&
+				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQB_B]) &&
 				 signal_read_next_bool(SIGNAL_POOL, device->via->signals.irq_b);
 	SIGNAL_SET_BOOL(irq_b, irq_b);
 }
@@ -789,21 +789,42 @@ void circuit_create_02(DevCommodorePet *device) {
 
 	// pia 1 (C6 - IEEE-488 interface)
 	device->pia_1 = chip_6520_create(device->simulator, (Chip6520Signals) {
-										.bus_data = SIGNAL(cpu_bus_data),
-										.enable = SIGNAL(clk1),
-										.reset_b = SIGNAL(reset_b),
-										.rw = SIGNAL(cpu_rw),
-										.cs0 = SIGNAL(x8xx),
-										.cs1 = signal_split(SIGNAL(bus_ba), 5, 1),
-										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
-										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
-										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
-										.ca1 = SIGNAL(atn_in_b),
-										.ca2 = SIGNAL(ndac_out_b),
-										.port_a = SIGNAL(bus_di),
-										.port_b = SIGNAL(bus_do),
-										.cb1 = SIGNAL(srq_in_b),
-										.cb2 = SIGNAL(dav_out_b)
+										[CHIP_6520_D0] = signal_split(SIGNAL(cpu_bus_data), 0, 1),
+										[CHIP_6520_D1] = signal_split(SIGNAL(cpu_bus_data), 1, 1),
+										[CHIP_6520_D2] = signal_split(SIGNAL(cpu_bus_data), 2, 1),
+										[CHIP_6520_D3] = signal_split(SIGNAL(cpu_bus_data), 3, 1),
+										[CHIP_6520_D4] = signal_split(SIGNAL(cpu_bus_data), 4, 1),
+										[CHIP_6520_D5] = signal_split(SIGNAL(cpu_bus_data), 5, 1),
+										[CHIP_6520_D6] = signal_split(SIGNAL(cpu_bus_data), 6, 1),
+										[CHIP_6520_D7] = signal_split(SIGNAL(cpu_bus_data), 7, 1),
+										[CHIP_6520_PHI2] = SIGNAL(clk1),
+										[CHIP_6520_RESET_B] = SIGNAL(reset_b),
+										[CHIP_6520_RW] = SIGNAL(cpu_rw),
+										[CHIP_6520_CS0] = SIGNAL(x8xx),
+										[CHIP_6520_CS1] = signal_split(SIGNAL(bus_ba), 5, 1),
+										[CHIP_6520_CS2_B] = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
+										[CHIP_6520_RS0] = signal_split(SIGNAL(bus_ba), 0, 1),
+										[CHIP_6520_RS1] = signal_split(SIGNAL(bus_ba), 1, 1),
+										[CHIP_6520_CA1] = SIGNAL(atn_in_b),
+										[CHIP_6520_CA2] = SIGNAL(ndac_out_b),
+										[CHIP_6520_PA0] = signal_split(SIGNAL(bus_di), 0, 1),
+										[CHIP_6520_PA1] = signal_split(SIGNAL(bus_di), 1, 1),
+										[CHIP_6520_PA2] = signal_split(SIGNAL(bus_di), 2, 1),
+										[CHIP_6520_PA3] = signal_split(SIGNAL(bus_di), 3, 1),
+										[CHIP_6520_PA4] = signal_split(SIGNAL(bus_di), 4, 1),
+										[CHIP_6520_PA5] = signal_split(SIGNAL(bus_di), 5, 1),
+										[CHIP_6520_PA6] = signal_split(SIGNAL(bus_di), 6, 1),
+										[CHIP_6520_PA7] = signal_split(SIGNAL(bus_di), 7, 1),
+										[CHIP_6520_PB0] = signal_split(SIGNAL(bus_do), 0, 1),
+										[CHIP_6520_PB1] = signal_split(SIGNAL(bus_do), 1, 1),
+										[CHIP_6520_PB2] = signal_split(SIGNAL(bus_do), 2, 1),
+										[CHIP_6520_PB3] = signal_split(SIGNAL(bus_do), 3, 1),
+										[CHIP_6520_PB4] = signal_split(SIGNAL(bus_do), 4, 1),
+										[CHIP_6520_PB5] = signal_split(SIGNAL(bus_do), 5, 1),
+										[CHIP_6520_PB6] = signal_split(SIGNAL(bus_do), 6, 1),
+										[CHIP_6520_PB7] = signal_split(SIGNAL(bus_do), 7, 1),
+										[CHIP_6520_CB1] = SIGNAL(srq_in_b),
+										[CHIP_6520_CB2] = SIGNAL(dav_out_b)
 	});
 	DEVICE_REGISTER_CHIP("C6", device->pia_1);
 }
@@ -813,21 +834,42 @@ void circuit_create_03(DevCommodorePet *device) {
 
 	// pia 2 (C7 - keyboard)
 	device->pia_2 = chip_6520_create(device->simulator, (Chip6520Signals) {
-										.bus_data = SIGNAL(cpu_bus_data),
-										.enable = SIGNAL(clk1),
-										.reset_b = SIGNAL(reset_b),
-										.rw = SIGNAL(cpu_rw),
-										.cs0 = SIGNAL(x8xx),
-										.cs1 = signal_split(SIGNAL(bus_ba), 4, 1),
-										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
-										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
-										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
-										.ca1 = SIGNAL(cass_read_1),
-										.ca2 = SIGNAL(eoi_out_b),
-										.port_a = SIGNAL(c7_porta),
-										.port_b = SIGNAL(bus_kin),
-										.cb1 = SIGNAL(video_on),
-										.cb2 = SIGNAL(cass_motor_1_b)
+										[CHIP_6520_D0] = signal_split(SIGNAL(cpu_bus_data), 0, 1),
+										[CHIP_6520_D1] = signal_split(SIGNAL(cpu_bus_data), 1, 1),
+										[CHIP_6520_D2] = signal_split(SIGNAL(cpu_bus_data), 2, 1),
+										[CHIP_6520_D3] = signal_split(SIGNAL(cpu_bus_data), 3, 1),
+										[CHIP_6520_D4] = signal_split(SIGNAL(cpu_bus_data), 4, 1),
+										[CHIP_6520_D5] = signal_split(SIGNAL(cpu_bus_data), 5, 1),
+										[CHIP_6520_D6] = signal_split(SIGNAL(cpu_bus_data), 6, 1),
+										[CHIP_6520_D7] = signal_split(SIGNAL(cpu_bus_data), 7, 1),
+										[CHIP_6520_PHI2] = SIGNAL(clk1),
+										[CHIP_6520_RESET_B] = SIGNAL(reset_b),
+										[CHIP_6520_RW] = SIGNAL(cpu_rw),
+										[CHIP_6520_CS0] = SIGNAL(x8xx),
+										[CHIP_6520_CS1] = signal_split(SIGNAL(bus_ba), 4, 1),
+										[CHIP_6520_CS2_B] = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
+										[CHIP_6520_RS0] = signal_split(SIGNAL(bus_ba), 0, 1),
+										[CHIP_6520_RS1] = signal_split(SIGNAL(bus_ba), 1, 1),
+										[CHIP_6520_CA1] = SIGNAL(cass_read_1),
+										[CHIP_6520_CA2] = SIGNAL(eoi_out_b),
+										[CHIP_6520_PA0] = signal_split(SIGNAL(c7_porta), 0, 1),
+										[CHIP_6520_PA1] = signal_split(SIGNAL(c7_porta), 1, 1),
+										[CHIP_6520_PA2] = signal_split(SIGNAL(c7_porta), 2, 1),
+										[CHIP_6520_PA3] = signal_split(SIGNAL(c7_porta), 3, 1),
+										[CHIP_6520_PA4] = signal_split(SIGNAL(c7_porta), 4, 1),
+										[CHIP_6520_PA5] = signal_split(SIGNAL(c7_porta), 5, 1),
+										[CHIP_6520_PA6] = signal_split(SIGNAL(c7_porta), 6, 1),
+										[CHIP_6520_PA7] = signal_split(SIGNAL(c7_porta), 7, 1),
+										[CHIP_6520_PB0] = signal_split(SIGNAL(bus_kin), 0, 1),
+										[CHIP_6520_PB1] = signal_split(SIGNAL(bus_kin), 1, 1),
+										[CHIP_6520_PB2] = signal_split(SIGNAL(bus_kin), 2, 1),
+										[CHIP_6520_PB3] = signal_split(SIGNAL(bus_kin), 3, 1),
+										[CHIP_6520_PB4] = signal_split(SIGNAL(bus_kin), 4, 1),
+										[CHIP_6520_PB5] = signal_split(SIGNAL(bus_kin), 5, 1),
+										[CHIP_6520_PB6] = signal_split(SIGNAL(bus_kin), 6, 1),
+										[CHIP_6520_PB7] = signal_split(SIGNAL(bus_kin), 7, 1),
+										[CHIP_6520_CB1] = SIGNAL(video_on),
+										[CHIP_6520_CB2] = SIGNAL(cass_motor_1_b)
 	});
 	DEVICE_REGISTER_CHIP("C7", device->pia_2);
 

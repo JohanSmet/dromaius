@@ -189,30 +189,37 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// pia
 	device->pia = chip_6520_create(device->simulator, (Chip6520Signals) {
-										.bus_data = SIGNAL(bus_data),
-										.enable = SIGNAL(clock),
-										.reset_b = SIGNAL(reset_b),
-										.rw = SIGNAL(cpu_rw),
-										.cs0 = SIGNAL(a15),
-										.cs1 = SIGNAL(high),
-										.rs0 = signal_split(SIGNAL(bus_address), 0, 1),
-										.rs1 = signal_split(SIGNAL(bus_address), 1, 1),
+										[CHIP_6520_D0] = signal_split(SIGNAL(bus_data), 0, 1),
+										[CHIP_6520_D1] = signal_split(SIGNAL(bus_data), 1, 1),
+										[CHIP_6520_D2] = signal_split(SIGNAL(bus_data), 2, 1),
+										[CHIP_6520_D3] = signal_split(SIGNAL(bus_data), 3, 1),
+										[CHIP_6520_D4] = signal_split(SIGNAL(bus_data), 4, 1),
+										[CHIP_6520_D5] = signal_split(SIGNAL(bus_data), 5, 1),
+										[CHIP_6520_D6] = signal_split(SIGNAL(bus_data), 6, 1),
+										[CHIP_6520_D7] = signal_split(SIGNAL(bus_data), 7, 1),
+										[CHIP_6520_PHI2] = SIGNAL(clock),
+										[CHIP_6520_RESET_B] = SIGNAL(reset_b),
+										[CHIP_6520_RW] = SIGNAL(cpu_rw),
+										[CHIP_6520_CS0] = SIGNAL(a15),
+										[CHIP_6520_CS1] = SIGNAL(high),
+										[CHIP_6520_RS0] = signal_split(SIGNAL(bus_address), 0, 1),
+										[CHIP_6520_RS1] = signal_split(SIGNAL(bus_address), 1, 1)
 	});
 	DEVICE_REGISTER_CHIP("PIA", device->pia);
 
 	// lcd-module
 	device->lcd = chip_hd44780_create(device->simulator, (ChipHd44780Signals) {
-										.db4_7 = signal_split(device->pia->signals.port_a, 0, 4),
-										.rs = signal_split(device->pia->signals.port_a, 7, 1),
-										.rw = signal_split(device->pia->signals.port_a, 6, 1),
-										.enable = signal_split(device->pia->signals.port_a, 5, 1)
+										.db4_7 = (Signal) {device->pia->signals[CHIP_6520_PA0].start, 4},
+										.rs = device->pia->signals[CHIP_6520_PA7],
+										.rw = device->pia->signals[CHIP_6520_PA6],
+										.enable = device->pia->signals[CHIP_6520_PA5]
 	});
 	DEVICE_REGISTER_CHIP("LCD", device->lcd);
 
 	// keypad
 	device->keypad = input_keypad_create(device->simulator, true, 4, 4, 500, 100, (InputKeypadSignals) {
-										.rows = signal_split(device->pia->signals.port_b, 4, 4),
-										.cols = signal_split(device->pia->signals.port_b, 0, 4)
+										.rows =  (Signal) {device->pia->signals[CHIP_6520_PB4].start, 4},
+										.cols =  (Signal) {device->pia->signals[CHIP_6520_PB0].start, 4}
 	});
 	DEVICE_REGISTER_CHIP("KEYPAD", device->keypad);
 	signal_default_uint8(SIGNAL_POOL, device->keypad->signals.cols, false);
@@ -224,7 +231,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	SIGNAL(ram_oe_b) = device->ram->signals.oe_b;
 	SIGNAL(ram_we_b) = device->ram->signals.we_b;
 	SIGNAL(rom_ce_b) = device->rom->signals.ce_b;
-	SIGNAL(pia_cs2_b) = device->pia->signals.cs2_b;
+	SIGNAL(pia_cs2_b) = device->pia->signals[CHIP_6520_CS2_B];
 
 	// let the simulator know no more chips will be added
 	simulator_device_complete(device->simulator);

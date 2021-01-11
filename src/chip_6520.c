@@ -2,6 +2,7 @@
 //
 // Emulation of the 6520 Peripheral Interface Adapter
 
+#define SIGNAL_ARRAY_STYLE
 #include "chip_6520.h"
 #include "simulator.h"
 
@@ -15,9 +16,8 @@
 #define LOG_SIMULATOR		pia->simulator
 #include "log.h"
 
-#define SIGNAL_POOL			pia->signal_pool
-#define SIGNAL_COLLECTION	pia->signals
-#define SIGNAL_CHIP_ID		pia->id
+#define SIGNAL_PREFIX		CHIP_6520_
+#define SIGNAL_OWNER		pia
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -68,7 +68,7 @@ typedef struct Chip6520_private {
 	FLAG_SET_CLEAR_U8(reg, FLAG_6520_##flag, cond)
 
 static inline void write_register(Chip6520 *pia, uint8_t data) {
-	int reg_addr = (SIGNAL_BOOL(rs1) << 1) | SIGNAL_BOOL(rs0);
+	int reg_addr = (SIGNAL_READ(RS1) << 1) | SIGNAL_READ(RS0);
 
 	switch (reg_addr) {
 		case 0:
@@ -80,7 +80,7 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 				LOG_TRACE("6520 [%s]: set reg_ddra = 0x%.2x", pia->name, data);
 				pia->reg_ddra = data;
 				// remove ourself as the active writer from all pins of port_a
-				SIGNAL_NO_WRITE(port_a);
+				SIGNAL_GROUP_NO_WRITE(port_a);
 			}
 			break;
 		case 1:
@@ -101,7 +101,7 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 				LOG_TRACE("6520 [%s]: set reg_ddrb = 0x%.2x", pia->name, data);
 				pia->reg_ddrb = data;
 				// remove ourself as the active writer from all pins of port_b
-				SIGNAL_NO_WRITE(port_b);
+				SIGNAL_GROUP_NO_WRITE(port_b);
 			}
 			break;
 		case 3:
@@ -117,13 +117,13 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 }
 
 static inline uint8_t read_register(Chip6520 *pia) {
-	int reg_addr = (SIGNAL_BOOL(rs1) << 1) | SIGNAL_BOOL(rs0);
+	int reg_addr = (SIGNAL_READ(RS1) << 1) | SIGNAL_READ(RS0);
 
 	switch (reg_addr) {
 		case 0:
 			if (CR_FLAG(pia->reg_cra, DDR_OR_SELECT)) {
 				PRIVATE(pia)->state_a.read_port = true;
-				return SIGNAL_UINT8(port_a);
+				return SIGNAL_GROUP_READ_U8(port_a);
 			} else {
 				return pia->reg_ddra;
 			}
@@ -132,7 +132,7 @@ static inline uint8_t read_register(Chip6520 *pia) {
 		case 2:
 			if (CR_FLAG(pia->reg_crb, DDR_OR_SELECT)) {
 				PRIVATE(pia)->state_b.read_port = true;
-				return SIGNAL_UINT8(port_b);
+				return SIGNAL_GROUP_READ_U8(port_b);
 			} else {
 				return pia->reg_ddrb;
 			}
@@ -190,7 +190,7 @@ static inline void control_register_irq_routine(Chip6520 *pia, uint8_t *reg_ctrl
 }
 
 static inline void process_positive_enable_edge(Chip6520 *pia) {
-	if (PRIVATE(pia)->strobe && SIGNAL_BOOL(rw) == RW_READ) {
+	if (PRIVATE(pia)->strobe && SIGNAL_READ(RW) == RW_READ) {
 		PRIVATE(pia)->out_data = read_register(pia);
 		PRIVATE(pia)->out_enabled = true;
 	}
@@ -200,8 +200,8 @@ void process_negative_enable_edge(Chip6520 *pia) {
 
 	if (PRIVATE(pia)->strobe) {
 		// read/write internal register
-		if (SIGNAL_BOOL(rw) == RW_WRITE) {
-			write_register(pia, SIGNAL_UINT8(bus_data));
+		if (SIGNAL_READ(RW) == RW_WRITE) {
+			write_register(pia, SIGNAL_GROUP_READ_U8(data));
 		} else {
 			PRIVATE(pia)->out_data = read_register(pia);
 			PRIVATE(pia)->out_enabled = true;
@@ -212,14 +212,14 @@ void process_negative_enable_edge(Chip6520 *pia) {
 	LOG_TRACE("6520 [%s]: control_register_irq_routine() for reg_cra", pia->name);
 	control_register_irq_routine(pia,
 			&pia->reg_cra,
-			SIGNAL_BOOL(ca1), SIGNAL_BOOL(ca2),
+			SIGNAL_READ(CA1), SIGNAL_READ(CA2),
 			&PRIVATE(pia)->state_a);
 
 	// irq-B routine
 	LOG_TRACE("6520 [%s]: control_register_irq_routine() for reg_cra", pia->name);
 	control_register_irq_routine(pia,
 			&pia->reg_crb,
-			SIGNAL_BOOL(cb1), SIGNAL_BOOL(cb2),
+			SIGNAL_READ(CB1), SIGNAL_READ(CB2),
 			&PRIVATE(pia)->state_b);
 
 	// irq output lines
@@ -266,36 +266,36 @@ void process_negative_enable_edge(Chip6520 *pia) {
 static inline void process_end(Chip6520 *pia) {
 
 	// always write to the non-tristate outputs
-	SIGNAL_SET_BOOL(irqa_b, PRIVATE(pia)->out_irqa_b);
-	SIGNAL_SET_BOOL(irqb_b, PRIVATE(pia)->out_irqb_b);
+	SIGNAL_WRITE(IRQA_B, PRIVATE(pia)->out_irqa_b);
+	SIGNAL_WRITE(IRQB_B, PRIVATE(pia)->out_irqb_b);
 
 	// output on the ports
-	SIGNAL_SET_UINT8_MASKED(port_a, pia->reg_ora, pia->reg_ddra);
-	SIGNAL_SET_UINT8_MASKED(port_b, pia->reg_orb, pia->reg_ddrb);
+	SIGNAL_GROUP_WRITE_MASKED(port_a, pia->reg_ora, pia->reg_ddra);
+	SIGNAL_GROUP_WRITE_MASKED(port_b, pia->reg_orb, pia->reg_ddrb);
 
 	// output on ca2 if in output mode
 	if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT)) {
-		SIGNAL_SET_BOOL(ca2, PRIVATE(pia)->internal_ca2);
+		SIGNAL_WRITE(CA2, PRIVATE(pia)->internal_ca2);
 	} else {
-		SIGNAL_NO_WRITE(ca2);
+		SIGNAL_NO_WRITE(CA2);
 	}
 
 	// output on cb2 if in output mode
 	if (CR_FLAG(pia->reg_crb, CL2_MODE_SELECT)) {
-		SIGNAL_SET_BOOL(cb2, PRIVATE(pia)->internal_cb2);
+		SIGNAL_WRITE(CB2, PRIVATE(pia)->internal_cb2);
 	} else  {
-		SIGNAL_NO_WRITE(cb2);
+		SIGNAL_NO_WRITE(CB2);
 	}
 
 	// output on databus
 	if (PRIVATE(pia)->out_enabled) {
-		SIGNAL_SET_UINT8(bus_data, PRIVATE(pia)->out_data);
+		SIGNAL_GROUP_WRITE(data, PRIVATE(pia)->out_data);
 	} else {
-		SIGNAL_NO_WRITE(bus_data);
+		SIGNAL_GROUP_NO_WRITE(data);
 	}
 
 	// store state of the enable pin
-	PRIVATE(pia)->prev_enable = SIGNAL_BOOL(enable);
+	PRIVATE(pia)->prev_enable = SIGNAL_READ(PHI2);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -311,34 +311,51 @@ Chip6520 *chip_6520_create(Simulator *sim, Chip6520Signals signals) {
 	pia->signal_pool = sim->signal_pool;
 	CHIP_SET_FUNCTIONS(pia, chip_6520_process, chip_6520_destroy, chip_6520_register_dependencies);
 
-	memcpy(&pia->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(bus_data,		8);
-	SIGNAL_DEFINE(port_a,		8);
-	SIGNAL_DEFINE(port_b,		8);
-	SIGNAL_DEFINE_BOOL(ca1,		1, false);
-	SIGNAL_DEFINE_BOOL(ca2,		1, false);
-	SIGNAL_DEFINE_BOOL(cb1,		1, false);
-	SIGNAL_DEFINE_BOOL(cb2,		1, false);
-	SIGNAL_DEFINE_BOOL(irqa_b,	1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(irqb_b,	1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(rs0,		1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE_BOOL(rs1,		1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(enable,	1, true);
-	SIGNAL_DEFINE_BOOL(cs0,		1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE_BOOL(cs1,		1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE_BOOL(cs2_b,	1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(rw,		1, true);
+	memcpy(pia->signals, signals, sizeof(Chip6520Signals));
 
-	// port-A has passive resistive pull-ups
-	signal_default_uint8(SIGNAL_POOL, SIGNAL(port_a), 0xff);
+	pia->sg_port_a = signal_group_create();
+	pia->sg_port_b = signal_group_create();
+	pia->sg_data = signal_group_create();
+
+	for (int i = 0; i < 8; ++i) {
+		// port-A has passive resistive pull-ups
+		SIGNAL_DEFINE_DEFAULT(CHIP_6520_PA0 + i, true);
+		signal_group_push(&pia->sg_port_a, SIGNAL_COLLECTION[CHIP_6520_PA0 + i]);
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE(CHIP_6520_PB0 + i);
+		signal_group_push(&pia->sg_port_b, SIGNAL_COLLECTION[CHIP_6520_PB0 + i]);
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE(CHIP_6520_D0 - i);
+		signal_group_push(&pia->sg_data, SIGNAL_COLLECTION[CHIP_6520_D0 - i]);
+	}
+
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_CA1,		false);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_CA2,		false);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_CB1,		false);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_CB2,		false);
+
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_IRQA_B,		ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_IRQB_B,		ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_RS0,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_RS1,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_RESET_B,	ACTLO_DEASSERT);
+
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_PHI2,		true);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_CS0,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_CS1,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_CS2_B,		ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6520_RW,			true);
 
 	return pia;
 }
 
 void chip_6520_register_dependencies(Chip6520 *pia) {
-	signal_add_dependency(pia->signal_pool, SIGNAL(reset_b), pia->id);
-	signal_add_dependency(pia->signal_pool, SIGNAL(enable), pia->id);
+	SIGNAL_DEPENDENCY(RESET_B);
+	SIGNAL_DEPENDENCY(PHI2);
 }
 
 void chip_6520_destroy(Chip6520 *pia) {
@@ -349,7 +366,7 @@ void chip_6520_destroy(Chip6520 *pia) {
 void chip_6520_process(Chip6520 *pia) {
 	assert(pia);
 
-	bool reset_b = SIGNAL_BOOL(reset_b);
+	bool reset_b = SIGNAL_READ(RESET_B);
 
 	// reset flags
 	PRIVATE(pia)->state_a.read_port = false;
@@ -373,15 +390,17 @@ void chip_6520_process(Chip6520 *pia) {
 	// do nothing:
 	//	- if reset is asserted or
 	//  - if not on the edge of a clock cycle
-	bool enable = SIGNAL_BOOL(enable);
+	bool enable = SIGNAL_READ(PHI2);
 
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(reset_b)) || enable == PRIVATE(pia)->prev_enable) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(RESET_B)) || enable == PRIVATE(pia)->prev_enable) {
 		LOG_TRACE("6520 [%s]: exit without processing", pia->name);
 		process_end(pia);
 		return;
 	}
 
-	PRIVATE(pia)->strobe = ACTHI_ASSERTED(SIGNAL_BOOL(cs0)) && ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) && ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b));
+	PRIVATE(pia)->strobe =	ACTHI_ASSERTED(SIGNAL_READ(CS0)) &&
+							ACTHI_ASSERTED(SIGNAL_READ(CS1)) &&
+							ACTLO_ASSERTED(SIGNAL_READ(CS2_B));
 	PRIVATE(pia)->out_enabled = false;
 
 	if (enable) {

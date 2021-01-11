@@ -1,5 +1,4 @@
 // test/test_dev_minimal_6502.c - Johan Smet - BSD-3-Clause (see LICENSE)
-
 #include "munit/munit.h"
 #include "dev_minimal_6502.h"
 
@@ -129,8 +128,8 @@ MunitResult test_pia(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_uint8(dev->pia->reg_crb, ==, 0x04);
 	munit_assert_uint8(dev->pia->reg_ora, ==, 0x55);
 	munit_assert_uint8(dev->pia->reg_orb, ==, 0x55);
-	munit_assert_uint8(signal_read_uint8(dev->simulator->signal_pool, dev->pia->signals.port_a), ==, 0x55);
-	munit_assert_uint8(signal_read_uint8(dev->simulator->signal_pool, dev->pia->signals.port_b), ==, 0x50);	// lower nibble == keypad output
+	munit_assert_uint8(signal_group_read(dev->simulator->signal_pool, dev->pia->sg_port_a), ==, 0x55);
+	munit_assert_uint8(signal_group_read(dev->simulator->signal_pool, dev->pia->sg_port_b), ==, 0x50);	// lower nibble == keypad output
 
 	dev_minimal_6502_teardown(dev);
 

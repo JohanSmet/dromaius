@@ -2,6 +2,7 @@
 //
 // UI panel to display information about a 6520 Peripheral Interace Adapter
 
+#define SIGNAL_ARRAY_STYLE
 #include "panel_chip_6520.h"
 #include "chip_6520.h"
 #include "context.h"
@@ -12,8 +13,8 @@
 #include <stb/stb_ds.h>
 #include <assert.h>
 
-#define SIGNAL_POOL			pia->signal_pool
-#define SIGNAL_COLLECTION	pia->signals
+#define SIGNAL_PREFIX		CHIP_6520_
+#define SIGNAL_OWNER		pia
 
 class PanelChip6520 : public Panel {
 public:
@@ -41,28 +42,28 @@ public:
 			ui_register_8bit_binary(8, "Data Direction B", pia->reg_ddrb);
 			ui_register_8bit_binary(8, "Control Reg. B", pia->reg_crb);
 
-			ui_register_8bit(8, "Port-A", SIGNAL_NEXT_UINT8(port_a));
-			ui_register_8bit(8, "Port-B", SIGNAL_NEXT_UINT8(port_b));
+			ui_register_8bit(8, "Port-A", SIGNAL_GROUP_READ_NEXT_U8(port_a));
+			ui_register_8bit(8, "Port-B", SIGNAL_GROUP_READ_NEXT_U8(port_b));
 
 			// middle column
 			ImGui::SetCursorPos(origin);
-			ui_signal(220, "CA1", SIGNAL_NEXT_BOOL(ca1), ACTHI_ASSERT);
-			ui_signal(220, "CA2", SIGNAL_NEXT_BOOL(ca2), ACTHI_ASSERT);
-			ui_signal(220, "/IRQA", SIGNAL_NEXT_BOOL(irqa_b), ACTLO_ASSERT);
+			ui_signal(220, "CA1", SIGNAL_READ_NEXT(CA1), ACTHI_ASSERT);
+			ui_signal(220, "CA2", SIGNAL_READ_NEXT(CA2), ACTHI_ASSERT);
+			ui_signal(220, "/IRQA", SIGNAL_READ_NEXT(IRQA_B), ACTLO_ASSERT);
 
-			ui_signal(220, "CS0", SIGNAL_NEXT_BOOL(cs0), ACTHI_ASSERT);
-			ui_signal(220, "CS1", SIGNAL_NEXT_BOOL(cs1), ACTHI_ASSERT);
-			ui_signal(220, "/CS2", SIGNAL_NEXT_BOOL(cs2_b), ACTLO_ASSERT);
+			ui_signal(220, "CS0", SIGNAL_READ_NEXT(CS0), ACTHI_ASSERT);
+			ui_signal(220, "CS1", SIGNAL_READ_NEXT(CS1), ACTHI_ASSERT);
+			ui_signal(220, "/CS2", SIGNAL_READ_NEXT(CS2_B), ACTLO_ASSERT);
 
 			// right column
 			ImGui::SetCursorPos(origin);
-			ui_signal(330, "CB1", SIGNAL_NEXT_BOOL(cb1), ACTHI_ASSERT);
-			ui_signal(330, "CB2", SIGNAL_NEXT_BOOL(cb2), ACTHI_ASSERT);
-			ui_signal(330, "/IRQB", SIGNAL_NEXT_BOOL(irqb_b), ACTLO_ASSERT);
+			ui_signal(330, "CB1", SIGNAL_READ_NEXT(CB1), ACTHI_ASSERT);
+			ui_signal(330, "CB2", SIGNAL_READ_NEXT(CB2), ACTHI_ASSERT);
+			ui_signal(330, "/IRQB", SIGNAL_READ_NEXT(IRQB_B), ACTLO_ASSERT);
 
-			ui_signal(330, "RS0", SIGNAL_NEXT_BOOL(rs0), ACTHI_ASSERT);
-			ui_signal(330, "RS1", SIGNAL_NEXT_BOOL(rs1), ACTHI_ASSERT);
-			ui_signal(330, "/RES", SIGNAL_NEXT_BOOL(reset_b), ACTLO_ASSERT);
+			ui_signal(330, "RS0", SIGNAL_READ_NEXT(RS0), ACTHI_ASSERT);
+			ui_signal(330, "RS1", SIGNAL_READ_NEXT(RS1), ACTHI_ASSERT);
+			ui_signal(330, "/RES", SIGNAL_READ_NEXT(RESET_B), ACTLO_ASSERT);
 		}
 
 		ImGui::End();
@@ -74,7 +75,6 @@ private:
 	std::string			title;
 
 	Chip6520 *			pia;
-	
 };
 
 

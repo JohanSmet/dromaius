@@ -13,25 +13,58 @@ extern "C" {
 #endif
 
 // types
-typedef struct Chip6520Signals {
-	Signal		bus_data;		// 8-bit data bus [D0 - D7] - (In & Out)
-	Signal		port_a;			// 8-bit peripheral I/O port A [PA0 - PA7] - (In & Out)
-	Signal		port_b;			// 8-bit peripheral I/O port B [PB0 - PB7] - (In & Out)
-	Signal		ca1;			// 1-bit interrupt input control line for port A - (In)
-	Signal		ca2;			// 1-bit interrupt input/peripheral control line for port A - (In & Out)
-	Signal		cb1;			// 1-bit interrupt input control line for port B - (In)
-	Signal		cb2;			// 1-bit interrupt input/peripheral control line for port B - (In & Out)
-	Signal		irqa_b;			// 1-bit interrupt request line for port A (Out)
-	Signal		irqb_b;			// 1-bit interrupt request line for port A (Out)
-	Signal		rs0;			// 1-bit register select 0 (In)
-	Signal		rs1;			// 1-bit register select 1 (In)
-	Signal		reset_b;		// 1-bit reset-line (In)
-	Signal		enable;			// 1-bit clock-line (PHI2) (In)
-	Signal		cs0;			// 1-bit chip select 0 (In)
-	Signal		cs1;			// 1-bit chip select 1 (In)
-	Signal		cs2_b;			// 1-bit chip select 2 (In)
-	Signal		rw;				// 1-bit read/write-line (true = read (pia -> cpu), false = write (cpu -> pia))
-} Chip6520Signals;
+typedef enum {
+	// port-A (8-bit peripheral I/O port)
+	CHIP_6520_PA0 = CHIP_PIN_02,
+	CHIP_6520_PA1 = CHIP_PIN_03,
+	CHIP_6520_PA2 = CHIP_PIN_04,
+	CHIP_6520_PA3 = CHIP_PIN_05,
+	CHIP_6520_PA4 = CHIP_PIN_06,
+	CHIP_6520_PA5 = CHIP_PIN_07,
+	CHIP_6520_PA6 = CHIP_PIN_08,
+	CHIP_6520_PA7 = CHIP_PIN_09,
+
+	// port-B (8-bit peripheral I/O port)
+	CHIP_6520_PB0 = CHIP_PIN_10,
+	CHIP_6520_PB1 = CHIP_PIN_11,
+	CHIP_6520_PB2 = CHIP_PIN_12,
+	CHIP_6520_PB3 = CHIP_PIN_13,
+	CHIP_6520_PB4 = CHIP_PIN_14,
+	CHIP_6520_PB5 = CHIP_PIN_15,
+	CHIP_6520_PB6 = CHIP_PIN_16,
+	CHIP_6520_PB7 = CHIP_PIN_17,
+
+	// data bus (8-bit)
+	CHIP_6520_D0 = CHIP_PIN_33,
+	CHIP_6520_D1 = CHIP_PIN_32,
+	CHIP_6520_D2 = CHIP_PIN_31,
+	CHIP_6520_D3 = CHIP_PIN_30,
+	CHIP_6520_D4 = CHIP_PIN_29,
+	CHIP_6520_D5 = CHIP_PIN_28,
+	CHIP_6520_D6 = CHIP_PIN_27,
+	CHIP_6520_D7 = CHIP_PIN_26,
+
+	CHIP_6520_CA1 = CHIP_PIN_40,		// 1-bit interrupt input control line for port A - (In)
+	CHIP_6520_CA2 = CHIP_PIN_39,		// 1-bit interrupt input/peripheral control line for port A - (In & Out)
+	CHIP_6520_CB1 = CHIP_PIN_18,		// 1-bit interrupt input control line for port B - (In)
+	CHIP_6520_CB2 = CHIP_PIN_19,		// 1-bit interrupt input/peripheral control line for port B - (In & Out)
+
+	CHIP_6520_IRQA_B = CHIP_PIN_38,		// 1-bit interrupt request line for port A (Out)
+	CHIP_6520_IRQB_B = CHIP_PIN_37,		// 1-bit interrupt request line for port A (Out)
+
+	CHIP_6520_RS0 = CHIP_PIN_36,		// 1-bit register select 0 (In)
+	CHIP_6520_RS1 = CHIP_PIN_35,		// 1-bit register select 1 (In)
+	CHIP_6520_RESET_B = CHIP_PIN_34,	// 1-bit reset-line (In)
+
+	CHIP_6520_PHI2 = CHIP_PIN_25,		// 1-bit clock-line (In)
+
+	CHIP_6520_CS0 = CHIP_PIN_22,		// 1-bit chip select 0 (In)
+	CHIP_6520_CS1 = CHIP_PIN_24,		// 1-bit chip select 1 (In)
+	CHIP_6520_CS2_B = CHIP_PIN_23,		// 1-bit chip select 2 (In)
+	CHIP_6520_RW = CHIP_PIN_21,			// 1-bit read/write-line (true = read (pia -> cpu), false = write (cpu -> pia))
+} Chip6520SignalAssignment;
+
+typedef Signal Chip6520Signals[40];
 
 typedef enum Chip6520ControlFlags {
 	// flags for cl2 == input (and common fields for cl2 == output)
@@ -55,6 +88,11 @@ typedef struct Chip6520 {
 	// interface
 	SignalPool *		signal_pool;
 	Chip6520Signals		signals;
+
+	// signal groups
+	SignalGroup			sg_port_a;
+	SignalGroup			sg_port_b;
+	SignalGroup			sg_data;
 
 	// registers
 	uint8_t		reg_ddra;		// 8-bit data direction register for port A
