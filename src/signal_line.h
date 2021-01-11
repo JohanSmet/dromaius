@@ -256,8 +256,72 @@ static inline bool signal_changed(SignalPool *pool, Signal signal) {
 	return result;
 }
 
+typedef Signal *SignalGroup;
+
+static inline SignalGroup signal_group_create(void) {
+	return NULL;
+}
+
+static inline void signal_group_push(SignalGroup *group, Signal signal) {
+	assert(group);
+	arrpush(*group, signal);
+}
+
+static inline int32_t signal_group_read(SignalPool* pool, SignalGroup sg) {
+	int32_t result = 0;
+
+	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
+		result |= (signal_read_bool(pool, sg[i]) << i);
+	}
+	return result;
+}
+
+static inline int32_t signal_group_read_next(SignalPool* pool, SignalGroup sg) {
+	int32_t result = 0;
+
+	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
+		result |= (signal_read_next_bool(pool, sg[i]) << i);
+	}
+	return result;
+}
+
+static inline void signal_group_clear_writer(SignalPool* pool, SignalGroup sg, int32_t chip_id) {
+	for (size_t i = 0; i < arrlenu(sg); ++i) {
+		signal_clear_writer(pool, sg[i], chip_id);
+	}
+}
+
+static inline void signal_group_write(SignalPool* pool, SignalGroup sg, int32_t value, int32_t chip_id) {
+	assert(pool);
+	assert(arrlen(sg) <= 32);
+
+	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
+		signal_write_bool(pool, sg[i], value & 1, chip_id);
+		value >>= 1;
+	}
+}
+
+static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, int32_t value, uint32_t mask, int32_t chip_id) {
+	assert(pool);
+	assert(arrlen(sg) <= 32);
+
+	if (mask == 0) {
+		return;
+	}
+
+	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
+		if (mask & 1) {
+			signal_write_bool(pool, sg[i], value & 1, chip_id);
+		}
+		value >>= 1;
+		mask >>= 1;
+	}
+}
+
 // macros to make working with signal a little prettier
 //	define SIGNAL_POOL and SIGNAL_COLLECTION in your source file
+
+#ifndef SIGNAL_ARRAY_STYLE
 
 #define SIGNAL_DEFINE(sig,cnt)										\
 	if (SIGNAL_COLLECTION.sig.count == 0) {							\
@@ -301,6 +365,43 @@ static inline bool signal_changed(SignalPool *pool, Signal signal) {
 #define SIGNAL_SET_UINT16_MASKED(sig,v,m)	signal_write_uint16_masked(SIGNAL_POOL, SIGNAL_COLLECTION.sig, (v), (m), SIGNAL_CHIP_ID)
 
 #define	SIGNAL_NO_WRITE(sig)	signal_clear_writer(SIGNAL_POOL, SIGNAL_COLLECTION.sig, SIGNAL_CHIP_ID)
+
+#else // SIGNAL_ARRAY_STYLE
+
+#define CONCAT_IMPL(x, y) x##y
+#define CONCAT(x, y) CONCAT_IMPL( x, y )
+
+#define SIGNAL_POOL			SIGNAL_OWNER->signal_pool
+#define SIGNAL_COLLECTION	SIGNAL_OWNER->signals
+#define SIGNAL_CHIP_ID		SIGNAL_OWNER->id
+
+#define SIGNAL_DEFINE(sig)												\
+	if (SIGNAL_COLLECTION[(sig)].count == 0) {							\
+		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL, 1);		\
+	}
+
+#define SIGNAL_DEFINE_DEFAULT(sig,def)										\
+	if (SIGNAL_COLLECTION[(sig)].count == 0) {								\
+		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL, 1);			\
+		signal_default_bool(SIGNAL_POOL, SIGNAL_COLLECTION[(sig)], (def));	\
+	}
+
+#define SIGNAL_DEPENDENCY(sig)				signal_add_dependency(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)], SIGNAL_CHIP_ID)
+
+#define SIGNAL_READ(sig)					signal_read_bool(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)])
+#define SIGNAL_READ_NEXT(sig)				signal_read_next_bool(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)])
+
+#define SIGNAL_WRITE(sig,v)					signal_write_bool(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)], (v), SIGNAL_CHIP_ID)
+
+#define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)], SIGNAL_CHIP_ID)
+
+#define SIGNAL_GROUP_READ_U8(grp)			((uint8_t) signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
+#define SIGNAL_GROUP_READ_NEXT_U8(grp)		((uint8_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
+#define SIGNAL_GROUP_WRITE(grp,v)			signal_group_write(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, (v), SIGNAL_CHIP_ID)
+#define SIGNAL_GROUP_WRITE_MASKED(grp,v,m)	signal_group_write_masked(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, (v), (m), SIGNAL_CHIP_ID)
+#define SIGNAL_GROUP_NO_WRITE(grp)			signal_group_clear_writer(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, SIGNAL_CHIP_ID)
+
+#endif // SIGNAL_ARRAY_STYLE
 
 #ifdef __cplusplus
 }
