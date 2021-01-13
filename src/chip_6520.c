@@ -299,6 +299,10 @@ static inline void process_end(Chip6520 *pia) {
 // interface functions
 //
 
+static void chip_6520_register_dependencies(Chip6520 *pia);
+static void chip_6520_destroy(Chip6520 *pia);
+static void chip_6520_process(Chip6520 *pia);
+
 Chip6520 *chip_6520_create(Simulator *sim, Chip6520Signals signals) {
 	Chip6520_private *priv = (Chip6520_private *) calloc(1, sizeof(Chip6520_private));
 
@@ -349,17 +353,17 @@ Chip6520 *chip_6520_create(Simulator *sim, Chip6520Signals signals) {
 	return pia;
 }
 
-void chip_6520_register_dependencies(Chip6520 *pia) {
+static void chip_6520_register_dependencies(Chip6520 *pia) {
 	SIGNAL_DEPENDENCY(RESET_B);
 	SIGNAL_DEPENDENCY(PHI2);
 }
 
-void chip_6520_destroy(Chip6520 *pia) {
+static void chip_6520_destroy(Chip6520 *pia) {
 	assert(pia);
 	free(PRIVATE(pia));
 }
 
-void chip_6520_process(Chip6520 *pia) {
+static void chip_6520_process(Chip6520 *pia) {
 	assert(pia);
 
 	bool reset_b = SIGNAL_READ(RESET_B);
