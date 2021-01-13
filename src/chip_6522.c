@@ -8,6 +8,7 @@
 //	- unclear what should happen to the CB-flags in IFR when shift register is activated
 //	- ...
 
+#define SIGNAL_ARRAY_STYLE
 #include "chip_6522.h"
 #include "simulator.h"
 
@@ -15,9 +16,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SIGNAL_POOL			via->signal_pool
-#define SIGNAL_COLLECTION	via->signals
-#define SIGNAL_CHIP_ID		via->id
+#define SIGNAL_PREFIX		CHIP_6522_
+#define SIGNAL_OWNER		via
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -44,7 +44,6 @@ typedef struct Chip6522_private {
 	Chip6522		intf;
 
 	bool			strobe;
-	bool			prev_enable;
 	bool			prev_pb6;
 	bool			prev_cb1;
 
@@ -111,9 +110,8 @@ typedef enum Chip6522_address {
 
 static void setup_shift_register(Chip6522 *via);
 
-
 static inline Chip6522_address rs_to_addr(Chip6522 *via) {
-	return (Chip6522_address) (SIGNAL_BOOL(rs0) | (SIGNAL_BOOL(rs1) << 1) | (SIGNAL_BOOL(rs2) << 2) | (SIGNAL_BOOL(rs3) << 3));
+	return (Chip6522_address) (SIGNAL_READ(RS0) | (SIGNAL_READ(RS1) << 1) | (SIGNAL_READ(RS2) << 2) | (SIGNAL_READ(RS3) << 3));
 }
 
 static inline void write_register(Chip6522 *via, uint8_t data) {
@@ -130,12 +128,12 @@ static inline void write_register(Chip6522 *via, uint8_t data) {
 		case ADDR_DDRB:
 			via->reg_ddrb = data;
 			// remove ourself as the active writer from all pins of port_b
-			SIGNAL_NO_WRITE(port_b);
+			SIGNAL_GROUP_NO_WRITE(port_b);
 			break;
 		case ADDR_DDRA:
 			via->reg_ddra = data;
 			// remove ourself as the active writer from all pins of port_a
-			SIGNAL_NO_WRITE(port_a);
+			SIGNAL_GROUP_NO_WRITE(port_a);
 			break;
 		case ADDR_T1C_L:
 			via->reg_t1l_l = data;
@@ -231,7 +229,7 @@ static inline uint8_t read_register(Chip6522 *via) {
 		case ADDR_IER:
 			return via->reg_ier | 0x80;
 		case ADDR_ORA_IRA_NOHS:
-			return SIGNAL_UINT8(port_a);
+			return SIGNAL_GROUP_READ_U8(port_a);
 	}
 
 	return 0;
@@ -240,42 +238,39 @@ static inline uint8_t read_register(Chip6522 *via) {
 static void process_end(Chip6522 *via) {
 
 	// always output on non-tristate pins
-	SIGNAL_SET_BOOL(irq_b, PRIVATE(via)->out_irq);
+	SIGNAL_WRITE(IRQ_B, PRIVATE(via)->out_irq);
 
 	// output on the ports
-	SIGNAL_SET_UINT8_MASKED(port_a, via->reg_ora, via->reg_ddra);
-	SIGNAL_SET_UINT8_MASKED(port_b, via->reg_orb, via->reg_ddrb);
+	SIGNAL_GROUP_WRITE_MASKED(port_a, via->reg_ora, via->reg_ddra);
+	SIGNAL_GROUP_WRITE_MASKED(port_b, via->reg_orb, via->reg_ddrb);
 
 	// optional output on databus
 	if (PRIVATE(via)->out_enabled) {
-		SIGNAL_SET_UINT8(bus_data, PRIVATE(via)->out_data);
+		SIGNAL_GROUP_WRITE(data, PRIVATE(via)->out_data);
 	} else {
-		SIGNAL_NO_WRITE(bus_data);
+		SIGNAL_GROUP_NO_WRITE(data);
 	}
 
 	// optional output on ca2
 	if (PRIVATE(via)->state_a.cl2_is_output) {
-		SIGNAL_SET_BOOL(ca2, PRIVATE(via)->state_a.out_cl2);
+		SIGNAL_WRITE(CA2, PRIVATE(via)->state_a.out_cl2);
 	} else {
-		SIGNAL_NO_WRITE(ca2);
+		SIGNAL_NO_WRITE(CA2);
 	}
 
 	// optional output on cb1
 	if (PRIVATE(via)->state_b.cl1_is_output) {
-		SIGNAL_SET_BOOL(cb1, PRIVATE(via)->state_b.out_cl1);
+		SIGNAL_WRITE(CB1, PRIVATE(via)->state_b.out_cl1);
 	} else {
-		SIGNAL_NO_WRITE(cb1);
+		SIGNAL_NO_WRITE(CB1);
 	}
 
 	// optional output on cb2
 	if (PRIVATE(via)->state_b.cl2_is_output) {
-		SIGNAL_SET_BOOL(cb2, PRIVATE(via)->state_b.out_cl2);
+		SIGNAL_WRITE(CB2, PRIVATE(via)->state_b.out_cl2);
 	} else {
-		SIGNAL_NO_WRITE(cb2);
+		SIGNAL_NO_WRITE(CB2);
 	}
-
-	// store state of some pins
-	PRIVATE(via)->prev_enable = SIGNAL_BOOL(enable);
 }
 
 static void process_control_line_port_input(bool cl1, bool cl2, uint8_t control, Chip6522_pstate *state) {
@@ -331,11 +326,11 @@ static void process_edge_common(Chip6522 *via) {
 	//   will contain the data present on the bus lines at the time of transition. Once ILA/ILB has been read, it
 	//   will appear transparant, reflecting the current state of the bus pins until the next latching transition.
 	if (ACR_SETTING(PA_LATCH, PA_NO_LATCH) || !PRIVATE(via)->state_a.latched) {
-		via->reg_ila = SIGNAL_UINT8(port_a);
+		via->reg_ila = SIGNAL_GROUP_READ_U8(port_a);
 	}
 
 	if (ACR_SETTING(PB_LATCH, PB_NO_LATCH) || !PRIVATE(via)->state_b.latched) {
-		via->reg_ilb = SIGNAL_UINT8(port_b);
+		via->reg_ilb = SIGNAL_GROUP_READ_U8(port_b);
 	}
 }
 
@@ -516,7 +511,7 @@ static void process_shift_register(Chip6522 *via) {
 			do_shift = PRIVATE(via)->state_b.out_cl1;
 			break;
 		case 0b11:			// shifting controlled by extern clock (CB1)
-			do_shift = !PRIVATE(via)->prev_cb1 && SIGNAL_BOOL(cb1);
+			do_shift = !PRIVATE(via)->prev_cb1 && SIGNAL_READ(CB1);
 			break;
 		default:			// shifting controlled by T2
 			--PRIVATE(via)->sr_timer;
@@ -537,7 +532,7 @@ static void process_shift_register(Chip6522 *via) {
 		PRIVATE(via)->state_b.out_cl2 = BIT_IS_SET(via->reg_sr, 7);
 		via->reg_sr = (uint8_t) ((via->reg_sr << 1) | PRIVATE(via)->state_b.out_cl2);
 	} else {
-		via->reg_sr = (uint8_t) ((via->reg_sr << 1) | SIGNAL_BOOL(cb2));
+		via->reg_sr = (uint8_t) ((via->reg_sr << 1) | SIGNAL_READ(CB2));
 	}
 
 	++PRIVATE(via)->sr_count;
@@ -546,7 +541,7 @@ static void process_shift_register(Chip6522 *via) {
 static void process_positive_enable_edge(Chip6522 *via) {
 	process_edge_common(via);
 
-	if (PRIVATE(via)->strobe && SIGNAL_BOOL(rw) == RW_READ) {
+	if (PRIVATE(via)->strobe && SIGNAL_READ(RW) == RW_READ) {
 		PRIVATE(via)->out_data = read_register(via);
 		PRIVATE(via)->out_enabled = true;
 	}
@@ -557,8 +552,8 @@ static void process_negative_enable_edge(Chip6522 *via) {
 	process_edge_common(via);
 
 	// port control lines
-	process_control_line_port_input(SIGNAL_BOOL(ca1), SIGNAL_BOOL(ca2), via->reg_pcr & 0x0f, &PRIVATE(via)->state_a);
-	process_control_line_port_input(SIGNAL_BOOL(cb1), SIGNAL_BOOL(cb2), via->reg_pcr >> 4, &PRIVATE(via)->state_b);
+	process_control_line_port_input(SIGNAL_READ(CA1), SIGNAL_READ(CA2), via->reg_pcr & 0x0f, &PRIVATE(via)->state_a);
+	process_control_line_port_input(SIGNAL_READ(CB1), SIGNAL_READ(CB2), via->reg_pcr >> 4, &PRIVATE(via)->state_b);
 
 	// timers
 	process_timer1(via);
@@ -570,8 +565,8 @@ static void process_negative_enable_edge(Chip6522 *via) {
 	// read/write register
 	if (PRIVATE(via)->strobe) {
 		// read/write internal register
-		if (SIGNAL_BOOL(rw) == RW_WRITE) {
-			write_register(via, SIGNAL_UINT8(bus_data));
+		if (SIGNAL_READ(RW) == RW_WRITE) {
+			write_register(via, SIGNAL_GROUP_READ_U8(data));
 		} else {
 			PRIVATE(via)->out_data = read_register(via);
 			PRIVATE(via)->out_enabled = true;
@@ -595,13 +590,17 @@ static void process_negative_enable_edge(Chip6522 *via) {
 	build_interrupt_register(via);
 
 	// save signal state at negative edge
-	PRIVATE(via)->prev_cb1 = SIGNAL_BOOL(cb1);
+	PRIVATE(via)->prev_cb1 = SIGNAL_READ(CB1);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
 //
+
+static void chip_6522_register_dependencies(Chip6522 *via);
+static void chip_6522_destroy(Chip6522 *via);
+static void chip_6522_process(Chip6522 *via);
 
 Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
 	Chip6522_private *priv = (Chip6522_private *) calloc(1, sizeof(Chip6522_private));
@@ -611,24 +610,40 @@ Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
 	via->signal_pool = sim->signal_pool;
 	CHIP_SET_FUNCTIONS(via, chip_6522_process, chip_6522_destroy, chip_6522_register_dependencies);
 
-	memcpy(&via->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(bus_data,		8);
-	SIGNAL_DEFINE(port_a,		8);
-	SIGNAL_DEFINE(port_b,		8);
-	SIGNAL_DEFINE_BOOL(ca1,		1, false);
-	SIGNAL_DEFINE_BOOL(ca2,		1, false);
-	SIGNAL_DEFINE_BOOL(cb1,		1, false);
-	SIGNAL_DEFINE_BOOL(cb2,		1, false);
-	SIGNAL_DEFINE_BOOL(irq_b,	1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(rs0,		1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE_BOOL(rs1,		1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE_BOOL(rs2,		1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE_BOOL(rs3,		1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(enable,	1, true);
-	SIGNAL_DEFINE_BOOL(cs1,		1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE_BOOL(cs2_b,	1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(rw,		1, true);
+	memcpy(via->signals, signals, sizeof(Chip6522Signals));
+	via->sg_port_a = signal_group_create();
+	via->sg_port_b = signal_group_create();
+	via->sg_data = signal_group_create();
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE(CHIP_6522_PA0 + i);
+		signal_group_push(&via->sg_port_a, SIGNAL_COLLECTION[CHIP_6522_PA0 + i]);
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE(CHIP_6522_PB0 + i);
+		signal_group_push(&via->sg_port_b, SIGNAL_COLLECTION[CHIP_6522_PB0 + i]);
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE(CHIP_6522_D0 - i);
+		signal_group_push(&via->sg_data, SIGNAL_COLLECTION[CHIP_6522_D0 - i]);
+	}
+
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_CA1,		false);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_CA2,		false);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_CB1,		false);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_CB2,		false);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_IRQ_B,		ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_RS0,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_RS1,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_RS2,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_RS3,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_RESET_B,	ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_PHI2,		true);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_CS1,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_CS2_B,		ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_6522_RW,			true);
 
 	priv->state_a.out_cl2 = true;
 	priv->state_b.out_cl2 = true;
@@ -636,18 +651,18 @@ Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
 	return via;
 }
 
-void chip_6522_register_dependencies(Chip6522 *via) {
+static void chip_6522_register_dependencies(Chip6522 *via) {
 	assert(via);
-	signal_add_dependency(via->signal_pool, SIGNAL(reset_b), via->id);
-	signal_add_dependency(via->signal_pool, SIGNAL(enable), via->id);
+	SIGNAL_DEPENDENCY(RESET_B);
+	SIGNAL_DEPENDENCY(PHI2);
 }
 
-void chip_6522_destroy(Chip6522 *via) {
+static void chip_6522_destroy(Chip6522 *via) {
 	assert(via);
 	free(PRIVATE(via));
 }
 
-void chip_6522_process(Chip6522 *via) {
+static void chip_6522_process(Chip6522 *via) {
 	assert(via);
 
 	// reset operation flags
@@ -656,7 +671,7 @@ void chip_6522_process(Chip6522 *via) {
 	PRIVATE(via)->state_b.port_read = false;
 	PRIVATE(via)->state_b.port_written = false;
 
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(reset_b))) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(RESET_B))) {
 		// reset is asserted - clear registers & exit
 		via->reg_ifr = 0;
 		via->reg_ier = 0;
@@ -673,17 +688,15 @@ void chip_6522_process(Chip6522 *via) {
 	}
 
 	// do nothing: if not on a clock edge
-	bool enable = SIGNAL_BOOL(enable);
-
-	if (enable == PRIVATE(via)->prev_enable) {
+	if (!SIGNAL_CHANGED(PHI2)) {
 		process_end(via);
 		return;
 	}
 
-	PRIVATE(via)->strobe = ACTHI_ASSERTED(SIGNAL_BOOL(cs1)) && ACTLO_ASSERTED(SIGNAL_BOOL(cs2_b));
+	PRIVATE(via)->strobe = ACTHI_ASSERTED(SIGNAL_READ(CS1)) && ACTLO_ASSERTED(SIGNAL_READ(CS2_B));
 	PRIVATE(via)->out_enabled = false;
 
-	if (enable) {
+	if (SIGNAL_READ(PHI2)) {
 		process_positive_enable_edge(via);
 	} else {
 		process_negative_enable_edge(via);

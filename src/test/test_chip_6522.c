@@ -1,14 +1,14 @@
 // test/test_chip_6522.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
+#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "chip_6522.h"
 #include "simulator.h"
 
 #include "stb/stb_ds.h"
 
-#define SIGNAL_POOL			via->signal_pool
-#define SIGNAL_COLLECTION	via->signals
-#define SIGNAL_CHIP_ID		via->id
+#define SIGNAL_PREFIX		CHIP_6522_
+#define SIGNAL_OWNER		via
 
 #define VIA_CYCLE_START				\
 	for (int i = 0; i < 2; ++i) {
@@ -67,38 +67,40 @@ static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
 	Chip6522 *via = chip_6522_create(simulator_create(NS_TO_PS(100)), (Chip6522Signals) {0});
 
 	// run chip with reset asserted
-	SIGNAL_SET_BOOL(enable, false);
-	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
+	SIGNAL_WRITE(PHI2, false);
+	SIGNAL_WRITE(RESET_B, ACTLO_ASSERT);
 	signal_pool_cycle(via->signal_pool, 1);
-	chip_6522_process(via);
+	via->process(via);
 
 	// deassert reset
-	SIGNAL_SET_BOOL(reset_b, ACTLO_DEASSERT);
+	SIGNAL_WRITE(RESET_B, ACTLO_DEASSERT);
 
 	return via;
 }
 
 static void chip_6522_teardown(void *fixture) {
-	chip_6522_destroy((Chip6522 *) fixture);
+	Chip6522 *via = (Chip6522 *) fixture;
+	via->destroy(via);
 }
 
 static inline void strobe_via(Chip6522 *via, bool strobe) {
-	SIGNAL_SET_BOOL(cs1, strobe);
-	SIGNAL_SET_BOOL(cs2_b, !strobe);
+	SIGNAL_WRITE(CS1, strobe);
+	SIGNAL_WRITE(CS2_B, !strobe);
 }
 
 static inline void half_clock_cycle(Chip6522 *via) {
-	SIGNAL_SET_BOOL(enable, !SIGNAL_BOOL(enable));
+	SIGNAL_WRITE(PHI2, !SIGNAL_READ(PHI2));
 	signal_pool_cycle(via->signal_pool, 1);
-	chip_6522_process(via);
+	via->process(via);
 }
 
 static MunitResult test_create(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
 	munit_assert_ptr_not_null(via);
-	munit_assert_ptr_equal(via->process, chip_6522_process);
-	munit_assert_ptr_equal(via->destroy, chip_6522_destroy);
+	munit_assert_ptr_not_null(via->process);
+	munit_assert_ptr_not_null(via->destroy);
+	munit_assert_ptr_not_null(via->register_dependencies);
 
 	return MUNIT_OK;
 }
@@ -125,9 +127,9 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 	via->reg_sr = 0xef;
 
 	// run via with reset asserted
-	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
+	SIGNAL_WRITE(RESET_B, ACTLO_ASSERT);
 	signal_pool_cycle(via->signal_pool, 1);
-	chip_6522_process(via);
+	via->process(via);
 
 	// registers should have been cleared (except T1, T2 and SR)
 	munit_assert_uint8(via->reg_ifr, ==, 0);
@@ -163,24 +165,24 @@ static MunitResult test_read_ddra(const MunitParameter params[], void *user_data
 	// read the DDRA register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ddra, ==, 0xa5);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xa5);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xa5);
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ddra, ==, 0xa5);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x00);
 
 	return MUNIT_OK;
 }
@@ -194,24 +196,24 @@ static MunitResult test_read_ddrb(const MunitParameter params[], void *user_data
 	// read the DDRA register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ddrb, ==, 0xa5);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xa5);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xa5);
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ddrb, ==, 0xa5);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x00);
 
 	return MUNIT_OK;
 }
@@ -225,12 +227,12 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 	// write to the DDRA register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x09);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x09);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ddra, ==, 0x09);
 	ASSERT_REGISTERS_DEFAULT(REG_DDRA);
@@ -238,12 +240,12 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x17);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x17);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	munit_assert_uint8(via->reg_ddra, ==, 0x09);
@@ -261,12 +263,12 @@ static MunitResult test_write_ddrb(const MunitParameter params[], void *user_dat
 	// write to the DDRA register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x09);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x09);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ddrb, ==, 0x09);
 	ASSERT_REGISTERS_DEFAULT(REG_DDRB);
@@ -277,12 +279,12 @@ static MunitResult test_write_ddrb(const MunitParameter params[], void *user_dat
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x17);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x17);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	munit_assert_uint8(via->reg_ddrb, ==, 0x09);
@@ -300,24 +302,24 @@ static MunitResult test_read_acr(const MunitParameter params[], void *user_data_
 	// read the DDRA register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_acr, ==, 0xa5);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xa5);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xa5);
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_acr, ==, 0xa5);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x00);
 
 	return MUNIT_OK;
 }
@@ -331,12 +333,12 @@ static MunitResult test_write_acr(const MunitParameter params[], void *user_data
 	// write to the ACR register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x09);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x09);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_acr, ==, 0x09);
 	ASSERT_REGISTERS_DEFAULT(REG_ACR);
@@ -344,12 +346,12 @@ static MunitResult test_write_acr(const MunitParameter params[], void *user_data
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x17);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x17);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	munit_assert_uint8(via->reg_acr, ==, 0x09);
@@ -367,24 +369,24 @@ static MunitResult test_read_pcr(const MunitParameter params[], void *user_data_
 	// read the DDRA register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0xa5);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xa5);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xa5);
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0xa5);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x00);
 
 	return MUNIT_OK;
 }
@@ -398,12 +400,12 @@ static MunitResult test_write_pcr(const MunitParameter params[], void *user_data
 	// write to the PCR register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x09);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x09);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0x09);
 	ASSERT_REGISTERS_DEFAULT(REG_PCR);
@@ -411,12 +413,12 @@ static MunitResult test_write_pcr(const MunitParameter params[], void *user_data
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x17);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x17);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	munit_assert_uint8(via->reg_pcr, ==, 0x09);
@@ -434,12 +436,12 @@ static MunitResult test_write_ora(const MunitParameter params[], void *user_data
 	// write to the ORA register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x7f);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x7f);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ora, ==, 0x7f);
 	ASSERT_REGISTERS_DEFAULT(REG_ORA);
@@ -447,12 +449,12 @@ static MunitResult test_write_ora(const MunitParameter params[], void *user_data
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x17);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x17);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	munit_assert_uint8(via->reg_ora, ==, 0x7f);
@@ -470,12 +472,12 @@ static MunitResult test_write_orb(const MunitParameter params[], void *user_data
 	// write to the ORA register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x7f);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x7f);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_orb, ==, 0x7f);
 	ASSERT_REGISTERS_DEFAULT(REG_ORB);
@@ -483,12 +485,12 @@ static MunitResult test_write_orb(const MunitParameter params[], void *user_data
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x17);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x17);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	munit_assert_uint8(via->reg_orb, ==, 0x7f);
@@ -506,31 +508,31 @@ static MunitResult test_porta_out(const MunitParameter params[], void *user_data
 
 	// cycle clock ; entire ora-register should have been written to port-A
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0x12);
+		SIGNAL_GROUP_WRITE(port_a, 0x12);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_a), ==, 0xf5);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_a), ==, 0xf5);
 
 	// reconfigure ddra, upper nibble = output, lower nibble = input + peripheral active on lower nibble
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0xf0);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_GROUP_WRITE_MASKED(port_a, 0x09, 0x0f);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0xf0);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	// cycle clock
 	half_clock_cycle(via);
-	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_GROUP_WRITE_MASKED(port_a, 0x09, 0x0f);
+	SIGNAL_WRITE(RW, true);
 	half_clock_cycle(via);
-	SIGNAL_SET_UINT8_MASKED(port_a, 0x09, 0x0f);
+	SIGNAL_GROUP_WRITE_MASKED(port_a, 0x09, 0x0f);
 
 	munit_assert_uint8(via->reg_ddra, ==, 0xf0);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_a), ==, 0xf9);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(port_a), ==, 0xf9);
 
 	return MUNIT_OK;
 }
@@ -544,30 +546,30 @@ static MunitResult test_portb_out(const MunitParameter params[], void *user_data
 
 	// cycle clock ; entire ora-register should have been written to port-A
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_b, 0x12);
+		SIGNAL_GROUP_WRITE(port_b, 0x12);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_b), ==, 0xf5);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_b), ==, 0xf5);
 
 	// reconfigure ddrb, upper nibble = output, lower nibble = input + peripheral active on lower nibble
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0xf0);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_GROUP_WRITE_MASKED(port_b, 0x09, 0x0f);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0xf0);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	// cycle clock
 	half_clock_cycle(via);
-	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_GROUP_WRITE_MASKED(port_b, 0x09, 0x0f);
+	SIGNAL_WRITE(RW, true);
 	half_clock_cycle(via);
-	SIGNAL_SET_UINT8_MASKED(port_b, 0x09, 0x0f);
+	SIGNAL_GROUP_WRITE_MASKED(port_b, 0x09, 0x0f);
 	munit_assert_uint8(via->reg_ddrb, ==, 0xf0);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_b), ==, 0xf9);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(port_b), ==, 0xf9);
 
 	return MUNIT_OK;
 }
@@ -582,70 +584,70 @@ static MunitResult test_read_porta_input(const MunitParameter params[], void *us
 
 	// cycle clock
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0x12);
+		SIGNAL_GROUP_WRITE(port_a, 0x12);
 	VIA_CYCLE_END
 
 	// read from the port
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(port_a, 0x12);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0x12);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x12);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x12);
 
 	// enable latching on port-A (default == on negative edge)
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(bus_data, 0b00000001);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_GROUP_WRITE(data, 0b00000001);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_acr, ==, 0b00000001);
 
 	// start writing to port-A, keep CA1 high
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0x3e);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_GROUP_WRITE(port_a, 0x3e);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x3e);
 
 	// bring CA1 low, latching data on the port
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0x3e);
-		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0x3e);
+		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x3e);
 
 	// bring CA1 high, change data on port, internal register shouldn't change
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0x15);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0x15);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x3e);
 
 	// read from the port
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_UINT8(port_a, 0x12);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0x12);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x3e);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x3e);
 
 	// read unlatched port - ila should follow port again
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0x15);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0x15);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x15);
 
@@ -666,67 +668,67 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 	// read from the port
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xf5);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0xf5);
 
 	// enable latching on port-A (default == on negative edge)
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(bus_data, 0b00000001);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_GROUP_WRITE(data, 0b00000001);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_acr, ==, 0b00000001);
 
 	// start writing to port-A, keep CA1 high
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_a, 0x3e);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_GROUP_WRITE(port_a, 0x3e);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x3e);
 
 	// bring CA1 low, latching data on the port
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_a, 0x3e);
-		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0x3e);
+		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x3e);
 
 	// bring CA1 high, change data on port, internal register shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_a, 0x15);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0x15);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x3e);
 
 	// read from the port
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_UINT8(port_a, 0x12);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0x12);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x3e);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x3e);
 
 	// read unlatched port - ila should follow port again
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_a, 0x15);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0x15);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ila, ==, 0x15);
 
@@ -743,74 +745,74 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// cycle clock
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_b, 0x12);
+		SIGNAL_GROUP_WRITE(port_b, 0x12);
 	VIA_CYCLE_END
 
 	// read from the port
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(port_b, 0x12);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0x12);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x12);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x12);
 
 	// enable latching on port-B (default == on negative edge)
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(bus_data, 0b00000010);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_GROUP_WRITE(data, 0b00000010);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_acr, ==, 0b00000010);
 
 	// start writing to port-B, keep CB1 high
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_b, 0x3e);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_GROUP_WRITE(port_b, 0x3e);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ilb, ==, 0x3e);
 
 	// bring CB1 low, latching data on the port
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_b, 0x3e);
-		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0x3e);
+		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ilb, ==, 0x3e);
 
 	// bring CB1 high, change data on port, internal register shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_b, 0x15);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0x15);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ilb, ==, 0x3e);
 
 	// read from the port
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_UINT8(port_b, 0x12);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0x12);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x3e);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x3e);
 
 	// read unlatched port - ilb should follow port again
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_b, 0x15);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0x15);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ilb, ==, 0x15);
 
@@ -828,46 +830,46 @@ static MunitResult test_read_portb_output(const MunitParameter params[], void *u
 	// read from the port - no pins pulled down
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xf5);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xf5);
 
 	// read from the port - some pins pulled down
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(port_b, 0b11101010);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0b11101010);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xf5);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xf5);
 
 	// reconfigure ddrb, upper nibble = output, lower nibble = input + peripheral active on lower nibble
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0xf0);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0xf0);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	// read from the port - some pins pulled down (only affect lower nibble)
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(port_b, 0b11101010);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_GROUP_WRITE(port_b, 0b11101010);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xfa);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xfa);
 
 	return MUNIT_OK;
 }
@@ -878,63 +880,63 @@ static MunitResult test_hs_porta_read(const MunitParameter params[], void *user_
 	// configure CA2 to operate in handshake-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00001000);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00001000);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0x08);
 
 	// assert CA1 to indicate there's available data
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0xab);
-		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 
 	// another cycle
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0xab);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 
 	// read port-A - CA2 shoukd go low
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(port_a, 0xab);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xab);
-	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
-
-	// clock-cycle - CA2 stays low
-	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0xab);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xab);
+	munit_assert_false(SIGNAL_READ_NEXT(CA2));
 
 	// clock-cycle - CA2 stays low
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0xab);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+	munit_assert_false(SIGNAL_READ_NEXT(CA2));
+
+	// clock-cycle - CA2 stays low
+	VIA_CYCLE_START
+		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+	VIA_CYCLE_END
+	munit_assert_false(SIGNAL_READ_NEXT(CA2));
 
 	// new data available on port-A: CA2 goes high
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0xba);
-		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0xba);
+		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+	munit_assert_true(SIGNAL_READ_NEXT(CA2));
 
 	return MUNIT_OK;
 }
@@ -945,50 +947,50 @@ static MunitResult test_hs_porta_read_pulse(const MunitParameter params[], void 
 	// configure CA2 to operate in pulse-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00001010);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00001010);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0x0a);
 
 	// assert CA1 to indicate there's available data
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0xab);
-		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 
 	// another cycle
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_a, 0xab);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 
 	// read port-A - CA2 shoukd go low
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(port_a, 0xab);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xab);
-	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xab);
+	munit_assert_false(SIGNAL_READ_NEXT(CA2));
 
 	// clock-cycle - CA2 goes high again
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_a, 0xab);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+	munit_assert_true(SIGNAL_READ_NEXT(CA2));
 
 	return MUNIT_OK;
 }
@@ -1002,51 +1004,51 @@ static MunitResult test_hs_porta_write(const MunitParameter params[], void *user
 	// configure CA2 to operate in handshake-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00001000);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00001000);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0x08);
 
 	// write data to port-A - CA2 goes low to signal available data
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x7f);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x7f);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_a), ==, 0x7f);
+	munit_assert_false(SIGNAL_READ_NEXT(CA2));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_a), ==, 0x7f);
 
 	// clock cycle - CA2 stays low
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+	munit_assert_false(SIGNAL_READ_NEXT(CA2));
 
 	// clock cycle - CA2 stays low
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
+	munit_assert_false(SIGNAL_READ_NEXT(CA2));
 
 	// assert CA1 - CA2 goes high
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+	munit_assert_true(SIGNAL_READ_NEXT(CA2));
 
 	return MUNIT_OK;
 }
@@ -1060,37 +1062,37 @@ static MunitResult test_hs_porta_write_pulse(const MunitParameter params[], void
 	// configure CA2 to operate in pulse-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00001010);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00001010);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0x0a);
 
 	// write data to port-A - CA2 goes low to signal available data
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x7f);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x7f);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(ca2));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_a), ==, 0x7f);
+	munit_assert_false(SIGNAL_READ_NEXT(CA2));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_a), ==, 0x7f);
 
 	// clock cycle - CA2 goes high again
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(ca2));
+	munit_assert_true(SIGNAL_READ_NEXT(CA2));
 
 	return MUNIT_OK;
 }
@@ -1101,47 +1103,47 @@ static MunitResult test_hs_portb_read(const MunitParameter params[], void *user_
 	// configure CB2 to operate in handshake-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b10000000);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b10000000);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0x80);
-	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_false(SIGNAL_READ_NEXT(CB2));
 
 	// assert CB1 to indicate there's available data
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_b, 0xab);
-		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_GROUP_WRITE(port_b, 0xab);
+		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_true(SIGNAL_READ_NEXT(CB2));
 
 	// another cycle
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_b, 0xab);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0xab);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_true(SIGNAL_READ_NEXT(CB2));
 
 	// read port-B - CB2 should not change - no read handshake on port-B
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(port_b, 0xab);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0xab);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xab);
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xab);
+	munit_assert_true(SIGNAL_READ_NEXT(CB2));
 
 	return MUNIT_OK;
 }
@@ -1152,47 +1154,47 @@ static MunitResult test_hs_portb_read_pulse(const MunitParameter params[], void 
 	// configure CB2 to operate in pulse-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b10100000);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b10100000);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0xa0);
-	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_false(SIGNAL_READ_NEXT(CB2));
 
 	// assert CB1 to indicate there's available data
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_b, 0xab);
-		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_GROUP_WRITE(port_b, 0xab);
+		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_true(SIGNAL_READ_NEXT(CB2));
 
 	// another cycle
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_UINT8(port_b, 0xab);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0xab);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_true(SIGNAL_READ_NEXT(CB2));
 
 	// read port-B - CB2 should not change - no read handshake on port-B
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_UINT8(port_b, 0xab);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(port_b, 0xab);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0xab);
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0xab);
+	munit_assert_true(SIGNAL_READ_NEXT(CB2));
 
 	return MUNIT_OK;
 }
@@ -1206,47 +1208,47 @@ static MunitResult test_hs_portb_write(const MunitParameter params[], void *user
 	// configure CB2 to operate in handshake-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b10000000);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b10000000);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0x80);
 
 	// write data to port-B - CB2 goes low to signal available data
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x7f);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x7f);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_b), ==, 0x7f);
+	munit_assert_false(SIGNAL_READ_NEXT(CB2));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_b), ==, 0x7f);
 
 	// clock cycle - CB2 stays low
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_false(SIGNAL_READ_NEXT(CB2));
 
 	// clock cycle - CB2 stays low
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_false(SIGNAL_READ_NEXT(CB2));
 
 	// assert CB1 - CB2 goes high
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_true(SIGNAL_READ_NEXT(CB2));
 
 	return MUNIT_OK;
 }
@@ -1260,37 +1262,37 @@ static MunitResult test_hs_portb_write_pulse(const MunitParameter params[], void
 	// configure CB2 to operate in pulse-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b10100000);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b10100000);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_pcr, ==, 0xa0);
 
 	// write data to port-B - CB2 goes low to signal available data
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x7f);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x7f);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(cb2));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(port_b), ==, 0x7f);
+	munit_assert_false(SIGNAL_READ_NEXT(CB2));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_b), ==, 0x7f);
 
 	// clock cycle - CB2 goes high again
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rw, true);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RW, true);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb2));
+	munit_assert_true(SIGNAL_READ_NEXT(CB2));
 
 	return MUNIT_OK;
 }
@@ -1304,24 +1306,24 @@ static MunitResult test_read_ifr(const MunitParameter params[], void *user_data_
 	// read the IFR register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ifr, ==, 0x15);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x15);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x15);
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ifr, ==, 0x15);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x00);
 
 	return MUNIT_OK;
 }
@@ -1339,29 +1341,29 @@ static MunitResult test_write_ifr(const MunitParameter params[], void *user_data
 	// clear bits 1 & 2
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00000110);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00000110);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ifr, ==, 0b10111001);
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	ASSERT_REGISTERS_DEFAULT(REG_IFR | REG_IER);
 
 	// clear all bits
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01111111);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01111111);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ifr, ==, 0);
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	ASSERT_REGISTERS_DEFAULT(REG_IFR | REG_IER);
 
 	return MUNIT_OK;
@@ -1376,24 +1378,24 @@ static MunitResult test_read_ier(const MunitParameter params[], void *user_data_
 	// read the Interrupt Enable register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ier, ==, 0x15);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x95);		// bit 7 is always set to 1
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x95);		// bit 7 is always set to 1
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ier, ==, 0x15);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x00);
 
 	return MUNIT_OK;
 }
@@ -1407,12 +1409,12 @@ static MunitResult test_write_ier(const MunitParameter params[], void *user_data
 	// set a few bits
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b10000110);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b10000110);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ier, ==, 0b00000110);
 	ASSERT_REGISTERS_DEFAULT(REG_IER);
@@ -1420,12 +1422,12 @@ static MunitResult test_write_ier(const MunitParameter params[], void *user_data
 	// set some more bits
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b10001100);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b10001100);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ier, ==, 0b00001110);
 	ASSERT_REGISTERS_DEFAULT(REG_IER);
@@ -1433,24 +1435,24 @@ static MunitResult test_write_ier(const MunitParameter params[], void *user_data
 	// clear a bit
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00000010);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00000010);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ier, ==, 0b00001100);
 
 	// clear all the bits
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01111111);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01111111);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_ier, ==, 0b00000000);
 
@@ -1473,62 +1475,62 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 	//
 
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0);
 
 	// negative edge triggers interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_ASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_ASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
 
 	// deassert control lines, interrupt stays active
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
 
 	// read ORA: clears ca1 and ca2 interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011000);
 
 	// read ORB: clears cb1 and cb2 interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	///////////////////////////////////////////////////////////////////////////
@@ -1538,89 +1540,89 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 
 	// configure PCR
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00100010);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00100010);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0);
 
 	// negative edge triggers interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_ASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_ASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_ASSERT);
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
 
 	// deassert control lines, interrupt stays active
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 		strobe_via(via, false);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
 
 	// read ORA: clears ca1 interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011001);
 
 	// read ORB: clears cb1 interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10001001);
 
 	// clear all the interrupts
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01111111);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01111111);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	///////////////////////////////////////////////////////////////////////////
@@ -1629,103 +1631,103 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 	//
 
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01010101);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01010101);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0);
 
 	// clear all interrupts
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01111111);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01111111);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	// trigger interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_ASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_ASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_ASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
 
 	// deassert control lines, interrupt stays active
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
 
 	// read ORA: clears ca1 and ca2 interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011000);
 
 	// read ORB: clears cb1 and cb2 interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	// clear all the interrupts
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01111111);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01111111);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	///////////////////////////////////////////////////////////////////////////
@@ -1735,103 +1737,103 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 
 	// configure PCR
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01110111);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01110111);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0);
 
 	// clear all interrupts
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01111111);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01111111);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	// positive edge triggers interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_ASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_ASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_ASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_ASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
 
 	// deassert control lines, interrupt stays active
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
 
 	// read ORA: clears ca1 interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011001);
 
 	// read ORB: clears cb1 interrupt
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10001001);
 
 	// clear all the interrupts
 	VIA_CYCLE_START
-		SIGNAL_SET_BOOL(ca1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(ca2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(cb2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01111111);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01111111);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	return MUNIT_OK;
@@ -1850,25 +1852,25 @@ static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_
 	// setup t1-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00000000);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00000000);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 144);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 144);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t1l_l, ==, 144);
 	munit_assert_uint8(via->reg_t1l_h, ==, 0);
 	munit_assert_uint16(via->reg_t1c, ==, 0);
@@ -1876,42 +1878,42 @@ static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_
 	// load high-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 1);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 1);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t1l_l, ==, 144);
 	munit_assert_uint8(via->reg_t1l_h, ==, 1);
 	munit_assert_uint16(via->reg_t1c, ==, 0);
 
 	// run until timer ends
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 	strobe_via(via, false);
 
 	for (int i = 400; i >= 0; --i) {
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t1c, ==, i);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	}
 
 	VIA_CYCLE();
 	munit_assert_uint16(via->reg_t1c, ==, 0xffff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b11000000);
 
 	// clear t1 interrupt by reading t1c_l
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	return MUNIT_OK;
@@ -1930,25 +1932,25 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 	// setup t1-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b01000000);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b01000000);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 50);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 50);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t1l_l, ==, 50);
 	munit_assert_uint8(via->reg_t1l_h, ==, 0);
 	munit_assert_uint16(via->reg_t1c, ==, 0);
@@ -1956,31 +1958,31 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 	// load high-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t1l_l, ==, 50);
 	munit_assert_uint8(via->reg_t1l_h, ==, 0);
 	munit_assert_uint16(via->reg_t1c, ==, 0);
 
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 
 	for (int j = 0; j < 3; ++j) {
 		// clear t1 interrupt by reading t1c_l
 		VIA_CYCLE_START
 			strobe_via(via, true);					// enable via
-			SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-			SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-			SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-			SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+			SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+			SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+			SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+			SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 		VIA_CYCLE_END
 		munit_assert_uint16(via->reg_t1c, ==, 50);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 		// run until timer ends
@@ -1989,24 +1991,24 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 		for (int i = 49; i >= 0; --i) {
 			VIA_CYCLE();
 			munit_assert_uint16(via->reg_t1c, ==, i);
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t1c, ==, 0xffff);
-		munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert_uint8(via->reg_ifr, ==, 0b11000000);
 	}
 
 	// clear t1 interrupt by reading t1c_l
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	return MUNIT_OK;
@@ -2015,7 +2017,6 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
-	Signal pb7 = signal_split(SIGNAL(port_b), 7, 1);
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -2027,25 +2028,25 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 	// setup t1-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b10000000);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b10000000);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 144);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 144);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t1l_l, ==, 144);
 	munit_assert_uint8(via->reg_t1l_h, ==, 0);
 	munit_assert_uint16(via->reg_t1c, ==, 0);
@@ -2053,45 +2054,45 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 	// load high-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 1);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 1);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
-	munit_assert_false(signal_read_next_bool(via->signal_pool, pb7));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
+	munit_assert_false(SIGNAL_READ_NEXT(PB7));
 	munit_assert_uint8(via->reg_t1l_l, ==, 144);
 	munit_assert_uint8(via->reg_t1l_h, ==, 1);
 	munit_assert_uint16(via->reg_t1c, ==, 0);
 
 	// run until timer ends
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 	strobe_via(via, false);
 
 	for (int i = 400; i >= 0; --i) {
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t1c, ==, i);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
-		munit_assert_false(signal_read_next_bool(via->signal_pool, pb7));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
+		munit_assert_false(SIGNAL_READ_NEXT(PB7));
 	}
 
 	VIA_CYCLE();
 	munit_assert_uint16(via->reg_t1c, ==, 0xffff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
-	munit_assert_true(signal_read_next_bool(via->signal_pool, pb7));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
+	munit_assert_true(SIGNAL_READ_NEXT(PB7));
 	munit_assert_uint8(via->reg_ifr, ==, 0b11000000);
 
 	// clear t1 interrupt by reading t1c_l
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	return MUNIT_OK;
@@ -2100,7 +2101,6 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
-	Signal pb7 = signal_split(SIGNAL(port_b), 7, 1);
 	bool val_pb7 = false;
 
 	// assert initial state
@@ -2113,25 +2113,25 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 	// setup t1-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b11000000);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b11000000);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 50);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 50);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t1l_l, ==, 50);
 	munit_assert_uint8(via->reg_t1l_h, ==, 0);
 	munit_assert_uint16(via->reg_t1c, ==, 0);
@@ -2139,33 +2139,33 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 	// load high-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, 0);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t1l_l, ==, 50);
 	munit_assert_uint8(via->reg_t1l_h, ==, 0);
 	munit_assert_uint16(via->reg_t1c, ==, 0);
-	munit_assert(signal_read_next_bool(via->signal_pool, pb7) == val_pb7);
+	munit_assert(SIGNAL_READ_NEXT(PB7) == val_pb7);
 
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 
 	for (int j = 0; j < 3; ++j) {
 
 		// clear t1 interrupt by reading t1c_l
 		VIA_CYCLE_START
 			strobe_via(via, true);					// enable via
-			SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-			SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-			SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-			SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+			SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+			SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+			SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+			SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 		VIA_CYCLE_END
 		munit_assert_uint16(via->reg_t1c, ==, 50);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 		// run until timer ends
@@ -2173,28 +2173,28 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 		for (int i = 49; i >= 0; --i) {
 			VIA_CYCLE();
 			munit_assert_uint16(via->reg_t1c, ==, i);
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t1c, ==, 0xffff);
-		munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert_uint8(via->reg_ifr, ==, 0b11000000);
 
 		// value of port_b[7] is inverted everytime the timer reaches zero
 		val_pb7 = !val_pb7;
-		munit_assert(signal_read_next_bool(via->signal_pool, pb7) == val_pb7);
+		munit_assert(SIGNAL_READ_NEXT(PB7) == val_pb7);
 	}
 
 	// clear t1 interrupt by reading t1c_l
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 	return MUNIT_OK;
@@ -2213,66 +2213,66 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 	// setup t2-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00000000);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00000000);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 10);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 10);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t2l_l, ==, 10);
 	munit_assert_uint16(via->reg_t2c, ==, 0);
 
 	// load high-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t2l_l, ==, 10);
 	munit_assert_uint16(via->reg_t2c, ==, 0);
 
 	// run until timer ends
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 	strobe_via(via, false);
 
 	for (int i = 10; i >= 0; --i) {
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t2c, ==, i);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	}
 
 	VIA_CYCLE();
 	munit_assert_uint16(via->reg_t2c, ==, 0xffff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10100000);
 
 	// clear t2 interrupt by reading t2c_l
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 	munit_assert_uint16(via->reg_t2c, ==, 0xfffe);
 
@@ -2280,39 +2280,39 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 	for (int i = 0xfffd; i >= 0; --i) {
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t2c, ==, i);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	}
 
 	VIA_CYCLE();
 	munit_assert_uint16(via->reg_t2c, ==, 0xffff);
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 	// write t2-h to re-enable irq
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t2l_l, ==, 10);
 
 	// run until timer ends
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 	strobe_via(via, false);
 
 	for (int i = 10; i >= 0; --i) {
 		VIA_CYCLE();
 		munit_assert_uint16(via->reg_t2c, ==, i);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	}
 
 	VIA_CYCLE();
 	munit_assert_uint16(via->reg_t2c, ==, 0xffff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 
 	return MUNIT_OK;
 }
@@ -2330,83 +2330,83 @@ static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_d
 	// setup t2-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00100000);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00100000);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 10);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 10);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t2l_l, ==, 10);
 	munit_assert_uint16(via->reg_t2c, ==, 0);
 
 	// load high-byte of timer counter
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t2l_l, ==, 10);
 	munit_assert_uint16(via->reg_t2c, ==, 0);
 
 	// cycle until timer is done
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 	strobe_via(via, false);
 
 	for (int i = 10; i > 0; --i) {
 		VIA_CYCLE_START
-			SIGNAL_SET_UINT8(port_b, 0b01000000);
+			SIGNAL_GROUP_WRITE(port_b, 0b01000000);
 		VIA_CYCLE_END
 		munit_assert_uint16(via->reg_t2c, ==, i);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 		VIA_CYCLE_START
-			SIGNAL_SET_UINT8(port_b, 0b00000000);
+			SIGNAL_GROUP_WRITE(port_b, 0b00000000);
 		VIA_CYCLE_END
 		munit_assert_uint16(via->reg_t2c, ==, i - 1);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	}
 
 	// cycle
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_b, 0b01000000);
+		SIGNAL_GROUP_WRITE(port_b, 0b01000000);
 	VIA_CYCLE_END
 	munit_assert_uint16(via->reg_t2c, ==, 0);
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 
 
 	VIA_CYCLE_START
-		SIGNAL_SET_UINT8(port_b, 0b00000000);
+		SIGNAL_GROUP_WRITE(port_b, 0b00000000);
 	VIA_CYCLE_END
 	munit_assert_uint16(via->reg_t2c, ==, 0xffff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 
 	// clear t2 interrupt by reading t2c_l
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 	//munit_assert_uint16(via->reg_t2c, ==, 0xfffe);
 
@@ -2422,24 +2422,24 @@ static MunitResult test_read_sr(const MunitParameter params[], void *user_data_o
 	// read the SR register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0x15);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x15);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x15);
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0x15);
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x00);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x00);
 
 	return MUNIT_OK;
 }
@@ -2453,12 +2453,12 @@ static MunitResult test_write_sr(const MunitParameter params[], void *user_data_
 	// write to the SR register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x09);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x09);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0x09);
 	ASSERT_REGISTERS_DEFAULT(REG_SR);
@@ -2466,12 +2466,12 @@ static MunitResult test_write_sr(const MunitParameter params[], void *user_data_
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x17);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x17);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 
 	munit_assert_uint8(via->reg_sr, ==, 0x09);
@@ -2492,32 +2492,32 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 	// setup sr-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00001000);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00001000);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 
 	// read shift register to active shift in
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	// shift in 8 bits
@@ -2528,25 +2528,25 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 		bool bit = BIT_IS_SET(data_1, 7 - i);
 
 		VIA_CYCLE_START
-			SIGNAL_SET_BOOL(cb2, bit);
+			SIGNAL_WRITE(CB2, bit);
 		VIA_CYCLE_END
-		munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_false(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert_uint8(via->reg_sr, ==, done_1);
 
 		done_1 = (done_1 << 1) | bit;
 
 		VIA_CYCLE_START
-			SIGNAL_SET_BOOL(cb2, bit);
+			SIGNAL_WRITE(CB2, bit);
 		VIA_CYCLE_END
-		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert_uint8(via->reg_sr, ==, done_1);
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(via->reg_sr, ==, data_1);
@@ -2554,20 +2554,20 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 	// read shift register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10110011);
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0b10110011);
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	// shift in another 8-bits
@@ -2578,25 +2578,25 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 		bool bit = BIT_IS_SET(data_2, 7 - i);
 
 		VIA_CYCLE_START
-			SIGNAL_SET_BOOL(cb2, bit);
+			SIGNAL_WRITE(CB2, bit);
 		VIA_CYCLE_END
-		munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_false(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert_uint8(via->reg_sr, ==, done_2);
 
 		done_2 = (done_2 << 1) | bit;
 
 		VIA_CYCLE_START
-			SIGNAL_SET_BOOL(cb2, bit);
+			SIGNAL_WRITE(CB2, bit);
 		VIA_CYCLE_END
-		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_true(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert_uint8(via->reg_sr, ==, done_2);
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(via->reg_sr, ==, data_2);
@@ -2618,45 +2618,45 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 	// setup t2 enough for the shift register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, sr_pulses);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, sr_pulses);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t2l_l, ==, sr_pulses);
 
 	// setup sr-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00000100);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00000100);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 
 	// read shift register to active shift in
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	// shift in 8 bits
@@ -2668,10 +2668,10 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb2, bit);
+				SIGNAL_WRITE(CB2, bit);
 			VIA_CYCLE_END
-			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_false(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 			munit_assert_uint8(via->reg_sr, ==, done_1);
 		}
 
@@ -2679,17 +2679,17 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 
 		for (int j = 0; j < ((i < 7) ? sr_pulses : 1); ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb2, bit);
+				SIGNAL_WRITE(CB2, bit);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 			munit_assert_uint8(via->reg_sr, ==, done_1);
 		}
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(via->reg_sr, ==, data_1);
@@ -2697,20 +2697,20 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 	// read shift register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10110011);
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0b10110011);
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	// shift in another 8-bits
@@ -2722,10 +2722,10 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb2, bit);
+				SIGNAL_WRITE(CB2, bit);
 			VIA_CYCLE_END
-			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_false(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 			munit_assert_uint8(via->reg_sr, ==, done_2);
 		}
 
@@ -2733,17 +2733,17 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 
 		for (int j = 0; j < ((i < 7) ? sr_pulses : 1); ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb2, bit);
+				SIGNAL_WRITE(CB2, bit);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 			munit_assert_uint8(via->reg_sr, ==, done_2);
 		}
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(via->reg_sr, ==, data_2);
@@ -2765,31 +2765,31 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 	// setup sr-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00001100);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00001100);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CB1, true);
 	VIA_CYCLE_END
 
 	// read shift register to active shift in
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rw, true);
-		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_WRITE(RW, true);
+		SIGNAL_WRITE(CB1, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb1, true);
-		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_WRITE(CB1, true);
+		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
@@ -2802,10 +2802,10 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb1, false);
-				SIGNAL_SET_BOOL(cb2, bit);
+				SIGNAL_WRITE(CB1, false);
+				SIGNAL_WRITE(CB2, bit);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 			munit_assert_uint8(via->reg_sr, ==, done_1);
 		}
 
@@ -2813,17 +2813,17 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 
 		for (int j = 0; j < ((i < 7) ? sr_pulses : 1); ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb1, true);
-				SIGNAL_SET_BOOL(cb2, bit);
+				SIGNAL_WRITE(CB1, true);
+				SIGNAL_WRITE(CB2, bit);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 			munit_assert_uint8(via->reg_sr, ==, done_1);
 		}
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(via->reg_sr, ==, data_1);
@@ -2831,19 +2831,19 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 	// read shift register
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_WRITE(CB1, true);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10110011);
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0b10110011);
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb1, true);
-		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_WRITE(CB1, true);
+		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
@@ -2856,10 +2856,10 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb1, false);
-				SIGNAL_SET_BOOL(cb2, bit);
+				SIGNAL_WRITE(CB1, false);
+				SIGNAL_WRITE(CB2, bit);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 			munit_assert_uint8(via->reg_sr, ==, done_2);
 		}
 
@@ -2867,17 +2867,17 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 
 		for (int j = 0; j < ((i < 7) ? sr_pulses : 1); ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb1, true);
-				SIGNAL_SET_BOOL(cb2, bit);
+				SIGNAL_WRITE(CB1, true);
+				SIGNAL_WRITE(CB2, bit);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 			munit_assert_uint8(via->reg_sr, ==, done_2);
 		}
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(via->reg_sr, ==, data_2);
@@ -2897,36 +2897,36 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 	// setup sr-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00011000);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00011000);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 
 	// write shift register to active shift
 	uint8_t data_1 = 0b10110011;
 
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, data_1);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, data_1);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb2, true);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(CB2, true);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	// shift out 8 bits
@@ -2935,13 +2935,13 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 	for (int i = 0; i < 8; i++) {
 
 		VIA_CYCLE();
-		munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_false(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 		VIA_CYCLE();
-		bool bit = SIGNAL_NEXT_BOOL(cb2);
-		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		bool bit = SIGNAL_READ_NEXT(CB2);
+		munit_assert_true(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
 
 		done_1 = (done_1 << 1) | bit;
@@ -2949,7 +2949,7 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(done_1, ==, data_1);
@@ -2960,22 +2960,22 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, data_2);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, data_2);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb2, true);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(CB2, true);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	// shift out 8 bits
@@ -2984,13 +2984,13 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 	for (int i = 0; i < 8; i++) {
 
 		VIA_CYCLE();
-		munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		munit_assert_false(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 		VIA_CYCLE();
-		bool bit = SIGNAL_NEXT_BOOL(cb2);
-		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		bool bit = SIGNAL_READ_NEXT(CB2);
+		munit_assert_true(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert(bit == BIT_IS_SET(data_2, 7 - i));
 
 		done_2 = (done_2 << 1) | bit;
@@ -2998,7 +2998,7 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(done_2, ==, data_2);
@@ -3021,49 +3021,49 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 	// setup t2 enough for the shift register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, sr_pulses);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, sr_pulses);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t2l_l, ==, sr_pulses);
 
 	// setup sr-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00010100);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00010100);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 
 	// write shift register to active shift
 	uint8_t data_1 = 0b10110011;
 
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, data_1);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, data_1);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb2, true);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(CB2, true);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	// shift out 8 bits
@@ -3073,27 +3073,27 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE();
-			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_false(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 
 		VIA_CYCLE();
-		bool bit = SIGNAL_NEXT_BOOL(cb2);
-		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		bool bit = SIGNAL_READ_NEXT(CB2);
+		munit_assert_true(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
 		done_1 = (done_1 << 1) | bit;
 
 		for (int j = 1; j < ((i < 7) ? sr_pulses : 1); ++j) {
 			VIA_CYCLE();
-			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(done_1, ==, data_1);
@@ -3104,22 +3104,22 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, data_2);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, data_2);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rw, true);
-		SIGNAL_SET_BOOL(cb2, true);
+		SIGNAL_WRITE(RW, true);
+		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	// shift out 8 bits
@@ -3129,27 +3129,27 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE();
-			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_false(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 
 		VIA_CYCLE();
-		bool bit = SIGNAL_NEXT_BOOL(cb2);
-		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		bool bit = SIGNAL_READ_NEXT(CB2);
+		munit_assert_true(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert(bit == BIT_IS_SET(data_2, 7 - i));
 		done_2 = (done_2 << 1) | bit;
 
 		for (int j = 1; j < ((i < 7) ? sr_pulses : 1); ++j) {
 			VIA_CYCLE();
-			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(done_2, ==, data_2);
@@ -3172,49 +3172,49 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 	// setup t2 enough for the shift register
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, sr_pulses);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, sr_pulses);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_t2l_l, ==, sr_pulses);
 
 	// setup sr-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00010000);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00010000);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 
 	// write shift register to active shift
 	uint8_t data_1 = 0b10110011;
 
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, data_1);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, data_1);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb2, true);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(CB2, true);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	// shift out 8 bits
@@ -3224,21 +3224,21 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE();
-			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_false(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 
 		VIA_CYCLE();
-		bool bit = SIGNAL_NEXT_BOOL(cb2);
-		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		bool bit = SIGNAL_READ_NEXT(CB2);
+		munit_assert_true(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
 		done_1 = (done_1 << 1) | bit;
 
 		for (int j = 1; j < sr_pulses; ++j) {
 			VIA_CYCLE();
-			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 	}
 
@@ -3251,21 +3251,21 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE();
-			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_false(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 
 		VIA_CYCLE();
-		bool bit = SIGNAL_NEXT_BOOL(cb2);
-		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		bool bit = SIGNAL_READ_NEXT(CB2);
+		munit_assert_true(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
 		done_1b = (done_1b << 1) | bit;
 
 		for (int j = 1; j < sr_pulses; ++j) {
 			VIA_CYCLE();
-			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 	}
 
@@ -3276,21 +3276,21 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, data_2);
-		SIGNAL_SET_BOOL(rw, false);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, data_2);
+		SIGNAL_WRITE(RW, false);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb2, true);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(CB2, true);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
+	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	// shift out 8 bits
@@ -3300,21 +3300,21 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE();
-			munit_assert_false(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_false(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 
 		VIA_CYCLE();
-		bool bit = SIGNAL_NEXT_BOOL(cb2);
-		munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		bool bit = SIGNAL_READ_NEXT(CB2);
+		munit_assert_true(SIGNAL_READ_NEXT(CB1));
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert(bit == BIT_IS_SET(data_2, 7 - i));
 		done_2 = (done_2 << 1) | bit;
 
 		for (int j = 1; j < sr_pulses; ++j) {
 			VIA_CYCLE();
-			munit_assert_true(SIGNAL_NEXT_BOOL(cb1));
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(CB1));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 	}
 
@@ -3337,13 +3337,13 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 	// setup sr-mode
 	VIA_CYCLE_START
 		strobe_via(via, true);					// enable via
-		SIGNAL_SET_BOOL(rs0, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0b00011100);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0b00011100);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CB1, true);
 	VIA_CYCLE_END
 
 	// write shift register to active shift
@@ -3351,21 +3351,21 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, data_1);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, data_1);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CB1, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(cb1, true);
-		SIGNAL_SET_BOOL(cb2, true);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(CB1, true);
+		SIGNAL_WRITE(CB2, true);
+		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
@@ -3376,31 +3376,31 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb1, false);
+				SIGNAL_WRITE(CB1, false);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 
 		VIA_CYCLE_START
-			SIGNAL_SET_BOOL(cb1, true);
+			SIGNAL_WRITE(CB1, true);
 		VIA_CYCLE_END
 
-		bool bit = SIGNAL_NEXT_BOOL(cb2);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		bool bit = SIGNAL_READ_NEXT(CB2);
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert(bit == BIT_IS_SET(data_1, 7 - i));
 		done_1 = (done_1 << 1) | bit;
 
 		for (int j = 1; j < ((i < 7) ? sr_pulses : 1); ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb1, true);
+				SIGNAL_WRITE(CB1, true);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(done_1, ==, data_1);
@@ -3411,20 +3411,20 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 
 	VIA_CYCLE_START
 		strobe_via(via, true);
-		SIGNAL_SET_BOOL(rs0, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs1, ACTHI_ASSERT);
-		SIGNAL_SET_BOOL(rs2, ACTHI_DEASSERT);
-		SIGNAL_SET_BOOL(rs3, ACTHI_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, data_2);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
+		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RS3, ACTHI_ASSERT);
+		SIGNAL_GROUP_WRITE(data, data_2);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(CB1, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
 		strobe_via(via, false);
-		SIGNAL_SET_BOOL(rw, true);
-		SIGNAL_SET_BOOL(cb1, true);
+		SIGNAL_WRITE(RW, true);
+		SIGNAL_WRITE(CB1, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
@@ -3435,31 +3435,31 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 
 		for (int j = 0; j < sr_pulses; ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb1, false);
+				SIGNAL_WRITE(CB1, false);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 
 		VIA_CYCLE_START
-			SIGNAL_SET_BOOL(cb1, true);
+			SIGNAL_WRITE(CB1, true);
 		VIA_CYCLE_END
 
-		bool bit = SIGNAL_NEXT_BOOL(cb2);
-		munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+		bool bit = SIGNAL_READ_NEXT(CB2);
+		munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		munit_assert(bit == BIT_IS_SET(data_2, 7 - i));
 		done_2 = (done_2 << 1) | bit;
 
 		for (int j = 1; j < ((i < 7) ? sr_pulses : 1); ++j) {
 			VIA_CYCLE_START
-				SIGNAL_SET_BOOL(cb1, true);
+				SIGNAL_WRITE(CB1, true);
 			VIA_CYCLE_END
-			munit_assert_true(SIGNAL_NEXT_BOOL(irq_b));
+			munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 		}
 	}
 
 	// check irq
 	VIA_CYCLE();
-	munit_assert_false(SIGNAL_NEXT_BOOL(irq_b));
+	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 7));
 	munit_assert_true(BIT_IS_SET(via->reg_ifr, 2));
 	munit_assert_uint8(done_2, ==, data_2);

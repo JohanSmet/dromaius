@@ -109,7 +109,7 @@ static void glue_logic_register_dependencies_01(ChipGlueLogic *chip) {
 	signal_add_dependency(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B], chip->id);
 	signal_add_dependency(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQA_B], chip->id);
 	signal_add_dependency(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQB_B], chip->id);
-	signal_add_dependency(SIGNAL_POOL, device->via->signals.irq_b, chip->id);
+	signal_add_dependency(SIGNAL_POOL, device->via->signals[CHIP_6522_IRQ_B], chip->id);
 }
 
 static void glue_logic_process_01(ChipGlueLogic *chip) {
@@ -185,7 +185,7 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 				 signal_read_next_bool(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B]) &&
 				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQA_B]) &&
 				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQB_B]) &&
-				 signal_read_next_bool(SIGNAL_POOL, device->via->signals.irq_b);
+				 signal_read_next_bool(SIGNAL_POOL, device->via->signals[CHIP_6522_IRQ_B]);
 	SIGNAL_SET_BOOL(irq_b, irq_b);
 }
 
@@ -875,22 +875,43 @@ void circuit_create_03(DevCommodorePet *device) {
 
 	// via (C5)
 	device->via = chip_6522_create(device->simulator, (Chip6522Signals) {
-										.bus_data = SIGNAL(cpu_bus_data),
-										.enable = SIGNAL(clk1),
-										.reset_b = SIGNAL(reset_b),
-										.rw = SIGNAL(cpu_rw),
-										.cs1 = SIGNAL(cs1),
-										.cs2_b = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
-										.rs0 = signal_split(SIGNAL(bus_ba), 0, 1),
-										.rs1 = signal_split(SIGNAL(bus_ba), 1, 1),
-										.rs2 = signal_split(SIGNAL(bus_ba), 2, 1),
-										.rs3 = signal_split(SIGNAL(bus_ba), 3, 1),
-										.ca1 = SIGNAL(ca1),
-										.ca2 = SIGNAL(graphic),
-										.port_a = SIGNAL(bus_pa),
-										.port_b = SIGNAL(c5_portb),
-										.cb1 = SIGNAL(cass_read_2),
-										.cb2 = SIGNAL(cb2)
+										[CHIP_6522_D0] = signal_split(SIGNAL(cpu_bus_data), 0, 1),
+										[CHIP_6522_D1] = signal_split(SIGNAL(cpu_bus_data), 1, 1),
+										[CHIP_6522_D2] = signal_split(SIGNAL(cpu_bus_data), 2, 1),
+										[CHIP_6522_D3] = signal_split(SIGNAL(cpu_bus_data), 3, 1),
+										[CHIP_6522_D4] = signal_split(SIGNAL(cpu_bus_data), 4, 1),
+										[CHIP_6522_D5] = signal_split(SIGNAL(cpu_bus_data), 5, 1),
+										[CHIP_6522_D6] = signal_split(SIGNAL(cpu_bus_data), 6, 1),
+										[CHIP_6522_D7] = signal_split(SIGNAL(cpu_bus_data), 7, 1),
+										[CHIP_6522_PHI2] = SIGNAL(clk1),
+										[CHIP_6522_RESET_B] = SIGNAL(reset_b),
+										[CHIP_6522_RW] = SIGNAL(cpu_rw),
+										[CHIP_6522_CS1] = SIGNAL(cs1),
+										[CHIP_6522_CS2_B] = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
+										[CHIP_6522_RS0] = signal_split(SIGNAL(bus_ba), 0, 1),
+										[CHIP_6522_RS1] = signal_split(SIGNAL(bus_ba), 1, 1),
+										[CHIP_6522_RS2] = signal_split(SIGNAL(bus_ba), 2, 1),
+										[CHIP_6522_RS3] = signal_split(SIGNAL(bus_ba), 3, 1),
+										[CHIP_6522_CA1] = SIGNAL(ca1),
+										[CHIP_6522_CA2] = SIGNAL(graphic),
+										[CHIP_6522_PA0] = signal_split(SIGNAL(bus_pa), 0, 1),
+										[CHIP_6522_PA1] = signal_split(SIGNAL(bus_pa), 1, 1),
+										[CHIP_6522_PA2] = signal_split(SIGNAL(bus_pa), 2, 1),
+										[CHIP_6522_PA3] = signal_split(SIGNAL(bus_pa), 3, 1),
+										[CHIP_6522_PA4] = signal_split(SIGNAL(bus_pa), 4, 1),
+										[CHIP_6522_PA5] = signal_split(SIGNAL(bus_pa), 5, 1),
+										[CHIP_6522_PA6] = signal_split(SIGNAL(bus_pa), 6, 1),
+										[CHIP_6522_PA7] = signal_split(SIGNAL(bus_pa), 7, 1),
+										[CHIP_6522_PB0] = signal_split(SIGNAL(c5_portb), 0, 1),
+										[CHIP_6522_PB1] = signal_split(SIGNAL(c5_portb), 1, 1),
+										[CHIP_6522_PB2] = signal_split(SIGNAL(c5_portb), 2, 1),
+										[CHIP_6522_PB3] = signal_split(SIGNAL(c5_portb), 3, 1),
+										[CHIP_6522_PB4] = signal_split(SIGNAL(c5_portb), 4, 1),
+										[CHIP_6522_PB5] = signal_split(SIGNAL(c5_portb), 5, 1),
+										[CHIP_6522_PB6] = signal_split(SIGNAL(c5_portb), 6, 1),
+										[CHIP_6522_PB7] = signal_split(SIGNAL(c5_portb), 7, 1),
+										[CHIP_6522_CB1] = SIGNAL(cass_read_2),
+										[CHIP_6522_CB2] = SIGNAL(cb2)
 	});
 	DEVICE_REGISTER_CHIP("C5", device->via);
 

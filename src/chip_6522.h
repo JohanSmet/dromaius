@@ -13,25 +13,57 @@ extern "C" {
 #endif
 
 // types
-typedef struct Chip6522Signals {
-	Signal		bus_data;		// 8-bit databus [D0 - D7] - (In & Out)
-	Signal		port_a;			// 8-bit peripheral I/O port A [PA0 - PA7] - (In & Out)
-	Signal		port_b;			// 8-bit peripheral I/O port B [PB0 - PB7] - (In & Out)
-	Signal		ca1;			// 1-bit interrupt input control line for port A - (In)
-	Signal		ca2;			// 1-bit interrupt input/peripheral control line for port A - (In & Out)
-	Signal		cb1;			// 1-bit interrupt input control line for port B - (In)
-	Signal		cb2;			// 1-bit interrupt input/peripheral control line for port B - (In & Out)
-	Signal		irq_b;			// 1-bit interrupt request line (Out)
-	Signal		rs0;			// 1-bit register select 0 (In)
-	Signal		rs1;			// 1-bit register select 1 (In)
-	Signal		rs2;			// 1-bit register select 2 (In)
-	Signal		rs3;			// 1-bit register select 3 (In)
-	Signal		reset_b;		// 1-bit reset-line (In)
-	Signal		enable;			// 1-bit clock-line (PHI2) (In)
-	Signal		cs1;			// 1-bit chip select 1 (In)
-	Signal		cs2_b;			// 1-bit chip select 2 (In)
-	Signal		rw;				// 1-bit read/write-line (true = read (via -> cpu), false = write (cpu -> via))
-} Chip6522Signals;
+typedef enum {
+	// port-A (8-bit peripheral I/O port)
+	CHIP_6522_PA0 = CHIP_PIN_02,
+	CHIP_6522_PA1 = CHIP_PIN_03,
+	CHIP_6522_PA2 = CHIP_PIN_04,
+	CHIP_6522_PA3 = CHIP_PIN_05,
+	CHIP_6522_PA4 = CHIP_PIN_06,
+	CHIP_6522_PA5 = CHIP_PIN_07,
+	CHIP_6522_PA6 = CHIP_PIN_08,
+	CHIP_6522_PA7 = CHIP_PIN_09,
+
+	// port-B (8-bit peripheral I/O port)
+	CHIP_6522_PB0 = CHIP_PIN_10,
+	CHIP_6522_PB1 = CHIP_PIN_11,
+	CHIP_6522_PB2 = CHIP_PIN_12,
+	CHIP_6522_PB3 = CHIP_PIN_13,
+	CHIP_6522_PB4 = CHIP_PIN_14,
+	CHIP_6522_PB5 = CHIP_PIN_15,
+	CHIP_6522_PB6 = CHIP_PIN_16,
+	CHIP_6522_PB7 = CHIP_PIN_17,
+
+	// data bus (8-bit)
+	CHIP_6522_D0 = CHIP_PIN_33,
+	CHIP_6522_D1 = CHIP_PIN_32,
+	CHIP_6522_D2 = CHIP_PIN_31,
+	CHIP_6522_D3 = CHIP_PIN_30,
+	CHIP_6522_D4 = CHIP_PIN_29,
+	CHIP_6522_D5 = CHIP_PIN_28,
+	CHIP_6522_D6 = CHIP_PIN_27,
+	CHIP_6522_D7 = CHIP_PIN_26,
+
+	CHIP_6522_CA1 = CHIP_PIN_40,		// 1-bit interrupt input control line for port A - (In)
+	CHIP_6522_CA2 = CHIP_PIN_39,		// 1-bit interrupt input/peripheral control line for port A - (In & Out)
+	CHIP_6522_CB1 = CHIP_PIN_18,		// 1-bit interrupt input control line for port B - (In)
+	CHIP_6522_CB2 = CHIP_PIN_19,		// 1-bit interrupt input/peripheral control line for port B - (In & Out)
+
+	CHIP_6522_RS0 = CHIP_PIN_38,		// 1-bit register select 0 (In)
+	CHIP_6522_RS1 = CHIP_PIN_37,		// 1-bit register select 1 (In)
+	CHIP_6522_RS2 = CHIP_PIN_36,		// 1-bit register select 2 (In)
+	CHIP_6522_RS3 = CHIP_PIN_35,		// 1-bit register select 3 (In)
+	CHIP_6522_RESET_B = CHIP_PIN_34,	// 1-bit reset-line (In)
+
+	CHIP_6522_PHI2 = CHIP_PIN_25,		// 1-bit clock-line (In)
+	CHIP_6522_CS1 = CHIP_PIN_24,		// 1-bit chip select 1 (In)
+	CHIP_6522_CS2_B = CHIP_PIN_23,		// 1-bit chip select 2 (In)
+	CHIP_6522_RW = CHIP_PIN_22,			// 1-bit read/write-line (true = read (pia -> cpu), false = write (cpu -> pia))
+	CHIP_6522_IRQ_B = CHIP_PIN_21		// 1-bit interrupt request line (Out)
+
+} Chip6522SignalAssignment;
+
+typedef Signal Chip6522Signals[40];
 
 typedef enum Chip6522AuxiliaryControl {
 	MASK_6522_ACR_PA_LATCH			= 0b00000001,
@@ -124,6 +156,11 @@ typedef struct Chip6522 {
 	SignalPool *		signal_pool;
 	Chip6522Signals		signals;
 
+	// signal groups
+	SignalGroup			sg_port_a;
+	SignalGroup			sg_port_b;
+	SignalGroup			sg_data;
+
 	// registers
 	uint8_t		reg_ifr;		// interrupt control - flags
 	uint8_t		reg_ier;		// interrupt control - enable
@@ -146,9 +183,6 @@ typedef struct Chip6522 {
 
 // functions
 Chip6522 *chip_6522_create(struct Simulator *sim, Chip6522Signals signals);
-void chip_6522_register_dependencies(Chip6522 *via);
-void chip_6522_destroy(Chip6522 *via);
-void chip_6522_process(Chip6522 *via);
 
 #ifdef __cplusplus
 }
