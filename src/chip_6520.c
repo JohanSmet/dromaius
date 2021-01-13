@@ -37,7 +37,6 @@ typedef struct Chip6520_private {
 	Chip6520		intf;
 
 	bool			strobe;
-	bool			prev_enable;
 
 	Chip6520_pstate	state_a;
 	Chip6520_pstate	state_b;
@@ -293,9 +292,6 @@ static inline void process_end(Chip6520 *pia) {
 	} else {
 		SIGNAL_GROUP_NO_WRITE(data);
 	}
-
-	// store state of the enable pin
-	PRIVATE(pia)->prev_enable = SIGNAL_READ(PHI2);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -390,9 +386,7 @@ void chip_6520_process(Chip6520 *pia) {
 	// do nothing:
 	//	- if reset is asserted or
 	//  - if not on the edge of a clock cycle
-	bool enable = SIGNAL_READ(PHI2);
-
-	if (ACTLO_ASSERTED(SIGNAL_READ(RESET_B)) || enable == PRIVATE(pia)->prev_enable) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(RESET_B)) || !SIGNAL_CHANGED(PHI2)) {
 		LOG_TRACE("6520 [%s]: exit without processing", pia->name);
 		process_end(pia);
 		return;
@@ -403,7 +397,7 @@ void chip_6520_process(Chip6520 *pia) {
 							ACTLO_ASSERTED(SIGNAL_READ(CS2_B));
 	PRIVATE(pia)->out_enabled = false;
 
-	if (enable) {
+	if (SIGNAL_READ(PHI2)) {
 		process_positive_enable_edge(pia);
 	} else {
 		process_negative_enable_edge(pia);

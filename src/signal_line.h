@@ -390,6 +390,7 @@ static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, i
 
 #define SIGNAL_READ(sig)					signal_read_bool(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)])
 #define SIGNAL_READ_NEXT(sig)				signal_read_next_bool(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)])
+#define SIGNAL_CHANGED(sig)					signal_changed(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)])
 
 #define SIGNAL_WRITE(sig,v)					signal_write_bool(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)], (v), SIGNAL_CHIP_ID)
 
