@@ -164,8 +164,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// power-on-reset
 	DEVICE_REGISTER_CHIP("POR", poweronreset_create(1000000, device->simulator, (PowerOnResetSignals) {
-											.trigger_b = SIGNAL(reset_btn_b),
-											.reset_b = SIGNAL(reset_b)
+											[CHIP_POR_TRIGGER_B] = SIGNAL(reset_btn_b),
+											[CHIP_POR_RESET_B] = SIGNAL(reset_b)
 	}));
 
 	// ram

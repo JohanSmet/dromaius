@@ -644,8 +644,8 @@ static void circuit_create_01(DevCommodorePet *device) {
 
 	// power-on-reset
 	DEVICE_REGISTER_CHIP("POR", poweronreset_create(US_TO_PS(500), device->simulator, (PowerOnResetSignals) {
-											.trigger_b = SIGNAL(reset_btn_b),
-											.reset_b = SIGNAL(reset_b)
+											[CHIP_POR_TRIGGER_B] = SIGNAL(reset_btn_b),
+											[CHIP_POR_RESET_B] = SIGNAL(reset_b)
 	}));
 
 	// cpu

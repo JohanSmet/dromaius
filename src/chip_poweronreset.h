@@ -13,10 +13,12 @@ extern "C" {
 #endif
 
 // types
-typedef struct PowerOnResetSignals {
-	Signal	trigger_b;
-	Signal	reset_b;			// 1-bit reset signal
-} PowerOnResetSignals;
+typedef enum {
+	CHIP_POR_TRIGGER_B = CHIP_PIN_01,		// 1-bit trigger signal (input)
+	CHIP_POR_RESET_B = CHIP_PIN_02			// 1-bit reset signal (output)
+} PowerOnResetSignalAssignment;
+
+typedef Signal PowerOnResetSignals[2];
 
 typedef struct PowerOnReset {
 
@@ -30,13 +32,11 @@ typedef struct PowerOnReset {
 	int64_t				duration_ps;
 	int64_t				duration_ticks;
 	int64_t				next_action;
+
 } PowerOnReset;
 
 // functions
 PowerOnReset *poweronreset_create(int64_t reset_duration_ps, struct Simulator *sim, PowerOnResetSignals signals);
-void poweronreset_register_dependencies(PowerOnReset *por);
-void poweronreset_destroy(PowerOnReset *por);
-void poweronreset_process(PowerOnReset *por);
 
 #ifdef __cplusplus
 }
