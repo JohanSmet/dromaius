@@ -2,6 +2,7 @@
 //
 // Emulation of 74-family logic chips
 
+#define SIGNAL_ARRAY_STYLE
 #include "chip_74xxx.h"
 #include "simulator.h"
 
@@ -9,9 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SIGNAL_POOL			chip->signal_pool
-#define SIGNAL_COLLECTION	chip->signals
-#define SIGNAL_CHIP_ID		chip->id
+#define SIGNAL_OWNER		chip
 
 #define CHIP_74XXX_SET_FUNCTIONS(prefix)	\
 		CHIP_SET_FUNCTIONS(chip, prefix##_process, prefix##_destroy, prefix##_register_dependencies)
@@ -21,53 +20,59 @@
 // 7400 - Quad 2 Input NAND gates
 //
 
-Chip7400Nand *chip_7400_nand_create(Simulator *sim, Chip7400NandSignals signals) {
+#define SIGNAL_PREFIX		CHIP_7400_
+
+static void chip_7400_nand_register_dependencies(Chip7400Nand *chip);
+static void chip_7400_nand_destroy(Chip7400Nand *chip);
+static void chip_7400_nand_process(Chip7400Nand *chip);
+
+Chip7400Nand *chip_7400_nand_create(Simulator *sim, Chip7400Signals signals) {
 	Chip7400Nand *chip = (Chip7400Nand *) calloc(1, sizeof(Chip7400Nand));
 	chip->simulator = sim;
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_7400_nand);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(a1,	1);
-	SIGNAL_DEFINE(b1,	1);
-	SIGNAL_DEFINE(y1,	1);
-	SIGNAL_DEFINE(a2,	1);
-	SIGNAL_DEFINE(b2,	1);
-	SIGNAL_DEFINE(y2,	1);
-	SIGNAL_DEFINE(a3,	1);
-	SIGNAL_DEFINE(b3,	1);
-	SIGNAL_DEFINE(y3,	1);
-	SIGNAL_DEFINE(a4,	1);
-	SIGNAL_DEFINE(b4,	1);
-	SIGNAL_DEFINE(y4,	1);
+	memcpy(chip->signals, signals, sizeof(Chip7400Signals));
+	SIGNAL_DEFINE(CHIP_7400_A1);
+	SIGNAL_DEFINE(CHIP_7400_B1);
+	SIGNAL_DEFINE(CHIP_7400_Y1);
+	SIGNAL_DEFINE(CHIP_7400_A2);
+	SIGNAL_DEFINE(CHIP_7400_B2);
+	SIGNAL_DEFINE(CHIP_7400_Y2);
+	SIGNAL_DEFINE(CHIP_7400_A3);
+	SIGNAL_DEFINE(CHIP_7400_B3);
+	SIGNAL_DEFINE(CHIP_7400_Y3);
+	SIGNAL_DEFINE(CHIP_7400_A4);
+	SIGNAL_DEFINE(CHIP_7400_B4);
+	SIGNAL_DEFINE(CHIP_7400_Y4);
 
 	return chip;
 }
 
-void chip_7400_nand_register_dependencies(Chip7400Nand *chip) {
+static void chip_7400_nand_register_dependencies(Chip7400Nand *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a1), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a2), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a3), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a4), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b1), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b2), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b3), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b4), chip->id);
+	SIGNAL_DEPENDENCY(A1);
+	SIGNAL_DEPENDENCY(A2);
+	SIGNAL_DEPENDENCY(A3);
+	SIGNAL_DEPENDENCY(A4);
+	SIGNAL_DEPENDENCY(B1);
+	SIGNAL_DEPENDENCY(B2);
+	SIGNAL_DEPENDENCY(B3);
+	SIGNAL_DEPENDENCY(B4);
 }
 
-void chip_7400_nand_destroy(Chip7400Nand *chip) {
+static void chip_7400_nand_destroy(Chip7400Nand *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_7400_nand_process(Chip7400Nand *chip) {
+static void chip_7400_nand_process(Chip7400Nand *chip) {
 	assert(chip);
 
-	SIGNAL_SET_BOOL(y1, !(SIGNAL_BOOL(a1) && SIGNAL_BOOL(b1)));
-	SIGNAL_SET_BOOL(y2, !(SIGNAL_BOOL(a2) && SIGNAL_BOOL(b2)));
-	SIGNAL_SET_BOOL(y3, !(SIGNAL_BOOL(a3) && SIGNAL_BOOL(b3)));
-	SIGNAL_SET_BOOL(y4, !(SIGNAL_BOOL(a4) && SIGNAL_BOOL(b4)));
+	SIGNAL_WRITE(Y1, !(SIGNAL_READ(A1) && SIGNAL_READ(B1)));
+	SIGNAL_WRITE(Y2, !(SIGNAL_READ(A2) && SIGNAL_READ(B2)));
+	SIGNAL_WRITE(Y3, !(SIGNAL_READ(A3) && SIGNAL_READ(B3)));
+	SIGNAL_WRITE(Y4, !(SIGNAL_READ(A4) && SIGNAL_READ(B4)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -75,90 +80,89 @@ void chip_7400_nand_process(Chip7400Nand *chip) {
 // 7474 - Dual Positive-Edge-Triggered D Flip-Flops with preset/clear
 //
 
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_7474_
+
+static void chip_7474_d_flipflop_register_dependencies(Chip7474DFlipFlop *chip);
+static void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip);
+static void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip);
+
 Chip7474DFlipFlop *chip_7474_d_flipflop_create(Simulator *sim, Chip7474Signals signals) {
 	Chip7474DFlipFlop *chip = (Chip7474DFlipFlop *) calloc(1, sizeof(Chip7474DFlipFlop));
 	chip->simulator = sim;
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_7474_d_flipflop);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE_BOOL(clr1_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE(d1, 1);
-	SIGNAL_DEFINE(clk1, 1);
-	SIGNAL_DEFINE_BOOL(pr1_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE(q1, 1);
-	SIGNAL_DEFINE(q1_b, 1);
-	SIGNAL_DEFINE_BOOL(gnd, 1, false);
-	SIGNAL_DEFINE(q2_b, 1);
-	SIGNAL_DEFINE(q2, 1);
-	SIGNAL_DEFINE_BOOL(pr2_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE(clk2, 1);
-	SIGNAL_DEFINE(d2, 1);
-	SIGNAL_DEFINE_BOOL(clr2_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+	memcpy(chip->signals, signals, sizeof(Chip7474Signals));
+	SIGNAL_DEFINE_DEFAULT(CHIP_7474_CLR1_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(CHIP_7474_D1);
+	SIGNAL_DEFINE(CHIP_7474_CLK1);
+	SIGNAL_DEFINE_DEFAULT(CHIP_7474_PR1_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(CHIP_7474_Q1);
+	SIGNAL_DEFINE(CHIP_7474_Q1_B);
+	SIGNAL_DEFINE(CHIP_7474_Q2_B);
+	SIGNAL_DEFINE(CHIP_7474_Q2);
+	SIGNAL_DEFINE_DEFAULT(CHIP_7474_PR2_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(CHIP_7474_CLK2);
+	SIGNAL_DEFINE(CHIP_7474_D2);
+	SIGNAL_DEFINE_DEFAULT(CHIP_7474_CLR2_B, ACTLO_DEASSERT);
 
 	return chip;
 }
 
-void chip_7474_d_flipflop_register_dependencies(Chip7474DFlipFlop *chip) {
+static void chip_7474_d_flipflop_register_dependencies(Chip7474DFlipFlop *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clr1_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(pr1_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk1), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clr2_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(pr2_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk2), chip->id);
+	SIGNAL_DEPENDENCY(CLR1_B);
+	SIGNAL_DEPENDENCY(PR1_B);
+	SIGNAL_DEPENDENCY(CLK1);
+	SIGNAL_DEPENDENCY(CLR2_B);
+	SIGNAL_DEPENDENCY(PR2_B);
+	SIGNAL_DEPENDENCY(CLK2);
 }
 
-void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip) {
+static void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
+static void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
 	assert(chip);
 
 	// flip-flop 1
-	bool clk1 = SIGNAL_BOOL(clk1);
-
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(pr1_b)) && ACTLO_ASSERTED(SIGNAL_BOOL(clr1_b))) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(PR1_B)) && ACTLO_ASSERTED(SIGNAL_READ(CLR1_B))) {
 		chip->q1 = true;
 		chip->q1_b = true;
-	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(pr1_b))) {
+	} else if (ACTLO_ASSERTED(SIGNAL_READ(PR1_B))) {
 		chip->q1 = true;
 		chip->q1_b = false;
-	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(clr1_b))) {
+	} else if (ACTLO_ASSERTED(SIGNAL_READ(CLR1_B))) {
 		chip->q1 = false;
 		chip->q1_b = true;
-	} else if (clk1 && !chip->prev_clk1) {
-		chip->q1 = SIGNAL_BOOL(d1);
+	} else if (SIGNAL_READ(CLK1) && SIGNAL_CHANGED(CLK1)) {
+		chip->q1 = SIGNAL_READ(D1);
 		chip->q1_b = !chip->q1;
 	}
 
-	SIGNAL_SET_BOOL(q1, chip->q1);
-	SIGNAL_SET_BOOL(q1_b, chip->q1_b);
-	chip->prev_clk1 = clk1;
+	SIGNAL_WRITE(Q1, chip->q1);
+	SIGNAL_WRITE(Q1_B, chip->q1_b);
 
 	// flip-flop 2
-	bool clk2 = SIGNAL_BOOL(clk2);
-
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(pr2_b)) && ACTLO_ASSERTED(SIGNAL_BOOL(clr2_b))) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(PR2_B)) && ACTLO_ASSERTED(SIGNAL_READ(CLR2_B))) {
 		chip->q2 = true;
 		chip->q2_b = true;
-	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(pr2_b))) {
+	} else if (ACTLO_ASSERTED(SIGNAL_READ(PR2_B))) {
 		chip->q2 = true;
 		chip->q2_b = false;
-	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(clr2_b))) {
+	} else if (ACTLO_ASSERTED(SIGNAL_READ(CLR2_B))) {
 		chip->q2 = false;
 		chip->q2_b = true;
-	} else if (clk2 && !chip->prev_clk2) {
-		chip->q2 = SIGNAL_BOOL(d2);
+	} else if (SIGNAL_READ(CLK2) && SIGNAL_CHANGED(CLK2)) {
+		chip->q2 = SIGNAL_READ(D2);
 		chip->q2_b = !chip->q2;
 	}
 
-	SIGNAL_SET_BOOL(q2, chip->q2);
-	SIGNAL_SET_BOOL(q2_b, chip->q2_b);
-	chip->prev_clk2 = clk2;
+	SIGNAL_WRITE(Q2, chip->q2);
+	SIGNAL_WRITE(Q2_B, chip->q2_b);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -166,73 +170,71 @@ void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
 // 7493 - 4-Bit Binary Counter
 //
 
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_7493_
+
+static void chip_7493_binary_counter_register_dependencies(Chip7493BinaryCounter *chip);
+static void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip);
+static void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip);
+
 Chip7493BinaryCounter *chip_7493_binary_counter_create(Simulator *sim, Chip7493Signals signals) {
 	Chip7493BinaryCounter *chip = (Chip7493BinaryCounter *) calloc(1, sizeof(Chip7493BinaryCounter));
 	chip->simulator = sim;
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_7493_binary_counter);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(b_b, 1);					// pin 1
-	SIGNAL_DEFINE_BOOL(r01, 1, false);		// pin 2
-	SIGNAL_DEFINE_BOOL(r02, 1, false);		// pin 3
-	SIGNAL_DEFINE_BOOL(vcc, 1, true);		// pin 5
-	SIGNAL_DEFINE(qc, 1);					// pin 8
-	SIGNAL_DEFINE(qb, 1);					// pin 9
-	SIGNAL_DEFINE_BOOL(gnd, 1, false);		// pin 10
-	SIGNAL_DEFINE(qd, 1);					// pin 11
-	SIGNAL_DEFINE(qa, 1);					// pin 12
-	SIGNAL_DEFINE(a_b, 1);					// pin 14
+	memcpy(chip->signals, signals, sizeof(Chip7493Signals));
+	SIGNAL_DEFINE(CHIP_7493_B_B);
+	SIGNAL_DEFINE_DEFAULT(CHIP_7493_R01, false);
+	SIGNAL_DEFINE_DEFAULT(CHIP_7493_R02, false);
+	SIGNAL_DEFINE(CHIP_7493_QC);
+	SIGNAL_DEFINE(CHIP_7493_QB);
+	SIGNAL_DEFINE(CHIP_7493_QD);
+	SIGNAL_DEFINE(CHIP_7493_QA);
+	SIGNAL_DEFINE(CHIP_7493_A_B);
 
 	return chip;
 }
 
-void chip_7493_binary_counter_register_dependencies(Chip7493BinaryCounter *chip) {
+static void chip_7493_binary_counter_register_dependencies(Chip7493BinaryCounter *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(r01), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(r02), chip->id);
+	SIGNAL_DEPENDENCY(A_B);
+	SIGNAL_DEPENDENCY(B_B);
+	SIGNAL_DEPENDENCY(R01);
+	SIGNAL_DEPENDENCY(R02);
 }
 
-void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip) {
+static void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip) {
+static void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip) {
 	assert(chip);
 
-	bool a_b = SIGNAL_BOOL(a_b);
-	bool b_b = SIGNAL_BOOL(b_b);
-
-	if (ACTHI_ASSERTED(SIGNAL_BOOL(r01)) && ACTHI_ASSERTED(SIGNAL_BOOL(r02))) {
+	if (ACTHI_ASSERTED(SIGNAL_READ(R01)) && ACTHI_ASSERTED(SIGNAL_READ(R02))) {
 		chip->count_a = 0;
 		chip->count_b = 0;
 	} else {
-		if (chip->prev_a_b && !a_b) {
-			chip->count_a = !chip->count_a;
-		}
+		bool trigger_a = SIGNAL_CHANGED(A_B) && !SIGNAL_READ(A_B);
+
+		// xor is basically a conditional negation
+		chip->count_a = chip->count_a ^ trigger_a;
 
 		// ok, a bit hacky ... if the second stage's clock is connected to the output of the first stage:
 		// don't wait until the next process call to trigger the second stage
-		if (memcmp(&SIGNAL(b_b), &SIGNAL(qa), sizeof(Signal)) == 0) {
-			if (chip->prev_a_b && !a_b) {
-				chip->count_b += !chip->count_a;
-			}
-		} else if (chip->prev_b_b && !b_b) {
-			++chip->count_b;
+		if (memcmp(&SIGNAL(B_B), &SIGNAL(QA), sizeof(Signal)) == 0) {
+			chip->count_b += trigger_a & !chip->count_a;
+		} else {
+			bool trigger_b = SIGNAL_CHANGED(B_B) && !SIGNAL_READ(B_B);
+			chip->count_b += trigger_b;
 		}
 	}
 
-	SIGNAL_SET_BOOL(qa, chip->count_a);
-	SIGNAL_SET_BOOL(qb, chip->count_b & 0b0001);
-	SIGNAL_SET_BOOL(qc, (chip->count_b & 0b0010) >> 1);
-	SIGNAL_SET_BOOL(qd, (chip->count_b & 0b0100) >> 2);
-
-	// save the clock state
-	chip->prev_a_b = a_b;
-	chip->prev_b_b = b_b;
+	SIGNAL_WRITE(QA, chip->count_a);
+	SIGNAL_WRITE(QB, chip->count_b & 0b0001);
+	SIGNAL_WRITE(QC, (chip->count_b & 0b0010) >> 1);
+	SIGNAL_WRITE(QD, (chip->count_b & 0b0100) >> 2);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -240,90 +242,93 @@ void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip) {
 // 74107 - Dual J-K Flip-Flops with clear
 //
 
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74107_
+
+static void chip_74107_jk_flipflop_register_dependencies(Chip74107JKFlipFlop *chip);
+static void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip);
+static void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip);
+
 Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(Simulator *sim, Chip74107Signals signals) {
 	Chip74107JKFlipFlop *chip = (Chip74107JKFlipFlop *) calloc(1, sizeof(Chip74107JKFlipFlop));
 	chip->simulator = sim;
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74107_jk_flipflop);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
+	memcpy(chip->signals, signals, sizeof(Chip74107Signals));
 
-	SIGNAL_DEFINE(j1, 1);
-	SIGNAL_DEFINE(q1_b, 1);
-	SIGNAL_DEFINE(q1, 1);
-	SIGNAL_DEFINE(k1, 1);
-	SIGNAL_DEFINE(q2, 1);
-	SIGNAL_DEFINE(q2_b, 1);
-	SIGNAL_DEFINE_BOOL(gnd, 1, false);
-	SIGNAL_DEFINE(j2, 1);
-	SIGNAL_DEFINE(clk2, 1);
-	SIGNAL_DEFINE_BOOL(clr2_b, 1, true);
-	SIGNAL_DEFINE(k2, 1);
-	SIGNAL_DEFINE(clk1, 1);
-	SIGNAL_DEFINE_BOOL(clr1_b, 1, true);
-	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+	SIGNAL_DEFINE(CHIP_74107_J1);
+	SIGNAL_DEFINE(CHIP_74107_Q1_B);
+	SIGNAL_DEFINE(CHIP_74107_Q1);
+	SIGNAL_DEFINE(CHIP_74107_K1);
+	SIGNAL_DEFINE(CHIP_74107_Q2);
+	SIGNAL_DEFINE(CHIP_74107_Q2_B);
+	SIGNAL_DEFINE(CHIP_74107_J2);
+	SIGNAL_DEFINE(CHIP_74107_CLK2);
+	SIGNAL_DEFINE_DEFAULT(CHIP_74107_CLR2_B, true);
+	SIGNAL_DEFINE(CHIP_74107_K2);
+	SIGNAL_DEFINE(CHIP_74107_CLK1);
+	SIGNAL_DEFINE_DEFAULT(CHIP_74107_CLR1_B, true);
 
 	return chip;
 }
 
-void chip_74107_jk_flipflop_register_dependencies(Chip74107JKFlipFlop *chip) {
+static void chip_74107_jk_flipflop_register_dependencies(Chip74107JKFlipFlop *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk1), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clr1_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk2), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clr2_b), chip->id);
+	SIGNAL_DEPENDENCY(CLK1);
+	SIGNAL_DEPENDENCY(CLR1_B);
+	SIGNAL_DEPENDENCY(CLK2);
+	SIGNAL_DEPENDENCY(CLR2_B);
 }
 
-void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip) {
+static void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip) {
+static void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip) {
 	assert(chip);
 
 	// flip-flop 1
-	bool clk1 = SIGNAL_BOOL(clk1);
-
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(clr1_b))) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(CLR1_B))) {
 		chip->q1 = false;
-	} else if (!clk1 && chip->prev_clk1) {
-		if (SIGNAL_BOOL(j1) && SIGNAL_BOOL(k1)) {
+	} else if (!SIGNAL_READ(CLK1) && SIGNAL_CHANGED(CLK1)) {
+		if (SIGNAL_READ(J1) && SIGNAL_READ(K1)) {
 			chip->q1 = !chip->q1;
-		} else if (SIGNAL_BOOL(j1) || SIGNAL_BOOL(k1)) {
-			chip->q1 = SIGNAL_BOOL(j1);
+		} else if (SIGNAL_READ(J1) || SIGNAL_READ(K1)) {
+			chip->q1 = SIGNAL_READ(J1);
 		}
 	}
 
-	SIGNAL_SET_BOOL(q1, chip->q1);
-	SIGNAL_SET_BOOL(q1_b, !chip->q1);
-	chip->prev_clk1 = clk1;
+	SIGNAL_WRITE(Q1, chip->q1);
+	SIGNAL_WRITE(Q1_B, !chip->q1);
 
 	// flip-flop 2
-	bool clk2 = SIGNAL_BOOL(clk2);
-
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(clr2_b))) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(CLR2_B))) {
 		chip->q2 = false;
-	} else if (!clk2 && chip->prev_clk2) {
-		if (SIGNAL_BOOL(j2) && SIGNAL_BOOL(k2)) {
+	} else if (!SIGNAL_READ(CLK2) && SIGNAL_CHANGED(CLK2)) {
+		if (SIGNAL_READ(J2) && SIGNAL_READ(K2)) {
 			chip->q2 = !chip->q2;
-		} else if (SIGNAL_BOOL(j2) || SIGNAL_BOOL(k2)) {
-			chip->q2 = SIGNAL_BOOL(j2);
+		} else if (SIGNAL_READ(J2) || SIGNAL_READ(K2)) {
+			chip->q2 = SIGNAL_READ(J2);
 		}
 	}
 
-	SIGNAL_SET_BOOL(q2, chip->q2);
-	SIGNAL_SET_BOOL(q2_b, !chip->q2);
-	chip->prev_clk2 = clk2;
-
-	SIGNAL_SET_BOOL(q2, chip->q2);
-	SIGNAL_SET_BOOL(q2_b, !chip->q2);
+	SIGNAL_WRITE(Q2, chip->q2);
+	SIGNAL_WRITE(Q2_B, !chip->q2);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // 74145 - BCD-to-Decimal Decoder/driver
 //
+
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74145_
+
+static void chip_74145_bcd_decoder_register_dependencies(Chip74145BcdDecoder *chip);
+static void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip);
+static void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip);
 
 typedef struct Chip74145BcdDecoder_private {
 	Chip74145BcdDecoder	intf;
@@ -337,47 +342,45 @@ Chip74145BcdDecoder *chip_74145_bcd_decoder_create(Simulator *sim, Chip74145Sign
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74145_bcd_decoder);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(y0_b,		1);
-	SIGNAL_DEFINE(y1_b,		1);
-	SIGNAL_DEFINE(y2_b,		1);
-	SIGNAL_DEFINE(y3_b,		1);
-	SIGNAL_DEFINE(y4_b,		1);
-	SIGNAL_DEFINE(y5_b,		1);
-	SIGNAL_DEFINE(y6_b,		1);
-	SIGNAL_DEFINE(gnd,		1);
-	SIGNAL_DEFINE(y7_b,		1);
-	SIGNAL_DEFINE(y8_b,		1);
-	SIGNAL_DEFINE(y9_b,		1);
-	SIGNAL_DEFINE(d,		1);
-	SIGNAL_DEFINE(c,		1);
-	SIGNAL_DEFINE(b,		1);
-	SIGNAL_DEFINE(a,		1);
-	SIGNAL_DEFINE(vcc,		1);
+	memcpy(chip->signals, signals, sizeof(Chip74145Signals));
+	SIGNAL_DEFINE(CHIP_74145_Y0_B);
+	SIGNAL_DEFINE(CHIP_74145_Y1_B);
+	SIGNAL_DEFINE(CHIP_74145_Y2_B);
+	SIGNAL_DEFINE(CHIP_74145_Y3_B);
+	SIGNAL_DEFINE(CHIP_74145_Y4_B);
+	SIGNAL_DEFINE(CHIP_74145_Y5_B);
+	SIGNAL_DEFINE(CHIP_74145_Y6_B);
+	SIGNAL_DEFINE(CHIP_74145_Y7_B);
+	SIGNAL_DEFINE(CHIP_74145_Y8_B);
+	SIGNAL_DEFINE(CHIP_74145_Y9_B);
+	SIGNAL_DEFINE(CHIP_74145_D);
+	SIGNAL_DEFINE(CHIP_74145_C);
+	SIGNAL_DEFINE(CHIP_74145_B);
+	SIGNAL_DEFINE(CHIP_74145_A);
 
-	priv->outputs[0]  = &SIGNAL(y0_b);	priv->outputs[1]  = &SIGNAL(y1_b);
-	priv->outputs[2]  = &SIGNAL(y2_b);	priv->outputs[3]  = &SIGNAL(y3_b);
-	priv->outputs[4]  = &SIGNAL(y4_b);	priv->outputs[5]  = &SIGNAL(y5_b);
-	priv->outputs[6]  = &SIGNAL(y6_b);	priv->outputs[7]  = &SIGNAL(y7_b);
-	priv->outputs[8]  = &SIGNAL(y8_b);	priv->outputs[9]  = &SIGNAL(y9_b);
+	priv->outputs[0]  = &SIGNAL(Y0_B);	priv->outputs[1]  = &SIGNAL(Y1_B);
+	priv->outputs[2]  = &SIGNAL(Y2_B);	priv->outputs[3]  = &SIGNAL(Y3_B);
+	priv->outputs[4]  = &SIGNAL(Y4_B);	priv->outputs[5]  = &SIGNAL(Y5_B);
+	priv->outputs[6]  = &SIGNAL(Y6_B);	priv->outputs[7]  = &SIGNAL(Y7_B);
+	priv->outputs[8]  = &SIGNAL(Y8_B);	priv->outputs[9]  = &SIGNAL(Y9_B);
 
 	return chip;
 }
 
-void chip_74145_bcd_decoder_register_dependencies(Chip74145BcdDecoder *chip) {
+static void chip_74145_bcd_decoder_register_dependencies(Chip74145BcdDecoder *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d), chip->id);
+	SIGNAL_DEPENDENCY(A);
+	SIGNAL_DEPENDENCY(B);
+	SIGNAL_DEPENDENCY(C);
+	SIGNAL_DEPENDENCY(D);
 }
 
-void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip) {
+static void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip) {
 	assert((Chip74145BcdDecoder_private *) chip);
 	free(chip);
 }
 
-void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
+static void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 	assert(chip);
 
 	Signal **outputs = ((Chip74145BcdDecoder_private *) chip)->outputs;
@@ -386,10 +389,10 @@ void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, chip->id);
 	}
 
-	int value = SIGNAL_BOOL(a) |
-				SIGNAL_BOOL(b) << 1 |
-				SIGNAL_BOOL(c) << 2 |
-				SIGNAL_BOOL(d) << 3;
+	int value = SIGNAL_READ(A) |
+				SIGNAL_READ(B) << 1 |
+				SIGNAL_READ(C) << 2 |
+				SIGNAL_READ(D) << 3;
 
 	if (value < 10) {
 		signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT, chip->id);
@@ -402,6 +405,13 @@ void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 // 74153 - Dual 4-Line to 1-Line Data Selectors/Multiplexers
 //
 
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74153_
+
+static void chip_74153_multiplexer_register_dependencies(Chip74153Multiplexer *chip);
+static void chip_74153_multiplexer_destroy(Chip74153Multiplexer *chip);
+static void chip_74153_multiplexer_process(Chip74153Multiplexer *chip);
+
 Chip74153Multiplexer *chip_74153_multiplexer_create(Simulator *sim, Chip74153Signals signals) {
 
 	Chip74153Multiplexer *chip = (Chip74153Multiplexer *) calloc(1, sizeof(Chip74153Multiplexer));
@@ -409,65 +419,70 @@ Chip74153Multiplexer *chip_74153_multiplexer_create(Simulator *sim, Chip74153Sig
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74153_multiplexer);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(g1, 1);
-	SIGNAL_DEFINE(b, 1);
-	SIGNAL_DEFINE(c13, 1);
-	SIGNAL_DEFINE(c12, 1);
-	SIGNAL_DEFINE(c11, 1);
-	SIGNAL_DEFINE(c10, 1);
-	SIGNAL_DEFINE(y1, 1);
-	SIGNAL_DEFINE_BOOL(gnd, 1, false);
-	SIGNAL_DEFINE(y2, 1);
-	SIGNAL_DEFINE(c20, 1);
-	SIGNAL_DEFINE(c21, 1);
-	SIGNAL_DEFINE(c22, 1);
-	SIGNAL_DEFINE(c23, 1);
-	SIGNAL_DEFINE(a, 1);
-	SIGNAL_DEFINE(g2, 1);
-	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+	memcpy(chip->signals, signals, sizeof(Chip74153Signals));
+	SIGNAL_DEFINE(CHIP_74153_G1);
+	SIGNAL_DEFINE(CHIP_74153_B);
+	SIGNAL_DEFINE(CHIP_74153_C13);
+	SIGNAL_DEFINE(CHIP_74153_C12);
+	SIGNAL_DEFINE(CHIP_74153_C11);
+	SIGNAL_DEFINE(CHIP_74153_C10);
+	SIGNAL_DEFINE(CHIP_74153_Y1);
+	SIGNAL_DEFINE(CHIP_74153_Y2);
+	SIGNAL_DEFINE(CHIP_74153_C20);
+	SIGNAL_DEFINE(CHIP_74153_C21);
+	SIGNAL_DEFINE(CHIP_74153_C22);
+	SIGNAL_DEFINE(CHIP_74153_C23);
+	SIGNAL_DEFINE(CHIP_74153_A);
+	SIGNAL_DEFINE(CHIP_74153_G2);
 
-	chip->inputs[0][0] = &SIGNAL(c10);	chip->inputs[1][0] = &SIGNAL(c20);
-	chip->inputs[0][1] = &SIGNAL(c11);	chip->inputs[1][1] = &SIGNAL(c21);
-	chip->inputs[0][2] = &SIGNAL(c12);	chip->inputs[1][2] = &SIGNAL(c22);
-	chip->inputs[0][3] = &SIGNAL(c13);	chip->inputs[1][3] = &SIGNAL(c23);
+	chip->inputs[0][0] = &SIGNAL(C10);	chip->inputs[1][0] = &SIGNAL(C20);
+	chip->inputs[0][1] = &SIGNAL(C11);	chip->inputs[1][1] = &SIGNAL(C21);
+	chip->inputs[0][2] = &SIGNAL(C12);	chip->inputs[1][2] = &SIGNAL(C22);
+	chip->inputs[0][3] = &SIGNAL(C13);	chip->inputs[1][3] = &SIGNAL(C23);
 
 	return chip;
 }
 
-void chip_74153_multiplexer_register_dependencies(Chip74153Multiplexer *chip) {
+static void chip_74153_multiplexer_register_dependencies(Chip74153Multiplexer *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(g1), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(g2), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c10), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c11), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c12), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c13), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c20), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c21), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c22), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c23), chip->id);
+	SIGNAL_DEPENDENCY(G1);
+	SIGNAL_DEPENDENCY(G2);
+	SIGNAL_DEPENDENCY(A);
+	SIGNAL_DEPENDENCY(B);
+	SIGNAL_DEPENDENCY(C10);
+	SIGNAL_DEPENDENCY(C11);
+	SIGNAL_DEPENDENCY(C12);
+	SIGNAL_DEPENDENCY(C13);
+	SIGNAL_DEPENDENCY(C20);
+	SIGNAL_DEPENDENCY(C21);
+	SIGNAL_DEPENDENCY(C22);
+	SIGNAL_DEPENDENCY(C23);
 }
 
-void chip_74153_multiplexer_destroy(Chip74153Multiplexer *chip) {
+static void chip_74153_multiplexer_destroy(Chip74153Multiplexer *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_74153_multiplexer_process(Chip74153Multiplexer *chip) {
+static void chip_74153_multiplexer_process(Chip74153Multiplexer *chip) {
 	assert(chip);
 
-	int index = SIGNAL_BOOL(a) | SIGNAL_BOOL(b) << 1;
-	SIGNAL_SET_BOOL(y1, !SIGNAL_BOOL(g1) && signal_read_bool(chip->signal_pool, *chip->inputs[0][index]));
-	SIGNAL_SET_BOOL(y2, !SIGNAL_BOOL(g2) && signal_read_bool(chip->signal_pool, *chip->inputs[1][index]));
+	int index = SIGNAL_READ(A) | SIGNAL_READ(B) << 1;
+	SIGNAL_WRITE(Y1, !SIGNAL_READ(G1) && signal_read_bool(chip->signal_pool, *chip->inputs[0][index]));
+	SIGNAL_WRITE(Y2, !SIGNAL_READ(G2) && signal_read_bool(chip->signal_pool, *chip->inputs[1][index]));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // 74154 - 4-Line to 16-Line Decoder/Multiplexer
 //
+
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74154_
+
+static void chip_74154_decoder_register_dependencies(Chip74154Decoder *chip);
+static void chip_74154_decoder_destroy(Chip74154Decoder *chip);
+static void chip_74154_decoder_process(Chip74154Decoder *chip);
 
 typedef struct Chip74154Decoder_private {
 	Chip74154Decoder	intf;
@@ -481,60 +496,58 @@ Chip74154Decoder *chip_74154_decoder_create(Simulator *sim, Chip74154Signals sig
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74154_decoder);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(y0_b,		1);
-	SIGNAL_DEFINE(y1_b,		1);
-	SIGNAL_DEFINE(y2_b,		1);
-	SIGNAL_DEFINE(y3_b,		1);
-	SIGNAL_DEFINE(y4_b,		1);
-	SIGNAL_DEFINE(y5_b,		1);
-	SIGNAL_DEFINE(y6_b,		1);
-	SIGNAL_DEFINE(y7_b,		1);
-	SIGNAL_DEFINE(y8_b,		1);
-	SIGNAL_DEFINE(y9_b,		1);
-	SIGNAL_DEFINE(y10_b,	1);
-	SIGNAL_DEFINE(gnd,		1);
-	SIGNAL_DEFINE(y11_b,	1);
-	SIGNAL_DEFINE(y12_b,	1);
-	SIGNAL_DEFINE(y13_b,	1);
-	SIGNAL_DEFINE(y14_b,	1);
-	SIGNAL_DEFINE(y15_b,	1);
-	SIGNAL_DEFINE(g1_b,		1);
-	SIGNAL_DEFINE(g2_b,		1);
-	SIGNAL_DEFINE(d,		1);
-	SIGNAL_DEFINE(c,		1);
-	SIGNAL_DEFINE(b,		1);
-	SIGNAL_DEFINE(a,		1);
-	SIGNAL_DEFINE(vcc,		1);
+	memcpy(chip->signals, signals, sizeof(Chip74154Signals));
+	SIGNAL_DEFINE(CHIP_74154_Y0_B);
+	SIGNAL_DEFINE(CHIP_74154_Y1_B);
+	SIGNAL_DEFINE(CHIP_74154_Y2_B);
+	SIGNAL_DEFINE(CHIP_74154_Y3_B);
+	SIGNAL_DEFINE(CHIP_74154_Y4_B);
+	SIGNAL_DEFINE(CHIP_74154_Y5_B);
+	SIGNAL_DEFINE(CHIP_74154_Y6_B);
+	SIGNAL_DEFINE(CHIP_74154_Y7_B);
+	SIGNAL_DEFINE(CHIP_74154_Y8_B);
+	SIGNAL_DEFINE(CHIP_74154_Y9_B);
+	SIGNAL_DEFINE(CHIP_74154_Y10_B);
+	SIGNAL_DEFINE(CHIP_74154_Y11_B);
+	SIGNAL_DEFINE(CHIP_74154_Y12_B);
+	SIGNAL_DEFINE(CHIP_74154_Y13_B);
+	SIGNAL_DEFINE(CHIP_74154_Y14_B);
+	SIGNAL_DEFINE(CHIP_74154_Y15_B);
+	SIGNAL_DEFINE(CHIP_74154_G1_B);
+	SIGNAL_DEFINE(CHIP_74154_G2_B);
+	SIGNAL_DEFINE(CHIP_74154_D);
+	SIGNAL_DEFINE(CHIP_74154_C);
+	SIGNAL_DEFINE(CHIP_74154_B);
+	SIGNAL_DEFINE(CHIP_74154_A);
 
-	priv->outputs[0]  = &SIGNAL(y0_b);	priv->outputs[1]  = &SIGNAL(y1_b);
-	priv->outputs[2]  = &SIGNAL(y2_b);	priv->outputs[3]  = &SIGNAL(y3_b);
-	priv->outputs[4]  = &SIGNAL(y4_b);	priv->outputs[5]  = &SIGNAL(y5_b);
-	priv->outputs[6]  = &SIGNAL(y6_b);	priv->outputs[7]  = &SIGNAL(y7_b);
-	priv->outputs[8]  = &SIGNAL(y8_b);	priv->outputs[9]  = &SIGNAL(y9_b);
-	priv->outputs[10] = &SIGNAL(y10_b); priv->outputs[11] = &SIGNAL(y11_b);
-	priv->outputs[12] = &SIGNAL(y12_b); priv->outputs[13] = &SIGNAL(y13_b);
-	priv->outputs[14] = &SIGNAL(y14_b); priv->outputs[15] = &SIGNAL(y15_b);
+	priv->outputs[0]  = &SIGNAL(Y0_B);	priv->outputs[1]  = &SIGNAL(Y1_B);
+	priv->outputs[2]  = &SIGNAL(Y2_B);	priv->outputs[3]  = &SIGNAL(Y3_B);
+	priv->outputs[4]  = &SIGNAL(Y4_B);	priv->outputs[5]  = &SIGNAL(Y5_B);
+	priv->outputs[6]  = &SIGNAL(Y6_B);	priv->outputs[7]  = &SIGNAL(Y7_B);
+	priv->outputs[8]  = &SIGNAL(Y8_B);	priv->outputs[9]  = &SIGNAL(Y9_B);
+	priv->outputs[10] = &SIGNAL(Y10_B); priv->outputs[11] = &SIGNAL(Y11_B);
+	priv->outputs[12] = &SIGNAL(Y12_B); priv->outputs[13] = &SIGNAL(Y13_B);
+	priv->outputs[14] = &SIGNAL(Y14_B); priv->outputs[15] = &SIGNAL(Y15_B);
 
 	return chip;
 }
 
-void chip_74154_decoder_register_dependencies(Chip74154Decoder *chip) {
+static void chip_74154_decoder_register_dependencies(Chip74154Decoder *chip) {
 	assert((Chip74154Decoder_private *) chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(g1_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(g2_b), chip->id);
+	SIGNAL_DEPENDENCY(A);
+	SIGNAL_DEPENDENCY(B);
+	SIGNAL_DEPENDENCY(C);
+	SIGNAL_DEPENDENCY(D);
+	SIGNAL_DEPENDENCY(G1_B);
+	SIGNAL_DEPENDENCY(G2_B);
 }
 
-void chip_74154_decoder_destroy(Chip74154Decoder *chip) {
+static void chip_74154_decoder_destroy(Chip74154Decoder *chip) {
 	assert((Chip74154Decoder_private *) chip);
 	free(chip);
 }
 
-void chip_74154_decoder_process(Chip74154Decoder *chip) {
+static void chip_74154_decoder_process(Chip74154Decoder *chip) {
 	assert(chip);
 
 	Signal **outputs = ((Chip74154Decoder_private *) chip)->outputs;
@@ -543,14 +556,14 @@ void chip_74154_decoder_process(Chip74154Decoder *chip) {
 		signal_write_bool(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, chip->id);
 	}
 
-	if (!(ACTLO_ASSERTED(SIGNAL_BOOL(g1_b)) && ACTLO_ASSERTED(SIGNAL_BOOL(g2_b)))) {
+	if (!(ACTLO_ASSERTED(SIGNAL_READ(G1_B)) && ACTLO_ASSERTED(SIGNAL_READ(G2_B)))) {
 		return;
 	}
 
-	int value = SIGNAL_BOOL(a) |
-				SIGNAL_BOOL(b) << 1 |
-				SIGNAL_BOOL(c) << 2 |
-				SIGNAL_BOOL(d) << 3;
+	int value = SIGNAL_READ(A) |
+				SIGNAL_READ(B) << 1 |
+				SIGNAL_READ(C) << 2 |
+				SIGNAL_READ(D) << 3;
 	signal_write_bool(chip->signal_pool, *outputs[value], ACTLO_ASSERT, chip->id);
 }
 
@@ -559,62 +572,67 @@ void chip_74154_decoder_process(Chip74154Decoder *chip) {
 // 74157 - Quad 2-Input Multiplexer
 //
 
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74157_
+
+static void chip_74157_multiplexer_register_dependencies(Chip74157Multiplexer *chip);
+static void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip);
+static void chip_74157_multiplexer_process(Chip74157Multiplexer *chip);
+
 Chip74157Multiplexer *chip_74157_multiplexer_create(Simulator *sim, Chip74157Signals signals) {
 	Chip74157Multiplexer *chip = (Chip74157Multiplexer *) calloc(1, sizeof(Chip74157Multiplexer));
 	chip->simulator = sim;
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74157_multiplexer);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(sel, 1);
-	SIGNAL_DEFINE(i0a, 1);
-	SIGNAL_DEFINE(i1a, 1);
-	SIGNAL_DEFINE(za, 1);
-	SIGNAL_DEFINE(i0b, 1);
-	SIGNAL_DEFINE(i1b, 1);
-	SIGNAL_DEFINE(zb, 1);
-	SIGNAL_DEFINE_BOOL(gnd, 1, false);
-	SIGNAL_DEFINE(zd, 1);
-	SIGNAL_DEFINE(i1d, 1);
-	SIGNAL_DEFINE(i0d, 1);
-	SIGNAL_DEFINE(zc, 1);
-	SIGNAL_DEFINE(i1c, 1);
-	SIGNAL_DEFINE(i0c, 1);
-	SIGNAL_DEFINE(enable_b, 1);
-	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+	memcpy(chip->signals, signals, sizeof(Chip74157Signals));
+	SIGNAL_DEFINE(CHIP_74157_SEL);
+	SIGNAL_DEFINE(CHIP_74157_I0A);
+	SIGNAL_DEFINE(CHIP_74157_I1A);
+	SIGNAL_DEFINE(CHIP_74157_ZA);
+	SIGNAL_DEFINE(CHIP_74157_I0B);
+	SIGNAL_DEFINE(CHIP_74157_I1B);
+	SIGNAL_DEFINE(CHIP_74157_ZB);
+	SIGNAL_DEFINE(CHIP_74157_ZD);
+	SIGNAL_DEFINE(CHIP_74157_I1D);
+	SIGNAL_DEFINE(CHIP_74157_I0D);
+	SIGNAL_DEFINE(CHIP_74157_ZC);
+	SIGNAL_DEFINE(CHIP_74157_I1C);
+	SIGNAL_DEFINE(CHIP_74157_I0C);
+	SIGNAL_DEFINE(CHIP_74157_ENABLE_B);
 
 	return chip;
 }
 
-void chip_74157_multiplexer_register_dependencies(Chip74157Multiplexer *chip) {
+static void chip_74157_multiplexer_register_dependencies(Chip74157Multiplexer *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(i0a), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(i0b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(i0c), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(i0d), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(i1a), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(i1b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(i1c), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(i1d), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(sel), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(enable_b), chip->id);
+	SIGNAL_DEPENDENCY(I0A);
+	SIGNAL_DEPENDENCY(I0B);
+	SIGNAL_DEPENDENCY(I0C);
+	SIGNAL_DEPENDENCY(I0D);
+	SIGNAL_DEPENDENCY(I1A);
+	SIGNAL_DEPENDENCY(I1B);
+	SIGNAL_DEPENDENCY(I1C);
+	SIGNAL_DEPENDENCY(I1D);
+	SIGNAL_DEPENDENCY(SEL);
+	SIGNAL_DEPENDENCY(ENABLE_B);
 }
 
-void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip) {
+static void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_74157_multiplexer_process(Chip74157Multiplexer *chip) {
+static void chip_74157_multiplexer_process(Chip74157Multiplexer *chip) {
 	assert(chip);
 
-	bool mask_0 = !SIGNAL_BOOL(enable_b) && !SIGNAL_BOOL(sel);
-	bool mask_1 = !SIGNAL_BOOL(enable_b) && SIGNAL_BOOL(sel);
+	bool mask_0 = !SIGNAL_READ(ENABLE_B) && !SIGNAL_READ(SEL);
+	bool mask_1 = !SIGNAL_READ(ENABLE_B) && SIGNAL_READ(SEL);
 
-	SIGNAL_SET_BOOL(za, (SIGNAL_BOOL(i0a) && mask_0) || (SIGNAL_BOOL(i1a) && mask_1));
-	SIGNAL_SET_BOOL(zb, (SIGNAL_BOOL(i0b) && mask_0) || (SIGNAL_BOOL(i1b) && mask_1));
-	SIGNAL_SET_BOOL(zc, (SIGNAL_BOOL(i0c) && mask_0) || (SIGNAL_BOOL(i1c) && mask_1));
-	SIGNAL_SET_BOOL(zd, (SIGNAL_BOOL(i0d) && mask_0) || (SIGNAL_BOOL(i1d) && mask_1));
+	SIGNAL_WRITE(ZA, (SIGNAL_READ(I0A) && mask_0) || (SIGNAL_READ(I1A) && mask_1));
+	SIGNAL_WRITE(ZB, (SIGNAL_READ(I0B) && mask_0) || (SIGNAL_READ(I1B) && mask_1));
+	SIGNAL_WRITE(ZC, (SIGNAL_READ(I0C) && mask_0) || (SIGNAL_READ(I1C) && mask_1));
+	SIGNAL_WRITE(ZD, (SIGNAL_READ(I0D) && mask_0) || (SIGNAL_READ(I1D) && mask_1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -622,73 +640,80 @@ void chip_74157_multiplexer_process(Chip74157Multiplexer *chip) {
 // 74164 - 8-Bit Serial In/Parallel Out Shift Register
 //
 
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74164_
+
+static void chip_74164_shift_register_register_dependencies(Chip74164ShiftRegister *chip);
+static void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip);
+static void chip_74164_shift_register_process(Chip74164ShiftRegister *chip);
+
 Chip74164ShiftRegister *chip_74164_shift_register_create(Simulator *sim, Chip74164Signals signals) {
 	Chip74164ShiftRegister *chip = (Chip74164ShiftRegister *) calloc(1, sizeof(Chip74164ShiftRegister));
 	chip->simulator = sim;
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74164_shift_register);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(a, 1);
-	SIGNAL_DEFINE(b, 1);
-	SIGNAL_DEFINE(qa, 1);
-	SIGNAL_DEFINE(qb, 1);
-	SIGNAL_DEFINE(qc, 1);
-	SIGNAL_DEFINE(qd, 1);
-	SIGNAL_DEFINE(gnd, 1);
-	SIGNAL_DEFINE(clk, 1);
-	SIGNAL_DEFINE_BOOL(clear_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE(qe, 1);
-	SIGNAL_DEFINE(qf, 1);
-	SIGNAL_DEFINE(qg, 1);
-	SIGNAL_DEFINE(qh, 1);
-	SIGNAL_DEFINE(vcc, 1);
+	memcpy(chip->signals, signals, sizeof(Chip74164Signals));
+	SIGNAL_DEFINE(CHIP_74164_A);
+	SIGNAL_DEFINE(CHIP_74164_B);
+	SIGNAL_DEFINE(CHIP_74164_QA);
+	SIGNAL_DEFINE(CHIP_74164_QB);
+	SIGNAL_DEFINE(CHIP_74164_QC);
+	SIGNAL_DEFINE(CHIP_74164_QD);
+	SIGNAL_DEFINE(CHIP_74164_CLK);
+	SIGNAL_DEFINE_DEFAULT(CHIP_74164_CLEAR_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(CHIP_74164_QE);
+	SIGNAL_DEFINE(CHIP_74164_QF);
+	SIGNAL_DEFINE(CHIP_74164_QG);
+	SIGNAL_DEFINE(CHIP_74164_QH);
 
 	return chip;
 }
 
-void chip_74164_shift_register_register_dependencies(Chip74164ShiftRegister *chip) {
+static void chip_74164_shift_register_register_dependencies(Chip74164ShiftRegister *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clear_b), chip->id);
+	SIGNAL_DEPENDENCY(CLK);
+	SIGNAL_DEPENDENCY(CLEAR_B);
 }
 
-void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip) {
+static void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
+static void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
 	assert(chip);
 
-	bool clk = SIGNAL_BOOL(clk);
-
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(clear_b))) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(CLEAR_B))) {
 		chip->state = 0;
-	} else if (clk && !chip->prev_clock) {
+	} else if (SIGNAL_READ(CLK) && SIGNAL_CHANGED(CLK)) {
 		// shift on the positive clock edge
-		bool in = SIGNAL_BOOL(a) && SIGNAL_BOOL(b);
+		bool in = SIGNAL_READ(A) && SIGNAL_READ(B);
 		chip->state = (uint8_t) (((chip->state << 1) | in) & 0xff);
 	}
 
 	// always output the signals
-	SIGNAL_SET_BOOL(qa, (chip->state & 0b00000001) != 0);
-	SIGNAL_SET_BOOL(qb, (chip->state & 0b00000010) != 0);
-	SIGNAL_SET_BOOL(qc, (chip->state & 0b00000100) != 0);
-	SIGNAL_SET_BOOL(qd, (chip->state & 0b00001000) != 0);
-	SIGNAL_SET_BOOL(qe, (chip->state & 0b00010000) != 0);
-	SIGNAL_SET_BOOL(qf, (chip->state & 0b00100000) != 0);
-	SIGNAL_SET_BOOL(qg, (chip->state & 0b01000000) != 0);
-	SIGNAL_SET_BOOL(qh, (chip->state & 0b10000000) != 0);
-
-	// save the clock state
-	chip->prev_clock = clk;
+	SIGNAL_WRITE(QA, (chip->state & 0b00000001) != 0);
+	SIGNAL_WRITE(QB, (chip->state & 0b00000010) != 0);
+	SIGNAL_WRITE(QC, (chip->state & 0b00000100) != 0);
+	SIGNAL_WRITE(QD, (chip->state & 0b00001000) != 0);
+	SIGNAL_WRITE(QE, (chip->state & 0b00010000) != 0);
+	SIGNAL_WRITE(QF, (chip->state & 0b00100000) != 0);
+	SIGNAL_WRITE(QG, (chip->state & 0b01000000) != 0);
+	SIGNAL_WRITE(QH, (chip->state & 0b10000000) != 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // 74165 - 8-Bit Parallel In/Serial Out Shift Registers
 //
+
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74165_
+
+static void chip_74165_shift_register_register_dependencies(Chip74165ShiftRegister *chip);
+static void chip_74165_shift_register_destroy(Chip74165ShiftRegister *chip);
+static void chip_74165_shift_register_process(Chip74165ShiftRegister *chip);
 
 Chip74165ShiftRegister *chip_74165_shift_register_create(Simulator *sim, Chip74165Signals signals) {
 
@@ -697,71 +722,69 @@ Chip74165ShiftRegister *chip_74165_shift_register_create(Simulator *sim, Chip741
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74165_shift_register);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
+	memcpy(chip->signals, signals, sizeof(Chip74165Signals));
 
-	SIGNAL_DEFINE(sl, 1);
-	SIGNAL_DEFINE(clk, 1);
-	SIGNAL_DEFINE(e, 1);
-	SIGNAL_DEFINE(f, 1);
-	SIGNAL_DEFINE(g, 1);
-	SIGNAL_DEFINE(h, 1);
-	SIGNAL_DEFINE(qh_b, 1);
-	SIGNAL_DEFINE(gnd, 1);
-	SIGNAL_DEFINE(qh, 1);
-	SIGNAL_DEFINE(si, 1);
-	SIGNAL_DEFINE(a, 1);
-	SIGNAL_DEFINE(b, 1);
-	SIGNAL_DEFINE(c, 1);
-	SIGNAL_DEFINE(d, 1);
-	SIGNAL_DEFINE(clk_inh, 1);
-	SIGNAL_DEFINE(vcc, 1);
+	SIGNAL_DEFINE(CHIP_74165_SL);
+	SIGNAL_DEFINE(CHIP_74165_CLK);
+	SIGNAL_DEFINE(CHIP_74165_E);
+	SIGNAL_DEFINE(CHIP_74165_F);
+	SIGNAL_DEFINE(CHIP_74165_G);
+	SIGNAL_DEFINE(CHIP_74165_H);
+	SIGNAL_DEFINE(CHIP_74165_QH_B);
+	SIGNAL_DEFINE(CHIP_74165_QH);
+	SIGNAL_DEFINE(CHIP_74165_SI);
+	SIGNAL_DEFINE(CHIP_74165_A);
+	SIGNAL_DEFINE(CHIP_74165_B);
+	SIGNAL_DEFINE(CHIP_74165_C);
+	SIGNAL_DEFINE(CHIP_74165_D);
+	SIGNAL_DEFINE(CHIP_74165_CLK_INH);
 
 	return chip;
 }
 
-void chip_74165_shift_register_register_dependencies(Chip74165ShiftRegister *chip) {
+static void chip_74165_shift_register_register_dependencies(Chip74165ShiftRegister *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(sl), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk_inh), chip->id);
+	SIGNAL_DEPENDENCY(SL);
+	SIGNAL_DEPENDENCY(CLK);
+	SIGNAL_DEPENDENCY(CLK_INH);
 }
 
-void chip_74165_shift_register_destroy(Chip74165ShiftRegister *chip) {
+static void chip_74165_shift_register_destroy(Chip74165ShiftRegister *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_74165_shift_register_process(Chip74165ShiftRegister *chip) {
+static void chip_74165_shift_register_process(Chip74165ShiftRegister *chip) {
 	assert(chip);
 
 	// data at the parallel inputs are loaded directly into the register on a HIGH-to-LOW transition of
 	// the shit/load input, regardless of the logic levels on the clock, clock inhibit, or serial inputs.
-	if (!SIGNAL_BOOL(sl) && signal_changed(chip->signal_pool, SIGNAL(sl))) {
-		bool value_h = SIGNAL_BOOL(h);
+	if (!SIGNAL_READ(SL) && SIGNAL_CHANGED(SL)) {
+		bool value_h = SIGNAL_READ(H);
 
-		chip->state = SIGNAL_BOOL(a);
-		chip->state = (chip->state << 1) | SIGNAL_BOOL(b);
-		chip->state = (chip->state << 1) | SIGNAL_BOOL(c);
-		chip->state = (chip->state << 1) | SIGNAL_BOOL(d);
-		chip->state = (chip->state << 1) | SIGNAL_BOOL(e);
-		chip->state = (chip->state << 1) | SIGNAL_BOOL(f);
-		chip->state = (chip->state << 1) | SIGNAL_BOOL(g);
+		chip->state = SIGNAL_READ(A);
+		chip->state = (chip->state << 1) | SIGNAL_READ(B);
+		chip->state = (chip->state << 1) | SIGNAL_READ(C);
+		chip->state = (chip->state << 1) | SIGNAL_READ(D);
+		chip->state = (chip->state << 1) | SIGNAL_READ(E);
+		chip->state = (chip->state << 1) | SIGNAL_READ(F);
+		chip->state = (chip->state << 1) | SIGNAL_READ(G);
 		chip->state = (chip->state << 1) | value_h;
 
-		SIGNAL_SET_BOOL(qh, value_h);
-		SIGNAL_SET_BOOL(qh_b, !value_h);
+		SIGNAL_WRITE(QH, value_h);
+		SIGNAL_WRITE(QH_B, !value_h);
 		return;
 	}
 
-	bool gated_clk = !(SIGNAL_BOOL(clk) || SIGNAL_BOOL(clk_inh));
+	bool gated_clk = !(SIGNAL_READ(CLK) || SIGNAL_READ(CLK_INH));
 
 	if (!gated_clk && chip->prev_gated_clk) {
-		chip->state = ((int) SIGNAL_BOOL(si) << 7) | (chip->state >> 1);
+		chip->state = ((int) SIGNAL_READ(SI) << 7) | (chip->state >> 1);
 	}
 
 	bool output = chip->state & 0x01;
-	SIGNAL_SET_BOOL(qh, output);
-	SIGNAL_SET_BOOL(qh_b, !output);
+	SIGNAL_WRITE(QH, output);
+	SIGNAL_WRITE(QH_B, !output);
 	chip->prev_gated_clk = gated_clk;
 }
 
@@ -771,88 +794,92 @@ void chip_74165_shift_register_process(Chip74165ShiftRegister *chip) {
 // 74177 - Presettable Binary Counter/Latch
 //
 
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74177_
+
+static void chip_74177_binary_counter_register_dependencies(Chip74177BinaryCounter *chip);
+static void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip);
+static void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip);
+
 Chip74177BinaryCounter *chip_74177_binary_counter_create(Simulator *sim, Chip74177Signals signals) {
 	Chip74177BinaryCounter *chip = (Chip74177BinaryCounter *) calloc(1, sizeof(Chip74177BinaryCounter));
 	chip->simulator = sim;
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74177_binary_counter);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE_BOOL(load_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE(qc, 1);
-	SIGNAL_DEFINE(c, 1);
-	SIGNAL_DEFINE(a, 1);
-	SIGNAL_DEFINE(qa, 1);
-	SIGNAL_DEFINE(clk2, 1);
-	SIGNAL_DEFINE_BOOL(gnd, 1, false);
-	SIGNAL_DEFINE(clk1, 1);
-	SIGNAL_DEFINE(qb, 1);
-	SIGNAL_DEFINE(b, 1);
-	SIGNAL_DEFINE(d, 1);
-	SIGNAL_DEFINE(qd, 1);
-	SIGNAL_DEFINE_BOOL(clear_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+	memcpy(chip->signals, signals, sizeof(Chip74177Signals));
+	SIGNAL_DEFINE_DEFAULT(CHIP_74177_LOAD_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(CHIP_74177_QC);
+	SIGNAL_DEFINE(CHIP_74177_C);
+	SIGNAL_DEFINE(CHIP_74177_A);
+	SIGNAL_DEFINE(CHIP_74177_QA);
+	SIGNAL_DEFINE(CHIP_74177_CLK2);
+	SIGNAL_DEFINE(CHIP_74177_CLK1);
+	SIGNAL_DEFINE(CHIP_74177_QB);
+	SIGNAL_DEFINE(CHIP_74177_B);
+	SIGNAL_DEFINE(CHIP_74177_D);
+	SIGNAL_DEFINE(CHIP_74177_QD);
+	SIGNAL_DEFINE_DEFAULT(CHIP_74177_CLEAR_B, ACTLO_DEASSERT);
 
 	return chip;
 }
 
-void chip_74177_binary_counter_register_dependencies(Chip74177BinaryCounter *chip) {
+static void chip_74177_binary_counter_register_dependencies(Chip74177BinaryCounter *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(load_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clear_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk1), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk2), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d), chip->id);
+	SIGNAL_DEPENDENCY(LOAD_B);
+	SIGNAL_DEPENDENCY(CLEAR_B);
+	SIGNAL_DEPENDENCY(CLK1);
+	SIGNAL_DEPENDENCY(CLK2);
+	SIGNAL_DEPENDENCY(A);
+	SIGNAL_DEPENDENCY(B);
+	SIGNAL_DEPENDENCY(C);
+	SIGNAL_DEPENDENCY(D);
 }
-void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip) {
+static void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip) {
+static void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip) {
 	assert(chip);
 
-	bool clk1 = SIGNAL_BOOL(clk1);
-	bool clk2 = SIGNAL_BOOL(clk2);
-
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(clear_b))) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(CLEAR_B))) {
 		chip->count_1 = false;
 		chip->count_2 = false;
-	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(load_b))) {
-		chip->count_1 = SIGNAL_BOOL(a);
-		chip->count_2 = SIGNAL_BOOL(b) | (SIGNAL_BOOL(c) << 1) | (SIGNAL_BOOL(d) << 2);
+	} else if (ACTLO_ASSERTED(SIGNAL_READ(LOAD_B))) {
+		chip->count_1 = SIGNAL_READ(A);
+		chip->count_2 = SIGNAL_READ(B) | (SIGNAL_READ(C) << 1) | (SIGNAL_READ(D) << 2);
 	} else {
-		if (chip->prev_clk1 && !clk1) {
-			chip->count_1 = !chip->count_1;
-		}
+		bool trigger_1 = !SIGNAL_READ(CLK1) && SIGNAL_CHANGED(CLK1);
+		chip->count_1 = chip->count_1 ^ trigger_1;
 
 		// ok, a bit hacky ... if the second stage's clock is connected to the output of the first stage:
 		// don't wait until the next process call to trigger the second stage
-		if (memcmp(&SIGNAL(clk2), &SIGNAL(qa), sizeof(Signal)) == 0) {
-			if (chip->prev_clk1 && !clk1) {
-				chip->count_2 += !chip->count_1;
-			}
-		} else if (chip->prev_clk2 && !clk2) {
-			++chip->count_2;
+		if (memcmp(&SIGNAL(CLK2), &SIGNAL(QA), sizeof(Signal)) == 0) {
+			chip->count_2 += trigger_1 & !chip->count_1;
+		} else {
+			bool trigger_2 = !SIGNAL_READ(CLK2) && SIGNAL_CHANGED(CLK2);
+			chip->count_2 += trigger_2;
 		}
 	}
 
-	SIGNAL_SET_BOOL(qa, chip->count_1);
-	SIGNAL_SET_BOOL(qb, (chip->count_2 >> 0) & 0x01);
-	SIGNAL_SET_BOOL(qc, (chip->count_2 >> 1) & 0x01);
-	SIGNAL_SET_BOOL(qd, (chip->count_2 >> 2) & 0x01);
-
-	chip->prev_clk1 = clk1;
-	chip->prev_clk2 = clk2;
+	SIGNAL_WRITE(QA, chip->count_1);
+	SIGNAL_WRITE(QB, (chip->count_2 >> 0) & 0x01);
+	SIGNAL_WRITE(QC, (chip->count_2 >> 1) & 0x01);
+	SIGNAL_WRITE(QD, (chip->count_2 >> 2) & 0x01);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // 74191 - 4-Bit Synchronous Up/Down Binary Counter
 //
+
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74191_
+
+static void chip_74191_binary_counter_register_dependencies(Chip74191BinaryCounter *chip);
+static void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip);
+static void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip);
 
 Chip74191BinaryCounter *chip_74191_binary_counter_create(Simulator *sim, Chip74191Signals signals) {
 
@@ -861,73 +888,69 @@ Chip74191BinaryCounter *chip_74191_binary_counter_create(Simulator *sim, Chip741
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74191_binary_counter);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(b, 1);
-	SIGNAL_DEFINE(qb, 1);
-	SIGNAL_DEFINE(qa, 1);
-	SIGNAL_DEFINE_BOOL(enable_b, 1, ACTLO_ASSERT);
-	SIGNAL_DEFINE_BOOL(d_u, 1, ACTHI_DEASSERT);
-	SIGNAL_DEFINE(qc, 1);
-	SIGNAL_DEFINE(qd, 1);
-	SIGNAL_DEFINE(gnd, 1);
-	SIGNAL_DEFINE(d, 1);
-	SIGNAL_DEFINE(c, 1);
-	SIGNAL_DEFINE_BOOL(load_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE(max_min, 1);
-	SIGNAL_DEFINE(rco_b, 1);
-	SIGNAL_DEFINE(clk, 1);
-	SIGNAL_DEFINE(a, 1);
-	SIGNAL_DEFINE(vcc, 1);
+	memcpy(chip->signals, signals, sizeof(Chip74191Signals));
+	SIGNAL_DEFINE(CHIP_74191_B);
+	SIGNAL_DEFINE(CHIP_74191_QB);
+	SIGNAL_DEFINE(CHIP_74191_QA);
+	SIGNAL_DEFINE_DEFAULT(CHIP_74191_ENABLE_B, ACTLO_ASSERT);
+	SIGNAL_DEFINE_DEFAULT(CHIP_74191_D_U, ACTHI_DEASSERT);
+	SIGNAL_DEFINE(CHIP_74191_QC);
+	SIGNAL_DEFINE(CHIP_74191_QD);
+	SIGNAL_DEFINE(CHIP_74191_D);
+	SIGNAL_DEFINE(CHIP_74191_C);
+	SIGNAL_DEFINE_DEFAULT(CHIP_74191_LOAD_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(CHIP_74191_MAX_MIN);
+	SIGNAL_DEFINE(CHIP_74191_RCO_B);
+	SIGNAL_DEFINE(CHIP_74191_CLK);
+	SIGNAL_DEFINE(CHIP_74191_A);
 
 	return chip;
 }
 
-void chip_74191_binary_counter_register_dependencies(Chip74191BinaryCounter *chip) {
+static void chip_74191_binary_counter_register_dependencies(Chip74191BinaryCounter *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(enable_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(load_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(clk), chip->id);
+	SIGNAL_DEPENDENCY(A);
+	SIGNAL_DEPENDENCY(B);
+	SIGNAL_DEPENDENCY(C);
+	SIGNAL_DEPENDENCY(D);
+	SIGNAL_DEPENDENCY(ENABLE_B);
+	SIGNAL_DEPENDENCY(LOAD_B);
+	SIGNAL_DEPENDENCY(CLK);
 }
 
-void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip) {
+static void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip) {
+static void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip) {
 	assert(chip);
 
-	bool clk = SIGNAL_BOOL(clk);
-	bool d_u = SIGNAL_BOOL(d_u);
+	bool clk = SIGNAL_READ(CLK);
+	bool clk_edge = SIGNAL_CHANGED(CLK);
+	bool d_u = SIGNAL_READ(D_U);
 	bool rco = true;
 
-	if (ACTLO_ASSERTED(SIGNAL_BOOL(load_b))) {
-		chip->state = (SIGNAL_BOOL(a) << 0) |
-					  (SIGNAL_BOOL(b) << 1) |
-					  (SIGNAL_BOOL(c) << 2) |
-					  (SIGNAL_BOOL(d) << 3);
-	} else if (ACTLO_ASSERTED(SIGNAL_BOOL(enable_b)) && clk && !chip->prev_clock) {
+	if (ACTLO_ASSERTED(SIGNAL_READ(LOAD_B))) {
+		chip->state = (SIGNAL_READ(A) << 0) |
+					  (SIGNAL_READ(B) << 1) |
+					  (SIGNAL_READ(C) << 2) |
+					  (SIGNAL_READ(D) << 3);
+	} else if (ACTLO_ASSERTED(SIGNAL_READ(ENABLE_B)) && clk && clk_edge) {
 		// count on the positive clock edge
 		chip->state = (chip->state - d_u + !d_u) & 0xf;
 		chip->max_min = (d_u && chip->state == 0) || (!d_u && chip->state == 0xf);
-	} else if (!clk && chip->prev_clock) {
+	} else if (!clk && clk_edge) {
 		// negative clock edge
 		rco = !chip->max_min;
 	}
 
-	SIGNAL_SET_BOOL(qa, (chip->state & 0b00000001) != 0);
-	SIGNAL_SET_BOOL(qb, (chip->state & 0b00000010) != 0);
-	SIGNAL_SET_BOOL(qc, (chip->state & 0b00000100) != 0);
-	SIGNAL_SET_BOOL(qd, (chip->state & 0b00001000) != 0);
-	SIGNAL_SET_BOOL(max_min, chip->max_min);
-	SIGNAL_SET_BOOL(rco_b, rco);
-
-	// save the clock state
-	chip->prev_clock = clk;
+	SIGNAL_WRITE(QA, (chip->state & 0b00000001) != 0);
+	SIGNAL_WRITE(QB, (chip->state & 0b00000010) != 0);
+	SIGNAL_WRITE(QC, (chip->state & 0b00000100) != 0);
+	SIGNAL_WRITE(QD, (chip->state & 0b00001000) != 0);
+	SIGNAL_WRITE(MAX_MIN, chip->max_min);
+	SIGNAL_WRITE(RCO_B, rco);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -935,81 +958,86 @@ void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip) {
 // 74244 - Octal 3-STATE Buffer/Line Driver/Line Receiver
 //
 
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74244_
+
+static void chip_74244_octal_buffer_register_dependencies(Chip74244OctalBuffer *chip);
+static void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip);
+static void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip);
+
 Chip74244OctalBuffer *chip_74244_octal_buffer_create(Simulator *sim, Chip74244Signals signals) {
 	Chip74244OctalBuffer *chip = (Chip74244OctalBuffer *) calloc(1, sizeof(Chip74244OctalBuffer));
 	chip->simulator = sim;
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74244_octal_buffer);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(g1_b,	1);
-	SIGNAL_DEFINE(a11,	1);
-	SIGNAL_DEFINE(y24,	1);
-	SIGNAL_DEFINE(a12,	1);
-	SIGNAL_DEFINE(y23,	1);
-	SIGNAL_DEFINE(a13,	1);
-	SIGNAL_DEFINE(y22,	1);
-	SIGNAL_DEFINE(a14,	1);
-	SIGNAL_DEFINE(y21,	1);
-	SIGNAL_DEFINE(gnd,	1);
-	SIGNAL_DEFINE(a21,	1);
-	SIGNAL_DEFINE(y14,	1);
-	SIGNAL_DEFINE(a22,	1);
-	SIGNAL_DEFINE(y13,	1);
-	SIGNAL_DEFINE(a23,	1);
-	SIGNAL_DEFINE(y12,	1);
-	SIGNAL_DEFINE(a24,	1);
-	SIGNAL_DEFINE(y11,	1);
-	SIGNAL_DEFINE(g2_b,	1);
-	SIGNAL_DEFINE(vcc,	1);
+	memcpy(chip->signals, signals, sizeof(Chip74244Signals));
+	SIGNAL_DEFINE(CHIP_74244_G1_B);
+	SIGNAL_DEFINE(CHIP_74244_A11);
+	SIGNAL_DEFINE(CHIP_74244_Y24);
+	SIGNAL_DEFINE(CHIP_74244_A12);
+	SIGNAL_DEFINE(CHIP_74244_Y23);
+	SIGNAL_DEFINE(CHIP_74244_A13);
+	SIGNAL_DEFINE(CHIP_74244_Y22);
+	SIGNAL_DEFINE(CHIP_74244_A14);
+	SIGNAL_DEFINE(CHIP_74244_Y21);
+	SIGNAL_DEFINE(CHIP_74244_A21);
+	SIGNAL_DEFINE(CHIP_74244_Y14);
+	SIGNAL_DEFINE(CHIP_74244_A22);
+	SIGNAL_DEFINE(CHIP_74244_Y13);
+	SIGNAL_DEFINE(CHIP_74244_A23);
+	SIGNAL_DEFINE(CHIP_74244_Y12);
+	SIGNAL_DEFINE(CHIP_74244_A24);
+	SIGNAL_DEFINE(CHIP_74244_Y11);
+	SIGNAL_DEFINE(CHIP_74244_G2_B);
 
 	return chip;
 }
 
-void chip_74244_octal_buffer_register_dependencies(Chip74244OctalBuffer *chip) {
+static void chip_74244_octal_buffer_register_dependencies(Chip74244OctalBuffer *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a11), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a12), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a13), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a14), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a21), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a22), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a23), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(a24), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(g1_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(g2_b), chip->id);
+	SIGNAL_DEPENDENCY(A11);
+	SIGNAL_DEPENDENCY(A12);
+	SIGNAL_DEPENDENCY(A13);
+	SIGNAL_DEPENDENCY(A14);
+	SIGNAL_DEPENDENCY(A21);
+	SIGNAL_DEPENDENCY(A22);
+	SIGNAL_DEPENDENCY(A23);
+	SIGNAL_DEPENDENCY(A24);
+	SIGNAL_DEPENDENCY(G1_B);
+	SIGNAL_DEPENDENCY(G2_B);
 }
 
-void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip) {
+static void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
+static void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 	assert(chip);
 
-	if (!SIGNAL_BOOL(g1_b)) {
-		SIGNAL_SET_BOOL(y11, SIGNAL_BOOL(a11));
-		SIGNAL_SET_BOOL(y12, SIGNAL_BOOL(a12));
-		SIGNAL_SET_BOOL(y13, SIGNAL_BOOL(a13));
-		SIGNAL_SET_BOOL(y14, SIGNAL_BOOL(a14));
+	if (!SIGNAL_READ(G1_B)) {
+		SIGNAL_WRITE(Y11, SIGNAL_READ(A11));
+		SIGNAL_WRITE(Y12, SIGNAL_READ(A12));
+		SIGNAL_WRITE(Y13, SIGNAL_READ(A13));
+		SIGNAL_WRITE(Y14, SIGNAL_READ(A14));
 	} else {
-		SIGNAL_NO_WRITE(y11);
-		SIGNAL_NO_WRITE(y12);
-		SIGNAL_NO_WRITE(y13);
-		SIGNAL_NO_WRITE(y14);
+		SIGNAL_NO_WRITE(Y11);
+		SIGNAL_NO_WRITE(Y12);
+		SIGNAL_NO_WRITE(Y13);
+		SIGNAL_NO_WRITE(Y14);
 	}
 
-	if (!SIGNAL_BOOL(g2_b)) {
-		SIGNAL_SET_BOOL(y21, SIGNAL_BOOL(a21));
-		SIGNAL_SET_BOOL(y22, SIGNAL_BOOL(a22));
-		SIGNAL_SET_BOOL(y23, SIGNAL_BOOL(a23));
-		SIGNAL_SET_BOOL(y24, SIGNAL_BOOL(a24));
+	if (!SIGNAL_READ(G2_B)) {
+		SIGNAL_WRITE(Y21, SIGNAL_READ(A21));
+		SIGNAL_WRITE(Y22, SIGNAL_READ(A22));
+		SIGNAL_WRITE(Y23, SIGNAL_READ(A23));
+		SIGNAL_WRITE(Y24, SIGNAL_READ(A24));
 	} else {
-		SIGNAL_NO_WRITE(y21);
-		SIGNAL_NO_WRITE(y22);
-		SIGNAL_NO_WRITE(y23);
-		SIGNAL_NO_WRITE(y24);
+		SIGNAL_NO_WRITE(Y21);
+		SIGNAL_NO_WRITE(Y22);
+		SIGNAL_NO_WRITE(Y23);
+		SIGNAL_NO_WRITE(Y24);
 	}
 }
 
@@ -1018,87 +1046,92 @@ void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 // 74373 - Octal D-Type Transparant Latches
 //
 
+#undef SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_74373_
+
+static void chip_74373_latch_register_dependencies(Chip74373Latch *chip);
+static void chip_74373_latch_destroy(Chip74373Latch *chip);
+static void chip_74373_latch_process(Chip74373Latch *chip);
+
 Chip74373Latch *chip_74373_latch_create(Simulator *sim, Chip74373Signals signals) {
 	Chip74373Latch *chip = (Chip74373Latch *) calloc(1, sizeof(Chip74373Latch));
 	chip->simulator = sim;
 	chip->signal_pool = sim->signal_pool;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74373_latch);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(oc_b, 1);
-	SIGNAL_DEFINE(q1, 1);
-	SIGNAL_DEFINE(d1, 1);
-	SIGNAL_DEFINE(d2, 1);
-	SIGNAL_DEFINE(q2, 1);
-	SIGNAL_DEFINE(q3, 1);
-	SIGNAL_DEFINE(d3, 1);
-	SIGNAL_DEFINE(d4, 1);
-	SIGNAL_DEFINE(q4, 1);
-	SIGNAL_DEFINE_BOOL(gnd, 1, false);
-	SIGNAL_DEFINE(c, 1);
-	SIGNAL_DEFINE(q5, 1);
-	SIGNAL_DEFINE(d5, 1);
-	SIGNAL_DEFINE(d6, 1);
-	SIGNAL_DEFINE(q6, 1);
-	SIGNAL_DEFINE(q7, 1);
-	SIGNAL_DEFINE(d7, 1);
-	SIGNAL_DEFINE(d8, 1);
-	SIGNAL_DEFINE(q8, 1);
-	SIGNAL_DEFINE_BOOL(vcc, 1, true);
+	memcpy(chip->signals, signals, sizeof(Chip74373Signals));
+	SIGNAL_DEFINE(CHIP_74373_OC_B);
+	SIGNAL_DEFINE(CHIP_74373_Q1);
+	SIGNAL_DEFINE(CHIP_74373_D1);
+	SIGNAL_DEFINE(CHIP_74373_D2);
+	SIGNAL_DEFINE(CHIP_74373_Q2);
+	SIGNAL_DEFINE(CHIP_74373_Q3);
+	SIGNAL_DEFINE(CHIP_74373_D3);
+	SIGNAL_DEFINE(CHIP_74373_D4);
+	SIGNAL_DEFINE(CHIP_74373_Q4);
+	SIGNAL_DEFINE(CHIP_74373_C);
+	SIGNAL_DEFINE(CHIP_74373_Q5);
+	SIGNAL_DEFINE(CHIP_74373_D5);
+	SIGNAL_DEFINE(CHIP_74373_D6);
+	SIGNAL_DEFINE(CHIP_74373_Q6);
+	SIGNAL_DEFINE(CHIP_74373_Q7);
+	SIGNAL_DEFINE(CHIP_74373_D7);
+	SIGNAL_DEFINE(CHIP_74373_D8);
+	SIGNAL_DEFINE(CHIP_74373_Q8);
 
 	return chip;
 }
 
-void chip_74373_latch_register_dependencies(Chip74373Latch *chip) {
+static void chip_74373_latch_register_dependencies(Chip74373Latch *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d1), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d2), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d3), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d4), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d5), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d6), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d7), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(d8), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(c), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(oc_b), chip->id);
+	SIGNAL_DEPENDENCY(D1);
+	SIGNAL_DEPENDENCY(D2);
+	SIGNAL_DEPENDENCY(D3);
+	SIGNAL_DEPENDENCY(D4);
+	SIGNAL_DEPENDENCY(D5);
+	SIGNAL_DEPENDENCY(D6);
+	SIGNAL_DEPENDENCY(D7);
+	SIGNAL_DEPENDENCY(D8);
+	SIGNAL_DEPENDENCY(C);
+	SIGNAL_DEPENDENCY(OC_B);
 }
 
-void chip_74373_latch_destroy(Chip74373Latch *chip) {
+static void chip_74373_latch_destroy(Chip74373Latch *chip) {
 	assert(chip);
 	free(chip);
 }
 
-void chip_74373_latch_process(Chip74373Latch *chip) {
-	if (SIGNAL_BOOL(c)) {
+static void chip_74373_latch_process(Chip74373Latch *chip) {
+	if (SIGNAL_READ(C)) {
 		chip->state = (uint8_t)	(
-				(SIGNAL_BOOL(d1) << 0) |
-				(SIGNAL_BOOL(d2) << 1) |
-				(SIGNAL_BOOL(d3) << 2) |
-				(SIGNAL_BOOL(d4) << 3) |
-				(SIGNAL_BOOL(d5) << 4) |
-				(SIGNAL_BOOL(d6) << 5) |
-				(SIGNAL_BOOL(d7) << 6) |
-				(SIGNAL_BOOL(d8) << 7)
+				(SIGNAL_READ(D1) << 0) |
+				(SIGNAL_READ(D2) << 1) |
+				(SIGNAL_READ(D3) << 2) |
+				(SIGNAL_READ(D4) << 3) |
+				(SIGNAL_READ(D5) << 4) |
+				(SIGNAL_READ(D6) << 5) |
+				(SIGNAL_READ(D7) << 6) |
+				(SIGNAL_READ(D8) << 7)
 		);
 	}
 
-	if (!SIGNAL_BOOL(oc_b)) {
-		SIGNAL_SET_BOOL(q1, (chip->state >> 0) & 0x01);
-		SIGNAL_SET_BOOL(q2, (chip->state >> 1) & 0x01);
-		SIGNAL_SET_BOOL(q3, (chip->state >> 2) & 0x01);
-		SIGNAL_SET_BOOL(q4, (chip->state >> 3) & 0x01);
-		SIGNAL_SET_BOOL(q5, (chip->state >> 4) & 0x01);
-		SIGNAL_SET_BOOL(q6, (chip->state >> 5) & 0x01);
-		SIGNAL_SET_BOOL(q7, (chip->state >> 6) & 0x01);
-		SIGNAL_SET_BOOL(q8, (chip->state >> 7) & 0x01);
+	if (!SIGNAL_READ(OC_B)) {
+		SIGNAL_WRITE(Q1, (chip->state >> 0) & 0x01);
+		SIGNAL_WRITE(Q2, (chip->state >> 1) & 0x01);
+		SIGNAL_WRITE(Q3, (chip->state >> 2) & 0x01);
+		SIGNAL_WRITE(Q4, (chip->state >> 3) & 0x01);
+		SIGNAL_WRITE(Q5, (chip->state >> 4) & 0x01);
+		SIGNAL_WRITE(Q6, (chip->state >> 5) & 0x01);
+		SIGNAL_WRITE(Q7, (chip->state >> 6) & 0x01);
+		SIGNAL_WRITE(Q8, (chip->state >> 7) & 0x01);
 	} else {
-		SIGNAL_NO_WRITE(q1);
-		SIGNAL_NO_WRITE(q2);
-		SIGNAL_NO_WRITE(q3);
-		SIGNAL_NO_WRITE(q4);
-		SIGNAL_NO_WRITE(q5);
-		SIGNAL_NO_WRITE(q6);
-		SIGNAL_NO_WRITE(q7);
-		SIGNAL_NO_WRITE(q8);
+		SIGNAL_NO_WRITE(Q1);
+		SIGNAL_NO_WRITE(Q2);
+		SIGNAL_NO_WRITE(Q3);
+		SIGNAL_NO_WRITE(Q4);
+		SIGNAL_NO_WRITE(Q5);
+		SIGNAL_NO_WRITE(Q6);
+		SIGNAL_NO_WRITE(Q7);
+		SIGNAL_NO_WRITE(Q8);
 	}
 }
