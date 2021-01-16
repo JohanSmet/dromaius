@@ -386,15 +386,17 @@ static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, i
 		signal_default_bool(SIGNAL_POOL, SIGNAL_COLLECTION[(sig)], (def));	\
 	}
 
-#define SIGNAL_DEPENDENCY(sig)				signal_add_dependency(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)], SIGNAL_CHIP_ID)
+#define SIGNAL(sig)							SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)]
 
-#define SIGNAL_READ(sig)					signal_read_bool(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)])
-#define SIGNAL_READ_NEXT(sig)				signal_read_next_bool(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)])
-#define SIGNAL_CHANGED(sig)					signal_changed(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)])
+#define SIGNAL_DEPENDENCY(sig)				signal_add_dependency(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_ID)
 
-#define SIGNAL_WRITE(sig,v)					signal_write_bool(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)], (v), SIGNAL_CHIP_ID)
+#define SIGNAL_READ(sig)					signal_read_bool(SIGNAL_POOL, SIGNAL(sig))
+#define SIGNAL_READ_NEXT(sig)				signal_read_next_bool(SIGNAL_POOL, SIGNAL(sig))
+#define SIGNAL_CHANGED(sig)					signal_changed(SIGNAL_POOL, SIGNAL(sig))
 
-#define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)], SIGNAL_CHIP_ID)
+#define SIGNAL_WRITE(sig,v)					signal_write_bool(SIGNAL_POOL, SIGNAL(sig), (v), SIGNAL_CHIP_ID)
+
+#define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_ID)
 
 #define SIGNAL_GROUP_READ_U8(grp)			((uint8_t) signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
 #define SIGNAL_GROUP_READ_NEXT_U8(grp)		((uint8_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
