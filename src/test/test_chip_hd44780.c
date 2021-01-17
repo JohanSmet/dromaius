@@ -1,12 +1,12 @@
 // test/test_chip_hd44780.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
+#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "chip_hd44780.h"
 #include "simulator.h"
 
-#define SIGNAL_POOL			lcd->signal_pool
-#define SIGNAL_COLLECTION	lcd->signals
-#define SIGNAL_CHIP_ID		lcd->id
+#define SIGNAL_PREFIX		CHIP_HD44780_
+#define SIGNAL_OWNER		lcd
 
 #define LCD_CYCLE_START				\
 	for (int i = 0; i < 2; ++i) {
@@ -52,9 +52,9 @@
 
 
 static inline void half_clock_cycle(ChipHd44780 *lcd) {
-	SIGNAL_SET_BOOL(enable, !SIGNAL_BOOL(enable));
+	SIGNAL_WRITE(E, !SIGNAL_READ(E));
 	signal_pool_cycle(lcd->signal_pool, 1);
-	chip_hd44780_process(lcd);
+	lcd->process(lcd);
 }
 
 static inline int lcd_5x8_char_lit_count(uint8_t *lcd_mem, int x, int y, int stride) {
@@ -82,76 +82,76 @@ static inline bool lcd_5x8_cursor_at_pos(uint8_t *lcd_mem, int x, int y, int str
 
 static inline void lcd_write_char_8b(ChipHd44780 *lcd, char c) {
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(rs, true);
-		SIGNAL_SET_UINT8(bus_data, (uint8_t) c);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(RS, true);
+		SIGNAL_GROUP_WRITE(data, (uint8_t) c);
 	LCD_CYCLE_END
 
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 }
 
 static inline void lcd_write_cmd_8b(ChipHd44780 *lcd, uint8_t cmd) {
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(rs, false);
-		SIGNAL_SET_UINT8(bus_data, cmd);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(RS, false);
+		SIGNAL_GROUP_WRITE(data, cmd);
 	LCD_CYCLE_END
 
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 }
 
 static inline uint8_t lcd_read_data_8b(ChipHd44780 *lcd) {
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_WRITE(RS, true);
 	LCD_CYCLE_END
 
-	return SIGNAL_NEXT_UINT8(bus_data);
+	return SIGNAL_GROUP_READ_NEXT_U8(data);
 }
 
 static inline void lcd_write_char_4b(ChipHd44780 *lcd, char c) {
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(rs, true);
-		SIGNAL_SET_UINT8(db4_7, ((uint8_t) c & 0xf0) >> 4);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(RS, true);
+		SIGNAL_GROUP_WRITE(db4_7, ((uint8_t) c & 0xf0) >> 4);
 	LCD_CYCLE_END
 
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(rs, true);
-		SIGNAL_SET_UINT8(db4_7, ((uint8_t) c & 0x0f));
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(RS, true);
+		SIGNAL_GROUP_WRITE(db4_7, ((uint8_t) c & 0x0f));
 	LCD_CYCLE_END
 
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 }
 
 static inline void lcd_write_cmd_4b(ChipHd44780 *lcd, uint8_t cmd) {
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(rs, false);
-		SIGNAL_SET_UINT8(db4_7, (cmd & 0xf0) >> 4);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(RS, false);
+		SIGNAL_GROUP_WRITE(db4_7, (cmd & 0xf0) >> 4);
 	LCD_CYCLE_END
 
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(rs, false);
-		SIGNAL_SET_UINT8(db4_7, (cmd & 0x0f));
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(RS, false);
+		SIGNAL_GROUP_WRITE(db4_7, (cmd & 0x0f));
 	LCD_CYCLE_END
 
-	SIGNAL_SET_BOOL(rw, true);
+	SIGNAL_WRITE(RW, true);
 }
 
 static inline uint8_t lcd_read_data_4b(ChipHd44780 *lcd) {
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_WRITE(RS, true);
 	LCD_CYCLE_END
 
-	uint8_t data = SIGNAL_NEXT_UINT8(db4_7) << 4;
+	uint8_t data = SIGNAL_GROUP_READ_NEXT_U8(db4_7) << 4;
 
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_WRITE(RS, true);
 	LCD_CYCLE_END
 
-	data = data | (SIGNAL_NEXT_UINT8(db4_7) & 0x0f);
+	data = data | (SIGNAL_GROUP_READ_NEXT_U8(db4_7) & 0x0f);
 
 	return data;
 }
@@ -170,7 +170,8 @@ static void *chip_hd44780_setup_4b(const MunitParameter params[], void *user_dat
 }
 
 static void chip_hd44780_teardown(void *fixture) {
-	chip_hd44780_destroy((ChipHd44780 *) fixture);
+	ChipHd44780 *lcd = (ChipHd44780 *) fixture;
+	lcd->destroy(lcd);
 }
 
 static MunitResult test_write_data_8b(const MunitParameter params[], void *user_data_or_fixture) {
@@ -939,9 +940,9 @@ static MunitResult test_cgram_write_8b(const MunitParameter params[], void *user
 
 	// write data
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(rs, true);
-		SIGNAL_SET_UINT8(bus_data, 0x5f);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(RS, true);
+		SIGNAL_GROUP_WRITE(data, 0x5f);
 	LCD_CYCLE_END
 
 	munit_assert_uint8(lcd->reg_ac, ==, 1);
@@ -1084,17 +1085,17 @@ static MunitResult test_write_data_4b(const MunitParameter params[], void *user_
 	munit_assert_uint8(lcd->reg_ac, ==, 0);
 
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(rs, true);
-		SIGNAL_SET_UINT8(db4_7, ((uint8_t) 'D' & 0xf0) >> 4);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(RS, true);
+		SIGNAL_GROUP_WRITE(db4_7, ((uint8_t) 'D' & 0xf0) >> 4);
 	LCD_CYCLE_END
 
 	munit_assert_uint8(lcd->reg_ac, ==, 0);
 
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_BOOL(rs, true);
-		SIGNAL_SET_UINT8(db4_7, (uint8_t) 'D' & 0x0f);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_WRITE(RS, true);
+		SIGNAL_GROUP_WRITE(db4_7, (uint8_t) 'D' & 0x0f);
 	LCD_CYCLE_END
 
 	munit_assert_uint8(lcd->reg_ac, ==, 1);
@@ -1119,17 +1120,17 @@ static MunitResult test_read_data_4b(const MunitParameter params[], void *user_d
 	munit_assert_uint8(lcd->reg_ac, ==, 0);
 
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_WRITE(RS, true);
 	LCD_CYCLE_END
 
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(db4_7), ==, 0x02);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(db4_7), ==, 0x02);
 	munit_assert_uint8(lcd->reg_ac, ==, 0);
 
 	LCD_CYCLE_START
-		SIGNAL_SET_BOOL(rs, true);
+		SIGNAL_WRITE(RS, true);
 	LCD_CYCLE_END
 
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(db4_7), ==, 0x00);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(db4_7), ==, 0x00);
 	munit_assert_uint8(lcd->reg_ac, ==, 1);
 	munit_assert_uint8(lcd->reg_data, ==, 'D');
 

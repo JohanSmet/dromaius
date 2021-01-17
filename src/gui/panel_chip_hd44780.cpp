@@ -2,13 +2,14 @@
 //
 // UI panel to display the LCD output of a Hitachi HD44780 LCD Controller/Driver
 
+#define SIGNAL_ARRAY_STYLE
 #include "panel_chip_hd44780.h"
 #include "chip_hd44780.h"
 #include "context.h"
 #include "widgets.h"
 
-#define SIGNAL_POOL			lcd->signal_pool
-#define SIGNAL_COLLECTION	lcd->signals
+#define SIGNAL_PREFIX		CHIP_HD44780_
+#define SIGNAL_OWNER		lcd
 
 inline ImVec2 operator+(const ImVec2 &a, const ImVec2 &b) {
 	return {a.x + b.x, a.y + b.y};
@@ -70,18 +71,15 @@ public:
 
 			// signals
 			ImGui::SetCursorScreenPos({ImGui::GetCursorScreenPos().x, lcd_origin.y + lcd_size.y + 4});
-			ui_signal(0, "RS", SIGNAL_NEXT_BOOL(rs), ACTHI_ASSERT);
+			ui_signal(0, "RS", SIGNAL_READ_NEXT(RS), ACTHI_ASSERT);
 			ImGui::SameLine();
-			ui_signal(150, "RW", SIGNAL_NEXT_BOOL(rw), ACTHI_ASSERT);
+			ui_signal(150, "RW", SIGNAL_READ_NEXT(RW), ACTHI_ASSERT);
 			ImGui::SameLine();
-			ui_signal(300, "E", SIGNAL_NEXT_BOOL(enable), ACTHI_ASSERT);
-
-
+			ui_signal(300, "E", SIGNAL_READ_NEXT(E), ACTHI_ASSERT);
 		}
 
 		ImGui::End();
 	}
-
 
 private:
 	ImVec2				position;
@@ -178,15 +176,15 @@ void panel_chip_hd44780_display(struct PanelChipHd44780 *pnl) {
 		// signals
 		nk_layout_row(pnl->nk_ctx, NK_STATIC, 450, 3, (float[]) {150,150,150});
 		if (nk_group_begin(pnl->nk_ctx, "col_left", 0)) {
-			ui_signal(pnl->nk_ctx, "RS", SIGNAL_NEXT_BOOL(rs), ACTHI_ASSERT);
+			ui_signal(pnl->nk_ctx, "RS", SIGNAL_READ_NEXT(rs), ACTHI_ASSERT);
 			nk_group_end(pnl->nk_ctx);
 		}
 		if (nk_group_begin(pnl->nk_ctx, "col_middle", 0)) {
-			ui_signal(pnl->nk_ctx, "RW", SIGNAL_NEXT_BOOL(rw), ACTHI_ASSERT);
+			ui_signal(pnl->nk_ctx, "RW", SIGNAL_READ_NEXT(rw), ACTHI_ASSERT);
 			nk_group_end(pnl->nk_ctx);
 		}
 		if (nk_group_begin(pnl->nk_ctx, "col_right", 0)) {
-			ui_signal(pnl->nk_ctx, "E", SIGNAL_NEXT_BOOL(enable), ACTHI_ASSERT);
+			ui_signal(pnl->nk_ctx, "E", SIGNAL_READ_NEXT(enable), ACTHI_ASSERT);
 			nk_group_end(pnl->nk_ctx);
 		}
 	}

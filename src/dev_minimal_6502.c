@@ -209,10 +209,13 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// lcd-module
 	device->lcd = chip_hd44780_create(device->simulator, (ChipHd44780Signals) {
-										.db4_7 = (Signal) {device->pia->signals[CHIP_6520_PA0].start, 4},
-										.rs = device->pia->signals[CHIP_6520_PA7],
-										.rw = device->pia->signals[CHIP_6520_PA6],
-										.enable = device->pia->signals[CHIP_6520_PA5]
+										[CHIP_HD44780_DB4] = device->pia->signals[CHIP_6520_PA0],
+										[CHIP_HD44780_DB5] = device->pia->signals[CHIP_6520_PA1],
+										[CHIP_HD44780_DB6] = device->pia->signals[CHIP_6520_PA2],
+										[CHIP_HD44780_DB7] = device->pia->signals[CHIP_6520_PA3],
+										[CHIP_HD44780_RS]  = device->pia->signals[CHIP_6520_PA7],
+										[CHIP_HD44780_RW]  = device->pia->signals[CHIP_6520_PA6],
+										[CHIP_HD44780_E]   = device->pia->signals[CHIP_6520_PA5]
 	});
 	DEVICE_REGISTER_CHIP("LCD", device->lcd);
 

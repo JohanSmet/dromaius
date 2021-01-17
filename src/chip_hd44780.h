@@ -26,15 +26,27 @@ extern "C" {
 
 struct Clock;
 
-typedef struct ChipHd44780Signals {
-	Signal	bus_data;		// 8-bit data bus
-	Signal	rs;				// 1-bit register select
-	Signal	rw;				// 1-bit read/write selector
-	Signal  enable;			// 1-bit enable line
+// Normally we try to match the actual pin assignment of the chip, but the HD44780 is an 80-pin chip
+// and we only expose 11 pins in the middle of the range.
 
-	Signal	db4_7;			// upper 4-bits of the databus
-	Signal	db0_3;			// lower 4-bits of the databus
-} ChipHd44780Signals;
+typedef enum {
+	// 8-bit databus
+	CHIP_HD44780_DB0 = CHIP_PIN_01,
+	CHIP_HD44780_DB1 = CHIP_PIN_02,
+	CHIP_HD44780_DB2 = CHIP_PIN_03,
+	CHIP_HD44780_DB3 = CHIP_PIN_04,
+	CHIP_HD44780_DB4 = CHIP_PIN_05,
+	CHIP_HD44780_DB5 = CHIP_PIN_06,
+	CHIP_HD44780_DB6 = CHIP_PIN_07,
+	CHIP_HD44780_DB7 = CHIP_PIN_08,
+
+	CHIP_HD44780_RS  = CHIP_PIN_09,			// 1-bit register select
+	CHIP_HD44780_RW  = CHIP_PIN_10,			// 1-bit read/write selector
+	CHIP_HD44780_E   = CHIP_PIN_11,			// 1-bit enable line
+
+} ChipHd44780SignalAssignment;
+
+typedef Signal ChipHd44780Signals[11];
 
 typedef struct ChipHd44780 {
 	CHIP_DECLARE_FUNCTIONS
@@ -42,6 +54,11 @@ typedef struct ChipHd44780 {
 	// interface
 	SignalPool *		signal_pool;
 	ChipHd44780Signals	signals;
+
+	// signal groups
+	SignalGroup		sg_data;
+	SignalGroup		sg_db4_7;			// upper 4-bits of the databus
+	SignalGroup		sg_db0_3;			// lower 4-bits of the databus
 
 	// registers
 	uint8_t		reg_ir;				// 8-bit instruction register
@@ -62,9 +79,6 @@ typedef struct ChipHd44780 {
 
 // functions
 ChipHd44780 *chip_hd44780_create(struct Simulator *sim, ChipHd44780Signals signals);
-void chip_hd44780_register_dependencies(ChipHd44780 *lcd);
-void chip_hd44780_destroy(ChipHd44780 *lcd);
-void chip_hd44780_process(ChipHd44780 *lcd);
 
 #ifdef __cplusplus
 }

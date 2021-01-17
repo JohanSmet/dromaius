@@ -2,6 +2,7 @@
 //
 // Partial emulation of the HD44780 Dot Matrix LCD Controller/Driver
 
+#define SIGNAL_ARRAY_STYLE
 #include "chip_hd44780.h"
 #include "simulator.h"
 
@@ -11,9 +12,8 @@
 
 #include <stb/stb_ds.h>
 
-#define SIGNAL_POOL			lcd->signal_pool
-#define SIGNAL_COLLECTION	lcd->signals
-#define SIGNAL_CHIP_ID		lcd->id
+#define SIGNAL_PREFIX		CHIP_HD44780_
+#define SIGNAL_OWNER		lcd
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -42,7 +42,6 @@ typedef struct ChipHd44780_private {
 	uint8_t			ddram_addr;				// continuous 0 - 79 even for two line displays (no gap between 1st & 2nd line)
 	uint8_t			cgram_mask;				// address mask for the cgram character index
 
-	bool			prev_enable;
 	int8_t			address_delta;			// increment or decrement on read/write
 	RamMode			ram_mode;				// accessing DDRAM or CGRAM ?
 
@@ -81,24 +80,23 @@ static const int64_t CURSOR_BLINK_INTERVAL_PS = 409600 * 1000;	// 409.6ms
 static inline bool output_register_to_databus(ChipHd44780 *lcd, bool final) {
 	// when rs = high: read data from CGRAM or DDRAM via the data register
 	// when rs = low:  read busy-flag and address (note: busy flag not implemented)
-	uint8_t data = SIGNAL_BOOL(rs) ? lcd->reg_data : lcd->reg_ac & 0x7f;
+	uint8_t data = SIGNAL_READ(RS) ? lcd->reg_data : lcd->reg_ac & 0x7f;
 
 	switch (PRIVATE(lcd)->data_cycle) {
 		case DC_4BIT_HI :
-			SIGNAL_SET_UINT8(db4_7, (data & 0xf0) >> 4);
-			SIGNAL_NO_WRITE(db0_3);
+			SIGNAL_GROUP_WRITE(db4_7, (data & 0xf0) >> 4);
+			SIGNAL_GROUP_NO_WRITE(db0_3);
 			PRIVATE(lcd)->data_cycle += final;
 			return false;
 
 		case DC_4BIT_LO :
-			SIGNAL_SET_UINT8(db4_7, (data & 0x0f));
-			SIGNAL_NO_WRITE(db0_3);
+			SIGNAL_GROUP_WRITE(db4_7, (data & 0x0f));
+			SIGNAL_GROUP_NO_WRITE(db0_3);
 			PRIVATE(lcd)->data_cycle -= final;
 			return true;
 
 		case DC_8BIT :
-			SIGNAL_SET_UINT8(db4_7, (data & 0xf0) >> 4);
-			SIGNAL_SET_UINT8(db0_3, (data & 0x0f));
+			SIGNAL_GROUP_WRITE(data, data);
 			return true;
 
 		default :
@@ -109,17 +107,17 @@ static inline bool output_register_to_databus(ChipHd44780 *lcd, bool final) {
 static inline bool input_from_databus(ChipHd44780 *lcd) {
 	switch (PRIVATE(lcd)->data_cycle) {
 		case DC_4BIT_HI :
-			PRIVATE(lcd)->data_in = (uint8_t) (SIGNAL_UINT8(db4_7) << 4);
+			PRIVATE(lcd)->data_in = (uint8_t) (SIGNAL_GROUP_READ_U8(db4_7) << 4);
 			PRIVATE(lcd)->data_cycle = DC_4BIT_LO;
 			return false;
 
 		case DC_4BIT_LO :
-			PRIVATE(lcd)->data_in = (uint8_t) (PRIVATE(lcd)->data_in | (SIGNAL_UINT8(db4_7) & 0xf));
+			PRIVATE(lcd)->data_in = (uint8_t) (PRIVATE(lcd)->data_in | (SIGNAL_GROUP_READ_U8(db4_7) & 0xf));
 			PRIVATE(lcd)->data_cycle = DC_4BIT_HI;
 			return true;
 
 		case DC_8BIT :
-			PRIVATE(lcd)->data_in = (uint8_t) ((SIGNAL_UINT8(db4_7) << 4) | SIGNAL_UINT8(db0_3));
+			PRIVATE(lcd)->data_in = SIGNAL_GROUP_READ_U8(data);
 			return true;
 
 		default :
@@ -387,14 +385,14 @@ static inline void refresh_screen(ChipHd44780 *lcd) {
 }
 
 static inline void process_positive_enable_edge(ChipHd44780 *lcd) {
-	if (SIGNAL_BOOL(rw) == RW_READ) {
+	if (SIGNAL_READ(RW) == RW_READ) {
 		output_register_to_databus(lcd, false);
 	}
 }
 
 static inline void process_negative_enable_edge(ChipHd44780 *lcd) {
 	// read mode
-	if (SIGNAL_BOOL(rw) == RW_READ) {
+	if (SIGNAL_READ(RW) == RW_READ) {
 		if (output_register_to_databus(lcd, true)) {
 			increment_decrement_addres(lcd);
 		}
@@ -403,7 +401,7 @@ static inline void process_negative_enable_edge(ChipHd44780 *lcd) {
 
 	// write mode
 	if (input_from_databus(lcd)) {
-		if (SIGNAL_BOOL(rs) == false) {
+		if (SIGNAL_READ(RS) == false) {
 			// instruction
 			lcd->reg_ir = PRIVATE(lcd)->data_in;
 			decode_instruction(lcd);
@@ -421,9 +419,6 @@ static void process_end(ChipHd44780 *lcd) {
 	if (PRIVATE(lcd)->refresh_screen) {
 		refresh_screen(lcd);
 	}
-
-	// store state of the enable pin
-	PRIVATE(lcd)->prev_enable = SIGNAL_BOOL(enable);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -431,11 +426,12 @@ static void process_end(ChipHd44780 *lcd) {
 // interface functions
 //
 
-ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
-	assert(signals.bus_data.count == 0 || (signals.bus_data.count > 0 && signals.db4_7.count == 0 && signals.db0_3.count == 0));
+static void chip_hd44780_register_dependencies(ChipHd44780 *lcd);
+static void chip_hd44780_destroy(ChipHd44780 *lcd);
+static void chip_hd44780_process(ChipHd44780 *lcd);
 
+ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 	ChipHd44780_private *priv = (ChipHd44780_private *) calloc(1, sizeof(ChipHd44780_private));
-	memset(priv, 0, sizeof(ChipHd44780_private));
 	ChipHd44780 *lcd = &priv->intf;
 	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy, chip_hd44780_register_dependencies);
 
@@ -443,28 +439,23 @@ ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 	lcd->signal_pool = sim->signal_pool;
 	PRIVATE(lcd)->cursor_blink_cycles = simulator_interval_to_tick_count(lcd->simulator, CURSOR_BLINK_INTERVAL_PS);
 
-	memcpy(&lcd->signals, &signals, sizeof(signals));
+	memcpy(lcd->signals, signals, sizeof(ChipHd44780Signals));
 
-	// the databus is setup differently than other modules. In 4-bit interface mode only the upper nibble is used.
-	// We try to set it up so writing to signal 'bus_data' works in 8-bit mode but also allow a 4-bit signal to be
-	// connected to the upper nibble when in 4-bit mode. Even in 8-bit mode we always use the two 4-bit signals.
-	// The LCD always starts in 8-bit mode and this way it can be switched to 4-bt mode with only the top 4-bits connected.
-	if (SIGNAL(bus_data).count == 0 && SIGNAL(db0_3).count == 0 && SIGNAL(db4_7).count == 0) {
-		SIGNAL_DEFINE(bus_data, 8);
+	for (int i = 0; i < 4; ++i) {
+		SIGNAL_DEFINE(CHIP_HD44780_DB0 + i);
+		signal_group_push(&lcd->sg_data, SIGNAL_COLLECTION[CHIP_HD44780_DB0 + i]);
+		signal_group_push(&lcd->sg_db0_3, SIGNAL_COLLECTION[CHIP_HD44780_DB0 + i]);
 	}
 
-	if (SIGNAL(bus_data).count > 0) {
-		// NOTE: this assumes that whatever connects to the databus is at least 8 bits wide
-		lcd->signals.db0_3 = signal_split(SIGNAL(bus_data), 0, 4);
-		lcd->signals.db4_7 = signal_split(SIGNAL(bus_data), 4, 4);
-	} else {
-		SIGNAL_DEFINE(db0_3, 4);
-		SIGNAL_DEFINE(db4_7, 4);
+	for (int i = 4; i < 8; ++i) {
+		SIGNAL_DEFINE(CHIP_HD44780_DB0 + i);
+		signal_group_push(&lcd->sg_data, SIGNAL_COLLECTION[CHIP_HD44780_DB0 + i]);
+		signal_group_push(&lcd->sg_db4_7, SIGNAL_COLLECTION[CHIP_HD44780_DB0 + i]);
 	}
 
-	SIGNAL_DEFINE(rs, 1);
-	SIGNAL_DEFINE_BOOL(rw, 1, true);
-	SIGNAL_DEFINE_BOOL(enable, 1, false);
+	SIGNAL_DEFINE(CHIP_HD44780_RS);
+	SIGNAL_DEFINE_DEFAULT(CHIP_HD44780_RW, true);
+	SIGNAL_DEFINE_DEFAULT(CHIP_HD44780_E, false);
 
 	// perform the internal reset circuit initialization procedure
 	execute_clear_display(lcd);
@@ -476,17 +467,17 @@ ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 	return lcd;
 }
 
-void chip_hd44780_register_dependencies(ChipHd44780 *lcd) {
+static void chip_hd44780_register_dependencies(ChipHd44780 *lcd) {
 	assert(lcd);
-	signal_add_dependency(lcd->signal_pool, SIGNAL(enable), lcd->id);
+	SIGNAL_DEPENDENCY(E);
 }
 
-void chip_hd44780_destroy(ChipHd44780 *lcd) {
+static void chip_hd44780_destroy(ChipHd44780 *lcd) {
 	assert(lcd);
 	free(PRIVATE(lcd));
 }
 
-void chip_hd44780_process(ChipHd44780 *lcd) {
+static void chip_hd44780_process(ChipHd44780 *lcd) {
 
 	PRIVATE(lcd)->refresh_screen = false;
 
@@ -502,14 +493,12 @@ void chip_hd44780_process(ChipHd44780 *lcd) {
 
 	// do nothing:
 	//	- if not on the edge of a clock cycle
-	bool enable = SIGNAL_BOOL(enable);
-
-	if (enable == PRIVATE(lcd)->prev_enable) {
+	if (!SIGNAL_CHANGED(E)) {
 		process_end(lcd);
 		return;
 	}
 
-	if (enable) {
+	if (SIGNAL_READ(E)) {
 		process_positive_enable_edge(lcd);
 	} else {
 		process_negative_enable_edge(lcd);
