@@ -1099,7 +1099,7 @@ void circuit_create_06(DevCommodorePet *device) {
 
 	// >> y1 - oscillator
 	device->oscillator_y1 = oscillator_create(16000000, device->simulator, (OscillatorSignals) {
-										.clk_out = SIGNAL(clk16)
+										[CHIP_OSCILLATOR_CLK_OUT] = SIGNAL(clk16)
 	});
 	DEVICE_REGISTER_CHIP("Y1", device->oscillator_y1);
 
@@ -1590,7 +1590,7 @@ void circuit_lite_create_ram(DevCommodorePet *device) {
 // lite-PET: master timing
 void circuit_lite_create_timing(DevCommodorePet *device) {
 	device->oscillator_y1 = oscillator_create(1000000, device->simulator, (OscillatorSignals) {
-										.clk_out = SIGNAL(clk1)
+										[CHIP_OSCILLATOR_CLK_OUT] = SIGNAL(clk1)
 	});
 	DEVICE_REGISTER_CHIP("OSC", device->oscillator_y1);
 }

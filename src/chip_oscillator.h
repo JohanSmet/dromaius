@@ -13,9 +13,11 @@ extern "C" {
 #endif
 
 // types
-typedef struct OscillatorSignals {
-	Signal	clk_out;			// 1-bit clock signal
-} OscillatorSignals;
+typedef enum {
+	CHIP_OSCILLATOR_CLK_OUT = CHIP_PIN_01,			// 1-bit clock signal
+} OscillatorSignalAssignment;
+
+typedef Signal OscillatorSignals[1];
 
 typedef struct Oscillator {
 
@@ -33,9 +35,6 @@ typedef struct Oscillator {
 
 // functions
 Oscillator *oscillator_create(int64_t frequency, struct Simulator *sim, OscillatorSignals signals);
-void oscillator_register_dependencies(Oscillator *tmr);
-void oscillator_destroy(Oscillator *tmr);
-void oscillator_process(Oscillator *tmr);
 
 #ifdef __cplusplus
 }

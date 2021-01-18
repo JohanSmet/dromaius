@@ -158,7 +158,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// oscillator
 	device->oscillator = oscillator_create(10000, device->simulator, (OscillatorSignals) {
-											.clk_out = SIGNAL(clock)
+											[CHIP_OSCILLATOR_CLK_OUT] = SIGNAL(clock)
 	});
 	DEVICE_REGISTER_CHIP("OSC", device->oscillator);
 
