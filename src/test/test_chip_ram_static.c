@@ -1,12 +1,12 @@
 // test/test_chip_ram_static.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
+#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "chip_ram_static.h"
 #include "simulator.h"
 
-#define SIGNAL_POOL			chip->signal_pool
-#define SIGNAL_COLLECTION	chip->signals
-#define SIGNAL_CHIP_ID		chip->id
+#define SIGNAL_PREFIX		CHIP_6114_
+#define SIGNAL_OWNER		chip
 
 MunitResult test_6114_read(const MunitParameter params[], void *user_data_or_fixture) {
 
@@ -19,16 +19,16 @@ MunitResult test_6114_read(const MunitParameter params[], void *user_data_or_fix
 
 	// check memory
 	for (uint32_t i = 0; i < 1024; ++i) {
-		SIGNAL_SET_BOOL(ce_b, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(rw, true);
-		SIGNAL_SET_UINT16(bus_address, i);
+		SIGNAL_WRITE(CE_B, ACTLO_ASSERT);
+		SIGNAL_WRITE(RW, true);
+		SIGNAL_GROUP_WRITE(address, i);
 		signal_pool_cycle(chip->signal_pool, 1);
 
-		chip_6114_sram_process(chip);
-		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_io), ==, i & 0x0f);
+		chip->process(chip);
+		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(io), ==, i & 0x0f);
 	}
 
-	chip_6114_sram_destroy(chip);
+	chip->destroy(chip);
 
 	return MUNIT_OK;
 }
@@ -39,20 +39,20 @@ MunitResult test_6114_write(const MunitParameter params[], void *user_data_or_fi
 
 	// write memory
 	for (uint32_t i = 0; i < 1024; ++i) {
-		SIGNAL_SET_BOOL(ce_b, ACTLO_ASSERT);
-		SIGNAL_SET_BOOL(rw, false);
-		SIGNAL_SET_UINT16(bus_address, i);
-		SIGNAL_SET_UINT8(bus_io, i & 0x0f);
+		SIGNAL_WRITE(CE_B, ACTLO_ASSERT);
+		SIGNAL_WRITE(RW, false);
+		SIGNAL_GROUP_WRITE(address, i);
+		SIGNAL_GROUP_WRITE(io, i & 0x0f);
 		signal_pool_cycle(chip->signal_pool, 1);
-		chip_6114_sram_process(chip);
+		chip->process(chip);
 
-		SIGNAL_SET_BOOL(ce_b, ACTLO_DEASSERT);
-		SIGNAL_SET_BOOL(rw, true);
+		SIGNAL_WRITE(CE_B, ACTLO_DEASSERT);
+		SIGNAL_WRITE(RW, true);
 		signal_pool_cycle(chip->signal_pool, 1);
-		chip_6114_sram_process(chip);
+		chip->process(chip);
 		signal_pool_cycle(chip->signal_pool, 1);
 
-		munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_io), ==, 0x00);
+		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(io), ==, 0x00);
 	}
 
 	// check memory
@@ -60,7 +60,7 @@ MunitResult test_6114_write(const MunitParameter params[], void *user_data_or_fi
 		munit_assert_uint8(chip->data_array[i], ==, i & 0x0f);
 	}
 
-	chip_6114_sram_destroy(chip);
+	chip->destroy(chip);
 	return MUNIT_OK;
 }
 

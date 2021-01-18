@@ -399,7 +399,9 @@ static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, i
 #define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_ID)
 
 #define SIGNAL_GROUP_READ_U8(grp)			((uint8_t) signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
+#define SIGNAL_GROUP_READ_U32(grp)			(signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
 #define SIGNAL_GROUP_READ_NEXT_U8(grp)		((uint8_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
+#define SIGNAL_GROUP_READ_NEXT_U32(grp)		(signal_group_read_next(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
 #define SIGNAL_GROUP_WRITE(grp,v)			signal_group_write(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, (v), SIGNAL_CHIP_ID)
 #define SIGNAL_GROUP_WRITE_MASKED(grp,v,m)	signal_group_write_masked(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, (v), (m), SIGNAL_CHIP_ID)
 #define SIGNAL_GROUP_NO_WRITE(grp)			signal_group_clear_writer(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, SIGNAL_CHIP_ID)

@@ -1425,18 +1425,46 @@ void circuit_create_08(DevCommodorePet *device) {
 
 	// >> f7 - 1k x 4bit SRAM
 	DEVICE_REGISTER_CHIP("F7", chip_6114_sram_create(device->simulator, (Chip6114SRamSignals) {
-										.bus_address = SIGNAL(bus_sa),
-										.bus_io = signal_split(SIGNAL(bus_sd), 4, 4),
-										.ce_b = SIGNAL(low),
-										.rw = SIGNAL(tv_ram_rw)
+										[CHIP_6114_A0] = signal_split(SIGNAL(bus_sa), 0, 1),
+										[CHIP_6114_A1] = signal_split(SIGNAL(bus_sa), 1, 1),
+										[CHIP_6114_A2] = signal_split(SIGNAL(bus_sa), 2, 1),
+										[CHIP_6114_A3] = signal_split(SIGNAL(bus_sa), 3, 1),
+										[CHIP_6114_A4] = signal_split(SIGNAL(bus_sa), 4, 1),
+										[CHIP_6114_A5] = signal_split(SIGNAL(bus_sa), 5, 1),
+										[CHIP_6114_A6] = signal_split(SIGNAL(bus_sa), 6, 1),
+										[CHIP_6114_A7] = signal_split(SIGNAL(bus_sa), 7, 1),
+										[CHIP_6114_A8] = signal_split(SIGNAL(bus_sa), 8, 1),
+										[CHIP_6114_A9] = signal_split(SIGNAL(bus_sa), 9, 1),
+
+										[CHIP_6114_IO0] = signal_split(SIGNAL(bus_sd), 4, 1),
+										[CHIP_6114_IO1] = signal_split(SIGNAL(bus_sd), 5, 1),
+										[CHIP_6114_IO2] = signal_split(SIGNAL(bus_sd), 6, 1),
+										[CHIP_6114_IO3] = signal_split(SIGNAL(bus_sd), 7, 1),
+
+										[CHIP_6114_CE_B] = SIGNAL(low),
+										[CHIP_6114_RW] = SIGNAL(tv_ram_rw)
 	}));
 
 	// >> f8 - 1k x 4bit SRAM
 	DEVICE_REGISTER_CHIP("F8", chip_6114_sram_create(device->simulator, (Chip6114SRamSignals) {
-										.bus_address = SIGNAL(bus_sa),
-										.bus_io = signal_split(SIGNAL(bus_sd), 0, 4),
-										.ce_b = SIGNAL(low),
-										.rw = SIGNAL(tv_ram_rw)
+										[CHIP_6114_A0] = signal_split(SIGNAL(bus_sa), 0, 1),
+										[CHIP_6114_A1] = signal_split(SIGNAL(bus_sa), 1, 1),
+										[CHIP_6114_A2] = signal_split(SIGNAL(bus_sa), 2, 1),
+										[CHIP_6114_A3] = signal_split(SIGNAL(bus_sa), 3, 1),
+										[CHIP_6114_A4] = signal_split(SIGNAL(bus_sa), 4, 1),
+										[CHIP_6114_A5] = signal_split(SIGNAL(bus_sa), 5, 1),
+										[CHIP_6114_A6] = signal_split(SIGNAL(bus_sa), 6, 1),
+										[CHIP_6114_A7] = signal_split(SIGNAL(bus_sa), 7, 1),
+										[CHIP_6114_A8] = signal_split(SIGNAL(bus_sa), 8, 1),
+										[CHIP_6114_A9] = signal_split(SIGNAL(bus_sa), 9, 1),
+
+										[CHIP_6114_IO0] = signal_split(SIGNAL(bus_sd), 0, 1),
+										[CHIP_6114_IO1] = signal_split(SIGNAL(bus_sd), 1, 1),
+										[CHIP_6114_IO2] = signal_split(SIGNAL(bus_sd), 2, 1),
+										[CHIP_6114_IO3] = signal_split(SIGNAL(bus_sd), 3, 1),
+
+										[CHIP_6114_CE_B] = SIGNAL(low),
+										[CHIP_6114_RW] = SIGNAL(tv_ram_rw)
 	}));
 
 	// >> e8 - octal buffer
