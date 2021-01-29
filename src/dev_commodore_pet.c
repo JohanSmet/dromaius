@@ -1073,21 +1073,67 @@ void circuit_create_05(DevCommodorePet *device) {
 	}));
 
 	DEVICE_REGISTER_CHIP("I2-9", chip_8x4116_dram_create(device->simulator, (Chip8x4116DRamSignals) {
-										.bus_address = SIGNAL(bus_fa),
-										.we_b = SIGNAL(ram_rw),
-										.ras_b = SIGNAL(ras0_b),
-										.cas_b = SIGNAL(cas0_b),
-										.bus_di = SIGNAL(bus_rd),
-										.bus_do = SIGNAL(bus_rd)
+										[CHIP_4116_A0] = signal_split(SIGNAL(bus_fa), 0, 1),
+										[CHIP_4116_A1] = signal_split(SIGNAL(bus_fa), 1, 1),
+										[CHIP_4116_A2] = signal_split(SIGNAL(bus_fa), 2, 1),
+										[CHIP_4116_A3] = signal_split(SIGNAL(bus_fa), 3, 1),
+										[CHIP_4116_A4] = signal_split(SIGNAL(bus_fa), 4, 1),
+										[CHIP_4116_A5] = signal_split(SIGNAL(bus_fa), 5, 1),
+										[CHIP_4116_A6] = signal_split(SIGNAL(bus_fa), 6, 1),
+
+										[CHIP_4116_DI0] = signal_split(SIGNAL(bus_rd), 0, 1),
+										[CHIP_4116_DI1] = signal_split(SIGNAL(bus_rd), 1, 1),
+										[CHIP_4116_DI2] = signal_split(SIGNAL(bus_rd), 2, 1),
+										[CHIP_4116_DI3] = signal_split(SIGNAL(bus_rd), 3, 1),
+										[CHIP_4116_DI4] = signal_split(SIGNAL(bus_rd), 4, 1),
+										[CHIP_4116_DI5] = signal_split(SIGNAL(bus_rd), 5, 1),
+										[CHIP_4116_DI6] = signal_split(SIGNAL(bus_rd), 6, 1),
+										[CHIP_4116_DI7] = signal_split(SIGNAL(bus_rd), 7, 1),
+
+										[CHIP_4116_DO0] = signal_split(SIGNAL(bus_rd), 0, 1),
+										[CHIP_4116_DO1] = signal_split(SIGNAL(bus_rd), 1, 1),
+										[CHIP_4116_DO2] = signal_split(SIGNAL(bus_rd), 2, 1),
+										[CHIP_4116_DO3] = signal_split(SIGNAL(bus_rd), 3, 1),
+										[CHIP_4116_DO4] = signal_split(SIGNAL(bus_rd), 4, 1),
+										[CHIP_4116_DO5] = signal_split(SIGNAL(bus_rd), 5, 1),
+										[CHIP_4116_DO6] = signal_split(SIGNAL(bus_rd), 6, 1),
+										[CHIP_4116_DO7] = signal_split(SIGNAL(bus_rd), 7, 1),
+
+										[CHIP_4116_WE_B] = SIGNAL(ram_rw),
+										[CHIP_4116_RAS_B] = SIGNAL(ras0_b),
+										[CHIP_4116_CAS_B] = SIGNAL(cas0_b)
 	}));
 
 	DEVICE_REGISTER_CHIP("J2-9", chip_8x4116_dram_create(device->simulator, (Chip8x4116DRamSignals) {
-										.bus_address = SIGNAL(bus_fa),
-										.we_b = SIGNAL(ram_rw),
-										.ras_b = SIGNAL(ras0_b),
-										.cas_b = SIGNAL(cas1_b),
-										.bus_di = SIGNAL(bus_rd),
-										.bus_do = SIGNAL(bus_rd)
+										[CHIP_4116_A0] = signal_split(SIGNAL(bus_fa), 0, 1),
+										[CHIP_4116_A1] = signal_split(SIGNAL(bus_fa), 1, 1),
+										[CHIP_4116_A2] = signal_split(SIGNAL(bus_fa), 2, 1),
+										[CHIP_4116_A3] = signal_split(SIGNAL(bus_fa), 3, 1),
+										[CHIP_4116_A4] = signal_split(SIGNAL(bus_fa), 4, 1),
+										[CHIP_4116_A5] = signal_split(SIGNAL(bus_fa), 5, 1),
+										[CHIP_4116_A6] = signal_split(SIGNAL(bus_fa), 6, 1),
+
+										[CHIP_4116_DI0] = signal_split(SIGNAL(bus_rd), 0, 1),
+										[CHIP_4116_DI1] = signal_split(SIGNAL(bus_rd), 1, 1),
+										[CHIP_4116_DI2] = signal_split(SIGNAL(bus_rd), 2, 1),
+										[CHIP_4116_DI3] = signal_split(SIGNAL(bus_rd), 3, 1),
+										[CHIP_4116_DI4] = signal_split(SIGNAL(bus_rd), 4, 1),
+										[CHIP_4116_DI5] = signal_split(SIGNAL(bus_rd), 5, 1),
+										[CHIP_4116_DI6] = signal_split(SIGNAL(bus_rd), 6, 1),
+										[CHIP_4116_DI7] = signal_split(SIGNAL(bus_rd), 7, 1),
+
+										[CHIP_4116_DO0] = signal_split(SIGNAL(bus_rd), 0, 1),
+										[CHIP_4116_DO1] = signal_split(SIGNAL(bus_rd), 1, 1),
+										[CHIP_4116_DO2] = signal_split(SIGNAL(bus_rd), 2, 1),
+										[CHIP_4116_DO3] = signal_split(SIGNAL(bus_rd), 3, 1),
+										[CHIP_4116_DO4] = signal_split(SIGNAL(bus_rd), 4, 1),
+										[CHIP_4116_DO5] = signal_split(SIGNAL(bus_rd), 5, 1),
+										[CHIP_4116_DO6] = signal_split(SIGNAL(bus_rd), 6, 1),
+										[CHIP_4116_DO7] = signal_split(SIGNAL(bus_rd), 7, 1),
+
+										[CHIP_4116_WE_B] = SIGNAL(ram_rw),
+										[CHIP_4116_RAS_B] = SIGNAL(ras0_b),
+										[CHIP_4116_CAS_B] = SIGNAL(cas1_b)
 	}));
 
 	// glue-logic

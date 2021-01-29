@@ -47,7 +47,8 @@ static void override_cpu_process(Cpu6502 *cpu) {
 }
 
 static void override_ram_process(Chip8x4116DRam *ram) {
-	signal_write_uint8(ram->signal_pool, ram->signals.bus_do, override_bus_bd, ram->id);
+	// signal_write_uint8(ram->signal_pool, ram->signals.bus_do, override_bus_bd, ram->id);
+	signal_write_uint8(ram->signal_pool, (Signal) {ram->signals[CHIP_4116_DO0].start, 8}, override_bus_bd, ram->id);
 }
 
 static void override_ram_process_lite(Ram8d16a *ram) {

@@ -15,15 +15,44 @@ extern "C" {
 // types - 8x MK 4116 (16K x 1 Bit Dynamic Ram)
 //	- 8 parallel chips in one type because I don't want to waste 8x the memory
 //	- does not emulate refresh cycle (or lack thereof)
-typedef struct Chip8x4116DRamSignals {
-	Signal	bus_address;		// 7-bit address bus
-	Signal	we_b;				// 1-bit write enable (active low)
-	Signal	ras_b;				// 1-bit row-address-select (active low)
-	Signal	cas_b;				// 1-bit column-address-select (active low)
+//  - does not follow real pin-assignments because it aggregates 8 chips
 
-	Signal	bus_di;				// 8-bit
-	Signal	bus_do;				// 8-bit
-} Chip8x4116DRamSignals;
+enum Chip8x4116DRamSignalAssignment {
+	// 7-bit address
+	CHIP_4116_A0 = CHIP_PIN_01,
+	CHIP_4116_A1 = CHIP_PIN_02,
+	CHIP_4116_A2 = CHIP_PIN_03,
+	CHIP_4116_A3 = CHIP_PIN_04,
+	CHIP_4116_A4 = CHIP_PIN_05,
+	CHIP_4116_A5 = CHIP_PIN_06,
+	CHIP_4116_A6 = CHIP_PIN_07,
+
+	// 8-bit data in
+	CHIP_4116_DI0 = CHIP_PIN_08,
+	CHIP_4116_DI1 = CHIP_PIN_09,
+	CHIP_4116_DI2 = CHIP_PIN_10,
+	CHIP_4116_DI3 = CHIP_PIN_11,
+	CHIP_4116_DI4 = CHIP_PIN_12,
+	CHIP_4116_DI5 = CHIP_PIN_13,
+	CHIP_4116_DI6 = CHIP_PIN_14,
+	CHIP_4116_DI7 = CHIP_PIN_15,
+
+	// 8-bit data out
+	CHIP_4116_DO0 = CHIP_PIN_16,
+	CHIP_4116_DO1 = CHIP_PIN_17,
+	CHIP_4116_DO2 = CHIP_PIN_18,
+	CHIP_4116_DO3 = CHIP_PIN_19,
+	CHIP_4116_DO4 = CHIP_PIN_20,
+	CHIP_4116_DO5 = CHIP_PIN_21,
+	CHIP_4116_DO6 = CHIP_PIN_22,
+	CHIP_4116_DO7 = CHIP_PIN_23,
+
+	CHIP_4116_WE_B = CHIP_PIN_24,	// 1-bit write enable (active low)
+	CHIP_4116_RAS_B = CHIP_PIN_25,  // 1-bit row-address-select (active low)
+	CHIP_4116_CAS_B = CHIP_PIN_26,  // 1-bit column-address-select (active low)
+};
+
+typedef Signal Chip8x4116DRamSignals[26];
 
 typedef struct Chip8x4116DRam {
 
@@ -32,6 +61,10 @@ typedef struct Chip8x4116DRam {
 	// interface
 	SignalPool *		signal_pool;
 	Chip8x4116DRamSignals	signals;
+
+	SignalGroup			sg_address;
+	SignalGroup			sg_din;
+	SignalGroup			sg_dout;
 
 	// config
 	int64_t		access_time;

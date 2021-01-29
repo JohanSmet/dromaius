@@ -2,6 +2,7 @@
 //
 // Emulation of various dynamic random access memory chips
 
+#define SIGNAL_ARRAY_STYLE
 #include "chip_ram_dynamic.h"
 #include "simulator.h"
 
@@ -9,9 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SIGNAL_POOL			chip->signal_pool
-#define SIGNAL_COLLECTION	chip->signals
-#define SIGNAL_CHIP_ID		chip->id
+#define SIGNAL_PREFIX		CHIP_4116_
+#define SIGNAL_OWNER		chip
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -34,23 +34,39 @@ Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals si
 
 	CHIP_SET_FUNCTIONS(chip, chip_8x4116_dram_process, chip_8x4116_dram_destroy, chip_8x4116_dram_register_dependencies);
 
-	memcpy(&chip->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(bus_address, 7);
-	SIGNAL_DEFINE(we_b, 1);
-	SIGNAL_DEFINE(ras_b, 1);
-	SIGNAL_DEFINE(cas_b, 1);
+	memcpy(chip->signals, signals, sizeof(Chip8x4116DRamSignals));
 
-	SIGNAL_DEFINE(bus_di, 8);
-	SIGNAL_DEFINE_N(bus_do, 8, "JRAMDO%d");
+	chip->sg_address = signal_group_create();
+	chip->sg_din = signal_group_create();
+	chip->sg_dout = signal_group_create();
+
+	for (int i = 0; i < 7; ++i) {
+		SIGNAL_DEFINE(CHIP_4116_A0 + i);
+		signal_group_push(&chip->sg_address, SIGNAL_COLLECTION[CHIP_4116_A0 + i]);
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE(CHIP_4116_DI0 + i);
+		signal_group_push(&chip->sg_din, SIGNAL_COLLECTION[CHIP_4116_DI0 + i]);
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE(CHIP_4116_DO0 + i);
+		signal_group_push(&chip->sg_dout, SIGNAL_COLLECTION[CHIP_4116_DO0 + i]);
+	}
+
+	SIGNAL_DEFINE(CHIP_4116_WE_B);
+	SIGNAL_DEFINE(CHIP_4116_RAS_B);
+	SIGNAL_DEFINE(CHIP_4116_CAS_B);
 
 	return chip;
 }
 
 void chip_8x4116_dram_register_dependencies(Chip8x4116DRam *chip) {
 	assert(chip);
-	signal_add_dependency(chip->signal_pool, SIGNAL(ras_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(cas_b), chip->id);
-	signal_add_dependency(chip->signal_pool, SIGNAL(we_b), chip->id);
+	SIGNAL_DEPENDENCY(RAS_B);
+	SIGNAL_DEPENDENCY(CAS_B);
+	SIGNAL_DEPENDENCY(WE_B);
 }
 
 void chip_8x4116_dram_destroy(Chip8x4116DRam *chip) {
@@ -61,22 +77,22 @@ void chip_8x4116_dram_destroy(Chip8x4116DRam *chip) {
 void chip_8x4116_dram_process(Chip8x4116DRam *chip) {
 	assert(chip);
 
-	bool ras_b = SIGNAL_BOOL(ras_b);
-	bool cas_b = SIGNAL_BOOL(cas_b);
+	bool ras_b = SIGNAL_READ(RAS_B);
+	bool cas_b = SIGNAL_READ(CAS_B);
 
 	// negative edge on ras_b: latch row address
-	if (!ras_b && signal_changed(chip->signal_pool, SIGNAL(ras_b))) {
-		chip->row = SIGNAL_UINT8(bus_address);
+	if (!ras_b && SIGNAL_CHANGED(RAS_B)) {
+		chip->row = SIGNAL_GROUP_READ_U8(address);
 		return;
 	}
 
 	// negative adge on cas_b: latch col address
-	if (!ras_b && !cas_b && signal_changed(chip->signal_pool, SIGNAL(cas_b))) {
-		chip->col = SIGNAL_UINT8(bus_address);
+	if (!ras_b && !cas_b && SIGNAL_CHANGED(CAS_B)) {
+		chip->col = SIGNAL_GROUP_READ_U8(address);
 
 		// if write-enable is already asserted: perform early write
-		if (ACTLO_ASSERTED(SIGNAL_BOOL(we_b))) {
-			chip->data_array[chip->row * 128 + chip->col] = SIGNAL_UINT8(bus_di);
+		if (ACTLO_ASSERTED(SIGNAL_READ(WE_B))) {
+			chip->data_array[chip->row * 128 + chip->col] = SIGNAL_GROUP_READ_U8(din);
 		} else {
 			chip->schedule_timestamp = chip->simulator->current_tick + chip->access_time;
 			chip->next_state_transition = chip->schedule_timestamp;
@@ -86,23 +102,23 @@ void chip_8x4116_dram_process(Chip8x4116DRam *chip) {
 	}
 
 	// negative edge on write while ras_b and cas_b are asserted
-	if (!ras_b && !cas_b && !SIGNAL_BOOL(we_b) && signal_changed(chip->signal_pool, SIGNAL(we_b))) {
-		chip->data_array[chip->row * 128 + chip->col] = SIGNAL_UINT8(bus_di);
+	if (!ras_b && !cas_b && !SIGNAL_READ(WE_B) && SIGNAL_CHANGED(WE_B)) {
+		chip->data_array[chip->row * 128 + chip->col] = SIGNAL_GROUP_READ_U8(din);
 		return;
 	}
 
 	if (chip->state == CHIP_8x4116_OUTPUT_BEGIN && chip->next_state_transition >= chip->simulator->current_tick) {
 		chip->do_latch = chip->data_array[chip->row * 128 + chip->col];
-		SIGNAL_SET_UINT8(bus_do, chip->do_latch);
+		SIGNAL_GROUP_WRITE(dout, chip->do_latch);
 		chip->state = CHIP_8x4116_OUTPUT;
 	}
 
 	if (chip->state == CHIP_8x4116_OUTPUT) {
-		SIGNAL_SET_UINT8(bus_do, chip->do_latch);
+		SIGNAL_GROUP_WRITE(dout, chip->do_latch);
 	}
 
 	if (chip->state == CHIP_8x4116_OUTPUT && cas_b) {
-		SIGNAL_NO_WRITE(bus_do);
+		SIGNAL_GROUP_NO_WRITE(dout);
 		chip->state = CHIP_8x4116_IDLE;
 	}
 }
