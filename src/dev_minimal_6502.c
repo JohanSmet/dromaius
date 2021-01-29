@@ -202,8 +202,29 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// rom
 	device->rom = rom_8d16a_create(14, device->simulator, (Rom8d16aSignals) {
-										.bus_address = signal_split(device->signals.bus_address, 0, 14),
-										.bus_data = SIGNAL(bus_data),
+										[CHIP_RAM8D16A_A0] = signal_split(device->signals.bus_address, 0, 1),
+										[CHIP_RAM8D16A_A1] = signal_split(device->signals.bus_address, 1, 1),
+										[CHIP_RAM8D16A_A2] = signal_split(device->signals.bus_address, 2, 1),
+										[CHIP_RAM8D16A_A3] = signal_split(device->signals.bus_address, 3, 1),
+										[CHIP_RAM8D16A_A4] = signal_split(device->signals.bus_address, 4, 1),
+										[CHIP_RAM8D16A_A5] = signal_split(device->signals.bus_address, 5, 1),
+										[CHIP_RAM8D16A_A6] = signal_split(device->signals.bus_address, 6, 1),
+										[CHIP_RAM8D16A_A7] = signal_split(device->signals.bus_address, 7, 1),
+										[CHIP_RAM8D16A_A8] = signal_split(device->signals.bus_address, 8, 1),
+										[CHIP_RAM8D16A_A9] = signal_split(device->signals.bus_address, 9, 1),
+										[CHIP_RAM8D16A_A10] = signal_split(device->signals.bus_address, 10, 1),
+										[CHIP_RAM8D16A_A11] = signal_split(device->signals.bus_address, 11, 1),
+										[CHIP_RAM8D16A_A12] = signal_split(device->signals.bus_address, 12, 1),
+										[CHIP_RAM8D16A_A13] = signal_split(device->signals.bus_address, 13, 1),
+
+										[CHIP_RAM8D16A_D0] = signal_split(SIGNAL(bus_data), 0, 1),
+										[CHIP_RAM8D16A_D1] = signal_split(SIGNAL(bus_data), 1, 1),
+										[CHIP_RAM8D16A_D2] = signal_split(SIGNAL(bus_data), 2, 1),
+										[CHIP_RAM8D16A_D3] = signal_split(SIGNAL(bus_data), 3, 1),
+										[CHIP_RAM8D16A_D4] = signal_split(SIGNAL(bus_data), 4, 1),
+										[CHIP_RAM8D16A_D5] = signal_split(SIGNAL(bus_data), 5, 1),
+										[CHIP_RAM8D16A_D6] = signal_split(SIGNAL(bus_data), 6, 1),
+										[CHIP_RAM8D16A_D7] = signal_split(SIGNAL(bus_data), 7, 1),
 	});
 	DEVICE_REGISTER_CHIP("ROM", device->rom);
 
@@ -257,7 +278,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	// copy some signals for easy access
 	SIGNAL(ram_oe_b) = device->ram->signals[CHIP_RAM8D16A_OE_B];
 	SIGNAL(ram_we_b) = device->ram->signals[CHIP_RAM8D16A_WE_B];
-	SIGNAL(rom_ce_b) = device->rom->signals.ce_b;
+	SIGNAL(rom_ce_b) = device->rom->signals[CHIP_ROM8D16A_CE_B];
 	SIGNAL(pia_cs2_b) = device->pia->signals[CHIP_6520_CS2_B];
 
 	// let the simulator know no more chips will be added

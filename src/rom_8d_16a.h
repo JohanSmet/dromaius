@@ -13,12 +13,40 @@ extern "C" {
 #endif
 
 // types
-typedef struct Rom8d16aSignals {
-	struct Signal bus_address;		// 16-bit address bus
-	struct Signal bus_data;			// 8-bit data bus
-	struct Signal ce_b;				// 1-bit chip enable (active low)
-} Rom8d16aSignals;
+enum Rom8d16aSignalAssignment {
 
+	// 16-bit address bus
+	CHIP_ROM8D16A_A0 = CHIP_PIN_01,
+	CHIP_ROM8D16A_A1 = CHIP_PIN_02,
+	CHIP_ROM8D16A_A2 = CHIP_PIN_03,
+	CHIP_ROM8D16A_A3 = CHIP_PIN_04,
+	CHIP_ROM8D16A_A4 = CHIP_PIN_05,
+	CHIP_ROM8D16A_A5 = CHIP_PIN_06,
+	CHIP_ROM8D16A_A6 = CHIP_PIN_07,
+	CHIP_ROM8D16A_A7 = CHIP_PIN_08,
+	CHIP_ROM8D16A_A8 = CHIP_PIN_09,
+	CHIP_ROM8D16A_A9 = CHIP_PIN_10,
+	CHIP_ROM8D16A_A10 = CHIP_PIN_11,
+	CHIP_ROM8D16A_A11 = CHIP_PIN_12,
+	CHIP_ROM8D16A_A12 = CHIP_PIN_13,
+	CHIP_ROM8D16A_A13 = CHIP_PIN_14,
+	CHIP_ROM8D16A_A14 = CHIP_PIN_15,
+	CHIP_ROM8D16A_A15 = CHIP_PIN_16,
+
+	// 8-bit data bus
+	CHIP_ROM8D16A_D0 = CHIP_PIN_17,
+	CHIP_ROM8D16A_D1 = CHIP_PIN_18,
+	CHIP_ROM8D16A_D2 = CHIP_PIN_19,
+	CHIP_ROM8D16A_D3 = CHIP_PIN_20,
+	CHIP_ROM8D16A_D4 = CHIP_PIN_21,
+	CHIP_ROM8D16A_D5 = CHIP_PIN_22,
+	CHIP_ROM8D16A_D6 = CHIP_PIN_23,
+	CHIP_ROM8D16A_D7 = CHIP_PIN_24,
+
+	CHIP_ROM8D16A_CE_B = CHIP_PIN_25,				// 1-bit chip enable (active low)
+};
+
+typedef Signal Rom8d16aSignals[25];
 
 typedef struct Rom8d16a {
 	CHIP_DECLARE_FUNCTIONS
@@ -26,6 +54,9 @@ typedef struct Rom8d16a {
 	// interface
 	SignalPool *		signal_pool;
 	Rom8d16aSignals		signals;
+
+	SignalGroup			sg_address;
+	SignalGroup			sg_data;
 
 	// data
 	int64_t		output_delay;
@@ -38,9 +69,6 @@ typedef struct Rom8d16a {
 
 // functions
 Rom8d16a *rom_8d16a_create(size_t num_address_lines, struct Simulator *sim, Rom8d16aSignals signals);
-void rom_8d16a_register_dependencies(Rom8d16a *rom);
-void rom_8d16a_destroy(Rom8d16a *rom);
-void rom_8d16a_process(Rom8d16a *rom);
 
 #ifdef __cplusplus
 }
