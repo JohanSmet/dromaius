@@ -1649,11 +1649,35 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 void circuit_lite_create_ram(DevCommodorePet *device) {
 
 	Ram8d16a *ram = ram_8d16a_create(15, device->simulator, (Ram8d16aSignals) {
-										.bus_address = signal_split(device->signals.bus_ba, 0, 15),
-										.bus_data = SIGNAL(bus_bd),
-										.ce_b = SIGNAL(ba15),
-										.oe_b = SIGNAL(g78),
-										.we_b = SIGNAL(ram_rw)
+										[CHIP_RAM8D16A_A0] = signal_split(device->signals.bus_ba, 0, 1),
+										[CHIP_RAM8D16A_A1] = signal_split(device->signals.bus_ba, 1, 1),
+										[CHIP_RAM8D16A_A2] = signal_split(device->signals.bus_ba, 2, 1),
+										[CHIP_RAM8D16A_A3] = signal_split(device->signals.bus_ba, 3, 1),
+										[CHIP_RAM8D16A_A4] = signal_split(device->signals.bus_ba, 4, 1),
+										[CHIP_RAM8D16A_A5] = signal_split(device->signals.bus_ba, 5, 1),
+										[CHIP_RAM8D16A_A6] = signal_split(device->signals.bus_ba, 6, 1),
+										[CHIP_RAM8D16A_A7] = signal_split(device->signals.bus_ba, 7, 1),
+										[CHIP_RAM8D16A_A8] = signal_split(device->signals.bus_ba, 8, 1),
+										[CHIP_RAM8D16A_A9] = signal_split(device->signals.bus_ba, 9, 1),
+										[CHIP_RAM8D16A_A10] = signal_split(device->signals.bus_ba, 10, 1),
+										[CHIP_RAM8D16A_A11] = signal_split(device->signals.bus_ba, 11, 1),
+										[CHIP_RAM8D16A_A12] = signal_split(device->signals.bus_ba, 12, 1),
+										[CHIP_RAM8D16A_A13] = signal_split(device->signals.bus_ba, 13, 1),
+										[CHIP_RAM8D16A_A14] = signal_split(device->signals.bus_ba, 14, 1),
+										[CHIP_RAM8D16A_A15] = signal_split(device->signals.bus_ba, 15, 1),
+
+										[CHIP_RAM8D16A_D0] = signal_split(SIGNAL(bus_bd), 0, 1),
+										[CHIP_RAM8D16A_D1] = signal_split(SIGNAL(bus_bd), 1, 1),
+										[CHIP_RAM8D16A_D2] = signal_split(SIGNAL(bus_bd), 2, 1),
+										[CHIP_RAM8D16A_D3] = signal_split(SIGNAL(bus_bd), 3, 1),
+										[CHIP_RAM8D16A_D4] = signal_split(SIGNAL(bus_bd), 4, 1),
+										[CHIP_RAM8D16A_D5] = signal_split(SIGNAL(bus_bd), 5, 1),
+										[CHIP_RAM8D16A_D6] = signal_split(SIGNAL(bus_bd), 6, 1),
+										[CHIP_RAM8D16A_D7] = signal_split(SIGNAL(bus_bd), 7, 1),
+
+										[CHIP_RAM8D16A_CE_B] = SIGNAL(ba15),
+										[CHIP_RAM8D16A_OE_B] = SIGNAL(g78),
+										[CHIP_RAM8D16A_WE_B] = SIGNAL(ram_rw)
 	});
 	DEVICE_REGISTER_CHIP("RAM", ram);
 
@@ -1673,11 +1697,29 @@ void circuit_lite_create_timing(DevCommodorePet *device) {
 void circuit_lite_create_vram(DevCommodorePet *device) {
 	assert(device);
 	DEVICE_REGISTER_CHIP("VRAM", ram_8d16a_create(10, device->simulator, (Ram8d16aSignals) {
-										.bus_address = signal_split(device->signals.bus_ba, 0, 10),
-										.bus_data = SIGNAL(bus_bd),
-										.ce_b = SIGNAL(sel8_b),
-										.oe_b = SIGNAL(tv_read_b),
-										.we_b = SIGNAL(ram_rw)
+										[CHIP_RAM8D16A_A0] = signal_split(device->signals.bus_ba, 0, 1),
+										[CHIP_RAM8D16A_A1] = signal_split(device->signals.bus_ba, 1, 1),
+										[CHIP_RAM8D16A_A2] = signal_split(device->signals.bus_ba, 2, 1),
+										[CHIP_RAM8D16A_A3] = signal_split(device->signals.bus_ba, 3, 1),
+										[CHIP_RAM8D16A_A4] = signal_split(device->signals.bus_ba, 4, 1),
+										[CHIP_RAM8D16A_A5] = signal_split(device->signals.bus_ba, 5, 1),
+										[CHIP_RAM8D16A_A6] = signal_split(device->signals.bus_ba, 6, 1),
+										[CHIP_RAM8D16A_A7] = signal_split(device->signals.bus_ba, 7, 1),
+										[CHIP_RAM8D16A_A8] = signal_split(device->signals.bus_ba, 8, 1),
+										[CHIP_RAM8D16A_A9] = signal_split(device->signals.bus_ba, 9, 1),
+
+										[CHIP_RAM8D16A_D0] = signal_split(SIGNAL(bus_bd), 0, 1),
+										[CHIP_RAM8D16A_D1] = signal_split(SIGNAL(bus_bd), 1, 1),
+										[CHIP_RAM8D16A_D2] = signal_split(SIGNAL(bus_bd), 2, 1),
+										[CHIP_RAM8D16A_D3] = signal_split(SIGNAL(bus_bd), 3, 1),
+										[CHIP_RAM8D16A_D4] = signal_split(SIGNAL(bus_bd), 4, 1),
+										[CHIP_RAM8D16A_D5] = signal_split(SIGNAL(bus_bd), 5, 1),
+										[CHIP_RAM8D16A_D6] = signal_split(SIGNAL(bus_bd), 6, 1),
+										[CHIP_RAM8D16A_D7] = signal_split(SIGNAL(bus_bd), 7, 1),
+
+										[CHIP_RAM8D16A_CE_B] = SIGNAL(sel8_b),
+										[CHIP_RAM8D16A_OE_B] = SIGNAL(tv_read_b),
+										[CHIP_RAM8D16A_WE_B] = SIGNAL(ram_rw)
 	}));
 
 	DEVICE_REGISTER_CHIP("LOGIC7", glue_logic_create(device, 17));

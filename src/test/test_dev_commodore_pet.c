@@ -52,7 +52,7 @@ static void override_ram_process(Chip8x4116DRam *ram) {
 }
 
 static void override_ram_process_lite(Ram8d16a *ram) {
-	signal_write_uint8(ram->signal_pool, ram->signals.bus_data, override_bus_bd, ram->id);
+	signal_write_uint8(ram->signal_pool, (Signal) {ram->signals[CHIP_RAM8D16A_D0].start, 8}, override_bus_bd, ram->id);
 }
 
 static void override_do_nothing(void *device) {
