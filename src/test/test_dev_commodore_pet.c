@@ -39,10 +39,10 @@ static bool	    override_cpu_rw = CPU_READ;
 static uint8_t  override_bus_bd = 0;
 
 static void override_cpu_process(Cpu6502 *cpu) {
-	signal_write_uint16(cpu->signal_pool, cpu->signals.bus_address, override_bus_address, cpu->id);
-	signal_write_bool(cpu->signal_pool, cpu->signals.rw, override_cpu_rw, cpu->id);
+	signal_group_write(cpu->signal_pool, cpu->sg_address, override_bus_address, cpu->id);
+	signal_write_bool(cpu->signal_pool, cpu->signals[PIN_6502_RW], override_cpu_rw, cpu->id);
 	if (override_cpu_rw == CPU_WRITE) {
-		signal_write_uint8(cpu->signal_pool, cpu->signals.bus_data, override_bus_data, cpu->id);
+		signal_group_write(cpu->signal_pool, cpu->sg_data, override_bus_data, cpu->id);
 	}
 }
 

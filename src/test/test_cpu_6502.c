@@ -1,13 +1,13 @@
 // test/test_cpu_6502.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
+#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
 #include "simulator.h"
 
-#define SIGNAL_POOL			cpu->signal_pool
-#define SIGNAL_COLLECTION	cpu->signals
-#define SIGNAL_CHIP_ID		cpu->id
+#define SIGNAL_OWNER		cpu
+#define SIGNAL_PREFIX		PIN_6502_
 
 #define CPU_CYCLE_START				\
 	for (int i = 0; i < 2; ++i) {
@@ -26,25 +26,26 @@
 
 #define DATABUS_WRITE(val)					\
 	CPU_CYCLE_START							\
-		SIGNAL_SET_UINT8(bus_data,(val));	\
+		SIGNAL_GROUP_WRITE(data,(val));	\
 	CPU_CYCLE_END
 
 static inline void cpu_half_cycle(Cpu6502 *cpu) {
-	SIGNAL_SET_BOOL(clock, !SIGNAL_BOOL(clock));
+	SIGNAL_WRITE(CLK, !SIGNAL_READ(CLK));
 	signal_pool_cycle(cpu->signal_pool, 1);
 	cpu->process(cpu);
+	signal_pool_cycle(cpu->signal_pool, 1);
 	cpu->process(cpu);
 }
 
 static void cpu_reset(Cpu6502 *cpu) {
 
 	// run cpu with reset asserted
-	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
-	SIGNAL_SET_BOOL(clock, true);
+	SIGNAL_WRITE(RES_B, ACTLO_ASSERT);
+	SIGNAL_WRITE(CLK, true);
 	CPU_HALF_CYCLE()
 
 	// ignore first 5 cycles
-	SIGNAL_SET_BOOL(reset_b, ACTLO_DEASSERT);
+	SIGNAL_WRITE(RES_B, ACTLO_DEASSERT);
 
 	for (int i = 0; i < 5; ++i) {
 		CPU_HALF_CYCLE()
@@ -71,7 +72,8 @@ static void *cpu_6502_setup(const MunitParameter params[], void *user_data) {
 }
 
 static void cpu_6502_teardown(void *fixture) {
-	cpu_6502_destroy((Cpu6502 *) fixture);
+	Cpu6502 *cpu = (Cpu6502 *) fixture;
+	cpu->destroy(cpu);
 }
 
 MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture) {
@@ -80,12 +82,12 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 	munit_assert_not_null(cpu);
 
 	// run cpu with reset asserted
-	SIGNAL_SET_BOOL(reset_b, ACTLO_ASSERT);
-	SIGNAL_SET_BOOL(clock, true);
+	SIGNAL_WRITE(RES_B, ACTLO_ASSERT);
+	SIGNAL_WRITE(CLK, true);
 	CPU_HALF_CYCLE()
 
 	// ignore first 5 cycles
-	SIGNAL_SET_BOOL(reset_b, ACTLO_DEASSERT);
+	SIGNAL_WRITE(RES_B, ACTLO_DEASSERT);
 
 	for (int i = 0; i < 5; ++i) {
 		CPU_HALF_CYCLE()
@@ -94,17 +96,17 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 
 	// cpu should now read address 0xfffc - low byte of reset vector
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xfffc);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xfffc);
 	DATABUS_WRITE(0x01);
 
 	// cpu should now read address 0xfffd - high byte of reset vector
 	munit_assert_uint8(LO_BYTE(cpu->reg_pc), ==, 0x01);
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xfffd);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xfffd);
 	DATABUS_WRITE(0x08);
 
 	// cpu should now read from address 0x0801
 	munit_assert_uint16(cpu->reg_pc, ==, 0x0801);
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 
 	return MUNIT_OK;
 }
@@ -118,67 +120,67 @@ MunitResult test_irq(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// execute a random opcode
 	// -- fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_IMM);
 
 	// assert the irq-line while the cpu decodes the opcode
 	// -- fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE_START
-		SIGNAL_SET_BOOL(irq_b, ACTLO_ASSERT);
-		SIGNAL_SET_UINT8(bus_data, 0x01);
+		SIGNAL_WRITE(IRQ_B, ACTLO_ASSERT);
+		SIGNAL_GROUP_WRITE(data, 0x01);
 	CPU_CYCLE_END
 	munit_assert_uint8(cpu->reg_a, ==, 0x01);
 
 	// cpu should now execute the interrupt sequence
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_BRK);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BRK);
 
 	// >> cycle 02: force BRK instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_BRK);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BRK);
 
 	// >> cycle 03: push program counter - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE()
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x08);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x08);
 	CPU_HALF_CYCLE()
 	munit_assert_int8(cpu->reg_sp, ==, 0xfe);
 
 	// >> cycle 04: push program counter - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fe);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fe);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE()
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x04);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x04);
 	CPU_HALF_CYCLE()
 	munit_assert_int8(cpu->reg_sp, ==, 0xfd);
 
 	// >> cycle 05: push processor satus
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fd);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fd);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE()
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, cpu->reg_p);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, cpu->reg_p);
 	CPU_HALF_CYCLE()
 	munit_assert_int8(cpu->reg_sp, ==, 0xfc);
 
 	// >> cycle 06: fetch vector low
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xfffe);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xfffe);
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 07: fetch vector high
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xffff);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xffff);
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	DATABUS_WRITE(0x00);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0050);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0050);
 
 	return MUNIT_OK;
 }
@@ -192,71 +194,71 @@ MunitResult test_nmi(const MunitParameter params[], void *user_data_or_fixture) 
 
 	// execute a random opcode
 	// -- fetch opcode (+ pulse the nmi line)
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	CPU_HALF_CYCLE_START
-		SIGNAL_SET_UINT8(bus_data, OP_6502_LDA_IMM);
-		SIGNAL_SET_BOOL(nmi_b, ACTLO_ASSERT);
+		SIGNAL_GROUP_WRITE(data, OP_6502_LDA_IMM);
+		SIGNAL_WRITE(NMI_B, ACTLO_ASSERT);
 	CPU_CYCLE_END
 
 	CPU_HALF_CYCLE_START
-		SIGNAL_SET_UINT8(bus_data, OP_6502_LDA_IMM);
-		SIGNAL_SET_BOOL(nmi_b, ACTLO_DEASSERT);
+		SIGNAL_GROUP_WRITE(data, OP_6502_LDA_IMM);
+		SIGNAL_WRITE(NMI_B, ACTLO_DEASSERT);
 	CPU_CYCLE_END
 
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_IMM);
 
 	// -- fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x01);
 
 	// cpu should now execute the interrupt sequence
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_BRK);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BRK);
 
 	// >> cycle 02: force BRK instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_BRK);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BRK);
 
 	// >> cycle 03: push program counter - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE();
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x08);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x08);
 	CPU_HALF_CYCLE();
 	munit_assert_int8(cpu->reg_sp, ==, 0xfe);
 
 	// >> cycle 04: push program counter - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fe);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fe);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE();
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x03);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x03);
 	CPU_HALF_CYCLE();
 	munit_assert_int8(cpu->reg_sp, ==, 0xfd);
 
 	// >> cycle 05: push processor satus
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fd);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fd);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE();
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, cpu->reg_p);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, cpu->reg_p);
 	CPU_HALF_CYCLE();
 	munit_assert_int8(cpu->reg_sp, ==, 0xfc);
 
 	// >> cycle 06: fetch vector low
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xfffa);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xfffa);
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 07: fetch vector high
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xfffb);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xfffb);
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	DATABUS_WRITE(0x00);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0050);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0050);
 
 	return MUNIT_OK;
 }
@@ -271,35 +273,35 @@ MunitResult test_rdy(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ABS);
 
 	// deassert RDY - cpu should halt
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_HALF_CYCLE_START
-		SIGNAL_SET_BOOL(rdy, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RDY, ACTHI_DEASSERT);
 	CPU_CYCLE_END
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 
 	CPU_HALF_CYCLE_START
-		SIGNAL_SET_BOOL(rdy, ACTHI_DEASSERT);
+		SIGNAL_WRITE(RDY, ACTHI_DEASSERT);
 	CPU_CYCLE_END
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 
 	// stop deassering RDY (default == asserted) - cpu continues operation
-	SIGNAL_SET_BOOL(rdy, ACTHI_ASSERT);
+	SIGNAL_WRITE(RDY, ACTHI_ASSERT);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(2);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -326,14 +328,14 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
-	munit_assert_true(SIGNAL_NEXT_BOOL(sync));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
+	munit_assert_true(SIGNAL_READ_NEXT(SYNC));
 	DATABUS_WRITE(OP_6502_ADC_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_IMM);
-	munit_assert_false(SIGNAL_NEXT_BOOL(sync));
+	munit_assert_false(SIGNAL_READ_NEXT(SYNC));
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(15);
 	munit_assert_uint8(cpu->reg_a, ==, 28);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -353,16 +355,16 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(15);
 	munit_assert_uint8(cpu->reg_a, ==, 29);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -385,20 +387,20 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(6);
 	munit_assert_uint8(cpu->reg_a, ==, 5);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -418,20 +420,20 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 00: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(2);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -454,20 +456,20 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(7);
 	munit_assert_uint8(cpu->reg_a, ==, 12);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -491,24 +493,24 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(2);
 	munit_assert_uint8(cpu->reg_a, ==, (uint8_t) -127);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -532,20 +534,20 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc019);
 	DATABUS_WRITE(-3);
 	munit_assert_uint8(cpu->reg_a, ==, 2);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -569,24 +571,24 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc009);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc009);
 	DATABUS_WRITE(0x15);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc109);
 	DATABUS_WRITE(-7);
 	munit_assert_uint8(cpu->reg_a, ==, (uint8_t) -2);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -610,28 +612,28 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_INDX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add zp + index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x11);
 
 	// >> cycle 04: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005a);
 	DATABUS_WRITE(0x20);
 
 	// >> cycle 05: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005b);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x2120);
 	DATABUS_WRITE(-7);
 	munit_assert_uint8(cpu->reg_a, ==, -12);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -655,24 +657,24 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3026);
 	DATABUS_WRITE(-65);
 	munit_assert_uint8(cpu->reg_a, ==, 125);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -696,28 +698,28 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3006);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3006);
 	DATABUS_WRITE(0x17);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3106);
 	DATABUS_WRITE(66);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -738,12 +740,12 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ADC_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(BCD_BYTE(1, 4));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(9, 3));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -751,12 +753,12 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ADC_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	DATABUS_WRITE(BCD_BYTE(2, 1));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(1, 4));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -766,12 +768,12 @@ MunitResult test_adc(const MunitParameter params[], void *user_data_or_fixture) 
 	// >> cycle 01: fetch opcode
 	cpu->reg_a = BCD_BYTE(9, 9);
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_CARRY);
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0805);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0805);
 	DATABUS_WRITE(OP_6502_ADC_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ADC_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0806);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0806);
 	DATABUS_WRITE(BCD_BYTE(9, 9));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(9, 8));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -796,12 +798,12 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b11000011;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -816,16 +818,16 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b11000011;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -843,20 +845,20 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -871,20 +873,20 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b11000011;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -902,20 +904,20 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -933,24 +935,24 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -968,20 +970,20 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc019);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -999,24 +1001,24 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc009);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc009);
 	DATABUS_WRITE(0x15);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc109);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -1034,28 +1036,28 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_INDX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add zp + index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x11);
 
 	// >> cycle 04: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005a);
 	DATABUS_WRITE(0x20);
 
 	// >> cycle 05: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005b);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x2120);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -1073,24 +1075,24 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3026);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -1108,28 +1110,28 @@ MunitResult test_and(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_AND_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_AND_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3006);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3006);
 	DATABUS_WRITE(0x17);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3106);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000010);
 
@@ -1201,12 +1203,12 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b10100000;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ASL_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ACC);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_ASL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01000000);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -1214,12 +1216,12 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_ASL_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ACC);
 
 	// >> cycle 04: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ASL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000000);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -1227,12 +1229,12 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ASL_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ACC);
 
 	// >> cycle 06: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	DATABUS_WRITE(OP_6502_ASL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000000);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -1247,36 +1249,36 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ASL_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	DATABUS_WRITE(0b10101010);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 04: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010100);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b01010100);
 	CPU_HALF_CYCLE();
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1289,40 +1291,40 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ASL_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	DATABUS_WRITE(0b01010101);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1332,40 +1334,40 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ASL_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0b10101010);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010100);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b01010100);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1378,44 +1380,44 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ASL_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0b01010101);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1428,44 +1430,44 @@ MunitResult test_asl(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ASL_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ASL_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(0b01010101);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	return MUNIT_OK;
 }
@@ -1483,16 +1485,16 @@ MunitResult test_bcc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BCC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BCC);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1505,20 +1507,20 @@ MunitResult test_bcc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BCC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BCC);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0853);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0853);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1531,24 +1533,24 @@ MunitResult test_bcc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BCC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BCC);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(-0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> cycle 04: handle page crossing
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x08b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x08b3);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x07b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x07b3);
 
 	return MUNIT_OK;
 }
@@ -1566,16 +1568,16 @@ MunitResult test_bcs(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BCS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BCS);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1588,20 +1590,20 @@ MunitResult test_bcs(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BCS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BCS);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0853);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0853);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1614,24 +1616,24 @@ MunitResult test_bcs(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BCS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BCS);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(-0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> cycle 04: handle page crossing
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x08b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x08b3);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x07b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x07b3);
 
 	return MUNIT_OK;
 }
@@ -1649,16 +1651,16 @@ MunitResult test_beq(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BEQ);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BEQ);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1671,20 +1673,20 @@ MunitResult test_beq(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BEQ);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BEQ);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0853);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0853);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1697,24 +1699,24 @@ MunitResult test_beq(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BEQ);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BEQ);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(-0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> cycle 04: handle page crossing
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x08b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x08b3);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x07b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x07b3);
 
 	return MUNIT_OK;
 }
@@ -1734,23 +1736,23 @@ MunitResult test_bit(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b00000010;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BIT_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BIT_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(0b01001111);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// takes value of bit 7
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));				// takes value of bit 6
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if memory & reg-a == 0
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1763,27 +1765,27 @@ MunitResult test_bit(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b00100000;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BIT_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BIT_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0b10011111);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// takes value of bit 7
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));				// takes value of bit 6
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if memory & reg-a == 0
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	return MUNIT_OK;
 }
@@ -1802,16 +1804,16 @@ MunitResult test_bmi(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BMI);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BMI);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1824,20 +1826,20 @@ MunitResult test_bmi(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BMI);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BMI);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0853);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0853);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1850,24 +1852,24 @@ MunitResult test_bmi(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BMI);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BMI);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(-0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> cycle 04: handle page crossing
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x08b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x08b3);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x07b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x07b3);
 
 	return MUNIT_OK;
 }
@@ -1885,16 +1887,16 @@ MunitResult test_bne(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BNE);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BNE);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1907,20 +1909,20 @@ MunitResult test_bne(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BNE);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BNE);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0853);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0853);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1933,24 +1935,24 @@ MunitResult test_bne(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_ZERO_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BNE);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BNE);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(-0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> cycle 04: handle page crossing
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x08b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x08b3);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x07b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x07b3);
 
 	return MUNIT_OK;
 }
@@ -1968,16 +1970,16 @@ MunitResult test_bpl(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BPL);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BPL);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -1990,20 +1992,20 @@ MunitResult test_bpl(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BPL);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BPL);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0853);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0853);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2016,24 +2018,24 @@ MunitResult test_bpl(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BPL);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BPL);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(-0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> cycle 04: handle page crossing
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x08b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x08b3);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x07b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x07b3);
 
 	return MUNIT_OK;
 }
@@ -2052,51 +2054,51 @@ MunitResult test_brk(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_sp = 0xff;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BRK);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BRK);
 
 	// >> cycle 02: force BRK instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BRK);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BRK);
 
 	// >> cycle 03: push program counter - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE();
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x08);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x08);
 	CPU_HALF_CYCLE();
 	munit_assert_int8(cpu->reg_sp, ==, 0xfe);
 
 	// >> cycle 04: push program counter - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fe);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fe);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE();
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x02);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x02);
 	CPU_HALF_CYCLE();
 	munit_assert_int8(cpu->reg_sp, ==, 0xfd);
 
 	// >> cycle 05: push processor satus
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fd);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fd);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE();
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, cpu->reg_p);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, cpu->reg_p);
 	CPU_HALF_CYCLE();
 	munit_assert_int8(cpu->reg_sp, ==, 0xfc);
 
 	// >> cycle 06: fetch vector low
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xfffe);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xfffe);
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 07: fetch vector high
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xffff);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xffff);
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	DATABUS_WRITE(0x00);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0050);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0050);
 
 	return MUNIT_OK;
 }
@@ -2114,16 +2116,16 @@ MunitResult test_bvc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BVC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BVC);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2136,20 +2138,20 @@ MunitResult test_bvc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BVC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BVC);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0853);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0853);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2162,24 +2164,24 @@ MunitResult test_bvc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BVC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BVC);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(-0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> cycle 04: handle page crossing
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x08b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x08b3);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x07b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x07b3);
 
 	return MUNIT_OK;
 }
@@ -2197,16 +2199,16 @@ MunitResult test_bvs(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BVS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BVS);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2219,20 +2221,20 @@ MunitResult test_bvs(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BVS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BVS);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0853);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0853);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2245,24 +2247,24 @@ MunitResult test_bvs(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_OVERFLOW);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_BVS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_BVS);
 
 	// >> cycle 02: fetch relative address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(-0x50);
 
 	// >> cycle 03: add offset
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 
 	// >> cycle 04: handle page crossing
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x08b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x08b3);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x07b3);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x07b3);
 
 	return MUNIT_OK;
 }
@@ -2280,12 +2282,12 @@ MunitResult test_clc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0b11111111;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CLC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CLC);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_uint8(cpu->reg_p, ==, 0b11111110);
@@ -2306,12 +2308,12 @@ MunitResult test_cld(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0b11111111;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CLD);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CLD);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE));
 	munit_assert_uint8(cpu->reg_p, ==, 0b11110111);
@@ -2332,12 +2334,12 @@ MunitResult test_cli(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0b11111111;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CLI);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CLI);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_INTERRUPT_DISABLE));
 	munit_assert_uint8(cpu->reg_p, ==, 0b11111011);
@@ -2358,12 +2360,12 @@ MunitResult test_clv(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0b11111111;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CLV);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CLV);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_OVERFLOW));
 	munit_assert_uint8(cpu->reg_p, ==, 0b10111111);
@@ -2384,19 +2386,19 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(10);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2409,23 +2411,23 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(15);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2441,27 +2443,27 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	DATABUS_WRITE(5);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2474,27 +2476,27 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(10);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2510,27 +2512,27 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(16);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2546,31 +2548,31 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(5);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2586,27 +2588,27 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc019);
 	DATABUS_WRITE(10);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2622,31 +2624,31 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc009);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc009);
 	DATABUS_WRITE(0x15);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc109);
 	DATABUS_WRITE(20);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2662,35 +2664,35 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_INDX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add zp + index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x11);
 
 	// >> cycle 04: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005a);
 	DATABUS_WRITE(0x20);
 
 	// >> cycle 05: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005b);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x2120);
 	DATABUS_WRITE(6);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2706,31 +2708,31 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3026);
 	DATABUS_WRITE(10);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2746,35 +2748,35 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3006);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3006);
 	DATABUS_WRITE(0x17);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3106);
 	DATABUS_WRITE(11);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2787,19 +2789,19 @@ MunitResult test_cmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0xf1;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CMP_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CMP_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x40);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));				// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	return MUNIT_OK;
 }
@@ -2817,19 +2819,19 @@ MunitResult test_cpx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CPX_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPX_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(10);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-x
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));				// set if memory <= reg-x
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2842,23 +2844,23 @@ MunitResult test_cpx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CPX_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPX_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(15);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-x
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));				// set if memory <= reg-x
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2871,27 +2873,27 @@ MunitResult test_cpx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CPX_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPX_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(7);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-x
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));				// set if memory <= reg-x
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2904,19 +2906,19 @@ MunitResult test_cpx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CPX_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPX_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x40);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-x
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));				// set if memory <= reg-x
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	return MUNIT_OK;
 }
@@ -2934,19 +2936,19 @@ MunitResult test_cpy(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CPY_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPY_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(10);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2959,23 +2961,23 @@ MunitResult test_cpy(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CPY_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPY_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(15);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -2988,27 +2990,27 @@ MunitResult test_cpy(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CPY_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPY_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(7);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-a
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));					// set if memory <= reg-a
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3021,19 +3023,19 @@ MunitResult test_cpy(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_CPY_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_CPY_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x40);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));			// set if equal
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));		// set if memory > reg-y
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));				// set if memory <= reg-y
 
 	// next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	return MUNIT_OK;
 }
@@ -3053,35 +3055,35 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_DEC_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEC_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	DATABUS_WRITE(1);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 04: perform decrement
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3095,39 +3097,39 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_DEC_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEC_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	DATABUS_WRITE(0);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform decrement
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE()
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, (uint8_t) -1);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, (uint8_t) -1);
 	CPU_HALF_CYCLE()
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3140,39 +3142,39 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_DEC_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEC_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(15);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform decrement
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 14);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 14);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3186,43 +3188,43 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_DEC_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEC_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(1);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3236,43 +3238,43 @@ MunitResult test_dec(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_DEC_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEC_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(5);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 4);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 4);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	return MUNIT_OK;
 }
@@ -3291,36 +3293,36 @@ MunitResult test_dex(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_DEX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEX);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, 1);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_DEX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEX);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, 0);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_DEX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEX);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, (uint8_t) -1);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
@@ -3343,36 +3345,36 @@ MunitResult test_dey(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_DEY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEY);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, 1);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_DEY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEY);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, 0);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_DEY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_DEY);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, (uint8_t) -1);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
@@ -3396,12 +3398,12 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b11000011;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3416,16 +3418,16 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b11000011;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3443,20 +3445,20 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3471,20 +3473,20 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b11000011;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3502,20 +3504,20 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3533,24 +3535,24 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3568,20 +3570,20 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc019);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3599,24 +3601,24 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc009);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc009);
 	DATABUS_WRITE(0x15);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc109);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3634,28 +3636,28 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_INDX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add zp + index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x11);
 
 	// >> cycle 04: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005a);
 	DATABUS_WRITE(0x20);
 
 	// >> cycle 05: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005b);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x2120);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3673,24 +3675,24 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3026);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3708,28 +3710,28 @@ MunitResult test_eor(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_EOR_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_EOR_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3006);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3006);
 	DATABUS_WRITE(0x17);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3106);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01101001);
 
@@ -3797,35 +3799,35 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_INC_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INC_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	DATABUS_WRITE(1);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 04: perform increment
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 2);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 2);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3839,39 +3841,39 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_INC_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INC_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	DATABUS_WRITE(0xff);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform increment
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3884,39 +3886,39 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_INC_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INC_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(127);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform decrement
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x80);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x80);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3930,43 +3932,43 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_INC_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INC_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(1);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform increment
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 2);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 2);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -3980,43 +3982,43 @@ MunitResult test_inc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_INC_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INC_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(5);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform increment
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 6);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 6);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	return MUNIT_OK;
 }
@@ -4035,36 +4037,36 @@ MunitResult test_inx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = (uint8_t) -2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_INX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INX);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, (uint8_t) -1);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_INX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INX);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, 0);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_INX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INX);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_x, ==, 1);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
@@ -4087,36 +4089,36 @@ MunitResult test_iny(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = (uint8_t) -2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_INY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INY);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, (uint8_t) -1);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_INY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INY);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, 0);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_INY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_INY);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_y, ==, 1);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
@@ -4135,20 +4137,20 @@ MunitResult test_jmp(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_JMP_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_JMP_ABS);
 
 	// >> cycle 02: fetch jump-address, low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 03: fetch jump-address, high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0x09);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0951);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0951);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -4158,28 +4160,28 @@ MunitResult test_jmp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_JMP_IND);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_JMP_IND);
 
 	// >> cycle 02: fetch indirect-address, low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 03: fetch indirect-address, high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0x0C);
 
 	// >> cycle 04: fetch jump-address, low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0C10);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0C10);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 05: fetch jump-address, high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0C11);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0C11);
 	DATABUS_WRITE(0x09);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0951);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0951);
 
 	return MUNIT_OK;
 }
@@ -4197,41 +4199,41 @@ MunitResult test_jsr(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_sp = 0xff;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_JSR);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_JSR);
 
 	// >> cycle 02: fetch jump-address, low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 03: store address in cpu for later use
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
 	CPU_CYCLE();
 
 	// >> cycle 04: push program counter - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE();
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x08);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x08);
 	CPU_HALF_CYCLE();
 	munit_assert_int8(cpu->reg_sp, ==, 0xfe);
 
 	// >> cycle 05: push program counter - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fe);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fe);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
 	CPU_HALF_CYCLE();
-	munit_assert_int8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x03);
+	munit_assert_int8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x03);
 	CPU_HALF_CYCLE();
 	munit_assert_int8(cpu->reg_sp, ==, 0xfd);
 
 	// >> cycle 06: fetch jump-address, high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	DATABUS_WRITE(0x09);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0951);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0951);
 
 	return MUNIT_OK;
 }
@@ -4246,12 +4248,12 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x01);
 	munit_assert_uint8(cpu->reg_a, ==, 0x01);
 
@@ -4263,16 +4265,16 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(0x05);
 	munit_assert_uint8(cpu->reg_a, ==, 0x05);
 
@@ -4287,20 +4289,20 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(0x03);
 	munit_assert_uint8(cpu->reg_a, ==, 0x03);
 
@@ -4312,20 +4314,20 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0x07);
 	munit_assert_uint8(cpu->reg_a, ==, 0x07);
 
@@ -4340,20 +4342,20 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0x09);
 	munit_assert_uint8(cpu->reg_a, ==, 0x09);
 
@@ -4368,24 +4370,24 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(0x11);
 	munit_assert_uint8(cpu->reg_a, ==, 0x11);
 
@@ -4400,20 +4402,20 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc019);
 	DATABUS_WRITE(0x13);
 	munit_assert_uint8(cpu->reg_a, ==, 0x13);
 
@@ -4428,24 +4430,24 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc009);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc009);
 	DATABUS_WRITE(0x15);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc109);
 	DATABUS_WRITE(0x16);
 	munit_assert_uint8(cpu->reg_a, ==, 0x16);
 
@@ -4460,28 +4462,28 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_INDX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add zp + index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x11);
 
 	// >> cycle 04: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005a);
 	DATABUS_WRITE(0x20);
 
 	// >> cycle 05: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005b);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x2120);
 	DATABUS_WRITE(0x19);
 	munit_assert_uint8(cpu->reg_a, ==, 0x19);
 
@@ -4496,24 +4498,24 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3026);
 	DATABUS_WRITE(0x21);
 	munit_assert_uint8(cpu->reg_a, ==, 0x21);
 
@@ -4528,28 +4530,28 @@ MunitResult test_lda(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDA_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3006);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3006);
 	DATABUS_WRITE(0x17);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3106);
 	DATABUS_WRITE(0x23);
 	munit_assert_uint8(cpu->reg_a, ==, 0x23);
 
@@ -4609,12 +4611,12 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDX_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDX_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x01);
 	munit_assert_uint8(cpu->reg_x, ==, 0x01);
 
@@ -4626,16 +4628,16 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDX_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDX_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x2a);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x002a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x002a);
 	DATABUS_WRITE(0x01);
 	munit_assert_uint8(cpu->reg_x, ==, 0x01);
 
@@ -4650,20 +4652,20 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDX_ZPY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDX_ZPY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and y-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(0x03);
 	munit_assert_uint8(cpu->reg_x, ==, 0x03);
 
@@ -4675,20 +4677,20 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDX_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDX_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0x07);
 	munit_assert_uint8(cpu->reg_x, ==, 0x07);
 
@@ -4703,20 +4705,20 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDX_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDX_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc019);
 	DATABUS_WRITE(0x13);
 	munit_assert_uint8(cpu->reg_x, ==, 0x13);
 
@@ -4731,24 +4733,24 @@ MunitResult test_ldx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDX_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDX_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc009);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc009);
 	DATABUS_WRITE(0x15);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc109);
 	DATABUS_WRITE(0x16);
 	munit_assert_uint8(cpu->reg_x, ==, 0x16);
 
@@ -4809,12 +4811,12 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDY_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDY_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x01);
 	munit_assert_uint8(cpu->reg_y, ==, 0x01);
 
@@ -4826,16 +4828,16 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDY_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDY_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x2a);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x002a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x002a);
 	DATABUS_WRITE(0x01);
 	munit_assert_uint8(cpu->reg_y, ==, 0x01);
 
@@ -4850,20 +4852,20 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDY_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDY_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(0x03);
 	munit_assert_uint8(cpu->reg_y, ==, 0x03);
 
@@ -4875,20 +4877,20 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDY_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDY_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0x07);
 	munit_assert_uint8(cpu->reg_y, ==, 0x07);
 
@@ -4903,20 +4905,20 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDY_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDY_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc019);
 	DATABUS_WRITE(0x13);
 	munit_assert_uint8(cpu->reg_y, ==, 0x13);
 
@@ -4931,24 +4933,24 @@ MunitResult test_ldy(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LDY_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LDY_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc009);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc009);
 	DATABUS_WRITE(0x15);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc109);
 	DATABUS_WRITE(0x16);
 	munit_assert_uint8(cpu->reg_y, ==, 0x16);
 
@@ -5013,12 +5015,12 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b00000101;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LSR_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ACC);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_LSR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000010);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -5026,12 +5028,12 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_LSR_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ACC);
 
 	// >> cycle 04: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_LSR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000001);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -5039,12 +5041,12 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_LSR_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ACC);
 
 	// >> cycle 06: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	DATABUS_WRITE(OP_6502_LSR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000000);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -5059,36 +5061,36 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LSR_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	DATABUS_WRITE(0b10001010);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 04: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01000101);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b01000101);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -5101,40 +5103,40 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LSR_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	DATABUS_WRITE(0b01010011);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00101001);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b00101001);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -5144,40 +5146,40 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu_reset(cpu);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LSR_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0b10000010);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01000001);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b01000001);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -5190,44 +5192,44 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LSR_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0b00010000);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00001000);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b00001000);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -5240,44 +5242,44 @@ MunitResult test_lsr(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_LSR_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_LSR_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(0b01000001);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00100000);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b00100000);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	return MUNIT_OK;
 }
@@ -5292,16 +5294,16 @@ MunitResult test_nop(const MunitParameter params[], void *user_data_or_fixture) 
 	//
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_NOP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_NOP);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 
 	return MUNIT_OK;
 }
@@ -5321,12 +5323,12 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b11000011;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5341,16 +5343,16 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b11000011;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5368,20 +5370,20 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5396,20 +5398,20 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b11000011;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5427,20 +5429,20 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5458,24 +5460,24 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5493,20 +5495,20 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc019);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5524,24 +5526,24 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc009);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc009);
 	DATABUS_WRITE(0x15);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc109);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5559,28 +5561,28 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_INDX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add zp + index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x11);
 
 	// >> cycle 04: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005a);
 	DATABUS_WRITE(0x20);
 
 	// >> cycle 05: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005b);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x2120);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5598,24 +5600,24 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3026);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5633,28 +5635,28 @@ MunitResult test_ora(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ORA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ORA_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3006);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3006);
 	DATABUS_WRITE(0x17);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3106);
 	DATABUS_WRITE(0b10101010);
 	munit_assert_uint8(cpu->reg_a, ==, 0b11101011);
 
@@ -5722,23 +5724,23 @@ MunitResult test_pha(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_sp = 0xff;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_PHA);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_PHA);
 
 	// >> cycle 02: fetch discard - decode pha
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 03: write a on the stack
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x13);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x13);
 	CPU_HALF_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 
 	return MUNIT_OK;
 }
@@ -5758,23 +5760,23 @@ MunitResult test_php(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_sp = 0xff;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_PHP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_PHP);
 
 	// >> cycle 02: fetch discard - decode php
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 03: write a on the stack
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10010101);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b10010101);
 	CPU_HALF_CYCLE();
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 
 	return MUNIT_OK;
 }
@@ -5792,26 +5794,26 @@ MunitResult test_pla(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_sp = 0xfe;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_PLA);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_PLA);
 
 	// >> cycle 02: fetch discard - decode pla
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 03: read stack - increment stack pointer
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fe);
 	DATABUS_WRITE(0x23);
 	munit_assert_uint8(cpu->reg_sp, ==, 0xff);
 
 	// >> cycle 04: fetch reg-a
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
 	DATABUS_WRITE(0x19);
 	munit_assert_uint8(cpu->reg_a, ==, 0x19);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 
 	return MUNIT_OK;
 }
@@ -5829,26 +5831,26 @@ MunitResult test_plp(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_sp = 0xfe;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_PLP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_PLP);
 
 	// >> cycle 02: fetch discard - decode plp
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 03: read stack - increment stack pointer
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fe);
 	DATABUS_WRITE(0x23);
 	munit_assert_uint8(cpu->reg_sp, ==, 0xff);
 
 	// >> cycle 04: fetch reg-a
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
 	DATABUS_WRITE(0x79);
 	munit_assert_uint8(cpu->reg_p, ==, 0x69);			// B-flag is always zero when pulled
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 
 	return MUNIT_OK;
 }
@@ -5868,12 +5870,12 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b10100000;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROL_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ACC);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_ROL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01000000);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -5881,12 +5883,12 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_ROL_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ACC);
 
 	// >> cycle 04: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ROL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000001);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -5894,12 +5896,12 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ROL_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ACC);
 
 	// >> cycle 06: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	DATABUS_WRITE(OP_6502_ROL_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000010);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -5917,36 +5919,36 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROL_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	DATABUS_WRITE(0b10101010);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 04: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010101);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b01010101);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -5960,40 +5962,40 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROL_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	DATABUS_WRITE(0b01010101);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6006,40 +6008,40 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROL_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0b10101010);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01010100);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b01010100);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6053,44 +6055,44 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROL_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0b01010101);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6104,44 +6106,44 @@ MunitResult test_rol(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROL_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROL_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(0b01010101);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b10101010);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b10101010);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	return MUNIT_OK;
 }
@@ -6161,12 +6163,12 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0b00000101;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROR_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ACC);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_ROR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b00000010);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6174,12 +6176,12 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(OP_6502_ROR_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ACC);
 
 	// >> cycle 04: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ROR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b10000001);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6187,12 +6189,12 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_ROR_ACC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ACC);
 
 	// >> cycle 06: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	DATABUS_WRITE(OP_6502_ROR_ACC);
 	munit_assert_uint8(cpu->reg_a, ==, 0b01000000);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6210,36 +6212,36 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROR_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x65);
 
 	// >> cycle 03: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	DATABUS_WRITE(0b10001010);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 04: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
 	CPU_CYCLE();
 
 	// >> cycle 05: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0065);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b11000101);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0065);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b11000101);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6253,40 +6255,40 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROR_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	DATABUS_WRITE(0b01010011);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x003a);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00101001);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x003a);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b00101001);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6299,40 +6301,40 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_CARRY);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROR_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(0b10000010);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 05: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b01000001);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b01000001);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6346,44 +6348,44 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROR_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0b00010000);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00001000);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b00001000);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	/////////////////////////////////////////////////////////////////////////////
 	//
@@ -6397,44 +6399,44 @@ MunitResult test_ror(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_ROR_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_ROR_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(0b01000001);
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 
 	// >> cycle 06: perform rotate
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	CPU_CYCLE();
 
 	// >> cycle 06: write result set flags
 	CPU_HALF_CYCLE();
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0b00100000);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0b00100000);
 	CPU_HALF_CYCLE();
-	munit_assert_true(SIGNAL_NEXT_BOOL(rw));
+	munit_assert_true(SIGNAL_READ_NEXT(RW));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_ZERO_RESULT));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 
 	return MUNIT_OK;
 }
@@ -6452,33 +6454,33 @@ MunitResult test_rts(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_sp = 0xfd;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_RTS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_RTS);
 
 	// >> cycle 02: fetch discard - decode rts
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 03: increment stack pointer
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fd);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fd);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_sp, ==, 0xfe);
 
 	// >> cycle 04: pop program counter - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fe);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 05: pop program counter - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
 	DATABUS_WRITE(0x09);
 
 	// >> cycle 06: increment pc
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0951);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0951);
 	DATABUS_WRITE(0x12);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0952);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0952);
 
 	return MUNIT_OK;
 }
@@ -6496,34 +6498,34 @@ MunitResult test_rti(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_sp = 0xfc;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_RTI);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_RTI);
 
 	// >> cycle 02: fetch discard - decode rts
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 03: increment stack pointer
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fc);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fc);
 	CPU_CYCLE();
 	munit_assert_uint8(cpu->reg_sp, ==, 0xfd);
 
 	// >> cycle 05: pop processor status
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fd);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fd);
 	DATABUS_WRITE(0x00);
 	munit_assert_uint8(cpu->reg_p, ==, 0x00);
 
 	// >> cycle 05: pop program counter - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01fe);
 	DATABUS_WRITE(0x51);
 
 	// >> cycle 06: pop program counter - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x01ff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x01ff);
 	DATABUS_WRITE(0x09);
 
 	// >> next instruction
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0951);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0951);
 
 	return MUNIT_OK;
 }
@@ -6545,12 +6547,12 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(10);
 	munit_assert_uint8(cpu->reg_a, ==, 3);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6570,16 +6572,16 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
 	DATABUS_WRITE(15);
 	munit_assert_uint8(cpu->reg_a, ==, (uint8_t) -2);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6602,20 +6604,20 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
 	DATABUS_WRITE(6);
 	munit_assert_uint8(cpu->reg_a, ==, 248);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6635,20 +6637,20 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_CLEAR_U8(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
 	DATABUS_WRITE(2);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6671,20 +6673,20 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(7);
 	munit_assert_uint8(cpu->reg_a, ==, -2);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6708,24 +6710,24 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
 	DATABUS_WRITE(10);
 	munit_assert_uint8(cpu->reg_a, ==, 126);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6749,20 +6751,20 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc019);
 	DATABUS_WRITE(-3);
 	munit_assert_uint8(cpu->reg_a, ==, 8);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6786,24 +6788,24 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf3;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc009);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc009);
 	DATABUS_WRITE(0x15);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc109);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc109);
 	DATABUS_WRITE(-7);
 	munit_assert_uint8(cpu->reg_a, ==, 12);
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6827,28 +6829,28 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_INDX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add zp + index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x11);
 
 	// >> cycle 04: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005a);
 	DATABUS_WRITE(0x20);
 
 	// >> cycle 05: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005b);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x2120);
 	DATABUS_WRITE(-7);
 	munit_assert_uint8(cpu->reg_a, ==, 2);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6872,24 +6874,24 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3026);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3026);
 	DATABUS_WRITE(65);
 	munit_assert_uint8(cpu->reg_a, ==, 125);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6913,28 +6915,28 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3006);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3006);
 	DATABUS_WRITE(0x17);
 
 	// >> cycle 06: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3106);
 	DATABUS_WRITE(-66);
 	munit_assert_uint8(cpu->reg_a, ==, 0);
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6955,12 +6957,12 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	FLAG_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE);
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SBC_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(BCD_BYTE(2, 9));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(1, 5));
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6968,12 +6970,12 @@ MunitResult test_sbc(const MunitParameter params[], void *user_data_or_fixture) 
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_NEGATIVE_RESULT));
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(OP_6502_SBC_IMM);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SBC_IMM);
 
 	// >> cycle 02: fetch operand + execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0804);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0804);
 	DATABUS_WRITE(BCD_BYTE(2, 9));
 	munit_assert_uint8(cpu->reg_a, ==, BCD_BYTE(8, 6));
 	munit_assert_false(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
@@ -6996,12 +6998,12 @@ MunitResult test_sec(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0b00000000;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SEC);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SEC);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY));
 	munit_assert_uint8(cpu->reg_p, ==, 0b00000001);
@@ -7022,12 +7024,12 @@ MunitResult test_sed(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0b00000000;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SED);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SED);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_DECIMAL_MODE));
 	munit_assert_uint8(cpu->reg_p, ==, 0b00001000);
@@ -7048,12 +7050,12 @@ MunitResult test_sei(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_p = 0b00000000;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_SEI);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_SEI);
 
 	// >> cycle 02: execute opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	CPU_CYCLE();
 	munit_assert_true(FLAG_IS_SET(cpu->reg_p, FLAG_6502_INTERRUPT_DISABLE));
 	munit_assert_uint8(cpu->reg_p, ==, 0b00000100);
@@ -7076,19 +7078,19 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0x63;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x63);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x63);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7103,23 +7105,23 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x65);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x65);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7133,23 +7135,23 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_a = 0x67;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x67);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x67);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7164,27 +7166,27 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x67);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x67);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7199,27 +7201,27 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_ABSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_ABSX);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x67);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x67);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7234,27 +7236,27 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x02;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc018);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc018);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x69);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x69);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7269,27 +7271,27 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf2;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_ABSY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_ABSY);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc008);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc008);
 	DATABUS_WRITE(0x10);
 
 	// >> cycle 05: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc108);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc108);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x69);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x69);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7304,31 +7306,31 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x10;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_INDX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_INDX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add zp + index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x11);
 
 	// >> cycle 04: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005a);
 	DATABUS_WRITE(0x20);
 
 	// >> cycle 05: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x005b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x005b);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 06: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x2120);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x2120);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x71);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x71);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7343,31 +7345,31 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x03;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3019);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3019);
 	DATABUS_WRITE(0x17);
 
 	// >> cycle 06: store value to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3019);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3019);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x73);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x73);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7382,31 +7384,31 @@ MunitResult test_sta(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STA_INDY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STA_INDY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: fetch address low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 04: fetch address high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004b);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004b);
 	DATABUS_WRITE(0x30);
 
 	// >> cycle 05: add carry
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3006);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3006);
 	DATABUS_WRITE(0x17);
 
 	// >> cycle 06: store value to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x3106);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x3106);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x73);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x73);
 	CPU_HALF_CYCLE();
 
 	return MUNIT_OK;
@@ -7427,19 +7429,19 @@ MunitResult test_stx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x51;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STX_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STX_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x51);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x51);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7454,23 +7456,23 @@ MunitResult test_stx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0xf0;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STX_ZPY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STX_ZPY);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x53);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x53);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7484,23 +7486,23 @@ MunitResult test_stx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x55;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STX_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STX_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x55);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x55);
 	CPU_HALF_CYCLE();
 
 	return MUNIT_OK;
@@ -7521,19 +7523,19 @@ MunitResult test_sty(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x41;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STY_ZP);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STY_ZP);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfe);
 
 	// >> cycle 03: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x00fe);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x00fe);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x41);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x41);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7548,23 +7550,23 @@ MunitResult test_sty(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x43;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STY_ZPX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STY_ZPX);
 
 	// >> cycle 02: fetch zero page address
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x4a);
 
 	// >> cycle 03: add addres and x-index
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x004a);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x004a);
 	DATABUS_WRITE(0x21);
 
 	// >> cycle 04: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, (0x4a + 0xf0) & 0xff);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, (0x4a + 0xf0) & 0xff);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x43);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x43);
 	CPU_HALF_CYCLE();
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -7578,23 +7580,23 @@ MunitResult test_sty(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x45;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_STY_ABS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_STY_ABS);
 
 	// >> cycle 02: fetch address - low byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0x16);
 
 	// >> cycle 03: fetch address - high byte
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0803);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0803);
 	DATABUS_WRITE(0xc0);
 
 	// >> cycle 04: store to memory
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0xc016);
-	munit_assert_false(SIGNAL_NEXT_BOOL(rw));				// writing
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0xc016);
+	munit_assert_false(SIGNAL_READ_NEXT(RW));				// writing
 	CPU_HALF_CYCLE();
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(bus_data), ==, 0x45);
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x45);
 	CPU_HALF_CYCLE();
 
 	return MUNIT_OK;
@@ -7616,12 +7618,12 @@ MunitResult test_tax(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x00;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_TAX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TAX);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_x, ==, 0x27);
 
@@ -7647,12 +7649,12 @@ MunitResult test_tsx(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x00;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_TSX);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TSX);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_x, ==, 0x8e);
 
@@ -7677,12 +7679,12 @@ MunitResult test_tay(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x00;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_TAY);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TAY);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_y, ==, 0x27);
 
@@ -7708,12 +7710,12 @@ MunitResult test_txa(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x27;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_TXA);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TXA);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_a, ==, 0x27);
 
@@ -7739,12 +7741,12 @@ MunitResult test_txs(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_x = 0x8a;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_TXS);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TXS);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_sp, ==, 0x8a);
 
@@ -7767,12 +7769,12 @@ MunitResult test_tya(const MunitParameter params[], void *user_data_or_fixture) 
 	cpu->reg_y = 0x27;
 
 	// >> cycle 01: fetch opcode
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0801);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
 	DATABUS_WRITE(OP_6502_TYA);
 	munit_assert_uint8(cpu->reg_ir, ==, OP_6502_TYA);
 
 	// >> cycle 02: execute
-	munit_assert_uint16(SIGNAL_NEXT_UINT16(bus_address), ==, 0x0802);
+	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0802);
 	DATABUS_WRITE(0xfc);
 	munit_assert_uint8(cpu->reg_a, ==, 0x27);
 

@@ -144,15 +144,40 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// cpu
 	device->cpu = cpu_6502_create(device->simulator, (Cpu6502Signals) {
-										.bus_address = SIGNAL(bus_address),
-										.bus_data = SIGNAL(bus_data),
-										.clock = SIGNAL(clock),
-										.reset_b = SIGNAL(reset_b),
-										.rw = SIGNAL(cpu_rw),
-										.irq_b = SIGNAL(cpu_irq_b),
-										.nmi_b = SIGNAL(cpu_nmi_b),
-										.sync = SIGNAL(cpu_sync),
-										.rdy = SIGNAL(cpu_rdy)
+
+										[PIN_6502_AB0]  = signal_split(SIGNAL(bus_address), 0, 1),
+										[PIN_6502_AB1]  = signal_split(SIGNAL(bus_address), 1, 1),
+										[PIN_6502_AB2]  = signal_split(SIGNAL(bus_address), 2, 1),
+										[PIN_6502_AB3]  = signal_split(SIGNAL(bus_address), 3, 1),
+										[PIN_6502_AB4]  = signal_split(SIGNAL(bus_address), 4, 1),
+										[PIN_6502_AB5]  = signal_split(SIGNAL(bus_address), 5, 1),
+										[PIN_6502_AB6]  = signal_split(SIGNAL(bus_address), 6, 1),
+										[PIN_6502_AB7]  = signal_split(SIGNAL(bus_address), 7, 1),
+										[PIN_6502_AB8]  = signal_split(SIGNAL(bus_address), 8, 1),
+										[PIN_6502_AB9]  = signal_split(SIGNAL(bus_address), 9, 1),
+										[PIN_6502_AB10] = signal_split(SIGNAL(bus_address), 10, 1),
+										[PIN_6502_AB11] = signal_split(SIGNAL(bus_address), 11, 1),
+										[PIN_6502_AB12] = signal_split(SIGNAL(bus_address), 12, 1),
+										[PIN_6502_AB13] = signal_split(SIGNAL(bus_address), 13, 1),
+										[PIN_6502_AB14] = signal_split(SIGNAL(bus_address), 14, 1),
+										[PIN_6502_AB15] = signal_split(SIGNAL(bus_address), 15, 1),
+
+										[PIN_6502_DB0]  = signal_split(SIGNAL(bus_data), 0, 1),
+										[PIN_6502_DB1]  = signal_split(SIGNAL(bus_data), 1, 1),
+										[PIN_6502_DB2]  = signal_split(SIGNAL(bus_data), 2, 1),
+										[PIN_6502_DB3]  = signal_split(SIGNAL(bus_data), 3, 1),
+										[PIN_6502_DB4]  = signal_split(SIGNAL(bus_data), 4, 1),
+										[PIN_6502_DB5]  = signal_split(SIGNAL(bus_data), 5, 1),
+										[PIN_6502_DB6]  = signal_split(SIGNAL(bus_data), 6, 1),
+										[PIN_6502_DB7]  = signal_split(SIGNAL(bus_data), 7, 1),
+
+										[PIN_6502_CLK]   = SIGNAL(clock),
+										[PIN_6502_RES_B] = SIGNAL(reset_b),
+										[PIN_6502_RW]	 = SIGNAL(cpu_rw),
+										[PIN_6502_IRQ_B] = SIGNAL(cpu_irq_b),
+										[PIN_6502_NMI_B] = SIGNAL(cpu_nmi_b),
+										[PIN_6502_SYNC]  = SIGNAL(cpu_sync),
+										[PIN_6502_RDY]   = SIGNAL(cpu_rdy)
 	});
 	DEVICE_REGISTER_CHIP("CPU", device->cpu);
 

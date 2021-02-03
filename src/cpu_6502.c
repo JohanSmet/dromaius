@@ -2,6 +2,7 @@
 //
 // Emulation of the MOS 6502
 
+#define SIGNAL_ARRAY_STYLE
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
 #include "simulator.h"
@@ -10,9 +11,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SIGNAL_POOL			cpu->signal_pool
-#define SIGNAL_COLLECTION	cpu->signals
-#define SIGNAL_CHIP_ID		cpu->id
+#define SIGNAL_OWNER		cpu
+#define SIGNAL_PREFIX		PIN_6502_
 
 /*
 
@@ -110,10 +110,6 @@ typedef union addr_t {
 typedef struct Cpu6502_private {
 	Cpu6502			intf;
 
-	bool			prev_clock;
-	bool			prev_reset;
-	bool			prev_nmi;
-
 	uint8_t			in_data;				// incoming data (only valid when signal rw is high)
 	uint8_t			out_data;				// outgoing data
 	bool			drv_data;				// cpu will drive the databus ?
@@ -150,18 +146,16 @@ typedef struct Cpu6502_private {
 static void process_end(Cpu6502 *cpu) {
 
 	// always write to the output pins that aren't tristate
-	SIGNAL_SET_UINT16(bus_address, PRIVATE(cpu)->out_address);
-	SIGNAL_SET_BOOL(rw, PRIVATE(cpu)->out_rw);
-	SIGNAL_SET_BOOL(sync, PRIVATE(cpu)->decode_cycle == 0);
+	SIGNAL_GROUP_WRITE(address, PRIVATE(cpu)->out_address);
+	SIGNAL_WRITE(RW, PRIVATE(cpu)->out_rw);
+	SIGNAL_WRITE(SYNC, PRIVATE(cpu)->decode_cycle == 0);
 
 	// optionally drive the line for tri-state outputs
 	if (PRIVATE(cpu)->drv_data) {
-		SIGNAL_SET_UINT8(bus_data, PRIVATE(cpu)->out_data);
+		SIGNAL_GROUP_WRITE(data, PRIVATE(cpu)->out_data);
 	} else {
-		SIGNAL_NO_WRITE(bus_data);
+		SIGNAL_GROUP_NO_WRITE(data);
 	}
-
-	PRIVATE(cpu)->prev_clock = SIGNAL_BOOL(clock);
 }
 
 static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTERRUPT_TYPE irq_type) {
@@ -2065,7 +2059,7 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	// data-bus
 	PRIVATE(cpu)->drv_data = false;
-	PRIVATE(cpu)->in_data = SIGNAL_UINT8(bus_data);
+	PRIVATE(cpu)->in_data = SIGNAL_GROUP_READ_U8(data);
 
 	// initialization is treated seperately
 	if (PRIVATE(cpu)->state == CS_INIT) {
@@ -2079,7 +2073,7 @@ static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			PRIVATE(cpu)->state = CS_IN_NMI;
 			PRIVATE(cpu)->nmi_triggered = false;
 		}
-		if (ACTLO_ASSERTED(SIGNAL_BOOL(irq_b)) && !FLAG_IS_SET(cpu->reg_p, FLAG_6502_INTERRUPT_DISABLE)) {
+		if (ACTLO_ASSERTED(SIGNAL_READ(IRQ_B)) && !FLAG_IS_SET(cpu->reg_p, FLAG_6502_INTERRUPT_DISABLE)) {
 			PRIVATE(cpu)->state = CS_IN_IRQ;
 		}
 		if (PRIVATE(cpu)->override_pc) {
@@ -2115,12 +2109,12 @@ void cpu_6502_override_next_instruction_address(Cpu6502 *cpu, uint16_t pc) {
 
 bool cpu_6502_at_start_of_instruction(Cpu6502 *cpu) {
 	assert(cpu);
-	return SIGNAL_NEXT_BOOL(sync);
+	return SIGNAL_READ_NEXT(SYNC);
 }
 
 bool cpu_6502_irq_is_asserted(Cpu6502 *cpu) {
 	assert(cpu);
-	return ACTLO_ASSERTED(SIGNAL_NEXT_BOOL(irq_b));
+	return ACTLO_ASSERTED(SIGNAL_READ_NEXT(IRQ_B));
 }
 
 int64_t cpu_6502_program_counter(Cpu6502 *cpu) {
@@ -2132,6 +2126,10 @@ int64_t cpu_6502_program_counter(Cpu6502 *cpu) {
 //
 // interface functions
 //
+
+static void cpu_6502_destroy(Cpu6502 *cpu);
+static void cpu_6502_register_dependencies(Cpu6502 *cpu);
+static void cpu_6502_process(Cpu6502 *cpu);
 
 Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 
@@ -2147,86 +2145,112 @@ Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 	cpu->irq_is_asserted = (CPU_IRQ_IS_ASSERTED) cpu_6502_irq_is_asserted;
 	cpu->program_counter = (CPU_PROGRAM_COUNTER) cpu_6502_program_counter;
 
-	memcpy(&cpu->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(bus_address, 16);
-	SIGNAL_DEFINE(bus_data, 8);
-	SIGNAL_DEFINE(clock, 1);
-	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(rw, 1, true);
-	SIGNAL_DEFINE_BOOL(irq_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(nmi_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE(sync, 1);
-	SIGNAL_DEFINE_BOOL(rdy, 1, ACTHI_ASSERT);
+	memcpy(cpu->signals, signals, sizeof(Cpu6502Signals));
+
+	cpu->sg_address = signal_group_create();
+	cpu->sg_data = signal_group_create();
+
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB0, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB1, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB2, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB3, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB4, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB5, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB6, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB7, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB8, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB9, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB10, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB11, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB12, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB13, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB14, address);
+	SIGNAL_DEFINE_GROUP(PIN_6502_AB15, address);
+
+	SIGNAL_DEFINE_GROUP(PIN_6502_DB0, data);
+	SIGNAL_DEFINE_GROUP(PIN_6502_DB1, data);
+	SIGNAL_DEFINE_GROUP(PIN_6502_DB2, data);
+	SIGNAL_DEFINE_GROUP(PIN_6502_DB3, data);
+	SIGNAL_DEFINE_GROUP(PIN_6502_DB4, data);
+	SIGNAL_DEFINE_GROUP(PIN_6502_DB5, data);
+	SIGNAL_DEFINE_GROUP(PIN_6502_DB6, data);
+	SIGNAL_DEFINE_GROUP(PIN_6502_DB7, data);
+
+	SIGNAL_DEFINE_DEFAULT(PIN_6502_RDY, ACTHI_ASSERT);
+	SIGNAL_DEFINE(PIN_6502_PHI1O);
+	SIGNAL_DEFINE_DEFAULT(PIN_6502_IRQ_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(PIN_6502_NMI_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(PIN_6502_SYNC);
+	SIGNAL_DEFINE_DEFAULT(PIN_6502_RW, true);
+	SIGNAL_DEFINE(PIN_6502_CLK);
+	SIGNAL_DEFINE(PIN_6502_SO);
+	SIGNAL_DEFINE(PIN_6502_PHI2O);
+	SIGNAL_DEFINE_DEFAULT(PIN_6502_RES_B, ACTLO_DEASSERT);
 
 	priv->decode_cycle = -1;
 	priv->state = CS_INIT;
 	priv->nmi_triggered = false;
-	priv->prev_nmi = true;
-	priv->prev_reset = ACTLO_DEASSERT;
 	priv->override_pc = 0;
 
 	return cpu;
 }
 
-void cpu_6502_register_dependencies(Cpu6502 *cpu) {
+static void cpu_6502_register_dependencies(Cpu6502 *cpu) {
 	assert(cpu);
-	signal_add_dependency(cpu->signal_pool, SIGNAL(clock), cpu->id);
-	signal_add_dependency(cpu->signal_pool, SIGNAL(reset_b), cpu->id);
+	SIGNAL_DEPENDENCY(CLK);
+	SIGNAL_DEPENDENCY(RES_B);
 }
 
-void cpu_6502_destroy(Cpu6502 *cpu) {
+static void cpu_6502_destroy(Cpu6502 *cpu) {
 	assert(cpu);
 	free((Cpu6502_private *) cpu);
 }
 
-void cpu_6502_process(Cpu6502 *cpu) {
+static void cpu_6502_process(Cpu6502 *cpu) {
 	assert(cpu);
 	Cpu6502_private *priv = (Cpu6502_private *) cpu;
 
 	// check for changes in the reset line
-	bool reset_b = SIGNAL_BOOL(reset_b);
+	bool reset_b = SIGNAL_READ(RES_B);
 
-	if (!ACTLO_ASSERTED(priv->prev_reset) && ACTLO_ASSERTED(reset_b)) {
-		// reset was just asserted
-		priv->out_address = 0;
-
-		priv->out_rw = RW_READ;
-		priv->prev_reset = reset_b;
-	} else if (ACTLO_ASSERTED(priv->prev_reset) && !ACTLO_ASSERTED(reset_b)) {
-		// reset was just deasserted - start initialization sequence
-		priv->prev_reset = reset_b;
-		priv->state = CS_INIT;
-		priv->decode_cycle = -1;
-		priv->delayed_cycle = false;
+	if (SIGNAL_CHANGED(RES_B)) {
+		if (ACTLO_ASSERTED(reset_b)) {
+			// reset was just asserted
+			priv->out_address = 0;
+			priv->out_rw = RW_READ;
+		} else {
+			// reset was just deasserted - start initialization sequence
+			priv->state = CS_INIT;
+			priv->decode_cycle = -1;
+			priv->delayed_cycle = false;
+		}
 	}
 
 	// do nothing:
 	//  - if reset is asserted or
 	//  - if rdy is not asserted
-	if (ACTLO_ASSERTED(reset_b) || !ACTHI_ASSERTED(SIGNAL_BOOL(rdy))) {
+	if (ACTLO_ASSERTED(reset_b) || !ACTHI_ASSERTED(SIGNAL_READ(RDY))) {
 		process_end(cpu);
 		return;
 	}
 
 	// always check for an nmi request
-	bool nmi_b = SIGNAL_BOOL(nmi_b);
-
-	if (nmi_b != priv->prev_nmi) {
-		priv->nmi_triggered = priv->nmi_triggered || !nmi_b;
-		priv->prev_nmi = nmi_b;
+	if (SIGNAL_CHANGED(NMI_B)) {
+		priv->nmi_triggered = priv->nmi_triggered || !SIGNAL_READ(NMI_B);
 	}
 
 	// normal processing
-	bool clock = SIGNAL_BOOL(clock);
+	bool clock = SIGNAL_READ(CLK);
+	bool clock_changed = SIGNAL_CHANGED(CLK);
 
 	if (priv->delayed_cycle) {
 		priv->delayed_cycle = false;
 		++priv->decode_cycle;
 		cpu_6502_execute_phase(cpu, CYCLE_BEGIN);
-	} else if (clock && !priv->prev_clock) {
+	} else if (clock && clock_changed) {
 		// a positive going clock marks the halfway point of the cycle
 		cpu_6502_execute_phase(cpu, CYCLE_MIDDLE);
-	} else if (!clock && priv->prev_clock) {
+	} else if (!clock && clock_changed) {
 		// a negative going clock ends the previous cycle and starts a new cycle
 		cpu_6502_execute_phase(cpu, CYCLE_END);
 
@@ -2238,9 +2262,3 @@ void cpu_6502_process(Cpu6502 *cpu) {
 	process_end(cpu);
 	return;
 }
-
-bool cpu_6502_in_initialization(Cpu6502 *cpu)  {
-	assert(cpu);
-	return PRIVATE(cpu)->state == CS_INIT;
-}
-

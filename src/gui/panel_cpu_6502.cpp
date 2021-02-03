@@ -2,14 +2,15 @@
 //
 // UI panel to display information about a MOS 6502
 
+#define SIGNAL_ARRAY_STYLE
 #include "panel_cpu_6502.h"
 
 #include "widgets.h"
 #include "cpu_6502.h"
 #include "ui_context.h"
 
-#define SIGNAL_POOL			cpu->signal_pool
-#define SIGNAL_COLLECTION	cpu->signals
+#define SIGNAL_OWNER		cpu
+#define SIGNAL_PREFIX		PIN_6502_
 
 class PanelCpu6502 : public Panel {
 public:
@@ -23,7 +24,7 @@ public:
 	void display() override {
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
-		
+
 		if (ImGui::Begin(title.c_str(), &stay_open)) {
 			auto origin = ImGui::GetCursorPos();
 
@@ -35,8 +36,8 @@ public:
 			ui_register_16bit(8, "Program Counter", cpu->reg_pc);
 			ui_register_8bit(8, "Instruction", cpu->reg_ir);
 			ui_register_8bit(8, "Processor Status", cpu->reg_p);
-			ui_register_16bit(8, "Address Bus", SIGNAL_NEXT_UINT16(bus_address));
-			ui_register_8bit(8, "Data Bus", SIGNAL_NEXT_UINT8(bus_data));
+			ui_register_16bit(8, "Address Bus", SIGNAL_GROUP_READ_NEXT_U16(address));
+			ui_register_8bit(8, "Data Bus", SIGNAL_GROUP_READ_NEXT_U8(data));
 
 			// right column
 			ImGui::SetCursorPos({origin.x + 180, origin.y});
@@ -62,12 +63,12 @@ public:
 			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_C)), ImGuiEx::TAH_CENTER);
 			ImGui::NewLine();
 
-			ui_signal(180, "/RES", SIGNAL_NEXT_BOOL(reset_b), ACTLO_ASSERT);
-			ui_signal(180, "/IRQ", SIGNAL_NEXT_BOOL(irq_b), ACTLO_ASSERT);
-			ui_signal(180, "/NMI", SIGNAL_NEXT_BOOL(nmi_b), ACTLO_ASSERT);
-			ui_signal(180, "RDY",  SIGNAL_NEXT_BOOL(rdy), ACTHI_ASSERT);
-			ui_signal(180, "SYNC", SIGNAL_NEXT_BOOL(sync), ACTHI_ASSERT);
-			ui_signal(180, "R/W",  SIGNAL_NEXT_BOOL(rw), ACTHI_ASSERT);
+			ui_signal(180, "/RES", SIGNAL_READ_NEXT(RES_B), ACTLO_ASSERT);
+			ui_signal(180, "/IRQ", SIGNAL_READ_NEXT(IRQ_B), ACTLO_ASSERT);
+			ui_signal(180, "/NMI", SIGNAL_READ_NEXT(NMI_B), ACTLO_ASSERT);
+			ui_signal(180, "RDY",  SIGNAL_READ_NEXT(RDY), ACTHI_ASSERT);
+			ui_signal(180, "SYNC", SIGNAL_READ_NEXT(SYNC), ACTHI_ASSERT);
+			ui_signal(180, "R/W",  SIGNAL_READ_NEXT(RW), ACTHI_ASSERT);
 		}
 
 		ImGui::End();
