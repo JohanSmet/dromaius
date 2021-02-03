@@ -380,6 +380,12 @@ static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, i
 		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL, 1);		\
 	}
 
+#define SIGNAL_DEFINE_GROUP(sig, grp)									\
+	if (SIGNAL_COLLECTION[(sig)].count == 0) {							\
+		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL, 1);		\
+	}																	\
+	signal_group_push(&SIGNAL_OWNER->sg_ ## grp, SIGNAL_COLLECTION[(sig)]);
+
 #define SIGNAL_DEFINE_DEFAULT(sig,def)										\
 	if (SIGNAL_COLLECTION[(sig)].count == 0) {								\
 		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL, 1);			\
