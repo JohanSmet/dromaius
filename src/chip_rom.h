@@ -84,6 +84,9 @@ typedef struct Chip63xxRom {
 	SignalPool *		signal_pool;
 	Chip63xxSignals		signals;
 
+	SignalGroup			sg_address;
+	SignalGroup			sg_data;
+
 	// data
 	int64_t		output_delay;
 	int			last_address;
