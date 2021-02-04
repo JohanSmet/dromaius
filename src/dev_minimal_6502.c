@@ -290,12 +290,15 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DEVICE_REGISTER_CHIP("LCD", device->lcd);
 
 	// keypad
-	device->keypad = input_keypad_create(device->simulator, true, 4, 4, 500, 100, (InputKeypadSignals) {
-										.rows =  (Signal) {device->pia->signals[CHIP_6520_PB4].start, 4},
-										.cols =  (Signal) {device->pia->signals[CHIP_6520_PB0].start, 4}
-	});
+	device->keypad = input_keypad_create(device->simulator, true, 4, 4, 500, 100,
+										 (Signal[]) {device->pia->sg_port_b[4], device->pia->sg_port_b[5],
+													 device->pia->sg_port_b[6], device->pia->sg_port_b[7]},
+										 (Signal[]) {device->pia->sg_port_b[0], device->pia->sg_port_b[1],
+													 device->pia->sg_port_b[2], device->pia->sg_port_b[3]}
+	);
+
 	DEVICE_REGISTER_CHIP("KEYPAD", device->keypad);
-	signal_default_uint8(SIGNAL_POOL, device->keypad->signals.cols, false);
+	signal_group_defaults(SIGNAL_POOL, device->keypad->sg_rows, 0x00);
 
 	// custom chip for the glue logic
 	DEVICE_REGISTER_CHIP("LOGIC", glue_logic_create(device));

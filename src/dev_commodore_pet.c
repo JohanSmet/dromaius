@@ -1639,10 +1639,17 @@ void circuit_create_08(DevCommodorePet *device) {
 void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 
 	// keyboard
-	device->keypad = input_keypad_create(device->simulator, false, 10, 8, 500, 100, (InputKeypadSignals) {
-										.cols = SIGNAL(bus_kin),
-										.rows = SIGNAL(bus_kout)
-	});
+	device->keypad = input_keypad_create(device->simulator, false, 10, 8, 500, 100,
+										 (Signal[10]) {	 signal_split(SIGNAL(bus_kout), 0, 1), signal_split(SIGNAL(bus_kout), 1, 1),
+														 signal_split(SIGNAL(bus_kout), 2, 1), signal_split(SIGNAL(bus_kout), 3, 1),
+														 signal_split(SIGNAL(bus_kout), 4, 1), signal_split(SIGNAL(bus_kout), 5, 1),
+														 signal_split(SIGNAL(bus_kout), 6, 1), signal_split(SIGNAL(bus_kout), 7, 1),
+														 signal_split(SIGNAL(bus_kout), 8, 1), signal_split(SIGNAL(bus_kout), 9, 1)},
+										 (Signal[8]) {	 signal_split(SIGNAL(bus_kin), 0, 1), signal_split(SIGNAL(bus_kin), 1, 1),
+														 signal_split(SIGNAL(bus_kin), 2, 1), signal_split(SIGNAL(bus_kin), 3, 1),
+														 signal_split(SIGNAL(bus_kin), 4, 1), signal_split(SIGNAL(bus_kin), 5, 1),
+														 signal_split(SIGNAL(bus_kin), 6, 1), signal_split(SIGNAL(bus_kin), 7, 1)}
+	);
 	DEVICE_REGISTER_CHIP("KEYPAD", device->keypad);
 
 	// display

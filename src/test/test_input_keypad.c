@@ -1,12 +1,12 @@
 // test/test_input_keypad.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
+#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "input_keypad.h"
 #include "simulator.h"
 
-#define SIGNAL_POOL			keypad->signal_pool
-#define SIGNAL_COLLECTION	keypad->signals
-#define SIGNAL_CHIP_ID		keypad->id
+#define SIGNAL_OWNER		keypad
+#define SIGNAL_PREFIX
 
 static void input_keypad_teardown(InputKeypad *keypad) {
 	simulator_destroy(keypad->simulator);
@@ -20,13 +20,13 @@ static inline void run_cycle(InputKeypad *keypad) {
 }
 
 #define CHECK_ROW(row, expected)								\
-	SIGNAL_SET_UINT16(rows, (row));								\
+	SIGNAL_GROUP_WRITE(rows, (row));							\
 	run_cycle(keypad);											\
-	munit_assert_uint8(SIGNAL_NEXT_UINT8(cols), ==, (expected));
+	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(cols), ==, (expected));
 
 MunitResult test_keypad_4x4(const MunitParameter params[], void *user_data_or_fixture) {
 
-	InputKeypad *keypad = input_keypad_create(simulator_create(NS_TO_PS(100)), true, 4, 4, 5, 1000, (InputKeypadSignals) {0});
+	InputKeypad *keypad = input_keypad_create(simulator_create(NS_TO_PS(100)), true, 4, 4, 5, 1000, NULL, NULL);
 
 	int64_t tick_interval = simulator_interval_to_tick_count(keypad->simulator, FREQUENCY_TO_PS(1000));
 
@@ -64,8 +64,8 @@ MunitResult test_keypad_4x4(const MunitParameter params[], void *user_data_or_fi
 
 MunitResult test_keypad_10x8(const MunitParameter params[], void *user_data_or_fixture) {
 
-	InputKeypad *keypad = input_keypad_create(simulator_create(NS_TO_PS(100)), false, 10, 8, 5, 1000, (InputKeypadSignals) {0});
-	signal_default_uint8(keypad->signal_pool, SIGNAL(cols), 0xff);
+	InputKeypad *keypad = input_keypad_create(simulator_create(NS_TO_PS(100)), false, 10, 8, 5, 1000, NULL, NULL);
+	SIGNAL_GROUP_DEFAULTS(cols, 0xff);
 
 	int64_t tick_interval = simulator_interval_to_tick_count(keypad->simulator, FREQUENCY_TO_PS(1000));
 

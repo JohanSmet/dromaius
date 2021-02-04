@@ -13,17 +13,15 @@ extern "C" {
 #endif
 
 // types
-typedef struct InputKeypadSignals {
-	Signal	rows;				// n-bit (input)
-	Signal	cols;				// n-bit (output)
-} InputKeypadSignals;
-
 typedef struct InputKeypad {
 	CHIP_DECLARE_FUNCTIONS
 
 	// interface
 	SignalPool *		signal_pool;
-	InputKeypadSignals	signals;
+	Signal *			signals;
+
+	SignalGroup			sg_rows;
+	SignalGroup			sg_cols;
 
 	// data
 	bool				active_high;
@@ -39,7 +37,9 @@ InputKeypad *input_keypad_create(struct Simulator *sim,
 								 size_t row_count, size_t col_count,
 								 int dwell_ms,
 								 int matrix_scan_frequency,
-							   	 InputKeypadSignals signals);
+								 Signal *row_signals,
+								 Signal *col_signals
+);
 
 void input_keypad_register_dependencies(InputKeypad *keypad);
 void input_keypad_destroy(InputKeypad *keypad);

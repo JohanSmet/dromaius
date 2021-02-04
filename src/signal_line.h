@@ -262,9 +262,30 @@ static inline SignalGroup signal_group_create(void) {
 	return NULL;
 }
 
+static inline size_t signal_group_size(SignalGroup sg) {
+	return arrlenu(sg);
+}
+
 static inline void signal_group_push(SignalGroup *group, Signal signal) {
 	assert(group);
 	arrpush(*group, signal);
+}
+
+static inline SignalGroup signal_group_create_from_array(size_t size, Signal *signals) {
+	SignalGroup result = NULL;
+	for (size_t i = 0; i < size; ++i) {
+		signal_group_push(&result, signals[i]);
+	}
+	return result;
+}
+
+static inline void signal_group_defaults(SignalPool *pool, SignalGroup sg, int32_t value) {
+	assert(arrlen(sg) <= 32);
+
+	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
+		signal_default_bool(pool, sg[i], value & 1);
+		value >>= 1;
+	}
 }
 
 static inline int32_t signal_group_read(SignalPool* pool, SignalGroup sg) {
@@ -404,6 +425,7 @@ static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, i
 
 #define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_ID)
 
+#define SIGNAL_GROUP_DEFAULTS(grp,v)		signal_group_defaults(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, (v))
 #define SIGNAL_GROUP_READ_U8(grp)			((uint8_t) signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
 #define SIGNAL_GROUP_READ_U16(grp)			((uint16_t) signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
 #define SIGNAL_GROUP_READ_U32(grp)			(signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))

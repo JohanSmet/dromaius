@@ -2,6 +2,7 @@
 //
 // configurable keypad
 
+#define SIGNAL_ARRAY_STYLE
 #include "input_keypad.h"
 #include "simulator.h"
 
@@ -9,9 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SIGNAL_POOL			keypad->signal_pool
-#define SIGNAL_COLLECTION	keypad->signals
-#define SIGNAL_CHIP_ID		keypad->id
+#define SIGNAL_OWNER		keypad
+#define SIGNAL_PREFIX
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -46,7 +46,11 @@ InputKeypad *input_keypad_create(Simulator *sim,
 								 size_t row_count, size_t col_count,
 								 int dwell_ms,
 								 int matrix_scan_frequency,
-								 InputKeypadSignals signals) {
+								 Signal *row_signals,
+								 Signal *col_signals) {
+
+	assert((row_signals == NULL && col_signals == NULL) || (row_signals != NULL && col_signals != NULL));
+
 	InputKeypadPrivate *priv = calloc(1, sizeof(InputKeypadPrivate));
 	InputKeypad *keypad = &priv->intf;
 	CHIP_SET_FUNCTIONS(keypad, input_keypad_process, input_keypad_destroy, input_keypad_register_dependencies);
@@ -68,21 +72,41 @@ InputKeypad *input_keypad_create(Simulator *sim,
 	priv->next_keypad_scan_tick = priv->keypad_scan_interval;
 	priv->key_dwell_cycles = simulator_interval_to_tick_count(keypad->simulator, MS_TO_PS(priv->dwell_ms));
 
-	memcpy(&keypad->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(rows, (uint32_t) row_count);
-	SIGNAL_DEFINE(cols, (uint32_t) col_count);
+	keypad->signals = calloc(row_count + col_count, sizeof(Signal));
+
+	if (row_signals == NULL || col_signals == NULL) {
+		keypad->sg_rows = signal_group_create();
+		keypad->sg_cols = signal_group_create();
+
+		for (size_t i = 0; i < row_count; ++i) {
+			SIGNAL_DEFINE_GROUP(i, rows);
+		}
+		for (size_t i = 0; i < col_count; ++i) {
+			SIGNAL_DEFINE_GROUP(row_count + i, cols);
+		}
+	}
+	else {
+		keypad->sg_rows = signal_group_create_from_array(row_count, row_signals);
+		keypad->sg_cols = signal_group_create_from_array(col_count, col_signals);
+
+		memcpy(keypad->signals, row_signals, row_count * sizeof(Signal));
+		memcpy(keypad->signals + row_count, col_signals, col_count * sizeof(Signal));
+	}
 
 	return keypad;
 }
 
 void input_keypad_register_dependencies(InputKeypad *keypad) {
 	assert(keypad);
-	signal_add_dependency(keypad->signal_pool, SIGNAL(rows), keypad->id);
+	for (size_t i = 0; i < arrlenu(keypad->sg_rows); ++i) {
+		signal_add_dependency(SIGNAL_POOL, keypad->sg_rows[i], keypad->id);
+	}
 }
 
 void input_keypad_destroy(InputKeypad *keypad) {
 	assert(keypad);
 	free(keypad->keys);
+	free(keypad->signals);
 	free(PRIVATE(keypad)->key_release_ticks);
 	free(PRIVATE(keypad));
 }
@@ -91,7 +115,7 @@ void input_keypad_process(InputKeypad *keypad) {
 	assert(keypad);
 
 	if (PRIVATE(keypad)->keys_down_count == 0) {
-		SIGNAL_SET_UINT16(cols, (uint16_t) (keypad->active_high - 1));
+		SIGNAL_GROUP_WRITE(cols, (uint16_t) (keypad->active_high - 1));
 		return;
 	}
 
@@ -122,7 +146,7 @@ void input_keypad_process(InputKeypad *keypad) {
 	// output signals
 
 	// >> reset entire output to not asserted values
-	SIGNAL_SET_UINT16(cols, (uint16_t) (keypad->active_high - 1));
+	SIGNAL_GROUP_WRITE(cols, (uint16_t) (keypad->active_high - 1));
 
 	// >> set bits for pressed keys of selected row
 	for (size_t i = 0; i < PRIVATE(keypad)->keys_down_count; ++i) {
@@ -130,11 +154,11 @@ void input_keypad_process(InputKeypad *keypad) {
 		uint32_t r = k / (uint32_t) keypad->col_count;
 		uint32_t c = k - (r * (uint32_t) keypad->col_count);
 
-		bool input = signal_read_bool(keypad->signal_pool, signal_split(SIGNAL(rows), r, 1));
+		bool input = signal_read_bool(SIGNAL_POOL, keypad->sg_rows[r]);
 		if (input != keypad->active_high) {
 			continue;
 		}
-		signal_write_bool(keypad->signal_pool, signal_split(SIGNAL(cols), c, 1), input, keypad->id);
+		signal_write_bool(SIGNAL_POOL, keypad->sg_cols[c], input, keypad->id);
 	}
 }
 
