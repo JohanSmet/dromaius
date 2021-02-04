@@ -2,6 +2,7 @@
 //
 // Emulation of a Commodore 1530 Datasette
 
+#define SIGNAL_ARRAY_STYLE
 #include "perif_datassette_1530.h"
 #include "simulator.h"
 
@@ -11,9 +12,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define SIGNAL_POOL			datassette->signal_pool
-#define SIGNAL_COLLECTION	datassette->signals
-#define SIGNAL_CHIP_ID		datassette->id
+#define SIGNAL_PREFIX		PIN_DS1530_
+#define SIGNAL_OWNER		datassette
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -231,9 +231,9 @@ static inline void ds_rewind(PerifDatassette *datassette) {
 // interface functions
 //
 
-void perif_datassette_destroy(PerifDatassette *datassette);
-void perif_datassette_register_dependencies(PerifDatassette *datassette);
-void perif_datassette_process(PerifDatassette *datassette);
+static void perif_datassette_destroy(PerifDatassette *datassette);
+static void perif_datassette_register_dependencies(PerifDatassette *datassette);
+static void perif_datassette_process(PerifDatassette *datassette);
 
 PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteSignals signals) {
 	PerifDatassette *datassette = (PerifDatassette *) calloc(1, sizeof(PerifDatassette));
@@ -244,14 +244,14 @@ PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteS
 	// signals
 	datassette->simulator = sim;
 	datassette->signal_pool = sim->signal_pool;
-	memcpy(&datassette->signals, &signals, sizeof(signals));
+	memcpy(datassette->signals, signals, sizeof(PerifDatassetteSignals));
 
-	SIGNAL_DEFINE_BOOL(gnd, 1, false);
-	SIGNAL_DEFINE_BOOL(vcc, 1, false);
-	SIGNAL_DEFINE(motor, 1);
-	SIGNAL_DEFINE(data_from_ds, 1)
-	SIGNAL_DEFINE(data_to_ds, 1);
-	SIGNAL_DEFINE(sense, 1);
+	SIGNAL_DEFINE_DEFAULT(PIN_DS1530_GND, false);
+	SIGNAL_DEFINE_DEFAULT(PIN_DS1530_VCC, true);
+	SIGNAL_DEFINE(PIN_DS1530_MOTOR);
+	SIGNAL_DEFINE(PIN_DS1530_DATA_FROM_DS)
+	SIGNAL_DEFINE(PIN_DS1530_DATA_TO_DS);
+	SIGNAL_DEFINE(PIN_DS1530_SENSE);
 
 	// data
 	datassette->sense_out = ACTLO_DEASSERT;
@@ -262,29 +262,29 @@ PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteS
 	return datassette;
 }
 
-void perif_datassette_destroy(PerifDatassette *datassette) {
+static void perif_datassette_destroy(PerifDatassette *datassette) {
 	assert(datassette);
 	free(datassette);
 }
 
-void perif_datassette_register_dependencies(PerifDatassette *datassette) {
+static void perif_datassette_register_dependencies(PerifDatassette *datassette) {
 	assert(datassette);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(motor), datassette->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(data_to_ds), datassette->id);
+	SIGNAL_DEPENDENCY(MOTOR);
+	SIGNAL_DEPENDENCY(DATA_TO_DS);
 }
 
-void perif_datassette_process(PerifDatassette *datassette) {
+static void perif_datassette_process(PerifDatassette *datassette) {
 	assert(datassette);
 
 	// sense signal
-	SIGNAL_SET_BOOL(sense, datassette->sense_out);
+	SIGNAL_WRITE(SENSE, datassette->sense_out);
 
 	// recording - timing is driven by the signals from the computer
 	if (datassette->state == STATE_RECORDING) {
-		bool motor = SIGNAL_BOOL(motor);
+		bool motor = SIGNAL_READ(MOTOR);
 
 		// write a sample on the positive edge of data_to_ds
-		if (motor && SIGNAL_BOOL(data_to_ds) && signal_changed(SIGNAL_POOL, SIGNAL(data_to_ds))) {
+		if (motor && SIGNAL_READ(DATA_TO_DS) && SIGNAL_CHANGED(DATA_TO_DS)) {
 			if (datassette->record_prev_tick > 0) {
 				int64_t length_ticks = datassette->simulator->current_tick - datassette->record_prev_tick;
 				datassette->record_count += 1;
@@ -304,7 +304,7 @@ void perif_datassette_process(PerifDatassette *datassette) {
 	}
 
 	// don't do anything if motor isn't being driven
-	if (!SIGNAL_BOOL(motor)) {
+	if (!SIGNAL_READ(MOTOR)) {
 		// schedule sense signal check
 		datassette->schedule_timestamp = datassette->simulator->current_tick + datassette->idle_interval;
 		return;
@@ -328,7 +328,7 @@ void perif_datassette_process(PerifDatassette *datassette) {
 			}
 		}
 
-		SIGNAL_SET_BOOL(data_from_ds, datassette->data_out);
+		SIGNAL_WRITE(DATA_FROM_DS, datassette->data_out);
 	} else if (datassette->state == STATE_REWINDING && datassette->tick_next_transition <= datassette->simulator->current_tick) {
 		ds_rewind(datassette);
 		datassette->tick_next_transition = datassette->simulator->current_tick + datassette->idle_interval;

@@ -1668,10 +1668,10 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 
 	// datassette
 	device->datassette = perif_datassette_create(device->simulator, (PerifDatassetteSignals) {
-											.sense = SIGNAL(cass_switch_1),
-											.motor = SIGNAL(cass_motor_1),
-											.data_from_ds = SIGNAL(cass_read_1),
-											.data_to_ds = SIGNAL(cass_write)
+											[PIN_DS1530_SENSE] = SIGNAL(cass_switch_1),
+											[PIN_DS1530_MOTOR] = SIGNAL(cass_motor_1),
+											[PIN_DS1530_DATA_FROM_DS] = SIGNAL(cass_read_1),
+											[PIN_DS1530_DATA_TO_DS] = SIGNAL(cass_write)
 	});
 	DEVICE_REGISTER_CHIP("CASS1", device->datassette);
 }

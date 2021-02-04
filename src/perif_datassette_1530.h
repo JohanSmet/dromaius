@@ -22,14 +22,16 @@ typedef enum {
 	DS_KEY_EJECT	= 1 << 5
 } PerifDatassetteKeys;
 
-typedef struct PerifDatassetteSignals {
-	Signal	gnd;			// A-1
-	Signal	vcc;			// B-2
-	Signal	motor;			// C-3
-	Signal	data_from_ds;	// D-4
-	Signal	data_to_ds;		// E-5
-	Signal	sense;			// F-6
-} PerifDatassetteSignals;
+enum PerifDatassetteSignalAssignment {
+	PIN_DS1530_GND			= CHIP_PIN_01,	// A-1
+	PIN_DS1530_VCC			= CHIP_PIN_02,	// B-2
+	PIN_DS1530_MOTOR		= CHIP_PIN_03,	// C-3
+	PIN_DS1530_DATA_FROM_DS = CHIP_PIN_04,	// D-4
+	PIN_DS1530_DATA_TO_DS	= CHIP_PIN_05,	// E-5
+	PIN_DS1530_SENSE		= CHIP_PIN_06,	// F-6
+};
+
+typedef Signal PerifDatassetteSignals[6];
 
 typedef struct TapData {
 	int8_t *	raw;

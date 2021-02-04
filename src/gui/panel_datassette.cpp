@@ -1,5 +1,6 @@
 // gui/panel_datassette.h - Johan Smet - BSD-3-Clause (see LICENSE)
 
+#define SIGNAL_ARRAY_STYLE
 #include "panel_datassette.h"
 #include "ui_context.h"
 
@@ -11,8 +12,8 @@
 
 #include "popup_file_selector.h"
 
-#define SIGNAL_POOL			datassette->signal_pool
-#define SIGNAL_COLLECTION	datassette->signals
+#define SIGNAL_PREFIX		PIN_DS1530_
+#define SIGNAL_OWNER		datassette
 
 namespace {
 
@@ -83,10 +84,10 @@ public:
 			ImGui::InputText("##new_tap", &tap_filename);
 
 			auto origin = ImGui::GetCursorPos();
-			ui_signal(20, "/SENSE", SIGNAL_NEXT_BOOL(sense), ACTLO_ASSERT);
-			ui_signal(20, "MOTOR", SIGNAL_NEXT_BOOL(motor), ACTHI_ASSERT);
-			ui_signal(20, "READ", SIGNAL_NEXT_BOOL(data_from_ds), ACTHI_ASSERT);
-			ui_signal(20, "WRITE", SIGNAL_NEXT_BOOL(data_to_ds), ACTHI_ASSERT);
+			ui_signal(20, "/SENSE", SIGNAL_READ_NEXT(SENSE), ACTLO_ASSERT);
+			ui_signal(20, "MOTOR", SIGNAL_READ_NEXT(MOTOR), ACTHI_ASSERT);
+			ui_signal(20, "READ", SIGNAL_READ_NEXT(DATA_FROM_DS), ACTHI_ASSERT);
+			ui_signal(20, "WRITE", SIGNAL_READ_NEXT(DATA_TO_DS), ACTHI_ASSERT);
 
 			ImGui::SetCursorPos({140, origin.y});
 			ImGui::Text("Position %.3lld (%s)", PS_TO_S(datassette->offset_ps), ds_state_strings[datassette->state]);
