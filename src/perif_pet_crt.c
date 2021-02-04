@@ -2,6 +2,7 @@
 //
 // Emulation of the PET 2001N 9" CRT Display
 
+#define SIGNAL_ARRAY_STYLE
 #include "perif_pet_crt.h"
 #include "simulator.h"
 
@@ -10,12 +11,15 @@
 #include <stdio.h>
 #include <string.h>
 
-#define SIGNAL_POOL			crt->signal_pool
-#define SIGNAL_COLLECTION	crt->signals
-#define SIGNAL_CHIP_ID		crt->id
+#define SIGNAL_PREFIX		PIN_PETCRT_
+#define SIGNAL_OWNER		crt
 
 #define COLOR_ON	0xff55ff55
 #define COLOR_BEAM  0xffffffff
+
+static void perif_pet_crt_destroy(PerifPetCrt *crt);
+static void perif_pet_crt_register_dependencies(PerifPetCrt *crt);
+static void perif_pet_crt_process(PerifPetCrt *crt);
 
 PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
 	PerifPetCrt *crt = (PerifPetCrt *) calloc(1, sizeof(PerifPetCrt));
@@ -26,10 +30,10 @@ PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
 	// signals
 	crt->simulator = sim;
 	crt->signal_pool = sim->signal_pool;
-	memcpy(&crt->signals, &signals, sizeof(signals));
-	SIGNAL_DEFINE(video_in, 1);
-	SIGNAL_DEFINE(vert_drive_in, 1);
-	SIGNAL_DEFINE(horz_drive_in, 1);
+	memcpy(crt->signals, signals, sizeof(PerifPetCrtSignals));
+	SIGNAL_DEFINE(PIN_PETCRT_VIDEO_IN);
+	SIGNAL_DEFINE(PIN_PETCRT_VERT_DRIVE_IN);
+	SIGNAL_DEFINE(PIN_PETCRT_HORZ_DRIVE_IN);
 
 	// display
 	size_t width = 40 * 8;
@@ -46,34 +50,34 @@ PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
 	return crt;
 }
 
-void perif_pet_crt_destroy(PerifPetCrt *crt) {
+static void perif_pet_crt_destroy(PerifPetCrt *crt) {
 	assert(crt);
 	display_rgba_destroy(crt->display);
 	free(crt);
 }
 
-void perif_pet_crt_register_dependencies(PerifPetCrt *crt) {
+static void perif_pet_crt_register_dependencies(PerifPetCrt *crt) {
 	assert(crt);
-	signal_add_dependency(crt->signal_pool, SIGNAL(horz_drive_in), crt->id);
-	signal_add_dependency(crt->signal_pool, SIGNAL(vert_drive_in), crt->id);
+	SIGNAL_DEPENDENCY(VERT_DRIVE_IN);
+	SIGNAL_DEPENDENCY(HORZ_DRIVE_IN);
 }
 
-void perif_pet_crt_process(PerifPetCrt *crt) {
+static void perif_pet_crt_process(PerifPetCrt *crt) {
 	assert(crt);
 
 	// in vertical retrace?
-	if (!SIGNAL_BOOL(vert_drive_in)) {
+	if (!SIGNAL_READ(VERT_DRIVE_IN)) {
 		crt->pos_y = 0;
 		return;
 	}
 
-	if (signal_changed(crt->signal_pool, SIGNAL(vert_drive_in))) {
+	if (SIGNAL_CHANGED(VERT_DRIVE_IN)) {
 		crt->schedule_timestamp = crt->simulator->current_tick + crt->vert_overscan_delay;
 		crt->next_action = MAX(crt->next_action, crt->schedule_timestamp);
 	}
 
 	// positive transition on horzontal drive signal? (== start horizontal retrace)
-	if (SIGNAL_BOOL(horz_drive_in) && signal_changed(crt->signal_pool, SIGNAL(horz_drive_in))) {
+	if (SIGNAL_READ(HORZ_DRIVE_IN) && SIGNAL_CHANGED(HORZ_DRIVE_IN)) {
 		if (crt->pos_x > 0) {
 			crt->pos_x = 0;
 			crt->pos_y += 1;
@@ -90,7 +94,7 @@ void perif_pet_crt_process(PerifPetCrt *crt) {
 	}
 
 	if (crt->pos_y < crt->display->height && crt->pos_x < crt->display->width) {
-		crt->display->frame[(crt->pos_y * crt->display->width) + crt->pos_x] = (SIGNAL_BOOL(video_in) ? 0 : COLOR_ON);
+		crt->display->frame[(crt->pos_y * crt->display->width) + crt->pos_x] = (SIGNAL_READ(VIDEO_IN) ? 0 : COLOR_ON);
 	}
 	crt->pos_x += 1;
 	crt->schedule_timestamp = crt->simulator->current_tick + crt->pixel_delta_steps;

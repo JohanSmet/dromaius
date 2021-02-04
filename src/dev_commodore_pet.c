@@ -1655,9 +1655,9 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 	// display
 	if (!lite) {
 		device->crt = perif_pet_crt_create(device->simulator, (PerifPetCrtSignals) {
-											.video_in = SIGNAL(video),
-											.horz_drive_in = SIGNAL(horz_drive),
-											.vert_drive_in = SIGNAL(vert_drive)
+											[PIN_PETCRT_VIDEO_IN] = SIGNAL(video),
+											[PIN_PETCRT_HORZ_DRIVE_IN] = SIGNAL(horz_drive),
+											[PIN_PETCRT_VERT_DRIVE_IN] = SIGNAL(vert_drive)
 		});
 		device->screen = device->crt->display;
 		DEVICE_REGISTER_CHIP("CRT", device->crt);

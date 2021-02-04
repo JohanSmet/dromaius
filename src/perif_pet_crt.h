@@ -14,11 +14,13 @@ extern "C" {
 #endif
 
 // types
-typedef struct PerifPetCrtSignals {
-	Signal	video_in;
-	Signal	vert_drive_in;
-	Signal	horz_drive_in;
-} PerifPetCrtSignals;
+enum PerifPetCrtSignalAssignment {
+	PIN_PETCRT_VIDEO_IN		 = CHIP_PIN_01,
+	PIN_PETCRT_VERT_DRIVE_IN = CHIP_PIN_02,
+	PIN_PETCRT_HORZ_DRIVE_IN = CHIP_PIN_03
+};
+
+typedef Signal PerifPetCrtSignals[3];
 
 typedef struct PerifPetCrt {
 	CHIP_DECLARE_FUNCTIONS
@@ -38,9 +40,6 @@ typedef struct PerifPetCrt {
 
 // functions
 PerifPetCrt *perif_pet_crt_create(struct Simulator *sim, PerifPetCrtSignals signals);
-void perif_pet_crt_destroy(PerifPetCrt *crt);
-void perif_pet_crt_register_dependencies(PerifPetCrt *crt);
-void perif_pet_crt_process(PerifPetCrt *crt);
 
 #ifdef __cplusplus
 }
