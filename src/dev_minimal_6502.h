@@ -24,33 +24,61 @@ extern "C" {
 #endif
 
 // types
-typedef struct DevMinimal6502Signals {
-	Signal		bus_address;		// 16-bit address bus
-	Signal		bus_data;			// 8-bit data bus
+enum DevMinimal6502SignalAssignment {
 
-	Signal		reset_btn_b;		// 1-bit
-	Signal		reset_b;			// 1-bit
-	Signal		clock;				// 1-bit
+	// 16-bit address bus
+	SIG_M6502_AB0 = 0,
+	SIG_M6502_AB1,
+	SIG_M6502_AB2,
+	SIG_M6502_AB3,
+	SIG_M6502_AB4,
+	SIG_M6502_AB5,
+	SIG_M6502_AB6,
+	SIG_M6502_AB7,
+	SIG_M6502_AB8,
+	SIG_M6502_AB9,
+	SIG_M6502_AB10,
+	SIG_M6502_AB11,
+	SIG_M6502_AB12,
+	SIG_M6502_AB13,
+	SIG_M6502_AB14,
+	SIG_M6502_AB15,
 
-	Signal		cpu_rw;				// 1-bit
-	Signal		cpu_irq_b;			// 1-bit
-	Signal		cpu_nmi_b;			// 1-bit
-	Signal		cpu_sync;			// 1-bit
-	Signal		cpu_rdy;			// 1-bit
+	// 8-bit data bus
+	SIG_M6502_DB0,
+	SIG_M6502_DB1,
+	SIG_M6502_DB2,
+	SIG_M6502_DB3,
+	SIG_M6502_DB4,
+	SIG_M6502_DB5,
+	SIG_M6502_DB6,
+	SIG_M6502_DB7,
 
-	Signal		ram_oe_b;			// 1-bit
-	Signal		ram_we_b;			// 1-bit
+	SIG_M6502_RESET_BTN_B,
 
-	Signal		rom_ce_b;			// 1-bit
+	SIG_M6502_RESET_B,
+	SIG_M6502_CLOCK,
 
-	Signal		pia_cs2_b;			// 1-bit
+	SIG_M6502_CPU_RW,
+	SIG_M6502_CPU_IRQ_B,
+	SIG_M6502_CPU_NMI_B,
+	SIG_M6502_CPU_SYNC,
+	SIG_M6502_CPU_RDY,
 
-	Signal		a15;				// 1-bit - top bit of the address bus
-	Signal		a14;				// 1-bit - second most significat bit of the address bus
+	SIG_M6502_RAM_OE_B,
+	SIG_M6502_RAM_WE_B,
 
-	Signal		high;				// 1-bit - always high
-	Signal		low;				// 1-bit - always low
-} DevMinimal6502Signals;
+	SIG_M6502_ROM_CE_B,
+
+	SIG_M6502_PIA_CS2_B,
+
+	SIG_M6502_LOW,
+	SIG_M6502_HIGH,
+
+	SIG_M6502_SIGNAL_COUNT
+};
+
+typedef Signal DevMinimal6502Signals[SIG_M6502_SIGNAL_COUNT];
 
 typedef struct DevMinimal6502 {
 	DEVICE_DECLARE_FUNCTIONS
@@ -67,7 +95,11 @@ typedef struct DevMinimal6502 {
 	bool			in_reset;
 
 	// signals
+	SignalPool *			signal_pool;
 	DevMinimal6502Signals	signals;
+
+	SignalGroup				sg_address;
+	SignalGroup				sg_data;
 } DevMinimal6502;
 
 // functions

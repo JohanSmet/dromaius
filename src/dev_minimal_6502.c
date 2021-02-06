@@ -2,6 +2,7 @@
 //
 // Emulates a minimal MOS-6502 based system, with 32kb of RAM and a 16kb system ROM.
 
+#define SIGNAL_ARRAY_STYLE
 #include "dev_minimal_6502.h"
 
 #include "utils.h"
@@ -19,8 +20,10 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define SIGNAL_POOL			device->simulator->signal_pool
-#define SIGNAL_COLLECTION	device->signals
+#define SIGNAL_PREFIX		SIG_M6502_
+#define SIGNAL_OWNER		device
+
+#undef  SIGNAL_CHIP_ID
 #define SIGNAL_CHIP_ID		chip->id
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,9 +54,9 @@ static void glue_logic_register_dependencies(ChipGlueLogic *chip) {
 	assert(chip);
 	DevMinimal6502 *device = chip->device;
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(cpu_rw), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(clock), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(bus_address), chip->id);
+	SIGNAL_DEPENDENCY(CPU_RW);
+	SIGNAL_DEPENDENCY(CLOCK);
+	SIGNAL_GROUP_DEPENDENCY(address);
 }
 
 static void glue_logic_destroy(ChipGlueLogic *chip) {
@@ -66,43 +69,34 @@ static void glue_logic_process(ChipGlueLogic *chip) {
 	DevMinimal6502 *device = chip->device;
 
 	// >> reset logic
-	SIGNAL_SET_BOOL(reset_btn_b, !device->in_reset);
+	SIGNAL_WRITE(RESET_BTN_B, !device->in_reset);
 	device->in_reset = false;
 
 	// >> ram logic
 	//  - ce_b: assert when top bit of address isn't set (copy of a15)
 	//	- oe_b: assert when cpu_rw is high
 	//	- we_b: assert when cpu_rw is low and clock is high
-	bool next_rw = SIGNAL_BOOL(cpu_rw);
-	SIGNAL_SET_BOOL(ram_oe_b, !next_rw);
-	SIGNAL_SET_BOOL(ram_we_b, next_rw || !SIGNAL_BOOL(clock));
+	bool next_rw = SIGNAL_READ(CPU_RW);
+	SIGNAL_WRITE(RAM_OE_B, !next_rw);
+	SIGNAL_WRITE(RAM_WE_B, next_rw || !SIGNAL_READ(CLOCK));
 
 	// >> rom logic
 	//  - ce_b: assert when the top 2 bits of the address is set
-	SIGNAL_SET_BOOL(rom_ce_b, !(SIGNAL_BOOL(a15) & SIGNAL_BOOL(a14)));
+	SIGNAL_WRITE(ROM_CE_B, !(SIGNAL_READ(AB15) & SIGNAL_READ(AB14)));
 
 	// >> pia logic
 	//  - no peripheral connected, irq lines not connected
 	//	- cs0: assert when top bit of address is set (copy of a15)
 	//	- cs1: always asserted
 	//  - cs2_b: assert when bits 4-14 are zero
-	uint16_t bus_address = SIGNAL_UINT16(bus_address);
-	SIGNAL_SET_BOOL(pia_cs2_b, (bus_address & 0x7ff0) != 0x0000);
+	uint16_t bus_address =  SIGNAL_GROUP_READ_U16(address);
+	SIGNAL_WRITE(PIA_CS2_B, (bus_address & 0x7ff0) != 0x0000);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
 //
-
-#if 0
-
-static inline void activate_reset(DevMinimal6502 *device, bool reset) {
-	device->in_reset = reset;
-	SIGNAL_SET_BOOL(reset_b, !device->in_reset);
-}
-
-#endif
 
 Cpu6502* dev_minimal_6502_get_cpu(DevMinimal6502 *device) {
 	assert(device);
@@ -123,133 +117,136 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->get_irq_signals = (DEVICE_GET_IRQ_SIGNALS) dev_minimal_6502_get_irq_signals;
 
 	device->simulator = simulator_create(NS_TO_PS(20));
+	device->signal_pool = device->simulator->signal_pool;
 
 	// signals
-	SIGNAL_DEFINE(bus_address, 16);
-	SIGNAL_DEFINE(bus_data, 8);
-	SIGNAL_DEFINE_BOOL_N(clock, 1, true, "CLK");
-	SIGNAL_DEFINE_BOOL(reset_btn_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(reset_b, 1, ACTLO_ASSERT);
-	SIGNAL_DEFINE_BOOL(cpu_rw, 1, true);
-	SIGNAL_DEFINE_BOOL(cpu_irq_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE_BOOL(cpu_nmi_b, 1, ACTLO_DEASSERT);
-	SIGNAL_DEFINE(cpu_sync, 1);
-	SIGNAL_DEFINE_BOOL(cpu_rdy, 1, ACTHI_ASSERT);
+	SIGNAL_GROUP_NEW(address, 16);
+	memcpy(&SIGNAL(AB0), SIGNAL_GROUP(address), 16 * sizeof(Signal));
 
-	SIGNAL_DEFINE_BOOL(low, 1, false);
-	SIGNAL_DEFINE_BOOL(high, 1, true);
+	SIGNAL_GROUP_NEW(data, 8);
+	memcpy(&SIGNAL(DB0), SIGNAL_GROUP(data), 8 * sizeof(Signal));
 
-	device->signals.a15 = signal_split(SIGNAL(bus_address), 15, 1);
-	device->signals.a14 = signal_split(SIGNAL(bus_address), 14, 1);
+	SIGNAL_DEFINE_DEFAULT(SIG_M6502_CLOCK, true);
+	SIGNAL_DEFINE_DEFAULT(SIG_M6502_RESET_BTN_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(SIG_M6502_RESET_B, ACTLO_ASSERT);
+	SIGNAL_DEFINE_DEFAULT(SIG_M6502_CPU_RW, true);
+	SIGNAL_DEFINE_DEFAULT(SIG_M6502_CPU_IRQ_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(SIG_M6502_CPU_NMI_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(SIG_M6502_CPU_SYNC);
+	SIGNAL_DEFINE_DEFAULT(SIG_M6502_CPU_RDY, ACTHI_ASSERT);
+
+	SIGNAL_DEFINE_DEFAULT(SIG_M6502_LOW, false);
+	SIGNAL_DEFINE_DEFAULT(SIG_M6502_HIGH, true);
+
+	signal_set_name(SIGNAL_POOL, SIGNAL(CLOCK), "CLK");
 
 	// cpu
 	device->cpu = cpu_6502_create(device->simulator, (Cpu6502Signals) {
+										[PIN_6502_AB0]  = SIGNAL(AB0),
+										[PIN_6502_AB1]  = SIGNAL(AB1),
+										[PIN_6502_AB2]  = SIGNAL(AB2),
+										[PIN_6502_AB3]  = SIGNAL(AB3),
+										[PIN_6502_AB4]  = SIGNAL(AB4),
+										[PIN_6502_AB5]  = SIGNAL(AB5),
+										[PIN_6502_AB6]  = SIGNAL(AB6),
+										[PIN_6502_AB7]  = SIGNAL(AB7),
+										[PIN_6502_AB8]  = SIGNAL(AB8),
+										[PIN_6502_AB9]  = SIGNAL(AB9),
+										[PIN_6502_AB10] = SIGNAL(AB10),
+										[PIN_6502_AB11] = SIGNAL(AB11),
+										[PIN_6502_AB12] = SIGNAL(AB12),
+										[PIN_6502_AB13] = SIGNAL(AB13),
+										[PIN_6502_AB14] = SIGNAL(AB14),
+										[PIN_6502_AB15] = SIGNAL(AB15),
 
-										[PIN_6502_AB0]  = signal_split(SIGNAL(bus_address), 0, 1),
-										[PIN_6502_AB1]  = signal_split(SIGNAL(bus_address), 1, 1),
-										[PIN_6502_AB2]  = signal_split(SIGNAL(bus_address), 2, 1),
-										[PIN_6502_AB3]  = signal_split(SIGNAL(bus_address), 3, 1),
-										[PIN_6502_AB4]  = signal_split(SIGNAL(bus_address), 4, 1),
-										[PIN_6502_AB5]  = signal_split(SIGNAL(bus_address), 5, 1),
-										[PIN_6502_AB6]  = signal_split(SIGNAL(bus_address), 6, 1),
-										[PIN_6502_AB7]  = signal_split(SIGNAL(bus_address), 7, 1),
-										[PIN_6502_AB8]  = signal_split(SIGNAL(bus_address), 8, 1),
-										[PIN_6502_AB9]  = signal_split(SIGNAL(bus_address), 9, 1),
-										[PIN_6502_AB10] = signal_split(SIGNAL(bus_address), 10, 1),
-										[PIN_6502_AB11] = signal_split(SIGNAL(bus_address), 11, 1),
-										[PIN_6502_AB12] = signal_split(SIGNAL(bus_address), 12, 1),
-										[PIN_6502_AB13] = signal_split(SIGNAL(bus_address), 13, 1),
-										[PIN_6502_AB14] = signal_split(SIGNAL(bus_address), 14, 1),
-										[PIN_6502_AB15] = signal_split(SIGNAL(bus_address), 15, 1),
+										[PIN_6502_DB0]  = SIGNAL(DB0),
+										[PIN_6502_DB1]  = SIGNAL(DB1),
+										[PIN_6502_DB2]  = SIGNAL(DB2),
+										[PIN_6502_DB3]  = SIGNAL(DB3),
+										[PIN_6502_DB4]  = SIGNAL(DB4),
+										[PIN_6502_DB5]  = SIGNAL(DB5),
+										[PIN_6502_DB6]  = SIGNAL(DB6),
+										[PIN_6502_DB7]  = SIGNAL(DB7),
 
-										[PIN_6502_DB0]  = signal_split(SIGNAL(bus_data), 0, 1),
-										[PIN_6502_DB1]  = signal_split(SIGNAL(bus_data), 1, 1),
-										[PIN_6502_DB2]  = signal_split(SIGNAL(bus_data), 2, 1),
-										[PIN_6502_DB3]  = signal_split(SIGNAL(bus_data), 3, 1),
-										[PIN_6502_DB4]  = signal_split(SIGNAL(bus_data), 4, 1),
-										[PIN_6502_DB5]  = signal_split(SIGNAL(bus_data), 5, 1),
-										[PIN_6502_DB6]  = signal_split(SIGNAL(bus_data), 6, 1),
-										[PIN_6502_DB7]  = signal_split(SIGNAL(bus_data), 7, 1),
-
-										[PIN_6502_CLK]   = SIGNAL(clock),
-										[PIN_6502_RES_B] = SIGNAL(reset_b),
-										[PIN_6502_RW]	 = SIGNAL(cpu_rw),
-										[PIN_6502_IRQ_B] = SIGNAL(cpu_irq_b),
-										[PIN_6502_NMI_B] = SIGNAL(cpu_nmi_b),
-										[PIN_6502_SYNC]  = SIGNAL(cpu_sync),
-										[PIN_6502_RDY]   = SIGNAL(cpu_rdy)
+										[PIN_6502_CLK]   = SIGNAL(CLOCK),
+										[PIN_6502_RES_B] = SIGNAL(RESET_B),
+										[PIN_6502_RW]	 = SIGNAL(CPU_RW),
+										[PIN_6502_IRQ_B] = SIGNAL(CPU_IRQ_B),
+										[PIN_6502_NMI_B] = SIGNAL(CPU_NMI_B),
+										[PIN_6502_SYNC]  = SIGNAL(CPU_SYNC),
+										[PIN_6502_RDY]   = SIGNAL(CPU_RDY)
 	});
 	DEVICE_REGISTER_CHIP("CPU", device->cpu);
 
 	// oscillator
 	device->oscillator = oscillator_create(10000, device->simulator, (OscillatorSignals) {
-											[CHIP_OSCILLATOR_CLK_OUT] = SIGNAL(clock)
+										[CHIP_OSCILLATOR_CLK_OUT] = SIGNAL(CLOCK)
 	});
 	DEVICE_REGISTER_CHIP("OSC", device->oscillator);
 
 	// power-on-reset
 	DEVICE_REGISTER_CHIP("POR", poweronreset_create(1000000, device->simulator, (PowerOnResetSignals) {
-											[CHIP_POR_TRIGGER_B] = SIGNAL(reset_btn_b),
-											[CHIP_POR_RESET_B] = SIGNAL(reset_b)
+										[CHIP_POR_TRIGGER_B] = SIGNAL(RESET_BTN_B),
+										[CHIP_POR_RESET_B] = SIGNAL(RESET_B)
 	}));
 
 	// ram
 	device->ram = ram_8d16a_create(15, device->simulator, (Ram8d16aSignals) {
-										[CHIP_RAM8D16A_A0] = signal_split(device->signals.bus_address, 0, 1),
-										[CHIP_RAM8D16A_A1] = signal_split(device->signals.bus_address, 1, 1),
-										[CHIP_RAM8D16A_A2] = signal_split(device->signals.bus_address, 2, 1),
-										[CHIP_RAM8D16A_A3] = signal_split(device->signals.bus_address, 3, 1),
-										[CHIP_RAM8D16A_A4] = signal_split(device->signals.bus_address, 4, 1),
-										[CHIP_RAM8D16A_A5] = signal_split(device->signals.bus_address, 5, 1),
-										[CHIP_RAM8D16A_A6] = signal_split(device->signals.bus_address, 6, 1),
-										[CHIP_RAM8D16A_A7] = signal_split(device->signals.bus_address, 7, 1),
-										[CHIP_RAM8D16A_A8] = signal_split(device->signals.bus_address, 8, 1),
-										[CHIP_RAM8D16A_A9] = signal_split(device->signals.bus_address, 9, 1),
-										[CHIP_RAM8D16A_A10] = signal_split(device->signals.bus_address, 10, 1),
-										[CHIP_RAM8D16A_A11] = signal_split(device->signals.bus_address, 11, 1),
-										[CHIP_RAM8D16A_A12] = signal_split(device->signals.bus_address, 12, 1),
-										[CHIP_RAM8D16A_A13] = signal_split(device->signals.bus_address, 13, 1),
-										[CHIP_RAM8D16A_A14] = signal_split(device->signals.bus_address, 14, 1),
-										[CHIP_RAM8D16A_A15] = signal_split(device->signals.bus_address, 15, 1),
+										[CHIP_RAM8D16A_A0]  = SIGNAL(AB0),
+										[CHIP_RAM8D16A_A1]  = SIGNAL(AB1),
+										[CHIP_RAM8D16A_A2]  = SIGNAL(AB2),
+										[CHIP_RAM8D16A_A3]  = SIGNAL(AB3),
+										[CHIP_RAM8D16A_A4]  = SIGNAL(AB4),
+										[CHIP_RAM8D16A_A5]  = SIGNAL(AB5),
+										[CHIP_RAM8D16A_A6]  = SIGNAL(AB6),
+										[CHIP_RAM8D16A_A7]  = SIGNAL(AB7),
+										[CHIP_RAM8D16A_A8]  = SIGNAL(AB8),
+										[CHIP_RAM8D16A_A9]  = SIGNAL(AB9),
+										[CHIP_RAM8D16A_A10] = SIGNAL(AB10),
+										[CHIP_RAM8D16A_A11] = SIGNAL(AB11),
+										[CHIP_RAM8D16A_A12] = SIGNAL(AB12),
+										[CHIP_RAM8D16A_A13] = SIGNAL(AB13),
+										[CHIP_RAM8D16A_A14] = SIGNAL(AB14),
+										[CHIP_RAM8D16A_A15] = SIGNAL(AB15),
 
-										[CHIP_RAM8D16A_D0] = signal_split(SIGNAL(bus_data), 0, 1),
-										[CHIP_RAM8D16A_D1] = signal_split(SIGNAL(bus_data), 1, 1),
-										[CHIP_RAM8D16A_D2] = signal_split(SIGNAL(bus_data), 2, 1),
-										[CHIP_RAM8D16A_D3] = signal_split(SIGNAL(bus_data), 3, 1),
-										[CHIP_RAM8D16A_D4] = signal_split(SIGNAL(bus_data), 4, 1),
-										[CHIP_RAM8D16A_D5] = signal_split(SIGNAL(bus_data), 5, 1),
-										[CHIP_RAM8D16A_D6] = signal_split(SIGNAL(bus_data), 6, 1),
-										[CHIP_RAM8D16A_D7] = signal_split(SIGNAL(bus_data), 7, 1),
+										[CHIP_RAM8D16A_D0] = SIGNAL(DB0),
+										[CHIP_RAM8D16A_D1] = SIGNAL(DB1),
+										[CHIP_RAM8D16A_D2] = SIGNAL(DB2),
+										[CHIP_RAM8D16A_D3] = SIGNAL(DB3),
+										[CHIP_RAM8D16A_D4] = SIGNAL(DB4),
+										[CHIP_RAM8D16A_D5] = SIGNAL(DB5),
+										[CHIP_RAM8D16A_D6] = SIGNAL(DB6),
+										[CHIP_RAM8D16A_D7] = SIGNAL(DB7),
 
-										[CHIP_RAM8D16A_CE_B] = SIGNAL(a15)
+										[CHIP_RAM8D16A_CE_B] = SIGNAL(AB15)
 	});
 	DEVICE_REGISTER_CHIP("RAM", device->ram);
 
 	// rom
 	device->rom = rom_8d16a_create(14, device->simulator, (Rom8d16aSignals) {
-										[CHIP_RAM8D16A_A0] = signal_split(device->signals.bus_address, 0, 1),
-										[CHIP_RAM8D16A_A1] = signal_split(device->signals.bus_address, 1, 1),
-										[CHIP_RAM8D16A_A2] = signal_split(device->signals.bus_address, 2, 1),
-										[CHIP_RAM8D16A_A3] = signal_split(device->signals.bus_address, 3, 1),
-										[CHIP_RAM8D16A_A4] = signal_split(device->signals.bus_address, 4, 1),
-										[CHIP_RAM8D16A_A5] = signal_split(device->signals.bus_address, 5, 1),
-										[CHIP_RAM8D16A_A6] = signal_split(device->signals.bus_address, 6, 1),
-										[CHIP_RAM8D16A_A7] = signal_split(device->signals.bus_address, 7, 1),
-										[CHIP_RAM8D16A_A8] = signal_split(device->signals.bus_address, 8, 1),
-										[CHIP_RAM8D16A_A9] = signal_split(device->signals.bus_address, 9, 1),
-										[CHIP_RAM8D16A_A10] = signal_split(device->signals.bus_address, 10, 1),
-										[CHIP_RAM8D16A_A11] = signal_split(device->signals.bus_address, 11, 1),
-										[CHIP_RAM8D16A_A12] = signal_split(device->signals.bus_address, 12, 1),
-										[CHIP_RAM8D16A_A13] = signal_split(device->signals.bus_address, 13, 1),
+										[CHIP_ROM8D16A_A0]  = SIGNAL(AB0),
+										[CHIP_ROM8D16A_A1]  = SIGNAL(AB1),
+										[CHIP_ROM8D16A_A2]  = SIGNAL(AB2),
+										[CHIP_ROM8D16A_A3]  = SIGNAL(AB3),
+										[CHIP_ROM8D16A_A4]  = SIGNAL(AB4),
+										[CHIP_ROM8D16A_A5]  = SIGNAL(AB5),
+										[CHIP_ROM8D16A_A6]  = SIGNAL(AB6),
+										[CHIP_ROM8D16A_A7]  = SIGNAL(AB7),
+										[CHIP_ROM8D16A_A8]  = SIGNAL(AB8),
+										[CHIP_ROM8D16A_A9]  = SIGNAL(AB9),
+										[CHIP_ROM8D16A_A10] = SIGNAL(AB10),
+										[CHIP_ROM8D16A_A11] = SIGNAL(AB11),
+										[CHIP_ROM8D16A_A12] = SIGNAL(AB12),
+										[CHIP_ROM8D16A_A13] = SIGNAL(AB13),
 
-										[CHIP_RAM8D16A_D0] = signal_split(SIGNAL(bus_data), 0, 1),
-										[CHIP_RAM8D16A_D1] = signal_split(SIGNAL(bus_data), 1, 1),
-										[CHIP_RAM8D16A_D2] = signal_split(SIGNAL(bus_data), 2, 1),
-										[CHIP_RAM8D16A_D3] = signal_split(SIGNAL(bus_data), 3, 1),
-										[CHIP_RAM8D16A_D4] = signal_split(SIGNAL(bus_data), 4, 1),
-										[CHIP_RAM8D16A_D5] = signal_split(SIGNAL(bus_data), 5, 1),
-										[CHIP_RAM8D16A_D6] = signal_split(SIGNAL(bus_data), 6, 1),
-										[CHIP_RAM8D16A_D7] = signal_split(SIGNAL(bus_data), 7, 1),
+										[CHIP_ROM8D16A_D0] = SIGNAL(DB0),
+										[CHIP_ROM8D16A_D1] = SIGNAL(DB1),
+										[CHIP_ROM8D16A_D2] = SIGNAL(DB2),
+										[CHIP_ROM8D16A_D3] = SIGNAL(DB3),
+										[CHIP_ROM8D16A_D4] = SIGNAL(DB4),
+										[CHIP_ROM8D16A_D5] = SIGNAL(DB5),
+										[CHIP_ROM8D16A_D6] = SIGNAL(DB6),
+										[CHIP_ROM8D16A_D7] = SIGNAL(DB7),
 	});
 	DEVICE_REGISTER_CHIP("ROM", device->rom);
 
@@ -259,21 +256,21 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// pia
 	device->pia = chip_6520_create(device->simulator, (Chip6520Signals) {
-										[CHIP_6520_D0] = signal_split(SIGNAL(bus_data), 0, 1),
-										[CHIP_6520_D1] = signal_split(SIGNAL(bus_data), 1, 1),
-										[CHIP_6520_D2] = signal_split(SIGNAL(bus_data), 2, 1),
-										[CHIP_6520_D3] = signal_split(SIGNAL(bus_data), 3, 1),
-										[CHIP_6520_D4] = signal_split(SIGNAL(bus_data), 4, 1),
-										[CHIP_6520_D5] = signal_split(SIGNAL(bus_data), 5, 1),
-										[CHIP_6520_D6] = signal_split(SIGNAL(bus_data), 6, 1),
-										[CHIP_6520_D7] = signal_split(SIGNAL(bus_data), 7, 1),
-										[CHIP_6520_PHI2] = SIGNAL(clock),
-										[CHIP_6520_RESET_B] = SIGNAL(reset_b),
-										[CHIP_6520_RW] = SIGNAL(cpu_rw),
-										[CHIP_6520_CS0] = SIGNAL(a15),
-										[CHIP_6520_CS1] = SIGNAL(high),
-										[CHIP_6520_RS0] = signal_split(SIGNAL(bus_address), 0, 1),
-										[CHIP_6520_RS1] = signal_split(SIGNAL(bus_address), 1, 1)
+										[CHIP_6520_D0] = SIGNAL(DB0),
+										[CHIP_6520_D1] = SIGNAL(DB1),
+										[CHIP_6520_D2] = SIGNAL(DB2),
+										[CHIP_6520_D3] = SIGNAL(DB3),
+										[CHIP_6520_D4] = SIGNAL(DB4),
+										[CHIP_6520_D5] = SIGNAL(DB5),
+										[CHIP_6520_D6] = SIGNAL(DB6),
+										[CHIP_6520_D7] = SIGNAL(DB7),
+										[CHIP_6520_PHI2] = SIGNAL(CLOCK),
+										[CHIP_6520_RESET_B] = SIGNAL(RESET_B),
+										[CHIP_6520_RW] = SIGNAL(CPU_RW),
+										[CHIP_6520_CS0] = SIGNAL(AB15),
+										[CHIP_6520_CS1] = SIGNAL(HIGH),
+										[CHIP_6520_RS0] = SIGNAL(AB0),
+										[CHIP_6520_RS1] = SIGNAL(AB1)
 	});
 	DEVICE_REGISTER_CHIP("PIA", device->pia);
 
@@ -304,10 +301,10 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DEVICE_REGISTER_CHIP("LOGIC", glue_logic_create(device));
 
 	// copy some signals for easy access
-	SIGNAL(ram_oe_b) = device->ram->signals[CHIP_RAM8D16A_OE_B];
-	SIGNAL(ram_we_b) = device->ram->signals[CHIP_RAM8D16A_WE_B];
-	SIGNAL(rom_ce_b) = device->rom->signals[CHIP_ROM8D16A_CE_B];
-	SIGNAL(pia_cs2_b) = device->pia->signals[CHIP_6520_CS2_B];
+	SIGNAL(RAM_OE_B) = device->ram->signals[CHIP_RAM8D16A_OE_B];
+	SIGNAL(RAM_WE_B) = device->ram->signals[CHIP_RAM8D16A_WE_B];
+	SIGNAL(ROM_CE_B) = device->rom->signals[CHIP_ROM8D16A_CE_B];
+	SIGNAL(PIA_CS2_B) = device->pia->signals[CHIP_6520_CS2_B];
 
 	// let the simulator know no more chips will be added
 	simulator_device_complete(device->simulator);
@@ -395,7 +392,7 @@ size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, struct SignalBre
 	static SignalBreak irqs[1] = {0};
 
 	if (irqs[0].signal.count == 0) {
-		irqs[0] = (SignalBreak) {device->signals.cpu_irq_b, false, true};
+		irqs[0] = (SignalBreak) {SIGNAL(CPU_IRQ_B), false, true};
 	}
 
 	*irq_signals = irqs;
