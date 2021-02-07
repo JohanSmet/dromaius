@@ -85,7 +85,7 @@ public:
 
 	void context_step_instruction() {
 		assert(dms_ctx);
-		dms_step_signal(dms_ctx, pet_device->signals.cpu_sync, true, false);
+		dms_step_signal(dms_ctx, pet_device->signals[SIG_P2001N_SYNC], true, false);
 	}
 
 	void context_run() {
@@ -306,7 +306,7 @@ void DmsApi::launch_commodore_pet() {
 	dms_set_device(dms_ctx, reinterpret_cast<Device *>(pet_device));
 
 	// default clock to step
-	step_clock = pet_device->signals.clk1;
+	step_clock = pet_device->signals[SIG_P2001N_CLK1];
 
 	// launch background thread
 #ifndef DMS_NO_THREADING

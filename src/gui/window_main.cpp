@@ -112,10 +112,10 @@ Device *WindowMain::create_commodore_pet(bool lite) {
 
 	// create UI panels
 	ui_context.panel_add(panel_control_create(&ui_context, {0, 55}, device->oscillator_y1,
-											  {device->signals.cpu_sync, true, false},
-											  {{device->signals.clk1, true, true},
-											   {device->signals.clk8, true, true},
-											   {device->signals.clk16, true, true}}
+											  {device->signals[SIG_P2001N_SYNC], true, false},
+											  {{device->signals[SIG_P2001N_CLK1], true, true},
+											   {device->signals[SIG_P2001N_CLK8], true, true},
+											   {device->signals[SIG_P2001N_CLK16], true, true}}
 	));
 
 	ui_context.panel_add(

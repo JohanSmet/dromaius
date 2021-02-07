@@ -2,6 +2,7 @@
 //
 // Emulates a Commodore PET 2001N
 
+#define SIGNAL_ARRAY_STYLE
 #include "dev_commodore_pet.h"
 
 #include "utils.h"
@@ -25,8 +26,10 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define SIGNAL_POOL			device->simulator->signal_pool
-#define SIGNAL_COLLECTION	device->signals
+#define SIGNAL_PREFIX		SIG_P2001N_
+#define SIGNAL_OWNER		device
+
+#undef  SIGNAL_CHIP_ID
 #define SIGNAL_CHIP_ID		chip->id
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -93,17 +96,17 @@ static void glue_logic_register_dependencies_01(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(reset_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(sel8_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(sele_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba6), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba8), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba9), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba10), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba11), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba15), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(cpu_rw), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(clk1), chip->id);
+	SIGNAL_DEPENDENCY(RESET_B);
+	SIGNAL_DEPENDENCY(SEL8_B);
+	SIGNAL_DEPENDENCY(SELE_B);
+	SIGNAL_DEPENDENCY(BA6);
+	SIGNAL_DEPENDENCY(BA8);
+	SIGNAL_DEPENDENCY(BA9);
+	SIGNAL_DEPENDENCY(BA10);
+	SIGNAL_DEPENDENCY(BA11);
+	SIGNAL_DEPENDENCY(BA15);
+	SIGNAL_DEPENDENCY(RW);
+	SIGNAL_DEPENDENCY(CLK1);
 
 	signal_add_dependency(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQA_B], chip->id);
 	signal_add_dependency(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B], chip->id);
@@ -116,77 +119,78 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	bool ba8 = SIGNAL_BOOL(ba8);
-	bool ba9 = SIGNAL_BOOL(ba9);
-	bool ba10 = SIGNAL_BOOL(ba10);
-	bool ba15 = SIGNAL_BOOL(ba15);
-	bool sel8_b = SIGNAL_BOOL(sel8_b);
-	bool rw   = SIGNAL_BOOL(cpu_rw);
+	bool ba8 = SIGNAL_READ(BA8);
+	bool ba9 = SIGNAL_READ(BA9);
+	bool ba10 = SIGNAL_READ(BA10);
+	bool ba15 = SIGNAL_READ(BA15);
+	bool sel8_b = SIGNAL_READ(SEL8_B);
+	bool rw   = SIGNAL_READ(RW);
 
-	SIGNAL_SET_BOOL(reset_btn_b, !device->in_reset);
+	SIGNAL_WRITE(RESET_BTN_B, !device->in_reset);
 	device->in_reset = false;
 
 	// A3 (1, 2)
-	bool reset_b = SIGNAL_BOOL(reset_b);
-	SIGNAL_SET_BOOL(reset, !reset_b);
+	bool reset_b = SIGNAL_READ(RESET_B);
+	SIGNAL_WRITE(RESET, !reset_b);
 
-	SIGNAL_SET_BOOL(init_b, reset_b);
-	SIGNAL_SET_BOOL(init, !reset_b);
-	SIGNAL_SET_BOOL(ifc_b, reset_b);
+	SIGNAL_WRITE(INIT_B, reset_b);
+	SIGNAL_WRITE(INIT, !reset_b);
+	SIGNAL_WRITE(IFC_B, reset_b);
 
 	// A3 (11, 10)
 	bool sel8 = !sel8_b;
-	SIGNAL_SET_BOOL(sel8, sel8);
+	SIGNAL_WRITE(SEL8, sel8);
 
 	// A3 (3, 4)
-	bool ba11_b = !SIGNAL_BOOL(ba11);
-	SIGNAL_SET_BOOL(ba11_b, ba11_b);
+	bool ba11_b = !SIGNAL_READ(BA11);
+	SIGNAL_WRITE(BA11_B, ba11_b);
 
 	// B2 (1,2,4,5,6)
 	bool x8xx = !(ba8 | ba9 | ba10 | ba11_b);
-	SIGNAL_SET_BOOL(x8xx, x8xx);
+	SIGNAL_WRITE(X8XX, x8xx);
 
 	// A4 (4,5,6)
 	bool addr_88xx_b = !(sel8 && x8xx);
-	SIGNAL_SET_BOOL(s_88xx_b, addr_88xx_b);
+	SIGNAL_WRITE(88XX_B, addr_88xx_b);
 
 	// A4 (1,2,3)
 	bool rom_addr_b = !(ba15 && sel8_b);
-	SIGNAL_SET_BOOL(rom_addr_b, rom_addr_b);
+	SIGNAL_WRITE(ROMA_B, rom_addr_b);
 
 	// A5 (3,4,5,6)
 	bool ram_read_b = !(rom_addr_b && addr_88xx_b && rw);
-	SIGNAL_SET_BOOL(ram_read_b, ram_read_b);
-	SIGNAL_SET_BOOL(ram_write_b, !ram_read_b);
+	SIGNAL_WRITE(RAMR_B, ram_read_b);
+	SIGNAL_WRITE(RAMW_B, !ram_read_b);
 
 	// A10 (3,4)
-	SIGNAL_SET_BOOL(buf_rw, rw);
+	SIGNAL_WRITE(BRW, rw);
 
 	// A3 (12,13)
-	SIGNAL_SET_BOOL(buf_rw_b, !rw);
+	SIGNAL_WRITE(BRW_B, !rw);
 
 	// A3 (9,8)
-	SIGNAL_SET_BOOL(ram_rw, rw);
+	SIGNAL_WRITE(RAMRW, rw);
 
 	// FIXME: cpu doesn't output phi2 clock signal
-	bool phi2 = SIGNAL_BOOL(clk1);
-	SIGNAL_SET_BOOL(phi2, phi2);
-	SIGNAL_SET_BOOL(bphi2, phi2);
-	SIGNAL_SET_BOOL(cphi2, phi2);
+	bool phi2 = SIGNAL_READ(CLK1);
+	SIGNAL_WRITE(PHI2, phi2);
+	SIGNAL_WRITE(BPHI2, phi2);
+	SIGNAL_WRITE(CPHI2, phi2);
 
 	// >> pia logic
-	bool cs1 = x8xx && SIGNAL_BOOL(ba6);
-	SIGNAL_SET_BOOL(cs1, cs1);
+	bool cs1 = x8xx && SIGNAL_READ(BA6);
+	SIGNAL_WRITE(CS1, cs1);
 
 	// >> irq logic: the 2001N wire-or's the irq lines of the chips and connects them to the cpu
 	//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
 	//		-> or the together explicitly
+	// FIXME: this only works if the pia's/via are processed before this chip, will be problematic when multithreading
 	bool irq_b = signal_read_next_bool(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQA_B]) &&
 				 signal_read_next_bool(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B]) &&
 				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQA_B]) &&
 				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQB_B]) &&
 				 signal_read_next_bool(SIGNAL_POOL, device->via->signals[CHIP_6522_IRQ_B]);
-	SIGNAL_SET_BOOL(irq_b, irq_b);
+	SIGNAL_WRITE(IRQ_B, irq_b);
 }
 
 // glue-logic: cassette & keyboard
@@ -195,16 +199,16 @@ static void glue_logic_register_dependencies_03(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(cass_motor_1_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(cass_motor_2_b), chip->id);
+	SIGNAL_DEPENDENCY(CASS_MOTOR_1_B);
+	SIGNAL_DEPENDENCY(CASS_MOTOR_2_B);
 }
 
 static void glue_logic_process_03(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	SIGNAL_SET_BOOL(cass_motor_1, !SIGNAL_BOOL(cass_motor_1_b));
-	SIGNAL_SET_BOOL(cass_motor_2, !SIGNAL_BOOL(cass_motor_2_b));
+	SIGNAL_WRITE(CASS_MOTOR_1, !SIGNAL_READ(CASS_MOTOR_1_B));
+	SIGNAL_WRITE(CASS_MOTOR_2, !SIGNAL_READ(CASS_MOTOR_2_B));
 }
 
 // glue-logic: rams
@@ -212,8 +216,8 @@ static void glue_logic_register_dependencies_05(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba15), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(buf_rw), chip->id);
+	SIGNAL_DEPENDENCY(BA15);
+	SIGNAL_DEPENDENCY(BRW);
 }
 
 static void glue_logic_process_05(ChipGlueLogic *chip) {
@@ -221,12 +225,12 @@ static void glue_logic_process_05(ChipGlueLogic *chip) {
 	DevCommodorePet *device = chip->device;
 
 	// B2: 8, 9, 10, 12, 13 (4-Input NOR-gate with strobe)
-	bool banksel = !(true && (false || false || false || SIGNAL_BOOL(ba15)));
-	SIGNAL_SET_BOOL(banksel, banksel);
+	bool banksel = !(true && (false || false || false || SIGNAL_READ(BA15)));
+	SIGNAL_WRITE(BANKSEL, banksel);
 
 	// G7: 8, 9, 10, 11
-	bool g78 = !(true && banksel && SIGNAL_BOOL(buf_rw));
-	SIGNAL_SET_BOOL(g78, g78);
+	bool g78 = !(true && banksel && SIGNAL_READ(BRW));
+	SIGNAL_WRITE(G7_8, g78);
 }
 
 // glue-logic: master timing
@@ -235,32 +239,32 @@ static void glue_logic_register_dependencies_06(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(bphi2a), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(bphi2b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(bphi2f), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(bphi2g), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(bphi2h), chip->id);
+	SIGNAL_DEPENDENCY(BPHI2A);
+	SIGNAL_DEPENDENCY(BPHI2B);
+	SIGNAL_DEPENDENCY(BPHI2F);
+	SIGNAL_DEPENDENCY(BPHI2G);
+	SIGNAL_DEPENDENCY(BPHI2H);
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra1), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra3), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra4), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra5), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra6), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra6_b), chip->id);
+	SIGNAL_DEPENDENCY(RA1);
+	SIGNAL_DEPENDENCY(RA3);
+	SIGNAL_DEPENDENCY(RA4);
+	SIGNAL_DEPENDENCY(RA5);
+	SIGNAL_DEPENDENCY(RA6);
+	SIGNAL_DEPENDENCY(RA6_B);
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(h8q), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(h8q_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(h8q2), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(h8q2_b), chip->id);
+	SIGNAL_DEPENDENCY(H8Q);
+	SIGNAL_DEPENDENCY(H8Q_B);
+	SIGNAL_DEPENDENCY(H8Q2);
+	SIGNAL_DEPENDENCY(H8Q2_B);
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(bphi2), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(banksel), chip->id);
+	SIGNAL_DEPENDENCY(BPHI2);
+	SIGNAL_DEPENDENCY(BANKSEL);
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(h1q1_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(h1q2_b), chip->id);
+	SIGNAL_DEPENDENCY(H1Q1_B);
+	SIGNAL_DEPENDENCY(H1Q2_B);
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(h4y4), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba14), chip->id);
+	SIGNAL_DEPENDENCY(H4Y4);
+	SIGNAL_DEPENDENCY(BA14);
 }
 
 static void glue_logic_process_06(ChipGlueLogic *chip) {
@@ -268,52 +272,51 @@ static void glue_logic_process_06(ChipGlueLogic *chip) {
 	DevCommodorePet *device = chip->device;
 
 	// H2 (1,2) + (3,4) + (11,10) + (13,12)
-	SIGNAL_SET_BOOL(bphi2a_b, !SIGNAL_BOOL(bphi2a));
-	SIGNAL_SET_BOOL(bphi2b_b, !SIGNAL_BOOL(bphi2b));
-	SIGNAL_SET_BOOL(bphi2f_b, !SIGNAL_BOOL(bphi2f));
-	SIGNAL_SET_BOOL(bphi2g_b, !SIGNAL_BOOL(bphi2g));
+	SIGNAL_WRITE(BPHI2A_B, !SIGNAL_READ(BPHI2A));
+	SIGNAL_WRITE(BPHI2B_B, !SIGNAL_READ(BPHI2B));
+	SIGNAL_WRITE(BPHI2F_B, !SIGNAL_READ(BPHI2F));
+	SIGNAL_WRITE(BPHI2G_B, !SIGNAL_READ(BPHI2G));
 
 	// F1 (8,9,10)
-	SIGNAL_SET_BOOL(ra1and3, SIGNAL_BOOL(ra1) & SIGNAL_BOOL(ra3));
+	SIGNAL_WRITE(RA1AND3, SIGNAL_READ(RA1) & SIGNAL_READ(RA3));
 
 	// H10 (4,5,6)
-	SIGNAL_SET_BOOL(ra4and6, SIGNAL_BOOL(ra4) & SIGNAL_BOOL(ra6));
+	SIGNAL_WRITE(RA4AND6, SIGNAL_READ(RA4) & SIGNAL_READ(RA6));
 
 	// H10 (1,2,3)
-	SIGNAL_SET_BOOL(ra5and6_b, SIGNAL_BOOL(ra5) & SIGNAL_BOOL(ra6_b));
+	SIGNAL_WRITE(RA5AND6_B, SIGNAL_READ(RA5) & SIGNAL_READ(RA6_B));
 
 	// G1 (8,9,10)
-	bool video_latch = (!SIGNAL_BOOL(bphi2f) & SIGNAL_BOOL(bphi2h));
-	SIGNAL_SET_BOOL(video_latch, video_latch);
+	bool video_latch = (!SIGNAL_READ(BPHI2F) & SIGNAL_READ(BPHI2H));
+	SIGNAL_WRITE(VIDEO_LATCH, video_latch);
 
 	// H10 (11,12,13)
-	bool video_on = SIGNAL_BOOL(h8q) & SIGNAL_BOOL(h8q2);
-	SIGNAL_SET_BOOL(video_on, video_on);
-	SIGNAL_SET_BOOL(video_on_2, video_on);
+	bool video_on = SIGNAL_READ(H8Q) & SIGNAL_READ(H8Q2);
+	SIGNAL_WRITE(VIDEO_ON, video_on);
 
 	// G10 (11,12,13)
-	bool vert_drive = !(SIGNAL_BOOL(h8q2_b) & SIGNAL_BOOL(h8q_b));
-	SIGNAL_SET_BOOL(vert_drive, vert_drive);
+	bool vert_drive = !(SIGNAL_READ(H8Q2_B) & SIGNAL_READ(H8Q_B));
+	SIGNAL_WRITE(VERT_DRIVE, vert_drive);
 
 	// H5 (1,2,3)
-	bool h53 = !(SIGNAL_BOOL(banksel) && SIGNAL_BOOL(bphi2));
-	SIGNAL_SET_BOOL(h53, h53);
+	bool h53 = !(SIGNAL_READ(BANKSEL) && SIGNAL_READ(BPHI2));
+	SIGNAL_WRITE(H53, h53);
 
 	// G1 (11,12,13)
-	bool ras0_b = SIGNAL_BOOL(h1q1_b) && SIGNAL_BOOL(h1q2_b);
-	SIGNAL_SET_BOOL(ras0_b, ras0_b);
+	bool ras0_b = SIGNAL_READ(H1Q1_B) && SIGNAL_READ(H1Q2_B);
+	SIGNAL_WRITE(RAS0_B, ras0_b);
 
 	// G7 (3,4,5,6)
-	bool cas1_b = !(SIGNAL_BOOL(h4y4) && SIGNAL_BOOL(ba14));
-	SIGNAL_SET_BOOL(cas1_b, cas1_b);
+	bool cas1_b = !(SIGNAL_READ(H4Y4) && SIGNAL_READ(BA14));
+	SIGNAL_WRITE(CAS1_B, cas1_b);
 
 	// H2 (8,9)
-	bool ba14_b = !SIGNAL_BOOL(ba14);
-	SIGNAL_SET_BOOL(ba14_b, ba14_b);
+	bool ba14_b = !SIGNAL_READ(BA14);
+	SIGNAL_WRITE(BA14_B, ba14_b);
 
 	// G7 (1,2,12,13)
-	bool cas0_b = !(SIGNAL_BOOL(h4y4) && ba14_b);
-	SIGNAL_SET_BOOL(cas0_b, cas0_b);
+	bool cas0_b = !(SIGNAL_READ(H4Y4) && ba14_b);
+	SIGNAL_WRITE(CAS0_B, cas0_b);
 }
 
 // glue-logic: display logic
@@ -322,80 +325,80 @@ static void glue_logic_register_dependencies_07(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(buf_rw), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba11_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(bphi2), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ga6), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(lga3), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(lga6), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(lga7), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(lga8), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(lga9), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra9), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(sel8), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(video_on), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(pullup_2), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(horz_disp_off), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(reload_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(next_b), chip->id);
+	SIGNAL_DEPENDENCY(BRW);
+	SIGNAL_DEPENDENCY(BA11_B);
+	SIGNAL_DEPENDENCY(BPHI2);
+	SIGNAL_DEPENDENCY(GA6);
+	SIGNAL_DEPENDENCY(LGA3);
+	SIGNAL_DEPENDENCY(LGA6);
+	SIGNAL_DEPENDENCY(LGA7);
+	SIGNAL_DEPENDENCY(LGA8);
+	SIGNAL_DEPENDENCY(LGA9);
+	SIGNAL_DEPENDENCY(RA9);
+	SIGNAL_DEPENDENCY(SEL8);
+	SIGNAL_DEPENDENCY(VIDEO_ON);
+	SIGNAL_DEPENDENCY(PULLUP_2);
+	SIGNAL_DEPENDENCY(HORZ_DISP_OFF);
+	SIGNAL_DEPENDENCY(RELOAD_B);
+	SIGNAL_DEPENDENCY(NEXT_B);
 }
 
 static void glue_logic_process_07(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	bool buf_rw = SIGNAL_BOOL(buf_rw);
+	bool buf_rw = SIGNAL_READ(BRW);
 
 	// >> F1 (4,5,6)
-	bool tv_sel = SIGNAL_BOOL(ba11_b) && SIGNAL_BOOL(sel8);
-	SIGNAL_SET_BOOL(tv_sel, tv_sel);
+	bool tv_sel = SIGNAL_READ(BA11_B) && SIGNAL_READ(SEL8);
+	SIGNAL_WRITE(TV_SEL, tv_sel);
 
 	// >> A5 (8,9,10,11)
 	bool tv_read_b = !(true && buf_rw && tv_sel);
-	SIGNAL_SET_BOOL(tv_read_b, tv_read_b);
+	SIGNAL_WRITE(TV_READ_B, tv_read_b);
 
 	// >> A5 (1,2,12,13)
-	bool a5_12 = !(tv_sel && !buf_rw && SIGNAL_BOOL(bphi2));
-	SIGNAL_SET_BOOL(a5_12, a5_12);
+	bool a5_12 = !(tv_sel && !buf_rw && SIGNAL_READ(BPHI2));
+	SIGNAL_WRITE(A5_12, a5_12);
 
 	// >> I1 (5,6)
-	SIGNAL_SET_BOOL(video_on_b, !SIGNAL_BOOL(video_on));
+	SIGNAL_WRITE(VIDEO_ON_B, !SIGNAL_READ(VIDEO_ON));
 
 	// >> G2 (1,2,4,5,6)
-	bool lines_20_b = !(SIGNAL_BOOL(ga6) && SIGNAL_BOOL(pullup_2) && !SIGNAL_BOOL(video_on) && SIGNAL_BOOL(ra9));
-	SIGNAL_SET_BOOL(lines_20_b, lines_20_b);
+	bool lines_20_b = !(SIGNAL_READ(GA6) && SIGNAL_READ(PULLUP_2) && !SIGNAL_READ(VIDEO_ON) && SIGNAL_READ(RA9));
+	SIGNAL_WRITE(LINES_20_B, lines_20_b);
 
 	// >> G2 (8,9,10,12,13)
-	bool lga_hi_b = !(SIGNAL_BOOL(lga6) && SIGNAL_BOOL(lga7) && SIGNAL_BOOL(lga8) && SIGNAL_BOOL(lga9));
-	SIGNAL_SET_BOOL(lga_hi_b, lga_hi_b);
+	bool lga_hi_b = !(SIGNAL_READ(LGA6) && SIGNAL_READ(LGA7) && SIGNAL_READ(LGA8) && SIGNAL_READ(LGA9));
+	SIGNAL_WRITE(LGA_HI_B, lga_hi_b);
 
 	// >> I1 (8,9)
-	SIGNAL_SET_BOOL(lga_hi, !lga_hi_b);
+	SIGNAL_WRITE(LGA_HI, !lga_hi_b);
 
 	// >> H5 (4,5,6)
-	bool lines_200_b = !(SIGNAL_BOOL(lga3) && SIGNAL_BOOL(lga_hi));
-	SIGNAL_SET_BOOL(lines_200_b, lines_200_b);
+	bool lines_200_b = !(SIGNAL_READ(LGA3) && SIGNAL_READ(LGA_HI));
+	SIGNAL_WRITE(LINES_200_B, lines_200_b);
 
 	// >> H5 (8,9,10)
 	bool line_220 = !(lines_200_b && lines_20_b);
-	SIGNAL_SET_BOOL(line_220, line_220);
+	SIGNAL_WRITE(LINE_220, line_220);
 
 	// >> G3 (1,2,3)
-	bool w220_off = line_220 && SIGNAL_BOOL(horz_disp_off);
-	SIGNAL_SET_BOOL(w220_off, w220_off);
+	bool w220_off = line_220 && SIGNAL_READ(HORZ_DISP_OFF);
+	SIGNAL_WRITE(W220_OFF, w220_off);
 
 	// >> H5 (11,12,13)
-	bool reload_next = !(SIGNAL_BOOL(reload_b) && SIGNAL_BOOL(next_b));
-	SIGNAL_SET_BOOL(reload_next, reload_next);
+	bool reload_next = !(SIGNAL_READ(RELOAD_B) && SIGNAL_READ(NEXT_B));
+	SIGNAL_WRITE(RELOAD_NEXT, reload_next);
 }
 
 static void glue_logic_register_dependencies_07_lite(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ba11_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(sel8), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(buf_rw), chip->id);
+	SIGNAL_DEPENDENCY(BA11_B);
+	SIGNAL_DEPENDENCY(SEL8);
+	SIGNAL_DEPENDENCY(BRW);
 }
 
 static void glue_logic_process_07_lite(ChipGlueLogic *chip) {
@@ -403,12 +406,12 @@ static void glue_logic_process_07_lite(ChipGlueLogic *chip) {
 	DevCommodorePet *device = chip->device;
 
 	// >> F1 (4,5,6)
-	bool tv_sel = SIGNAL_BOOL(ba11_b) && SIGNAL_BOOL(sel8);
-	SIGNAL_SET_BOOL(tv_sel, tv_sel);
+	bool tv_sel = SIGNAL_READ(BA11_B) && SIGNAL_READ(SEL8);
+	SIGNAL_WRITE(TV_SEL, tv_sel);
 
 	// >> A5 (8,9,10,11)
-	bool tv_read_b = !(true && SIGNAL_BOOL(buf_rw) && tv_sel);
-	SIGNAL_SET_BOOL(tv_read_b, tv_read_b);
+	bool tv_read_b = !(true && SIGNAL_READ(BRW) && tv_sel);
+	SIGNAL_WRITE(TV_READ_B, tv_read_b);
 }
 
 // glue-logic: display rams
@@ -417,18 +420,18 @@ static void glue_logic_register_dependencies_08(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(horz_disp_on), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra7), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra8), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(ra9), chip->id);
+	SIGNAL_DEPENDENCY(HORZ_DISP_ON);
+	SIGNAL_DEPENDENCY(RA7);
+	SIGNAL_DEPENDENCY(RA8);
+	SIGNAL_DEPENDENCY(RA9);
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(g9q), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(g9q_b), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(e11qh), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(e11qh), chip->id);
+	SIGNAL_DEPENDENCY(G9Q);
+	SIGNAL_DEPENDENCY(G9Q_B);
+	SIGNAL_DEPENDENCY(E11QH);
+	SIGNAL_DEPENDENCY(E11QH);
 
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(video_on), chip->id);
-	signal_add_dependency(SIGNAL_POOL, SIGNAL(horz_disp_on), chip->id);
+	SIGNAL_DEPENDENCY(VIDEO_ON);
+	SIGNAL_DEPENDENCY(HORZ_DISP_ON);
 }
 
 static void glue_logic_process_08(ChipGlueLogic *chip) {
@@ -436,24 +439,24 @@ static void glue_logic_process_08(ChipGlueLogic *chip) {
 	DevCommodorePet *device = chip->device;
 
 	// g11 (8,9,10,12,13)
-	bool reload_b = !(SIGNAL_BOOL(horz_disp_on) && SIGNAL_BOOL(ra7) && SIGNAL_BOOL(ra8) && SIGNAL_BOOL(ra9));
-	SIGNAL_SET_BOOL(reload_b, reload_b);
+	bool reload_b = !(SIGNAL_READ(HORZ_DISP_ON) && SIGNAL_READ(RA7) && SIGNAL_READ(RA8) && SIGNAL_READ(RA9));
+	SIGNAL_WRITE(RELOAD_B, reload_b);
 
 	// g10 (4,5,6)
-	bool g106 = !(SIGNAL_BOOL(g9q) && SIGNAL_BOOL(e11qh));
-	SIGNAL_SET_BOOL(g106, g106);
+	bool g106 = !(SIGNAL_READ(G9Q) && SIGNAL_READ(E11QH));
+	SIGNAL_WRITE(G106, g106);
 
 	// g10 (8,9,10)
-	bool g108 = !(SIGNAL_BOOL(g9q_b) && SIGNAL_BOOL(e11qh_b));
-	SIGNAL_SET_BOOL(g108, g108);
+	bool g108 = !(SIGNAL_READ(G9Q_B) && SIGNAL_READ(E11QH_B));
+	SIGNAL_WRITE(G108, g108);
 
 	// h10 (8,9,10)
 	bool h108 = g106 && g108;
-	SIGNAL_SET_BOOL(h108, h108);
+	SIGNAL_WRITE(H108, h108);
 
 	// g11 (1,2,5,4,6)
-	bool video = !(h108 && true && SIGNAL_BOOL(video_on) && SIGNAL_BOOL(horz_disp_on));
-	SIGNAL_SET_BOOL(video, video);
+	bool video = !(h108 && true && SIGNAL_READ(VIDEO_ON) && SIGNAL_READ(HORZ_DISP_ON));
+	SIGNAL_WRITE(VIDEO, video);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -537,18 +540,18 @@ static void lite_display_process(ChipLiteDisplay *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
 
-	if (SIGNAL_BOOL(video_on)) {
+	if (SIGNAL_READ(VIDEO_ON)) {
 		// redraw screen
 		pet_lite_fake_display(chip);
 
 		// signal vertical retrace
-		SIGNAL_SET_BOOL(video_on, false);
+		SIGNAL_WRITE(VIDEO_ON, false);
 
 		// hold vertical retrace for a bit
 		chip->schedule_timestamp = chip->simulator->current_tick + chip->retrace_hold;
 	} else {
 		// end of vertical retrace
-		SIGNAL_SET_BOOL(video_on, true);
+		SIGNAL_WRITE(VIDEO_ON, true);
 		chip->schedule_timestamp = chip->simulator->current_tick + chip->refresh_delay;
 	}
 }
@@ -561,30 +564,30 @@ static void lite_display_process(ChipLiteDisplay *chip) {
 static Chip63xxRom *load_rom(DevCommodorePet *device, const char *filename, size_t num_lines, Signal rom_cs1_b) {
 
 	Chip63xxSignals signals = {
-		[CHIP_6332_A0] = signal_split(SIGNAL(bus_ba), 0, 1),
-		[CHIP_6332_A1] = signal_split(SIGNAL(bus_ba), 1, 1),
-		[CHIP_6332_A2] = signal_split(SIGNAL(bus_ba), 2, 1),
-		[CHIP_6332_A3] = signal_split(SIGNAL(bus_ba), 3, 1),
-		[CHIP_6332_A4] = signal_split(SIGNAL(bus_ba), 4, 1),
-		[CHIP_6332_A5] = signal_split(SIGNAL(bus_ba), 5, 1),
-		[CHIP_6332_A6] = signal_split(SIGNAL(bus_ba), 6, 1),
-		[CHIP_6332_A7] = signal_split(SIGNAL(bus_ba), 7, 1),
-		[CHIP_6332_A8] = signal_split(SIGNAL(bus_ba), 8, 1),
-		[CHIP_6332_A9] = signal_split(SIGNAL(bus_ba), 9, 1),
-		[CHIP_6332_A10] = signal_split(SIGNAL(bus_ba), 10, 1),
-		[CHIP_6332_A11] = signal_split(SIGNAL(bus_ba), 11, 1),			// used as cs2_b for 6316 rom
+		[CHIP_6332_A0] = SIGNAL(BA0),
+		[CHIP_6332_A1] = SIGNAL(BA1),
+		[CHIP_6332_A2] = SIGNAL(BA2),
+		[CHIP_6332_A3] = SIGNAL(BA3),
+		[CHIP_6332_A4] = SIGNAL(BA4),
+		[CHIP_6332_A5] = SIGNAL(BA5),
+		[CHIP_6332_A6] = SIGNAL(BA6),
+		[CHIP_6332_A7] = SIGNAL(BA7),
+		[CHIP_6332_A8] = SIGNAL(BA8),
+		[CHIP_6332_A9] = SIGNAL(BA9),
+		[CHIP_6332_A10] = SIGNAL(BA10),
+		[CHIP_6332_A11] = SIGNAL(BA11),			// used as cs2_b for 6316 rom
 
-		[CHIP_6332_D0] = signal_split(SIGNAL(cpu_bus_data), 0, 1),
-		[CHIP_6332_D1] = signal_split(SIGNAL(cpu_bus_data), 1, 1),
-		[CHIP_6332_D2] = signal_split(SIGNAL(cpu_bus_data), 2, 1),
-		[CHIP_6332_D3] = signal_split(SIGNAL(cpu_bus_data), 3, 1),
-		[CHIP_6332_D4] = signal_split(SIGNAL(cpu_bus_data), 4, 1),
-		[CHIP_6332_D5] = signal_split(SIGNAL(cpu_bus_data), 5, 1),
-		[CHIP_6332_D6] = signal_split(SIGNAL(cpu_bus_data), 6, 1),
-		[CHIP_6332_D7] = signal_split(SIGNAL(cpu_bus_data), 7, 1),
+		[CHIP_6332_D0] = SIGNAL(D0),
+		[CHIP_6332_D1] = SIGNAL(D1),
+		[CHIP_6332_D2] = SIGNAL(D2),
+		[CHIP_6332_D3] = SIGNAL(D3),
+		[CHIP_6332_D4] = SIGNAL(D4),
+		[CHIP_6332_D5] = SIGNAL(D5),
+		[CHIP_6332_D6] = SIGNAL(D6),
+		[CHIP_6332_D7] = SIGNAL(D7),
 
 		[CHIP_6332_CS1_B] = rom_cs1_b,
-		[CHIP_6332_CS3] = SIGNAL(high)
+		[CHIP_6332_CS3] = SIGNAL(HIGH)
 	};
 
 	Chip63xxRom *rom = (num_lines == 12) ?
@@ -602,28 +605,28 @@ static Chip63xxRom *load_rom(DevCommodorePet *device, const char *filename, size
 static Chip63xxRom *load_character_rom(DevCommodorePet *device, const char *filename) {
 
 	Chip63xxRom *rom = chip_6316_rom_create(device->simulator, (Signal[24]) {
-										[CHIP_6316_CS1_B] = SIGNAL(low),
-										[CHIP_6316_CS2_B] = SIGNAL(low),
-										[CHIP_6316_CS3] = SIGNAL(init_b),
-										[CHIP_6316_A0] = SIGNAL(ra7),
-										[CHIP_6316_A1] = SIGNAL(ra8),
-										[CHIP_6316_A2] = SIGNAL(ra9),
-										[CHIP_6316_A3] = signal_split(SIGNAL(bus_lsd), 0, 1),
-										[CHIP_6316_A4] = signal_split(SIGNAL(bus_lsd), 1, 1),
-										[CHIP_6316_A5] = signal_split(SIGNAL(bus_lsd), 2, 1),
-										[CHIP_6316_A6] = signal_split(SIGNAL(bus_lsd), 3, 1),
-										[CHIP_6316_A7] = signal_split(SIGNAL(bus_lsd), 4, 1),
-										[CHIP_6316_A8] = signal_split(SIGNAL(bus_lsd), 5, 1),
-										[CHIP_6316_A9] = signal_split(SIGNAL(bus_lsd), 6, 1),
-										[CHIP_6316_A10] = SIGNAL(graphic),
-										[CHIP_6316_D0] = signal_split(SIGNAL(bus_cd), 0, 1),
-										[CHIP_6316_D1] = signal_split(SIGNAL(bus_cd), 1, 1),
-										[CHIP_6316_D2] = signal_split(SIGNAL(bus_cd), 2, 1),
-										[CHIP_6316_D3] = signal_split(SIGNAL(bus_cd), 3, 1),
-										[CHIP_6316_D4] = signal_split(SIGNAL(bus_cd), 4, 1),
-										[CHIP_6316_D5] = signal_split(SIGNAL(bus_cd), 5, 1),
-										[CHIP_6316_D6] = signal_split(SIGNAL(bus_cd), 6, 1),
-										[CHIP_6316_D7] = signal_split(SIGNAL(bus_cd), 7, 1)
+										[CHIP_6316_CS1_B] = SIGNAL(LOW),
+										[CHIP_6316_CS2_B] = SIGNAL(LOW),
+										[CHIP_6316_CS3] = SIGNAL(INIT_B),
+										[CHIP_6316_A0] = SIGNAL(RA7),
+										[CHIP_6316_A1] = SIGNAL(RA8),
+										[CHIP_6316_A2] = SIGNAL(RA9),
+										[CHIP_6316_A3] = SIGNAL(LSD0),
+										[CHIP_6316_A4] = SIGNAL(LSD1),
+										[CHIP_6316_A5] = SIGNAL(LSD2),
+										[CHIP_6316_A6] = SIGNAL(LSD3),
+										[CHIP_6316_A7] = SIGNAL(LSD4),
+										[CHIP_6316_A8] = SIGNAL(LSD5),
+										[CHIP_6316_A9] = SIGNAL(LSD6),
+										[CHIP_6316_A10] = SIGNAL(GRAPHIC),
+										[CHIP_6316_D0] = SIGNAL(CD0),
+										[CHIP_6316_D1] = SIGNAL(CD1),
+										[CHIP_6316_D2] = SIGNAL(CD2),
+										[CHIP_6316_D3] = SIGNAL(CD3),
+										[CHIP_6316_D4] = SIGNAL(CD4),
+										[CHIP_6316_D5] = SIGNAL(CD5),
+										[CHIP_6316_D6] = SIGNAL(CD6),
+										[CHIP_6316_D7] = SIGNAL(CD7)
 	});
 
 	if (file_load_binary_fixed(filename, rom->data_array, ROM_6316_DATA_SIZE) == 0) {
@@ -644,164 +647,164 @@ static void circuit_create_01(DevCommodorePet *device) {
 
 	// power-on-reset
 	DEVICE_REGISTER_CHIP("POR", poweronreset_create(US_TO_PS(500), device->simulator, (PowerOnResetSignals) {
-											[CHIP_POR_TRIGGER_B] = SIGNAL(reset_btn_b),
-											[CHIP_POR_RESET_B] = SIGNAL(reset_b)
+											[CHIP_POR_TRIGGER_B] = SIGNAL(RESET_BTN_B),
+											[CHIP_POR_RESET_B] = SIGNAL(RESET_B)
 	}));
 
 	// cpu
 	device->cpu = cpu_6502_create(device->simulator, (Cpu6502Signals) {
-										[PIN_6502_AB0]  = signal_split(SIGNAL(cpu_bus_address), 0, 1),
-										[PIN_6502_AB1]  = signal_split(SIGNAL(cpu_bus_address), 1, 1),
-										[PIN_6502_AB2]  = signal_split(SIGNAL(cpu_bus_address), 2, 1),
-										[PIN_6502_AB3]  = signal_split(SIGNAL(cpu_bus_address), 3, 1),
-										[PIN_6502_AB4]  = signal_split(SIGNAL(cpu_bus_address), 4, 1),
-										[PIN_6502_AB5]  = signal_split(SIGNAL(cpu_bus_address), 5, 1),
-										[PIN_6502_AB6]  = signal_split(SIGNAL(cpu_bus_address), 6, 1),
-										[PIN_6502_AB7]  = signal_split(SIGNAL(cpu_bus_address), 7, 1),
-										[PIN_6502_AB8]  = signal_split(SIGNAL(cpu_bus_address), 8, 1),
-										[PIN_6502_AB9]  = signal_split(SIGNAL(cpu_bus_address), 9, 1),
-										[PIN_6502_AB10] = signal_split(SIGNAL(cpu_bus_address), 10, 1),
-										[PIN_6502_AB11] = signal_split(SIGNAL(cpu_bus_address), 11, 1),
-										[PIN_6502_AB12] = signal_split(SIGNAL(cpu_bus_address), 12, 1),
-										[PIN_6502_AB13] = signal_split(SIGNAL(cpu_bus_address), 13, 1),
-										[PIN_6502_AB14] = signal_split(SIGNAL(cpu_bus_address), 14, 1),
-										[PIN_6502_AB15] = signal_split(SIGNAL(cpu_bus_address), 15, 1),
+										[PIN_6502_AB0]  = SIGNAL(AB0),
+										[PIN_6502_AB1]  = SIGNAL(AB1),
+										[PIN_6502_AB2]  = SIGNAL(AB2),
+										[PIN_6502_AB3]  = SIGNAL(AB3),
+										[PIN_6502_AB4]  = SIGNAL(AB4),
+										[PIN_6502_AB5]  = SIGNAL(AB5),
+										[PIN_6502_AB6]  = SIGNAL(AB6),
+										[PIN_6502_AB7]  = SIGNAL(AB7),
+										[PIN_6502_AB8]  = SIGNAL(AB8),
+										[PIN_6502_AB9]  = SIGNAL(AB9),
+										[PIN_6502_AB10] = SIGNAL(AB10),
+										[PIN_6502_AB11] = SIGNAL(AB11),
+										[PIN_6502_AB12] = SIGNAL(AB12),
+										[PIN_6502_AB13] = SIGNAL(AB13),
+										[PIN_6502_AB14] = SIGNAL(AB14),
+										[PIN_6502_AB15] = SIGNAL(AB15),
 
-										[PIN_6502_DB0]  = signal_split(SIGNAL(cpu_bus_data), 0, 1),
-										[PIN_6502_DB1]  = signal_split(SIGNAL(cpu_bus_data), 1, 1),
-										[PIN_6502_DB2]  = signal_split(SIGNAL(cpu_bus_data), 2, 1),
-										[PIN_6502_DB3]  = signal_split(SIGNAL(cpu_bus_data), 3, 1),
-										[PIN_6502_DB4]  = signal_split(SIGNAL(cpu_bus_data), 4, 1),
-										[PIN_6502_DB5]  = signal_split(SIGNAL(cpu_bus_data), 5, 1),
-										[PIN_6502_DB6]  = signal_split(SIGNAL(cpu_bus_data), 6, 1),
-										[PIN_6502_DB7]  = signal_split(SIGNAL(cpu_bus_data), 7, 1),
+										[PIN_6502_DB0]  = SIGNAL(D0),
+										[PIN_6502_DB1]  = SIGNAL(D1),
+										[PIN_6502_DB2]  = SIGNAL(D2),
+										[PIN_6502_DB3]  = SIGNAL(D3),
+										[PIN_6502_DB4]  = SIGNAL(D4),
+										[PIN_6502_DB5]  = SIGNAL(D5),
+										[PIN_6502_DB6]  = SIGNAL(D6),
+										[PIN_6502_DB7]  = SIGNAL(D7),
 
-										[PIN_6502_CLK]   = SIGNAL(clk1),
-										[PIN_6502_RES_B] = SIGNAL(reset_b),
-										[PIN_6502_RW]	 = SIGNAL(cpu_rw),
-										[PIN_6502_IRQ_B] = SIGNAL(irq_b),
-										[PIN_6502_NMI_B] = SIGNAL(nmi_b),
-										[PIN_6502_SYNC]  = SIGNAL(cpu_sync),
-										[PIN_6502_RDY]   = SIGNAL(cpu_rdy)
+										[PIN_6502_CLK]   = SIGNAL(CLK1),
+										[PIN_6502_RES_B] = SIGNAL(RESET_B),
+										[PIN_6502_RW]	 = SIGNAL(RW),
+										[PIN_6502_IRQ_B] = SIGNAL(IRQ_B),
+										[PIN_6502_NMI_B] = SIGNAL(NMI_B),
+										[PIN_6502_SYNC]  = SIGNAL(SYNC),
+										[PIN_6502_RDY]   = SIGNAL(RDY)
 	});
 	DEVICE_REGISTER_CHIP("C4", device->cpu);
 
 	// >> c3 - octal buffer
 	DEVICE_REGISTER_CHIP("C3", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
-										[CHIP_74244_G1_B] = SIGNAL(low),
-										[CHIP_74244_G2_B] = SIGNAL(low),
-										[CHIP_74244_A11] = signal_split(SIGNAL(cpu_bus_address), 0, 1),
-										[CHIP_74244_A24] = signal_split(SIGNAL(cpu_bus_address), 1, 1),
-										[CHIP_74244_A12] = signal_split(SIGNAL(cpu_bus_address), 2, 1),
-										[CHIP_74244_A23] = signal_split(SIGNAL(cpu_bus_address), 3, 1),
-										[CHIP_74244_A13] = signal_split(SIGNAL(cpu_bus_address), 4, 1),
-										[CHIP_74244_A22] = signal_split(SIGNAL(cpu_bus_address), 5, 1),
-										[CHIP_74244_A14] = signal_split(SIGNAL(cpu_bus_address), 6, 1),
-										[CHIP_74244_A21] = signal_split(SIGNAL(cpu_bus_address), 7, 1),
-										[CHIP_74244_Y11] = signal_split(SIGNAL(bus_ba), 0, 1),
-										[CHIP_74244_Y24] = signal_split(SIGNAL(bus_ba), 1, 1),
-										[CHIP_74244_Y12] = signal_split(SIGNAL(bus_ba), 2, 1),
-										[CHIP_74244_Y23] = signal_split(SIGNAL(bus_ba), 3, 1),
-										[CHIP_74244_Y13] = signal_split(SIGNAL(bus_ba), 4, 1),
-										[CHIP_74244_Y22] = signal_split(SIGNAL(bus_ba), 5, 1),
-										[CHIP_74244_Y14] = signal_split(SIGNAL(bus_ba), 6, 1),
-										[CHIP_74244_Y21] = signal_split(SIGNAL(bus_ba), 7, 1),
+										[CHIP_74244_G1_B] = SIGNAL(LOW),
+										[CHIP_74244_G2_B] = SIGNAL(LOW),
+										[CHIP_74244_A11] = SIGNAL(AB0),
+										[CHIP_74244_A24] = SIGNAL(AB1),
+										[CHIP_74244_A12] = SIGNAL(AB2),
+										[CHIP_74244_A23] = SIGNAL(AB3),
+										[CHIP_74244_A13] = SIGNAL(AB4),
+										[CHIP_74244_A22] = SIGNAL(AB5),
+										[CHIP_74244_A14] = SIGNAL(AB6),
+										[CHIP_74244_A21] = SIGNAL(AB7),
+										[CHIP_74244_Y11] = SIGNAL(BA0),
+										[CHIP_74244_Y24] = SIGNAL(BA1),
+										[CHIP_74244_Y12] = SIGNAL(BA2),
+										[CHIP_74244_Y23] = SIGNAL(BA3),
+										[CHIP_74244_Y13] = SIGNAL(BA4),
+										[CHIP_74244_Y22] = SIGNAL(BA5),
+										[CHIP_74244_Y14] = SIGNAL(BA6),
+										[CHIP_74244_Y21] = SIGNAL(BA7),
 
 	}));
 
 	// >> b3 - octal buffer
 	DEVICE_REGISTER_CHIP("B3", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
-										[CHIP_74244_G1_B] = SIGNAL(low),									// 01
-										[CHIP_74244_G2_B] = SIGNAL(low),									// 19
-										[CHIP_74244_A11]  = signal_split(SIGNAL(cpu_bus_address), 8, 1),	// 02
-										[CHIP_74244_A24]  = signal_split(SIGNAL(cpu_bus_address), 9, 1),	// 17
-										[CHIP_74244_A12]  = signal_split(SIGNAL(cpu_bus_address), 10, 1),	// 04
-										[CHIP_74244_A23]  = signal_split(SIGNAL(cpu_bus_address), 11, 1),	// 15
-										[CHIP_74244_A13]  = signal_split(SIGNAL(cpu_bus_address), 12, 1),	// 06
-										[CHIP_74244_A22]  = signal_split(SIGNAL(cpu_bus_address), 13, 1),	// 13
-										[CHIP_74244_A14]  = signal_split(SIGNAL(cpu_bus_address), 14, 1),	// 08
-										[CHIP_74244_A21]  = signal_split(SIGNAL(cpu_bus_address), 15, 1),	// 11
-										[CHIP_74244_Y11]  = signal_split(SIGNAL(bus_ba), 8, 1),				// 18
-										[CHIP_74244_Y24]  = signal_split(SIGNAL(bus_ba), 9, 1),				// 03
-										[CHIP_74244_Y12]  = signal_split(SIGNAL(bus_ba), 10, 1),			// 16
-										[CHIP_74244_Y23]  = signal_split(SIGNAL(bus_ba), 11, 1),			// 05
-										[CHIP_74244_Y13]  = signal_split(SIGNAL(bus_ba), 12, 1),			// 14
-										[CHIP_74244_Y22]  = signal_split(SIGNAL(bus_ba), 13, 1),			// 07
-										[CHIP_74244_Y14]  = signal_split(SIGNAL(bus_ba), 14, 1),			// 12
-										[CHIP_74244_Y21]  = signal_split(SIGNAL(bus_ba), 15, 1),			// 09
+										[CHIP_74244_G1_B] = SIGNAL(LOW),	// 01
+										[CHIP_74244_G2_B] = SIGNAL(LOW),	// 19
+										[CHIP_74244_A11]  = SIGNAL(AB8),	// 02
+										[CHIP_74244_A24]  = SIGNAL(AB9),	// 17
+										[CHIP_74244_A12]  = SIGNAL(AB10),	// 04
+										[CHIP_74244_A23]  = SIGNAL(AB11),	// 15
+										[CHIP_74244_A13]  = SIGNAL(AB12),	// 06
+										[CHIP_74244_A22]  = SIGNAL(AB13),	// 13
+										[CHIP_74244_A14]  = SIGNAL(AB14),	// 08
+										[CHIP_74244_A21]  = SIGNAL(AB15),	// 11
+										[CHIP_74244_Y11]  = SIGNAL(BA8),	// 18
+										[CHIP_74244_Y24]  = SIGNAL(BA9),	// 03
+										[CHIP_74244_Y12]  = SIGNAL(BA10),	// 16
+										[CHIP_74244_Y23]  = SIGNAL(BA11),	// 05
+										[CHIP_74244_Y13]  = SIGNAL(BA12),	// 14
+										[CHIP_74244_Y22]  = SIGNAL(BA13),	// 07
+										[CHIP_74244_Y14]  = SIGNAL(BA14),	// 12
+										[CHIP_74244_Y21]  = SIGNAL(BA15),	// 09
 
 	}));
 
 	// >> d2 - 4-to-16 decoder
 	DEVICE_REGISTER_CHIP("D2", chip_74154_decoder_create(device->simulator, (Chip74154Signals) {
-										[CHIP_74154_G1_B] = SIGNAL(low),
-										[CHIP_74154_G2_B] = SIGNAL(low),
-										[CHIP_74154_A]  = signal_split(SIGNAL(bus_ba), 12, 1),
-										[CHIP_74154_B]  = signal_split(SIGNAL(bus_ba), 13, 1),
-										[CHIP_74154_C]  = signal_split(SIGNAL(bus_ba), 14, 1),
-										[CHIP_74154_D]  = signal_split(SIGNAL(bus_ba), 15, 1),
-										[CHIP_74154_Y0_B] = SIGNAL(sel0_b),
-										[CHIP_74154_Y1_B] = SIGNAL(sel1_b),
-										[CHIP_74154_Y2_B] = SIGNAL(sel2_b),
-										[CHIP_74154_Y3_B] = SIGNAL(sel3_b),
-										[CHIP_74154_Y4_B] = SIGNAL(sel4_b),
-										[CHIP_74154_Y5_B] = SIGNAL(sel5_b),
-										[CHIP_74154_Y6_B] = SIGNAL(sel6_b),
-										[CHIP_74154_Y7_B] = SIGNAL(sel7_b),
-										[CHIP_74154_Y8_B] = SIGNAL(sel8_b),
-										[CHIP_74154_Y9_B] = SIGNAL(sel9_b),
-										[CHIP_74154_Y10_B] = SIGNAL(sela_b),
-										[CHIP_74154_Y11_B] = SIGNAL(selb_b),
-										[CHIP_74154_Y12_B] = SIGNAL(selc_b),
-										[CHIP_74154_Y13_B] = SIGNAL(seld_b),
-										[CHIP_74154_Y14_B] = SIGNAL(sele_b),
-										[CHIP_74154_Y15_B] = SIGNAL(self_b),
+										[CHIP_74154_G1_B] = SIGNAL(LOW),
+										[CHIP_74154_G2_B] = SIGNAL(LOW),
+										[CHIP_74154_A] = SIGNAL(BA12),
+										[CHIP_74154_B] = SIGNAL(BA13),
+										[CHIP_74154_C] = SIGNAL(BA14),
+										[CHIP_74154_D] = SIGNAL(BA15),
+										[CHIP_74154_Y0_B] = SIGNAL(SEL0_B),
+										[CHIP_74154_Y1_B] = SIGNAL(SEL1_B),
+										[CHIP_74154_Y2_B] = SIGNAL(SEL2_B),
+										[CHIP_74154_Y3_B] = SIGNAL(SEL3_B),
+										[CHIP_74154_Y4_B] = SIGNAL(SEL4_B),
+										[CHIP_74154_Y5_B] = SIGNAL(SEL5_B),
+										[CHIP_74154_Y6_B] = SIGNAL(SEL6_B),
+										[CHIP_74154_Y7_B] = SIGNAL(SEL7_B),
+										[CHIP_74154_Y8_B] = SIGNAL(SEL8_B),
+										[CHIP_74154_Y9_B] = SIGNAL(SEL9_B),
+										[CHIP_74154_Y10_B] = SIGNAL(SELA_B),
+										[CHIP_74154_Y11_B] = SIGNAL(SELB_B),
+										[CHIP_74154_Y12_B] = SIGNAL(SELC_B),
+										[CHIP_74154_Y13_B] = SIGNAL(SELD_B),
+										[CHIP_74154_Y14_B] = SIGNAL(SELE_B),
+										[CHIP_74154_Y15_B] = SIGNAL(SELF_B),
 	}));
 
 	// >> e9 - octal buffer
 	DEVICE_REGISTER_CHIP("E9", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
-										[CHIP_74244_G1_B] = SIGNAL(ram_write_b),							// 01
-										[CHIP_74244_G2_B] = SIGNAL(ram_read_b),								// 19
-										[CHIP_74244_A11]  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 02
-										[CHIP_74244_Y24]  = signal_split(SIGNAL(cpu_bus_data), 0, 1),		// 03
-										[CHIP_74244_A12]  = signal_split(SIGNAL(cpu_bus_data), 1, 1),		// 04
-										[CHIP_74244_Y23]  = signal_split(SIGNAL(cpu_bus_data), 1, 1),		// 05
-										[CHIP_74244_A13]  = signal_split(SIGNAL(cpu_bus_data), 2, 1),		// 06
-										[CHIP_74244_Y22]  = signal_split(SIGNAL(cpu_bus_data), 2, 1),		// 07
-										[CHIP_74244_A14]  = signal_split(SIGNAL(cpu_bus_data), 3, 1),		// 08
-										[CHIP_74244_Y21]  = signal_split(SIGNAL(cpu_bus_data), 3, 1),		// 09
+										[CHIP_74244_G1_B] = SIGNAL(RAMW_B),	// 01
+										[CHIP_74244_G2_B] = SIGNAL(RAMR_B),	// 19
+										[CHIP_74244_A11]  = SIGNAL(D0),		// 02
+										[CHIP_74244_Y24]  = SIGNAL(D0),		// 03
+										[CHIP_74244_A12]  = SIGNAL(D1),		// 04
+										[CHIP_74244_Y23]  = SIGNAL(D1),		// 05
+										[CHIP_74244_A13]  = SIGNAL(D2),		// 06
+										[CHIP_74244_Y22]  = SIGNAL(D2),		// 07
+										[CHIP_74244_A14]  = SIGNAL(D3),		// 08
+										[CHIP_74244_Y21]  = SIGNAL(D3),		// 09
 
-										[CHIP_74244_Y11]  = signal_split(SIGNAL(bus_bd), 0, 1),				// 18
-										[CHIP_74244_A24]  = signal_split(SIGNAL(bus_bd), 0, 1),				// 17
-										[CHIP_74244_Y12]  = signal_split(SIGNAL(bus_bd), 1, 1),				// 16
-										[CHIP_74244_A23]  = signal_split(SIGNAL(bus_bd), 1, 1),				// 15
-										[CHIP_74244_Y13]  = signal_split(SIGNAL(bus_bd), 2, 1),				// 14
-										[CHIP_74244_A22]  = signal_split(SIGNAL(bus_bd), 2, 1),				// 13
-										[CHIP_74244_Y14]  = signal_split(SIGNAL(bus_bd), 3, 1),				// 12
-										[CHIP_74244_A21]  = signal_split(SIGNAL(bus_bd), 3, 1)				// 11
+										[CHIP_74244_Y11]  = SIGNAL(BD0),	// 18
+										[CHIP_74244_A24]  = SIGNAL(BD0),	// 17
+										[CHIP_74244_Y12]  = SIGNAL(BD1),	// 16
+										[CHIP_74244_A23]  = SIGNAL(BD1),	// 15
+										[CHIP_74244_Y13]  = SIGNAL(BD2),	// 14
+										[CHIP_74244_A22]  = SIGNAL(BD2),	// 13
+										[CHIP_74244_Y14]  = SIGNAL(BD3),	// 12
+										[CHIP_74244_A21]  = SIGNAL(BD3)		// 11
 	}));
 
 	// >> e10 - octal buffer
 	DEVICE_REGISTER_CHIP("E10", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
-										[CHIP_74244_G1_B] = SIGNAL(ram_write_b),							// 01
-										[CHIP_74244_G2_B] = SIGNAL(ram_read_b),								// 19
-										[CHIP_74244_A11]  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 02
-										[CHIP_74244_Y24]  = signal_split(SIGNAL(cpu_bus_data), 4, 1),		// 03
-										[CHIP_74244_A12]  = signal_split(SIGNAL(cpu_bus_data), 5, 1),		// 04
-										[CHIP_74244_Y23]  = signal_split(SIGNAL(cpu_bus_data), 5, 1),		// 05
-										[CHIP_74244_A13]  = signal_split(SIGNAL(cpu_bus_data), 6, 1),		// 06
-										[CHIP_74244_Y22]  = signal_split(SIGNAL(cpu_bus_data), 6, 1),		// 07
-										[CHIP_74244_A14]  = signal_split(SIGNAL(cpu_bus_data), 7, 1),		// 08
-										[CHIP_74244_Y21]  = signal_split(SIGNAL(cpu_bus_data), 7, 1),		// 09
+										[CHIP_74244_G1_B] = SIGNAL(RAMW_B),	// 01
+										[CHIP_74244_G2_B] = SIGNAL(RAMR_B),	// 19
+										[CHIP_74244_A11]  = SIGNAL(D4),		// 02
+										[CHIP_74244_Y24]  = SIGNAL(D4),		// 03
+										[CHIP_74244_A12]  = SIGNAL(D5),		// 04
+										[CHIP_74244_Y23]  = SIGNAL(D5),		// 05
+										[CHIP_74244_A13]  = SIGNAL(D6),		// 06
+										[CHIP_74244_Y22]  = SIGNAL(D6),		// 07
+										[CHIP_74244_A14]  = SIGNAL(D7),		// 08
+										[CHIP_74244_Y21]  = SIGNAL(D7),		// 09
 
-										[CHIP_74244_Y11]  = signal_split(SIGNAL(bus_bd), 4, 1),				// 18
-										[CHIP_74244_A24]  = signal_split(SIGNAL(bus_bd), 4, 1),				// 17
-										[CHIP_74244_Y12]  = signal_split(SIGNAL(bus_bd), 5, 1),				// 16
-										[CHIP_74244_A23]  = signal_split(SIGNAL(bus_bd), 5, 1),				// 15
-										[CHIP_74244_Y13]  = signal_split(SIGNAL(bus_bd), 6, 1),				// 14
-										[CHIP_74244_A22]  = signal_split(SIGNAL(bus_bd), 6, 1),				// 13
-										[CHIP_74244_Y14]  = signal_split(SIGNAL(bus_bd), 7, 1),				// 12
-										[CHIP_74244_A21]  = signal_split(SIGNAL(bus_bd), 7, 1)				// 11
+										[CHIP_74244_Y11]  = SIGNAL(BD4),	// 18
+										[CHIP_74244_A24]  = SIGNAL(BD4),	// 17
+										[CHIP_74244_Y12]  = SIGNAL(BD5),	// 16
+										[CHIP_74244_A23]  = SIGNAL(BD5),	// 15
+										[CHIP_74244_Y13]  = SIGNAL(BD6),	// 14
+										[CHIP_74244_A22]  = SIGNAL(BD6),	// 13
+										[CHIP_74244_Y14]  = SIGNAL(BD7),	// 12
+										[CHIP_74244_A21]  = SIGNAL(BD7)		// 11
 	}));
 
 	// glue-logic
@@ -813,42 +816,42 @@ void circuit_create_02(DevCommodorePet *device) {
 
 	// pia 1 (C6 - IEEE-488 interface)
 	device->pia_1 = chip_6520_create(device->simulator, (Chip6520Signals) {
-										[CHIP_6520_D0] = signal_split(SIGNAL(cpu_bus_data), 0, 1),
-										[CHIP_6520_D1] = signal_split(SIGNAL(cpu_bus_data), 1, 1),
-										[CHIP_6520_D2] = signal_split(SIGNAL(cpu_bus_data), 2, 1),
-										[CHIP_6520_D3] = signal_split(SIGNAL(cpu_bus_data), 3, 1),
-										[CHIP_6520_D4] = signal_split(SIGNAL(cpu_bus_data), 4, 1),
-										[CHIP_6520_D5] = signal_split(SIGNAL(cpu_bus_data), 5, 1),
-										[CHIP_6520_D6] = signal_split(SIGNAL(cpu_bus_data), 6, 1),
-										[CHIP_6520_D7] = signal_split(SIGNAL(cpu_bus_data), 7, 1),
-										[CHIP_6520_PHI2] = SIGNAL(clk1),
-										[CHIP_6520_RESET_B] = SIGNAL(reset_b),
-										[CHIP_6520_RW] = SIGNAL(cpu_rw),
-										[CHIP_6520_CS0] = SIGNAL(x8xx),
-										[CHIP_6520_CS1] = signal_split(SIGNAL(bus_ba), 5, 1),
-										[CHIP_6520_CS2_B] = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
-										[CHIP_6520_RS0] = signal_split(SIGNAL(bus_ba), 0, 1),
-										[CHIP_6520_RS1] = signal_split(SIGNAL(bus_ba), 1, 1),
-										[CHIP_6520_CA1] = SIGNAL(atn_in_b),
-										[CHIP_6520_CA2] = SIGNAL(ndac_out_b),
-										[CHIP_6520_PA0] = signal_split(SIGNAL(bus_di), 0, 1),
-										[CHIP_6520_PA1] = signal_split(SIGNAL(bus_di), 1, 1),
-										[CHIP_6520_PA2] = signal_split(SIGNAL(bus_di), 2, 1),
-										[CHIP_6520_PA3] = signal_split(SIGNAL(bus_di), 3, 1),
-										[CHIP_6520_PA4] = signal_split(SIGNAL(bus_di), 4, 1),
-										[CHIP_6520_PA5] = signal_split(SIGNAL(bus_di), 5, 1),
-										[CHIP_6520_PA6] = signal_split(SIGNAL(bus_di), 6, 1),
-										[CHIP_6520_PA7] = signal_split(SIGNAL(bus_di), 7, 1),
-										[CHIP_6520_PB0] = signal_split(SIGNAL(bus_do), 0, 1),
-										[CHIP_6520_PB1] = signal_split(SIGNAL(bus_do), 1, 1),
-										[CHIP_6520_PB2] = signal_split(SIGNAL(bus_do), 2, 1),
-										[CHIP_6520_PB3] = signal_split(SIGNAL(bus_do), 3, 1),
-										[CHIP_6520_PB4] = signal_split(SIGNAL(bus_do), 4, 1),
-										[CHIP_6520_PB5] = signal_split(SIGNAL(bus_do), 5, 1),
-										[CHIP_6520_PB6] = signal_split(SIGNAL(bus_do), 6, 1),
-										[CHIP_6520_PB7] = signal_split(SIGNAL(bus_do), 7, 1),
-										[CHIP_6520_CB1] = SIGNAL(srq_in_b),
-										[CHIP_6520_CB2] = SIGNAL(dav_out_b)
+										[CHIP_6520_D0] = SIGNAL(D0),
+										[CHIP_6520_D1] = SIGNAL(D1),
+										[CHIP_6520_D2] = SIGNAL(D2),
+										[CHIP_6520_D3] = SIGNAL(D3),
+										[CHIP_6520_D4] = SIGNAL(D4),
+										[CHIP_6520_D5] = SIGNAL(D5),
+										[CHIP_6520_D6] = SIGNAL(D6),
+										[CHIP_6520_D7] = SIGNAL(D7),
+										[CHIP_6520_PHI2] = SIGNAL(CLK1),
+										[CHIP_6520_RESET_B] = SIGNAL(RESET_B),
+										[CHIP_6520_RW] = SIGNAL(RW),
+										[CHIP_6520_CS0] = SIGNAL(X8XX),
+										[CHIP_6520_CS1] = SIGNAL(BA5),
+										[CHIP_6520_CS2_B] = SIGNAL(SELE_B),							// io_b on schematic (jumpered to SELE_B)
+										[CHIP_6520_RS0] = SIGNAL(BA0),
+										[CHIP_6520_RS1] = SIGNAL(BA1),
+										[CHIP_6520_CA1] = SIGNAL(ATN_IN_B),
+										[CHIP_6520_CA2] = SIGNAL(NDAC_OUT_B),
+										[CHIP_6520_PA0] = SIGNAL(DI0),
+										[CHIP_6520_PA1] = SIGNAL(DI1),
+										[CHIP_6520_PA2] = SIGNAL(DI2),
+										[CHIP_6520_PA3] = SIGNAL(DI3),
+										[CHIP_6520_PA4] = SIGNAL(DI4),
+										[CHIP_6520_PA5] = SIGNAL(DI5),
+										[CHIP_6520_PA6] = SIGNAL(DI6),
+										[CHIP_6520_PA7] = SIGNAL(DI7),
+										[CHIP_6520_PB0] = SIGNAL(DO0),
+										[CHIP_6520_PB1] = SIGNAL(DO1),
+										[CHIP_6520_PB2] = SIGNAL(DO2),
+										[CHIP_6520_PB3] = SIGNAL(DO3),
+										[CHIP_6520_PB4] = SIGNAL(DO4),
+										[CHIP_6520_PB5] = SIGNAL(DO5),
+										[CHIP_6520_PB6] = SIGNAL(DO6),
+										[CHIP_6520_PB7] = SIGNAL(DO7),
+										[CHIP_6520_CB1] = SIGNAL(SRQ_IN_B),
+										[CHIP_6520_CB2] = SIGNAL(DAV_OUT_B)
 	});
 	DEVICE_REGISTER_CHIP("C6", device->pia_1);
 }
@@ -858,103 +861,103 @@ void circuit_create_03(DevCommodorePet *device) {
 
 	// pia 2 (C7 - keyboard)
 	device->pia_2 = chip_6520_create(device->simulator, (Chip6520Signals) {
-										[CHIP_6520_D0] = signal_split(SIGNAL(cpu_bus_data), 0, 1),
-										[CHIP_6520_D1] = signal_split(SIGNAL(cpu_bus_data), 1, 1),
-										[CHIP_6520_D2] = signal_split(SIGNAL(cpu_bus_data), 2, 1),
-										[CHIP_6520_D3] = signal_split(SIGNAL(cpu_bus_data), 3, 1),
-										[CHIP_6520_D4] = signal_split(SIGNAL(cpu_bus_data), 4, 1),
-										[CHIP_6520_D5] = signal_split(SIGNAL(cpu_bus_data), 5, 1),
-										[CHIP_6520_D6] = signal_split(SIGNAL(cpu_bus_data), 6, 1),
-										[CHIP_6520_D7] = signal_split(SIGNAL(cpu_bus_data), 7, 1),
-										[CHIP_6520_PHI2] = SIGNAL(clk1),
-										[CHIP_6520_RESET_B] = SIGNAL(reset_b),
-										[CHIP_6520_RW] = SIGNAL(cpu_rw),
-										[CHIP_6520_CS0] = SIGNAL(x8xx),
-										[CHIP_6520_CS1] = signal_split(SIGNAL(bus_ba), 4, 1),
-										[CHIP_6520_CS2_B] = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
-										[CHIP_6520_RS0] = signal_split(SIGNAL(bus_ba), 0, 1),
-										[CHIP_6520_RS1] = signal_split(SIGNAL(bus_ba), 1, 1),
-										[CHIP_6520_CA1] = SIGNAL(cass_read_1),
-										[CHIP_6520_CA2] = SIGNAL(eoi_out_b),
-										[CHIP_6520_PA0] = signal_split(SIGNAL(c7_porta), 0, 1),
-										[CHIP_6520_PA1] = signal_split(SIGNAL(c7_porta), 1, 1),
-										[CHIP_6520_PA2] = signal_split(SIGNAL(c7_porta), 2, 1),
-										[CHIP_6520_PA3] = signal_split(SIGNAL(c7_porta), 3, 1),
-										[CHIP_6520_PA4] = signal_split(SIGNAL(c7_porta), 4, 1),
-										[CHIP_6520_PA5] = signal_split(SIGNAL(c7_porta), 5, 1),
-										[CHIP_6520_PA6] = signal_split(SIGNAL(c7_porta), 6, 1),
-										[CHIP_6520_PA7] = signal_split(SIGNAL(c7_porta), 7, 1),
-										[CHIP_6520_PB0] = signal_split(SIGNAL(bus_kin), 0, 1),
-										[CHIP_6520_PB1] = signal_split(SIGNAL(bus_kin), 1, 1),
-										[CHIP_6520_PB2] = signal_split(SIGNAL(bus_kin), 2, 1),
-										[CHIP_6520_PB3] = signal_split(SIGNAL(bus_kin), 3, 1),
-										[CHIP_6520_PB4] = signal_split(SIGNAL(bus_kin), 4, 1),
-										[CHIP_6520_PB5] = signal_split(SIGNAL(bus_kin), 5, 1),
-										[CHIP_6520_PB6] = signal_split(SIGNAL(bus_kin), 6, 1),
-										[CHIP_6520_PB7] = signal_split(SIGNAL(bus_kin), 7, 1),
-										[CHIP_6520_CB1] = SIGNAL(video_on),
-										[CHIP_6520_CB2] = SIGNAL(cass_motor_1_b)
+										[CHIP_6520_D0] = SIGNAL(D0),
+										[CHIP_6520_D1] = SIGNAL(D1),
+										[CHIP_6520_D2] = SIGNAL(D2),
+										[CHIP_6520_D3] = SIGNAL(D3),
+										[CHIP_6520_D4] = SIGNAL(D4),
+										[CHIP_6520_D5] = SIGNAL(D5),
+										[CHIP_6520_D6] = SIGNAL(D6),
+										[CHIP_6520_D7] = SIGNAL(D7),
+										[CHIP_6520_PHI2] = SIGNAL(CLK1),
+										[CHIP_6520_RESET_B] = SIGNAL(RESET_B),
+										[CHIP_6520_RW] = SIGNAL(RW),
+										[CHIP_6520_CS0] = SIGNAL(X8XX),
+										[CHIP_6520_CS1] = SIGNAL(BA4),
+										[CHIP_6520_CS2_B] = SIGNAL(SELE_B),							// io_b on schematic (jumpered to SELE_B)
+										[CHIP_6520_RS0] = SIGNAL(BA0),
+										[CHIP_6520_RS1] = SIGNAL(BA1),
+										[CHIP_6520_CA1] = SIGNAL(CASS_READ_1),
+										[CHIP_6520_CA2] = SIGNAL(EOI_OUT_B),
+										[CHIP_6520_PA0] = SIGNAL(KEYA),
+										[CHIP_6520_PA1] = SIGNAL(KEYB),
+										[CHIP_6520_PA2] = SIGNAL(KEYC),
+										[CHIP_6520_PA3] = SIGNAL(KEYD),
+										[CHIP_6520_PA4] = SIGNAL(CASS_SWITCH_1),
+										[CHIP_6520_PA5] = SIGNAL(CASS_SWITCH_2),
+										[CHIP_6520_PA6] = SIGNAL(EOI_IN_B),
+										[CHIP_6520_PA7] = SIGNAL(DIAG),
+										[CHIP_6520_PB0] = SIGNAL(KIN0),
+										[CHIP_6520_PB1] = SIGNAL(KIN1),
+										[CHIP_6520_PB2] = SIGNAL(KIN2),
+										[CHIP_6520_PB3] = SIGNAL(KIN3),
+										[CHIP_6520_PB4] = SIGNAL(KIN4),
+										[CHIP_6520_PB5] = SIGNAL(KIN5),
+										[CHIP_6520_PB6] = SIGNAL(KIN6),
+										[CHIP_6520_PB7] = SIGNAL(KIN7),
+										[CHIP_6520_CB1] = SIGNAL(VIDEO_ON),
+										[CHIP_6520_CB2] = SIGNAL(CASS_MOTOR_1_B)
 	});
 	DEVICE_REGISTER_CHIP("C7", device->pia_2);
 
 	// via (C5)
 	device->via = chip_6522_create(device->simulator, (Chip6522Signals) {
-										[CHIP_6522_D0] = signal_split(SIGNAL(cpu_bus_data), 0, 1),
-										[CHIP_6522_D1] = signal_split(SIGNAL(cpu_bus_data), 1, 1),
-										[CHIP_6522_D2] = signal_split(SIGNAL(cpu_bus_data), 2, 1),
-										[CHIP_6522_D3] = signal_split(SIGNAL(cpu_bus_data), 3, 1),
-										[CHIP_6522_D4] = signal_split(SIGNAL(cpu_bus_data), 4, 1),
-										[CHIP_6522_D5] = signal_split(SIGNAL(cpu_bus_data), 5, 1),
-										[CHIP_6522_D6] = signal_split(SIGNAL(cpu_bus_data), 6, 1),
-										[CHIP_6522_D7] = signal_split(SIGNAL(cpu_bus_data), 7, 1),
-										[CHIP_6522_PHI2] = SIGNAL(clk1),
-										[CHIP_6522_RESET_B] = SIGNAL(reset_b),
-										[CHIP_6522_RW] = SIGNAL(cpu_rw),
-										[CHIP_6522_CS1] = SIGNAL(cs1),
-										[CHIP_6522_CS2_B] = SIGNAL(sele_b),							// io_b on schematic (jumpered to sele_b)
-										[CHIP_6522_RS0] = signal_split(SIGNAL(bus_ba), 0, 1),
-										[CHIP_6522_RS1] = signal_split(SIGNAL(bus_ba), 1, 1),
-										[CHIP_6522_RS2] = signal_split(SIGNAL(bus_ba), 2, 1),
-										[CHIP_6522_RS3] = signal_split(SIGNAL(bus_ba), 3, 1),
-										[CHIP_6522_CA1] = SIGNAL(ca1),
-										[CHIP_6522_CA2] = SIGNAL(graphic),
-										[CHIP_6522_PA0] = signal_split(SIGNAL(bus_pa), 0, 1),
-										[CHIP_6522_PA1] = signal_split(SIGNAL(bus_pa), 1, 1),
-										[CHIP_6522_PA2] = signal_split(SIGNAL(bus_pa), 2, 1),
-										[CHIP_6522_PA3] = signal_split(SIGNAL(bus_pa), 3, 1),
-										[CHIP_6522_PA4] = signal_split(SIGNAL(bus_pa), 4, 1),
-										[CHIP_6522_PA5] = signal_split(SIGNAL(bus_pa), 5, 1),
-										[CHIP_6522_PA6] = signal_split(SIGNAL(bus_pa), 6, 1),
-										[CHIP_6522_PA7] = signal_split(SIGNAL(bus_pa), 7, 1),
-										[CHIP_6522_PB0] = signal_split(SIGNAL(c5_portb), 0, 1),
-										[CHIP_6522_PB1] = signal_split(SIGNAL(c5_portb), 1, 1),
-										[CHIP_6522_PB2] = signal_split(SIGNAL(c5_portb), 2, 1),
-										[CHIP_6522_PB3] = signal_split(SIGNAL(c5_portb), 3, 1),
-										[CHIP_6522_PB4] = signal_split(SIGNAL(c5_portb), 4, 1),
-										[CHIP_6522_PB5] = signal_split(SIGNAL(c5_portb), 5, 1),
-										[CHIP_6522_PB6] = signal_split(SIGNAL(c5_portb), 6, 1),
-										[CHIP_6522_PB7] = signal_split(SIGNAL(c5_portb), 7, 1),
-										[CHIP_6522_CB1] = SIGNAL(cass_read_2),
-										[CHIP_6522_CB2] = SIGNAL(cb2)
+										[CHIP_6522_D0] = SIGNAL(D0),
+										[CHIP_6522_D1] = SIGNAL(D1),
+										[CHIP_6522_D2] = SIGNAL(D2),
+										[CHIP_6522_D3] = SIGNAL(D3),
+										[CHIP_6522_D4] = SIGNAL(D4),
+										[CHIP_6522_D5] = SIGNAL(D5),
+										[CHIP_6522_D6] = SIGNAL(D6),
+										[CHIP_6522_D7] = SIGNAL(D7),
+										[CHIP_6522_PHI2] = SIGNAL(CLK1),
+										[CHIP_6522_RESET_B] = SIGNAL(RESET_B),
+										[CHIP_6522_RW] = SIGNAL(RW),
+										[CHIP_6522_CS1] = SIGNAL(CS1),
+										[CHIP_6522_CS2_B] = SIGNAL(SELE_B),							// io_b on schematic (jumpered to SELE_B)
+										[CHIP_6522_RS0] = SIGNAL(BA0),
+										[CHIP_6522_RS1] = SIGNAL(BA1),
+										[CHIP_6522_RS2] = SIGNAL(BA2),
+										[CHIP_6522_RS3] = SIGNAL(BA3),
+										[CHIP_6522_CA1] = SIGNAL(CA1),
+										[CHIP_6522_CA2] = SIGNAL(GRAPHIC),
+										[CHIP_6522_PA0] = SIGNAL(PA0),
+										[CHIP_6522_PA1] = SIGNAL(PA1),
+										[CHIP_6522_PA2] = SIGNAL(PA2),
+										[CHIP_6522_PA3] = SIGNAL(PA3),
+										[CHIP_6522_PA4] = SIGNAL(PA4),
+										[CHIP_6522_PA5] = SIGNAL(PA5),
+										[CHIP_6522_PA6] = SIGNAL(PA6),
+										[CHIP_6522_PA7] = SIGNAL(PA7),
+										[CHIP_6522_PB0] = SIGNAL(NDAC_IN_B),
+										[CHIP_6522_PB1] = SIGNAL(NRFD_OUT_B),
+										[CHIP_6522_PB2] = SIGNAL(ATN_OUT_B),
+										[CHIP_6522_PB3] = SIGNAL(CASS_WRITE),
+										[CHIP_6522_PB4] = SIGNAL(CASS_MOTOR_2_B),
+										[CHIP_6522_PB5] = SIGNAL(VIDEO_ON),
+										[CHIP_6522_PB6] = SIGNAL(NRFD_IN_B),
+										[CHIP_6522_PB7] = SIGNAL(DAV_IN_B),
+										[CHIP_6522_CB1] = SIGNAL(CASS_READ_2),
+										[CHIP_6522_CB2] = SIGNAL(CB2)
 	});
 	DEVICE_REGISTER_CHIP("C5", device->via);
 
 	// >> c9 - bcd decoder
 	DEVICE_REGISTER_CHIP("C9", chip_74145_bcd_decoder_create(device->simulator, (Chip74145Signals) {
-										[CHIP_74145_A] = SIGNAL(keya),
-										[CHIP_74145_B] = SIGNAL(keyb),
-										[CHIP_74145_C] = SIGNAL(keyc),
-										[CHIP_74145_D] = SIGNAL(keyd),
-										[CHIP_74145_Y0_B] = signal_split(SIGNAL(bus_kout), 0, 1),
-										[CHIP_74145_Y1_B] = signal_split(SIGNAL(bus_kout), 1, 1),
-										[CHIP_74145_Y2_B] = signal_split(SIGNAL(bus_kout), 2, 1),
-										[CHIP_74145_Y3_B] = signal_split(SIGNAL(bus_kout), 3, 1),
-										[CHIP_74145_Y4_B] = signal_split(SIGNAL(bus_kout), 4, 1),
-										[CHIP_74145_Y5_B] = signal_split(SIGNAL(bus_kout), 5, 1),
-										[CHIP_74145_Y6_B] = signal_split(SIGNAL(bus_kout), 6, 1),
-										[CHIP_74145_Y7_B] = signal_split(SIGNAL(bus_kout), 7, 1),
-										[CHIP_74145_Y8_B] = signal_split(SIGNAL(bus_kout), 8, 1),
-										[CHIP_74145_Y9_B] = signal_split(SIGNAL(bus_kout), 9, 1)
+										[CHIP_74145_A] = SIGNAL(KEYA),
+										[CHIP_74145_B] = SIGNAL(KEYB),
+										[CHIP_74145_C] = SIGNAL(KEYC),
+										[CHIP_74145_D] = SIGNAL(KEYD),
+										[CHIP_74145_Y0_B] = SIGNAL(KOUT0),
+										[CHIP_74145_Y1_B] = SIGNAL(KOUT1),
+										[CHIP_74145_Y2_B] = SIGNAL(KOUT2),
+										[CHIP_74145_Y3_B] = SIGNAL(KOUT3),
+										[CHIP_74145_Y4_B] = SIGNAL(KOUT4),
+										[CHIP_74145_Y5_B] = SIGNAL(KOUT5),
+										[CHIP_74145_Y6_B] = SIGNAL(KOUT6),
+										[CHIP_74145_Y7_B] = SIGNAL(KOUT7),
+										[CHIP_74145_Y8_B] = SIGNAL(KOUT8),
+										[CHIP_74145_Y9_B] = SIGNAL(KOUT9)
 	}));
 
 	// glue-logic
@@ -966,11 +969,11 @@ void circuit_create_03(DevCommodorePet *device) {
 void circuit_create_04(DevCommodorePet *device) {
 
 	int rom_count = 0;
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-b000.901465-19.bin", 12, SIGNAL(selb_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-c000.901465-20.bin", 12, SIGNAL(selc_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-d000.901465-21.bin", 12, SIGNAL(seld_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/edit-4-n.901447-29.bin", 11, SIGNAL(sele_b));
-	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/kernal-4.901465-22.bin", 12, SIGNAL(self_b));
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-b000.901465-19.bin", 12, SIGNAL(SELB_B));
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-c000.901465-20.bin", 12, SIGNAL(SELC_B));
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/basic-4-d000.901465-21.bin", 12, SIGNAL(SELD_B));
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/edit-4-n.901447-29.bin", 11, SIGNAL(SELE_B));
+	device->roms[rom_count++] = load_rom(device, "runtime/commodore_pet/kernal-4.901465-22.bin", 12, SIGNAL(SELF_B));
 
 	for (int i = 0; i < rom_count; ++i) {
 		assert(device->roms[i]);
@@ -982,182 +985,182 @@ void circuit_create_04(DevCommodorePet *device) {
 void circuit_create_05(DevCommodorePet *device) {
 
 	DEVICE_REGISTER_CHIP("I11", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
-										[CHIP_74244_G2_B] = SIGNAL(buf_rw),							// 19
-										[CHIP_74244_G1_B] = SIGNAL(g78),							// 01
+										[CHIP_74244_G2_B] = SIGNAL(BRW),	// 19
+										[CHIP_74244_G1_B] = SIGNAL(G7_8),	// 01
 
-										[CHIP_74244_A11] = signal_split(SIGNAL(bus_rd), 7, 1),		// 02
-										[CHIP_74244_Y24] = signal_split(SIGNAL(bus_rd), 7, 1),		// 03
-										[CHIP_74244_A12] = signal_split(SIGNAL(bus_rd), 6, 1),		// 04
-										[CHIP_74244_Y23] = signal_split(SIGNAL(bus_rd), 6, 1),		// 05
-										[CHIP_74244_A13] = signal_split(SIGNAL(bus_rd), 5, 1),		// 06
-										[CHIP_74244_Y22] = signal_split(SIGNAL(bus_rd), 5, 1),		// 07
-										[CHIP_74244_A14] = signal_split(SIGNAL(bus_rd), 4, 1),		// 08
-										[CHIP_74244_Y21] = signal_split(SIGNAL(bus_rd), 4, 1),		// 09
+										[CHIP_74244_A11] = SIGNAL(RD7),		// 02
+										[CHIP_74244_Y24] = SIGNAL(RD7),		// 03
+										[CHIP_74244_A12] = SIGNAL(RD6),		// 04
+										[CHIP_74244_Y23] = SIGNAL(RD6),		// 05
+										[CHIP_74244_A13] = SIGNAL(RD5),		// 06
+										[CHIP_74244_Y22] = SIGNAL(RD5),		// 07
+										[CHIP_74244_A14] = SIGNAL(RD4),		// 08
+										[CHIP_74244_Y21] = SIGNAL(RD4),		// 09
 
-										[CHIP_74244_Y11] = signal_split(SIGNAL(bus_bd), 7, 1),		// 18
-										[CHIP_74244_A24] = signal_split(SIGNAL(bus_bd), 7, 1),		// 17
-										[CHIP_74244_Y12] = signal_split(SIGNAL(bus_bd), 6, 1),		// 16
-										[CHIP_74244_A23] = signal_split(SIGNAL(bus_bd), 6, 1),		// 15
-										[CHIP_74244_Y13] = signal_split(SIGNAL(bus_bd), 5, 1),		// 14
-										[CHIP_74244_A22] = signal_split(SIGNAL(bus_bd), 5, 1),		// 13
-										[CHIP_74244_Y14] = signal_split(SIGNAL(bus_bd), 4, 1),		// 12
-										[CHIP_74244_A21] = signal_split(SIGNAL(bus_bd), 4, 1)		// 11
+										[CHIP_74244_Y11] = SIGNAL(BD7),		// 18
+										[CHIP_74244_A24] = SIGNAL(BD7),		// 17
+										[CHIP_74244_Y12] = SIGNAL(BD6),		// 16
+										[CHIP_74244_A23] = SIGNAL(BD6),		// 15
+										[CHIP_74244_Y13] = SIGNAL(BD5),		// 14
+										[CHIP_74244_A22] = SIGNAL(BD5),		// 13
+										[CHIP_74244_Y14] = SIGNAL(BD4),		// 12
+										[CHIP_74244_A21] = SIGNAL(BD4)		// 11
 	}));
 
 	DEVICE_REGISTER_CHIP("I10", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
-										[CHIP_74244_G2_B] = SIGNAL(buf_rw),							// 19
-										[CHIP_74244_G1_B] = SIGNAL(g78),							// 01
+										[CHIP_74244_G2_B] = SIGNAL(BRW),	// 19
+										[CHIP_74244_G1_B] = SIGNAL(G7_8),	// 01
 
-										[CHIP_74244_A11]  = signal_split(SIGNAL(bus_rd), 3, 1),		// 02
-										[CHIP_74244_Y24]  = signal_split(SIGNAL(bus_rd), 3, 1),		// 03
-										[CHIP_74244_A12]  = signal_split(SIGNAL(bus_rd), 2, 1),		// 04
-										[CHIP_74244_Y23]  = signal_split(SIGNAL(bus_rd), 2, 1),		// 05
-										[CHIP_74244_A13]  = signal_split(SIGNAL(bus_rd), 1, 1),		// 06
-										[CHIP_74244_Y22]  = signal_split(SIGNAL(bus_rd), 1, 1),		// 07
-										[CHIP_74244_A14]  = signal_split(SIGNAL(bus_rd), 0, 1),		// 08
-										[CHIP_74244_Y21]  = signal_split(SIGNAL(bus_rd), 0, 1),		// 09
+										[CHIP_74244_A11]  = SIGNAL(RD3),	// 02
+										[CHIP_74244_Y24]  = SIGNAL(RD3),	// 03
+										[CHIP_74244_A12]  = SIGNAL(RD2),	// 04
+										[CHIP_74244_Y23]  = SIGNAL(RD2),	// 05
+										[CHIP_74244_A13]  = SIGNAL(RD1),	// 06
+										[CHIP_74244_Y22]  = SIGNAL(RD1),	// 07
+										[CHIP_74244_A14]  = SIGNAL(RD0),	// 08
+										[CHIP_74244_Y21]  = SIGNAL(RD0),	// 09
 
-										[CHIP_74244_Y11]  = signal_split(SIGNAL(bus_bd), 3, 1),		// 18
-										[CHIP_74244_A24]  = signal_split(SIGNAL(bus_bd), 3, 1),		// 17
-										[CHIP_74244_Y12]  = signal_split(SIGNAL(bus_bd), 2, 1),		// 16
-										[CHIP_74244_A23]  = signal_split(SIGNAL(bus_bd), 2, 1),		// 15
-										[CHIP_74244_Y13]  = signal_split(SIGNAL(bus_bd), 1, 1),		// 14
-										[CHIP_74244_A22]  = signal_split(SIGNAL(bus_bd), 1, 1),		// 13
-										[CHIP_74244_Y14]  = signal_split(SIGNAL(bus_bd), 0, 1),		// 12
-										[CHIP_74244_A21]  = signal_split(SIGNAL(bus_bd), 0, 1)		// 11
+										[CHIP_74244_Y11]  = SIGNAL(BD3),	// 18
+										[CHIP_74244_A24]  = SIGNAL(BD3),	// 17
+										[CHIP_74244_Y12]  = SIGNAL(BD2),	// 16
+										[CHIP_74244_A23]  = SIGNAL(BD2),	// 15
+										[CHIP_74244_Y13]  = SIGNAL(BD1),	// 14
+										[CHIP_74244_A22]  = SIGNAL(BD1),	// 13
+										[CHIP_74244_Y14]  = SIGNAL(BD0),	// 12
+										[CHIP_74244_A21]  = SIGNAL(BD0)		// 11
 	}));
 
 	DEVICE_REGISTER_CHIP("E3", chip_74153_multiplexer_create(device->simulator, (Chip74153Signals) {
-										[CHIP_74153_G1] = SIGNAL(low),								// pin 1
-										[CHIP_74153_C10] = SIGNAL(ra7),								// pin 6
-										[CHIP_74153_C11] = SIGNAL(ra7),								// pin 5
-										[CHIP_74153_C12] = signal_split(SIGNAL(bus_ba), 0, 1),		// pin 4
-										[CHIP_74153_C13] = signal_split(SIGNAL(bus_ba), 13, 1),		// pin 3
-										[CHIP_74153_Y1] = signal_split(SIGNAL(bus_fa), 0, 1),		// pin 7
+										[CHIP_74153_G1] = SIGNAL(LOW),		// pin 1
+										[CHIP_74153_C10] = SIGNAL(RA7),		// pin 6
+										[CHIP_74153_C11] = SIGNAL(RA7),		// pin 5
+										[CHIP_74153_C12] = SIGNAL(BA0),		// pin 4
+										[CHIP_74153_C13] = SIGNAL(BA13),	// pin 3
+										[CHIP_74153_Y1] = SIGNAL(FA0),		// pin 7
 
-										[CHIP_74153_A] = SIGNAL(muxa),								// pin 14
-										[CHIP_74153_B] = SIGNAL(clk1),								// pin 2
+										[CHIP_74153_A] = SIGNAL(MUXA),		// pin 14
+										[CHIP_74153_B] = SIGNAL(CLK1),		// pin 2
 
-										[CHIP_74153_G2] = SIGNAL(low),								// pin 15
-										[CHIP_74153_C20] = SIGNAL(ra1),								// pin 10
-										[CHIP_74153_C21] = SIGNAL(ra1),								// pin 11
-										[CHIP_74153_C22] = signal_split(SIGNAL(bus_ba), 1, 1),		// pin 12
-										[CHIP_74153_C23] = signal_split(SIGNAL(bus_ba), 7, 1),		// pin 13
-										[CHIP_74153_Y2] = signal_split(SIGNAL(bus_fa), 1, 1),		// pin 9
+										[CHIP_74153_G2] = SIGNAL(LOW),		// pin 15
+										[CHIP_74153_C20] = SIGNAL(RA1),		// pin 10
+										[CHIP_74153_C21] = SIGNAL(RA1),		// pin 11
+										[CHIP_74153_C22] = SIGNAL(BA1),		// pin 12
+										[CHIP_74153_C23] = SIGNAL(BA7),		// pin 13
+										[CHIP_74153_Y2] = SIGNAL(FA1),		// pin 9
 	}));
 
 	DEVICE_REGISTER_CHIP("E4", chip_74153_multiplexer_create(device->simulator, (Chip74153Signals) {
-										[CHIP_74153_G1] = SIGNAL(low),								// pin 1
-										[CHIP_74153_C10] = SIGNAL(ra2),								// pin 6
-										[CHIP_74153_C11] = SIGNAL(ra2),								// pin 5
-										[CHIP_74153_C12] = signal_split(SIGNAL(bus_ba), 2, 1),		// pin 4
-										[CHIP_74153_C13] = signal_split(SIGNAL(bus_ba), 8, 1),		// pin 3
-										[CHIP_74153_Y1] = signal_split(SIGNAL(bus_fa), 2, 1),		// pin 7
+										[CHIP_74153_G1] = SIGNAL(LOW),		// pin 1
+										[CHIP_74153_C10] = SIGNAL(RA2),		// pin 6
+										[CHIP_74153_C11] = SIGNAL(RA2),		// pin 5
+										[CHIP_74153_C12] = SIGNAL(BA2),		// pin 4
+										[CHIP_74153_C13] = SIGNAL(BA8),		// pin 3
+										[CHIP_74153_Y1] = SIGNAL(FA2),		// pin 7
 
-										[CHIP_74153_A] = SIGNAL(muxa),								// pin 14
-										[CHIP_74153_B] = SIGNAL(clk1),								// pin 2
+										[CHIP_74153_A] = SIGNAL(MUXA),		// pin 14
+										[CHIP_74153_B] = SIGNAL(CLK1),		// pin 2
 
-										[CHIP_74153_G2] = SIGNAL(low),								// pin 15
-										[CHIP_74153_C20] = SIGNAL(ra3),								// pin 10
-										[CHIP_74153_C21] = SIGNAL(ra3),								// pin 11
-										[CHIP_74153_C22] = signal_split(SIGNAL(bus_ba), 3, 1),		// pin 12
-										[CHIP_74153_C23] = signal_split(SIGNAL(bus_ba), 9, 1),		// pin 13
-										[CHIP_74153_Y2] = signal_split(SIGNAL(bus_fa), 3, 1),		// pin 9
+										[CHIP_74153_G2] = SIGNAL(LOW),		// pin 15
+										[CHIP_74153_C20] = SIGNAL(RA3),		// pin 10
+										[CHIP_74153_C21] = SIGNAL(RA3),		// pin 11
+										[CHIP_74153_C22] = SIGNAL(BA3),		// pin 12
+										[CHIP_74153_C23] = SIGNAL(BA9),		// pin 13
+										[CHIP_74153_Y2] = SIGNAL(FA3),		// pin 9
 	}));
 
 	DEVICE_REGISTER_CHIP("E5", chip_74153_multiplexer_create(device->simulator, (Chip74153Signals) {
-										[CHIP_74153_G1] = SIGNAL(low),								// pin 1
-										[CHIP_74153_C10] = SIGNAL(ra4),								// pin 6
-										[CHIP_74153_C11] = SIGNAL(ra4),								// pin 5
-										[CHIP_74153_C12] = signal_split(SIGNAL(bus_ba), 4, 1),		// pin 4
-										[CHIP_74153_C13] = signal_split(SIGNAL(bus_ba), 10, 1),		// pin 3
-										[CHIP_74153_Y1] = signal_split(SIGNAL(bus_fa), 4, 1),		// pin 7
+										[CHIP_74153_G1] = SIGNAL(LOW),		// pin 1
+										[CHIP_74153_C10] = SIGNAL(RA4),		// pin 6
+										[CHIP_74153_C11] = SIGNAL(RA4),		// pin 5
+										[CHIP_74153_C12] = SIGNAL(BA4),		// pin 4
+										[CHIP_74153_C13] = SIGNAL(BA10),	// pin 3
+										[CHIP_74153_Y1] = SIGNAL(FA4),		// pin 7
 
-										[CHIP_74153_A] = SIGNAL(muxa),								// pin 14
-										[CHIP_74153_B] = SIGNAL(clk1),								// pin 2
+										[CHIP_74153_A] = SIGNAL(MUXA),		// pin 14
+										[CHIP_74153_B] = SIGNAL(CLK1),		// pin 2
 
-										[CHIP_74153_G2] = SIGNAL(low),								// pin 15
-										[CHIP_74153_C20] = SIGNAL(ra5),								// pin 10
-										[CHIP_74153_C21] = SIGNAL(ra5),								// pin 11
-										[CHIP_74153_C22] = signal_split(SIGNAL(bus_ba), 5, 1),		// pin 12
-										[CHIP_74153_C23] = signal_split(SIGNAL(bus_ba), 11, 1),		// pin 13
-										[CHIP_74153_Y2] = signal_split(SIGNAL(bus_fa), 5, 1),		// pin 9
+										[CHIP_74153_G2] = SIGNAL(LOW),		// pin 15
+										[CHIP_74153_C20] = SIGNAL(RA5),		// pin 10
+										[CHIP_74153_C21] = SIGNAL(RA5),		// pin 11
+										[CHIP_74153_C22] = SIGNAL(BA5),		// pin 12
+										[CHIP_74153_C23] = SIGNAL(BA11),	// pin 13
+										[CHIP_74153_Y2] = SIGNAL(FA5),		// pin 9
 	}));
 
 	DEVICE_REGISTER_CHIP("E6", chip_74153_multiplexer_create(device->simulator, (Chip74153Signals) {
-										[CHIP_74153_G1] = SIGNAL(low),								// pin 1
-										[CHIP_74153_C10] = SIGNAL(ra6),								// pin 6
-										[CHIP_74153_C11] = SIGNAL(ra6),								// pin 5
-										[CHIP_74153_C12] = signal_split(SIGNAL(bus_ba), 6, 1),		// pin 4
-										[CHIP_74153_C13] = signal_split(SIGNAL(bus_ba), 12, 1),		// pin 3
-										[CHIP_74153_Y1] = signal_split(SIGNAL(bus_fa), 6, 1),		// pin 7
+										[CHIP_74153_G1] = SIGNAL(LOW),		// pin 1
+										[CHIP_74153_C10] = SIGNAL(RA6),		// pin 6
+										[CHIP_74153_C11] = SIGNAL(RA6),		// pin 5
+										[CHIP_74153_C12] = SIGNAL(BA6),		// pin 4
+										[CHIP_74153_C13] = SIGNAL(BA12),	// pin 3
+										[CHIP_74153_Y1] = SIGNAL(FA6),		// pin 7
 
-										[CHIP_74153_A] = SIGNAL(muxa),								// pin 14
-										[CHIP_74153_B] = SIGNAL(clk1),								// pin 2
+										[CHIP_74153_A] = SIGNAL(MUXA),		// pin 14
+										[CHIP_74153_B] = SIGNAL(CLK1),		// pin 2
 	}));
 
 	DEVICE_REGISTER_CHIP("I2-9", chip_8x4116_dram_create(device->simulator, (Chip8x4116DRamSignals) {
-										[CHIP_4116_A0] = signal_split(SIGNAL(bus_fa), 0, 1),
-										[CHIP_4116_A1] = signal_split(SIGNAL(bus_fa), 1, 1),
-										[CHIP_4116_A2] = signal_split(SIGNAL(bus_fa), 2, 1),
-										[CHIP_4116_A3] = signal_split(SIGNAL(bus_fa), 3, 1),
-										[CHIP_4116_A4] = signal_split(SIGNAL(bus_fa), 4, 1),
-										[CHIP_4116_A5] = signal_split(SIGNAL(bus_fa), 5, 1),
-										[CHIP_4116_A6] = signal_split(SIGNAL(bus_fa), 6, 1),
+										[CHIP_4116_A0] = SIGNAL(FA0),
+										[CHIP_4116_A1] = SIGNAL(FA1),
+										[CHIP_4116_A2] = SIGNAL(FA2),
+										[CHIP_4116_A3] = SIGNAL(FA3),
+										[CHIP_4116_A4] = SIGNAL(FA4),
+										[CHIP_4116_A5] = SIGNAL(FA5),
+										[CHIP_4116_A6] = SIGNAL(FA6),
 
-										[CHIP_4116_DI0] = signal_split(SIGNAL(bus_rd), 0, 1),
-										[CHIP_4116_DI1] = signal_split(SIGNAL(bus_rd), 1, 1),
-										[CHIP_4116_DI2] = signal_split(SIGNAL(bus_rd), 2, 1),
-										[CHIP_4116_DI3] = signal_split(SIGNAL(bus_rd), 3, 1),
-										[CHIP_4116_DI4] = signal_split(SIGNAL(bus_rd), 4, 1),
-										[CHIP_4116_DI5] = signal_split(SIGNAL(bus_rd), 5, 1),
-										[CHIP_4116_DI6] = signal_split(SIGNAL(bus_rd), 6, 1),
-										[CHIP_4116_DI7] = signal_split(SIGNAL(bus_rd), 7, 1),
+										[CHIP_4116_DI0] = SIGNAL(RD0),
+										[CHIP_4116_DI1] = SIGNAL(RD1),
+										[CHIP_4116_DI2] = SIGNAL(RD2),
+										[CHIP_4116_DI3] = SIGNAL(RD3),
+										[CHIP_4116_DI4] = SIGNAL(RD4),
+										[CHIP_4116_DI5] = SIGNAL(RD5),
+										[CHIP_4116_DI6] = SIGNAL(RD6),
+										[CHIP_4116_DI7] = SIGNAL(RD7),
 
-										[CHIP_4116_DO0] = signal_split(SIGNAL(bus_rd), 0, 1),
-										[CHIP_4116_DO1] = signal_split(SIGNAL(bus_rd), 1, 1),
-										[CHIP_4116_DO2] = signal_split(SIGNAL(bus_rd), 2, 1),
-										[CHIP_4116_DO3] = signal_split(SIGNAL(bus_rd), 3, 1),
-										[CHIP_4116_DO4] = signal_split(SIGNAL(bus_rd), 4, 1),
-										[CHIP_4116_DO5] = signal_split(SIGNAL(bus_rd), 5, 1),
-										[CHIP_4116_DO6] = signal_split(SIGNAL(bus_rd), 6, 1),
-										[CHIP_4116_DO7] = signal_split(SIGNAL(bus_rd), 7, 1),
+										[CHIP_4116_DO0] = SIGNAL(RD0),
+										[CHIP_4116_DO1] = SIGNAL(RD1),
+										[CHIP_4116_DO2] = SIGNAL(RD2),
+										[CHIP_4116_DO3] = SIGNAL(RD3),
+										[CHIP_4116_DO4] = SIGNAL(RD4),
+										[CHIP_4116_DO5] = SIGNAL(RD5),
+										[CHIP_4116_DO6] = SIGNAL(RD6),
+										[CHIP_4116_DO7] = SIGNAL(RD7),
 
-										[CHIP_4116_WE_B] = SIGNAL(ram_rw),
-										[CHIP_4116_RAS_B] = SIGNAL(ras0_b),
-										[CHIP_4116_CAS_B] = SIGNAL(cas0_b)
+										[CHIP_4116_WE_B] = SIGNAL(RAMRW),
+										[CHIP_4116_RAS_B] = SIGNAL(RAS0_B),
+										[CHIP_4116_CAS_B] = SIGNAL(CAS0_B)
 	}));
 
 	DEVICE_REGISTER_CHIP("J2-9", chip_8x4116_dram_create(device->simulator, (Chip8x4116DRamSignals) {
-										[CHIP_4116_A0] = signal_split(SIGNAL(bus_fa), 0, 1),
-										[CHIP_4116_A1] = signal_split(SIGNAL(bus_fa), 1, 1),
-										[CHIP_4116_A2] = signal_split(SIGNAL(bus_fa), 2, 1),
-										[CHIP_4116_A3] = signal_split(SIGNAL(bus_fa), 3, 1),
-										[CHIP_4116_A4] = signal_split(SIGNAL(bus_fa), 4, 1),
-										[CHIP_4116_A5] = signal_split(SIGNAL(bus_fa), 5, 1),
-										[CHIP_4116_A6] = signal_split(SIGNAL(bus_fa), 6, 1),
+										[CHIP_4116_A0] = SIGNAL(FA0),
+										[CHIP_4116_A1] = SIGNAL(FA1),
+										[CHIP_4116_A2] = SIGNAL(FA2),
+										[CHIP_4116_A3] = SIGNAL(FA3),
+										[CHIP_4116_A4] = SIGNAL(FA4),
+										[CHIP_4116_A5] = SIGNAL(FA5),
+										[CHIP_4116_A6] = SIGNAL(FA6),
 
-										[CHIP_4116_DI0] = signal_split(SIGNAL(bus_rd), 0, 1),
-										[CHIP_4116_DI1] = signal_split(SIGNAL(bus_rd), 1, 1),
-										[CHIP_4116_DI2] = signal_split(SIGNAL(bus_rd), 2, 1),
-										[CHIP_4116_DI3] = signal_split(SIGNAL(bus_rd), 3, 1),
-										[CHIP_4116_DI4] = signal_split(SIGNAL(bus_rd), 4, 1),
-										[CHIP_4116_DI5] = signal_split(SIGNAL(bus_rd), 5, 1),
-										[CHIP_4116_DI6] = signal_split(SIGNAL(bus_rd), 6, 1),
-										[CHIP_4116_DI7] = signal_split(SIGNAL(bus_rd), 7, 1),
+										[CHIP_4116_DI0] = SIGNAL(RD0),
+										[CHIP_4116_DI1] = SIGNAL(RD1),
+										[CHIP_4116_DI2] = SIGNAL(RD2),
+										[CHIP_4116_DI3] = SIGNAL(RD3),
+										[CHIP_4116_DI4] = SIGNAL(RD4),
+										[CHIP_4116_DI5] = SIGNAL(RD5),
+										[CHIP_4116_DI6] = SIGNAL(RD6),
+										[CHIP_4116_DI7] = SIGNAL(RD7),
 
-										[CHIP_4116_DO0] = signal_split(SIGNAL(bus_rd), 0, 1),
-										[CHIP_4116_DO1] = signal_split(SIGNAL(bus_rd), 1, 1),
-										[CHIP_4116_DO2] = signal_split(SIGNAL(bus_rd), 2, 1),
-										[CHIP_4116_DO3] = signal_split(SIGNAL(bus_rd), 3, 1),
-										[CHIP_4116_DO4] = signal_split(SIGNAL(bus_rd), 4, 1),
-										[CHIP_4116_DO5] = signal_split(SIGNAL(bus_rd), 5, 1),
-										[CHIP_4116_DO6] = signal_split(SIGNAL(bus_rd), 6, 1),
-										[CHIP_4116_DO7] = signal_split(SIGNAL(bus_rd), 7, 1),
+										[CHIP_4116_DO0] = SIGNAL(RD0),
+										[CHIP_4116_DO1] = SIGNAL(RD1),
+										[CHIP_4116_DO2] = SIGNAL(RD2),
+										[CHIP_4116_DO3] = SIGNAL(RD3),
+										[CHIP_4116_DO4] = SIGNAL(RD4),
+										[CHIP_4116_DO5] = SIGNAL(RD5),
+										[CHIP_4116_DO6] = SIGNAL(RD6),
+										[CHIP_4116_DO7] = SIGNAL(RD7),
 
-										[CHIP_4116_WE_B] = SIGNAL(ram_rw),
-										[CHIP_4116_RAS_B] = SIGNAL(ras0_b),
-										[CHIP_4116_CAS_B] = SIGNAL(cas1_b)
+										[CHIP_4116_WE_B] = SIGNAL(RAMRW),
+										[CHIP_4116_RAS_B] = SIGNAL(RAS0_B),
+										[CHIP_4116_CAS_B] = SIGNAL(CAS1_B)
 	}));
 
 	// glue-logic
@@ -1169,157 +1172,157 @@ void circuit_create_06(DevCommodorePet *device) {
 
 	// >> y1 - oscillator
 	device->oscillator_y1 = oscillator_create(16000000, device->simulator, (OscillatorSignals) {
-										[CHIP_OSCILLATOR_CLK_OUT] = SIGNAL(clk16)
+										[CHIP_OSCILLATOR_CLK_OUT] = SIGNAL(CLK16)
 	});
 	DEVICE_REGISTER_CHIP("Y1", device->oscillator_y1);
 
 	// >> g5 - binary counter
 	DEVICE_REGISTER_CHIP("G5", chip_74191_binary_counter_create(device->simulator, (Chip74191Signals) {
-										[CHIP_74191_ENABLE_B] = SIGNAL(low),		// pin 04
-										[CHIP_74191_D_U] = SIGNAL(low),				// pin 05
-										[CHIP_74191_A] = SIGNAL(low),				// pin 15
-										[CHIP_74191_B] = SIGNAL(low),				// pin 01
-										[CHIP_74191_C] = SIGNAL(low),				// pin 10
-										[CHIP_74191_D] = SIGNAL(low),				// pin 09
-										[CHIP_74191_LOAD_B] = SIGNAL(init_b),		// pin 11
-										[CHIP_74191_CLK] = SIGNAL(clk16),			// pin 14
-										[CHIP_74191_QA] = SIGNAL(clk8),				// pin 03
-										[CHIP_74191_QB] = SIGNAL(clk4),				// pin 02
-										[CHIP_74191_QC] = SIGNAL(clk2),				// pin 06
-										[CHIP_74191_QD] = SIGNAL(clk1),				// pin 07
+										[CHIP_74191_ENABLE_B] = SIGNAL(LOW),		// pin 04
+										[CHIP_74191_D_U] = SIGNAL(LOW),				// pin 05
+										[CHIP_74191_A] = SIGNAL(LOW),				// pin 15
+										[CHIP_74191_B] = SIGNAL(LOW),				// pin 01
+										[CHIP_74191_C] = SIGNAL(LOW),				// pin 10
+										[CHIP_74191_D] = SIGNAL(LOW),				// pin 09
+										[CHIP_74191_LOAD_B] = SIGNAL(INIT_B),		// pin 11
+										[CHIP_74191_CLK] = SIGNAL(CLK16),			// pin 14
+										[CHIP_74191_QA] = SIGNAL(CLK8),				// pin 03
+										[CHIP_74191_QB] = SIGNAL(CLK4),				// pin 02
+										[CHIP_74191_QC] = SIGNAL(CLK2),				// pin 06
+										[CHIP_74191_QD] = SIGNAL(CLK1),				// pin 07
 								//		[CHIP_74191_MAX_MIN] = not connected        // pin 12
 								//		[CHIP_74191_RCO_B] = not connected          // pin 13
 	}));
 
 	// >> h3 - 8-bit shift register
 	DEVICE_REGISTER_CHIP("H3", chip_74164_shift_register_create(device->simulator, (Chip74164Signals) {
-										[CHIP_74164_A] = SIGNAL(clk1),				// pin 01
-										[CHIP_74164_B] = SIGNAL(high),				// pin 02
-										[CHIP_74164_CLK] = SIGNAL(clk16),			// pin 08
-										[CHIP_74164_CLEAR_B] = SIGNAL(init_b),		// pin 09
-										[CHIP_74164_QA] = SIGNAL(bphi2a),			// pin 03
-										[CHIP_74164_QB] = SIGNAL(bphi2b),			// pin 04
-										[CHIP_74164_QC] = SIGNAL(bphi2c),			// pin 05
-										[CHIP_74164_QD] = SIGNAL(bphi2d),			// pin 06
-										[CHIP_74164_QE] = SIGNAL(bphi2e),			// pin 10
-										[CHIP_74164_QF] = SIGNAL(bphi2f),			// pin 11
-										[CHIP_74164_QG] = SIGNAL(bphi2g),			// pin 12
-										[CHIP_74164_QH] = SIGNAL(bphi2h),			// pin 13
+										[CHIP_74164_A] = SIGNAL(CLK1),				// pin 01
+										[CHIP_74164_B] = SIGNAL(HIGH),				// pin 02
+										[CHIP_74164_CLK] = SIGNAL(CLK16),			// pin 08
+										[CHIP_74164_CLEAR_B] = SIGNAL(INIT_B),		// pin 09
+										[CHIP_74164_QA] = SIGNAL(BPHI2A),			// pin 03
+										[CHIP_74164_QB] = SIGNAL(BPHI2B),			// pin 04
+										[CHIP_74164_QC] = SIGNAL(BPHI2C),			// pin 05
+										[CHIP_74164_QD] = SIGNAL(BPHI2D),			// pin 06
+										[CHIP_74164_QE] = SIGNAL(BPHI2E),			// pin 10
+										[CHIP_74164_QF] = SIGNAL(BPHI2F),			// pin 11
+										[CHIP_74164_QG] = SIGNAL(BPHI2G),			// pin 12
+										[CHIP_74164_QH] = SIGNAL(BPHI2H),			// pin 13
 	}));
 
 	// >> h6 - JK flip-flop
 	DEVICE_REGISTER_CHIP("H6", chip_74107_jk_flipflop_create(device->simulator, (Chip74107Signals) {
-										[CHIP_74107_CLR1_B] = SIGNAL(init_b),		// pin 13
-										[CHIP_74107_CLK1] = SIGNAL(bphi2a_b),		// pin 12
-										[CHIP_74107_J1] = SIGNAL(init_b),			// pin 1
-										[CHIP_74107_K1] = SIGNAL(init_b),			// pin 4
-										[CHIP_74107_Q1] = SIGNAL(ra1),				// pin 3
-										[CHIP_74107_Q1_B] = SIGNAL(ra1_b),			// pin 2
+										[CHIP_74107_CLR1_B] = SIGNAL(INIT_B),		// pin 13
+										[CHIP_74107_CLK1] = SIGNAL(BPHI2A_B),		// pin 12
+										[CHIP_74107_J1] = SIGNAL(INIT_B),			// pin 1
+										[CHIP_74107_K1] = SIGNAL(INIT_B),			// pin 4
+										[CHIP_74107_Q1] = SIGNAL(RA1),				// pin 3
+										[CHIP_74107_Q1_B] = SIGNAL(RA1_B),			// pin 2
 
-										[CHIP_74107_CLR2_B] = SIGNAL(init_b),		// pin 10
-										[CHIP_74107_CLK2] = SIGNAL(ra5),			// pin 9
-										[CHIP_74107_J2] = SIGNAL(init_b),			// pin 8
-										[CHIP_74107_K2] = SIGNAL(init_b),			// pin 11
-										[CHIP_74107_Q2] = SIGNAL(ra6),				// pin 5
-										[CHIP_74107_Q2_B] = SIGNAL(ra6_b)			// pin 6
+										[CHIP_74107_CLR2_B] = SIGNAL(INIT_B),		// pin 10
+										[CHIP_74107_CLK2] = SIGNAL(RA5),			// pin 9
+										[CHIP_74107_J2] = SIGNAL(INIT_B),			// pin 8
+										[CHIP_74107_K2] = SIGNAL(INIT_B),			// pin 11
+										[CHIP_74107_Q2] = SIGNAL(RA6),				// pin 5
+										[CHIP_74107_Q2_B] = SIGNAL(RA6_B)			// pin 6
 	}));
 
 	// >> h9 - binary counter
 	DEVICE_REGISTER_CHIP("H9", chip_7493_binary_counter_create(device->simulator, (Chip7493Signals) {
-										[CHIP_7493_A_B] = SIGNAL(ra1),				// pin 14
-										[CHIP_7493_B_B] = SIGNAL(ra2),				// pin 1
-										[CHIP_7493_R01] = SIGNAL(init),			// pin 2
-										[CHIP_7493_R02] = SIGNAL(init),			// pin 3
-										[CHIP_7493_QA] = SIGNAL(ra2),				// pin 12
-										[CHIP_7493_QB] = SIGNAL(ra3),				// pin 9
-										[CHIP_7493_QC] = SIGNAL(ra4),				// pin 8
-										[CHIP_7493_QD] = SIGNAL(ra5),				// pin 11
+										[CHIP_7493_A_B] = SIGNAL(RA1),				// pin 14
+										[CHIP_7493_B_B] = SIGNAL(RA2),				// pin 1
+										[CHIP_7493_R01] = SIGNAL(INIT),				// pin 2
+										[CHIP_7493_R02] = SIGNAL(INIT),				// pin 3
+										[CHIP_7493_QA] = SIGNAL(RA2),				// pin 12
+										[CHIP_7493_QB] = SIGNAL(RA3),				// pin 9
+										[CHIP_7493_QC] = SIGNAL(RA4),				// pin 8
+										[CHIP_7493_QD] = SIGNAL(RA5),				// pin 11
 	}));
 
 	// >> g9 - d flip-flop (2 flipflop is used on sheet 8)
 	DEVICE_REGISTER_CHIP("G9", chip_7474_d_flipflop_create(device->simulator, (Chip7474Signals) {
-										[CHIP_7474_D1] = SIGNAL(init_b),			// pin 2
-										[CHIP_7474_CLR1_B] = SIGNAL(bphi2b),		// pin 1
-										[CHIP_7474_CLK1] = SIGNAL(bphi2a_b),		// pin 3
-										[CHIP_7474_PR1_B] = SIGNAL(high),			// pin 4
-										[CHIP_7474_Q1] = SIGNAL(load_sr),			// pin 5
-										[CHIP_7474_Q1_B] = SIGNAL(load_sr_b),		// pin 6
+										[CHIP_7474_D1] = SIGNAL(INIT_B),			// pin 2
+										[CHIP_7474_CLR1_B] = SIGNAL(BPHI2B),		// pin 1
+										[CHIP_7474_CLK1] = SIGNAL(BPHI2A_B),		// pin 3
+										[CHIP_7474_PR1_B] = SIGNAL(HIGH),			// pin 4
+										[CHIP_7474_Q1] = SIGNAL(LOAD_SR),			// pin 5
+										[CHIP_7474_Q1_B] = SIGNAL(LOAD_SR_B),		// pin 6
 
-										[CHIP_7474_D2] = signal_split(SIGNAL(bus_lsd), 7, 1),	// pin 12
-										[CHIP_7474_CLR2_B] = SIGNAL(init_b),					// pin 13
-										[CHIP_7474_CLK2] = SIGNAL(load_sr),					// pin 11
-										[CHIP_7474_PR2_B] = SIGNAL(high),						// pin 10
-										[CHIP_7474_Q2] = SIGNAL(g9q),							// pin 9
-										[CHIP_7474_Q2_B] = SIGNAL(g9q_b),						// pin 8
+										[CHIP_7474_D2] = SIGNAL(LSD7),				// pin 12
+										[CHIP_7474_CLR2_B] = SIGNAL(INIT_B),		// pin 13
+										[CHIP_7474_CLK2] = SIGNAL(LOAD_SR),			// pin 11
+										[CHIP_7474_PR2_B] = SIGNAL(HIGH),			// pin 10
+										[CHIP_7474_Q2] = SIGNAL(G9Q),				// pin 9
+										[CHIP_7474_Q2_B] = SIGNAL(G9Q_B),			// pin 8
 	}));
 
 	// >> h7 - JK flip-flop
 	DEVICE_REGISTER_CHIP("H7", chip_74107_jk_flipflop_create(device->simulator, (Chip74107Signals) {
-										[CHIP_74107_CLR1_B] = SIGNAL(init_b),		// pin 13
-										[CHIP_74107_CLK1] = SIGNAL(ra1and3),		// pin 12
-										[CHIP_74107_J1] = SIGNAL(horz_disp_on),		// pin 1
-										[CHIP_74107_K1] = SIGNAL(horz_disp_off),	// pin 4
-										[CHIP_74107_Q1] = SIGNAL(horz_drive_b),		// pin 3
-										[CHIP_74107_Q1_B] = SIGNAL(horz_drive),		// pin 2
+										[CHIP_74107_CLR1_B] = SIGNAL(INIT_B),		// pin 13
+										[CHIP_74107_CLK1] = SIGNAL(RA1AND3),		// pin 12
+										[CHIP_74107_J1] = SIGNAL(HORZ_DISP_ON),		// pin 1
+										[CHIP_74107_K1] = SIGNAL(HORZ_DISP_OFF),	// pin 4
+										[CHIP_74107_Q1] = SIGNAL(HORZ_DRIVE_B),		// pin 3
+										[CHIP_74107_Q1_B] = SIGNAL(HORZ_DRIVE),		// pin 2
 
-										[CHIP_74107_CLR2_B] = SIGNAL(init_b),		// pin 10
-										[CHIP_74107_CLK2] = SIGNAL(load_sr_b),		// pin 9
-										[CHIP_74107_J2] = SIGNAL(ra4and6),			// pin 8
-										[CHIP_74107_K2] = SIGNAL(ra5and6_b),		// pin 11
-										[CHIP_74107_Q2] = SIGNAL(horz_disp_on),		// pin 5
-										[CHIP_74107_Q2_B] = SIGNAL(horz_disp_off)	// pin 6
+										[CHIP_74107_CLR2_B] = SIGNAL(INIT_B),		// pin 10
+										[CHIP_74107_CLK2] = SIGNAL(LOAD_SR_B),		// pin 9
+										[CHIP_74107_J2] = SIGNAL(RA4AND6),			// pin 8
+										[CHIP_74107_K2] = SIGNAL(RA5AND6_B),		// pin 11
+										[CHIP_74107_Q2] = SIGNAL(HORZ_DISP_ON),		// pin 5
+										[CHIP_74107_Q2_B] = SIGNAL(HORZ_DISP_OFF)	// pin 6
 	}));
 
 	// >> h8 - JK flip-flop
 	DEVICE_REGISTER_CHIP("H8", chip_74107_jk_flipflop_create(device->simulator, (Chip74107Signals) {
-										[CHIP_74107_CLR1_B] = SIGNAL(init_b),		// pin 13
-										[CHIP_74107_CLK1] = SIGNAL(next),			// pin 12
-										[CHIP_74107_J1] = SIGNAL(h8q2_b),			// pin 1
-										[CHIP_74107_K1] = SIGNAL(h8q2),				// pin 4
-										[CHIP_74107_Q1] = SIGNAL(h8q),				// pin 3
-										[CHIP_74107_Q1_B] = SIGNAL(h8q_b),			// pin 2
+										[CHIP_74107_CLR1_B] = SIGNAL(INIT_B),		// pin 13
+										[CHIP_74107_CLK1] = SIGNAL(NEXT),			// pin 12
+										[CHIP_74107_J1] = SIGNAL(H8Q2_B),			// pin 1
+										[CHIP_74107_K1] = SIGNAL(H8Q2),				// pin 4
+										[CHIP_74107_Q1] = SIGNAL(H8Q),				// pin 3
+										[CHIP_74107_Q1_B] = SIGNAL(H8Q_B),			// pin 2
 
-										[CHIP_74107_CLR2_B] = SIGNAL(init_b),		// pin 10
-										[CHIP_74107_CLK2] = SIGNAL(next),			// pin 9
-										[CHIP_74107_J2] = SIGNAL(h8q),				// pin 8
-										[CHIP_74107_K2] = SIGNAL(h8q_b),			// pin 11
-										[CHIP_74107_Q2] = SIGNAL(h8q2),				// pin 5
-										[CHIP_74107_Q2_B] = SIGNAL(h8q2_b)			// pin 6
+										[CHIP_74107_CLR2_B] = SIGNAL(INIT_B),		// pin 10
+										[CHIP_74107_CLK2] = SIGNAL(NEXT),			// pin 9
+										[CHIP_74107_J2] = SIGNAL(H8Q),				// pin 8
+										[CHIP_74107_K2] = SIGNAL(H8Q_B),			// pin 11
+										[CHIP_74107_Q2] = SIGNAL(H8Q2),				// pin 5
+										[CHIP_74107_Q2_B] = SIGNAL(H8Q2_B)			// pin 6
 	}));
 
 	// >> h4 - Quad 2to1 multiplexer
 	DEVICE_REGISTER_CHIP("H4", chip_74157_multiplexer_create(device->simulator, (Chip74157Signals) {
-										[CHIP_74157_I0A] = SIGNAL(bphi2b),			// pin 2
-										[CHIP_74157_I1A] = SIGNAL(bphi2a),			// pin 3
-										[CHIP_74157_ZA] = SIGNAL(h4y1),				// pin 4
+										[CHIP_74157_I0A] = SIGNAL(BPHI2B),			// pin 2
+										[CHIP_74157_I1A] = SIGNAL(BPHI2A),			// pin 3
+										[CHIP_74157_ZA] = SIGNAL(H4Y1),				// pin 4
 
-										[CHIP_74157_I0D] = SIGNAL(bphi2c),			// pin 11
-										[CHIP_74157_I1D] = SIGNAL(bphi2b),			// pin 10
-										[CHIP_74157_ZD] = SIGNAL(muxa),				// pin 9
+										[CHIP_74157_I0D] = SIGNAL(BPHI2C),			// pin 11
+										[CHIP_74157_I1D] = SIGNAL(BPHI2B),			// pin 10
+										[CHIP_74157_ZD] = SIGNAL(MUXA),				// pin 9
 
-										[CHIP_74157_I0C] = SIGNAL(bphi2d),			// pin 14
-										[CHIP_74157_I1C] = SIGNAL(bphi2c),			// pin 13
-										[CHIP_74157_ZC] = SIGNAL(h4y4),				// pin 12
+										[CHIP_74157_I0C] = SIGNAL(BPHI2D),			// pin 14
+										[CHIP_74157_I1C] = SIGNAL(BPHI2C),			// pin 13
+										[CHIP_74157_ZC] = SIGNAL(H4Y4),				// pin 12
 
-										[CHIP_74157_SEL] = SIGNAL(buf_rw),			// pin 1
-										[CHIP_74157_ENABLE_B] = SIGNAL(h53)			// pin 15
+										[CHIP_74157_SEL] = SIGNAL(BRW),				// pin 1
+										[CHIP_74157_ENABLE_B] = SIGNAL(H53)			// pin 15
 	}));
 
 	// >> h1 - d flipflop
 	DEVICE_REGISTER_CHIP("H1", chip_7474_d_flipflop_create(device->simulator, (Chip7474Signals) {
-										[CHIP_7474_D1] = SIGNAL(init_b),			// pin 2
-										[CHIP_7474_CLR1_B] = SIGNAL(bphi2g_b),		// pin 1
-										[CHIP_7474_CLK1] = SIGNAL(h4y1),			// pin 3
-										[CHIP_7474_PR1_B] = SIGNAL(init_b),		// pin 4
-										[CHIP_7474_Q1] = SIGNAL(h1q1),				// pin 5
-										[CHIP_7474_Q1_B] = SIGNAL(h1q1_b),			// pin 6
+										[CHIP_7474_D1] = SIGNAL(INIT_B),			// pin 2
+										[CHIP_7474_CLR1_B] = SIGNAL(BPHI2G_B),		// pin 1
+										[CHIP_7474_CLK1] = SIGNAL(H4Y1),			// pin 3
+										[CHIP_7474_PR1_B] = SIGNAL(INIT_B),			// pin 4
+										[CHIP_7474_Q1] = SIGNAL(H1Q1),				// pin 5
+										[CHIP_7474_Q1_B] = SIGNAL(H1Q1_B),			// pin 6
 
-										[CHIP_7474_D2] = SIGNAL(init_b),			// pin 12
-										[CHIP_7474_CLR2_B] = SIGNAL(bphi2f),		// pin 13
-										[CHIP_7474_CLK2] = SIGNAL(bphi2b_b),		// pin 11
-										[CHIP_7474_PR2_B] = SIGNAL(pullup_2),		// pin 10
-										[CHIP_7474_Q2] = SIGNAL(h1q2),				// pin 9
-										[CHIP_7474_Q2_B] = SIGNAL(h1q2_b)			// pin 8
+										[CHIP_7474_D2] = SIGNAL(INIT_B),			// pin 12
+										[CHIP_7474_CLR2_B] = SIGNAL(BPHI2F),		// pin 13
+										[CHIP_7474_CLK2] = SIGNAL(BPHI2B_B),		// pin 11
+										[CHIP_7474_PR2_B] = SIGNAL(PULLUP_2),		// pin 10
+										[CHIP_7474_Q2] = SIGNAL(H1Q2),				// pin 9
+										[CHIP_7474_Q2_B] = SIGNAL(H1Q2_B)			// pin 8
 	}));
 
 	// glue-logic
@@ -1331,147 +1334,147 @@ void circuit_create_07(DevCommodorePet *device) {
 
 	// >> g6 - JK flip-flop
 	DEVICE_REGISTER_CHIP("G6", chip_74107_jk_flipflop_create(device->simulator, (Chip74107Signals) {
-										[CHIP_74107_CLR1_B] = SIGNAL(horz_disp_on),	// pin 13
-										[CHIP_74107_CLK1] = SIGNAL(ra1_b),			// pin 12
-										[CHIP_74107_J1] = SIGNAL(init_b),			// pin 1
-										[CHIP_74107_K1] = SIGNAL(init_b),			// pin 4
-										[CHIP_74107_Q1] = SIGNAL(g6_q),				// pin 3
-										[CHIP_74107_Q1_B] = SIGNAL(g6_q_b),			// pin 2
+										[CHIP_74107_CLR1_B] = SIGNAL(HORZ_DISP_ON),	// pin 13
+										[CHIP_74107_CLK1] = SIGNAL(RA1_B),			// pin 12
+										[CHIP_74107_J1] = SIGNAL(INIT_B),			// pin 1
+										[CHIP_74107_K1] = SIGNAL(INIT_B),			// pin 4
+										[CHIP_74107_Q1] = SIGNAL(G6_Q),				// pin 3
+										[CHIP_74107_Q1_B] = SIGNAL(G6_Q_B),			// pin 2
 	}));
 
 	// >> f6 - quad 2-to-1 multiplexer
 	DEVICE_REGISTER_CHIP("F6", chip_74157_multiplexer_create(device->simulator, (Chip74157Signals) {
-										[CHIP_74157_I0D] = SIGNAL(high),						// pin 11
-										[CHIP_74157_I1D] = SIGNAL(high),						// pin 10
-										[CHIP_74157_I0B] = SIGNAL(high),						// pin 05
-										[CHIP_74157_I1B] = SIGNAL(a5_12),						// pin 06
-										[CHIP_74157_I0C] = SIGNAL(ra1_b),						// pin 14
-										[CHIP_74157_I1C] = signal_split(SIGNAL(bus_ba), 0, 1),	// pin 13
-										[CHIP_74157_I0A] = SIGNAL(g6_q),						// pin 02
-										[CHIP_74157_I1A] = signal_split(SIGNAL(bus_ba), 1, 1),	// pin 03
+										[CHIP_74157_I0D] = SIGNAL(HIGH),			// pin 11
+										[CHIP_74157_I1D] = SIGNAL(HIGH),			// pin 10
+										[CHIP_74157_I0B] = SIGNAL(HIGH),			// pin 05
+										[CHIP_74157_I1B] = SIGNAL(A5_12),			// pin 06
+										[CHIP_74157_I0C] = SIGNAL(RA1_B),			// pin 14
+										[CHIP_74157_I1C] = SIGNAL(BA0),				// pin 13
+										[CHIP_74157_I0A] = SIGNAL(G6_Q),			// pin 02
+										[CHIP_74157_I1A] = SIGNAL(BA1),				// pin 03
 
-										[CHIP_74157_SEL] = SIGNAL(clk1),						// pin 01
-										[CHIP_74157_ENABLE_B] = SIGNAL(low),					// pin 15
+										[CHIP_74157_SEL] = SIGNAL(CLK1),			// pin 01
+										[CHIP_74157_ENABLE_B] = SIGNAL(LOW),		// pin 15
 
-										[CHIP_74157_ZB] = SIGNAL(tv_ram_rw),					// pin 07
-										[CHIP_74157_ZD] = SIGNAL(f6_y3),						// pin 09
-										[CHIP_74157_ZC] = signal_split(SIGNAL(bus_sa), 0, 1),	// pin 12
-										[CHIP_74157_ZA] = signal_split(SIGNAL(bus_sa), 1, 1)	// pin 04
+										[CHIP_74157_ZB] = SIGNAL(TV_RAM_RW),		// pin 07
+										[CHIP_74157_ZD] = SIGNAL(F6_Y3),			// pin 09
+										[CHIP_74157_ZC] = SIGNAL(SA0),				// pin 12
+										[CHIP_74157_ZA] = SIGNAL(SA1)				// pin 04
 	}));
 
 	// >> f5 - quad 2-to-1 multiplexer
 	DEVICE_REGISTER_CHIP("F5", chip_74157_multiplexer_create(device->simulator, (Chip74157Signals) {
-										[CHIP_74157_I0D] = SIGNAL(ga2),							// pin 11
-										[CHIP_74157_I1D] = signal_split(SIGNAL(bus_ba), 2, 1),	// pin 10
-										[CHIP_74157_I0B] = SIGNAL(ga3),							// pin 05
-										[CHIP_74157_I1B] = signal_split(SIGNAL(bus_ba), 3, 1),	// pin 06
-										[CHIP_74157_I0C] = SIGNAL(ga4),							// pin 14
-										[CHIP_74157_I1C] = signal_split(SIGNAL(bus_ba), 4, 1),	// pin 13
-										[CHIP_74157_I0A] = SIGNAL(ga5),							// pin 02
-										[CHIP_74157_I1A] = signal_split(SIGNAL(bus_ba), 5, 1),	// pin 03
+										[CHIP_74157_I0D] = SIGNAL(GA2),				// pin 11
+										[CHIP_74157_I1D] = SIGNAL(BA2),				// pin 10
+										[CHIP_74157_I0B] = SIGNAL(GA3),				// pin 05
+										[CHIP_74157_I1B] = SIGNAL(BA3),				// pin 06
+										[CHIP_74157_I0C] = SIGNAL(GA4),				// pin 14
+										[CHIP_74157_I1C] = SIGNAL(BA4),				// pin 13
+										[CHIP_74157_I0A] = SIGNAL(GA5),				// pin 02
+										[CHIP_74157_I1A] = SIGNAL(BA5),				// pin 03
 
-										[CHIP_74157_SEL] = SIGNAL(clk1),						// pin 01
-										[CHIP_74157_ENABLE_B] = SIGNAL(low),					// pin 15
+										[CHIP_74157_SEL] = SIGNAL(CLK1),			// pin 01
+										[CHIP_74157_ENABLE_B] = SIGNAL(LOW),		// pin 15
 
-										[CHIP_74157_ZD] = signal_split(SIGNAL(bus_sa), 2, 1),	// pin 09
-										[CHIP_74157_ZB] = signal_split(SIGNAL(bus_sa), 3, 1),	// pin 07
-										[CHIP_74157_ZC] = signal_split(SIGNAL(bus_sa), 4, 1),	// pin 12
-										[CHIP_74157_ZA] = signal_split(SIGNAL(bus_sa), 5, 1)	// pin 04
+										[CHIP_74157_ZD] = SIGNAL(SA2),				// pin 09
+										[CHIP_74157_ZB] = SIGNAL(SA3),				// pin 07
+										[CHIP_74157_ZC] = SIGNAL(SA4),				// pin 12
+										[CHIP_74157_ZA] = SIGNAL(SA5)				// pin 04
 	}));
 
 	// >> f3 - quad 2-to-1 multiplexer
 	DEVICE_REGISTER_CHIP("F3", chip_74157_multiplexer_create(device->simulator, (Chip74157Signals) {
-										[CHIP_74157_I0A] = SIGNAL(ga6),							// pin 02
-										[CHIP_74157_I1A] = signal_split(SIGNAL(bus_ba), 6, 1),	// pin 03
-										[CHIP_74157_I0C] = SIGNAL(ga7),							// pin 14
-										[CHIP_74157_I1C] = signal_split(SIGNAL(bus_ba), 7, 1),	// pin 13
-										[CHIP_74157_I0B] = SIGNAL(ga8),							// pin 05
-										[CHIP_74157_I1B] = signal_split(SIGNAL(bus_ba), 8, 1),	// pin 06
-										[CHIP_74157_I0D] = SIGNAL(ga9),							// pin 11
-										[CHIP_74157_I1D] = signal_split(SIGNAL(bus_ba), 9, 1),	// pin 10
+										[CHIP_74157_I0A] = SIGNAL(GA6),				// pin 02
+										[CHIP_74157_I1A] = SIGNAL(BA6),				// pin 03
+										[CHIP_74157_I0C] = SIGNAL(GA7),				// pin 14
+										[CHIP_74157_I1C] = SIGNAL(BA7),				// pin 13
+										[CHIP_74157_I0B] = SIGNAL(GA8),				// pin 05
+										[CHIP_74157_I1B] = SIGNAL(BA8),				// pin 06
+										[CHIP_74157_I0D] = SIGNAL(GA9),				// pin 11
+										[CHIP_74157_I1D] = SIGNAL(BA9),				// pin 10
 
-										[CHIP_74157_SEL] = SIGNAL(clk1),						// pin 01
-										[CHIP_74157_ENABLE_B] = SIGNAL(low),					// pin 15
+										[CHIP_74157_SEL] = SIGNAL(CLK1),			// pin 01
+										[CHIP_74157_ENABLE_B] = SIGNAL(LOW),		// pin 15
 
-										[CHIP_74157_ZA] = signal_split(SIGNAL(bus_sa), 6, 1),	// pin 04
-										[CHIP_74157_ZC] = signal_split(SIGNAL(bus_sa), 7, 1),	// pin 12
-										[CHIP_74157_ZB] = signal_split(SIGNAL(bus_sa), 8, 1),	// pin 07
-										[CHIP_74157_ZD] = signal_split(SIGNAL(bus_sa), 9, 1)	// pin 09
+										[CHIP_74157_ZA] = SIGNAL(SA6),				// pin 04
+										[CHIP_74157_ZC] = SIGNAL(SA7),				// pin 12
+										[CHIP_74157_ZB] = SIGNAL(SA8),				// pin 07
+										[CHIP_74157_ZD] = SIGNAL(SA9)				// pin 09
 	}));
 
 	// >> f4 - binary counter
 	DEVICE_REGISTER_CHIP("F4", chip_74177_binary_counter_create(device->simulator, (Chip74177Signals) {
-										[CHIP_74177_CLK2] = SIGNAL(ga2),				// pin 06
-										[CHIP_74177_CLK1] = SIGNAL(g6_q),				// pin 08
-										[CHIP_74177_LOAD_B] = SIGNAL(horz_disp_on),		// pin 01
-										[CHIP_74177_CLEAR_B] = SIGNAL(next_b),			// pin 13
-										[CHIP_74177_A] = SIGNAL(lga2),					// pin 04
-										[CHIP_74177_B] = SIGNAL(lga3),					// pin 10
-										[CHIP_74177_C] = SIGNAL(lga4),					// pin 03
-										[CHIP_74177_D] = SIGNAL(lga5),					// pin 11
+										[CHIP_74177_CLK2] = SIGNAL(GA2),				// pin 06
+										[CHIP_74177_CLK1] = SIGNAL(G6_Q),				// pin 08
+										[CHIP_74177_LOAD_B] = SIGNAL(HORZ_DISP_ON),		// pin 01
+										[CHIP_74177_CLEAR_B] = SIGNAL(NEXT_B),			// pin 13
+										[CHIP_74177_A] = SIGNAL(LGA2),					// pin 04
+										[CHIP_74177_B] = SIGNAL(LGA3),					// pin 10
+										[CHIP_74177_C] = SIGNAL(LGA4),					// pin 03
+										[CHIP_74177_D] = SIGNAL(LGA5),					// pin 11
 
-										[CHIP_74177_QA] = SIGNAL(ga2),					// pin 05
-										[CHIP_74177_QB] = SIGNAL(ga3),					// pin 09
-										[CHIP_74177_QC] = SIGNAL(ga4),					// pin 02
-										[CHIP_74177_QD] = SIGNAL(ga5)					// pin 12
+										[CHIP_74177_QA] = SIGNAL(GA2),					// pin 05
+										[CHIP_74177_QB] = SIGNAL(GA3),					// pin 09
+										[CHIP_74177_QC] = SIGNAL(GA4),					// pin 02
+										[CHIP_74177_QD] = SIGNAL(GA5)					// pin 12
 	}));
 
 	// >> f2 - binary counter
 	DEVICE_REGISTER_CHIP("F2", chip_74177_binary_counter_create(device->simulator, (Chip74177Signals) {
-										[CHIP_74177_CLK2] = SIGNAL(ga6),				// pin 06
-										[CHIP_74177_CLK1] = SIGNAL(ga5),				// pin 08
-										[CHIP_74177_LOAD_B] = SIGNAL(horz_disp_on),		// pin 01
-										[CHIP_74177_CLEAR_B] = SIGNAL(next_b),			// pin 13
-										[CHIP_74177_A] = SIGNAL(lga6),					// pin 04
-										[CHIP_74177_B] = SIGNAL(lga7),					// pin 10
-										[CHIP_74177_C] = SIGNAL(lga8),					// pin 03
-										[CHIP_74177_D] = SIGNAL(lga9),					// pin 11
+										[CHIP_74177_CLK2] = SIGNAL(GA6),				// pin 06
+										[CHIP_74177_CLK1] = SIGNAL(GA5),				// pin 08
+										[CHIP_74177_LOAD_B] = SIGNAL(HORZ_DISP_ON),		// pin 01
+										[CHIP_74177_CLEAR_B] = SIGNAL(NEXT_B),			// pin 13
+										[CHIP_74177_A] = SIGNAL(LGA6),					// pin 04
+										[CHIP_74177_B] = SIGNAL(LGA7),					// pin 10
+										[CHIP_74177_C] = SIGNAL(LGA8),					// pin 03
+										[CHIP_74177_D] = SIGNAL(LGA9),					// pin 11
 
-										[CHIP_74177_QA] = SIGNAL(ga6),					// pin 05
-										[CHIP_74177_QB] = SIGNAL(ga7),					// pin 09
-										[CHIP_74177_QC] = SIGNAL(ga8),					// pin 02
-										[CHIP_74177_QD] = SIGNAL(ga9)					// pin 12
+										[CHIP_74177_QA] = SIGNAL(GA6),					// pin 05
+										[CHIP_74177_QB] = SIGNAL(GA7),					// pin 09
+										[CHIP_74177_QC] = SIGNAL(GA8),					// pin 02
+										[CHIP_74177_QD] = SIGNAL(GA9)					// pin 12
 	}));
 
 	// >> g3 - 8-bit latch
 	DEVICE_REGISTER_CHIP("G3", chip_74373_latch_create(device->simulator, (Chip74373Signals) {
-										[CHIP_74373_D5] = SIGNAL(ga2),			// pin 13
-										[CHIP_74373_D8] = SIGNAL(ga3),			// pin 18
-										[CHIP_74373_D6] = SIGNAL(ga4),			// pin 14
-										[CHIP_74373_D7] = SIGNAL(ga5),			// pin 17
-										[CHIP_74373_D2] = SIGNAL(ga6),			// pin 04
-										[CHIP_74373_D3] = SIGNAL(ga7),			// pin 07
-										[CHIP_74373_D1] = SIGNAL(ga8),			// pin 03
-										[CHIP_74373_D4] = SIGNAL(ga9),			// pin 08
+										[CHIP_74373_D5] = SIGNAL(GA2),			// pin 13
+										[CHIP_74373_D8] = SIGNAL(GA3),			// pin 18
+										[CHIP_74373_D6] = SIGNAL(GA4),			// pin 14
+										[CHIP_74373_D7] = SIGNAL(GA5),			// pin 17
+										[CHIP_74373_D2] = SIGNAL(GA6),			// pin 04
+										[CHIP_74373_D3] = SIGNAL(GA7),			// pin 07
+										[CHIP_74373_D1] = SIGNAL(GA8),			// pin 03
+										[CHIP_74373_D4] = SIGNAL(GA9),			// pin 08
 
-										[CHIP_74373_C] = SIGNAL(reload_next),	// pin 11 - enable input
-										[CHIP_74373_OC_B] = SIGNAL(low),		// pin 01 - output control
+										[CHIP_74373_C] = SIGNAL(RELOAD_NEXT),	// pin 11 - enable input
+										[CHIP_74373_OC_B] = SIGNAL(LOW),		// pin 01 - output control
 
-										[CHIP_74373_Q5] = SIGNAL(lga2),			// pin 12
-										[CHIP_74373_Q8] = SIGNAL(lga3),			// pin 19
-										[CHIP_74373_Q6] = SIGNAL(lga4),			// pin 15
-										[CHIP_74373_Q7] = SIGNAL(lga5),			// pin 16
-										[CHIP_74373_Q2] = SIGNAL(lga6),			// pin 05
-										[CHIP_74373_Q3] = SIGNAL(lga7),			// pin 06
-										[CHIP_74373_Q1] = SIGNAL(lga8),			// pin 02
-										[CHIP_74373_Q4] = SIGNAL(lga9)			// pin 09
+										[CHIP_74373_Q5] = SIGNAL(LGA2),			// pin 12
+										[CHIP_74373_Q8] = SIGNAL(LGA3),			// pin 19
+										[CHIP_74373_Q6] = SIGNAL(LGA4),			// pin 15
+										[CHIP_74373_Q7] = SIGNAL(LGA5),			// pin 16
+										[CHIP_74373_Q2] = SIGNAL(LGA6),			// pin 05
+										[CHIP_74373_Q3] = SIGNAL(LGA7),			// pin 06
+										[CHIP_74373_Q1] = SIGNAL(LGA8),			// pin 02
+										[CHIP_74373_Q4] = SIGNAL(LGA9)			// pin 09
 	}));
 
 	// >> g8 - d flip-flop
 	DEVICE_REGISTER_CHIP("G8", chip_7474_d_flipflop_create(device->simulator, (Chip7474Signals) {
 										// [CHIP_7474_D1] = not used,				// pin 2
 										// [CHIP_7474_CLR1_B] = not used,			// pin 1
-										// [CHIP_7474_CLK1] = not used,			// pin 3
+										// [CHIP_7474_CLK1] = not used,				// pin 3
 										// [CHIP_7474_PR1_B] = not used,			// pin 4
 										// [CHIP_7474_Q1] = not used,				// pin 5
-										// [CHIP_7474_Q1_B] = not used,			// pin 6
+										// [CHIP_7474_Q1_B] = not used,				// pin 6
 
-										[CHIP_7474_PR2_B] = SIGNAL(pullup_1),		// pin 10
-										[CHIP_7474_D2] = SIGNAL(w220_off),			// pin 12
-										[CHIP_7474_CLK2] = SIGNAL(video_latch),	// pin 11
-										[CHIP_7474_CLR2_B] = SIGNAL(bphi2h),		// pin 13
-										[CHIP_7474_Q2] = SIGNAL(next),				// pin 9
-										[CHIP_7474_Q2_B] = SIGNAL(next_b)			// pin 8
+										[CHIP_7474_PR2_B] = SIGNAL(PULLUP_1),		// pin 10
+										[CHIP_7474_D2] = SIGNAL(W220_OFF),			// pin 12
+										[CHIP_7474_CLK2] = SIGNAL(VIDEO_LATCH),		// pin 11
+										[CHIP_7474_CLR2_B] = SIGNAL(BPHI2H),		// pin 13
+										[CHIP_7474_Q2] = SIGNAL(NEXT),				// pin 9
+										[CHIP_7474_Q2_B] = SIGNAL(NEXT_B)			// pin 8
 	}));
 
 	// glue-logic
@@ -1483,129 +1486,129 @@ void circuit_create_08(DevCommodorePet *device) {
 
 	// >> h11 - binary counter
 	DEVICE_REGISTER_CHIP("H11", chip_7493_binary_counter_create(device->simulator, (Chip7493Signals) {
-										[CHIP_7493_A_B] = SIGNAL(low),				// pin 14
-										[CHIP_7493_B_B] = SIGNAL(horz_disp_on),	// pin 1
-										[CHIP_7493_R01] = SIGNAL(next),			// pin 2
-										[CHIP_7493_R02] = SIGNAL(next),			// pin 3
+										[CHIP_7493_A_B] = SIGNAL(LOW),				// pin 14
+										[CHIP_7493_B_B] = SIGNAL(HORZ_DISP_ON),		// pin 1
+										[CHIP_7493_R01] = SIGNAL(NEXT),				// pin 2
+										[CHIP_7493_R02] = SIGNAL(NEXT),				// pin 3
 										// [CHIP_7493_QA] = not used,				// pin 12
-										[CHIP_7493_QB] = SIGNAL(ra7),				// pin 9
-										[CHIP_7493_QC] = SIGNAL(ra8),				// pin 8
-										[CHIP_7493_QD] = SIGNAL(ra9),				// pin 11
+										[CHIP_7493_QB] = SIGNAL(RA7),				// pin 9
+										[CHIP_7493_QC] = SIGNAL(RA8),				// pin 8
+										[CHIP_7493_QD] = SIGNAL(RA9),				// pin 11
 	}));
 
 	// >> f7 - 1k x 4bit SRAM
 	DEVICE_REGISTER_CHIP("F7", chip_6114_sram_create(device->simulator, (Chip6114SRamSignals) {
-										[CHIP_6114_A0] = signal_split(SIGNAL(bus_sa), 0, 1),
-										[CHIP_6114_A1] = signal_split(SIGNAL(bus_sa), 1, 1),
-										[CHIP_6114_A2] = signal_split(SIGNAL(bus_sa), 2, 1),
-										[CHIP_6114_A3] = signal_split(SIGNAL(bus_sa), 3, 1),
-										[CHIP_6114_A4] = signal_split(SIGNAL(bus_sa), 4, 1),
-										[CHIP_6114_A5] = signal_split(SIGNAL(bus_sa), 5, 1),
-										[CHIP_6114_A6] = signal_split(SIGNAL(bus_sa), 6, 1),
-										[CHIP_6114_A7] = signal_split(SIGNAL(bus_sa), 7, 1),
-										[CHIP_6114_A8] = signal_split(SIGNAL(bus_sa), 8, 1),
-										[CHIP_6114_A9] = signal_split(SIGNAL(bus_sa), 9, 1),
+										[CHIP_6114_A0] = SIGNAL(SA0),
+										[CHIP_6114_A1] = SIGNAL(SA1),
+										[CHIP_6114_A2] = SIGNAL(SA2),
+										[CHIP_6114_A3] = SIGNAL(SA3),
+										[CHIP_6114_A4] = SIGNAL(SA4),
+										[CHIP_6114_A5] = SIGNAL(SA5),
+										[CHIP_6114_A6] = SIGNAL(SA6),
+										[CHIP_6114_A7] = SIGNAL(SA7),
+										[CHIP_6114_A8] = SIGNAL(SA8),
+										[CHIP_6114_A9] = SIGNAL(SA9),
 
-										[CHIP_6114_IO0] = signal_split(SIGNAL(bus_sd), 4, 1),
-										[CHIP_6114_IO1] = signal_split(SIGNAL(bus_sd), 5, 1),
-										[CHIP_6114_IO2] = signal_split(SIGNAL(bus_sd), 6, 1),
-										[CHIP_6114_IO3] = signal_split(SIGNAL(bus_sd), 7, 1),
+										[CHIP_6114_IO0] = SIGNAL(SD4),
+										[CHIP_6114_IO1] = SIGNAL(SD5),
+										[CHIP_6114_IO2] = SIGNAL(SD6),
+										[CHIP_6114_IO3] = SIGNAL(SD7),
 
-										[CHIP_6114_CE_B] = SIGNAL(low),
-										[CHIP_6114_RW] = SIGNAL(tv_ram_rw)
+										[CHIP_6114_CE_B] = SIGNAL(LOW),
+										[CHIP_6114_RW] = SIGNAL(TV_RAM_RW)
 	}));
 
 	// >> f8 - 1k x 4bit SRAM
 	DEVICE_REGISTER_CHIP("F8", chip_6114_sram_create(device->simulator, (Chip6114SRamSignals) {
-										[CHIP_6114_A0] = signal_split(SIGNAL(bus_sa), 0, 1),
-										[CHIP_6114_A1] = signal_split(SIGNAL(bus_sa), 1, 1),
-										[CHIP_6114_A2] = signal_split(SIGNAL(bus_sa), 2, 1),
-										[CHIP_6114_A3] = signal_split(SIGNAL(bus_sa), 3, 1),
-										[CHIP_6114_A4] = signal_split(SIGNAL(bus_sa), 4, 1),
-										[CHIP_6114_A5] = signal_split(SIGNAL(bus_sa), 5, 1),
-										[CHIP_6114_A6] = signal_split(SIGNAL(bus_sa), 6, 1),
-										[CHIP_6114_A7] = signal_split(SIGNAL(bus_sa), 7, 1),
-										[CHIP_6114_A8] = signal_split(SIGNAL(bus_sa), 8, 1),
-										[CHIP_6114_A9] = signal_split(SIGNAL(bus_sa), 9, 1),
+										[CHIP_6114_A0] = SIGNAL(SA0),
+										[CHIP_6114_A1] = SIGNAL(SA1),
+										[CHIP_6114_A2] = SIGNAL(SA2),
+										[CHIP_6114_A3] = SIGNAL(SA3),
+										[CHIP_6114_A4] = SIGNAL(SA4),
+										[CHIP_6114_A5] = SIGNAL(SA5),
+										[CHIP_6114_A6] = SIGNAL(SA6),
+										[CHIP_6114_A7] = SIGNAL(SA7),
+										[CHIP_6114_A8] = SIGNAL(SA8),
+										[CHIP_6114_A9] = SIGNAL(SA9),
 
-										[CHIP_6114_IO0] = signal_split(SIGNAL(bus_sd), 0, 1),
-										[CHIP_6114_IO1] = signal_split(SIGNAL(bus_sd), 1, 1),
-										[CHIP_6114_IO2] = signal_split(SIGNAL(bus_sd), 2, 1),
-										[CHIP_6114_IO3] = signal_split(SIGNAL(bus_sd), 3, 1),
+										[CHIP_6114_IO0] = SIGNAL(SD0),
+										[CHIP_6114_IO1] = SIGNAL(SD1),
+										[CHIP_6114_IO2] = SIGNAL(SD2),
+										[CHIP_6114_IO3] = SIGNAL(SD3),
 
-										[CHIP_6114_CE_B] = SIGNAL(low),
-										[CHIP_6114_RW] = SIGNAL(tv_ram_rw)
+										[CHIP_6114_CE_B] = SIGNAL(LOW),
+										[CHIP_6114_RW] = SIGNAL(TV_RAM_RW)
 	}));
 
 	// >> e8 - octal buffer
 	DEVICE_REGISTER_CHIP("E8", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
-										[CHIP_74244_G2_B] = SIGNAL(tv_ram_rw),						// 19
-										[CHIP_74244_G1_B] = SIGNAL(tv_read_b),						// 01
+										[CHIP_74244_G2_B] = SIGNAL(TV_RAM_RW),	// 19
+										[CHIP_74244_G1_B] = SIGNAL(TV_READ_B),	// 01
 
-										[CHIP_74244_A11]  = signal_split(SIGNAL(bus_sd), 0, 1),		// 02
-										[CHIP_74244_Y24]  = signal_split(SIGNAL(bus_sd), 0, 1),		// 03
-										[CHIP_74244_A12]  = signal_split(SIGNAL(bus_sd), 1, 1),		// 04
-										[CHIP_74244_Y23]  = signal_split(SIGNAL(bus_sd), 1, 1),		// 05
-										[CHIP_74244_A13]  = signal_split(SIGNAL(bus_sd), 2, 1),		// 06
-										[CHIP_74244_Y22]  = signal_split(SIGNAL(bus_sd), 2, 1),		// 07
-										[CHIP_74244_A14]  = signal_split(SIGNAL(bus_sd), 3, 1),		// 08
-										[CHIP_74244_Y21]  = signal_split(SIGNAL(bus_sd), 3, 1),		// 09
+										[CHIP_74244_A11]  = SIGNAL(SD0),		// 02
+										[CHIP_74244_Y24]  = SIGNAL(SD0),		// 03
+										[CHIP_74244_A12]  = SIGNAL(SD1),		// 04
+										[CHIP_74244_Y23]  = SIGNAL(SD1),		// 05
+										[CHIP_74244_A13]  = SIGNAL(SD2),		// 06
+										[CHIP_74244_Y22]  = SIGNAL(SD2),		// 07
+										[CHIP_74244_A14]  = SIGNAL(SD3),		// 08
+										[CHIP_74244_Y21]  = SIGNAL(SD3),		// 09
 
-										[CHIP_74244_Y11]  = signal_split(SIGNAL(bus_bd), 0, 1),		// 18
-										[CHIP_74244_A24]  = signal_split(SIGNAL(bus_bd), 0, 1),		// 17
-										[CHIP_74244_Y12]  = signal_split(SIGNAL(bus_bd), 1, 1),		// 16
-										[CHIP_74244_A23]  = signal_split(SIGNAL(bus_bd), 1, 1),		// 15
-										[CHIP_74244_Y13]  = signal_split(SIGNAL(bus_bd), 2, 1),		// 14
-										[CHIP_74244_A22]  = signal_split(SIGNAL(bus_bd), 2, 1),		// 13
-										[CHIP_74244_Y14]  = signal_split(SIGNAL(bus_bd), 3, 1),		// 12
-										[CHIP_74244_A21]  = signal_split(SIGNAL(bus_bd), 3, 1)		// 11
+										[CHIP_74244_Y11]  = SIGNAL(BD0),		// 18
+										[CHIP_74244_A24]  = SIGNAL(BD0),		// 17
+										[CHIP_74244_Y12]  = SIGNAL(BD1),		// 16
+										[CHIP_74244_A23]  = SIGNAL(BD1),		// 15
+										[CHIP_74244_Y13]  = SIGNAL(BD2),		// 14
+										[CHIP_74244_A22]  = SIGNAL(BD2),		// 13
+										[CHIP_74244_Y14]  = SIGNAL(BD3),		// 12
+										[CHIP_74244_A21]  = SIGNAL(BD3)			// 11
 	}));
 
 	// >> e7 - octal buffer
 	DEVICE_REGISTER_CHIP("E7", chip_74244_octal_buffer_create(device->simulator, (Chip74244Signals) {
-										[CHIP_74244_G2_B] = SIGNAL(tv_ram_rw),						// 19
-										[CHIP_74244_G1_B] = SIGNAL(tv_read_b),						// 01
+										[CHIP_74244_G2_B] = SIGNAL(TV_RAM_RW),	// 19
+										[CHIP_74244_G1_B] = SIGNAL(TV_READ_B),	// 01
 
-										[CHIP_74244_A11]  = signal_split(SIGNAL(bus_sd), 4, 1),		// 02
-										[CHIP_74244_Y24]  = signal_split(SIGNAL(bus_sd), 4, 1),		// 03
-										[CHIP_74244_A12]  = signal_split(SIGNAL(bus_sd), 5, 1),		// 04
-										[CHIP_74244_Y23]  = signal_split(SIGNAL(bus_sd), 5, 1),		// 05
-										[CHIP_74244_A13]  = signal_split(SIGNAL(bus_sd), 6, 1),		// 06
-										[CHIP_74244_Y22]  = signal_split(SIGNAL(bus_sd), 6, 1),		// 07
-										[CHIP_74244_A14]  = signal_split(SIGNAL(bus_sd), 7, 1),		// 08
-										[CHIP_74244_Y21]  = signal_split(SIGNAL(bus_sd), 7, 1),		// 09
+										[CHIP_74244_A11]  = SIGNAL(SD4),		// 02
+										[CHIP_74244_Y24]  = SIGNAL(SD4),		// 03
+										[CHIP_74244_A12]  = SIGNAL(SD5),		// 04
+										[CHIP_74244_Y23]  = SIGNAL(SD5),		// 05
+										[CHIP_74244_A13]  = SIGNAL(SD6),		// 06
+										[CHIP_74244_Y22]  = SIGNAL(SD6),		// 07
+										[CHIP_74244_A14]  = SIGNAL(SD7),		// 08
+										[CHIP_74244_Y21]  = SIGNAL(SD7),		// 09
 
-										[CHIP_74244_Y11]  = signal_split(SIGNAL(bus_bd), 4, 1),		// 18
-										[CHIP_74244_A24]  = signal_split(SIGNAL(bus_bd), 4, 1),		// 17
-										[CHIP_74244_Y12]  = signal_split(SIGNAL(bus_bd), 5, 1),		// 16
-										[CHIP_74244_A23]  = signal_split(SIGNAL(bus_bd), 5, 1),		// 15
-										[CHIP_74244_Y13]  = signal_split(SIGNAL(bus_bd), 6, 1),		// 14
-										[CHIP_74244_A22]  = signal_split(SIGNAL(bus_bd), 6, 1),		// 13
-										[CHIP_74244_Y14]  = signal_split(SIGNAL(bus_bd), 7, 1),		// 12
-										[CHIP_74244_A21]  = signal_split(SIGNAL(bus_bd), 7, 1)		// 11
+										[CHIP_74244_Y11]  = SIGNAL(BD4),		// 18
+										[CHIP_74244_A24]  = SIGNAL(BD4),		// 17
+										[CHIP_74244_Y12]  = SIGNAL(BD5),		// 16
+										[CHIP_74244_A23]  = SIGNAL(BD5),		// 15
+										[CHIP_74244_Y13]  = SIGNAL(BD6),		// 14
+										[CHIP_74244_A22]  = SIGNAL(BD6),		// 13
+										[CHIP_74244_Y14]  = SIGNAL(BD7),		// 12
+										[CHIP_74244_A21]  = SIGNAL(BD7)			// 11
 	}));
 
 	// >> f9 - 8-bit latch
 	DEVICE_REGISTER_CHIP("F9", chip_74373_latch_create(device->simulator, (Chip74373Signals) {
-										[CHIP_74373_C] = SIGNAL(video_latch),					// 11
-										[CHIP_74373_OC_B] = SIGNAL(low),							// 1
-										[CHIP_74373_D1] = signal_split(SIGNAL(bus_sd), 0, 1),		// 3
-										[CHIP_74373_D8] = signal_split(SIGNAL(bus_sd), 1, 1),		// 18
-										[CHIP_74373_D2] = signal_split(SIGNAL(bus_sd), 2, 1),		// 4
-										[CHIP_74373_D7] = signal_split(SIGNAL(bus_sd), 3, 1),		// 17
-										[CHIP_74373_D3] = signal_split(SIGNAL(bus_sd), 4, 1),		// 7
-										[CHIP_74373_D6] = signal_split(SIGNAL(bus_sd), 5, 1),		// 14
-										[CHIP_74373_D4] = signal_split(SIGNAL(bus_sd), 6, 1),		// 8
-										[CHIP_74373_D5] = signal_split(SIGNAL(bus_sd), 7, 1),		// 13
+										[CHIP_74373_C] = SIGNAL(VIDEO_LATCH),	// 11
+										[CHIP_74373_OC_B] = SIGNAL(LOW),		// 1
+										[CHIP_74373_D1] = SIGNAL(SD0),			// 3
+										[CHIP_74373_D8] = SIGNAL(SD1),			// 18
+										[CHIP_74373_D2] = SIGNAL(SD2),			// 4
+										[CHIP_74373_D7] = SIGNAL(SD3),			// 17
+										[CHIP_74373_D3] = SIGNAL(SD4),			// 7
+										[CHIP_74373_D6] = SIGNAL(SD5),			// 14
+										[CHIP_74373_D4] = SIGNAL(SD6),			// 8
+										[CHIP_74373_D5] = SIGNAL(SD7),			// 13
 
-										[CHIP_74373_Q1] = signal_split(SIGNAL(bus_lsd), 0, 1),	// 2
-										[CHIP_74373_Q8] = signal_split(SIGNAL(bus_lsd), 1, 1),	// 19
-										[CHIP_74373_Q2] = signal_split(SIGNAL(bus_lsd), 2, 1),	// 5
-										[CHIP_74373_Q7] = signal_split(SIGNAL(bus_lsd), 3, 1),	// 16
-										[CHIP_74373_Q3] = signal_split(SIGNAL(bus_lsd), 4, 1),	// 6
-										[CHIP_74373_Q6] = signal_split(SIGNAL(bus_lsd), 5, 1),	// 15
-										[CHIP_74373_Q4] = signal_split(SIGNAL(bus_lsd), 6, 1),	// 9
-										[CHIP_74373_Q5] = signal_split(SIGNAL(bus_lsd), 7, 1),	// 12
+										[CHIP_74373_Q1] = SIGNAL(LSD0),			// 2
+										[CHIP_74373_Q8] = SIGNAL(LSD1),			// 19
+										[CHIP_74373_Q2] = SIGNAL(LSD2),			// 5
+										[CHIP_74373_Q7] = SIGNAL(LSD3),			// 16
+										[CHIP_74373_Q3] = SIGNAL(LSD4),			// 6
+										[CHIP_74373_Q6] = SIGNAL(LSD5),			// 15
+										[CHIP_74373_Q4] = SIGNAL(LSD6),			// 9
+										[CHIP_74373_Q5] = SIGNAL(LSD7),			// 12
 	}));
 
 	// >> f10 - character rom
@@ -1615,20 +1618,20 @@ void circuit_create_08(DevCommodorePet *device) {
 
 	// >> e11 - shift register
 	DEVICE_REGISTER_CHIP("E11", chip_74165_shift_register_create(device->simulator, (Chip74165Signals) {
-										[CHIP_74165_SL		] = SIGNAL(load_sr_b),					// 1
-										[CHIP_74165_CLK	] = SIGNAL(clk8),						// 2
-										[CHIP_74165_CLK_INH] = SIGNAL(low),							// 15
-										[CHIP_74165_SI		] = signal_split(SIGNAL(bus_cd), 7, 1),	// 10
-										[CHIP_74165_A		] = signal_split(SIGNAL(bus_cd), 0, 1),	// 11
-										[CHIP_74165_B		] = signal_split(SIGNAL(bus_cd), 1, 1),	// 12
-										[CHIP_74165_C		] = signal_split(SIGNAL(bus_cd), 2, 1),	// 13
-										[CHIP_74165_D		] = signal_split(SIGNAL(bus_cd), 3, 1),	// 14
-										[CHIP_74165_E		] = signal_split(SIGNAL(bus_cd), 4, 1),	// 3
-										[CHIP_74165_F		] = signal_split(SIGNAL(bus_cd), 5, 1),	// 4
-										[CHIP_74165_G		] = signal_split(SIGNAL(bus_cd), 6, 1),	// 5
-										[CHIP_74165_H		] = signal_split(SIGNAL(bus_cd), 7, 1),	// 6
-										[CHIP_74165_QH		] = SIGNAL(e11qh),						// 9
-										[CHIP_74165_QH_B	] = SIGNAL(e11qh_b),						// 7
+										[CHIP_74165_SL		] = SIGNAL(LOAD_SR_B),	// 1
+										[CHIP_74165_CLK	] = SIGNAL(CLK8),			// 2
+										[CHIP_74165_CLK_INH] = SIGNAL(LOW),			// 15
+										[CHIP_74165_SI		] = SIGNAL(CD7),		// 10
+										[CHIP_74165_A		] = SIGNAL(CD0),		// 11
+										[CHIP_74165_B		] = SIGNAL(CD1),		// 12
+										[CHIP_74165_C		] = SIGNAL(CD2),		// 13
+										[CHIP_74165_D		] = SIGNAL(CD3),		// 14
+										[CHIP_74165_E		] = SIGNAL(CD4),		// 3
+										[CHIP_74165_F		] = SIGNAL(CD5),		// 4
+										[CHIP_74165_G		] = SIGNAL(CD6),		// 5
+										[CHIP_74165_H		] = SIGNAL(CD7),		// 6
+										[CHIP_74165_QH		] = SIGNAL(E11QH),		// 9
+										[CHIP_74165_QH_B	] = SIGNAL(E11QH_B),	// 7
 	}));
 
 	// glue-logic
@@ -1640,24 +1643,24 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 
 	// keyboard
 	device->keypad = input_keypad_create(device->simulator, false, 10, 8, 500, 100,
-										 (Signal[10]) {	 signal_split(SIGNAL(bus_kout), 0, 1), signal_split(SIGNAL(bus_kout), 1, 1),
-														 signal_split(SIGNAL(bus_kout), 2, 1), signal_split(SIGNAL(bus_kout), 3, 1),
-														 signal_split(SIGNAL(bus_kout), 4, 1), signal_split(SIGNAL(bus_kout), 5, 1),
-														 signal_split(SIGNAL(bus_kout), 6, 1), signal_split(SIGNAL(bus_kout), 7, 1),
-														 signal_split(SIGNAL(bus_kout), 8, 1), signal_split(SIGNAL(bus_kout), 9, 1)},
-										 (Signal[8]) {	 signal_split(SIGNAL(bus_kin), 0, 1), signal_split(SIGNAL(bus_kin), 1, 1),
-														 signal_split(SIGNAL(bus_kin), 2, 1), signal_split(SIGNAL(bus_kin), 3, 1),
-														 signal_split(SIGNAL(bus_kin), 4, 1), signal_split(SIGNAL(bus_kin), 5, 1),
-														 signal_split(SIGNAL(bus_kin), 6, 1), signal_split(SIGNAL(bus_kin), 7, 1)}
+										 (Signal[10]) {	 SIGNAL(KOUT0), SIGNAL(KOUT1),
+														 SIGNAL(KOUT2), SIGNAL(KOUT3),
+														 SIGNAL(KOUT4), SIGNAL(KOUT5),
+														 SIGNAL(KOUT6), SIGNAL(KOUT7),
+														 SIGNAL(KOUT8), SIGNAL(KOUT9)},
+										 (Signal[8]) {	 SIGNAL(KIN0), SIGNAL(KIN1),
+														 SIGNAL(KIN2), SIGNAL(KIN3),
+														 SIGNAL(KIN4), SIGNAL(KIN5),
+														 SIGNAL(KIN6), SIGNAL(KIN7)}
 	);
 	DEVICE_REGISTER_CHIP("KEYPAD", device->keypad);
 
 	// display
 	if (!lite) {
 		device->crt = perif_pet_crt_create(device->simulator, (PerifPetCrtSignals) {
-											[PIN_PETCRT_VIDEO_IN] = SIGNAL(video),
-											[PIN_PETCRT_HORZ_DRIVE_IN] = SIGNAL(horz_drive),
-											[PIN_PETCRT_VERT_DRIVE_IN] = SIGNAL(vert_drive)
+											[PIN_PETCRT_VIDEO_IN] = SIGNAL(VIDEO),
+											[PIN_PETCRT_HORZ_DRIVE_IN] = SIGNAL(HORZ_DRIVE),
+											[PIN_PETCRT_VERT_DRIVE_IN] = SIGNAL(VERT_DRIVE)
 		});
 		device->screen = device->crt->display;
 		DEVICE_REGISTER_CHIP("CRT", device->crt);
@@ -1668,10 +1671,10 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 
 	// datassette
 	device->datassette = perif_datassette_create(device->simulator, (PerifDatassetteSignals) {
-											[PIN_DS1530_SENSE] = SIGNAL(cass_switch_1),
-											[PIN_DS1530_MOTOR] = SIGNAL(cass_motor_1),
-											[PIN_DS1530_DATA_FROM_DS] = SIGNAL(cass_read_1),
-											[PIN_DS1530_DATA_TO_DS] = SIGNAL(cass_write)
+											[PIN_DS1530_SENSE] = SIGNAL(CASS_SWITCH_1),
+											[PIN_DS1530_MOTOR] = SIGNAL(CASS_MOTOR_1),
+											[PIN_DS1530_DATA_FROM_DS] = SIGNAL(CASS_READ_1),
+											[PIN_DS1530_DATA_TO_DS] = SIGNAL(CASS_WRITE)
 	});
 	DEVICE_REGISTER_CHIP("CASS1", device->datassette);
 }
@@ -1680,35 +1683,35 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 void circuit_lite_create_ram(DevCommodorePet *device) {
 
 	Ram8d16a *ram = ram_8d16a_create(15, device->simulator, (Ram8d16aSignals) {
-										[CHIP_RAM8D16A_A0] = signal_split(device->signals.bus_ba, 0, 1),
-										[CHIP_RAM8D16A_A1] = signal_split(device->signals.bus_ba, 1, 1),
-										[CHIP_RAM8D16A_A2] = signal_split(device->signals.bus_ba, 2, 1),
-										[CHIP_RAM8D16A_A3] = signal_split(device->signals.bus_ba, 3, 1),
-										[CHIP_RAM8D16A_A4] = signal_split(device->signals.bus_ba, 4, 1),
-										[CHIP_RAM8D16A_A5] = signal_split(device->signals.bus_ba, 5, 1),
-										[CHIP_RAM8D16A_A6] = signal_split(device->signals.bus_ba, 6, 1),
-										[CHIP_RAM8D16A_A7] = signal_split(device->signals.bus_ba, 7, 1),
-										[CHIP_RAM8D16A_A8] = signal_split(device->signals.bus_ba, 8, 1),
-										[CHIP_RAM8D16A_A9] = signal_split(device->signals.bus_ba, 9, 1),
-										[CHIP_RAM8D16A_A10] = signal_split(device->signals.bus_ba, 10, 1),
-										[CHIP_RAM8D16A_A11] = signal_split(device->signals.bus_ba, 11, 1),
-										[CHIP_RAM8D16A_A12] = signal_split(device->signals.bus_ba, 12, 1),
-										[CHIP_RAM8D16A_A13] = signal_split(device->signals.bus_ba, 13, 1),
-										[CHIP_RAM8D16A_A14] = signal_split(device->signals.bus_ba, 14, 1),
-										[CHIP_RAM8D16A_A15] = signal_split(device->signals.bus_ba, 15, 1),
+										[CHIP_RAM8D16A_A0] = SIGNAL(BA0),
+										[CHIP_RAM8D16A_A1] = SIGNAL(BA1),
+										[CHIP_RAM8D16A_A2] = SIGNAL(BA2),
+										[CHIP_RAM8D16A_A3] = SIGNAL(BA3),
+										[CHIP_RAM8D16A_A4] = SIGNAL(BA4),
+										[CHIP_RAM8D16A_A5] = SIGNAL(BA5),
+										[CHIP_RAM8D16A_A6] = SIGNAL(BA6),
+										[CHIP_RAM8D16A_A7] = SIGNAL(BA7),
+										[CHIP_RAM8D16A_A8] = SIGNAL(BA8),
+										[CHIP_RAM8D16A_A9] = SIGNAL(BA9),
+										[CHIP_RAM8D16A_A10] = SIGNAL(BA10),
+										[CHIP_RAM8D16A_A11] = SIGNAL(BA11),
+										[CHIP_RAM8D16A_A12] = SIGNAL(BA12),
+										[CHIP_RAM8D16A_A13] = SIGNAL(BA13),
+										[CHIP_RAM8D16A_A14] = SIGNAL(BA14),
+										[CHIP_RAM8D16A_A15] = SIGNAL(BA15),
 
-										[CHIP_RAM8D16A_D0] = signal_split(SIGNAL(bus_bd), 0, 1),
-										[CHIP_RAM8D16A_D1] = signal_split(SIGNAL(bus_bd), 1, 1),
-										[CHIP_RAM8D16A_D2] = signal_split(SIGNAL(bus_bd), 2, 1),
-										[CHIP_RAM8D16A_D3] = signal_split(SIGNAL(bus_bd), 3, 1),
-										[CHIP_RAM8D16A_D4] = signal_split(SIGNAL(bus_bd), 4, 1),
-										[CHIP_RAM8D16A_D5] = signal_split(SIGNAL(bus_bd), 5, 1),
-										[CHIP_RAM8D16A_D6] = signal_split(SIGNAL(bus_bd), 6, 1),
-										[CHIP_RAM8D16A_D7] = signal_split(SIGNAL(bus_bd), 7, 1),
+										[CHIP_RAM8D16A_D0] = SIGNAL(BD0),
+										[CHIP_RAM8D16A_D1] = SIGNAL(BD1),
+										[CHIP_RAM8D16A_D2] = SIGNAL(BD2),
+										[CHIP_RAM8D16A_D3] = SIGNAL(BD3),
+										[CHIP_RAM8D16A_D4] = SIGNAL(BD4),
+										[CHIP_RAM8D16A_D5] = SIGNAL(BD5),
+										[CHIP_RAM8D16A_D6] = SIGNAL(BD6),
+										[CHIP_RAM8D16A_D7] = SIGNAL(BD7),
 
-										[CHIP_RAM8D16A_CE_B] = SIGNAL(ba15),
-										[CHIP_RAM8D16A_OE_B] = SIGNAL(g78),
-										[CHIP_RAM8D16A_WE_B] = SIGNAL(ram_rw)
+										[CHIP_RAM8D16A_CE_B] = SIGNAL(BA15),
+										[CHIP_RAM8D16A_OE_B] = SIGNAL(G7_8),
+										[CHIP_RAM8D16A_WE_B] = SIGNAL(RAMRW)
 	});
 	DEVICE_REGISTER_CHIP("RAM", ram);
 
@@ -1719,7 +1722,7 @@ void circuit_lite_create_ram(DevCommodorePet *device) {
 // lite-PET: master timing
 void circuit_lite_create_timing(DevCommodorePet *device) {
 	device->oscillator_y1 = oscillator_create(1000000, device->simulator, (OscillatorSignals) {
-										[CHIP_OSCILLATOR_CLK_OUT] = SIGNAL(clk1)
+										[CHIP_OSCILLATOR_CLK_OUT] = SIGNAL(CLK1)
 	});
 	DEVICE_REGISTER_CHIP("OSC", device->oscillator_y1);
 }
@@ -1728,29 +1731,29 @@ void circuit_lite_create_timing(DevCommodorePet *device) {
 void circuit_lite_create_vram(DevCommodorePet *device) {
 	assert(device);
 	DEVICE_REGISTER_CHIP("VRAM", ram_8d16a_create(10, device->simulator, (Ram8d16aSignals) {
-										[CHIP_RAM8D16A_A0] = signal_split(device->signals.bus_ba, 0, 1),
-										[CHIP_RAM8D16A_A1] = signal_split(device->signals.bus_ba, 1, 1),
-										[CHIP_RAM8D16A_A2] = signal_split(device->signals.bus_ba, 2, 1),
-										[CHIP_RAM8D16A_A3] = signal_split(device->signals.bus_ba, 3, 1),
-										[CHIP_RAM8D16A_A4] = signal_split(device->signals.bus_ba, 4, 1),
-										[CHIP_RAM8D16A_A5] = signal_split(device->signals.bus_ba, 5, 1),
-										[CHIP_RAM8D16A_A6] = signal_split(device->signals.bus_ba, 6, 1),
-										[CHIP_RAM8D16A_A7] = signal_split(device->signals.bus_ba, 7, 1),
-										[CHIP_RAM8D16A_A8] = signal_split(device->signals.bus_ba, 8, 1),
-										[CHIP_RAM8D16A_A9] = signal_split(device->signals.bus_ba, 9, 1),
+										[CHIP_RAM8D16A_A0] = SIGNAL(BA0),
+										[CHIP_RAM8D16A_A1] = SIGNAL(BA1),
+										[CHIP_RAM8D16A_A2] = SIGNAL(BA2),
+										[CHIP_RAM8D16A_A3] = SIGNAL(BA3),
+										[CHIP_RAM8D16A_A4] = SIGNAL(BA4),
+										[CHIP_RAM8D16A_A5] = SIGNAL(BA5),
+										[CHIP_RAM8D16A_A6] = SIGNAL(BA6),
+										[CHIP_RAM8D16A_A7] = SIGNAL(BA7),
+										[CHIP_RAM8D16A_A8] = SIGNAL(BA8),
+										[CHIP_RAM8D16A_A9] = SIGNAL(BA9),
 
-										[CHIP_RAM8D16A_D0] = signal_split(SIGNAL(bus_bd), 0, 1),
-										[CHIP_RAM8D16A_D1] = signal_split(SIGNAL(bus_bd), 1, 1),
-										[CHIP_RAM8D16A_D2] = signal_split(SIGNAL(bus_bd), 2, 1),
-										[CHIP_RAM8D16A_D3] = signal_split(SIGNAL(bus_bd), 3, 1),
-										[CHIP_RAM8D16A_D4] = signal_split(SIGNAL(bus_bd), 4, 1),
-										[CHIP_RAM8D16A_D5] = signal_split(SIGNAL(bus_bd), 5, 1),
-										[CHIP_RAM8D16A_D6] = signal_split(SIGNAL(bus_bd), 6, 1),
-										[CHIP_RAM8D16A_D7] = signal_split(SIGNAL(bus_bd), 7, 1),
+										[CHIP_RAM8D16A_D0] = SIGNAL(BD0),
+										[CHIP_RAM8D16A_D1] = SIGNAL(BD1),
+										[CHIP_RAM8D16A_D2] = SIGNAL(BD2),
+										[CHIP_RAM8D16A_D3] = SIGNAL(BD3),
+										[CHIP_RAM8D16A_D4] = SIGNAL(BD4),
+										[CHIP_RAM8D16A_D5] = SIGNAL(BD5),
+										[CHIP_RAM8D16A_D6] = SIGNAL(BD6),
+										[CHIP_RAM8D16A_D7] = SIGNAL(BD7),
 
-										[CHIP_RAM8D16A_CE_B] = SIGNAL(sel8_b),
-										[CHIP_RAM8D16A_OE_B] = SIGNAL(tv_read_b),
-										[CHIP_RAM8D16A_WE_B] = SIGNAL(ram_rw)
+										[CHIP_RAM8D16A_CE_B] = SIGNAL(SEL8_B),
+										[CHIP_RAM8D16A_OE_B] = SIGNAL(TV_READ_B),
+										[CHIP_RAM8D16A_WE_B] = SIGNAL(RAMRW)
 	}));
 
 	DEVICE_REGISTER_CHIP("LOGIC7", glue_logic_create(device, 17));
@@ -1791,306 +1794,270 @@ DevCommodorePet *create_pet_device(bool lite) {
 	// signals
 	//
 
+	device->signal_pool = device->simulator->signal_pool;
+
 	//
 	// signals - general
 	//
 
-	SIGNAL_DEFINE_BOOL_N(reset_btn_b, 1, ACTLO_DEASSERT, "RESBTN");
-	SIGNAL_DEFINE_BOOL_N(high, 1, true, "VCC");
-	SIGNAL_DEFINE_BOOL_N(low, 1, false, "GND");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_RESET_BTN_B, ACTLO_DEASSERT, "RESBTN");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_HIGH, true, "VCC");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_LOW, false, "GND");
 
 	//
 	// signals - sheet 1: microprocessor / memory expansion
 	//
 
-	SIGNAL_DEFINE_BOOL_N(reset_b, 1, ACTLO_ASSERT, "/RES");
-	SIGNAL_DEFINE_N(reset, 1, "RES");
-	SIGNAL_DEFINE_BOOL_N(irq_b, 1, ACTLO_DEASSERT, "/IRQ");
-	SIGNAL_DEFINE_BOOL_N(nmi_b, 1, ACTLO_DEASSERT, "/NMI");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_RESET_B, ACTLO_ASSERT, "/RES");
+	SIGNAL_DEFINE_N(SIG_P2001N_RESET, "RES");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_IRQ_B, ACTLO_DEASSERT, "/IRQ");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_NMI_B, ACTLO_DEASSERT, "/NMI");
 
-	SIGNAL_DEFINE_N(cpu_bus_address, 16, "AB%d");
-	SIGNAL_DEFINE_N(cpu_bus_data, 8, "D%d");
-	SIGNAL_DEFINE_BOOL_N(cpu_rw, 1, true, "RW");
-	SIGNAL_DEFINE_N(cpu_sync, 1, "SYNC");
-	SIGNAL_DEFINE_BOOL_N(cpu_rdy, 1, ACTHI_ASSERT, "RDY");
+	SIGNAL_GROUP_NEW_N(cpu_address, 16, "cpu_address", "AB%d");
+	memcpy(&SIGNAL(AB0), SIGNAL_GROUP(cpu_address), 16 * sizeof(Signal));
 
-	SIGNAL_DEFINE_N(bus_ba, 16, "BA%d");
-	SIGNAL_DEFINE_N(bus_bd, 8, "BD%d");
+	SIGNAL_GROUP_NEW_N(cpu_data, 8, "cpu_data", "D%d");
+	memcpy(&SIGNAL(D0), SIGNAL_GROUP(cpu_data), 8 * sizeof(Signal));
 
-	SIGNAL_DEFINE_N(sel0_b, 1, "/SEL0");
-	SIGNAL_DEFINE_N(sel1_b, 1, "/SEL1");
-	SIGNAL_DEFINE_N(sel2_b, 1, "/SEL2");
-	SIGNAL_DEFINE_N(sel3_b, 1, "/SEL3");
-	SIGNAL_DEFINE_N(sel4_b, 1, "/SEL4");
-	SIGNAL_DEFINE_N(sel5_b, 1, "/SEL5");
-	SIGNAL_DEFINE_N(sel6_b, 1, "/SEL6");
-	SIGNAL_DEFINE_N(sel7_b, 1, "/SEL7");
-	SIGNAL_DEFINE_N(sel8_b, 1, "/SEL8");
-	SIGNAL_DEFINE_N(sel9_b, 1, "/SEL9");
-	SIGNAL_DEFINE_N(sela_b, 1, "/SELA");
-	SIGNAL_DEFINE_N(selb_b, 1, "/SELB");
-	SIGNAL_DEFINE_N(selc_b, 1, "/SELC");
-	SIGNAL_DEFINE_N(seld_b, 1, "/SELD");
-	SIGNAL_DEFINE_N(sele_b, 1, "/SELE");
-	SIGNAL_DEFINE_N(self_b, 1, "/SELF");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_RW, true, "RW");
+	SIGNAL_DEFINE_N(SIG_P2001N_SYNC, "SYNC");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_RDY, ACTHI_ASSERT, "RDY");
 
-	SIGNAL_DEFINE_N(sel8, 1, "SEL8");
+	SIGNAL_GROUP_NEW_N(buf_address, 16, "buffered_address", "BA%d");
+	memcpy(&SIGNAL(BA0), SIGNAL_GROUP(buf_address), 16 * sizeof(Signal));
 
-	SIGNAL_DEFINE_N(x8xx, 1, "X8XX");
-	SIGNAL_DEFINE_N(s_88xx_b, 1, "/88XX");
-	SIGNAL_DEFINE_N(rom_addr_b, 1, "/ROMA");
+	SIGNAL_GROUP_NEW_N(buf_data, 8, "buffered_data", "BD%d");
+	memcpy(&SIGNAL(BD0), SIGNAL_GROUP(buf_data), 8 * sizeof(Signal));
 
-	SIGNAL_DEFINE_N(ram_read_b, 1, "/RAMR");
-	SIGNAL_DEFINE_N(ram_write_b, 1, "/RAMW");
+	SIGNAL_GROUP_NEW_N(mem_sel, 16, "mem_sel", "/SEL%d");
+	memcpy(&SIGNAL(SEL0_B), SIGNAL_GROUP(mem_sel), 16 * sizeof(Signal));
 
-	SIGNAL_DEFINE_N(phi2, 1, "PHI2");
-	SIGNAL_DEFINE_N(bphi2, 1, "BPHI2");
-	SIGNAL_DEFINE_N(cphi2, 1, "CPHI2");
+	SIGNAL_DEFINE_N(SIG_P2001N_SEL8, "SEL8");
 
-	SIGNAL_DEFINE_N(buf_rw, 1, "BRW");
-	SIGNAL_DEFINE_N(buf_rw_b, 1, "/BRW");
-	SIGNAL_DEFINE_N(ram_rw, 1, "RAMRW");
+	SIGNAL_DEFINE_N(SIG_P2001N_X8XX, "X8XX");
+	SIGNAL_DEFINE_N(SIG_P2001N_88XX_B, "/88XX");
+	SIGNAL_DEFINE_N(SIG_P2001N_ROMA_B, "/ROMA");
 
-	SIGNAL_DEFINE_N(a5_12, 1, "A512");
+	SIGNAL_DEFINE_N(SIG_P2001N_RAMR_B, "/RAMR");
+	SIGNAL_DEFINE_N(SIG_P2001N_RAMW_B, "/RAMW");
 
-	device->signals.ba6 = signal_split(SIGNAL(bus_ba), 6, 1);
-	device->signals.ba7 = signal_split(SIGNAL(bus_ba), 7, 1);
-	device->signals.ba8 = signal_split(SIGNAL(bus_ba), 8, 1);
-	device->signals.ba9 = signal_split(SIGNAL(bus_ba), 9, 1);
-	device->signals.ba10 = signal_split(SIGNAL(bus_ba), 10, 1);
-	device->signals.ba11 = signal_split(SIGNAL(bus_ba), 11, 1);
-	device->signals.ba12 = signal_split(SIGNAL(bus_ba), 12, 1);
-	device->signals.ba13 = signal_split(SIGNAL(bus_ba), 13, 1);
-	device->signals.ba14 = signal_split(SIGNAL(bus_ba), 14, 1);
-	device->signals.ba15 = signal_split(SIGNAL(bus_ba), 15, 1);
+	SIGNAL_DEFINE_N(SIG_P2001N_PHI2, "PHI2");
+	SIGNAL_DEFINE_N(SIG_P2001N_BPHI2, "BPHI2");
+	SIGNAL_DEFINE_N(SIG_P2001N_CPHI2, "CPHI2");
 
-	SIGNAL_DEFINE_N(ba11_b, 1, "/BA11");
+	SIGNAL_DEFINE_N(SIG_P2001N_BRW, "BRW");
+	SIGNAL_DEFINE_N(SIG_P2001N_BRW_B, "/BRW");
+	SIGNAL_DEFINE_N(SIG_P2001N_RAMRW, "RAMRW");
+
+	SIGNAL_DEFINE_N(SIG_P2001N_A5_12, "A512");
+
+	SIGNAL_DEFINE_N(SIG_P2001N_BA11_B, "/BA11");
 
 	//
 	// signals - sheet 2: IEEE-488 interface
 	//
 
-	SIGNAL_DEFINE_N(atn_in_b, 1, "/ATNIN");
-	SIGNAL_DEFINE_N(ndac_out_b, 1, "/NDACOUT");
-	SIGNAL_DEFINE_N(ifc_b, 1, "/IFC");
-	SIGNAL_DEFINE_N(srq_in_b, 1, "/SRQIN");
-	SIGNAL_DEFINE_N(dav_out_b, 1, "/DAVOUT");
+	SIGNAL_DEFINE_N(SIG_P2001N_ATN_IN_B, "/ATNIN");
+	SIGNAL_DEFINE_N(SIG_P2001N_NDAC_OUT_B, "/NDACOUT");
+	SIGNAL_DEFINE_N(SIG_P2001N_IFC_B, "/IFC");
+	SIGNAL_DEFINE_N(SIG_P2001N_SRQ_IN_B, "/SRQIN");
+	SIGNAL_DEFINE_N(SIG_P2001N_DAV_OUT_B, "/DAVOUT");
 
-	SIGNAL_DEFINE(bus_di, 8);
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_di), 0, 1), "DI1");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_di), 1, 1), "DI2");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_di), 2, 1), "DI3");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_di), 3, 1), "DI4");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_di), 4, 1), "DI5");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_di), 5, 1), "DI6");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_di), 6, 1), "DI7");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_di), 7, 1), "DI8");
+	SIGNAL_GROUP_NEW(ieee488_di, 8);
+	signal_group_set_name(SIGNAL_POOL, SIGNAL_GROUP(ieee488_di), "ieee488_di", "DI%d", 1);
+	memcpy(&SIGNAL(DI0), SIGNAL_GROUP(ieee488_di), 8 * sizeof(Signal));
 
-	SIGNAL_DEFINE(bus_do, 8);
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_do), 0, 1), "DO1");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_do), 1, 1), "DO2");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_do), 2, 1), "DO3");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_do), 3, 1), "DO4");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_do), 4, 1), "DO5");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_do), 5, 1), "DO6");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_do), 6, 1), "DO7");
-	signal_set_name(SIGNAL_POOL, signal_split(SIGNAL(bus_do), 7, 1), "DO8");
+	SIGNAL_GROUP_NEW(ieee488_do, 8);
+	signal_group_set_name(SIGNAL_POOL, SIGNAL_GROUP(ieee488_do), "ieee488_do", "DO%d", 1);
+	memcpy(&SIGNAL(DI0), SIGNAL_GROUP(ieee488_do), 8 * sizeof(Signal));
 
-	SIGNAL_DEFINE_N(cs1, 1, "CS1");
+	SIGNAL_DEFINE_N(SIG_P2001N_CS1, "CS1");
 
 	//
 	// signals - sheet 3: Cassette & Keyboard
 	//
 
-	SIGNAL_DEFINE_N(ca1, 1, "CA1");
-	SIGNAL_DEFINE_N(graphic, 1, "GRAPHIC");
-	SIGNAL_DEFINE_N(cass_motor_2, 1, "CASSMOTOR2");
+	SIGNAL_DEFINE_N(SIG_P2001N_CA1, "CA1");
+	SIGNAL_DEFINE_N(SIG_P2001N_GRAPHIC, "GRAPHIC");
+	SIGNAL_DEFINE_N(SIG_P2001N_CASS_MOTOR_2, "CASSMOTOR2");
 
-	SIGNAL_DEFINE(c5_portb, 8);
-	SIGNAL(ndac_in_b) = signal_split(SIGNAL(c5_portb), 0, 1);
-	SIGNAL(nrfd_out_b) = signal_split(SIGNAL(c5_portb), 1, 1);
-	SIGNAL(atn_out_b) = signal_split(SIGNAL(c5_portb), 2, 1);
-	SIGNAL(cass_write) = signal_split(SIGNAL(c5_portb), 3, 1);
-	SIGNAL(cass_motor_2_b) = signal_split(SIGNAL(c5_portb), 4, 1);
-	SIGNAL(video_on_2) = signal_split(SIGNAL(c5_portb), 5, 1);
-	SIGNAL(nrfd_in_b) = signal_split(SIGNAL(c5_portb), 6, 1);
-	SIGNAL(dav_in_b) = signal_split(SIGNAL(c5_portb), 7, 1);
-	signal_set_name(SIGNAL_POOL, SIGNAL(ndac_in_b), "/NDACIN");
-	signal_set_name(SIGNAL_POOL, SIGNAL(nrfd_out_b), "/NRFDOUT");
-	signal_set_name(SIGNAL_POOL, SIGNAL(atn_out_b), "/ATNOUT");
-	signal_set_name(SIGNAL_POOL, SIGNAL(cass_write), "CASSWRITE");
-	signal_set_name(SIGNAL_POOL, SIGNAL(cass_motor_2_b), "/CASSMOTOR2");
-	signal_set_name(SIGNAL_POOL, SIGNAL(nrfd_in_b), "/NRFDIN");
-	signal_set_name(SIGNAL_POOL, SIGNAL(dav_in_b), "/DAVIN");
+	SIGNAL_DEFINE_N(SIG_P2001N_NDAC_IN_B, "/NDACIN");
+	SIGNAL_DEFINE_N(SIG_P2001N_NRFD_OUT_B, "/NRFDOUT");
+	SIGNAL_DEFINE_N(SIG_P2001N_ATN_OUT_B, "/ATNOUT");
+	SIGNAL_DEFINE_N(SIG_P2001N_CASS_WRITE, "CASSWRITE");
+	SIGNAL_DEFINE_N(SIG_P2001N_CASS_MOTOR_2_B, "/CASSMOTOR2");
+	SIGNAL_DEFINE_N(SIG_P2001N_NRFD_IN_B, "/NRFDIN");
+	SIGNAL_DEFINE_N(SIG_P2001N_DAV_IN_B, "/DAVIN");
 
-	SIGNAL_DEFINE(c7_porta, 8);
-	SIGNAL(keya) = signal_split(SIGNAL(c7_porta), 0, 1);
-	SIGNAL(keyb) = signal_split(SIGNAL(c7_porta), 1, 1);
-	SIGNAL(keyc) = signal_split(SIGNAL(c7_porta), 2, 1);
-	SIGNAL(keyd) = signal_split(SIGNAL(c7_porta), 3, 1);
-	SIGNAL(cass_switch_1) = signal_split(SIGNAL(c7_porta), 4, 1);
-	SIGNAL(cass_switch_2) = signal_split(SIGNAL(c7_porta), 5, 1);
-	SIGNAL(eoi_in_b) = signal_split(SIGNAL(c7_porta), 6, 1);
-	SIGNAL(diag) = signal_split(SIGNAL(c7_porta), 7, 1);
+	SIGNAL_DEFINE_N(SIG_P2001N_KEYA, "KEYA");
+	SIGNAL_DEFINE_N(SIG_P2001N_KEYB, "KEYB");
+	SIGNAL_DEFINE_N(SIG_P2001N_KEYC, "KEYC");
+	SIGNAL_DEFINE_N(SIG_P2001N_KEYD, "KEYD");
+	SIGNAL_DEFINE_N(SIG_P2001N_CASS_SWITCH_1, "CASSSWITCH1");
+	SIGNAL_DEFINE_N(SIG_P2001N_CASS_SWITCH_2, "CASSSWITCH2");
+	SIGNAL_DEFINE_N(SIG_P2001N_EOI_IN_B, "/EOIIN");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_DIAG, true, "DIAG");
 
-	signal_set_name(SIGNAL_POOL, SIGNAL(keya), "KEYA");
-	signal_set_name(SIGNAL_POOL, SIGNAL(keyb), "KEYB");
-	signal_set_name(SIGNAL_POOL, SIGNAL(keyc), "KEYC");
-	signal_set_name(SIGNAL_POOL, SIGNAL(keyd), "KEYD");
-	signal_set_name(SIGNAL_POOL, SIGNAL(cass_switch_1), "CASSSWITCH1");
-	signal_set_name(SIGNAL_POOL, SIGNAL(cass_switch_2), "CASSSWITCH2");
-	signal_set_name(SIGNAL_POOL, SIGNAL(eoi_in_b), "/EOIIN");
-	signal_set_name(SIGNAL_POOL, SIGNAL(diag), "DIAG");
+	SIGNAL_DEFINE_N(SIG_P2001N_CB2, "CB2");
+	SIGNAL_DEFINE_N(SIG_P2001N_EOI_OUT_B, "/EOIOUT");
+	SIGNAL_DEFINE_N(SIG_P2001N_CASS_READ_1, "CASSREAD1");
+	SIGNAL_DEFINE_N(SIG_P2001N_CASS_READ_2, "CASSREAD2");
+	SIGNAL_DEFINE_N(SIG_P2001N_CASS_MOTOR_1, "CASSMOTOR1");
+	SIGNAL_DEFINE_N(SIG_P2001N_CASS_MOTOR_1_B, "/CASSMOTOR1");
 
-	SIGNAL_DEFINE_N(cb2, 1, "CB2");
-	SIGNAL_DEFINE_N(eoi_out_b, 1, "/EOIOUT");
-	SIGNAL_DEFINE_N(cass_read_1, 1, "CASSREAD1");
-	SIGNAL_DEFINE_N(cass_read_2, 1, "CASSREAD2");
-	SIGNAL_DEFINE_N(cass_motor_1, 1, "CASSMOTOR1");
-	SIGNAL_DEFINE_N(cass_motor_1_b, 1, "/CASSMOTOR1");
+	SIGNAL_GROUP_NEW_N(pa, 8, "c5_pa", "PA%d");
+	memcpy(&SIGNAL(PA0), SIGNAL_GROUP(pa), 8 * sizeof(Signal));
 
-	SIGNAL_DEFINE_N(bus_pa, 8, "PA%d");
-	SIGNAL_DEFINE_N(bus_kin, 8, "KIN%d");
-	SIGNAL_DEFINE_N(bus_kout, 10, "KOUT%d");
+	SIGNAL_GROUP_NEW_N(keyboard_in, 8, "keyboard_in", "KIN%d");
+	SIGNAL_GROUP_DEFAULTS(keyboard_in, 0xff);							// pull-up resistors R18-R25
+	memcpy(&SIGNAL(KIN0), SIGNAL_GROUP(keyboard_in), 8 * sizeof(Signal));
 
-	signal_default_uint8(SIGNAL_POOL, SIGNAL(bus_kin), 0xff);			// pull-up resistors R18-R25
-	signal_default_bool(SIGNAL_POOL, SIGNAL(diag), true);
+	SIGNAL_GROUP_NEW_N(keyboard_out, 10, "keyboard_out", "KOUT%d");
+	memcpy(&SIGNAL(KOUT0), SIGNAL_GROUP(keyboard_out), 10 * sizeof(Signal));
 
 	//
 	// signals - sheet 5: RAMS
 	//
 
-	SIGNAL_DEFINE_N(banksel, 1, "BANKSEL");
-	SIGNAL_DEFINE_N(g78, 1, "G78");
+	SIGNAL_DEFINE_N(SIG_P2001N_BANKSEL, "BANKSEL");
+	SIGNAL_DEFINE_N(SIG_P2001N_G7_8, "G78");
 
-	SIGNAL_DEFINE_N(bus_fa, 7, "FA%d");
-	SIGNAL_DEFINE_N(bus_rd, 8, "RD%d");
+	SIGNAL_GROUP_NEW_N(ram_address, 7, "ram_address", "FA%d");
+	memcpy(&SIGNAL(FA0), SIGNAL_GROUP(ram_address), 7 * sizeof(Signal));
+
+	SIGNAL_GROUP_NEW_N(ram_data, 8, "ram_data", "RD%d");
+	memcpy(&SIGNAL(RD0), SIGNAL_GROUP(ram_data), 8 * sizeof(Signal));
 
 	//
 	// signals - sheet 6: Master timing
 	//
 
-	SIGNAL_DEFINE_BOOL_N(init_b, 1, ACTLO_ASSERT, "/INIT");
-	SIGNAL_DEFINE_BOOL_N(init, 1, ACTHI_ASSERT, "INIT");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_INIT_B, ACTLO_ASSERT, "/INIT");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_INIT, ACTHI_ASSERT, "INIT");
 
-	SIGNAL_DEFINE_BOOL_N(clk1, 1, true, "CLK1");
+	SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_CLK1, true, "CLK1");
 
-	SIGNAL_DEFINE_N(video_on, 1, "VIDEOON");
+	SIGNAL_DEFINE_N(SIG_P2001N_VIDEO_ON, "VIDEOON");
 
 	if (!lite) {
 
-		SIGNAL_DEFINE_BOOL_N(clk16, 1, true, "CLK16");
-		SIGNAL_DEFINE_BOOL_N(clk8, 1, true, "CLK8");
-		SIGNAL_DEFINE_BOOL_N(clk4, 1, true, "CLK4");
-		SIGNAL_DEFINE_BOOL_N(clk2, 1, true, "CLK2");
+		SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_CLK16, true, "CLK16");
+		SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_CLK8, true, "CLK8");
+		SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_CLK4, true, "CLK4");
+		SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_CLK2, true, "CLK2");
 
-		SIGNAL_DEFINE_N(bphi2a, 1, "BPHI2A");
-		SIGNAL_DEFINE_N(bphi2b, 1, "BPHI2B");
-		SIGNAL_DEFINE_N(bphi2c, 1, "BPHI2C");
-		SIGNAL_DEFINE_N(bphi2d, 1, "BPHI2D");
-		SIGNAL_DEFINE_N(bphi2e, 1, "BPHI2E");
-		SIGNAL_DEFINE_N(bphi2f, 1, "BPHI2F");
-		SIGNAL_DEFINE_N(bphi2g, 1, "BPHI2G");
-		SIGNAL_DEFINE_N(bphi2h, 1, "BPHI2H");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2A, "BPHI2A");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2B, "BPHI2B");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2C, "BPHI2C");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2D, "BPHI2D");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2E, "BPHI2E");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2F, "BPHI2F");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2G, "BPHI2G");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2H, "BPHI2H");
 
-		SIGNAL_DEFINE_N(bphi2a_b, 1, "/BPHI2A");
-		SIGNAL_DEFINE_N(bphi2b_b, 1, "/BPHI2B");
-		SIGNAL_DEFINE_N(bphi2f_b, 1, "/BPHI2F");
-		SIGNAL_DEFINE_N(bphi2g_b, 1, "/BPHI2G");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2A_B, "/BPHI2A");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2B_B, "/BPHI2B");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2F_B, "/BPHI2F");
+		SIGNAL_DEFINE_N(SIG_P2001N_BPHI2G_B, "/BPHI2G");
 
-		SIGNAL_DEFINE_N(ra1, 1, "RA1");
-		SIGNAL_DEFINE_N(ra1_b, 1, "/RA1");
-		SIGNAL_DEFINE_N(ra2, 1, "RA2");
-		SIGNAL_DEFINE_N(ra3, 1, "RA3");
-		SIGNAL_DEFINE_N(ra4, 1, "RA4");
-		SIGNAL_DEFINE_N(ra5, 1, "RA5");
-		SIGNAL_DEFINE_N(ra6, 1, "RA6");
-		SIGNAL_DEFINE_N(ra6_b, 1, "/RA6");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA1, "RA1");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA2, "RA2");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA3, "RA3");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA4, "RA4");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA5, "RA5");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA6, "RA6");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA7, "RA7");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA8, "RA8");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA9, "RA9");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA1_B, "/RA1");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA6_B, "/RA6");
 
-		SIGNAL_DEFINE_N(ra1and3, 1, "RA1AND3");
-		SIGNAL_DEFINE_N(ra4and6, 1, "RA4AND6");
-		SIGNAL_DEFINE_N(ra5and6_b, 1, "RA5AND/6");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA1AND3, "RA1AND3");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA4AND6, "RA4AND6");
+		SIGNAL_DEFINE_N(SIG_P2001N_RA5AND6_B, "RA5AND/6");
 
-		SIGNAL_DEFINE_N(load_sr, 1, "LOADSR");
-		SIGNAL_DEFINE_N(load_sr_b, 1, "/LOADSR");
+		SIGNAL_DEFINE_N(SIG_P2001N_LOAD_SR, "LOADSR");
+		SIGNAL_DEFINE_N(SIG_P2001N_LOAD_SR_B, "/LOADSR");
 
-		SIGNAL_DEFINE_N(horz_disp_on, 1, "HORZDISPON");
-		SIGNAL_DEFINE_N(horz_disp_off, 1, "HORZDISPOFF");
-		SIGNAL_DEFINE_N(horz_drive, 1, "HORZDRIVE");
-		SIGNAL_DEFINE_N(horz_drive_b, 1, "/HORZDRIVE");
+		SIGNAL_DEFINE_N(SIG_P2001N_HORZ_DISP_ON, "HORZDISPON");
+		SIGNAL_DEFINE_N(SIG_P2001N_HORZ_DISP_OFF, "HORZDISPOFF");
+		SIGNAL_DEFINE_N(SIG_P2001N_HORZ_DRIVE, "HORZDRIVE");
+		SIGNAL_DEFINE_N(SIG_P2001N_HORZ_DRIVE_B, "/HORZDRIVE");
 
-		SIGNAL_DEFINE_N(h8q, 1, "H8Q");
-		SIGNAL_DEFINE_N(h8q_b, 1, "/H8Q");
-		SIGNAL_DEFINE_N(h8q2, 1, "H8Q2");
-		SIGNAL_DEFINE_N(h8q2_b, 1, "/H8Q2");
+		SIGNAL_DEFINE_N(SIG_P2001N_H8Q, "H8Q");
+		SIGNAL_DEFINE_N(SIG_P2001N_H8Q_B, "/H8Q");
+		SIGNAL_DEFINE_N(SIG_P2001N_H8Q2, "H8Q2");
+		SIGNAL_DEFINE_N(SIG_P2001N_H8Q2_B, "/H8Q2");
 
-		SIGNAL_DEFINE_N(video_latch, 1, "VIDEOLATCH");
-		SIGNAL_DEFINE_N(vert_drive, 1, "VERTDRIVE");
+		SIGNAL_DEFINE_N(SIG_P2001N_VIDEO_LATCH, "VIDEOLATCH");
+		SIGNAL_DEFINE_N(SIG_P2001N_VERT_DRIVE, "VERTDRIVE");
 
-		SIGNAL_DEFINE_N(h53, 1, "H53");
-		SIGNAL_DEFINE_N(h4y1, 1, "H4Y1");
-		SIGNAL_DEFINE_N(muxa, 1, "MUXA");
-		SIGNAL_DEFINE_N(h4y4, 1, "H4Y4");
+		SIGNAL_DEFINE_N(SIG_P2001N_H53, "H53");
+		SIGNAL_DEFINE_N(SIG_P2001N_H4Y1, "H4Y1");
+		SIGNAL_DEFINE_N(SIG_P2001N_MUXA, "MUXA");
+		SIGNAL_DEFINE_N(SIG_P2001N_H4Y4, "H4Y4");
 
-		SIGNAL_DEFINE_N(h1q1, 1, "H1Q1");
-		SIGNAL_DEFINE_N(h1q1_b, 1, "/H1Q1");
-		SIGNAL_DEFINE_N(h1q2, 1, "H1Q2");
-		SIGNAL_DEFINE_N(h1q2_b, 1, "/H1Q2");
+		SIGNAL_DEFINE_N(SIG_P2001N_H1Q1, "H1Q1");
+		SIGNAL_DEFINE_N(SIG_P2001N_H1Q1_B, "/H1Q1");
+		SIGNAL_DEFINE_N(SIG_P2001N_H1Q2, "H1Q2");
+		SIGNAL_DEFINE_N(SIG_P2001N_H1Q2_B, "/H1Q2");
 
-		SIGNAL_DEFINE_N(ras0_b, 1, "/RAS0");
-		SIGNAL_DEFINE_N(cas0_b, 1, "/CAS0");
-		SIGNAL_DEFINE_N(cas1_b, 1, "/CAS1");
-		SIGNAL_DEFINE_N(ba14_b, 1, "/BA14");
+		SIGNAL_DEFINE_N(SIG_P2001N_RAS0_B, "/RAS0");
+		SIGNAL_DEFINE_N(SIG_P2001N_CAS0_B, "/CAS0");
+		SIGNAL_DEFINE_N(SIG_P2001N_CAS1_B, "/CAS1");
+		SIGNAL_DEFINE_N(SIG_P2001N_BA14_B, "/BA14");
 	}
 
 	//
 	// signals - sheet 7: display logic
 	//
 
-	SIGNAL_DEFINE_N(tv_sel, 1, "TVSEL");
-	SIGNAL_DEFINE_N(tv_read_b, 1, "/TVREAD");
+	SIGNAL_DEFINE_N(SIG_P2001N_TV_SEL, "TVSEL");
+	SIGNAL_DEFINE_N(SIG_P2001N_TV_READ_B, "/TVREAD");
 
 	if (!lite) {
-		SIGNAL_DEFINE_N(g6_q, 1, "G6Q");
-		SIGNAL_DEFINE_N(g6_q_b, 1, "/G6Q");
+		SIGNAL_DEFINE_N(SIG_P2001N_G6_Q, "G6Q");
+		SIGNAL_DEFINE_N(SIG_P2001N_G6_Q_B, "/G6Q");
 
-		SIGNAL_DEFINE_N(tv_ram_rw, 1, "TVRAMRW");
-		SIGNAL_DEFINE_N(f6_y3, 1, "F6Y3");
-		SIGNAL_DEFINE_N(bus_sa, 10, "SA%d");
+		SIGNAL_DEFINE_N(SIG_P2001N_TV_RAM_RW, "TVRAMRW");
+		SIGNAL_DEFINE_N(SIG_P2001N_F6_Y3, "F6Y3");
 
-		SIGNAL_DEFINE_N(ga2, 1, "GA2");
-		SIGNAL_DEFINE_N(ga3, 1, "GA3");
-		SIGNAL_DEFINE_N(ga4, 1, "GA4");
-		SIGNAL_DEFINE_N(ga5, 1, "GA5");
-		SIGNAL_DEFINE_N(ga6, 1, "GA6");
-		SIGNAL_DEFINE_N(ga7, 1, "GA7");
-		SIGNAL_DEFINE_N(ga8, 1, "GA8");
-		SIGNAL_DEFINE_N(ga9, 1, "GA9");
+		SIGNAL_GROUP_NEW_N(vram_address, 10, "vram_address", "SA%d");
+		memcpy(&SIGNAL(SA0), SIGNAL_GROUP(vram_address), 10 * sizeof(Signal));
 
-		SIGNAL_DEFINE_N(lga2, 1, "LGA2");
-		SIGNAL_DEFINE_N(lga3, 1, "LGA3");
-		SIGNAL_DEFINE_N(lga4, 1, "LGA4");
-		SIGNAL_DEFINE_N(lga5, 1, "LGA5");
-		SIGNAL_DEFINE_N(lga6, 1, "LGA6");
-		SIGNAL_DEFINE_N(lga7, 1, "LGA7");
-		SIGNAL_DEFINE_N(lga8, 1, "LGA8");
-		SIGNAL_DEFINE_N(lga9, 1, "LGA9");
+		SIGNAL_DEFINE_N(SIG_P2001N_GA2, "GA2");
+		SIGNAL_DEFINE_N(SIG_P2001N_GA3, "GA3");
+		SIGNAL_DEFINE_N(SIG_P2001N_GA4, "GA4");
+		SIGNAL_DEFINE_N(SIG_P2001N_GA5, "GA5");
+		SIGNAL_DEFINE_N(SIG_P2001N_GA6, "GA6");
+		SIGNAL_DEFINE_N(SIG_P2001N_GA7, "GA7");
+		SIGNAL_DEFINE_N(SIG_P2001N_GA8, "GA8");
+		SIGNAL_DEFINE_N(SIG_P2001N_GA9, "GA9");
 
-		SIGNAL_DEFINE_BOOL_N(next, 1, true, "NEXT");
-		SIGNAL_DEFINE_BOOL_N(next_b, 1, false, "/NEXT");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA2, "LGA2");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA3, "LGA3");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA4, "LGA4");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA5, "LGA5");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA6, "LGA6");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA7, "LGA7");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA8, "LGA8");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA9, "LGA9");
 
-		SIGNAL_DEFINE_N(reload_next, 1, "RELOADNEXT");
+		SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_NEXT, true, "NEXT");
+		SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_NEXT_B, false, "/NEXT");
 
-		SIGNAL_DEFINE_BOOL_N(pullup_2, 1, true, "PULLUP2");
+		SIGNAL_DEFINE_N(SIG_P2001N_RELOAD_NEXT, "RELOADNEXT");
 
-		SIGNAL_DEFINE_N(lines_20_b, 1, "/20LINES");
-		SIGNAL_DEFINE_N(lines_200_b, 1, "/200LINES");
-		SIGNAL_DEFINE_N(line_220, 1, "220LINE");
-		SIGNAL_DEFINE_N(lga_hi_b, 1, "/LGAHI");
-		SIGNAL_DEFINE_N(lga_hi, 1, "LGAHI");
-		SIGNAL_DEFINE_N(w220_off, 1, "220OFF");
+		SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_PULLUP_2, true, "PULLUP2");
 
-		SIGNAL_DEFINE_N(video_on_b, 1, "/VIDEOON");
+		SIGNAL_DEFINE_N(SIG_P2001N_LINES_20_B, "/20LINES");
+		SIGNAL_DEFINE_N(SIG_P2001N_LINES_200_B, "/200LINES");
+		SIGNAL_DEFINE_N(SIG_P2001N_LINE_220, "220LINE");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA_HI_B, "/LGAHI");
+		SIGNAL_DEFINE_N(SIG_P2001N_LGA_HI, "LGAHI");
+		SIGNAL_DEFINE_N(SIG_P2001N_W220_OFF, "220OFF");
+
+		SIGNAL_DEFINE_N(SIG_P2001N_VIDEO_ON_B, "/VIDEOON");
 	}
 
 	//
@@ -2098,25 +2065,27 @@ DevCommodorePet *create_pet_device(bool lite) {
 	//
 
 	if (!lite) {
-		SIGNAL_DEFINE_N(ra7, 1, "RA7");
-		SIGNAL_DEFINE_N(ra8, 1, "RA8");
-		SIGNAL_DEFINE_N(ra9, 1, "RA9");
-		SIGNAL_DEFINE_N(reload_b, 1, "/RELOAD");
-		SIGNAL_DEFINE_BOOL_N(pullup_1, 1, true, "PULLUP1");
+		SIGNAL_DEFINE_N(SIG_P2001N_RELOAD_B, "/RELOAD");
+		SIGNAL_DEFINE_DEFAULT_N(SIG_P2001N_PULLUP_1, true, "PULLUP1");
 
-		SIGNAL_DEFINE_N(bus_sd, 8, "SD%d");
-		SIGNAL_DEFINE_N(bus_lsd, 8, "LSD%d");
-		SIGNAL_DEFINE_N(bus_cd, 8, "CD%d");
+		SIGNAL_GROUP_NEW_N(vram_data, 8, "vram_data", "SD%d");
+		memcpy(&SIGNAL(SD0), SIGNAL_GROUP(vram_data), 8 * sizeof(Signal));
 
-		SIGNAL_DEFINE_N(g9q, 1, "G9Q");
-		SIGNAL_DEFINE_N(g9q_b, 1, "/G9Q");
-		SIGNAL_DEFINE_N(e11qh, 1, "E11QH");
-		SIGNAL_DEFINE_N(e11qh_b, 1, "/E11QH");
-		SIGNAL_DEFINE_N(g106, 1, "G106");
-		SIGNAL_DEFINE_N(g108, 1, "G108");
-		SIGNAL_DEFINE_N(h108, 1, "H108");
+		SIGNAL_GROUP_NEW_N(latched_vram_data, 8, "latched_vram_data", "LSD%d");
+		memcpy(&SIGNAL(LSD0), SIGNAL_GROUP(latched_vram_data), 8 * sizeof(Signal));
 
-		SIGNAL_DEFINE_N(video, 1, "VIDEO");
+		SIGNAL_GROUP_NEW_N(char_data, 8, "char_data", "CD%d");
+		memcpy(&SIGNAL(CD0), SIGNAL_GROUP(char_data), 8 * sizeof(Signal));
+
+		SIGNAL_DEFINE_N(SIG_P2001N_G9Q, "G9Q");
+		SIGNAL_DEFINE_N(SIG_P2001N_G9Q_B, "/G9Q");
+		SIGNAL_DEFINE_N(SIG_P2001N_E11QH, "E11QH");
+		SIGNAL_DEFINE_N(SIG_P2001N_E11QH_B, "/E11QH");
+		SIGNAL_DEFINE_N(SIG_P2001N_G106, "G106");
+		SIGNAL_DEFINE_N(SIG_P2001N_G108, "G108");
+		SIGNAL_DEFINE_N(SIG_P2001N_H108, "H108");
+
+		SIGNAL_DEFINE_N(SIG_P2001N_VIDEO, "VIDEO");
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2184,10 +2153,10 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 }
 
 void dev_commodore_pet_process_clk1(DevCommodorePet *device) {
-	bool prev_clk1 = SIGNAL_BOOL(clk1);
+	bool prev_clk1 = SIGNAL_READ(CLK1);
 	do {
 		device->process(device);
-	} while (prev_clk1 == SIGNAL_BOOL(clk1));
+	} while (prev_clk1 == SIGNAL_READ(CLK1));
 }
 
 void dev_commodore_pet_reset(DevCommodorePet *device) {
@@ -2456,7 +2425,7 @@ size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, struct SignalB
 	static SignalBreak pet_irq[1] = {0};
 
 	if (pet_irq[0].signal.count == 0) {
-		pet_irq[0] = (SignalBreak) {device->signals.irq_b, false, true};
+		pet_irq[0] = (SignalBreak) {SIGNAL(IRQ_B), false, true};
 	}
 
 	*irq_signals = pet_irq;

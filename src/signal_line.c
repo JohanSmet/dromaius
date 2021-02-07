@@ -267,3 +267,21 @@ void signal_default_uint16(SignalPool *pool, Signal signal, uint16_t value) {
 Signal signal_by_name(SignalPool *pool, const char *name) {
 	return shget(pool->signal_names, name);
 }
+
+void signal_group_set_name(SignalPool *pool, SignalGroup sg, const char *group_name, const char *signal_name, uint32_t start_idx) {
+	assert(pool);
+	assert(sg);
+	assert(group_name);
+	assert(signal_name);
+
+	// TODO: store group name
+	(void) group_name;
+
+	// name individual signals
+	char sub_name[MAX_SIGNAL_NAME];
+	for (uint32_t i = 0; i < signal_group_size(sg); ++i) {
+		snprintf(sub_name, MAX_SIGNAL_NAME, signal_name, i + start_idx);
+		shput(pool->signal_names, sub_name, sg[i]);
+		pool->signals_name[sg[i].start] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
+	}
+}

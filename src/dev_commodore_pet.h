@@ -23,268 +23,405 @@ extern "C" {
 #endif
 
 // types
-
-typedef struct DevCommodorePetSignals {
+enum DevCommodorePetSignalAssignment {
 
 	// general
-	Signal		reset_btn_b;
-	Signal		high;				// 1-bit - always high
-	Signal		low;				// 1-bit - always low
+	SIG_P2001N_RESET_BTN_B = 0,
+	SIG_P2001N_HIGH,				// always high ("VCC")
+	SIG_P2001N_LOW,					// always low  ("GND")
 
 	// sheet 1
-	Signal		reset;				// 1-bit
-	Signal		reset_b;			// 1-bit - reset line
-	Signal		irq_b;				// 1-bit - interrupt request
-	Signal		nmi_b;				// 1-bit - non-maskable interrupt
+	SIG_P2001N_RESET_B,				// reset line
+	SIG_P2001N_RESET,
+	SIG_P2001N_IRQ_B,				// interrupt request
+	SIG_P2001N_NMI_B,				// non-maskable interrupt
 
-	Signal		cpu_bus_address;	// 16-bit address bus
-	Signal		cpu_bus_data;		// 8-bit data
-	Signal		cpu_rw;				// 1-bit
-	Signal		cpu_sync;			// 1-bit
-	Signal		cpu_rdy;			// 1-bit
+	// -- 16-bit address bus (CPU)
+	SIG_P2001N_AB0,
+	SIG_P2001N_AB1,
+	SIG_P2001N_AB2,
+	SIG_P2001N_AB3,
+	SIG_P2001N_AB4,
+	SIG_P2001N_AB5,
+	SIG_P2001N_AB6,
+	SIG_P2001N_AB7,
+	SIG_P2001N_AB8,
+	SIG_P2001N_AB9,
+	SIG_P2001N_AB10,
+	SIG_P2001N_AB11,
+	SIG_P2001N_AB12,
+	SIG_P2001N_AB13,
+	SIG_P2001N_AB14,
+	SIG_P2001N_AB15,
 
-	Signal		bus_ba;				// buffered address bus
-	Signal		bus_bd;				// buffered data bus
+	// -- 8-bit data bus (CPU)
+	SIG_P2001N_D0,
+	SIG_P2001N_D1,
+	SIG_P2001N_D2,
+	SIG_P2001N_D3,
+	SIG_P2001N_D4,
+	SIG_P2001N_D5,
+	SIG_P2001N_D6,
+	SIG_P2001N_D7,
 
-	Signal		sel0_b;				// 1-bit - accessing memory $0xxx
-	Signal		sel1_b;				// 1-bit - accessing memory $1xxx
-	Signal		sel2_b;				// 1-bit - accessing memory $2xxx
-	Signal		sel3_b;				// 1-bit - accessing memory $3xxx
-	Signal		sel4_b;				// 1-bit - accessing memory $4xxx
-	Signal		sel5_b;				// 1-bit - accessing memory $5xxx
-	Signal		sel6_b;				// 1-bit - accessing memory $6xxx
-	Signal		sel7_b;				// 1-bit - accessing memory $7xxx
-	Signal		sel8_b;				// 1-bit - accessing memory $8xxx
-	Signal		sel9_b;				// 1-bit - accessing memory $9xxx
-	Signal		sela_b;				// 1-bit - accessing memory $axxx
-	Signal		selb_b;				// 1-bit - accessing memory $bxxx
-	Signal		selc_b;				// 1-bit - accessing memory $cxxx
-	Signal		seld_b;				// 1-bit - accessing memory $dxxx
-	Signal		sele_b;				// 1-bit - accessing memory $exxx
-	Signal		self_b;				// 1-bit - accessing memory $fxxx
+	SIG_P2001N_RW,
+	SIG_P2001N_SYNC,
+	SIG_P2001N_RDY,
 
-	Signal		sel8;				// 1-bit - inverse of sel8_b
+	// -- 16-bit buffered address bus
+	SIG_P2001N_BA0,
+	SIG_P2001N_BA1,
+	SIG_P2001N_BA2,
+	SIG_P2001N_BA3,
+	SIG_P2001N_BA4,
+	SIG_P2001N_BA5,
+	SIG_P2001N_BA6,
+	SIG_P2001N_BA7,
+	SIG_P2001N_BA8,
+	SIG_P2001N_BA9,
+	SIG_P2001N_BA10,
+	SIG_P2001N_BA11,
+	SIG_P2001N_BA12,
+	SIG_P2001N_BA13,
+	SIG_P2001N_BA14,
+	SIG_P2001N_BA15,
 
-	Signal		x8xx;				// 1-bit - third nibble of address == 8
-	Signal		s_88xx_b;			// 1-bit
-	Signal		rom_addr_b;			// 1-bit - low if ROM is being addressed
+	SIG_P2001N_BA11_B,
 
-	Signal		ram_read_b;			// 1-bit - cpu reads from ram
-	Signal		ram_write_b;		// 1-bit - cpu writes to ram
+	// -- 8-bit buffered data bus
+	SIG_P2001N_BD0,
+	SIG_P2001N_BD1,
+	SIG_P2001N_BD2,
+	SIG_P2001N_BD3,
+	SIG_P2001N_BD4,
+	SIG_P2001N_BD5,
+	SIG_P2001N_BD6,
+	SIG_P2001N_BD7,
 
-	Signal		phi2;				// 1-bit - cpu output clock signal (phase 2)
-	Signal		bphi2;				// 1-bit
-	Signal		cphi2;				// 1-bit
+	// -- memory area selection
+	SIG_P2001N_SEL0_B,				// accessing memory $0xxx
+	SIG_P2001N_SEL1_B,				// accessing memory $1xxx
+	SIG_P2001N_SEL2_B,				// accessing memory $2xxx
+	SIG_P2001N_SEL3_B,				// accessing memory $3xxx
+	SIG_P2001N_SEL4_B,				// accessing memory $4xxx
+	SIG_P2001N_SEL5_B,				// accessing memory $5xxx
+	SIG_P2001N_SEL6_B,				// accessing memory $6xxx
+	SIG_P2001N_SEL7_B,				// accessing memory $7xxx
+	SIG_P2001N_SEL8_B,				// accessing memory $8xxx
+	SIG_P2001N_SEL9_B,				// accessing memory $9xxx
+	SIG_P2001N_SELA_B,				// accessing memory $axxx
+	SIG_P2001N_SELB_B,				// accessing memory $bxxx
+	SIG_P2001N_SELC_B,				// accessing memory $cxxx
+	SIG_P2001N_SELD_B,				// accessing memory $dxxx
+	SIG_P2001N_SELE_B,				// accessing memory $exxx
+	SIG_P2001N_SELF_B,				// accessing memory $fxxx
 
-	Signal		buf_rw;				// 1-bit - buffered RW
-	Signal		buf_rw_b;			// 1-bit - buffered inverse RW
-	Signal		ram_rw;				// 1-bit
+	SIG_P2001N_SEL8,				// inverse of SEL8_B
 
-	Signal		a5_12;
+	SIG_P2001N_X8XX,				// third nibble of address equals 8
+	SIG_P2001N_88XX_B,				// low if upper byte of address == 88
+	SIG_P2001N_ROMA_B,				// low if rom is being addressed
 
-	Signal		ba6;				// 1-bit
-	Signal		ba7;				// 1-bit
-	Signal		ba8;				// 1-bit
-	Signal		ba9;				// 1-bit
-	Signal		ba10;				// 1-bit
-	Signal		ba11;				// 1-bit
-	Signal		ba12;				// 1-bit
-	Signal		ba13;				// 1-bit
-	Signal		ba14;				// 1-bit
-	Signal		ba15;				// 1-bit - top bit of the buffered address bus
+	SIG_P2001N_RAMR_B,				// low if cpu reads from RAM
+	SIG_P2001N_RAMW_B,				// low if cpu writes to RAM
 
-	Signal		ba11_b;				// 1-bit
+	SIG_P2001N_PHI2,				// CPU output clock signal phase2
+	SIG_P2001N_BPHI2,				// buffered PHI2
+	SIG_P2001N_CPHI2,				// double-buffered PHI2 (goes to memory expansion)
+
+	SIG_P2001N_BRW,					// buffered RW
+	SIG_P2001N_BRW_B,				// buffered inverse RW
+	SIG_P2001N_RAMRW,				// RW that goes to the RAM-modules
 
 	// sheet 2: IEEE-488 interface
-	Signal		atn_in_b;
-	Signal		ndac_out_b;
-	Signal		ifc_b;
-	Signal		srq_in_b;
-	Signal		dav_out_b;
-	Signal		bus_di;
-	Signal		bus_do;
-	Signal		cs1;				// 1-bit
+	SIG_P2001N_ATN_IN_B,
+	SIG_P2001N_NDAC_OUT_B,
+	SIG_P2001N_IFC_B,
+	SIG_P2001N_SRQ_IN_B,
+	SIG_P2001N_DAV_OUT_B,
+
+	SIG_P2001N_DI0,
+	SIG_P2001N_DI1,
+	SIG_P2001N_DI2,
+	SIG_P2001N_DI3,
+	SIG_P2001N_DI4,
+	SIG_P2001N_DI5,
+	SIG_P2001N_DI6,
+	SIG_P2001N_DI7,
+
+	SIG_P2001N_DO0,
+	SIG_P2001N_DO1,
+	SIG_P2001N_DO2,
+	SIG_P2001N_DO3,
+	SIG_P2001N_DO4,
+	SIG_P2001N_DO5,
+	SIG_P2001N_DO6,
+	SIG_P2001N_DO7,
+
+	SIG_P2001N_CS1,
 
 	// sheet 3: Cassette & Keyboard
-	Signal		ca1;				// 1-bit
-	Signal		cb2;				// 1-bit
-	Signal		graphic;			// 1-bit
-	Signal		eoi_out_b;
+	SIG_P2001N_CA1,
+	SIG_P2001N_CB2,
+	SIG_P2001N_GRAPHIC,
+	SIG_P2001N_EOI_OUT_B,
 
-	Signal		c5_portb;			// 8-bit
-	Signal		ndac_in_b;			// 1-bit
-	Signal		nrfd_out_b;			// 1-bit
-	Signal		atn_out_b;			// 1-bit
-	Signal		video_on_2;			// 1-bit copy of video_on
-	Signal		nrfd_in_b;			// 1-bit
-	Signal		dav_in_b;			// 1-bit
+	SIG_P2001N_NDAC_IN_B,
+	SIG_P2001N_NRFD_OUT_B,
+	SIG_P2001N_ATN_OUT_B,
+	SIG_P2001N_NRFD_IN_B,
+	SIG_P2001N_DAV_IN_B,
 
-	Signal		c7_porta;			// 8-bit
-	Signal		keya;				// 1-bit
-	Signal		keyb;				// 1-bit
-	Signal		keyc;				// 1-bit
-	Signal		keyd;				// 1-bit
-	Signal		eoi_in_b;
-	Signal		diag;				// 1-bit
+	SIG_P2001N_KEYA,
+	SIG_P2001N_KEYB,
+	SIG_P2001N_KEYC,
+	SIG_P2001N_KEYD,
+	SIG_P2001N_EOI_IN_B,
+	SIG_P2001N_DIAG,
 
-	Signal		cass_motor_1;		// 1-bit
-	Signal		cass_motor_1_b;		// 1-bit
-	Signal		cass_motor_2;		// 1-bit
-	Signal		cass_motor_2_b;		// 1-bit
-	Signal		cass_read_1;		// 1-bit
-	Signal		cass_read_2;		// 1-bit
-	Signal		cass_switch_1;		// 1-bit
-	Signal		cass_switch_2;		// 1-bit
-	Signal		cass_write;			// 1-bit
+	SIG_P2001N_CASS_MOTOR_1,
+	SIG_P2001N_CASS_MOTOR_1_B,
+	SIG_P2001N_CASS_MOTOR_2,
+	SIG_P2001N_CASS_MOTOR_2_B,
+	SIG_P2001N_CASS_READ_1,
+	SIG_P2001N_CASS_READ_2,
+	SIG_P2001N_CASS_SWITCH_1,
+	SIG_P2001N_CASS_SWITCH_2,
+	SIG_P2001N_CASS_WRITE,
 
-	Signal		bus_pa;				// 8-bit
-	Signal		bus_kin;			// 8-bit
-	Signal		bus_kout;			// 10-bit
+	SIG_P2001N_PA0,
+	SIG_P2001N_PA1,
+	SIG_P2001N_PA2,
+	SIG_P2001N_PA3,
+	SIG_P2001N_PA4,
+	SIG_P2001N_PA5,
+	SIG_P2001N_PA6,
+	SIG_P2001N_PA7,
+
+	SIG_P2001N_KIN0,
+	SIG_P2001N_KIN1,
+	SIG_P2001N_KIN2,
+	SIG_P2001N_KIN3,
+	SIG_P2001N_KIN4,
+	SIG_P2001N_KIN5,
+	SIG_P2001N_KIN6,
+	SIG_P2001N_KIN7,
+
+	SIG_P2001N_KOUT0,
+	SIG_P2001N_KOUT1,
+	SIG_P2001N_KOUT2,
+	SIG_P2001N_KOUT3,
+	SIG_P2001N_KOUT4,
+	SIG_P2001N_KOUT5,
+	SIG_P2001N_KOUT6,
+	SIG_P2001N_KOUT7,
+	SIG_P2001N_KOUT8,
+	SIG_P2001N_KOUT9,
+
+	// sheet 4: ROMS (no unique signals)
 
 	// sheet 5: RAMS
-	Signal		banksel;
-	Signal		g78;
+	SIG_P2001N_BANKSEL,
+	SIG_P2001N_G7_8,
 
-	Signal		bus_fa;				// 7-bit
-	Signal		bus_rd;				// 8-bit
+	SIG_P2001N_FA0,
+	SIG_P2001N_FA1,
+	SIG_P2001N_FA2,
+	SIG_P2001N_FA3,
+	SIG_P2001N_FA4,
+	SIG_P2001N_FA5,
+	SIG_P2001N_FA6,
+
+	SIG_P2001N_RD0,
+	SIG_P2001N_RD1,
+	SIG_P2001N_RD2,
+	SIG_P2001N_RD3,
+	SIG_P2001N_RD4,
+	SIG_P2001N_RD5,
+	SIG_P2001N_RD6,
+	SIG_P2001N_RD7,
 
 	// sheet 6: master timing
-	Signal		init_b;				// 1-bit - initialization of the master timing section
-	Signal		init;				// 1-bit
+	SIG_P2001N_INIT_B,				// 1-bit - initialization of the master timing section
+	SIG_P2001N_INIT,				// 1-bit
 
-	Signal		clk16;				// 1-bit - 16Mhz signal straight from the oscillator
-	Signal		clk8;				// 1-bit - 8Mhz clock signal (used for display section)
-	Signal		clk4;				// 1-bit - 4Mhz clock signal (visualisation only)
-	Signal		clk2;				// 1-bit - 2Mhz clock signal (visualisation only)
-	Signal		clk1;				// 1-bit - 1Mhz main clock
+	SIG_P2001N_CLK16,				// 1-bit - 16Mhz signal straight from the oscillator
+	SIG_P2001N_CLK8,				// 1-bit - 8Mhz clock signal (used for display section)
+	SIG_P2001N_CLK4,				// 1-bit - 4Mhz clock signal (visualisation only)
+	SIG_P2001N_CLK2,				// 1-bit - 2Mhz clock signal (visualisation only)
+	SIG_P2001N_CLK1,				// 1-bit - 1Mhz main clock
 
-	Signal		bphi2a;				// 8 phases of clk1
-	Signal		bphi2b;
-	Signal		bphi2c;
-	Signal		bphi2d;
-	Signal		bphi2e;
-	Signal		bphi2f;
-	Signal		bphi2g;
-	Signal		bphi2h;
+	SIG_P2001N_BPHI2A,				// 8 phases of clk1
+	SIG_P2001N_BPHI2B,
+	SIG_P2001N_BPHI2C,
+	SIG_P2001N_BPHI2D,
+	SIG_P2001N_BPHI2E,
+	SIG_P2001N_BPHI2F,
+	SIG_P2001N_BPHI2G,
+	SIG_P2001N_BPHI2H,
 
-	Signal		bphi2a_b;
-	Signal		bphi2b_b;
-	Signal		bphi2f_b;
-	Signal		bphi2g_b;
+	SIG_P2001N_BPHI2A_B,
+	SIG_P2001N_BPHI2B_B,
+	SIG_P2001N_BPHI2F_B,
+	SIG_P2001N_BPHI2G_B,
 
-	Signal		ra1;				// 1-bit - ram refresh address
-	Signal		ra1_b;
-	Signal		ra2;				// 1-bit - ram refresh address
-	Signal		ra3;				// 1-bit - ram refresh address
-	Signal		ra4;				// 1-bit - ram refresh address
-	Signal		ra5;				// 1-bit - ram refresh address
-	Signal		ra6;				// 1-bit - ram refresh address
-	Signal		ra6_b;
+	// -- ram refresh address
+	SIG_P2001N_RA1,
+	SIG_P2001N_RA2,
+	SIG_P2001N_RA3,
+	SIG_P2001N_RA4,
+	SIG_P2001N_RA5,
+	SIG_P2001N_RA6,
+	SIG_P2001N_RA7,					// used on sheet 8
+	SIG_P2001N_RA8,					// used on sheet 8
+	SIG_P2001N_RA9,					// used on sheet 8
 
-	Signal		ra1and3;
-	Signal		ra4and6;
-	Signal		ra5and6_b;
+	SIG_P2001N_RA1_B,
+	SIG_P2001N_RA6_B,
 
-	Signal		load_sr;
-	Signal		load_sr_b;
+	SIG_P2001N_RA1AND3,
+	SIG_P2001N_RA4AND6,
+	SIG_P2001N_RA5AND6_B,
 
-	Signal		horz_disp_on;
-	Signal		horz_disp_off;
-	Signal		horz_drive;
-	Signal		horz_drive_b;
+	SIG_P2001N_LOAD_SR,
+	SIG_P2001N_LOAD_SR_B,
 
-	Signal		h8q;
-	Signal		h8q_b;
-	Signal		h8q2;
-	Signal		h8q2_b;
+	SIG_P2001N_HORZ_DISP_ON,
+	SIG_P2001N_HORZ_DISP_OFF,
+	SIG_P2001N_HORZ_DRIVE,
+	SIG_P2001N_HORZ_DRIVE_B,
 
-	Signal		video_latch;
-	Signal		vert_drive;
+	SIG_P2001N_H8Q,
+	SIG_P2001N_H8Q_B,
+	SIG_P2001N_H8Q2,
+	SIG_P2001N_H8Q2_B,
 
-	Signal		h53;
-	Signal		h4y1;
-	Signal		muxa;
-	Signal		h4y4;
+	SIG_P2001N_VIDEO_LATCH,
+	SIG_P2001N_VERT_DRIVE,
 
-	Signal		h1q1;
-	Signal		h1q1_b;
-	Signal		h1q2;
-	Signal		h1q2_b;
+	SIG_P2001N_H53,
+	SIG_P2001N_H4Y1,
+	SIG_P2001N_MUXA,
+	SIG_P2001N_H4Y4,
 
-	Signal		ras0_b;
-	Signal		cas0_b;
-	Signal		cas1_b;
-	Signal		ba14_b;
+	SIG_P2001N_H1Q1,
+	SIG_P2001N_H1Q1_B,
+	SIG_P2001N_H1Q2,
+	SIG_P2001N_H1Q2_B,
 
-	Signal		video_on;			// 1-bit - vblank
+	SIG_P2001N_RAS0_B,
+	SIG_P2001N_CAS0_B,
+	SIG_P2001N_CAS1_B,
+	SIG_P2001N_BA14_B,
+
+	SIG_P2001N_VIDEO_ON,			// 1-bit - vblank
 
 	// sheet 7: display logic
-	Signal		tv_sel;
-	Signal		tv_read_b;
+	SIG_P2001N_TV_SEL,
+	SIG_P2001N_TV_READ_B,
 
-	Signal		g6_q;
-	Signal		g6_q_b;
+	SIG_P2001N_G6_Q,
+	SIG_P2001N_G6_Q_B,
 
-	Signal		tv_ram_rw;
-	Signal		f6_y3;
+	SIG_P2001N_TV_RAM_RW,
+	SIG_P2001N_F6_Y3,
 
-	Signal		bus_sa;				// 10-bit - display ram address bus
+	// -- display ram address bus
+	SIG_P2001N_SA0,
+	SIG_P2001N_SA1,
+	SIG_P2001N_SA2,
+	SIG_P2001N_SA3,
+	SIG_P2001N_SA4,
+	SIG_P2001N_SA5,
+	SIG_P2001N_SA6,
+	SIG_P2001N_SA7,
+	SIG_P2001N_SA8,
+	SIG_P2001N_SA9,
 
-	Signal		ga2;
-	Signal		ga3;
-	Signal		ga4;
-	Signal		ga5;
-	Signal		ga6;
-	Signal		ga7;
-	Signal		ga8;
-	Signal		ga9;
+	SIG_P2001N_GA2,
+	SIG_P2001N_GA3,
+	SIG_P2001N_GA4,
+	SIG_P2001N_GA5,
+	SIG_P2001N_GA6,
+	SIG_P2001N_GA7,
+	SIG_P2001N_GA8,
+	SIG_P2001N_GA9,
 
-	Signal		lga2;
-	Signal		lga3;
-	Signal		lga4;
-	Signal		lga5;
-	Signal		lga6;
-	Signal		lga7;
-	Signal		lga8;
-	Signal		lga9;
+	SIG_P2001N_LGA2,
+	SIG_P2001N_LGA3,
+	SIG_P2001N_LGA4,
+	SIG_P2001N_LGA5,
+	SIG_P2001N_LGA6,
+	SIG_P2001N_LGA7,
+	SIG_P2001N_LGA8,
+	SIG_P2001N_LGA9,
 
-	Signal		next;
-	Signal		next_b;
+	SIG_P2001N_NEXT,
+	SIG_P2001N_NEXT_B,
 
-	Signal		reload_next;
+	SIG_P2001N_RELOAD_NEXT,
 
-	Signal		pullup_2;
+	SIG_P2001N_PULLUP_2,
 
-	Signal		lines_20_b;
-	Signal		lines_200_b;
-	Signal		line_220;
-	Signal		lga_hi_b;
-	Signal		lga_hi;
-	Signal		w220_off;
+	SIG_P2001N_LINES_20_B,
+	SIG_P2001N_LINES_200_B,
+	SIG_P2001N_LINE_220,
+	SIG_P2001N_LGA_HI_B,
+	SIG_P2001N_LGA_HI,
+	SIG_P2001N_W220_OFF,
 
-	Signal		video_on_b;
+	SIG_P2001N_VIDEO_ON_B,
+
+	SIG_P2001N_A5_12,				// pin 12 of chip A5 (output of 3-input NAND)
 
 	// sheet 8: display rams
-	Signal		ra7;				// 1-bit - ram refresh address
-	Signal		ra8;				// 1-bit - ram refresh address
-	Signal		ra9;				// 1-bit - ram refresh address
-	Signal		reload_b;
-	Signal		pullup_1;
+	SIG_P2001N_RELOAD_B,
+	SIG_P2001N_PULLUP_1,
 
-	Signal		bus_sd;				// 8-bit - display ram databus
-	Signal		bus_lsd;			// 8-bit - latched dispay ram databus
-	Signal		bus_cd;				// 8-bit
+	// -- screen data bus
+	SIG_P2001N_SD0,
+	SIG_P2001N_SD1,
+	SIG_P2001N_SD2,
+	SIG_P2001N_SD3,
+	SIG_P2001N_SD4,
+	SIG_P2001N_SD5,
+	SIG_P2001N_SD6,
+	SIG_P2001N_SD7,
 
-	Signal		g9q;				// 1-bit
-	Signal		g9q_b;				// 1-bit
-	Signal		e11qh;				// 1-bit
-	Signal		e11qh_b;			// 1-bit
-	Signal		g106;				// 1-bit
-	Signal		g108;				// 1-bit
-	Signal		h108;				// 1-bit
+	// -- latched screen data bus
+	SIG_P2001N_LSD0,
+	SIG_P2001N_LSD1,
+	SIG_P2001N_LSD2,
+	SIG_P2001N_LSD3,
+	SIG_P2001N_LSD4,
+	SIG_P2001N_LSD5,
+	SIG_P2001N_LSD6,
+	SIG_P2001N_LSD7,
 
-	Signal		video;
-} DevCommodorePetSignals;
+	// -- character-ROM data
+	SIG_P2001N_CD0,
+	SIG_P2001N_CD1,
+	SIG_P2001N_CD2,
+	SIG_P2001N_CD3,
+	SIG_P2001N_CD4,
+	SIG_P2001N_CD5,
+	SIG_P2001N_CD6,
+	SIG_P2001N_CD7,
+
+	SIG_P2001N_G9Q,
+	SIG_P2001N_G9Q_B,
+	SIG_P2001N_E11QH,
+	SIG_P2001N_E11QH_B,
+	SIG_P2001N_G106,
+	SIG_P2001N_G108,
+	SIG_P2001N_H108,
+
+	SIG_P2001N_VIDEO,
+
+	SIG_P2001N_SIGNAL_COUNT
+};
+
+typedef Signal DevCommodorePetSignals[SIG_P2001N_SIGNAL_COUNT];
 
 typedef struct DevCommodorePet {
 	DEVICE_DECLARE_FUNCTIONS
@@ -305,7 +442,25 @@ typedef struct DevCommodorePet {
 	bool					in_reset;
 
 	// signals
+	SignalPool *			signal_pool;
 	DevCommodorePetSignals	signals;
+
+	SignalGroup				sg_cpu_address;
+	SignalGroup				sg_cpu_data;
+	SignalGroup				sg_buf_address;
+	SignalGroup				sg_buf_data;
+	SignalGroup				sg_mem_sel;
+	SignalGroup				sg_ieee488_di;
+	SignalGroup				sg_ieee488_do;
+	SignalGroup				sg_pa;
+	SignalGroup				sg_keyboard_in;
+	SignalGroup				sg_keyboard_out;
+	SignalGroup				sg_ram_address;
+	SignalGroup				sg_ram_data;
+	SignalGroup				sg_vram_address;
+	SignalGroup				sg_vram_data;
+	SignalGroup				sg_latched_vram_data;
+	SignalGroup				sg_char_data;
 } DevCommodorePet;
 
 // functions
