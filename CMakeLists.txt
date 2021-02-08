@@ -147,8 +147,6 @@ target_sources(${LIB_TARGET}
 		src/chip_ram_static.h
 		src/chip_rom.c
 		src/chip_rom.h
-		src/clock.c
-		src/clock.h
 		src/context.c
 		src/context.h
 		src/cpu.h
@@ -220,8 +218,6 @@ target_sources(${GUI_TARGET}
 		src/gui/panel_chip_6522.h
 		src/gui/panel_chip_hd44780.cpp
 		src/gui/panel_chip_hd44780.h
-		src/gui/panel_clock.cpp
-		src/gui/panel_clock.h
 		src/gui/panel_control.cpp
 		src/gui/panel_control.h
 		src/gui/panel_cpu_6502.cpp
@@ -348,7 +344,6 @@ target_sources(${TEST_TARGET}
 		src/test/test_chip_ram_dynamic.c
 		src/test/test_chip_ram_static.c
 		src/test/test_chip_rom.c
-		src/test/test_clock.c
 		src/test/test_cpu_6502.c
 		src/test/test_dev_commodore_pet.c
 		src/test/test_dev_minimal_6502.c

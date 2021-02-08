@@ -7,7 +7,6 @@
 #include "dev_commodore_pet.h"
 #include "filt_6502_asm.h"
 
-#include "panel_clock.h"
 #include "panel_control.h"
 #include "panel_dev_minimal_6502.h"
 #include "panel_dev_commodore_pet.h"
