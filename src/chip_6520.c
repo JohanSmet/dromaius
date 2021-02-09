@@ -263,9 +263,18 @@ void process_negative_enable_edge(Chip6520 *pia) {
 
 static inline void process_end(Chip6520 *pia) {
 
-	// always write to the non-tristate outputs
-	SIGNAL_WRITE(IRQA_B, PRIVATE(pia)->out_irqa_b);
-	SIGNAL_WRITE(IRQB_B, PRIVATE(pia)->out_irqb_b);
+	// the IRQ-lines are open-drain; output is either low (tied to ground) or hi-z (floating, to be pulled up externally)
+	if (!PRIVATE(pia)->out_irqa_b) {
+		SIGNAL_WRITE(IRQA_B, false);
+	} else {
+		SIGNAL_NO_WRITE(IRQA_B);
+	}
+
+	if (!PRIVATE(pia)->out_irqb_b) {
+		SIGNAL_WRITE(IRQB_B, false);
+	} else {
+		SIGNAL_NO_WRITE(IRQB_B);
+	}
 
 	// output on the ports
 	SIGNAL_GROUP_WRITE_MASKED(port_a, pia->reg_ora, pia->reg_ddra);

@@ -106,12 +106,6 @@ static void glue_logic_register_dependencies_01(ChipGlueLogic *chip) {
 	SIGNAL_DEPENDENCY(BA15);
 	SIGNAL_DEPENDENCY(RW);
 	SIGNAL_DEPENDENCY(CLK1);
-
-	signal_add_dependency(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQA_B], chip->id);
-	signal_add_dependency(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B], chip->id);
-	signal_add_dependency(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQA_B], chip->id);
-	signal_add_dependency(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQB_B], chip->id);
-	signal_add_dependency(SIGNAL_POOL, device->via->signals[CHIP_6522_IRQ_B], chip->id);
 }
 
 static void glue_logic_process_01(ChipGlueLogic *chip) {
@@ -179,17 +173,6 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	// >> pia logic
 	bool cs1 = x8xx && SIGNAL_READ(BA6);
 	SIGNAL_WRITE(CS1, cs1);
-
-	// >> irq logic: the 2001N wire-or's the irq lines of the chips and connects them to the cpu
-	//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
-	//		-> or the together explicitly
-	// FIXME: this only works if the pia's/via are processed before this chip, will be problematic when multithreading
-	bool irq_b = signal_read_next(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQA_B]) &&
-				 signal_read_next(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B]) &&
-				 signal_read_next(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQA_B]) &&
-				 signal_read_next(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQB_B]) &&
-				 signal_read_next(SIGNAL_POOL, device->via->signals[CHIP_6522_IRQ_B]);
-	SIGNAL_WRITE(IRQ_B, irq_b);
 }
 
 // glue-logic: cassette & keyboard
@@ -850,7 +833,9 @@ void circuit_create_02(DevCommodorePet *device) {
 										[CHIP_6520_PB6] = SIGNAL(DO6),
 										[CHIP_6520_PB7] = SIGNAL(DO7),
 										[CHIP_6520_CB1] = SIGNAL(SRQ_IN_B),
-										[CHIP_6520_CB2] = SIGNAL(DAV_OUT_B)
+										[CHIP_6520_CB2] = SIGNAL(DAV_OUT_B),
+										[CHIP_6520_IRQA_B] = SIGNAL(IRQ_B),
+										[CHIP_6520_IRQB_B] = SIGNAL(IRQ_B)
 	});
 	DEVICE_REGISTER_CHIP("C6", device->pia_1);
 }
@@ -895,7 +880,9 @@ void circuit_create_03(DevCommodorePet *device) {
 										[CHIP_6520_PB6] = SIGNAL(KIN6),
 										[CHIP_6520_PB7] = SIGNAL(KIN7),
 										[CHIP_6520_CB1] = SIGNAL(VIDEO_ON),
-										[CHIP_6520_CB2] = SIGNAL(CASS_MOTOR_1_B)
+										[CHIP_6520_CB2] = SIGNAL(CASS_MOTOR_1_B),
+										[CHIP_6520_IRQA_B] = SIGNAL(IRQ_B),
+										[CHIP_6520_IRQB_B] = SIGNAL(IRQ_B)
 	});
 	DEVICE_REGISTER_CHIP("C7", device->pia_2);
 
@@ -937,7 +924,8 @@ void circuit_create_03(DevCommodorePet *device) {
 										[CHIP_6522_PB6] = SIGNAL(NRFD_IN_B),
 										[CHIP_6522_PB7] = SIGNAL(DAV_IN_B),
 										[CHIP_6522_CB1] = SIGNAL(CASS_READ_2),
-										[CHIP_6522_CB2] = SIGNAL(CB2)
+										[CHIP_6522_CB2] = SIGNAL(CB2),
+										[CHIP_6522_IRQ_B] = SIGNAL(IRQ_B)
 	});
 	DEVICE_REGISTER_CHIP("C5", device->via);
 

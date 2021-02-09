@@ -236,8 +236,12 @@ static inline uint8_t read_register(Chip6522 *via) {
 
 static void process_end(Chip6522 *via) {
 
-	// always output on non-tristate pins
-	SIGNAL_WRITE(IRQ_B, PRIVATE(via)->out_irq);
+	// the IRQ-line is open-drain; output is either low (tied to ground) or hi-z (floating, to be pulled up externally)
+	if (!PRIVATE(via)->out_irq) {
+		SIGNAL_WRITE(IRQ_B, false);
+	} else {
+		SIGNAL_NO_WRITE(IRQ_B);
+	}
 
 	// output on the ports
 	SIGNAL_GROUP_WRITE_MASKED(port_a, via->reg_ora, via->reg_ddra);
