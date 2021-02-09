@@ -43,8 +43,8 @@ public:
 			for (size_t i = 0; i < signal_names.size(); ++i) {
 				ImGui::PushID(&signals[i]);
 				ImGui::Text("%s", signal_names[i].c_str()); ImGui::NextColumn();
-				ImGui::Text(signal_read_bool(signal_pool, signals[i]) ? "true" : "false"); ImGui::NextColumn();
-				ImGui::Text(signal_read_next_bool(signal_pool, signals[i]) ? "true" : "false"); ImGui::NextColumn();
+				ImGui::Text(signal_read(signal_pool, signals[i]) ? "true" : "false"); ImGui::NextColumn();
+				ImGui::Text(signal_read_next(signal_pool, signals[i]) ? "true" : "false"); ImGui::NextColumn();
 				if (ImGui::Button("Remove")) {
 					to_remove.push_back(static_cast<decltype(to_remove)::difference_type>(i));
 				}
@@ -66,7 +66,7 @@ public:
 			if (ImGui::InputText("##input", input, sizeof(input) - 1, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				auto signal = signal_by_name(signal_pool, input);
 
-				if (signal.count > 0) {
+				if (signal > 0) {
 					signal_names.push_back(input);
 					signals.push_back(signal);
 

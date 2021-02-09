@@ -1,6 +1,5 @@
 // test/test_cpu_6502.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"

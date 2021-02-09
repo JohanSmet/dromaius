@@ -1,6 +1,5 @@
 // test/test_input_keypad.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "input_keypad.h"
 #include "simulator.h"

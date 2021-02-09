@@ -2,8 +2,6 @@
 //
 // Power-On-Reset circuit
 
-#define SIGNAL_ARRAY_STYLE
-
 #include "chip_poweronreset.h"
 #include "simulator.h"
 

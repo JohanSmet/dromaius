@@ -137,10 +137,7 @@ export class MainUI {
 		for (var s = 0; s < sigkeys.size(); ++s) {
 			var sig_name = sigkeys.get(s);
 			var signal = signal_info.names.get(sig_name);
-
-			if (signal.count == 1) {
-				this.signal_css_vars[signal.start] = this.css_variable_for_signal(sig_name);
-			}
+			this.signal_css_vars[signal] = this.css_variable_for_signal(sig_name);
 		}
 	}
 

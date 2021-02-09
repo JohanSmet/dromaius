@@ -8,7 +8,6 @@
 //	- unclear what should happen to the CB-flags in IFR when shift register is activated
 //	- ...
 
-#define SIGNAL_ARRAY_STYLE
 #include "chip_6522.h"
 #include "simulator.h"
 

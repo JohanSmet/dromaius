@@ -1,6 +1,5 @@
 // test/test_rom_8d_16a.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "rom_8d_16a.h"
 #include "simulator.h"

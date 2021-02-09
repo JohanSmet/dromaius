@@ -1,6 +1,5 @@
 // test/test_chip_6522.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "chip_6522.h"
 #include "simulator.h"

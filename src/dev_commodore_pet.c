@@ -2,7 +2,6 @@
 //
 // Emulates a Commodore PET 2001N
 
-#define SIGNAL_ARRAY_STYLE
 #include "dev_commodore_pet.h"
 
 #include "utils.h"
@@ -185,11 +184,11 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	//		-> connecting the cpu's irq line to all the irq would just make us overwrite the values
 	//		-> or the together explicitly
 	// FIXME: this only works if the pia's/via are processed before this chip, will be problematic when multithreading
-	bool irq_b = signal_read_next_bool(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQA_B]) &&
-				 signal_read_next_bool(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B]) &&
-				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQA_B]) &&
-				 signal_read_next_bool(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQB_B]) &&
-				 signal_read_next_bool(SIGNAL_POOL, device->via->signals[CHIP_6522_IRQ_B]);
+	bool irq_b = signal_read_next(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQA_B]) &&
+				 signal_read_next(SIGNAL_POOL, device->pia_1->signals[CHIP_6520_IRQB_B]) &&
+				 signal_read_next(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQA_B]) &&
+				 signal_read_next(SIGNAL_POOL, device->pia_2->signals[CHIP_6520_IRQB_B]) &&
+				 signal_read_next(SIGNAL_POOL, device->via->signals[CHIP_6522_IRQ_B]);
 	SIGNAL_WRITE(IRQ_B, irq_b);
 }
 
@@ -2424,7 +2423,7 @@ size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, struct SignalB
 
 	static SignalBreak pet_irq[1] = {0};
 
-	if (pet_irq[0].signal.count == 0) {
+	if (pet_irq[0].signal == 0) {
 		pet_irq[0] = (SignalBreak) {SIGNAL(IRQ_B), false, true};
 	}
 

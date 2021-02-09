@@ -2,7 +2,6 @@
 //
 // Emulation of the PET 2001N 9" CRT Display
 
-#define SIGNAL_ARRAY_STYLE
 #include "perif_pet_crt.h"
 #include "simulator.h"
 

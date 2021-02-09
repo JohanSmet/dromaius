@@ -2,7 +2,6 @@
 //
 // Approximation of an oscillator circuit
 
-#define SIGNAL_ARRAY_STYLE
 #include "chip_oscillator.h"
 #include "simulator.h"
 

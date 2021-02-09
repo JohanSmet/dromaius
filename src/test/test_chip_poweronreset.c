@@ -1,7 +1,5 @@
 // test/test_chip_poweronreset.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#define SIGNAL_ARRAY_STYLE
-
 #include "munit/munit.h"
 #include "chip_poweronreset.h"
 #include "simulator.h"
@@ -13,8 +11,8 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 
 	Simulator *sim = simulator_create(1000);
 
-	Signal sig_reset_b = signal_create(sim->signal_pool, 1);
-	signal_default_bool(sim->signal_pool, sig_reset_b, ACTLO_ASSERT);
+	Signal sig_reset_b = signal_create(sim->signal_pool);
+	signal_default(sim->signal_pool, sig_reset_b, ACTLO_ASSERT);
 
 	PowerOnReset *por = poweronreset_create(250000, sim, (PowerOnResetSignals) {sig_reset_b});
 

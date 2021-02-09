@@ -2,7 +2,6 @@
 //
 // Emulation of various dynamic random access memory chips
 
-#define SIGNAL_ARRAY_STYLE
 #include "chip_ram_dynamic.h"
 #include "simulator.h"
 

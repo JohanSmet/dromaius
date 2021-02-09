@@ -16,7 +16,7 @@ struct StepSignal {
 	bool	neg_edge;
 };
 
-[[maybe_unused]] constexpr StepSignal STEP_SIGNAL_NONE = {{0, 0}, false, false};
+[[maybe_unused]] constexpr StepSignal STEP_SIGNAL_NONE = {0, false, false};
 
 // functions
 Panel::uptr_t panel_control_create( class UIContext *ctx, struct ImVec2 pos,

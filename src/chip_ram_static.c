@@ -2,7 +2,6 @@
 //
 // Emulation of various static random access memory chips
 
-#define SIGNAL_ARRAY_STYLE
 #include "chip_ram_static.h"
 #include "simulator.h"
 

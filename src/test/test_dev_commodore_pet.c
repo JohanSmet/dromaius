@@ -1,6 +1,5 @@
 // test/test_dev_commodore_pet.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "dev_commodore_pet.h"
 #include "chip_ram_static.h"
@@ -40,18 +39,18 @@ static uint8_t  override_bus_bd = 0;
 
 static void override_cpu_process(Cpu6502 *cpu) {
 	signal_group_write(cpu->signal_pool, cpu->sg_address, override_bus_address, cpu->id);
-	signal_write_bool(cpu->signal_pool, cpu->signals[PIN_6502_RW], override_cpu_rw, cpu->id);
+	signal_write(cpu->signal_pool, cpu->signals[PIN_6502_RW], override_cpu_rw, cpu->id);
 	if (override_cpu_rw == CPU_WRITE) {
 		signal_group_write(cpu->signal_pool, cpu->sg_data, override_bus_data, cpu->id);
 	}
 }
 
 static void override_ram_process(Chip8x4116DRam *ram) {
-	signal_write_uint8(ram->signal_pool, (Signal) {ram->signals[CHIP_4116_DO0].start, 8}, override_bus_bd, ram->id);
+	signal_group_write(ram->signal_pool, ram->sg_dout, override_bus_bd, ram->id);
 }
 
 static void override_ram_process_lite(Ram8d16a *ram) {
-	signal_write_uint8(ram->signal_pool, (Signal) {ram->signals[CHIP_RAM8D16A_D0].start, 8}, override_bus_bd, ram->id);
+	signal_group_write(ram->signal_pool, ram->sg_data, override_bus_bd, ram->id);
 }
 
 static void override_do_nothing(void *device) {

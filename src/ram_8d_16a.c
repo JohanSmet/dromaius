@@ -2,7 +2,6 @@
 //
 // Emulation of a memory module with an 8-bit wide databus and a maximum of 16 datalines (64kb)
 
-#define SIGNAL_ARRAY_STYLE
 #include "ram_8d_16a.h"
 #include "simulator.h"
 

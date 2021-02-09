@@ -68,7 +68,7 @@ public:
 
 	void context_select_step_clock(const std::string &signal_name) {
 		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
-		if (signal.start != 0) {
+		if (signal != 0) {
 			step_clock = signal;
 		}
 	}
@@ -214,7 +214,7 @@ public:
 		auto pool = pet_device->simulator->signal_pool;
 
 		for (ptrdiff_t idx = 0; idx < arrlen(bps); ++idx) {
-			result.push_back(pool->signals_name[bps[idx].signal.start]);
+			result.push_back(pool->signals_name[bps[idx].signal]);
 		}
 
 		return result;
@@ -222,14 +222,14 @@ public:
 
 	void breakpoint_signal_set(const std::string &signal_name) {
 		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
-		if (signal.count != 0) {
+		if (signal != 0) {
 			dms_breakpoint_signal_set(dms_ctx, signal, true, true);
 		}
 	}
 
 	void breakpoint_signal_clear(const std::string &signal_name) {
 		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
-		if (signal.count != 0) {
+		if (signal != 0) {
 			dms_breakpoint_signal_clear(dms_ctx, signal);
 		}
 	}
@@ -245,7 +245,7 @@ public:
 		auto pool = pet_device->simulator->signal_pool;
 		SignalInfo	result;
 
-		result.count = arrlenu(pool->signals_curr);
+		result.count = 1;
 
 		for (int s = 0; s < shlen(pool->signal_names); ++s) {
 			std::string name = pool->signal_names[s].key;
@@ -265,13 +265,13 @@ public:
 		result.value = 0;
 		result.writer_id = -1;
 
-		if (result.signal.count > 0) {
+		if (result.signal > 0) {
 			// writer (FIXME: return multiple writers)
-			result.writer_id = bit_lowest_set(pool->signals_writers[result.signal.start]);
+			result.writer_id = bit_lowest_set(pool->signals_writers[result.signal]);
 			result.writer_name = simulator_chip_name(pet_device->simulator, result.writer_id);
 
 			// value
-			result.value = signal_read_next_uint16(pet_device->simulator->signal_pool, result.signal);
+			result.value = signal_read_next(pet_device->simulator->signal_pool, result.signal);
 		}
 
 		return result;
@@ -321,11 +321,6 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 	register_vector<std::string>("VectorString");
 	register_vector<DmsApi::KeyInfo>("VectorKeyInfo");
 	register_map<std::string, Signal>("MapStringSignal");
-
-	value_object<Signal>("Signal")
-		.field("start", &Signal::start)
-		.field("count", &Signal::count)
-		;
 
 	value_object<Cpu6502>("Cpu6502")
 		.field("reg_a", &Cpu6502::reg_a)

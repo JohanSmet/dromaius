@@ -2,7 +2,6 @@
 //
 // Emulates a minimal MOS-6502 based system, with 32kb of RAM and a 16kb system ROM.
 
-#define SIGNAL_ARRAY_STYLE
 #include "dev_minimal_6502.h"
 
 #include "utils.h"
@@ -391,7 +390,7 @@ size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, struct SignalBre
 
 	static SignalBreak irqs[1] = {0};
 
-	if (irqs[0].signal.count == 0) {
+	if (irqs[0].signal == 0) {
 		irqs[0] = (SignalBreak) {SIGNAL(CPU_IRQ_B), false, true};
 	}
 

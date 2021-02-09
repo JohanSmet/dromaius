@@ -2,7 +2,6 @@
 //
 // UI panel to display information about a 6520 Peripheral Interace Adapter
 
-#define SIGNAL_ARRAY_STYLE
 #include "panel_chip_6520.h"
 #include "chip_6520.h"
 #include "context.h"

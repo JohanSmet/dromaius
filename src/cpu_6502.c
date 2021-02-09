@@ -2,7 +2,6 @@
 //
 // Emulation of the MOS 6502
 
-#define SIGNAL_ARRAY_STYLE
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
 #include "simulator.h"

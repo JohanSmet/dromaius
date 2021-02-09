@@ -2,7 +2,6 @@
 //
 // Emulation of a Commodore 1530 Datasette
 
-#define SIGNAL_ARRAY_STYLE
 #include "perif_datassette_1530.h"
 #include "simulator.h"
 

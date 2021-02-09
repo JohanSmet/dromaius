@@ -81,7 +81,7 @@ export class PanelSignalDetails extends Panel {
 		const details = this.dmsapi.signal_details(signal_name);
 
 		// visibility of data
-		if (details.signal.count > 0) {
+		if (details.signal > 0) {
 			this.panel_content.children('#data').removeClass('hidden');
 			this.panel_content.children('#no_data').addClass('hidden');
 		} else {
@@ -93,11 +93,7 @@ export class PanelSignalDetails extends Panel {
 		this.panel_content.find('#signal_name').text(signal_name);
 		this.panel_content.find('#signal_writer').text(details.writer_name);
 
-		if (details.signal.count == 1) {
-			this.panel_content.find('#signal_value').text(format_bool(details.value));
-		} else {
-			this.panel_content.find('#signal_value').text(format_hex(details.value));
-		}
+		this.panel_content.find('#signal_value').text(format_bool(details.value));
 	}
 
 	// public callbacks

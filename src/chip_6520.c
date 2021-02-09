@@ -2,7 +2,6 @@
 //
 // Emulation of the 6520 Peripheral Interface Adapter
 
-#define SIGNAL_ARRAY_STYLE
 #include "chip_6520.h"
 #include "simulator.h"
 

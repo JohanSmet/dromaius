@@ -2,7 +2,6 @@
 //
 // Partial emulation of the HD44780 Dot Matrix LCD Controller/Driver
 
-#define SIGNAL_ARRAY_STYLE
 #include "chip_hd44780.h"
 #include "simulator.h"
 

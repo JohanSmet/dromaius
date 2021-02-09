@@ -2,7 +2,6 @@
 //
 // Emulation of read-only memory modules
 
-#define SIGNAL_ARRAY_STYLE
 #include "chip_rom.h"
 #include "simulator.h"
 

@@ -2,7 +2,6 @@
 //
 // UI panel to display the LCD output of a Hitachi HD44780 LCD Controller/Driver
 
-#define SIGNAL_ARRAY_STYLE
 #include "panel_chip_hd44780.h"
 #include "chip_hd44780.h"
 #include "context.h"

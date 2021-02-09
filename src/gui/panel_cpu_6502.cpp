@@ -2,7 +2,6 @@
 //
 // UI panel to display information about a MOS 6502
 
-#define SIGNAL_ARRAY_STYLE
 #include "panel_cpu_6502.h"
 
 #include "widgets.h"

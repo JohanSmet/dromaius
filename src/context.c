@@ -108,7 +108,7 @@ static inline bool signal_breakpoint_check(DmsContext *dms, SignalBreak *bp) {
 		return false;
 	}
 
-	bool value = signal_read_bool(dms->simulator->signal_pool, bp->signal);
+	bool value = signal_read(dms->simulator->signal_pool, bp->signal);
 	return ((!value && bp->neg_edge) || (value && bp->pos_edge));
 }
 
@@ -388,7 +388,7 @@ void dms_single_step(DmsContext *dms) {
 	}
 }
 
-void dms_step_signal(struct DmsContext *dms, struct Signal signal, bool pos_edge, bool neg_edge) {
+void dms_step_signal(struct DmsContext *dms, Signal signal, bool pos_edge, bool neg_edge) {
 	assert(dms);
 
 	if (dms->config_usr.state == DS_WAIT) {
@@ -566,7 +566,7 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 	} else if (cmd[0] == 'b' && cmd[1] == 's') {		// toggle "b"reak on signal change
 		Signal signal = signal_by_name(dms->simulator->signal_pool, cmd + 3);
 
-		if (signal.count != 0) {
+		if (signal != 0) {
 			static const char *disp_break[] = {"unset", "set"};
 			bool set = dms_toggle_signal_breakpoint(dms, signal);
 			arr_printf(*reply, "OK: signal-change breakpoint on %s %s", cmd + 3, disp_break[set]);

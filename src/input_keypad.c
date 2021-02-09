@@ -2,7 +2,6 @@
 //
 // configurable keypad
 
-#define SIGNAL_ARRAY_STYLE
 #include "input_keypad.h"
 #include "simulator.h"
 
@@ -154,11 +153,11 @@ void input_keypad_process(InputKeypad *keypad) {
 		uint32_t r = k / (uint32_t) keypad->col_count;
 		uint32_t c = k - (r * (uint32_t) keypad->col_count);
 
-		bool input = signal_read_bool(SIGNAL_POOL, keypad->sg_rows[r]);
+		bool input = signal_read(SIGNAL_POOL, keypad->sg_rows[r]);
 		if (input != keypad->active_high) {
 			continue;
 		}
-		signal_write_bool(SIGNAL_POOL, keypad->sg_cols[c], input, keypad->id);
+		signal_write(SIGNAL_POOL, keypad->sg_cols[c], input, keypad->id);
 	}
 }
 

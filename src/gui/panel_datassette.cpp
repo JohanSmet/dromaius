@@ -1,6 +1,5 @@
 // gui/panel_datassette.h - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#define SIGNAL_ARRAY_STYLE
 #include "panel_datassette.h"
 #include "ui_context.h"
 

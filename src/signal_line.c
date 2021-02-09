@@ -81,6 +81,10 @@ const uint64_t lut_bit_to_byte[256] = {
 SignalPool *signal_pool_create(void) {
 	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool));
 	sh_new_arena(pool->signal_names);
+
+	// NULL-signal: to detect uninitialized signals
+	signal_create(pool);
+
 	return pool;
 }
 
@@ -168,29 +172,18 @@ uint64_t signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick) {
 	return dirty_chips;
 }
 
-Signal signal_create(SignalPool *pool, uint32_t size) {
+Signal signal_create(SignalPool *pool) {
 	assert(pool);
-	assert(size > 0);
 
-	Signal result = {(uint32_t) arrlenu(pool->signals_curr), size};
+	Signal result = (uint32_t) arrlenu(pool->signals_curr);
 
-	arrsetcap(pool->signals_changed, arrlenu(pool->signals_changed) + size);
-	arrsetcap(pool->signals_curr, arrlenu(pool->signals_curr) + size);
-	arrsetcap(pool->signals_next, arrlenu(pool->signals_next) + size);
-	arrsetcap(pool->signals_default, arrlenu(pool->signals_default) + size);
-	arrsetcap(pool->signals_writers, arrlenu(pool->signals_default) + size);
-	arrsetcap(pool->signals_name, arrlenu(pool->signals_name) + size);
-	arrsetcap(pool->dependent_components, arrlenu(pool->dependent_components) + size);
-
-	for (uint32_t i = 0; i < size; ++i) {
-		arrpush(pool->signals_changed, false);
-		arrpush(pool->signals_curr, false);
-		arrpush(pool->signals_next, false);
-		arrpush(pool->signals_default, false);
-		arrpush(pool->signals_name, NULL);
-		arrpush(pool->signals_writers, 0);
-		arrpush(pool->dependent_components, 0);
-	}
+	arrpush(pool->signals_changed, false);
+	arrpush(pool->signals_curr, false);
+	arrpush(pool->signals_next, false);
+	arrpush(pool->signals_default, false);
+	arrpush(pool->signals_name, NULL);
+	arrpush(pool->signals_writers, 0);
+	arrpush(pool->dependent_components, 0);
 
 	return result;
 }
@@ -199,24 +192,14 @@ void signal_set_name(SignalPool *pool, Signal signal, const char *name) {
 	assert(pool);
 	assert(name);
 
-	if (signal.count == 1) {
-		shput(pool->signal_names, name, signal);
-		pool->signals_name[signal.start] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
-	} else {
-		char sub_name[MAX_SIGNAL_NAME];
-		for (uint32_t i = 0; i < signal.count; ++i) {
-			snprintf(sub_name, MAX_SIGNAL_NAME, name, i);
-			shput(pool->signal_names, sub_name, signal_split(signal, i, 1));
-			pool->signals_name[signal.start+i] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
-		}
-	}
+	shput(pool->signal_names, name, signal);
+	pool->signals_name[signal] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
 }
 
 const char * signal_get_name(SignalPool *pool, Signal signal) {
 	assert(pool);
-	assert(signal.count == 1);
 
-	const char *name = pool->signals_name[signal.start];
+	const char *name = pool->signals_name[signal];
 	return (name == NULL) ? "" : name;
 }
 
@@ -225,43 +208,15 @@ void signal_add_dependency(SignalPool *pool, Signal signal, int32_t chip_id) {
 	assert(chip_id >= 0 && chip_id < 64);
 
 	uint64_t dep_mask = 1ull << chip_id;
-
-	for (uint32_t i = 0; i < signal.count; ++i) {
-		pool->dependent_components[signal.start + i] |= dep_mask;
-	}
+	pool->dependent_components[signal] |= dep_mask;
 }
 
-void signal_default_bool(SignalPool *pool, Signal signal, bool value) {
+void signal_default(SignalPool *pool, Signal signal, bool value) {
 	assert(pool);
-	assert(signal.count == 1);
 
-	pool->signals_default[signal.start] = value;
-	pool->signals_curr[signal.start] = value;
-	pool->signals_next[signal.start] = value;
-}
-
-void signal_default_uint8(SignalPool *pool, Signal signal, uint8_t value) {
-	assert(pool);
-	assert(signal.count <= 8);
-
-	for (uint32_t i = 0; i < signal.count; ++i) {
-		pool->signals_default[signal.start + i] = value & 1;
-		pool->signals_curr[signal.start + i] = value & 1;
-		pool->signals_next[signal.start + i] = value & 1;
-		value >>= 1;
-	}
-}
-
-void signal_default_uint16(SignalPool *pool, Signal signal, uint16_t value) {
-	assert(pool);
-	assert(signal.count <= 16);
-
-	for (uint32_t i = 0; i < signal.count; ++i) {
-		pool->signals_default[signal.start + i] = value & 1;
-		pool->signals_curr[signal.start + i] = value & 1;
-		pool->signals_next[signal.start + i] = value & 1;
-		value >>= 1;
-	}
+	pool->signals_default[signal] = value;
+	pool->signals_curr[signal] = value;
+	pool->signals_next[signal] = value;
 }
 
 Signal signal_by_name(SignalPool *pool, const char *name) {
@@ -282,6 +237,6 @@ void signal_group_set_name(SignalPool *pool, SignalGroup sg, const char *group_n
 	for (uint32_t i = 0; i < signal_group_size(sg); ++i) {
 		snprintf(sub_name, MAX_SIGNAL_NAME, signal_name, i + start_idx);
 		shput(pool->signal_names, sub_name, sg[i]);
-		pool->signals_name[sg[i].start] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
+		pool->signals_name[sg[i]] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
 	}
 }

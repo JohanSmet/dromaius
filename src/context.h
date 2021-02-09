@@ -4,6 +4,7 @@
 #define DROMAIUS_CONTEXT_H
 
 #include "types.h"
+#include "signal_line.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,8 +22,6 @@ typedef enum DMS_STATE {
 
 struct DmsContext;
 struct Device;
-struct Signal;
-struct SignalBreak;
 
 // functions
 struct DmsContext *dms_create_context(void);
@@ -43,7 +42,7 @@ void dms_execute(struct DmsContext *dms);
 void dms_execute_no_sync(struct DmsContext *dms);
 
 void dms_single_step(struct DmsContext *dms);
-void dms_step_signal(struct DmsContext *dms, struct Signal signal, bool pos_edge, bool neg_edge);
+void dms_step_signal(struct DmsContext *dms, Signal signal, bool pos_edge, bool neg_edge);
 void dms_run(struct DmsContext *dms);
 void dms_pause(struct DmsContext *dms);
 void dms_reset(struct DmsContext *dms);
@@ -51,9 +50,9 @@ void dms_reset(struct DmsContext *dms);
 void dms_change_simulation_speed_ratio(struct DmsContext *dms, double ratio);
 double dms_simulation_speed_ratio(struct DmsContext *dms);
 
-struct SignalBreak *dms_breakpoint_signal_list(struct DmsContext *dms);
-void dms_breakpoint_signal_set(struct DmsContext *dms, struct Signal signal, bool pos_edge, bool neg_edge);
-void dms_breakpoint_signal_clear(struct DmsContext *dms, struct Signal signal);
+SignalBreak *dms_breakpoint_signal_list(struct DmsContext *dms);
+void dms_breakpoint_signal_set(struct DmsContext *dms, Signal signal, bool pos_edge, bool neg_edge);
+void dms_breakpoint_signal_clear(struct DmsContext *dms, Signal signal);
 
 void dms_break_on_irq_set(struct DmsContext *dms);
 void dms_break_on_irq_clear(struct DmsContext *dms);

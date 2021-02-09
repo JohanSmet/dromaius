@@ -1,6 +1,5 @@
 // test/test_chip_74xxx.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "chip_74xxx.h"
 #include "simulator.h"

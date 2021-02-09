@@ -1,6 +1,5 @@
 // test/test_chip_ram_static.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#define SIGNAL_ARRAY_STYLE
 #include "munit/munit.h"
 #include "chip_ram_static.h"
 #include "simulator.h"

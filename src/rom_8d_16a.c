@@ -2,7 +2,6 @@
 //
 // Emulation of a read-only memory module with an 8-bit wide databus and a maximum of 16 datalines (e.g. a 27c512)
 
-#define SIGNAL_ARRAY_STYLE
 #include "rom_8d_16a.h"
 #include "simulator.h"
 
