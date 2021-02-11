@@ -102,37 +102,7 @@ void signal_pool_destroy(SignalPool *pool) {
 	free(pool);
 }
 
-void signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
-
-	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
-	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
-
-	#if DMS_SIGNAL_TRACING
-		signal_trace_mark_timestep(pool->trace, current_tick);
-	#endif
-
-	memset(pool->signals_changed, false, arrlenu(pool->signals_changed));
-
-	for (size_t i = 0; i < arrlenu(pool->signals_written); ++i) {
-		uint32_t s = pool->signals_written[i];
-		if (pool->signals_curr[s] != pool->signals_next[s]) {
-			pool->signals_changed[s] = true;
-			pool->signals_curr[s] = pool->signals_next[s];
-			#if DMS_SIGNAL_TRACING
-				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
-			#endif
-		}
-	}
-
-	pool->tick_last_cycle = current_tick;
-	pool->rerun_chips = 0;
-
-	if (pool->signals_written) {
-		stbds_header(pool->signals_written)->length = 0;
-	}
-}
-
-uint64_t signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick) {
+uint64_t signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
 	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
 	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
 

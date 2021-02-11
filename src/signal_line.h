@@ -60,8 +60,7 @@ extern const uint64_t lut_bit_to_byte[256];
 SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
 
-void signal_pool_cycle(SignalPool *pool, int64_t current_tick);
-uint64_t signal_pool_cycle_dirty_flags(SignalPool *pool, int64_t current_tick);
+uint64_t signal_pool_cycle(SignalPool *pool, int64_t current_tick);
 
 Signal signal_create(SignalPool *pool);
 void signal_set_name(SignalPool *pool, Signal Signal, const char *name);

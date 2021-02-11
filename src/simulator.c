@@ -157,7 +157,7 @@ void simulator_simulate_timestep(Simulator *sim) {
 	sim_process_sequential(PRIVATE(sim), sim->signal_pool->rerun_chips);
 
 	// determine changed signals and dirty chips for next simulation step
-	PRIVATE(sim)->dirty_chips = signal_pool_cycle_dirty_flags(sim->signal_pool, sim->current_tick);
+	PRIVATE(sim)->dirty_chips = signal_pool_cycle(sim->signal_pool, sim->current_tick);
 }
 
 void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp) {
