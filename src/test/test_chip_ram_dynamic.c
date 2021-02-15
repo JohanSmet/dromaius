@@ -8,7 +8,7 @@
 #define SIGNAL_OWNER		chip
 
 static inline void ram_8x4116_cycle(Chip8x4116DRam *chip) {
-	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	signal_pool_cycle(chip->signal_pool);
 	chip->simulator->current_tick += 1;
 	chip->process(chip);
 }

@@ -30,9 +30,9 @@
 
 static inline void cpu_half_cycle(Cpu6502 *cpu) {
 	SIGNAL_WRITE(CLK, !SIGNAL_READ(CLK));
-	signal_pool_cycle(cpu->signal_pool, 1);
+	signal_pool_cycle(cpu->signal_pool);
 	cpu->process(cpu);
-	signal_pool_cycle(cpu->signal_pool, 1);
+	signal_pool_cycle(cpu->signal_pool);
 	cpu->process(cpu);
 }
 

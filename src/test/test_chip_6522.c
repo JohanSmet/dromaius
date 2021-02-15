@@ -68,7 +68,7 @@ static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
 	// run chip with reset asserted
 	SIGNAL_WRITE(PHI2, false);
 	SIGNAL_WRITE(RESET_B, ACTLO_ASSERT);
-	signal_pool_cycle(via->signal_pool, 1);
+	signal_pool_cycle(via->signal_pool);
 	via->process(via);
 
 	// deassert reset
@@ -89,7 +89,7 @@ static inline void strobe_via(Chip6522 *via, bool strobe) {
 
 static inline void half_clock_cycle(Chip6522 *via) {
 	SIGNAL_WRITE(PHI2, !SIGNAL_READ(PHI2));
-	signal_pool_cycle(via->signal_pool, 1);
+	signal_pool_cycle(via->signal_pool);
 	via->process(via);
 }
 
@@ -127,7 +127,7 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 
 	// run via with reset asserted
 	SIGNAL_WRITE(RESET_B, ACTLO_ASSERT);
-	signal_pool_cycle(via->signal_pool, 1);
+	signal_pool_cycle(via->signal_pool);
 	via->process(via);
 
 	// registers should have been cleared (except T1, T2 and SR)

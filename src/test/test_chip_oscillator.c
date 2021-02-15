@@ -41,27 +41,27 @@ static MunitResult test_clock(const MunitParameter params[], void *user_data_or_
 
 	Oscillator *tmr = oscillator_create(1000000, sim, (OscillatorSignals) {0});
 
-	signal_pool_cycle(tmr->signal_pool, sim->current_tick);
+	signal_pool_cycle(tmr->signal_pool);
 	tmr->process(tmr);
 	munit_assert_false(SIGNAL_READ_NEXT(CLK_OUT));
 
 	sim->current_tick += 250;
-	signal_pool_cycle(tmr->signal_pool, sim->current_tick);
+	signal_pool_cycle(tmr->signal_pool);
 	tmr->process(tmr);
 	munit_assert_false(SIGNAL_READ_NEXT(CLK_OUT));
 
 	sim->current_tick += 250;
-	signal_pool_cycle(tmr->signal_pool, sim->current_tick);
+	signal_pool_cycle(tmr->signal_pool);
 	tmr->process(tmr);
 	munit_assert_true(SIGNAL_READ_NEXT(CLK_OUT));
 
 	sim->current_tick += 250;
-	signal_pool_cycle(tmr->signal_pool, sim->current_tick);
+	signal_pool_cycle(tmr->signal_pool);
 	tmr->process(tmr);
 	munit_assert_true(SIGNAL_READ_NEXT(CLK_OUT));
 
 	sim->current_tick += 250;
-	signal_pool_cycle(tmr->signal_pool, sim->current_tick);
+	signal_pool_cycle(tmr->signal_pool);
 	tmr->process(tmr);
 	munit_assert_false(SIGNAL_READ_NEXT(CLK_OUT));
 

@@ -33,7 +33,7 @@ MunitResult test_read(const MunitParameter params[], void *user_data_or_fixture)
 		SIGNAL_WRITE(OE_B, ACTLO_ASSERT);
 		SIGNAL_WRITE(WE_B, ACTLO_DEASSERT);
 		SIGNAL_GROUP_WRITE(address, i);
-		signal_pool_cycle(ram->signal_pool, 1);
+		signal_pool_cycle(ram->signal_pool);
 
 		ram->process(ram);
 		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, i & 0xff);
@@ -53,12 +53,12 @@ MunitResult test_write(const MunitParameter params[], void *user_data_or_fixture
 		SIGNAL_WRITE(WE_B, ACTLO_ASSERT);
 		SIGNAL_GROUP_WRITE(address, i);
 		SIGNAL_GROUP_WRITE(data, i & 0xff);
-		signal_pool_cycle(ram->signal_pool, 1);
+		signal_pool_cycle(ram->signal_pool);
 		ram->process(ram);
 
 		SIGNAL_WRITE(CE_B, ACTLO_DEASSERT);
 		SIGNAL_WRITE(WE_B, ACTLO_DEASSERT);
-		signal_pool_cycle(ram->signal_pool, 1);
+		signal_pool_cycle(ram->signal_pool);
 		ram->process(ram);
 		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x00);
 	}

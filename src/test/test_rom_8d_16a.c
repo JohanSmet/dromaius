@@ -27,18 +27,18 @@ static MunitResult test_read(const MunitParameter params[], void *user_data_or_f
 	Rom8d16a *rom = (Rom8d16a *) user_data_or_fixture;
 
 	SIGNAL_WRITE(CE_B, ACTLO_DEASSERT);
-	signal_pool_cycle(rom->signal_pool, rom->simulator->current_tick);
+	signal_pool_cycle(rom->signal_pool);
 
 	for (uint32_t i = 0; i <= 0xffff; ++i) {
 		SIGNAL_WRITE(CE_B, ACTLO_ASSERT);
 		SIGNAL_GROUP_WRITE(address, i);
-		signal_pool_cycle(rom->signal_pool, rom->simulator->current_tick);
+		signal_pool_cycle(rom->signal_pool);
 		rom->simulator->current_tick += 1;
 
 		rom->process(rom);
 		munit_assert_int64(rom->schedule_timestamp, !=, 0);
 
-		signal_pool_cycle(rom->signal_pool, rom->simulator->current_tick);
+		signal_pool_cycle(rom->signal_pool);
 		rom->simulator->current_tick += 1;
 		rom->schedule_timestamp = 0;
 
@@ -56,29 +56,29 @@ static MunitResult test_ce(const MunitParameter params[], void *user_data_or_fix
 
 	SIGNAL_WRITE(CE_B, ACTLO_DEASSERT);
 	SIGNAL_GROUP_WRITE(address, 0x1635);
-	signal_pool_cycle(rom->signal_pool, rom->simulator->current_tick);
+	signal_pool_cycle(rom->signal_pool);
 	rom->simulator->current_tick += 1;
 	rom->process(rom);
 	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0);
 
-	signal_pool_cycle(rom->signal_pool, rom->simulator->current_tick);
+	signal_pool_cycle(rom->signal_pool);
 	rom->simulator->current_tick += 1;
 	rom->process(rom);
 	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0);
 
 	SIGNAL_WRITE(CE_B, ACTLO_ASSERT);
 	SIGNAL_GROUP_WRITE(address, 0x1635);
-	signal_pool_cycle(rom->signal_pool, rom->simulator->current_tick);
+	signal_pool_cycle(rom->signal_pool);
 	rom->simulator->current_tick += 1;
 	rom->process(rom);
-	signal_pool_cycle(rom->signal_pool, rom->simulator->current_tick);
+	signal_pool_cycle(rom->signal_pool);
 	rom->simulator->current_tick += 1;
 	rom->process(rom);
 	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0x35);
 
 	SIGNAL_WRITE(CE_B, ACTLO_DEASSERT);
 	SIGNAL_GROUP_WRITE(address, 0x12AF);
-	signal_pool_cycle(rom->signal_pool, rom->simulator->current_tick);
+	signal_pool_cycle(rom->signal_pool);
 	rom->simulator->current_tick += 1;
 	rom->process(rom);
 	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(data), ==, 0);

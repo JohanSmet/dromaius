@@ -91,10 +91,11 @@ SignalPool *signal_pool_create(void) {
 void signal_pool_destroy(SignalPool *pool) {
 	assert(pool);
 
-	arrfree(pool->signals_curr);
-	arrfree(pool->signals_next);
-	arrfree(pool->signals_default);
+	arrfree(pool->signals_value);
 	arrfree(pool->signals_writers);
+	arrfree(pool->signals_next_value);
+	arrfree(pool->signals_next_writers);
+	arrfree(pool->signals_default);
 	arrfree(pool->signals_name);
 	arrfree(pool->signals_changed);
 	arrfree(pool->dependent_components);
@@ -102,41 +103,75 @@ void signal_pool_destroy(SignalPool *pool) {
 	free(pool);
 }
 
-uint64_t signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
-	assert(arrlenu(pool->signals_curr) == arrlenu(pool->signals_next));
-	assert(arrlenu(pool->signals_default) == arrlenu(pool->signals_next));
+static inline uint64_t signal_pool_process_high_impedance__internal(SignalPool *pool) {
+	assert(pool);
 
-	#if DMS_SIGNAL_TRACING
-		signal_trace_mark_timestep(pool->trace, current_tick);
-	#endif
+	uint64_t rerun_chips = 0;
 
+	for (size_t i = 0, n = arrlenu(pool->signals_highz_queue); i < n; ++i) {
+		const Signal s = pool->signals_highz_queue[i].signal;
+		const uint64_t w_mask = pool->signals_highz_queue[i].writer_mask;
+
+		// clear the corresponding bit in the writers mask
+		pool->signals_writers[s] &= ~w_mask;
+
+		if (pool->signals_writers[s] != 0) {
+			rerun_chips |= pool->signals_writers[s];
+		} else {
+			arrpush(pool->signals_write_queue[0], ((SignalQueueWrite) {
+													.signal = s,
+													.new_value = pool->signals_default[s]
+												}));
+		}
+	}
+
+	if (pool->signals_highz_queue) {
+		stbds_header(pool->signals_highz_queue)->length = 0;
+	}
+
+	return rerun_chips;
+}
+
+uint64_t signal_pool_process_high_impedance(SignalPool *pool) {
+	return signal_pool_process_high_impedance__internal(pool);
+}
+
+uint64_t signal_pool_cycle(SignalPool *pool) {
+
+	signal_pool_process_high_impedance__internal(pool);
+
+	// handle writes
 	memset(pool->signals_changed, false, arrlenu(pool->signals_changed));
-	for (size_t i = 0, n = arrlenu(pool->signals_written); i < n;  ++i) {
-		uint32_t s = pool->signals_written[i];
-		pool->signals_changed[s] = pool->signals_curr[s] ^ pool->signals_next[s];
-	}
-
 	uint64_t dirty_chips = 0;
-	for (size_t i = 0, n = arrlenu(pool->signals_written); i < n;  ++i) {
-		uint32_t s = pool->signals_written[i];
 
-		pool->signals_curr[s] = pool->signals_next[s];
-
-		uint64_t mask = (uint64_t) (!pool->signals_changed[s] - 1);
-		dirty_chips |= mask & pool->dependent_components[s];
-
-		#if DMS_SIGNAL_TRACING
-			if (pool->signals_changed[s]) {
-				signal_trace_value(pool->trace, (Signal) {(uint32_t) s, 1});
-			}
-		#endif
+	for (int q = 0; q < 2; ++q) {
+		for (size_t i = 0, n = arrlenu(pool->signals_write_queue[q]); i < n; ++i) {
+			const SignalQueueWrite sw = pool->signals_write_queue[q][i];
+			pool->signals_changed[sw.signal] = pool->signals_value[sw.signal] != sw.new_value;
+		}
 	}
 
-	pool->tick_last_cycle = current_tick;
-	pool->rerun_chips = 0;
+	for (int q = 0; q < 2; ++q) {
+		for (size_t i = 0, n = arrlenu(pool->signals_write_queue[q]); i < n; ++i) {
+			const SignalQueueWrite sw = pool->signals_write_queue[q][i];
 
-	if (pool->signals_written) {
-		stbds_header(pool->signals_written)->length = 0;
+			pool->signals_writers[sw.signal] |= sw.writer_mask;
+			pool->signals_value[sw.signal] = sw.new_value;
+
+			const uint64_t mask = (uint64_t) (!pool->signals_changed[sw.signal] - 1);
+			dirty_chips |= mask & pool->dependent_components[sw.signal];
+		}
+	}
+
+	pool->swq_snapshot = 0;
+	pool->cycle_count += 1;
+
+	if (pool->signals_write_queue[0]) {
+		stbds_header(pool->signals_write_queue[0])->length = 0;
+	}
+
+	if (pool->signals_write_queue[1]) {
+		stbds_header(pool->signals_write_queue[1])->length = 0;
 	}
 
 	return dirty_chips;
@@ -145,14 +180,15 @@ uint64_t signal_pool_cycle(SignalPool *pool, int64_t current_tick) {
 Signal signal_create(SignalPool *pool) {
 	assert(pool);
 
-	Signal result = (uint32_t) arrlenu(pool->signals_curr);
+	Signal result = (uint32_t) arrlenu(pool->signals_value);
 
 	arrpush(pool->signals_changed, false);
-	arrpush(pool->signals_curr, false);
-	arrpush(pool->signals_next, false);
+	arrpush(pool->signals_value, false);
+	arrpush(pool->signals_next_value, 0);
 	arrpush(pool->signals_default, false);
 	arrpush(pool->signals_name, NULL);
 	arrpush(pool->signals_writers, 0);
+	arrpush(pool->signals_next_writers, 0);
 	arrpush(pool->dependent_components, 0);
 
 	return result;
@@ -166,7 +202,7 @@ void signal_set_name(SignalPool *pool, Signal signal, const char *name) {
 	pool->signals_name[signal] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
 }
 
-const char * signal_get_name(SignalPool *pool, Signal signal) {
+const char *signal_get_name(SignalPool *pool, Signal signal) {
 	assert(pool);
 
 	const char *name = pool->signals_name[signal];
@@ -185,12 +221,44 @@ void signal_default(SignalPool *pool, Signal signal, bool value) {
 	assert(pool);
 
 	pool->signals_default[signal] = value;
-	pool->signals_curr[signal] = value;
-	pool->signals_next[signal] = value;
+	pool->signals_value[signal] = value;
 }
 
 Signal signal_by_name(SignalPool *pool, const char *name) {
 	return shget(pool->signal_names, name);
+}
+
+bool signal_read_next(SignalPool *pool, Signal signal) {
+	assert(pool);
+
+	if (pool->read_next_cycle != pool->cycle_count ||
+		pool->swq_snapshot != arrlenu(pool->signals_write_queue[1]) + arrlenu(pool->signals_highz_queue)) {
+
+		memcpy(pool->signals_next_value, pool->signals_value, sizeof(*pool->signals_value) * arrlenu(pool->signals_value));
+		memcpy(pool->signals_next_writers, pool->signals_writers, sizeof(*pool->signals_writers) * arrlenu(pool->signals_writers));
+
+		for (size_t i = 0, n = arrlenu(pool->signals_highz_queue); i < n; ++i) {
+			const Signal s = pool->signals_highz_queue[i].signal;
+			const uint64_t w_mask = pool->signals_highz_queue[i].writer_mask;
+
+			// clear the corresponding bit in the writers mask
+			pool->signals_next_writers[s] &= ~w_mask;
+
+			if (pool->signals_next_writers[s] == 0) {
+				pool->signals_next_value[s] =  pool->signals_default[s];
+			}
+		}
+
+		for (size_t i = 0, n = arrlenu(pool->signals_write_queue[1]); i < n; ++i) {
+			SignalQueueWrite *sw = &pool->signals_write_queue[1][i];
+			pool->signals_next_value[sw->signal] = sw->new_value;
+		}
+
+		pool->swq_snapshot = arrlenu(pool->signals_write_queue[1]) + arrlenu(pool->signals_highz_queue);
+		pool->read_next_cycle = pool->cycle_count;
+	}
+
+	return pool->signals_next_value[signal];
 }
 
 void signal_group_set_name(SignalPool *pool, SignalGroup sg, const char *group_name, const char *signal_name, uint32_t start_idx) {

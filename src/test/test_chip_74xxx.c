@@ -31,7 +31,7 @@ static MunitResult test_7400_nand(const MunitParameter params[], void *user_data
 		SIGNAL_WRITE(B3, truth_table[(i+2)%4][1]);
 		SIGNAL_WRITE(A4, truth_table[(i+3)%4][0]);
 		SIGNAL_WRITE(B4, truth_table[(i+3)%4][1]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 
 		munit_assert(SIGNAL_READ_NEXT(Y1) == truth_table[(i+0)%4][2]);
@@ -62,7 +62,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	SIGNAL_WRITE(CLR2_B, ACTLO_DEASSERT);
 	SIGNAL_WRITE(CLK1, false);
 	SIGNAL_WRITE(CLK2, false);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_true(SIGNAL_READ_NEXT(Q1));
 	munit_assert_false(SIGNAL_READ_NEXT(Q1_B));
@@ -76,7 +76,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	SIGNAL_WRITE(CLR2_B, ACTLO_ASSERT);
 	SIGNAL_WRITE(CLK1, false);
 	SIGNAL_WRITE(CLK2, false);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_true(SIGNAL_READ_NEXT(Q1));
 	munit_assert_true(SIGNAL_READ_NEXT(Q1_B));
@@ -90,7 +90,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	SIGNAL_WRITE(CLR2_B, ACTLO_ASSERT);
 	SIGNAL_WRITE(CLK1, false);
 	SIGNAL_WRITE(CLK2, false);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_false(SIGNAL_READ_NEXT(Q1));
 	munit_assert_true(SIGNAL_READ_NEXT(Q1_B));
@@ -113,7 +113,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 		SIGNAL_WRITE(CLK1, true);
 		SIGNAL_WRITE(CLK2, false);
 		SIGNAL_WRITE(D1, truth_table[line][0]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Q1) == truth_table[line][1]);
 		munit_assert(SIGNAL_READ_NEXT(Q1_B) == truth_table[line][2]);
@@ -126,7 +126,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 		SIGNAL_WRITE(CLK1, false);
 		SIGNAL_WRITE(CLK2, false);
 		SIGNAL_WRITE(D1, truth_table[line][0]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Q1) == truth_table[line][1]);
 		munit_assert(SIGNAL_READ_NEXT(Q1_B) == truth_table[line][2]);
@@ -144,7 +144,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 		SIGNAL_WRITE(CLK1, false);
 		SIGNAL_WRITE(CLK2, true);
 		SIGNAL_WRITE(D2, truth_table[line][0]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Q2) == truth_table[line][1]);
 		munit_assert(SIGNAL_READ_NEXT(Q2_B) == truth_table[line][2]);
@@ -157,7 +157,7 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 		SIGNAL_WRITE(CLK1, false);
 		SIGNAL_WRITE(CLK2, false);
 		SIGNAL_WRITE(D2, truth_table[line][0]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Q2) == truth_table[line][1]);
 		munit_assert(SIGNAL_READ_NEXT(Q2_B) == truth_table[line][2]);
@@ -187,7 +187,7 @@ static MunitResult test_7493_binary_counter(const MunitParameter params[], void 
 	SIGNAL_WRITE(R01, ACTHI_ASSERT);
 	SIGNAL_WRITE(R02, ACTHI_ASSERT);
 	SIGNAL_WRITE(A_B, true);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_false(SIGNAL_READ_NEXT(QA));
 	munit_assert_false(SIGNAL_READ_NEXT(QB));
@@ -201,7 +201,7 @@ static MunitResult test_7493_binary_counter(const MunitParameter params[], void 
 		munit_logf(MUNIT_LOG_INFO, "i = %d", i);
 
 		SIGNAL_WRITE(A_B, false);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QA) == ((i & 0b0001) >> 0));
 		munit_assert(SIGNAL_READ_NEXT(QB) == ((i & 0b0010) >> 1));
@@ -209,7 +209,7 @@ static MunitResult test_7493_binary_counter(const MunitParameter params[], void 
 		munit_assert(SIGNAL_READ_NEXT(QD) == ((i & 0b1000) >> 3));
 
 		SIGNAL_WRITE(A_B, true);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QA) == ((i & 0b0001) >> 0));
 		munit_assert(SIGNAL_READ_NEXT(QB) == ((i & 0b0010) >> 1));
@@ -237,7 +237,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 	SIGNAL_WRITE(CLR2_B, ACTLO_ASSERT);
 	SIGNAL_WRITE(CLK1, true);
 	SIGNAL_WRITE(CLK2, true);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_false(SIGNAL_READ_NEXT(Q1));
 	munit_assert_true(SIGNAL_READ_NEXT(Q1_B));
@@ -265,7 +265,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		SIGNAL_WRITE(CLK2, true);
 		SIGNAL_WRITE(J1, truth_table[line][0]);
 		SIGNAL_WRITE(K1, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Q1) == truth_table[line][2]);
 		munit_assert(SIGNAL_READ_NEXT(Q1_B) == truth_table[line][3]);
@@ -279,7 +279,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		SIGNAL_WRITE(CLK2, true);
 		SIGNAL_WRITE(J1, truth_table[line][0]);
 		SIGNAL_WRITE(K1, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Q1) == truth_table[line][2]);
 		munit_assert(SIGNAL_READ_NEXT(Q1_B) == truth_table[line][3]);
@@ -298,7 +298,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		SIGNAL_WRITE(CLK2, false);
 		SIGNAL_WRITE(J2, truth_table[line][0]);
 		SIGNAL_WRITE(K2, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Q2) == truth_table[line][2]);
 		munit_assert(SIGNAL_READ_NEXT(Q2_B) == truth_table[line][3]);
@@ -312,7 +312,7 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 		SIGNAL_WRITE(CLK2, true);
 		SIGNAL_WRITE(J2, truth_table[line][0]);
 		SIGNAL_WRITE(K2, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Q2) == truth_table[line][2]);
 		munit_assert(SIGNAL_READ_NEXT(Q2_B) == truth_table[line][3]);
@@ -340,7 +340,7 @@ static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *u
 		SIGNAL_WRITE(B, BIT_IS_SET(input, 1));
 		SIGNAL_WRITE(C, BIT_IS_SET(input, 2));
 		SIGNAL_WRITE(D, BIT_IS_SET(input, 3));
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 
 		munit_assert(SIGNAL_READ_NEXT(Y0_B) == ((input == 0) ? ACTLO_ASSERT : ACTLO_DEASSERT));
@@ -354,7 +354,7 @@ static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *u
 		munit_assert(SIGNAL_READ_NEXT(Y8_B) == ((input == 8) ? ACTLO_ASSERT : ACTLO_DEASSERT));
 		munit_assert(SIGNAL_READ_NEXT(Y9_B) == ((input == 9) ? ACTLO_ASSERT : ACTLO_DEASSERT));
 
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 	}
 
 	simulator_destroy(chip->simulator);
@@ -400,7 +400,7 @@ static MunitResult test_74153_multiplexer(const MunitParameter params[], void *u
 		// no group activated
 		SIGNAL_WRITE(G1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(G2, ACTLO_DEASSERT);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert_false(SIGNAL_READ_NEXT(Y1));
 		munit_assert_false(SIGNAL_READ_NEXT(Y2));
@@ -408,7 +408,7 @@ static MunitResult test_74153_multiplexer(const MunitParameter params[], void *u
 		// group-1 activated
 		SIGNAL_WRITE(G1, ACTLO_ASSERT);
 		SIGNAL_WRITE(G2, ACTLO_DEASSERT);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Y1) == truth_table[line][6]);
 		munit_assert_false(SIGNAL_READ_NEXT(Y2));
@@ -416,7 +416,7 @@ static MunitResult test_74153_multiplexer(const MunitParameter params[], void *u
 		// group-2 activated
 		SIGNAL_WRITE(G1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(G2, ACTLO_ASSERT);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert_false(SIGNAL_READ_NEXT(Y1));
 		munit_assert(SIGNAL_READ_NEXT(Y2) == truth_table[line][6]);
@@ -424,7 +424,7 @@ static MunitResult test_74153_multiplexer(const MunitParameter params[], void *u
 		// both groups activated
 		SIGNAL_WRITE(G1, ACTLO_ASSERT);
 		SIGNAL_WRITE(G2, ACTLO_ASSERT);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(Y1) == truth_table[line][6]);
 		munit_assert(SIGNAL_READ_NEXT(Y2) == truth_table[line][6]);
@@ -463,7 +463,7 @@ static MunitResult test_74154_decoder(const MunitParameter params[], void *user_
 			SIGNAL_WRITE(C, BIT_IS_SET(input, 2));
 			SIGNAL_WRITE(D, BIT_IS_SET(input, 3));
 
-			signal_pool_cycle(chip->signal_pool, 1);
+			signal_pool_cycle(chip->signal_pool);
 			chip->process(chip);
 
 			bool strobed = !truth_table[i][0] && !truth_table[i][1];
@@ -504,7 +504,7 @@ static MunitResult test_74157_multiplexer(const MunitParameter params[], void *u
 
 	// all outputs false when chip is not enabled
 	SIGNAL_WRITE(ENABLE_B, ACTLO_DEASSERT);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_false(SIGNAL_READ_NEXT(ZA));
 	munit_assert_false(SIGNAL_READ_NEXT(ZB));
@@ -531,7 +531,7 @@ static MunitResult test_74157_multiplexer(const MunitParameter params[], void *u
 		SIGNAL_WRITE(I1B, truth_table[line][2]);
 		SIGNAL_WRITE(I1C, truth_table[line][2]);
 		SIGNAL_WRITE(I1D, truth_table[line][2]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(ZA) == truth_table[line][3]);
 		munit_assert(SIGNAL_READ_NEXT(ZB) == truth_table[line][3]);
@@ -575,7 +575,7 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 	// reset the shift register
 	SIGNAL_WRITE(CLEAR_B, ACTLO_ASSERT);
 	SIGNAL_WRITE(CLK, false);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_uint8(chip->state, ==, 0);
 	munit_assert_false(SIGNAL_READ_NEXT(QA));
@@ -596,7 +596,7 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 		SIGNAL_WRITE(CLK, true);
 		SIGNAL_WRITE(A, truth_table[line][0]);
 		SIGNAL_WRITE(B, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QA) == truth_table[line][2]);
 		munit_assert(SIGNAL_READ_NEXT(QB) == truth_table[line][3]);
@@ -612,7 +612,7 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 		SIGNAL_WRITE(CLK, false);
 		SIGNAL_WRITE(A, truth_table[line][0]);
 		SIGNAL_WRITE(B, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QA) == truth_table[line][2]);
 		munit_assert(SIGNAL_READ_NEXT(QB) == truth_table[line][3]);
@@ -627,7 +627,7 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 	// reset the shift register again
 	SIGNAL_WRITE(CLEAR_B, ACTLO_ASSERT);
 	SIGNAL_WRITE(CLK, false);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_uint8(chip->state, ==, 0);
 	munit_assert_false(SIGNAL_READ_NEXT(QA));
@@ -658,7 +658,7 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	SIGNAL_WRITE(SI, false);			// shift in zeros
 	SIGNAL_WRITE(SL, true);			// shift (not load)
 	SIGNAL_WRITE(CLK, false);
-	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	signal_pool_cycle(chip->signal_pool);
 	chip->simulator->current_tick += 1;
 	chip->process(chip);
 
@@ -672,7 +672,7 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	SIGNAL_WRITE(F, false);
 	SIGNAL_WRITE(G, true);
 	SIGNAL_WRITE(H, true);
-	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	signal_pool_cycle(chip->signal_pool);
 	chip->simulator->current_tick += 1;
 	chip->process(chip);
 	munit_assert_int(chip->state, ==, 0b10101011);
@@ -683,7 +683,7 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	// run a few cycles with clock inhibited
 	for (int i = 0; i <4; ++i) {
 		SIGNAL_WRITE(CLK, !SIGNAL_READ(CLK));
-		signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+		signal_pool_cycle(chip->signal_pool);
 		chip->simulator->current_tick += 1;
 		chip->process(chip);
 		munit_assert_int(chip->state, ==, 0b10101011);
@@ -700,14 +700,14 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 
 	for (int i = 0; i < 8; ++i) {
 		SIGNAL_WRITE(CLK, true);
-		signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+		signal_pool_cycle(chip->signal_pool);
 		chip->simulator->current_tick += 1;
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QH) == expected[i]);
 		munit_assert(SIGNAL_READ_NEXT(QH_B) != expected[i]);
 
 		SIGNAL_WRITE(CLK, false);
-		signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+		signal_pool_cycle(chip->signal_pool);
 		chip->simulator->current_tick += 1;
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QH) == expected[i]);
@@ -717,19 +717,19 @@ static MunitResult test_74165_shift_register(const MunitParameter params[], void
 	// test serial input
 	SIGNAL_WRITE(SI, !SIGNAL_READ(SI));
 	SIGNAL_WRITE(CLK, true);
-	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	signal_pool_cycle(chip->signal_pool);
 	chip->simulator->current_tick += 1;
 	chip->process(chip);
 	munit_assert_int(chip->state, ==, 0b10000000);
 
 	SIGNAL_WRITE(CLK, false);
-	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	signal_pool_cycle(chip->signal_pool);
 	chip->simulator->current_tick += 1;
 	chip->process(chip);
 
 	SIGNAL_WRITE(SI, !SIGNAL_READ(SI));
 	SIGNAL_WRITE(CLK, true);
-	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	signal_pool_cycle(chip->signal_pool);
 	chip->simulator->current_tick += 1;
 	chip->process(chip);
 	munit_assert_int(chip->state, ==, 0b01000000);
@@ -753,7 +753,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 
 	// reset counter
 	SIGNAL_WRITE(CLEAR_B, ACTLO_ASSERT);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_false(SIGNAL_READ_NEXT(QA));
 	munit_assert_false(SIGNAL_READ_NEXT(QB));
@@ -768,7 +768,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 	SIGNAL_WRITE(C, true);
 	SIGNAL_WRITE(D, false);
 	SIGNAL_WRITE(CLK1, true);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_true(SIGNAL_READ_NEXT(QA));
 	munit_assert_false(SIGNAL_READ_NEXT(QB));
@@ -780,7 +780,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 		munit_logf(MUNIT_LOG_INFO, "i = %d", i);
 
 		SIGNAL_WRITE(CLK1, false);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QA) == ((i & 0b0001) >> 0));
 		munit_assert(SIGNAL_READ_NEXT(QB) == ((i & 0b0010) >> 1));
@@ -788,7 +788,7 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 		munit_assert(SIGNAL_READ_NEXT(QD) == ((i & 0b1000) >> 3));
 
 		SIGNAL_WRITE(CLK1, true);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QA) == ((i & 0b0001) >> 0));
 		munit_assert(SIGNAL_READ_NEXT(QB) == ((i & 0b0010) >> 1));
@@ -822,7 +822,7 @@ static MunitResult test_74191_binary_counter(const MunitParameter params[], void
 	SIGNAL_WRITE(B, false);
 	SIGNAL_WRITE(C, true);
 	SIGNAL_WRITE(D, true);
-	signal_pool_cycle(chip->signal_pool, 1);
+	signal_pool_cycle(chip->signal_pool);
 	chip->process(chip);
 	munit_assert_uint8(chip->state, ==, 13);
 
@@ -851,7 +851,7 @@ static MunitResult test_74191_binary_counter(const MunitParameter params[], void
 		SIGNAL_WRITE(CLK, true);
 		SIGNAL_WRITE(D_U, truth_table[line][0]);
 		SIGNAL_WRITE(ENABLE_B, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QA) == truth_table[line][2]);
 		munit_assert(SIGNAL_READ_NEXT(QB) == truth_table[line][3]);
@@ -865,7 +865,7 @@ static MunitResult test_74191_binary_counter(const MunitParameter params[], void
 		SIGNAL_WRITE(CLK, false);
 		SIGNAL_WRITE(D_U, truth_table[line][0]);
 		SIGNAL_WRITE(ENABLE_B, truth_table[line][1]);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 		munit_assert(SIGNAL_READ_NEXT(QA) == truth_table[line][2]);
 		munit_assert(SIGNAL_READ_NEXT(QB) == truth_table[line][3]);
@@ -914,7 +914,7 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 			SIGNAL_WRITE(A23, BIT_IS_SET(input, 6));
 			SIGNAL_WRITE(A24, BIT_IS_SET(input, 7));
 
-			signal_pool_cycle(chip->signal_pool, 1);
+			signal_pool_cycle(chip->signal_pool);
 			chip->process(chip);
 
 			munit_assert(SIGNAL_READ_NEXT(Y11) == (truth_table[i][0] ? false : BIT_IS_SET(input, 0)));
@@ -966,7 +966,7 @@ static MunitResult test_74373_latch(const MunitParameter params[], void *user_da
 		SIGNAL_WRITE(D7, truth_table[line][8]);
 		SIGNAL_WRITE(D8, truth_table[line][9]);
 
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 
 		munit_assert(SIGNAL_READ_NEXT(Q1) == truth_table[line][10]);

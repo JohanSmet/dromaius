@@ -52,7 +52,7 @@
 
 static inline void half_clock_cycle(ChipHd44780 *lcd) {
 	SIGNAL_WRITE(E, !SIGNAL_READ(E));
-	signal_pool_cycle(lcd->signal_pool, 1);
+	signal_pool_cycle(lcd->signal_pool);
 	lcd->process(lcd);
 }
 

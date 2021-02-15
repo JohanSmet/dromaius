@@ -21,7 +21,7 @@ MunitResult test_6114_read(const MunitParameter params[], void *user_data_or_fix
 		SIGNAL_WRITE(CE_B, ACTLO_ASSERT);
 		SIGNAL_WRITE(RW, true);
 		SIGNAL_GROUP_WRITE(address, i);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 
 		chip->process(chip);
 		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(io), ==, i & 0x0f);
@@ -42,14 +42,14 @@ MunitResult test_6114_write(const MunitParameter params[], void *user_data_or_fi
 		SIGNAL_WRITE(RW, false);
 		SIGNAL_GROUP_WRITE(address, i);
 		SIGNAL_GROUP_WRITE(io, i & 0x0f);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
 
 		SIGNAL_WRITE(CE_B, ACTLO_DEASSERT);
 		SIGNAL_WRITE(RW, true);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 		chip->process(chip);
-		signal_pool_cycle(chip->signal_pool, 1);
+		signal_pool_cycle(chip->signal_pool);
 
 		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(io), ==, 0x00);
 	}

@@ -13,7 +13,7 @@ static void input_keypad_teardown(InputKeypad *keypad) {
 }
 
 static inline void run_cycle(InputKeypad *keypad) {
-	signal_pool_cycle(keypad->signal_pool, keypad->simulator->current_tick);
+	signal_pool_cycle(keypad->signal_pool);
 	++keypad->simulator->current_tick;
 	input_keypad_process(keypad);
 }

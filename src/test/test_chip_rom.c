@@ -25,7 +25,7 @@ static inline void rom_6332_strobe(Chip63xxRom *chip, bool cs1_b, bool cs3) {
 }
 
 static inline void rom_63xx_cycle(Chip63xxRom *chip) {
-	signal_pool_cycle(chip->signal_pool, chip->simulator->current_tick);
+	signal_pool_cycle(chip->signal_pool);
 	chip->simulator->current_tick += 1;
 	chip->process(chip);
 }

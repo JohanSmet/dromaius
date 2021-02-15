@@ -25,7 +25,7 @@ static void *chip_6520_setup(const MunitParameter params[], void *user_data) {
 	// run chip with reset asserted
 	SIGNAL_WRITE(PHI2, false);
 	SIGNAL_WRITE(RESET_B, ACTLO_ASSERT);
-	signal_pool_cycle(pia->signal_pool, 1);
+	signal_pool_cycle(pia->signal_pool);
 	pia->process(pia);
 
 	// deassert reset
@@ -47,7 +47,7 @@ static inline void strobe_pia(Chip6520 *pia, bool strobe) {
 
 static inline void half_clock_cycle(Chip6520 *pia) {
 	SIGNAL_WRITE(PHI2, !SIGNAL_READ(PHI2));
-	signal_pool_cycle(pia->signal_pool, 1);
+	signal_pool_cycle(pia->signal_pool);
 	pia->process(pia);
 }
 
@@ -76,7 +76,7 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 
 	// run pia with reset asserted
 	SIGNAL_WRITE(RESET_B, ACTLO_ASSERT);
-	signal_pool_cycle(pia->signal_pool, 1);
+	signal_pool_cycle(pia->signal_pool);
 	pia->process(pia);
 
 	// registers should have been reset

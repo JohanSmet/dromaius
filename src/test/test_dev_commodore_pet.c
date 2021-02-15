@@ -222,7 +222,7 @@ MunitResult test_ram(const MunitParameter params[], void *user_data_or_fixture) 
 		munit_assert_true(SIGNAL_READ(CLK1));
 
 		dev_commodore_pet_process_clk1(device);
-		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(cpu_data), ==, addr & 0xff);
+		munit_assert_uint8(SIGNAL_GROUP_READ_U8(cpu_data), ==, addr & 0xff);
 		munit_assert_false(SIGNAL_READ(CLK1));
 	}
 
@@ -264,7 +264,7 @@ MunitResult test_vram(const MunitParameter params[], void *user_data_or_fixture)
 		munit_assert_true(SIGNAL_READ(CLK1));
 
 		dev_commodore_pet_process_clk1(device);
-		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(cpu_data), ==, addr & 0xff);
+		munit_assert_uint8(SIGNAL_GROUP_READ_U8(cpu_data), ==, addr & 0xff);
 		munit_assert_false(SIGNAL_READ(CLK1));
 	}
 
@@ -304,7 +304,7 @@ MunitResult test_vram_lite(const MunitParameter params[], void *user_data_or_fix
 		munit_assert_true(SIGNAL_READ(CLK1));
 
 		dev_commodore_pet_process_clk1(device);
-		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(cpu_data), ==, addr & 0xff);
+		munit_assert_uint8(SIGNAL_GROUP_READ_U8(cpu_data), ==, addr & 0xff);
 		munit_assert_false(SIGNAL_READ(CLK1));
 	}
 

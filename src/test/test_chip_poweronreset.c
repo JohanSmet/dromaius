@@ -44,7 +44,7 @@ static MunitResult test_trigger(const MunitParameter params[], void *user_data_o
 
 	SIGNAL_WRITE(TRIGGER_B, true);
 	SIGNAL_WRITE(RESET_B, true);
-	signal_pool_cycle(por->signal_pool, sim->current_tick);
+	signal_pool_cycle(por->signal_pool);
 
 	sim->current_tick += 100;
 	por->process(por);
@@ -56,13 +56,13 @@ static MunitResult test_trigger(const MunitParameter params[], void *user_data_o
 
 	sim->current_tick += 50;
 	SIGNAL_WRITE(TRIGGER_B, false);
-	signal_pool_cycle(por->signal_pool, sim->current_tick);
+	signal_pool_cycle(por->signal_pool);
 	por->process(por);
 	munit_assert_false(SIGNAL_READ_NEXT(RESET_B));
 
 	sim->current_tick += 50;
 	SIGNAL_WRITE(TRIGGER_B, true);
-	signal_pool_cycle(por->signal_pool, sim->current_tick);
+	signal_pool_cycle(por->signal_pool);
 	por->process(por);
 	munit_assert_false(SIGNAL_READ_NEXT(RESET_B));
 

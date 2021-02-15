@@ -1,8 +1,4 @@
 // signal_line.h - Johan Smet - BSD-3-Clause (see LICENSE)
-//
-// NOTE: some functions provide a fast path when the signal aligns with a 64-bit integer (an 8-bit signal).
-//		 Further improvements can be had by force-aligning these signals at creating and defining read/write functions
-//		 that forgo these runtime checks.
 
 #ifndef DROMAIUS_SIGNAL_LINE_H
 #define DROMAIUS_SIGNAL_LINE_H
@@ -31,21 +27,37 @@ typedef struct SignalNameMap {
 	Signal		value;
 } SignalNameMap;
 
+typedef struct {
+	Signal		signal;							// signal to write to
+	uint64_t	writer_mask;					// id-mask of the chip writing to the signal
+	bool		new_value;						// value to write
+} SignalQueueWrite;
+
+typedef struct {
+	Signal		signal;							// signal that might go high impedance
+	uint64_t	writer_mask;					// id-mask of the chip that stops writing to the signal
+} SignalQueueHighZ;
+
 typedef struct SignalPool {
-	bool *			signals_curr;
-	bool *			signals_next;
-	bool  *			signals_changed;
-	uint32_t *		signals_written;
-	bool *			signals_default;
-	const char **	signals_name;
+	bool *			signals_value;				// current value of the signal
+	uint64_t *		signals_writers;			// id's of the chips that are actively writing to the signal (bit-mask)
+	bool *			signals_changed;			// did the signal change since the last cycle
 
-	uint64_t *		signals_writers;
-	uint64_t *		dependent_components;
-	uint64_t		rerun_chips;
+	bool *			signals_default;			// value of the signal when nobody is writing to it (pull-up or down)
+	uint64_t *		dependent_components;		// id's of the chips that depend on this signal
 
-	SignalNameMap	*signal_names;
+	const char **	signals_name;				// names of the signal (id -> name)
+	SignalNameMap	*signal_names;				// hashmap name -> signal
 
-	int64_t			tick_last_cycle;
+	SignalQueueWrite *	signals_write_queue[2];	// queue of pending writes to the signals
+	SignalQueueHighZ *	signals_highz_queue;	// queue of signals that have had an active writer go away
+
+	// variables specifically to make read_next work (normally only used in unit-tests)
+	bool *			signals_next_value;
+	uint64_t *		signals_next_writers;
+	size_t			swq_snapshot;
+	size_t			cycle_count;
+	size_t			read_next_cycle;
 
 #ifdef DMS_SIGNAL_TRACING
 	struct SignalTrace *trace;
@@ -56,63 +68,59 @@ extern const uint64_t lut_bit_to_byte[256];
 
 #define MAX_SIGNAL_NAME		8
 
-// functions
+// functions - signal pool
 SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
 
-uint64_t signal_pool_cycle(SignalPool *pool, int64_t current_tick);
+uint64_t signal_pool_process_high_impedance(SignalPool *pool);
+uint64_t signal_pool_cycle(SignalPool *pool);
 
+// functions - signals
 Signal signal_create(SignalPool *pool);
+
 void signal_set_name(SignalPool *pool, Signal Signal, const char *name);
 const char * signal_get_name(SignalPool *pool, Signal signal);
+Signal signal_by_name(SignalPool *pool, const char *name);
+
 void signal_add_dependency(SignalPool *pool, Signal signal, int32_t chip_id);
 
 void signal_default(SignalPool *pool, Signal signal, bool value);
-Signal signal_by_name(SignalPool *pool, const char *name);
 
 static inline bool signal_read(SignalPool *pool, Signal signal) {
 	assert(pool);
-
-	return pool->signals_curr[signal];
+	return pool->signals_value[signal];
 }
 
 static inline void signal_write(SignalPool *pool, Signal signal, bool value, int32_t chip_id) {
 	assert(pool);
-	pool->signals_next[signal] = value;
-	pool->signals_writers[signal] |= 1ull << chip_id;
-	arrpush(pool->signals_written, signal);
+	arrpush(pool->signals_write_queue[1], ( (SignalQueueWrite) {
+				.signal = signal,
+				.writer_mask = 1ull << chip_id,
+				.new_value = value,
+	}));
 }
 
 static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t chip_id) {
 	assert(pool);
 
-	uint64_t dep_mask = 1ull << chip_id;
+	const uint64_t w_mask = 1ull << chip_id;
 
-	if (pool->signals_writers[signal] & dep_mask) {
-		// clear the correspondig bit
-		pool->signals_writers[signal] &= ~dep_mask;
-
-		// prod the dormant writers, or set to default if no writers left
-		if (pool->signals_writers[signal] != 0) {
-			pool->rerun_chips |= pool->signals_writers[signal];
-		} else {
-			pool->signals_next[signal] = pool->signals_default[signal];
-			arrpush(pool->signals_written, signal);
-		}
+	if (pool->signals_writers[signal] & w_mask) {
+		arrpush(pool->signals_highz_queue, ((SignalQueueHighZ) {
+					.signal = signal,
+					.writer_mask = w_mask
+		}));
 	}
 }
 
-static inline bool signal_read_next(SignalPool *pool, Signal signal) {
-	assert(pool);
-
-	return pool->signals_next[signal];
-}
+bool signal_read_next(SignalPool *pool, Signal signal);
 
 static inline bool signal_changed(SignalPool *pool, Signal signal) {
 	assert(pool);
-
 	return pool->signals_changed[signal];
 }
+
+// functions - signal groups
 
 static inline SignalGroup signal_group_create(void) {
 	return NULL;
@@ -225,11 +233,11 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 	return result;
 }
 
-// macros to make working with signal a little prettier
+// macros to make working with signals a little prettier
 //	define SIGNAL_OWNER and SIGNAL_PREFIX in your source file
 
-#define CONCAT_IMPL(x, y) x##y
-#define CONCAT(x, y) CONCAT_IMPL( x, y )
+#define SIGNAL_CONCAT_IMPL(x, y) x##y
+#define SIGNAL_CONCAT(x, y) SIGNAL_CONCAT_IMPL( x, y )
 
 #define SIGNAL_POOL			SIGNAL_OWNER->signal_pool
 #define SIGNAL_COLLECTION	SIGNAL_OWNER->signals
@@ -266,7 +274,7 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 		signal_set_name(SIGNAL_POOL, SIGNAL_COLLECTION[(sig)], (name));	\
 	}
 
-#define SIGNAL(sig)							SIGNAL_COLLECTION[CONCAT(SIGNAL_PREFIX, sig)]
+#define SIGNAL(sig)							SIGNAL_COLLECTION[SIGNAL_CONCAT(SIGNAL_PREFIX, sig)]
 #define SIGNAL_GROUP(grp)					SIGNAL_OWNER->sg_ ## grp
 
 #define SIGNAL_DEPENDENCY(sig)				signal_add_dependency(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_ID)

@@ -18,32 +18,27 @@ static MunitResult test_create(const MunitParameter params[], void* user_data_or
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
 
 	// pre-condition
-	munit_assert_size(arrlen(pool->signals_curr), ==, 1);
-	munit_assert_size(arrlen(pool->signals_next), ==, 1);
+	munit_assert_size(arrlen(pool->signals_value), ==, 1);
 
 	// 1-bit signal
 	Signal sig1 = signal_create(pool);
 	munit_assert_uint32(sig1, ==, 1);
-	munit_assert_size(arrlen(pool->signals_curr), ==, 2);
-	munit_assert_size(arrlen(pool->signals_next), ==, 2);
+	munit_assert_size(arrlen(pool->signals_value), ==, 2);
 
 	// 8-bit signal
 	SignalGroup sg2 = signal_group_create_new(pool, 8);
 	munit_assert_uint32(signal_group_size(sg2), ==, 8);
-	munit_assert_size(arrlen(pool->signals_curr), ==, 10);
-	munit_assert_size(arrlen(pool->signals_next), ==, 10);
+	munit_assert_size(arrlen(pool->signals_value), ==, 10);
 
 	// 16-bit signal
 	SignalGroup sg3 = signal_group_create_new(pool, 16);
 	munit_assert_uint32(signal_group_size(sg3), ==, 16);
-	munit_assert_size(arrlen(pool->signals_curr), ==, 26);
-	munit_assert_size(arrlen(pool->signals_next), ==, 26);
+	munit_assert_size(arrlen(pool->signals_value), ==, 26);
 
 	// 12-bit signal
 	SignalGroup sg4 = signal_group_create_new(pool, 12);
 	munit_assert_uint32(signal_group_size(sg4), ==, 12);
-	munit_assert_size(arrlen(pool->signals_curr), ==, 38);
-	munit_assert_size(arrlen(pool->signals_next), ==, 38);
+	munit_assert_size(arrlen(pool->signals_value), ==, 38);
 
     return MUNIT_OK;
 }
@@ -54,8 +49,8 @@ static MunitResult test_read(const MunitParameter params[], void* user_data_or_f
 	// setup
 	Signal sig_a = signal_create(pool);
 	Signal sig_b = signal_create(pool);
-	pool->signals_curr[sig_a] = true;
-	pool->signals_curr[sig_b] = false;
+	pool->signals_value[sig_a] = true;
+	pool->signals_value[sig_b] = false;
 
 	// test
 	munit_assert_true(signal_read(pool, sig_a));
@@ -73,29 +68,29 @@ static MunitResult test_write(const MunitParameter params[], void* user_data_or_
 	Signal nxt = signal_create(pool);
 
 	// test pre-condition
-	munit_assert_false(pool->signals_next[prv]);
-	munit_assert_false(pool->signals_next[sig]);
-	munit_assert_false(pool->signals_next[nxt]);
-	munit_assert_false(pool->signals_curr[prv]);
-	munit_assert_false(pool->signals_curr[sig]);
-	munit_assert_false(pool->signals_curr[nxt]);
+	munit_assert_false(pool->signals_value[prv]);
+	munit_assert_false(pool->signals_value[sig]);
+	munit_assert_false(pool->signals_value[nxt]);
+	munit_assert_size(arrlenu(pool->signals_write_queue[1]), ==, 0);
 
 	// test
 	signal_write(pool, sig, true, 0);
-	munit_assert_false(pool->signals_next[prv]);
-	munit_assert_true(pool->signals_next[sig]);
-	munit_assert_false(pool->signals_next[nxt]);
-	munit_assert_false(pool->signals_curr[prv]);
-	munit_assert_false(pool->signals_curr[sig]);
-	munit_assert_false(pool->signals_curr[nxt]);
+	munit_assert_size(arrlenu(pool->signals_write_queue[1]), ==, 1);
+	munit_assert_uint32(pool->signals_write_queue[1][0].signal, ==, sig);
+	munit_assert_uint32(pool->signals_write_queue[1][0].new_value, ==, true);
+	munit_assert_false(pool->signals_value[prv]);
+	munit_assert_false(pool->signals_value[sig]);
+	munit_assert_false(pool->signals_value[nxt]);
 
 	signal_write(pool, sig, false, 0);
-	munit_assert_false(pool->signals_next[prv]);
-	munit_assert_false(pool->signals_next[sig]);
-	munit_assert_false(pool->signals_next[nxt]);
-	munit_assert_false(pool->signals_curr[prv]);
-	munit_assert_false(pool->signals_curr[sig]);
-	munit_assert_false(pool->signals_curr[nxt]);
+	munit_assert_size(arrlenu(pool->signals_write_queue[1]), ==, 2);
+	munit_assert_uint32(pool->signals_write_queue[1][0].signal, ==, sig);
+	munit_assert_uint32(pool->signals_write_queue[1][0].new_value, ==, true);
+	munit_assert_uint32(pool->signals_write_queue[1][1].signal, ==, sig);
+	munit_assert_uint32(pool->signals_write_queue[1][1].new_value, ==, false);
+	munit_assert_false(pool->signals_value[prv]);
+	munit_assert_false(pool->signals_value[sig]);
+	munit_assert_false(pool->signals_value[nxt]);
 
     return MUNIT_OK;
 }
@@ -132,7 +127,7 @@ static MunitResult test_cycle(const MunitParameter params[], void* user_data_or_
 	munit_assert_false(signal_read(pool, sig_c));
 
 	// cycle
-	signal_pool_cycle(pool, 1);
+	signal_pool_cycle(pool);
 
 	munit_assert_true(signal_read(pool, sig_a));
 	munit_assert_false(signal_read(pool, sig_b));
@@ -157,7 +152,7 @@ static MunitResult test_default(const MunitParameter params[], void* user_data_o
 	signal_write(pool, sig_a, true, 0);
 	signal_clear_writer(pool, sig_b, 0);
 	signal_clear_writer(pool, sig_c, 0);
-	signal_pool_cycle(pool, 1);
+	signal_pool_cycle(pool);
 	munit_assert_true(signal_read(pool, sig_a));
 	munit_assert_true(signal_read(pool, sig_b));
 	munit_assert_false(signal_read(pool, sig_c));
@@ -165,7 +160,7 @@ static MunitResult test_default(const MunitParameter params[], void* user_data_o
 	signal_clear_writer(pool, sig_a, 0);
 	signal_clear_writer(pool, sig_b, 0);
 	signal_clear_writer(pool, sig_c, 0);
-	signal_pool_cycle(pool, 1);
+	signal_pool_cycle(pool);
 	munit_assert_false(signal_read(pool, sig_a));
 	munit_assert_true(signal_read(pool, sig_b));
 	munit_assert_false(signal_read(pool, sig_c));
@@ -183,13 +178,16 @@ static MunitResult test_clear_writer(const MunitParameter params[], void* user_d
 	// test
 	signal_write(pool, sig_a, false, 5);
 	signal_write(pool, sig_a, false, 3);
-	munit_assert_false(signal_read_next(pool, sig_a));
+	signal_pool_cycle(pool);
+	munit_assert_false(signal_read(pool, sig_a));
 
 	signal_clear_writer(pool, sig_a, 5);
-	munit_assert_false(signal_read_next(pool, sig_a));
+	signal_pool_cycle(pool);
+	munit_assert_false(signal_read(pool, sig_a));
 
 	signal_clear_writer(pool, sig_a, 3);
-	munit_assert_true(signal_read_next(pool, sig_a));
+	signal_pool_cycle(pool);
+	munit_assert_true(signal_read(pool, sig_a));
 
 	return MUNIT_OK;
 }
@@ -207,13 +205,13 @@ static MunitResult test_changed(const MunitParameter params[], void* user_data_o
 	// initial state
 	signal_write(pool, sig_a, true, 0);
 	signal_write(pool, sig_b, false, 0);
-	signal_pool_cycle(pool, current_tick);
+	signal_pool_cycle(pool);
 
 	// no change
 	++current_tick;
 	signal_write(pool, sig_a, true, 0);
 	signal_write(pool, sig_b, false, 0);
-	signal_pool_cycle(pool, current_tick);
+	signal_pool_cycle(pool);
 	munit_assert_false(signal_changed(pool, sig_a));
 	munit_assert_false(signal_changed(pool, sig_b));
 
@@ -221,7 +219,7 @@ static MunitResult test_changed(const MunitParameter params[], void* user_data_o
 	++current_tick;
 	signal_write(pool, sig_a, false, 0);
 	signal_write(pool, sig_b, false, 0);
-	signal_pool_cycle(pool, current_tick);
+	signal_pool_cycle(pool);
 	munit_assert_true(signal_changed(pool, sig_a));
 	munit_assert_false(signal_changed(pool, sig_b));
 
@@ -229,7 +227,7 @@ static MunitResult test_changed(const MunitParameter params[], void* user_data_o
 	++current_tick;
 	signal_write(pool, sig_a, false, 0);
 	signal_write(pool, sig_b, true, 0);
-	signal_pool_cycle(pool, current_tick);
+	signal_pool_cycle(pool);
 	munit_assert_false(signal_changed(pool, sig_a));
 	munit_assert_true(signal_changed(pool, sig_b));
 
@@ -320,8 +318,8 @@ static MunitResult test_signal_group_read(const MunitParameter params[], void* u
 	// setup
 	SignalGroup sg_a = signal_group_create_new(pool, 16);
 	for (int i = 0; i < 8; ++i) {
-		pool->signals_curr[(i*2)+1] = false;
-		pool->signals_curr[(i*2)+2] = true;
+		pool->signals_value[(i*2)+1] = false;
+		pool->signals_value[(i*2)+2] = true;
 	}
 
 	// test
@@ -339,71 +337,61 @@ static MunitResult test_signal_group_write(const MunitParameter params[], void* 
 	Signal next = signal_create(pool);
 
 	// test pre-condition
-	munit_assert_false(pool->signals_next[prev]);
-	munit_assert_false(pool->signals_next[sg_a[0]]);
-	munit_assert_false(pool->signals_next[sg_a[1]]);
-	munit_assert_false(pool->signals_next[sg_a[2]]);
-	munit_assert_false(pool->signals_next[sg_a[3]]);
-	munit_assert_false(pool->signals_next[sg_a[4]]);
-	munit_assert_false(pool->signals_next[sg_a[5]]);
-	munit_assert_false(pool->signals_next[sg_a[6]]);
-	munit_assert_false(pool->signals_next[sg_a[7]]);
-	munit_assert_false(pool->signals_next[next]);
-	munit_assert_false(pool->signals_curr[prev]);
-	munit_assert_false(pool->signals_curr[sg_a[0]]);
-	munit_assert_false(pool->signals_curr[sg_a[1]]);
-	munit_assert_false(pool->signals_curr[sg_a[2]]);
-	munit_assert_false(pool->signals_curr[sg_a[3]]);
-	munit_assert_false(pool->signals_curr[sg_a[4]]);
-	munit_assert_false(pool->signals_curr[sg_a[5]]);
-	munit_assert_false(pool->signals_curr[sg_a[6]]);
-	munit_assert_false(pool->signals_curr[sg_a[7]]);
-	munit_assert_false(pool->signals_curr[next]);
+	munit_assert_false(pool->signals_value[prev]);
+	munit_assert_false(pool->signals_value[sg_a[0]]);
+	munit_assert_false(pool->signals_value[sg_a[1]]);
+	munit_assert_false(pool->signals_value[sg_a[2]]);
+	munit_assert_false(pool->signals_value[sg_a[3]]);
+	munit_assert_false(pool->signals_value[sg_a[4]]);
+	munit_assert_false(pool->signals_value[sg_a[5]]);
+	munit_assert_false(pool->signals_value[sg_a[6]]);
+	munit_assert_false(pool->signals_value[sg_a[7]]);
+	munit_assert_false(pool->signals_value[next]);
 
 	// test
 	signal_group_write(pool, sg_a, 0xff, 0);
-	munit_assert_false(pool->signals_next[prev]);
-	munit_assert_true(pool->signals_next[sg_a[0]]);
-	munit_assert_true(pool->signals_next[sg_a[1]]);
-	munit_assert_true(pool->signals_next[sg_a[2]]);
-	munit_assert_true(pool->signals_next[sg_a[3]]);
-	munit_assert_true(pool->signals_next[sg_a[4]]);
-	munit_assert_true(pool->signals_next[sg_a[5]]);
-	munit_assert_true(pool->signals_next[sg_a[6]]);
-	munit_assert_true(pool->signals_next[sg_a[7]]);
-	munit_assert_false(pool->signals_next[next]);
-	munit_assert_false(pool->signals_curr[prev]);
-	munit_assert_false(pool->signals_curr[sg_a[0]]);
-	munit_assert_false(pool->signals_curr[sg_a[1]]);
-	munit_assert_false(pool->signals_curr[sg_a[2]]);
-	munit_assert_false(pool->signals_curr[sg_a[3]]);
-	munit_assert_false(pool->signals_curr[sg_a[4]]);
-	munit_assert_false(pool->signals_curr[sg_a[5]]);
-	munit_assert_false(pool->signals_curr[sg_a[6]]);
-	munit_assert_false(pool->signals_curr[sg_a[7]]);
-	munit_assert_false(pool->signals_curr[next]);
+	munit_assert_false(signal_read_next(pool, prev));
+	munit_assert_true(signal_read_next(pool, sg_a[0]));
+	munit_assert_true(signal_read_next(pool, sg_a[1]));
+	munit_assert_true(signal_read_next(pool, sg_a[2]));
+	munit_assert_true(signal_read_next(pool, sg_a[3]));
+	munit_assert_true(signal_read_next(pool, sg_a[4]));
+	munit_assert_true(signal_read_next(pool, sg_a[5]));
+	munit_assert_true(signal_read_next(pool, sg_a[6]));
+	munit_assert_true(signal_read_next(pool, sg_a[7]));
+	munit_assert_false(signal_read_next(pool, next));
+	munit_assert_false(signal_read(pool, prev));
+	munit_assert_false(signal_read(pool, sg_a[0]));
+	munit_assert_false(signal_read(pool, sg_a[1]));
+	munit_assert_false(signal_read(pool, sg_a[2]));
+	munit_assert_false(signal_read(pool, sg_a[3]));
+	munit_assert_false(signal_read(pool, sg_a[4]));
+	munit_assert_false(signal_read(pool, sg_a[5]));
+	munit_assert_false(signal_read(pool, sg_a[6]));
+	munit_assert_false(signal_read(pool, sg_a[7]));
+	munit_assert_false(signal_read(pool, next));
 
 	signal_group_write(pool, sg_a, 0x0a, 0);
-	munit_assert_false(pool->signals_next[prev]);
-	munit_assert_false(pool->signals_next[sg_a[0]]);
-	munit_assert_true(pool->signals_next[sg_a[1]]);
-	munit_assert_false(pool->signals_next[sg_a[2]]);
-	munit_assert_true(pool->signals_next[sg_a[3]]);
-	munit_assert_false(pool->signals_next[sg_a[4]]);
-	munit_assert_false(pool->signals_next[sg_a[5]]);
-	munit_assert_false(pool->signals_next[sg_a[6]]);
-	munit_assert_false(pool->signals_next[sg_a[7]]);
-	munit_assert_false(pool->signals_next[next]);
-	munit_assert_false(pool->signals_curr[prev]);
-	munit_assert_false(pool->signals_curr[sg_a[0]]);
-	munit_assert_false(pool->signals_curr[sg_a[1]]);
-	munit_assert_false(pool->signals_curr[sg_a[2]]);
-	munit_assert_false(pool->signals_curr[sg_a[3]]);
-	munit_assert_false(pool->signals_curr[sg_a[4]]);
-	munit_assert_false(pool->signals_curr[sg_a[5]]);
-	munit_assert_false(pool->signals_curr[sg_a[6]]);
-	munit_assert_false(pool->signals_curr[sg_a[7]]);
-	munit_assert_false(pool->signals_curr[next]);
+	munit_assert_false(signal_read_next(pool, prev));
+	munit_assert_false(signal_read_next(pool, sg_a[0]));
+	munit_assert_true(signal_read_next(pool, sg_a[1]));
+	munit_assert_false(signal_read_next(pool, sg_a[2]));
+	munit_assert_true(signal_read_next(pool, sg_a[3]));
+	munit_assert_false(signal_read_next(pool, sg_a[4]));
+	munit_assert_false(signal_read_next(pool, sg_a[5]));
+	munit_assert_false(signal_read_next(pool, sg_a[6]));
+	munit_assert_false(signal_read_next(pool, sg_a[7]));
+	munit_assert_false(signal_read_next(pool, next));
+	munit_assert_false(signal_read(pool, prev));
+	munit_assert_false(signal_read(pool, sg_a[0]));
+	munit_assert_false(signal_read(pool, sg_a[1]));
+	munit_assert_false(signal_read(pool, sg_a[2]));
+	munit_assert_false(signal_read(pool, sg_a[3]));
+	munit_assert_false(signal_read(pool, sg_a[4]));
+	munit_assert_false(signal_read(pool, sg_a[5]));
+	munit_assert_false(signal_read(pool, sg_a[6]));
+	munit_assert_false(signal_read(pool, sg_a[7]));
+	munit_assert_false(signal_read(pool, next));
 
     return MUNIT_OK;
 }
@@ -416,14 +404,14 @@ static MunitResult test_signal_group_write_masked(const MunitParameter params[],
 
 	// test
 	signal_group_write_masked(pool, sg_a, 0xaaaa, 0xaf05, 0);
-	signal_pool_cycle(pool, 1);
+	signal_pool_cycle(pool);
 	munit_assert_uint16(signal_group_read(pool, sg_a), ==, 0xaa00);
 
 	signal_group_write_masked(pool, sg_a, 0xabcd, 0xff00, 0);
 	munit_assert_uint16(signal_group_read_next(pool, sg_a), ==, 0xab00);
 	signal_group_write_masked(pool, sg_a, 0xefcd, 0x00f0, 0);
 	munit_assert_uint16(signal_group_read_next(pool, sg_a), ==, 0xabc0);
-	signal_pool_cycle(pool, 1);
+	signal_pool_cycle(pool);
 	munit_assert_uint16(signal_group_read(pool, sg_a), ==, 0xabc0);
 
 	return MUNIT_OK;
@@ -437,7 +425,7 @@ static MunitResult test_signal_group_read_next(const MunitParameter params[], vo
 
 	// test
 	signal_group_write(pool, sg_a, 0xaa55, 0);
-	signal_pool_cycle(pool, 1);
+	signal_pool_cycle(pool);
 	signal_group_write(pool, sg_a, 0x55aa, 0);
 
 	munit_assert_uint16(signal_group_read(pool, sg_a), ==, 0xaa55);
@@ -459,13 +447,13 @@ static MunitResult test_signal_group_defaults(const MunitParameter params[], voi
 	// test
 	signal_group_write(pool, sg_a, 0xfa, 0);
 	signal_group_write(pool, sg_b, 0x13, 0);
-	signal_pool_cycle(pool, 1);
+	signal_pool_cycle(pool);
 	munit_assert_uint8(signal_group_read(pool, sg_a), ==, 0xfa);
 	munit_assert_uint8(signal_group_read(pool, sg_b), ==, 0x13);
 
 	signal_group_clear_writer(pool, sg_a, 0);
 	signal_group_clear_writer(pool, sg_b, 0);
-	signal_pool_cycle(pool, 1);
+	signal_pool_cycle(pool);
 	munit_assert_uint8(signal_group_read(pool, sg_a), ==, 0xa5);
 	munit_assert_uint8(signal_group_read(pool, sg_b), ==, 0x00);
 
@@ -486,13 +474,13 @@ static MunitResult test_signal_group_changed(const MunitParameter params[], void
 	// initial state
 	signal_group_write(pool, sg_a, 0xaa, 0);
 	signal_group_write(pool, sg_b, 0x55, 0);
-	signal_pool_cycle(pool, current_tick);
+	signal_pool_cycle(pool);
 
 	// no change
 	++current_tick;
 	signal_group_write(pool, sg_a, 0xaa, 0);
 	signal_group_write(pool, sg_b, 0x55, 0);
-	signal_pool_cycle(pool, current_tick);
+	signal_pool_cycle(pool);
 	munit_assert_false(signal_group_changed(pool, sg_a));
 	munit_assert_false(signal_group_changed(pool, sg_b));
 
@@ -500,7 +488,7 @@ static MunitResult test_signal_group_changed(const MunitParameter params[], void
 	++current_tick;
 	signal_group_write(pool, sg_a, 0xbb, 0);
 	signal_group_write(pool, sg_b, 0x55, 0);
-	signal_pool_cycle(pool, current_tick);
+	signal_pool_cycle(pool);
 	munit_assert_true(signal_group_changed(pool, sg_a));
 	munit_assert_false(signal_group_changed(pool, sg_b));
 
@@ -508,7 +496,7 @@ static MunitResult test_signal_group_changed(const MunitParameter params[], void
 	++current_tick;
 	signal_group_write(pool, sg_a, 0xbb, 0);
 	signal_group_write(pool, sg_b, 0x44, 0);
-	signal_pool_cycle(pool, current_tick);
+	signal_pool_cycle(pool);
 	munit_assert_false(signal_group_changed(pool, sg_a));
 	munit_assert_true(signal_group_changed(pool, sg_b));
 
