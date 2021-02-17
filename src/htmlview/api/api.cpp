@@ -203,7 +203,7 @@ public:
 	val signal_data() const {
 		assert(pet_device);
 		auto pool = pet_device->simulator->signal_pool;
-		return val(typed_memory_view(arrlenu(pool->signals_next), reinterpret_cast<uint8_t *> (pool->signals_next)));
+		return val(typed_memory_view(arrlenu(pool->signals_value), reinterpret_cast<uint8_t *> (pool->signals_value)));
 	}
 
 	// breakpoints

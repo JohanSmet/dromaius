@@ -1816,7 +1816,7 @@ DevCommodorePet *create_pet_device(bool lite) {
 	SIGNAL_GROUP_NEW_N(buf_data, 8, "buffered_data", "BD%d");
 	memcpy(&SIGNAL(BD0), SIGNAL_GROUP(buf_data), 8 * sizeof(Signal));
 
-	SIGNAL_GROUP_NEW_N(mem_sel, 16, "mem_sel", "/SEL%d");
+	SIGNAL_GROUP_NEW_N(mem_sel, 16, "mem_sel", "/SEL%X");
 	memcpy(&SIGNAL(SEL0_B), SIGNAL_GROUP(mem_sel), 16 * sizeof(Signal));
 
 	SIGNAL_DEFINE_N(SEL8, "SEL8");
