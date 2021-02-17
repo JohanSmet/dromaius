@@ -441,20 +441,18 @@ ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 	memcpy(lcd->signals, signals, sizeof(ChipHd44780Signals));
 
 	for (int i = 0; i < 4; ++i) {
-		SIGNAL_DEFINE(CHIP_HD44780_DB0 + i);
-		signal_group_push(&lcd->sg_data, SIGNAL_COLLECTION[CHIP_HD44780_DB0 + i]);
-		signal_group_push(&lcd->sg_db0_3, SIGNAL_COLLECTION[CHIP_HD44780_DB0 + i]);
+		SIGNAL_DEFINE_GROUP(DB0 + i, data);
+		signal_group_push(&lcd->sg_db0_3, SIGNAL(DB0 + i));
 	}
 
 	for (int i = 4; i < 8; ++i) {
-		SIGNAL_DEFINE(CHIP_HD44780_DB0 + i);
-		signal_group_push(&lcd->sg_data, SIGNAL_COLLECTION[CHIP_HD44780_DB0 + i]);
-		signal_group_push(&lcd->sg_db4_7, SIGNAL_COLLECTION[CHIP_HD44780_DB0 + i]);
+		SIGNAL_DEFINE_GROUP(DB0 + i, data);
+		signal_group_push(&lcd->sg_db4_7, SIGNAL(DB0 + i));
 	}
 
-	SIGNAL_DEFINE(CHIP_HD44780_RS);
-	SIGNAL_DEFINE_DEFAULT(CHIP_HD44780_RW, true);
-	SIGNAL_DEFINE_DEFAULT(CHIP_HD44780_E, false);
+	SIGNAL_DEFINE(RS);
+	SIGNAL_DEFINE_DEFAULT(RW, true);
+	SIGNAL_DEFINE_DEFAULT(E, false);
 
 	// perform the internal reset circuit initialization procedure
 	execute_clear_display(lcd);

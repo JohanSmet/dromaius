@@ -38,16 +38,14 @@ Rom8d16a *rom_8d16a_create(size_t num_address_lines, Simulator *sim, Rom8d16aSig
 	rom->sg_data = signal_group_create();
 
 	for (size_t i = 0; i < num_address_lines; ++i) {
-		SIGNAL_DEFINE(CHIP_ROM8D16A_A0 + i);
-		signal_group_push(&rom->sg_address, SIGNAL_COLLECTION[CHIP_ROM8D16A_A0 + i]);
+		SIGNAL_DEFINE_GROUP(A0 + i, address);
 	}
 
 	for (size_t i = 0; i < 8; ++i) {
-		SIGNAL_DEFINE(CHIP_ROM8D16A_D0 + i);
-		signal_group_push(&rom->sg_data, SIGNAL_COLLECTION[CHIP_ROM8D16A_D0 + i]);
+		SIGNAL_DEFINE_GROUP(D0 + i, data);
 	}
 
-	SIGNAL_DEFINE(CHIP_ROM8D16A_CE_B);
+	SIGNAL_DEFINE(CE_B);
 
 	return rom;
 }

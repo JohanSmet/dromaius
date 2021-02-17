@@ -40,23 +40,20 @@ Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals si
 	chip->sg_dout = signal_group_create();
 
 	for (int i = 0; i < 7; ++i) {
-		SIGNAL_DEFINE(CHIP_4116_A0 + i);
-		signal_group_push(&chip->sg_address, SIGNAL_COLLECTION[CHIP_4116_A0 + i]);
+		SIGNAL_DEFINE_GROUP(A0 + i, address);
 	}
 
 	for (int i = 0; i < 8; ++i) {
-		SIGNAL_DEFINE(CHIP_4116_DI0 + i);
-		signal_group_push(&chip->sg_din, SIGNAL_COLLECTION[CHIP_4116_DI0 + i]);
+		SIGNAL_DEFINE_GROUP(DI0 + i, din);
 	}
 
 	for (int i = 0; i < 8; ++i) {
-		SIGNAL_DEFINE(CHIP_4116_DO0 + i);
-		signal_group_push(&chip->sg_dout, SIGNAL_COLLECTION[CHIP_4116_DO0 + i]);
+		SIGNAL_DEFINE_GROUP(DO0 + i, dout);
 	}
 
-	SIGNAL_DEFINE(CHIP_4116_WE_B);
-	SIGNAL_DEFINE(CHIP_4116_RAS_B);
-	SIGNAL_DEFINE(CHIP_4116_CAS_B);
+	SIGNAL_DEFINE(WE_B);
+	SIGNAL_DEFINE(RAS_B);
+	SIGNAL_DEFINE(CAS_B);
 
 	return chip;
 }

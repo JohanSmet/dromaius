@@ -30,42 +30,24 @@ Chip6114SRam *chip_6114_sram_create(Simulator *sim, Chip6114SRamSignals signals)
 
 	memcpy(chip->signals, signals, sizeof(Chip6114SRamSignals));
 
-	SIGNAL_DEFINE(CHIP_6114_A0);
-	SIGNAL_DEFINE(CHIP_6114_A1);
-	SIGNAL_DEFINE(CHIP_6114_A2);
-	SIGNAL_DEFINE(CHIP_6114_A3);
-	SIGNAL_DEFINE(CHIP_6114_A4);
-	SIGNAL_DEFINE(CHIP_6114_A5);
-	SIGNAL_DEFINE(CHIP_6114_A6);
-	SIGNAL_DEFINE(CHIP_6114_A7);
-	SIGNAL_DEFINE(CHIP_6114_A8);
-	SIGNAL_DEFINE(CHIP_6114_A9);
+	SIGNAL_DEFINE_GROUP(A0, address);
+	SIGNAL_DEFINE_GROUP(A1, address);
+	SIGNAL_DEFINE_GROUP(A2, address);
+	SIGNAL_DEFINE_GROUP(A3, address);
+	SIGNAL_DEFINE_GROUP(A4, address);
+	SIGNAL_DEFINE_GROUP(A5, address);
+	SIGNAL_DEFINE_GROUP(A6, address);
+	SIGNAL_DEFINE_GROUP(A7, address);
+	SIGNAL_DEFINE_GROUP(A8, address);
+	SIGNAL_DEFINE_GROUP(A9, address);
 
-	SIGNAL_DEFINE(CHIP_6114_IO0);
-	SIGNAL_DEFINE(CHIP_6114_IO1);
-	SIGNAL_DEFINE(CHIP_6114_IO2);
-	SIGNAL_DEFINE(CHIP_6114_IO3);
+	SIGNAL_DEFINE_GROUP(IO0, io);
+	SIGNAL_DEFINE_GROUP(IO1, io);
+	SIGNAL_DEFINE_GROUP(IO2, io);
+	SIGNAL_DEFINE_GROUP(IO3, io);
 
-	SIGNAL_DEFINE(CHIP_6114_CE_B);
-	SIGNAL_DEFINE(CHIP_6114_RW);
-
-	chip->sg_address = signal_group_create();
-	signal_group_push(&chip->sg_address, SIGNAL(A0));
-	signal_group_push(&chip->sg_address, SIGNAL(A1));
-	signal_group_push(&chip->sg_address, SIGNAL(A2));
-	signal_group_push(&chip->sg_address, SIGNAL(A3));
-	signal_group_push(&chip->sg_address, SIGNAL(A4));
-	signal_group_push(&chip->sg_address, SIGNAL(A5));
-	signal_group_push(&chip->sg_address, SIGNAL(A6));
-	signal_group_push(&chip->sg_address, SIGNAL(A7));
-	signal_group_push(&chip->sg_address, SIGNAL(A8));
-	signal_group_push(&chip->sg_address, SIGNAL(A9));
-
-	chip->sg_io = signal_group_create();
-	signal_group_push(&chip->sg_io, SIGNAL(IO0));
-	signal_group_push(&chip->sg_io, SIGNAL(IO1));
-	signal_group_push(&chip->sg_io, SIGNAL(IO2));
-	signal_group_push(&chip->sg_io, SIGNAL(IO3));
+	SIGNAL_DEFINE(CE_B);
+	SIGNAL_DEFINE(RW);
 
 	return chip;
 }

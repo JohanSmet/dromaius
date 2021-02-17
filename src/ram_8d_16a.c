@@ -38,19 +38,17 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, Simulator *sim, Ram8d16aSi
 	ram->sg_data = signal_group_create();
 
 	for (int i = 0; i < num_address_lines; ++i) {
-		SIGNAL_DEFINE(CHIP_RAM8D16A_A0 + i);
-		signal_group_push(&ram->sg_address, SIGNAL_COLLECTION[CHIP_RAM8D16A_A0 + i]);
+		SIGNAL_DEFINE_GROUP(A0 + i, address);
 	}
 
 	for (int i = 0; i < 8; ++i) {
-		SIGNAL_DEFINE(CHIP_RAM8D16A_D0 + i);
-		signal_group_push(&ram->sg_data, SIGNAL_COLLECTION[CHIP_RAM8D16A_D0 + i]);
+		SIGNAL_DEFINE_GROUP(D0 + i, data);
 	}
 
 
-	SIGNAL_DEFINE(CHIP_RAM8D16A_CE_B);
-	SIGNAL_DEFINE(CHIP_RAM8D16A_WE_B);
-	SIGNAL_DEFINE(CHIP_RAM8D16A_OE_B);
+	SIGNAL_DEFINE(CE_B);
+	SIGNAL_DEFINE(WE_B);
+	SIGNAL_DEFINE(OE_B);
 
 	return ram;
 }

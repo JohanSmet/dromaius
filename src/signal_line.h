@@ -243,39 +243,38 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 #define SIGNAL_COLLECTION	SIGNAL_OWNER->signals
 #define SIGNAL_CHIP_ID		SIGNAL_OWNER->id
 
-#define SIGNAL_DEFINE(sig)												\
-	if (SIGNAL_COLLECTION[(sig)] == 0) {							\
-		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL);		\
+#define SIGNAL(sig)			SIGNAL_COLLECTION[SIGNAL_CONCAT(SIGNAL_PREFIX, sig)]
+#define SIGNAL_GROUP(grp)	SIGNAL_OWNER->sg_ ## grp
+
+#define SIGNAL_DEFINE(sig)							\
+	if (SIGNAL(sig) == 0) {							\
+		SIGNAL(sig) = signal_create(SIGNAL_POOL);	\
 	}
 
-#define SIGNAL_DEFINE_N(sig,name)										\
-	if (SIGNAL_COLLECTION[(sig)] == 0) {							\
-		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL);		\
-		signal_set_name(SIGNAL_POOL, SIGNAL_COLLECTION[(sig)], (name));	\
+#define SIGNAL_DEFINE_N(sig,name)							\
+	if (SIGNAL(sig) == 0) {									\
+		SIGNAL(sig) = signal_create(SIGNAL_POOL);			\
+		signal_set_name(SIGNAL_POOL, SIGNAL(sig), (name));	\
 	}
 
+#define SIGNAL_DEFINE_GROUP(sig, grp)						\
+	if (SIGNAL(sig) == 0) {									\
+		SIGNAL(sig) = signal_create(SIGNAL_POOL);			\
+	}														\
+	signal_group_push(&SIGNAL_OWNER->sg_ ## grp, SIGNAL(sig));
 
-#define SIGNAL_DEFINE_GROUP(sig, grp)									\
-	if (SIGNAL_COLLECTION[(sig)] == 0) {							\
-		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL);		\
-	}																	\
-	signal_group_push(&SIGNAL_OWNER->sg_ ## grp, SIGNAL_COLLECTION[(sig)]);
-
-#define SIGNAL_DEFINE_DEFAULT(sig,def)										\
-	if (SIGNAL_COLLECTION[(sig)] == 0) {								\
-		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL);			\
-		signal_default(SIGNAL_POOL, SIGNAL_COLLECTION[(sig)], (def));	\
+#define SIGNAL_DEFINE_DEFAULT(sig,def)						\
+	if (SIGNAL(sig) == 0) {									\
+		SIGNAL(sig) = signal_create(SIGNAL_POOL);			\
+		signal_default(SIGNAL_POOL, SIGNAL(sig), (def));	\
 	}
 
-#define SIGNAL_DEFINE_DEFAULT_N(sig,def,name)								\
-	if (SIGNAL_COLLECTION[(sig)] == 0) {								\
-		SIGNAL_COLLECTION[(sig)] = signal_create(SIGNAL_POOL);			\
-		signal_default(SIGNAL_POOL, SIGNAL_COLLECTION[(sig)], (def));	\
-		signal_set_name(SIGNAL_POOL, SIGNAL_COLLECTION[(sig)], (name));	\
+#define SIGNAL_DEFINE_DEFAULT_N(sig,def,name)				\
+	if (SIGNAL(sig) == 0) {									\
+		SIGNAL(sig) = signal_create(SIGNAL_POOL);			\
+		signal_default(SIGNAL_POOL, SIGNAL(sig), (def));	\
+		signal_set_name(SIGNAL_POOL, SIGNAL(sig), (name));	\
 	}
-
-#define SIGNAL(sig)							SIGNAL_COLLECTION[SIGNAL_CONCAT(SIGNAL_PREFIX, sig)]
-#define SIGNAL_GROUP(grp)					SIGNAL_OWNER->sg_ ## grp
 
 #define SIGNAL_DEPENDENCY(sig)				signal_add_dependency(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_ID)
 
@@ -287,21 +286,21 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 
 #define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_ID)
 
-#define SIGNAL_GROUP_NEW(grp,cnt)			SIGNAL_OWNER->sg_ ## grp = signal_group_create_new(SIGNAL_POOL, (cnt))
-#define SIGNAL_GROUP_NEW_N(grp,cnt,gn,sn)	SIGNAL_OWNER->sg_ ## grp = signal_group_create_new(SIGNAL_POOL, (cnt));		\
+#define SIGNAL_GROUP_NEW(grp,cnt)			SIGNAL_GROUP(grp)  = signal_group_create_new(SIGNAL_POOL, (cnt))
+#define SIGNAL_GROUP_NEW_N(grp,cnt,gn,sn)	SIGNAL_GROUP(grp)  = signal_group_create_new(SIGNAL_POOL, (cnt));		\
 											signal_group_set_name(SIGNAL_POOL, SIGNAL_GROUP(grp), (gn), (sn), 0);
 
-#define SIGNAL_GROUP_DEPENDENCY(grp)		signal_group_dependency(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, SIGNAL_CHIP_ID)
-#define SIGNAL_GROUP_DEFAULTS(grp,v)		signal_group_defaults(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, (v))
-#define SIGNAL_GROUP_READ_U8(grp)			((uint8_t) signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
-#define SIGNAL_GROUP_READ_U16(grp)			((uint16_t) signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
-#define SIGNAL_GROUP_READ_U32(grp)			(signal_group_read(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
-#define SIGNAL_GROUP_READ_NEXT_U8(grp)		((uint8_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
-#define SIGNAL_GROUP_READ_NEXT_U16(grp)		((uint16_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
-#define SIGNAL_GROUP_READ_NEXT_U32(grp)		(signal_group_read_next(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp))
-#define SIGNAL_GROUP_WRITE(grp,v)			signal_group_write(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, (v), SIGNAL_CHIP_ID)
-#define SIGNAL_GROUP_WRITE_MASKED(grp,v,m)	signal_group_write_masked(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, (v), (m), SIGNAL_CHIP_ID)
-#define SIGNAL_GROUP_NO_WRITE(grp)			signal_group_clear_writer(SIGNAL_POOL, SIGNAL_OWNER->sg_ ## grp, SIGNAL_CHIP_ID)
+#define SIGNAL_GROUP_DEPENDENCY(grp)		signal_group_dependency(SIGNAL_POOL, SIGNAL_GROUP(grp) , SIGNAL_CHIP_ID)
+#define SIGNAL_GROUP_DEFAULTS(grp,v)		signal_group_defaults(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v))
+#define SIGNAL_GROUP_READ_U8(grp)			((uint8_t) signal_group_read(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
+#define SIGNAL_GROUP_READ_U16(grp)			((uint16_t) signal_group_read(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
+#define SIGNAL_GROUP_READ_U32(grp)			(signal_group_read(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
+#define SIGNAL_GROUP_READ_NEXT_U8(grp)		((uint8_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
+#define SIGNAL_GROUP_READ_NEXT_U16(grp)		((uint16_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
+#define SIGNAL_GROUP_READ_NEXT_U32(grp)		(signal_group_read_next(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
+#define SIGNAL_GROUP_WRITE(grp,v)			signal_group_write(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v), SIGNAL_CHIP_ID)
+#define SIGNAL_GROUP_WRITE_MASKED(grp,v,m)	signal_group_write_masked(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v), (m), SIGNAL_CHIP_ID)
+#define SIGNAL_GROUP_NO_WRITE(grp)			signal_group_clear_writer(SIGNAL_POOL, SIGNAL_GROUP(grp) , SIGNAL_CHIP_ID)
 
 #ifdef __cplusplus
 }

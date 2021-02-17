@@ -30,9 +30,9 @@ PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
 	crt->simulator = sim;
 	crt->signal_pool = sim->signal_pool;
 	memcpy(crt->signals, signals, sizeof(PerifPetCrtSignals));
-	SIGNAL_DEFINE(PIN_PETCRT_VIDEO_IN);
-	SIGNAL_DEFINE(PIN_PETCRT_VERT_DRIVE_IN);
-	SIGNAL_DEFINE(PIN_PETCRT_HORZ_DRIVE_IN);
+	SIGNAL_DEFINE(VIDEO_IN);
+	SIGNAL_DEFINE(VERT_DRIVE_IN);
+	SIGNAL_DEFINE(HORZ_DRIVE_IN);
 
 	// display
 	size_t width = 40 * 8;

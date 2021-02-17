@@ -29,7 +29,7 @@ Oscillator *oscillator_create(int64_t frequency, Simulator *sim, OscillatorSigna
 	CHIP_SET_FUNCTIONS(tmr, oscillator_process, oscillator_destroy, oscillator_register_dependencies);
 
 	memcpy(tmr->signals, signals, sizeof(OscillatorSignals));
-	SIGNAL_DEFINE_DEFAULT(CHIP_OSCILLATOR_CLK_OUT, false);
+	SIGNAL_DEFINE_DEFAULT(CLK_OUT, false);
 
 	tmr->frequency = frequency;
 	tmr->half_period_ticks = 1000000000000l / (tmr->frequency * 2 * tmr->simulator->tick_duration_ps);

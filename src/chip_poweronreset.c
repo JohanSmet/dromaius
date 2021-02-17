@@ -29,8 +29,8 @@ PowerOnReset *poweronreset_create(int64_t duration_ps, Simulator *sim, PowerOnRe
 	CHIP_SET_FUNCTIONS(por, poweronreset_process, poweronreset_destroy, poweronreset_register_dependencies);
 
 	memcpy(por->signals, signals, sizeof(PowerOnResetSignals));
-	SIGNAL_DEFINE(CHIP_POR_RESET_B);
-	SIGNAL_DEFINE_DEFAULT(CHIP_POR_TRIGGER_B, ACTLO_DEASSERT);
+	SIGNAL_DEFINE(RESET_B);
+	SIGNAL_DEFINE_DEFAULT(TRIGGER_B, ACTLO_DEASSERT);
 
 	por->duration_ps = duration_ps;
 	por->duration_ticks = simulator_interval_to_tick_count(por->simulator, por->duration_ps);

@@ -245,12 +245,12 @@ PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteS
 	datassette->signal_pool = sim->signal_pool;
 	memcpy(datassette->signals, signals, sizeof(PerifDatassetteSignals));
 
-	SIGNAL_DEFINE_DEFAULT(PIN_DS1530_GND, false);
-	SIGNAL_DEFINE_DEFAULT(PIN_DS1530_VCC, true);
-	SIGNAL_DEFINE(PIN_DS1530_MOTOR);
-	SIGNAL_DEFINE(PIN_DS1530_DATA_FROM_DS)
-	SIGNAL_DEFINE(PIN_DS1530_DATA_TO_DS);
-	SIGNAL_DEFINE(PIN_DS1530_SENSE);
+	SIGNAL_DEFINE_DEFAULT(GND, false);
+	SIGNAL_DEFINE_DEFAULT(VCC, true);
+	SIGNAL_DEFINE(MOTOR);
+	SIGNAL_DEFINE(DATA_FROM_DS)
+	SIGNAL_DEFINE(DATA_TO_DS);
+	SIGNAL_DEFINE(SENSE);
 
 	// data
 	datassette->sense_out = ACTLO_DEASSERT;
