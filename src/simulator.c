@@ -154,7 +154,7 @@ void simulator_simulate_timestep(Simulator *sim) {
 	sim_process_sequential(PRIVATE(sim), PRIVATE(sim)->dirty_chips);
 
 	// process any chips that wrote to a signal of which the active writers changed
-	//	(TODO: should really call processs, only outputting previous signals should be enough/safer)
+	//	(TODO: shouldn't really call processs, only outputting previous signals should be enough/safer)
 	uint64_t rerun_chips = signal_pool_process_high_impedance(sim->signal_pool);
 	sim_process_sequential(PRIVATE(sim), rerun_chips);
 
