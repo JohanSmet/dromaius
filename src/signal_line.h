@@ -93,11 +93,8 @@ static inline bool signal_read(SignalPool *pool, Signal signal) {
 
 static inline void signal_write(SignalPool *pool, Signal signal, bool value, int32_t chip_id) {
 	assert(pool);
-	arrpush(pool->signals_write_queue[1], ( (SignalQueueWrite) {
-				.signal = signal,
-				.writer_mask = 1ull << chip_id,
-				.new_value = value,
-	}));
+	SignalQueueWrite entry = {signal, 1ull << chip_id, value};
+	arrpush(pool->signals_write_queue[1], entry);
 }
 
 static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t chip_id) {
@@ -106,10 +103,8 @@ static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t 
 	const uint64_t w_mask = 1ull << chip_id;
 
 	if (pool->signals_writers[signal] & w_mask) {
-		arrpush(pool->signals_highz_queue, ((SignalQueueHighZ) {
-					.signal = signal,
-					.writer_mask = w_mask
-		}));
+		SignalQueueHighZ entry = {signal, w_mask};
+		arrpush(pool->signals_highz_queue, entry);
 	}
 }
 
