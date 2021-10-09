@@ -31,12 +31,12 @@ typedef struct {
 	Signal		signal;							// signal to write to
 	uint64_t	writer_mask;					// id-mask of the chip writing to the signal
 	bool		new_value;						// value to write
-} SignalQueueWrite;
+} SignalQueueEntry;
 
 typedef struct {
-	Signal		signal;							// signal that might go high impedance
-	uint64_t	writer_mask;					// id-mask of the chip that stops writing to the signal
-} SignalQueueHighZ;
+	size_t				size;
+	SignalQueueEntry *	queue;
+} SignalQueue;
 
 typedef struct SignalPool {
 	bool *			signals_value;				// current value of the signal
@@ -49,8 +49,8 @@ typedef struct SignalPool {
 	const char **	signals_name;				// names of the signal (id -> name)
 	SignalNameMap	*signal_names;				// hashmap name -> signal
 
-	SignalQueueWrite *	signals_write_queue[2];	// queue of pending writes to the signals
-	SignalQueueHighZ *	signals_highz_queue;	// queue of signals that have had an active writer go away
+	SignalQueue 	signals_write_queue[2];	// queue of pending writes to the signals
+	SignalQueue 	signals_highz_queue;	// queue of signals that have had an active writer go away
 
 	// variables specifically to make read_next work (normally only used in unit-tests)
 	bool *			signals_next_value;
@@ -69,7 +69,7 @@ extern const uint64_t lut_bit_to_byte[256];
 #define MAX_SIGNAL_NAME		8
 
 // functions - signal pool
-SignalPool *signal_pool_create(void);
+SignalPool *signal_pool_create(size_t max_concurrent_writes);
 void signal_pool_destroy(SignalPool *pool);
 
 uint64_t signal_pool_process_high_impedance(SignalPool *pool);
@@ -93,8 +93,11 @@ static inline bool signal_read(SignalPool *pool, Signal signal) {
 
 static inline void signal_write(SignalPool *pool, Signal signal, bool value, int32_t chip_id) {
 	assert(pool);
-	SignalQueueWrite entry = {signal, 1ull << chip_id, value};
-	arrpush(pool->signals_write_queue[1], entry);
+
+	SignalQueueEntry *entry = &pool->signals_write_queue[1].queue[pool->signals_write_queue[1].size++];
+	entry->signal = signal;
+	entry->writer_mask = 1ull << chip_id;
+	entry->new_value  = value;
 }
 
 static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t chip_id) {
@@ -103,8 +106,9 @@ static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t 
 	const uint64_t w_mask = 1ull << chip_id;
 
 	if (pool->signals_writers[signal] & w_mask) {
-		SignalQueueHighZ entry = {signal, w_mask};
-		arrpush(pool->signals_highz_queue, entry);
+		SignalQueueEntry *entry = &pool->signals_highz_queue.queue[pool->signals_highz_queue.size++];
+		entry->signal = signal;
+		entry->writer_mask = w_mask;
 	}
 }
 

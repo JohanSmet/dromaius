@@ -73,7 +73,8 @@ static inline void sim_process_sequential(Simulator_private *sim, uint64_t dirty
 Simulator *simulator_create(int64_t tick_duration_ps) {
 	Simulator_private *priv_sim = (Simulator_private *) calloc(1, sizeof(Simulator_private));
 
-	PUBLIC(priv_sim)->signal_pool = signal_pool_create();
+	// TODO: max number of concurrent signals should be given by the caller
+	PUBLIC(priv_sim)->signal_pool = signal_pool_create(512);
 	PUBLIC(priv_sim)->tick_duration_ps = tick_duration_ps;
 
 	return &priv_sim->public;

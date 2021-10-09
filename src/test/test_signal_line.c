@@ -6,7 +6,7 @@
 #include "stb/stb_ds.h"
 
 static void *signal_setup(const MunitParameter params[], void *user_data) {
-	SignalPool *pool = signal_pool_create();
+	SignalPool *pool = signal_pool_create(16);
 	return pool;
 }
 
@@ -71,23 +71,23 @@ static MunitResult test_write(const MunitParameter params[], void* user_data_or_
 	munit_assert_false(pool->signals_value[prv]);
 	munit_assert_false(pool->signals_value[sig]);
 	munit_assert_false(pool->signals_value[nxt]);
-	munit_assert_size(arrlenu(pool->signals_write_queue[1]), ==, 0);
+	munit_assert_size(pool->signals_write_queue[1].size, ==, 0);
 
 	// test
 	signal_write(pool, sig, true, 0);
-	munit_assert_size(arrlenu(pool->signals_write_queue[1]), ==, 1);
-	munit_assert_uint32(pool->signals_write_queue[1][0].signal, ==, sig);
-	munit_assert_uint32(pool->signals_write_queue[1][0].new_value, ==, true);
+	munit_assert_size(pool->signals_write_queue[1].size, ==, 1);
+	munit_assert_uint32(pool->signals_write_queue[1].queue[0].signal, ==, sig);
+	munit_assert_uint32(pool->signals_write_queue[1].queue[0].new_value, ==, true);
 	munit_assert_false(pool->signals_value[prv]);
 	munit_assert_false(pool->signals_value[sig]);
 	munit_assert_false(pool->signals_value[nxt]);
 
 	signal_write(pool, sig, false, 0);
-	munit_assert_size(arrlenu(pool->signals_write_queue[1]), ==, 2);
-	munit_assert_uint32(pool->signals_write_queue[1][0].signal, ==, sig);
-	munit_assert_uint32(pool->signals_write_queue[1][0].new_value, ==, true);
-	munit_assert_uint32(pool->signals_write_queue[1][1].signal, ==, sig);
-	munit_assert_uint32(pool->signals_write_queue[1][1].new_value, ==, false);
+	munit_assert_size(pool->signals_write_queue[1].size, ==, 2);
+	munit_assert_uint32(pool->signals_write_queue[1].queue[0].signal, ==, sig);
+	munit_assert_uint32(pool->signals_write_queue[1].queue[0].new_value, ==, true);
+	munit_assert_uint32(pool->signals_write_queue[1].queue[1].signal, ==, sig);
+	munit_assert_uint32(pool->signals_write_queue[1].queue[1].new_value, ==, false);
 	munit_assert_false(pool->signals_value[prv]);
 	munit_assert_false(pool->signals_value[sig]);
 	munit_assert_false(pool->signals_value[nxt]);
