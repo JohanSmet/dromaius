@@ -264,16 +264,25 @@ void process_negative_enable_edge(Chip6520 *pia) {
 static inline void process_end(Chip6520 *pia) {
 
 	// the IRQ-lines are open-drain; output is either low (tied to ground) or hi-z (floating, to be pulled up externally)
-	if (!PRIVATE(pia)->out_irqa_b) {
-		SIGNAL_WRITE(IRQA_B, false);
-	} else {
-		SIGNAL_NO_WRITE(IRQA_B);
-	}
+	// be careful when the IRQ-lines are tied to the same signal
+	if (SIGNAL(IRQA_B) != SIGNAL(IRQB_B)) {
+		if (!PRIVATE(pia)->out_irqa_b) {
+			SIGNAL_WRITE(IRQA_B, false);
+		} else {
+			SIGNAL_NO_WRITE(IRQA_B);
+		}
 
-	if (!PRIVATE(pia)->out_irqb_b) {
-		SIGNAL_WRITE(IRQB_B, false);
+		if (!PRIVATE(pia)->out_irqb_b) {
+			SIGNAL_WRITE(IRQB_B, false);
+		} else {
+			SIGNAL_NO_WRITE(IRQB_B);
+		}
 	} else {
-		SIGNAL_NO_WRITE(IRQB_B);
+		if (!PRIVATE(pia)->out_irqa_b || !PRIVATE(pia)->out_irqb_b) {
+			SIGNAL_WRITE(IRQA_B, false);
+		} else {
+			SIGNAL_NO_WRITE(IRQA_B);
+		}
 	}
 
 	// output on the ports
