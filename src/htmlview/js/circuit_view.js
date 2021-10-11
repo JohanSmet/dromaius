@@ -111,7 +111,7 @@ export class CircuitView {
 	on_svg_mousewheel(evt) {
 		var layer = this.svg_transform_layer();
 
-		const scale = 1.0 + evt.deltaY * -0.01;
+		const scale = (evt.deltaY < 0) ? 1.2 : 0.8;
 		const center = this.event_svg_point(this.svg_document, evt).matrixTransform(layer.getCTM().inverse());
 		const scale_transform = this.svg_document.createSVGMatrix()
 										.translate(center.x, center.y)
