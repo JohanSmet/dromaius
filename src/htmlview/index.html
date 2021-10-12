@@ -5,6 +5,11 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Dromaius - HTML viewer</title>
+	<!-- Workaround for webserver where it's not possible to change the headers (e.g. GitHub Pages)
+		 This can be removed if you can set the Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy headers
+		 required for SharedArrayBuffer (and subsequently threads) to work.  -->
+	<script src="coi-serviceworker.js"></script>
+	<!-- End of workaround -->
 	<script src="js/jquery-3.5.1.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="js/jspanel/jspanel.css">
@@ -73,30 +78,37 @@
 	<script type="text/javascript" src="js/entrypoint.js"></script>
 	<script async type="text/javascript" src="wasm/htmlview.js"></script>
 	<script type="text/javascript">
-		window.wasmLoaded = false;
+		// do not try to load the server isn't sending the correct headers for the webassembly to work entirely
+		if (window.crossOriginIsolated !== false) {
 
-		Module.onRuntimeInitialized = function() {
-			window.wasmLoaded = true;
+			window.wasmLoaded = false;
+
+			Module.onRuntimeInitialized = function() {
+				window.wasmLoaded = true;
+			}
+
+			// override error-handler
+			window.onerror = function() {
+				$('#status').text('Exception thrown, see JavaScript console');
+				$('#spinner').hide();
+			};
 		}
-
-		// override error-handler
-		window.onerror = function() {
-			$('#status').text('Exception thrown, see JavaScript console');
-			$('#spinner').hide();
-		};
 	</script>
 
 	<script type="module">
 		import * as Main from './js/main.js';
 
-		var tmrId = setInterval(function() {
-			if (window.wasmLoaded) {
-				clearInterval(tmrId);
-				$("#loading").hide();
-				$("#main").show();
-				new Main.MainUI(Module);
-			}
-		}, 10);
+		// do not try to load the server isn't sending the correct headers for the webassembly to work entirely
+		if (window.crossOriginIsolated !== false) {
+			var tmrId = setInterval(function() {
+				if (window.wasmLoaded) {
+					clearInterval(tmrId);
+					$("#loading").hide();
+					$("#main").show();
+					new Main.MainUI(Module);
+				}
+			}, 10);
+		}
 	</script>
   </body>
 </html>
