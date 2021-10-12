@@ -1,14 +1,13 @@
 # Dromaius: Todo
 
 ## General
-- [ ] Figure out a consistent, but flexible, way to pass signals between components
-	- ATM dromaius uses a combination of integers (for multi-bit values) and bools (for single-bit)
-	- the 6502 expects pointer to shared data
-	- the ROM/RAM modules expect data to be copied in & out
-	- whatever the solution it should be feasable to group multiple bits at one point and split them out later (e.g. for address lines)
-	- it would be nice if connections react the way they would in a real electrical circuit
-		- e.g. support wire-OR for multiple open-drain output (to combine irq-lines with pull ups)
+- [ ] Show what is happening at each pin. ATM only the state of the node is shown and it's unclear which chip is responsible
+      for the value on the line and which are reading the value or in high-Z.
 - [ ] Add more devices :-)
+
+## Library: simulator
+- [ ] Simulate the chips concurrently on multiple threads
+- [ ] Try to eliminate signal writes in the chip simulation threads to decrease the load for the consolidation step at the end.
 
 ## Library: 6502
 - [ ] Implement the unofficial/illegal 6502 opcodes
@@ -16,3 +15,10 @@
 - [ ] Refactor/optimize the implementation
 		- right now it's basically a bunch of nested switch statements, switch to a coroutine-like method might require less branches
 		- another option is to structure the emulator more like a real 6502 (see https://www.pagetable.com/?p=39)
+		- low priority: this isn't the slowest part of the emulator
+
+## Library: general features
+- [ ] Implement save states.
+- [ ] Investigate if it's possible to allow writes to signal queues of future timesteps
+		-> e.g. to simulate read delays of ROM/RAM without wake-up events
+- [ ] Save the signal writes in a transaction log that allows us to rollback to a previous timestep
