@@ -108,10 +108,7 @@ jobs:
               working-directory: ${{runner.workspace}}/_build
               run: |
                   mkdir _arch
-                  cp dromaius.data _arch
-                  cp dromaius.js _arch
-                  cp dromaius.html _arch/index.html
-                  cp dromaius.wasm _arch
+                  cmake  --install . --prefix _arch
 
             - name: Archive build
               uses: actions/upload-artifact@v1

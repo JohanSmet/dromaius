@@ -289,6 +289,15 @@ if (EMSCRIPTEN)
 			"--exclude-file *.s"
 			"--exclude-file *.cfg"
 	)
+	install(FILES		${PROJECT_BINARY_DIR}/dromaius.data
+						${PROJECT_BINARY_DIR}/dromaius.js
+						${PROJECT_BINARY_DIR}/dromaius.wasm
+						${PROJECT_BINARY_DIR}/dromaius.worker.js
+			DESTINATION gui)
+	install(FILES		${PROJECT_BINARY_DIR}/dromaius.html
+			RENAME		index.html
+			DESTINATION gui)
+
 endif()
 
 # html viewer
@@ -313,6 +322,20 @@ if (EMSCRIPTEN)
 		target_link_libraries(${HTML_TARGET} PRIVATE "-s USE_PTHREADS=1")
 		target_link_libraries(${HTML_TARGET} PRIVATE "-s PTHREAD_POOL_SIZE=2")
 	endif()
+
+	install(DIRECTORY	src/htmlview/circuits
+						src/htmlview/css
+						src/htmlview/fonts
+						src/htmlview/js
+			DESTINATION htmlview)
+	install(FILES		src/htmlview/coi-serviceworker.js
+						src/htmlview/index.html
+			DESTINATION htmlview)
+	install(FILES		${PROJECT_BINARY_DIR}/htmlview.data
+						${PROJECT_BINARY_DIR}/htmlview.js
+						${PROJECT_BINARY_DIR}/htmlview.wasm
+						${PROJECT_BINARY_DIR}/htmlview.worker.js
+			DESTINATION htmlview/wasm)
 endif()
 
 # tools - speedtest
