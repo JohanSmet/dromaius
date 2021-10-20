@@ -1,0 +1,1191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 270.33533 174.65631" version="1.1" id="svg2642">
+  <defs id="defs2636">
+    <marker style="overflow:visible" id="Arrow1Mstart" refX="0" refY="0" orient="auto">
+      <path transform="matrix(0.4,0,0,0.4,4,0)" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" d="M 0,0 5,-5 -12.5,0 5,5 Z" id="path4987"/>
+    </marker>
+    <marker orient="auto" refY="0" refX="0" id="Arrow1Mstart-6" style="overflow:visible">
+      <path id="path4987-5" d="M 0,0 5,-5 -12.5,0 5,5 Z" style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1" transform="matrix(0.4,0,0,0.4,4,0)"/>
+    </marker>
+  </defs>
+  <g style="display:inline" id="Schematic">
+    <g transform="translate(-7.057832,-8.566642)" id="sheet_0" class="sheet_08_g_0">
+      <g id="label_0" transform="translate(28.899775,44.483108)" class="sheet_08_g_0">
+        <text xml:space="preserve" x="235.04747" y="130.00014" id="text_0" class="sheet_08_text_0"><tspan x="235.04747" y="130.00014" id="tspan_0" class="sheet_08_tspan_0">DYNAMIC PET</tspan></text>
+        <text id="text_1" y="127.89767" x="235.11844" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_1" y="127.89767" x="235.11844" class="sheet_08_tspan_0">LOGIC  DIAGRAM</tspan></text>
+        <text xml:space="preserve" x="235.08778" y="132.17581" id="text_2" class="sheet_08_text_0"><tspan x="235.08778" y="132.17581" id="tspan_2" class="sheet_08_tspan_0">DISPLAY RAMS</tspan></text>
+        <text xml:space="preserve" x="235.19122" y="124.61198" id="text_3" class="sheet_08_text_0"><tspan x="235.19122" y="124.61198" id="tspan_3" class="sheet_08_tspan_1">commodore</tspan></text>
+        <text xml:space="preserve" x="223.98859" y="133.90042" id="text_4" class="sheet_08_text_1"><tspan x="223.98859" y="133.90042" id="tspan_4" class="sheet_08_tspan_2">SIZE</tspan></text>
+        <text id="text_5" y="133.93695" x="246.05711" xml:space="preserve" class="sheet_08_text_1"><tspan id="tspan_5" y="133.93695" x="246.05711" class="sheet_08_tspan_2">REV</tspan></text>
+        <text id="text_6" y="135.84822" x="223.90756" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_6" y="135.84822" x="223.90756" class="sheet_08_tspan_3">D</tspan></text>
+        <text xml:space="preserve" x="235.18332" y="135.68661" id="text_7" class="sheet_08_text_2"><tspan x="235.34604" y="135.68661" id="tspan_7" class="sheet_08_tspan_4">320349</tspan></text>
+        <text id="text_8" y="135.91792" x="246.00992" xml:space="preserve" class="sheet_08_text_3"><tspan id="tspan_8" y="135.91792" x="246.00992" class="sheet_08_tspan_4">A</tspan></text>
+        <text id="text_9" y="137.91835" x="224.36774" xml:space="preserve" class="sheet_08_text_1"><tspan id="tspan_9" y="137.91835" x="224.36774" class="sheet_08_tspan_2">SCALE</tspan></text>
+        <text id="text_10" y="137.84587" x="235.57414" xml:space="preserve" class="sheet_08_text_1"><tspan id="tspan_10" y="137.84587" x="235.57414" class="sheet_08_tspan_2">SHEET</tspan></text>
+        <text xml:space="preserve" x="243.03755" y="137.88062" id="text_11" class="sheet_08_text_1"><tspan x="243.03755" y="137.88062" id="tspan_11" class="sheet_08_tspan_2">OF</tspan></text>
+        <text xml:space="preserve" x="239.21062" y="138.15033" id="text_12" class="sheet_08_text_0"><tspan x="239.21062" y="138.15033" id="tspan_12" class="sheet_08_tspan_3">8</tspan></text>
+        <text xml:space="preserve" x="245.75871" y="138.19711" id="text_13" class="sheet_08_text_0"><tspan x="245.75871" y="138.19711" id="tspan_13" class="sheet_08_tspan_3">9</tspan></text>
+        <path id="path_0" d="m 227.66936,137.53725 h 4.64594" class="sheet_08_path_0"/>
+        <path id="path_1" d="m 248.11376,121.86819 h -26.35318 v 16.656" class="sheet_08_path_0"/>
+        <path id="path_2" d="m 221.72613,125.8852 h 26.41184" class="sheet_08_path_0"/>
+        <path d="m 221.82375,132.72346 h 26.41184" id="path_3" class="sheet_08_path_1"/>
+        <path d="m 221.67512,136.52029 h 26.41184" id="path_4" class="sheet_08_path_1"/>
+        <path id="path_5" d="m 226.08433,132.80248 v 3.75441" class="sheet_08_path_0"/>
+        <path id="path_6" d="m 243.95734,132.80718 v 3.6408" class="sheet_08_path_0"/>
+      </g>
+      <rect ry="0" y="8.6991415" x="7.1903315" height="174.39131" width="270.07034" id="rect_0" class="sheet_08_rect_0"/>
+      <path id="path_7" d="m 262.0793,181.05936 v 2.00353" class="sheet_08_path_0"/>
+    </g>
+    <g id="wire#SD6_0" transform="translate(35.084101,-8.5709419)" class="sheet_08_g_0">
+      <path d="m 132.55728,149.54281 h 13.99059 l 0.82392,-0.4757" id="path_8" class="sheet_08_path_2"/>
+      <text id="text_14" y="149.17252" x="142.16103" xml:space="preserve" class="sheet_08_text_4"><tspan id="tspan_14" y="149.17252" x="142.16103" class="sheet_08_tspan_5">SD6</tspan></text>
+    </g>
+    <g id="wire#SD7_0" transform="translate(35.084101,-8.5709419)" class="sheet_08_g_0">
+      <path id="path_9" d="m 132.51839,151.71506 h 13.99059 l 0.98577,-0.64104" class="sheet_08_path_3"/>
+      <text id="text_15" y="151.22276" x="142.16103" xml:space="preserve" class="sheet_08_text_5"><tspan id="tspan_15" y="151.22276" x="142.16103" class="sheet_08_tspan_5">SD7</tspan></text>
+    </g>
+    <g id="chip#F9_74LS373_0" transform="translate(2.3263434,74.210689)" class="sheet_08_g_0">
+      <rect id="rect_1" width="12.573433" height="22.896053" x="110.70764" y="26.883739" class="sheet_08_rect_1"/>
+      <text xml:space="preserve" x="116.91093" y="28.441612" id="text_16" class="sheet_08_text_0"><tspan x="116.91093" y="28.441612" id="tspan_16" class="sheet_08_tspan_0">F9</tspan></text>
+      <text id="text_17" y="49.294392" x="118.69646" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_17" y="49.294392" x="118.69646" class="sheet_08_tspan_0">74LS373</tspan></text>
+      <text id="text_18" y="32.638889" x="117.02383" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_18" y="32.638889" x="117.02383" class="sheet_08_tspan_0">LATCH</tspan></text>
+      <text xml:space="preserve" x="112.69055" y="44.085236" id="text_19" class="sheet_08_text_0"><tspan x="112.69055" y="44.085236" id="tspan_19" class="sheet_08_tspan_0">D6</tspan></text>
+      <text id="text_20" y="39.954285" x="112.67127" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_20" y="39.954285" x="112.67127" class="sheet_08_tspan_0">D7</tspan></text>
+      <text id="text_21" y="46.197266" x="112.68223" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_21" y="46.197266" x="112.68223" class="sheet_08_tspan_0">D4</tspan></text>
+      <text id="text_22" y="33.717613" x="112.64893" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_22" y="33.717613" x="112.64893" class="sheet_08_tspan_0">D1</tspan></text>
+      <text id="text_23" y="48.329754" x="113.72732" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_23" y="48.329754" x="113.72732" class="sheet_08_tspan_6">D5</tspan></text>
+      <text xml:space="preserve" x="113.62368" y="35.757183" id="text_24" class="sheet_08_text_0"><tspan x="113.62368" y="35.757183" id="tspan_24" class="sheet_08_tspan_6">D8</tspan></text>
+      <text xml:space="preserve" x="122.12012" y="39.914669" id="text_25" class="sheet_08_text_0"><tspan x="122.12012" y="39.914669" id="tspan_25" class="sheet_08_tspan_6">Q6</tspan></text>
+      <text id="text_26" y="35.634624" x="122.20657" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_26" y="35.634624" x="122.20657" class="sheet_08_tspan_6">Q7</tspan></text>
+      <text xml:space="preserve" x="122.19993" y="33.683743" id="text_27" class="sheet_08_text_0"><tspan x="122.19993" y="33.683743" id="tspan_27" class="sheet_08_tspan_6">Q2</tspan></text>
+      <text id="text_28" y="37.866203" x="122.22672" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_28" y="37.866203" x="122.22672" class="sheet_08_tspan_6">Q3</tspan></text>
+      <text id="text_29" y="29.40963" x="122.11907" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_29" y="29.40963" x="122.11907" class="sheet_08_tspan_6">Q1</tspan></text>
+      <text xml:space="preserve" x="122.18279" y="41.963367" id="text_30" class="sheet_08_text_0"><tspan x="122.18279" y="41.963367" id="tspan_30" class="sheet_08_tspan_6">Q4</tspan></text>
+      <text id="text_31" y="30.53978" x="116.75742" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_31" y="30.53978" x="116.75742" class="sheet_08_tspan_0">8-BIT</tspan></text>
+      <text id="text_32" y="37.833023" x="112.77913" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_32" y="37.833023" x="112.77913" class="sheet_08_tspan_0">D2</tspan></text>
+      <text xml:space="preserve" x="112.64205" y="42.095657" id="text_33" class="sheet_08_text_0"><tspan x="112.64205" y="42.095657" id="tspan_33" class="sheet_08_tspan_0">D3</tspan></text>
+      <text id="text_34" y="36.789371" x="109.66123" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_34" y="36.789371" x="109.66123" class="sheet_08_tspan_6">4</tspan></text>
+      <text xml:space="preserve" x="125.31608" y="32.717934" id="text_35" class="sheet_08_text_0"><tspan x="125.31608" y="32.717934" id="tspan_35" class="sheet_08_tspan_6">5</tspan></text>
+      <text xml:space="preserve" x="126.1911" y="38.932175" id="text_36" class="sheet_08_text_0"><tspan x="126.1911" y="38.932175" id="tspan_36" class="sheet_08_tspan_6">15</tspan></text>
+      <text id="text_37" y="30.528374" x="109.5232" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_37" y="30.528374" x="109.5232" class="sheet_08_tspan_6">1</tspan></text>
+      <text xml:space="preserve" x="109.53083" y="34.712177" id="text_38" class="sheet_08_text_0"><tspan x="109.53083" y="34.712177" id="tspan_38" class="sheet_08_tspan_6">18</tspan></text>
+      <text id="text_39" y="41.036976" x="125.2644" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_39" y="41.036976" x="125.2644" class="sheet_08_tspan_6">9</tspan></text>
+      <text id="text_40" y="28.411713" x="109.50018" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_40" y="28.411713" x="109.50018" class="sheet_08_tspan_6">11</tspan></text>
+      <text xml:space="preserve" x="109.57265" y="43.043869" id="text_41" class="sheet_08_text_0"><tspan x="109.57265" y="43.043869" id="tspan_41" class="sheet_08_tspan_6">14</tspan></text>
+      <text xml:space="preserve" x="109.56479" y="32.540691" id="text_42" class="sheet_08_text_0"><tspan x="109.56479" y="32.540691" id="tspan_42" class="sheet_08_tspan_6">3</tspan></text>
+      <text id="text_43" y="28.488068" x="125.22758" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_43" y="28.488068" x="125.22758" class="sheet_08_tspan_6">2</tspan></text>
+      <text id="text_44" y="37.001339" x="125.34003" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_44" y="37.001339" x="125.34003" class="sheet_08_tspan_6">6</tspan></text>
+      <text xml:space="preserve" x="109.56551" y="41.017193" id="text_45" class="sheet_08_text_0"><tspan x="109.56551" y="41.017193" id="tspan_45" class="sheet_08_tspan_6">7</tspan></text>
+      <text id="text_46" y="43.165733" x="126.27201" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_46" y="43.165733" x="126.27201" class="sheet_08_tspan_6">12</tspan></text>
+      <text xml:space="preserve" x="109.65099" y="47.33239" id="text_47" class="sheet_08_text_0"><tspan x="109.65099" y="47.33239" id="tspan_47" class="sheet_08_tspan_6">13</tspan></text>
+      <text id="text_48" y="44.235069" x="122.16912" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_48" y="44.235069" x="122.16912" class="sheet_08_tspan_6">Q5</tspan></text>
+      <text xml:space="preserve" x="122.17467" y="31.593317" id="text_49" class="sheet_08_text_0"><tspan x="122.17467" y="31.593317" id="tspan_49" class="sheet_08_tspan_6">Q8</tspan></text>
+      <text id="text_50" y="38.909714" x="109.59473" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_50" y="38.909714" x="109.59473" class="sheet_08_tspan_6">17</tspan></text>
+      <text id="text_51" y="30.483305" x="126.27066" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_51" y="30.483305" x="126.27066" class="sheet_08_tspan_6">19</tspan></text>
+      <text id="text_52" y="34.833118" x="126.27066" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_52" y="34.833118" x="126.27066" class="sheet_08_tspan_6">16</tspan></text>
+      <text id="text_53" y="45.171352" x="109.58157" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_53" y="45.171352" x="109.58157" class="sheet_08_tspan_6">8</tspan></text>
+      <ellipse cx="110.10633" cy="31.005852" rx="0.44926631" ry="0.48355335" id="ellipse_0" class="sheet_08_ellipse_0"/>
+    </g>
+    <g transform="translate(2.2440757,29.98121)" id="chip#F10_6316_0" class="sheet_08_g_0">
+      <rect y="26.883739" x="110.70764" height="31.540524" width="12.573433" id="rect_2" class="sheet_08_rect_1"/>
+      <text id="text_54" y="28.441612" x="116.91093" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_54" y="28.441612" x="116.91093" class="sheet_08_tspan_0">F10</tspan></text>
+      <text xml:space="preserve" x="116.90395" y="35.873264" id="text_55" class="sheet_08_text_0"><tspan x="116.90395" y="35.873264" id="tspan_55" class="sheet_08_tspan_0">CHARACTER</tspan></text>
+      <text xml:space="preserve" x="117.00221" y="37.966003" id="text_56" class="sheet_08_text_0"><tspan x="117.00221" y="37.966003" id="tspan_56" class="sheet_08_tspan_0">ROM</tspan></text>
+      <text id="text_57" y="50.576099" x="121.19392" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_57" y="50.576099" x="121.19392" class="sheet_08_tspan_0">D6</tspan></text>
+      <text xml:space="preserve" x="121.24918" y="52.682228" id="text_58" class="sheet_08_text_0"><tspan x="121.24918" y="52.682228" id="tspan_58" class="sheet_08_tspan_0">D7</tspan></text>
+      <text xml:space="preserve" x="121.17319" y="46.425915" id="text_59" class="sheet_08_text_0"><tspan x="121.17319" y="46.425915" id="tspan_59" class="sheet_08_tspan_0">D4</tspan></text>
+      <text xml:space="preserve" x="121.15136" y="40.080688" id="text_60" class="sheet_08_text_0"><tspan x="121.15136" y="40.080688" id="tspan_60" class="sheet_08_tspan_0">D1</tspan></text>
+      <text xml:space="preserve" x="122.15777" y="48.476093" id="text_61" class="sheet_08_text_0"><tspan x="122.15777" y="48.476093" id="tspan_61" class="sheet_08_tspan_6">D5</tspan></text>
+      <text id="text_62" y="38.015533" x="122.08974" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_62" y="38.015533" x="122.08974" class="sheet_08_tspan_6">D0</tspan></text>
+      <text id="text_63" y="44.258038" x="113.7342" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_63" y="44.258038" x="113.7342" class="sheet_08_tspan_6">A6</tspan></text>
+      <text xml:space="preserve" x="113.77695" y="46.403732" id="text_64" class="sheet_08_text_0"><tspan x="113.77695" y="46.403732" id="tspan_64" class="sheet_08_tspan_6">A7</tspan></text>
+      <text id="text_65" y="33.806709" x="113.68319" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_65" y="33.806709" x="113.68319" class="sheet_08_tspan_6">A2</tspan></text>
+      <text xml:space="preserve" x="113.79514" y="37.917549" id="text_66" class="sheet_08_text_0"><tspan x="113.79514" y="37.917549" id="tspan_66" class="sheet_08_tspan_6">A3</tspan></text>
+      <text xml:space="preserve" x="113.71492" y="31.601999" id="text_67" class="sheet_08_text_0"><tspan x="113.71492" y="31.601999" id="tspan_67" class="sheet_08_tspan_6">A1</tspan></text>
+      <text id="text_68" y="40.149269" x="113.74841" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_68" y="40.149269" x="113.74841" class="sheet_08_tspan_6">A4</tspan></text>
+      <text xml:space="preserve" x="117.8343" y="30.581875" id="text_69" class="sheet_08_text_0"><tspan x="117.8343" y="30.581875" id="tspan_69" class="sheet_08_tspan_0">6316</tspan></text>
+      <text xml:space="preserve" x="121.16216" y="42.229301" id="text_70" class="sheet_08_text_0"><tspan x="121.16216" y="42.229301" id="tspan_70" class="sheet_08_tspan_0">D2</tspan></text>
+      <text id="text_71" y="44.289742" x="121.15099" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_71" y="44.289742" x="121.15099" class="sheet_08_tspan_0">D3</tspan></text>
+      <text xml:space="preserve" x="109.53401" y="39.005394" id="text_72" class="sheet_08_text_0"><tspan x="109.53401" y="39.005394" id="tspan_72" class="sheet_08_tspan_6">4</tspan></text>
+      <text id="text_73" y="36.842453" x="109.45217" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_73" y="36.842453" x="109.45217" class="sheet_08_tspan_6">5</tspan></text>
+      <text id="text_74" y="47.380505" x="126.31268" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_74" y="47.380505" x="126.31268" class="sheet_08_tspan_6">15</tspan></text>
+      <text xml:space="preserve" x="109.58458" y="45.371029" id="text_75" class="sheet_08_text_0"><tspan x="109.58458" y="45.371029" id="tspan_75" class="sheet_08_tspan_6">1</tspan></text>
+      <text id="text_76" y="53.669373" x="109.59281" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_76" y="53.669373" x="109.59281" class="sheet_08_tspan_6">18</tspan></text>
+      <text xml:space="preserve" x="125.33112" y="36.990849" id="text_77" class="sheet_08_text_0"><tspan x="125.33112" y="36.990849" id="tspan_77" class="sheet_08_tspan_6">9</tspan></text>
+      <text xml:space="preserve" x="126.38326" y="41.144405" id="text_78" class="sheet_08_text_0"><tspan x="126.38326" y="41.144405" id="tspan_78" class="sheet_08_tspan_6">11</tspan></text>
+      <text id="text_79" y="45.401089" x="126.34702" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_79" y="45.401089" x="126.34702" class="sheet_08_tspan_6">14</tspan></text>
+      <text id="text_80" y="41.125252" x="109.45911" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_80" y="41.125252" x="109.45911" class="sheet_08_tspan_6">3</tspan></text>
+      <text xml:space="preserve" x="109.56671" y="43.295799" id="text_81" class="sheet_08_text_0"><tspan x="109.56671" y="43.295799" id="tspan_81" class="sheet_08_tspan_6">2</tspan></text>
+      <text xml:space="preserve" x="109.41768" y="32.621792" id="text_82" class="sheet_08_text_0"><tspan x="109.41768" y="32.621792" id="tspan_82" class="sheet_08_tspan_6">6</tspan></text>
+      <text id="text_83" y="30.592819" x="109.45581" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_83" y="30.592819" x="109.45581" class="sheet_08_tspan_6">7</tspan></text>
+      <text xml:space="preserve" x="126.27201" y="43.165733" id="text_84" class="sheet_08_text_0"><tspan x="126.27201" y="43.165733" id="tspan_84" class="sheet_08_tspan_6">12</tspan></text>
+      <text id="text_85" y="39.074581" x="126.33009" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_85" y="39.074581" x="126.33009" class="sheet_08_tspan_6">10</tspan></text>
+      <text xml:space="preserve" x="113.78118" y="42.209755" id="text_86" class="sheet_08_text_0"><tspan x="113.78118" y="42.209755" id="tspan_86" class="sheet_08_tspan_6">A5</tspan></text>
+      <text id="text_87" y="48.443398" x="113.71207" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_87" y="48.443398" x="113.71207" class="sheet_08_tspan_6">A8</tspan></text>
+      <text xml:space="preserve" x="126.33721" y="51.661076" id="text_88" class="sheet_08_text_0"><tspan x="126.33721" y="51.661076" id="tspan_88" class="sheet_08_tspan_6">17</tspan></text>
+      <text xml:space="preserve" x="109.5536" y="51.669891" id="text_89" class="sheet_08_text_0"><tspan x="109.5536" y="51.669891" id="tspan_89" class="sheet_08_tspan_6">19</tspan></text>
+      <text xml:space="preserve" x="126.34813" y="49.491398" id="text_90" class="sheet_08_text_0"><tspan x="126.34813" y="49.491398" id="tspan_90" class="sheet_08_tspan_6">16</tspan></text>
+      <text xml:space="preserve" x="109.45601" y="28.531702" id="text_91" class="sheet_08_text_0"><tspan x="109.45601" y="28.531702" id="tspan_91" class="sheet_08_tspan_6">8</tspan></text>
+      <text id="text_92" y="29.589397" x="113.62276" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_92" y="29.589397" x="113.62276" class="sheet_08_tspan_6">A0</tspan></text>
+      <text xml:space="preserve" x="113.73185" y="50.618259" id="text_93" class="sheet_08_text_0"><tspan x="113.73185" y="50.618259" id="tspan_93" class="sheet_08_tspan_6">A9</tspan></text>
+      <text id="text_94" y="52.706661" x="114.66073" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_94" y="52.706661" x="114.66073" class="sheet_08_tspan_6">A10</tspan></text>
+      <text xml:space="preserve" x="114.71212" y="56.901161" id="text_95" class="sheet_08_text_0"><tspan x="114.71212" y="56.901161" id="tspan_95" class="sheet_08_tspan_6">CS1</tspan></text>
+      <text id="text_96" y="54.793118" x="114.67696" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_96" y="54.793118" x="114.67696" class="sheet_08_tspan_6">CS2</tspan></text>
+      <text id="text_97" y="54.801598" x="122.0771" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_97" y="54.801598" x="122.0771" class="sheet_08_tspan_6">CS3</tspan></text>
+      <text id="text_98" y="57.95686" x="118.41254" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_98" y="57.95686" x="118.41254" class="sheet_08_tspan_6">VSS</tspan></text>
+      <text xml:space="preserve" x="109.52406" y="47.434364" id="text_99" class="sheet_08_text_0"><tspan x="109.52406" y="47.434364" id="tspan_99" class="sheet_08_tspan_6">23</tspan></text>
+      <text xml:space="preserve" x="109.57064" y="49.576153" id="text_100" class="sheet_08_text_0"><tspan x="109.57064" y="49.576153" id="tspan_100" class="sheet_08_tspan_6">22</tspan></text>
+      <text xml:space="preserve" x="109.43246" y="55.884323" id="text_101" class="sheet_08_text_0"><tspan x="109.43246" y="55.884323" id="tspan_101" class="sheet_08_tspan_6">20</tspan></text>
+      <text xml:space="preserve" x="126.27044" y="53.919891" id="text_102" class="sheet_08_text_0"><tspan x="126.27044" y="53.919891" id="tspan_102" class="sheet_08_tspan_6">21</tspan></text>
+      <text xml:space="preserve" x="120.09652" y="60.234135" id="text_103" class="sheet_08_text_0"><tspan x="120.09652" y="60.234135" id="tspan_103" class="sheet_08_tspan_6">12</tspan></text>
+      <text xml:space="preserve" x="119.90943" y="26.46463" id="text_104" class="sheet_08_text_0"><tspan x="119.90943" y="26.46463" id="tspan_104" class="sheet_08_tspan_6">24</tspan></text>
+    </g>
+    <g transform="translate(93.693488,-64.478755)" id="chip#G9_74LS74_0" class="sheet_08_g_0">
+      <rect y="83.682922" x="31.892233" height="16.479906" width="8.3618717" id="rect_3" class="sheet_08_rect_1"/>
+      <text id="text_105" y="87.282761" x="36.029682" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_105" y="87.282761" x="36.029682" class="sheet_08_tspan_0">G9</tspan></text>
+      <text xml:space="preserve" x="36.060123" y="89.406815" id="text_106" class="sheet_08_text_0"><tspan x="36.060123" y="89.406815" id="tspan_106" class="sheet_08_tspan_0">74LS74</tspan></text>
+      <path id="path_10" d="m 31.971339,91.630194 1.34609,0.360682 -1.3255,0.355169" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="35.083" y="92.513512" id="text_107" class="sheet_08_text_0"><tspan x="35.083" y="92.513512" id="tspan_107" class="sheet_08_tspan_0">CK</tspan></text>
+      <ellipse cx="35.963428" cy="83.012772" rx="0.44926631" ry="0.48355335" id="ellipse_1" class="sheet_08_ellipse_0"/>
+      <ellipse id="ellipse_2" ry="0.48355335" rx="0.44926631" cy="100.79939" cx="36.127865" class="sheet_08_ellipse_0"/>
+      <text xml:space="preserve" x="33.371899" y="86.127449" id="text_108" class="sheet_08_text_0"><tspan x="33.371899" y="86.127449" id="tspan_108" class="sheet_08_tspan_0">D</tspan></text>
+      <text id="text_109" y="86.22049" x="38.595501" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_109" y="86.22049" x="38.595501" class="sheet_08_tspan_0">Q</tspan></text>
+      <text id="text_110" y="99.750244" x="36.070351" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_110" y="99.750244" x="36.070351" class="sheet_08_tspan_0">CL</tspan></text>
+      <g transform="translate(-165.87588,33.866307)" id="g_0" class="sheet_08_g_0">
+        <text id="text_111" y="64.730103" x="204.5517" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_111" y="64.730103" x="204.5517" class="sheet_08_tspan_0">Q</tspan></text>
+        <path id="path_11" d="m 204.0053,63.530987 h 1.10542" class="sheet_08_path_4"/>
+      </g>
+      <text xml:space="preserve" x="29.776329" y="85.121727" id="text_112" class="sheet_08_text_0"><tspan x="29.776329" y="85.121727" id="tspan_112" class="sheet_08_tspan_0">12</tspan></text>
+      <text id="text_113" y="85.104218" x="41.623962" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_113" y="85.104218" x="41.623962" class="sheet_08_tspan_0">9</tspan></text>
+      <text id="text_114" y="97.604912" x="41.752789" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_114" y="97.604912" x="41.752789" class="sheet_08_tspan_0">8</tspan></text>
+      <text id="text_115" y="101.74696" x="38.097713" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_115" y="101.74696" x="38.097713" class="sheet_08_tspan_0">13</tspan></text>
+      <text id="text_116" y="83.056305" x="38.081955" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_116" y="83.056305" x="38.081955" class="sheet_08_tspan_0">10</tspan></text>
+      <text id="text_117" y="91.367195" x="29.717571" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_117" y="91.367195" x="29.717571" class="sheet_08_tspan_0">11</tspan></text>
+      <text id="text_118" y="85.174286" x="35.877468" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_118" y="85.174286" x="35.877468" class="sheet_08_tspan_0">P</tspan></text>
+    </g>
+    <g id="chip#E11_74LS165_0" transform="translate(42.138918,30.016034)" class="sheet_08_g_0">
+      <rect id="rect_4" width="12.573433" height="27.337412" x="110.70764" y="26.883739" class="sheet_08_rect_1"/>
+      <text xml:space="preserve" x="118.49199" y="28.404001" id="text_119" class="sheet_08_text_0"><tspan x="118.49199" y="28.404001" id="tspan_119" class="sheet_08_tspan_0">E11</tspan></text>
+      <text id="text_120" y="35.786278" x="113.98211" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_120" y="35.786278" x="113.98211" class="sheet_08_tspan_0">SERIN</tspan></text>
+      <text xml:space="preserve" x="112.81294" y="44.240814" id="text_121" class="sheet_08_text_0"><tspan x="112.81294" y="44.240814" id="tspan_121" class="sheet_08_tspan_6">D</tspan></text>
+      <text id="text_122" y="46.349197" x="112.61559" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_122" y="46.349197" x="112.61559" class="sheet_08_tspan_6">E</tspan></text>
+      <text xml:space="preserve" x="116.22707" y="33.767391" id="text_123" class="sheet_08_text_0"><tspan x="116.22707" y="33.767391" id="tspan_123" class="sheet_08_tspan_6">CKINH</tspan></text>
+      <text id="text_124" y="38.006222" x="112.75282" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_124" y="38.006222" x="112.75282" class="sheet_08_tspan_6">A</tspan></text>
+      <text id="text_125" y="31.653423" x="114.74171" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_125" y="31.653423" x="114.74171" class="sheet_08_tspan_6">CK</tspan></text>
+      <text xml:space="preserve" x="112.72498" y="40.017433" id="text_126" class="sheet_08_text_0"><tspan x="112.72498" y="40.017433" id="tspan_126" class="sheet_08_tspan_6">B</tspan></text>
+      <text id="text_127" y="30.521076" x="118.76421" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_127" y="30.521076" x="118.76421" class="sheet_08_tspan_0">74LS165</tspan></text>
+      <text id="text_128" y="47.342804" x="109.53652" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_128" y="47.342804" x="109.53652" class="sheet_08_tspan_6">4</tspan></text>
+      <text xml:space="preserve" x="109.56134" y="49.505966" id="text_129" class="sheet_08_text_0"><tspan x="109.56134" y="49.505966" id="tspan_129" class="sheet_08_tspan_6">5</tspan></text>
+      <text xml:space="preserve" x="109.59531" y="32.725746" id="text_130" class="sheet_08_text_0"><tspan x="109.59531" y="32.725746" id="tspan_130" class="sheet_08_tspan_6">15</tspan></text>
+      <text id="text_131" y="28.609974" x="109.60914" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_131" y="28.609974" x="109.60914" class="sheet_08_tspan_6">1</tspan></text>
+      <text id="text_132" y="32.701107" x="125.33302" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_132" y="32.701107" x="125.33302" class="sheet_08_tspan_6">9</tspan></text>
+      <text id="text_133" y="36.928123" x="109.52341" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_133" y="36.928123" x="109.52341" class="sheet_08_tspan_6">11</tspan></text>
+      <text xml:space="preserve" x="109.50568" y="43.277702" id="text_134" class="sheet_08_text_0"><tspan x="109.50568" y="43.277702" id="tspan_134" class="sheet_08_tspan_6">14</tspan></text>
+      <text xml:space="preserve" x="109.45911" y="41.125252" id="text_135" class="sheet_08_text_0"><tspan x="109.45911" y="41.125252" id="tspan_135" class="sheet_08_tspan_6">13</tspan></text>
+      <text id="text_136" y="30.673107" x="109.51718" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_136" y="30.673107" x="109.51718" class="sheet_08_tspan_6">2</tspan></text>
+      <text id="text_137" y="51.595203" x="109.53802" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_137" y="51.595203" x="109.53802" class="sheet_08_tspan_6">6</tspan></text>
+      <text xml:space="preserve" x="125.40331" y="45.196945" id="text_138" class="sheet_08_text_0"><tspan x="125.40331" y="45.196945" id="tspan_138" class="sheet_08_tspan_6">7</tspan></text>
+      <text id="text_139" y="39.039108" x="109.55776" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_139" y="39.039108" x="109.55776" class="sheet_08_tspan_6">12</tspan></text>
+      <text xml:space="preserve" x="109.54301" y="34.824986" id="text_140" class="sheet_08_text_0"><tspan x="109.54301" y="34.824986" id="tspan_140" class="sheet_08_tspan_6">10</tspan></text>
+      <text id="text_141" y="42.130138" x="112.71565" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_141" y="42.130138" x="112.71565" class="sheet_08_tspan_6">C</tspan></text>
+      <text xml:space="preserve" x="112.60009" y="48.352982" id="text_142" class="sheet_08_text_0"><tspan x="112.60009" y="48.352982" id="tspan_142" class="sheet_08_tspan_6">F</tspan></text>
+      <text id="text_143" y="33.709629" x="121.23271" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_143" y="33.709629" x="121.23271" class="sheet_08_tspan_6">Q</tspan></text>
+      <text id="text_144" y="45.234421" x="109.55093" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_144" y="45.234421" x="109.55093" class="sheet_08_tspan_6">3</tspan></text>
+      <text xml:space="preserve" x="114.32595" y="29.497543" id="text_145" class="sheet_08_text_0"><tspan x="114.32595" y="29.497543" id="tspan_145" class="sheet_08_tspan_6">S/L</tspan></text>
+      <text id="text_146" y="50.487438" x="112.83875" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_146" y="50.487438" x="112.83875" class="sheet_08_tspan_6">G</tspan></text>
+      <text xml:space="preserve" x="112.79449" y="52.684795" id="text_147" class="sheet_08_text_0"><tspan x="112.79449" y="52.684795" id="tspan_147" class="sheet_08_tspan_6">H</tspan></text>
+      <text id="text_148" y="47.386852" x="122.33749" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_148" y="47.386852" x="122.33749" class="sheet_08_tspan_6">H</tspan></text>
+      <text xml:space="preserve" x="122.20496" y="34.730717" id="text_149" class="sheet_08_text_0"><tspan x="122.20496" y="34.730717" id="tspan_149" class="sheet_08_tspan_6">H</tspan></text>
+      <g id="g_1" transform="translate(-83.817527,-18.473476)" class="sheet_08_g_0">
+        <text xml:space="preserve" x="204.5517" y="64.730103" id="text_150" class="sheet_08_text_0"><tspan x="204.5517" y="64.730103" id="tspan_150" class="sheet_08_tspan_0">Q</tspan></text>
+        <path d="m 204.0053,63.530987 h 1.10542" id="path_12" class="sheet_08_path_4"/>
+      </g>
+      <ellipse id="ellipse_3" ry="0.48355335" rx="0.44926631" cy="33.213158" cx="110.12763" class="sheet_08_ellipse_0"/>
+      <path d="m 110.79596,30.769606 1.13599,0.358236 -1.13346,0.52363" id="path_13" class="sheet_08_path_0"/>
+    </g>
+    <g transform="translate(92.4689,46.361766)" id="chip#E8_74LS244_0" class="sheet_08_g_0">
+      <rect y="18.969549" x="111.07561" height="23.065727" width="12.596607" id="rect_5" class="sheet_08_rect_2"/>
+      <text xml:space="preserve" x="117.27776" y="20.563967" id="text_151" class="sheet_08_text_0"><tspan id="tspan_151" x="117.27776" y="20.563967" class="sheet_08_tspan_0">E8</tspan><tspan x="117.27776" y="33.793091" id="tspan_152" class="sheet_08_tspan_0"/></text>
+      <text id="text_152" y="22.627487" x="117.43162" xml:space="preserve" class="sheet_08_text_0"><tspan y="22.627487" x="117.43162" id="tspan_153" class="sheet_08_tspan_0">74LS244</tspan><tspan id="tspan_154" y="35.856613" x="117.43162" class="sheet_08_tspan_0"/></text>
+      <text id="text_153" y="22.720327" x="125.69143" xml:space="preserve" class="sheet_08_text_0"><tspan y="22.720327" x="125.69143" id="tspan_155" class="sheet_08_tspan_0">18</tspan><tspan id="tspan_156" y="35.949451" x="125.69143" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="125.64648" y="20.617233" id="text_154" class="sheet_08_text_0"><tspan id="tspan_157" x="125.64648" y="20.617233" class="sheet_08_tspan_0">17</tspan><tspan x="125.64648" y="33.846359" id="tspan_158" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="125.71103" y="26.886478" id="text_155" class="sheet_08_text_0"><tspan id="tspan_159" x="125.71103" y="26.886478" class="sheet_08_tspan_0">16</tspan><tspan x="125.71103" y="40.115604" id="tspan_160" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="125.73204" y="24.761522" id="text_156" class="sheet_08_text_0"><tspan id="tspan_161" x="125.73204" y="24.761522" class="sheet_08_tspan_0">15</tspan><tspan x="125.73204" y="37.990646" id="tspan_162" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="125.78837" y="30.997356" id="text_157" class="sheet_08_text_0"><tspan id="tspan_163" x="125.78837" y="30.997356" class="sheet_08_tspan_0">14</tspan><tspan x="125.78837" y="44.226482" id="tspan_164" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="125.76099" y="28.952492" id="text_158" class="sheet_08_text_0"><tspan id="tspan_165" x="125.76099" y="28.952492" class="sheet_08_tspan_0">13</tspan><tspan x="125.76099" y="42.181618" id="tspan_166" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="125.7573" y="35.291565" id="text_159" class="sheet_08_text_0"><tspan id="tspan_167" x="125.7573" y="35.291565" class="sheet_08_tspan_0">12</tspan><tspan x="125.7573" y="48.520691" id="tspan_168" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="125.68306" y="33.146381" id="text_160" class="sheet_08_text_0"><tspan id="tspan_169" x="125.68306" y="33.146381" class="sheet_08_tspan_0">11</tspan><tspan x="125.68306" y="46.375507" id="tspan_170" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.17794" y="37.257618" id="text_161" class="sheet_08_text_0"><tspan id="tspan_171" x="109.17794" y="37.257618" class="sheet_08_tspan_0">19</tspan><tspan x="109.17794" y="50.486744" id="tspan_172" class="sheet_08_tspan_0"/></text>
+      <text id="text_162" y="39.325508" x="109.47844" xml:space="preserve" class="sheet_08_text_0"><tspan y="39.325508" x="109.47844" id="tspan_173" class="sheet_08_tspan_0">1</tspan><tspan id="tspan_174" y="52.554634" x="109.47844" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.52672" y="20.576538" id="text_163" class="sheet_08_text_0"><tspan id="tspan_175" x="109.52672" y="20.576538" class="sheet_08_tspan_0">2</tspan><tspan x="109.52672" y="33.805664" id="tspan_176" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.56301" y="22.5847" id="text_164" class="sheet_08_text_0"><tspan id="tspan_177" x="109.56301" y="22.5847" class="sheet_08_tspan_0">3</tspan><tspan x="109.56301" y="35.813824" id="tspan_178" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.60686" y="24.614651" id="text_165" class="sheet_08_text_0"><tspan id="tspan_179" x="109.60686" y="24.614651" class="sheet_08_tspan_0">4</tspan><tspan x="109.60686" y="37.843777" id="tspan_180" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.51342" y="26.80962" id="text_166" class="sheet_08_text_0"><tspan id="tspan_181" x="109.51342" y="26.80962" class="sheet_08_tspan_0">5</tspan><tspan x="109.51342" y="40.038746" id="tspan_182" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.47675" y="28.936893" id="text_167" class="sheet_08_text_0"><tspan id="tspan_183" x="109.47675" y="28.936893" class="sheet_08_tspan_0">6</tspan><tspan x="109.47675" y="42.166019" id="tspan_184" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.4772" y="30.954475" id="text_168" class="sheet_08_text_0"><tspan id="tspan_185" x="109.4772" y="30.954475" class="sheet_08_tspan_0">7</tspan><tspan x="109.4772" y="44.183601" id="tspan_186" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.54852" y="33.043411" id="text_169" class="sheet_08_text_0"><tspan id="tspan_187" x="109.54852" y="33.043411" class="sheet_08_tspan_0">8</tspan><tspan x="109.54852" y="46.272537" id="tspan_188" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.54571" y="35.22485" id="text_170" class="sheet_08_text_0"><tspan id="tspan_189" x="109.54571" y="35.22485" class="sheet_08_tspan_0">9</tspan><tspan x="109.54571" y="48.453976" id="tspan_190" class="sheet_08_tspan_0"/></text>
+      <ellipse cx="110.55629" cy="37.822067" rx="0.44926631" ry="0.48355335" id="ellipse_4" class="sheet_08_ellipse_0"/>
+      <ellipse cx="110.53914" cy="39.945648" rx="0.44926631" ry="0.48355335" id="ellipse_5" class="sheet_08_ellipse_0"/>
+    </g>
+    <g id="chip#E7_74LS244_0" transform="translate(92.581516,81.981106)" class="sheet_08_g_0">
+      <rect id="rect_6" width="12.596607" height="23.065727" x="111.07561" y="18.969549" class="sheet_08_rect_2"/>
+      <text id="text_171" y="20.563967" x="117.27776" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_191" y="20.563967" x="117.27776" class="sheet_08_tspan_0">E7</tspan></text>
+      <text xml:space="preserve" x="117.43162" y="22.627487" id="text_172" class="sheet_08_text_0"><tspan id="tspan_192" x="117.43162" y="22.627487" class="sheet_08_tspan_0">74LS244</tspan><tspan x="117.43162" y="35.856613" id="tspan_193" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="125.69143" y="22.720327" id="text_173" class="sheet_08_text_0"><tspan id="tspan_194" x="125.69143" y="22.720327" class="sheet_08_tspan_0">18</tspan><tspan x="125.69143" y="35.949451" id="tspan_195" class="sheet_08_tspan_0"/></text>
+      <text id="text_174" y="20.617233" x="125.64648" xml:space="preserve" class="sheet_08_text_0"><tspan y="20.617233" x="125.64648" id="tspan_196" class="sheet_08_tspan_0">17</tspan><tspan id="tspan_197" y="33.846359" x="125.64648" class="sheet_08_tspan_0"/></text>
+      <text id="text_175" y="26.886478" x="125.71103" xml:space="preserve" class="sheet_08_text_0"><tspan y="26.886478" x="125.71103" id="tspan_198" class="sheet_08_tspan_0">16</tspan><tspan id="tspan_199" y="40.115604" x="125.71103" class="sheet_08_tspan_0"/></text>
+      <text id="text_176" y="24.761522" x="125.73204" xml:space="preserve" class="sheet_08_text_0"><tspan y="24.761522" x="125.73204" id="tspan_200" class="sheet_08_tspan_0">15</tspan><tspan id="tspan_201" y="37.990646" x="125.73204" class="sheet_08_tspan_0"/></text>
+      <text id="text_177" y="30.997356" x="125.78837" xml:space="preserve" class="sheet_08_text_0"><tspan y="30.997356" x="125.78837" id="tspan_202" class="sheet_08_tspan_0">14</tspan><tspan id="tspan_203" y="44.226482" x="125.78837" class="sheet_08_tspan_0"/></text>
+      <text id="text_178" y="28.952492" x="125.76099" xml:space="preserve" class="sheet_08_text_0"><tspan y="28.952492" x="125.76099" id="tspan_204" class="sheet_08_tspan_0">13</tspan><tspan id="tspan_205" y="42.181618" x="125.76099" class="sheet_08_tspan_0"/></text>
+      <text id="text_179" y="35.291565" x="125.7573" xml:space="preserve" class="sheet_08_text_0"><tspan y="35.291565" x="125.7573" id="tspan_206" class="sheet_08_tspan_0">12</tspan><tspan id="tspan_207" y="48.520691" x="125.7573" class="sheet_08_tspan_0"/></text>
+      <text id="text_180" y="33.146381" x="125.68306" xml:space="preserve" class="sheet_08_text_0"><tspan y="33.146381" x="125.68306" id="tspan_208" class="sheet_08_tspan_0">11</tspan><tspan id="tspan_209" y="46.375507" x="125.68306" class="sheet_08_tspan_0"/></text>
+      <text id="text_181" y="37.257618" x="109.17794" xml:space="preserve" class="sheet_08_text_0"><tspan y="37.257618" x="109.17794" id="tspan_210" class="sheet_08_tspan_0">19</tspan><tspan id="tspan_211" y="50.486744" x="109.17794" class="sheet_08_tspan_0"/></text>
+      <text xml:space="preserve" x="109.47844" y="39.325508" id="text_182" class="sheet_08_text_0"><tspan id="tspan_212" x="109.47844" y="39.325508" class="sheet_08_tspan_0">1</tspan><tspan x="109.47844" y="52.554634" id="tspan_213" class="sheet_08_tspan_0"/></text>
+      <text id="text_183" y="20.576538" x="109.52672" xml:space="preserve" class="sheet_08_text_0"><tspan y="20.576538" x="109.52672" id="tspan_214" class="sheet_08_tspan_0">2</tspan><tspan id="tspan_215" y="33.805664" x="109.52672" class="sheet_08_tspan_0"/></text>
+      <text id="text_184" y="22.5847" x="109.56301" xml:space="preserve" class="sheet_08_text_0"><tspan y="22.5847" x="109.56301" id="tspan_216" class="sheet_08_tspan_0">3</tspan><tspan id="tspan_217" y="35.813824" x="109.56301" class="sheet_08_tspan_0"/></text>
+      <text id="text_185" y="24.614651" x="109.60686" xml:space="preserve" class="sheet_08_text_0"><tspan y="24.614651" x="109.60686" id="tspan_218" class="sheet_08_tspan_0">4</tspan><tspan id="tspan_219" y="37.843777" x="109.60686" class="sheet_08_tspan_0"/></text>
+      <text id="text_186" y="26.80962" x="109.51342" xml:space="preserve" class="sheet_08_text_0"><tspan y="26.80962" x="109.51342" id="tspan_220" class="sheet_08_tspan_0">5</tspan><tspan id="tspan_221" y="40.038746" x="109.51342" class="sheet_08_tspan_0"/></text>
+      <text id="text_187" y="28.936893" x="109.47675" xml:space="preserve" class="sheet_08_text_0"><tspan y="28.936893" x="109.47675" id="tspan_222" class="sheet_08_tspan_0">6</tspan><tspan id="tspan_223" y="42.166019" x="109.47675" class="sheet_08_tspan_0"/></text>
+      <text id="text_188" y="30.954475" x="109.4772" xml:space="preserve" class="sheet_08_text_0"><tspan y="30.954475" x="109.4772" id="tspan_224" class="sheet_08_tspan_0">7</tspan><tspan id="tspan_225" y="44.183601" x="109.4772" class="sheet_08_tspan_0"/></text>
+      <text id="text_189" y="33.043411" x="109.54852" xml:space="preserve" class="sheet_08_text_0"><tspan y="33.043411" x="109.54852" id="tspan_226" class="sheet_08_tspan_0">8</tspan><tspan id="tspan_227" y="46.272537" x="109.54852" class="sheet_08_tspan_0"/></text>
+      <text id="text_190" y="35.22485" x="109.54571" xml:space="preserve" class="sheet_08_text_0"><tspan y="35.22485" x="109.54571" id="tspan_228" class="sheet_08_tspan_0">9</tspan><tspan id="tspan_229" y="48.453976" x="109.54571" class="sheet_08_tspan_0"/></text>
+      <ellipse id="ellipse_6" ry="0.48355335" rx="0.44926631" cy="37.822067" cx="110.55629" class="sheet_08_ellipse_0"/>
+      <ellipse id="ellipse_7" ry="0.48355335" rx="0.44926631" cy="39.945648" cx="110.53914" class="sheet_08_ellipse_0"/>
+    </g>
+    <g transform="translate(17.905924,-30.778627)" id="chip#H11_74LS93_0" class="sheet_08_g_0">
+      <rect y="83.682922" x="31.892233" height="16.479904" width="12.520141" id="rect_7" class="sheet_08_rect_1"/>
+      <text id="text_191" y="86.221504" x="38.008221" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_230" y="86.221504" x="38.008221" class="sheet_08_tspan_0">H11</tspan></text>
+      <text xml:space="preserve" x="38.143143" y="88.297905" id="text_192" class="sheet_08_text_0"><tspan x="38.143143" y="88.297905" id="tspan_231" class="sheet_08_tspan_0">74LS93</tspan></text>
+      <path id="path_14" d="m 31.951553,89.515547 1.34609,0.360682 -1.3255,0.355169" class="sheet_08_path_0"/>
+      <ellipse cx="31.288429" cy="89.870453" rx="0.44926631" ry="0.48355335" id="ellipse_8" class="sheet_08_ellipse_0"/>
+      <text xml:space="preserve" x="34.411064" y="86.145294" id="text_193" class="sheet_08_text_0"><tspan x="34.411064" y="86.145294" id="tspan_232" class="sheet_08_tspan_0">A</tspan></text>
+      <text id="text_194" y="94.531075" x="34.27087" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_233" y="94.531075" x="34.27087" class="sheet_08_tspan_0">R01</tspan></text>
+      <text xml:space="preserve" x="29.757793" y="85.227295" id="text_195" class="sheet_08_text_0"><tspan x="29.757793" y="85.227295" id="tspan_234" class="sheet_08_tspan_0">14</tspan></text>
+      <text id="text_196" y="97.520264" x="30.407503" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_235" y="97.520264" x="30.407503" class="sheet_08_tspan_0">3</tspan></text>
+      <text id="text_197" y="89.258263" x="45.989059" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_236" y="89.258263" x="45.989059" class="sheet_08_tspan_0">9</tspan></text>
+      <text id="text_198" y="85.150406" x="46.470673" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_237" y="85.150406" x="46.470673" class="sheet_08_tspan_0">12</tspan></text>
+      <text id="text_199" y="89.387939" x="30.20727" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_238" y="89.387939" x="30.20727" class="sheet_08_tspan_0">1</tspan></text>
+      <text id="text_200" y="93.521713" x="30.321014" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_239" y="93.521713" x="30.321014" class="sheet_08_tspan_0">2</tspan></text>
+      <path d="m 31.985105,85.368018 1.34609,0.360682 -1.3255,0.355169" id="path_15" class="sheet_08_path_0"/>
+      <ellipse id="ellipse_9" ry="0.48355335" rx="0.44926631" cy="85.722923" cx="31.321981" class="sheet_08_ellipse_0"/>
+      <text id="text_201" y="90.363472" x="34.415691" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_240" y="90.363472" x="34.415691" class="sheet_08_tspan_0">B</tspan></text>
+      <text xml:space="preserve" x="34.453373" y="98.704796" id="text_202" class="sheet_08_text_0"><tspan x="34.453373" y="98.704796" id="tspan_241" class="sheet_08_tspan_0">R02</tspan></text>
+      <text id="text_203" y="86.152054" x="42.244232" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_242" y="86.152054" x="42.244232" class="sheet_08_tspan_0">QA</tspan></text>
+      <text xml:space="preserve" x="42.227222" y="90.365784" id="text_204" class="sheet_08_text_0"><tspan x="42.227222" y="90.365784" id="tspan_243" class="sheet_08_tspan_0">QB</tspan></text>
+      <text xml:space="preserve" x="42.202042" y="94.511795" id="text_205" class="sheet_08_text_0"><tspan x="42.202042" y="94.511795" id="tspan_244" class="sheet_08_tspan_0">QC</tspan></text>
+      <text xml:space="preserve" x="42.359093" y="98.715668" id="text_206" class="sheet_08_text_0"><tspan x="42.359093" y="98.715668" id="tspan_245" class="sheet_08_tspan_0">QD</tspan></text>
+      <text id="text_207" y="90.409508" x="38.053951" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_246" y="90.409508" x="38.053951" class="sheet_08_tspan_0">4-BIT</tspan></text>
+      <text id="text_208" y="92.473083" x="38.441986" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_247" y="92.473083" x="38.441986" class="sheet_08_tspan_0">COUNTER</tspan></text>
+      <text xml:space="preserve" x="46.023857" y="93.445808" id="text_209" class="sheet_08_text_0"><tspan x="46.023857" y="93.445808" id="tspan_248" class="sheet_08_tspan_0">8</tspan></text>
+      <text xml:space="preserve" x="46.540668" y="97.593102" id="text_210" class="sheet_08_text_0"><tspan x="46.540668" y="97.593102" id="tspan_249" class="sheet_08_tspan_0">11</tspan></text>
+    </g>
+    <g id="chip#F8_6114_0" transform="translate(2.1782759,107.6464)" class="sheet_08_g_0">
+      <rect id="rect_8" width="12.573433" height="31.540524" x="110.70764" y="26.883739" class="sheet_08_rect_1"/>
+      <text xml:space="preserve" x="117.01439" y="36.980072" id="text_211" class="sheet_08_text_0"><tspan x="117.01439" y="36.980072" id="tspan_250" class="sheet_08_tspan_0">F8</tspan></text>
+      <text id="text_212" y="28.430389" x="117.28104" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_251" y="28.430389" x="117.28104" class="sheet_08_tspan_0">R/W</tspan></text>
+      <text id="text_213" y="45.416397" x="118.22888" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_252" y="45.416397" x="118.22888" class="sheet_08_tspan_0">RAM</tspan></text>
+      <text id="text_214" y="31.744907" x="121.3043" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_253" y="31.744907" x="121.3043" class="sheet_08_tspan_0">D1</tspan></text>
+      <text xml:space="preserve" x="122.24268" y="29.679752" id="text_215" class="sheet_08_text_0"><tspan x="122.24268" y="29.679752" id="tspan_254" class="sheet_08_tspan_6">D0</tspan></text>
+      <text xml:space="preserve" x="113.85889" y="50.610996" id="text_216" class="sheet_08_text_0"><tspan x="113.85889" y="50.610996" id="tspan_255" class="sheet_08_tspan_6">A6</tspan></text>
+      <text id="text_217" y="52.756691" x="113.90163" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_256" y="52.756691" x="113.90163" class="sheet_08_tspan_6">A7</tspan></text>
+      <text xml:space="preserve" x="113.87752" y="42.227962" id="text_218" class="sheet_08_text_0"><tspan x="113.87752" y="42.227962" id="tspan_257" class="sheet_08_tspan_6">A2</tspan></text>
+      <text id="text_219" y="44.270508" x="113.91983" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_258" y="44.270508" x="113.91983" class="sheet_08_tspan_6">A3</tspan></text>
+      <text id="text_220" y="40.023254" x="113.90925" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_259" y="40.023254" x="113.90925" class="sheet_08_tspan_6">A1</tspan></text>
+      <text xml:space="preserve" x="113.8731" y="46.502228" id="text_221" class="sheet_08_text_0"><tspan x="113.8731" y="46.502228" id="tspan_260" class="sheet_08_tspan_6">A4</tspan></text>
+      <text id="text_222" y="39.1091" x="118.26325" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_261" y="39.1091" x="118.26325" class="sheet_08_tspan_0">6114</tspan></text>
+      <text id="text_223" y="33.89352" x="121.3151" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_262" y="33.89352" x="121.3151" class="sheet_08_tspan_0">D2</tspan></text>
+      <text xml:space="preserve" x="121.30393" y="35.95396" id="text_224" class="sheet_08_text_0"><tspan x="121.30393" y="35.95396" id="tspan_263" class="sheet_08_tspan_0">D3</tspan></text>
+      <text id="text_225" y="43.189102" x="109.70155" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_264" y="43.189102" x="109.70155" class="sheet_08_tspan_6">4</tspan></text>
+      <text xml:space="preserve" x="109.71438" y="36.931385" id="text_226" class="sheet_08_text_0"><tspan x="109.71438" y="36.931385" id="tspan_265" class="sheet_08_tspan_6">5</tspan></text>
+      <text xml:space="preserve" x="109.77335" y="55.816822" id="text_227" class="sheet_08_text_0"><tspan x="109.77335" y="55.816822" id="tspan_266" class="sheet_08_tspan_6">15</tspan></text>
+      <text id="text_228" y="49.554737" x="109.75212" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_267" y="49.554737" x="109.75212" class="sheet_08_tspan_6">1</tspan></text>
+      <text xml:space="preserve" x="109.68534" y="28.524914" id="text_229" class="sheet_08_text_0"><tspan x="109.68534" y="28.524914" id="tspan_268" class="sheet_08_tspan_6">18</tspan></text>
+      <text id="text_230" y="30.723845" x="109.72535" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_269" y="30.723845" x="109.72535" class="sheet_08_tspan_6">9</tspan></text>
+      <text id="text_231" y="34.895466" x="126.45926" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_270" y="34.895466" x="126.45926" class="sheet_08_tspan_6">11</tspan></text>
+      <text xml:space="preserve" x="126.47314" y="28.678074" id="text_232" class="sheet_08_text_0"><tspan x="126.47314" y="28.678074" id="tspan_271" class="sheet_08_tspan_6">14</tspan></text>
+      <text xml:space="preserve" x="109.62665" y="45.30896" id="text_233" class="sheet_08_text_0"><tspan x="109.62665" y="45.30896" id="tspan_272" class="sheet_08_tspan_6">3</tspan></text>
+      <text id="text_234" y="47.479507" x="109.73425" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_273" y="47.479507" x="109.73425" class="sheet_08_tspan_6">2</tspan></text>
+      <text id="text_235" y="39.119316" x="109.71481" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_274" y="39.119316" x="109.71481" class="sheet_08_tspan_6">6</tspan></text>
+      <text xml:space="preserve" x="109.71745" y="41.093243" id="text_236" class="sheet_08_text_0"><tspan x="109.71745" y="41.093243" id="tspan_275" class="sheet_08_tspan_6">7</tspan></text>
+      <text id="text_237" y="32.904568" x="126.44461" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_276" y="32.904568" x="126.44461" class="sheet_08_tspan_6">12</tspan></text>
+      <text xml:space="preserve" x="126.41652" y="30.670637" id="text_238" class="sheet_08_text_0"><tspan x="126.41652" y="30.670637" id="tspan_277" class="sheet_08_tspan_6">13</tspan></text>
+      <text id="text_239" y="48.562714" x="113.90587" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_278" y="48.562714" x="113.90587" class="sheet_08_tspan_6">A5</tspan></text>
+      <text xml:space="preserve" x="113.90614" y="54.756187" id="text_240" class="sheet_08_text_0"><tspan x="113.90614" y="54.756187" id="tspan_279" class="sheet_08_tspan_6">A8</tspan></text>
+      <text id="text_241" y="51.594891" x="109.64356" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_280" y="51.594891" x="109.64356" class="sheet_08_tspan_6">17</tspan></text>
+      <text id="text_242" y="53.686119" x="109.74948" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_281" y="53.686119" x="109.74948" class="sheet_08_tspan_6">16</tspan></text>
+      <text id="text_243" y="32.83287" x="109.72442" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_282" y="32.83287" x="109.72442" class="sheet_08_tspan_6">8</tspan></text>
+      <text xml:space="preserve" x="113.81709" y="38.010651" id="text_244" class="sheet_08_text_0"><tspan x="113.81709" y="38.010651" id="tspan_283" class="sheet_08_tspan_6">A0</tspan></text>
+      <text id="text_245" y="56.931049" x="113.92592" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_284" y="56.931049" x="113.92592" class="sheet_08_tspan_6">A9</tspan></text>
+      <text xml:space="preserve" x="114.83944" y="31.718943" id="text_246" class="sheet_08_text_0"><tspan x="114.83944" y="31.718943" id="tspan_285" class="sheet_08_tspan_6">VSS</tspan></text>
+      <text id="text_247" y="26.480484" x="120.15709" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_286" y="26.480484" x="120.15709" class="sheet_08_tspan_6">10</tspan></text>
+      <text xml:space="preserve" x="118.37117" y="43.311314" id="text_248" class="sheet_08_text_0"><tspan x="118.37117" y="43.311314" id="tspan_287" class="sheet_08_tspan_0">IKX4</tspan></text>
+      <g id="g_2" transform="translate(-91.027451,-31.205108)" class="sheet_08_g_0">
+        <text xml:space="preserve" x="203.95747" y="65.028427" id="text_249" class="sheet_08_text_0"><tspan x="203.95747" y="65.028427" id="tspan_288" class="sheet_08_tspan_0">CS</tspan></text>
+        <path d="m 203.01196,63.829314 h 1.82511" id="path_16" class="sheet_08_path_4"/>
+      </g>
+    </g>
+    <g id="wire#SD5_0" transform="translate(35.084101,-8.5709419)" class="sheet_08_g_0">
+      <path d="m 132.50758,147.51948 h 13.99059 l 0.93228,-0.61611" id="path_17" class="sheet_08_path_5"/>
+      <text id="text_250" y="147.01425" x="142.16103" xml:space="preserve" class="sheet_08_text_6"><tspan id="tspan_289" y="147.01425" x="142.16103" class="sheet_08_tspan_5">SD5</tspan></text>
+    </g>
+    <g transform="translate(44.288347,107.72986)" id="chip#F7_6114_0" class="sheet_08_g_0">
+      <rect y="26.883739" x="110.70764" height="31.540524" width="12.573433" id="rect_9" class="sheet_08_rect_1"/>
+      <text id="text_251" y="36.980072" x="117.01439" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_290" y="36.980072" x="117.01439" class="sheet_08_tspan_0">F7</tspan></text>
+      <text xml:space="preserve" x="117.28104" y="28.430389" id="text_252" class="sheet_08_text_0"><tspan x="117.28104" y="28.430389" id="tspan_291" class="sheet_08_tspan_0">R/W</tspan></text>
+      <text xml:space="preserve" x="118.22888" y="45.416397" id="text_253" class="sheet_08_text_0"><tspan x="118.22888" y="45.416397" id="tspan_292" class="sheet_08_tspan_0">RAM</tspan></text>
+      <text xml:space="preserve" x="121.3043" y="31.744907" id="text_254" class="sheet_08_text_0"><tspan x="121.3043" y="31.744907" id="tspan_293" class="sheet_08_tspan_0">D1</tspan></text>
+      <text id="text_255" y="29.679752" x="122.24268" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_294" y="29.679752" x="122.24268" class="sheet_08_tspan_6">D0</tspan></text>
+      <text id="text_256" y="50.610996" x="113.85889" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_295" y="50.610996" x="113.85889" class="sheet_08_tspan_6">A6</tspan></text>
+      <text xml:space="preserve" x="113.90163" y="52.756691" id="text_257" class="sheet_08_text_0"><tspan x="113.90163" y="52.756691" id="tspan_296" class="sheet_08_tspan_6">A7</tspan></text>
+      <text id="text_258" y="42.227962" x="113.87752" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_297" y="42.227962" x="113.87752" class="sheet_08_tspan_6">A2</tspan></text>
+      <text xml:space="preserve" x="113.91983" y="44.270508" id="text_259" class="sheet_08_text_0"><tspan x="113.91983" y="44.270508" id="tspan_298" class="sheet_08_tspan_6">A3</tspan></text>
+      <text xml:space="preserve" x="113.90925" y="40.023254" id="text_260" class="sheet_08_text_0"><tspan x="113.90925" y="40.023254" id="tspan_299" class="sheet_08_tspan_6">A1</tspan></text>
+      <text id="text_261" y="46.502228" x="113.8731" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_300" y="46.502228" x="113.8731" class="sheet_08_tspan_6">A4</tspan></text>
+      <text xml:space="preserve" x="118.26325" y="39.1091" id="text_262" class="sheet_08_text_0"><tspan x="118.26325" y="39.1091" id="tspan_301" class="sheet_08_tspan_0">6114</tspan></text>
+      <text xml:space="preserve" x="121.3151" y="33.89352" id="text_263" class="sheet_08_text_0"><tspan x="121.3151" y="33.89352" id="tspan_302" class="sheet_08_tspan_0">D2</tspan></text>
+      <text id="text_264" y="35.95396" x="121.30393" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_303" y="35.95396" x="121.30393" class="sheet_08_tspan_0">D3</tspan></text>
+      <text xml:space="preserve" x="109.70155" y="43.189102" id="text_265" class="sheet_08_text_0"><tspan x="109.70155" y="43.189102" id="tspan_304" class="sheet_08_tspan_6">4</tspan></text>
+      <text id="text_266" y="36.931385" x="109.71438" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_305" y="36.931385" x="109.71438" class="sheet_08_tspan_6">5</tspan></text>
+      <text id="text_267" y="55.816822" x="109.77335" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_306" y="55.816822" x="109.77335" class="sheet_08_tspan_6">15</tspan></text>
+      <text xml:space="preserve" x="109.75212" y="49.554737" id="text_268" class="sheet_08_text_0"><tspan x="109.75212" y="49.554737" id="tspan_307" class="sheet_08_tspan_6">1</tspan></text>
+      <text id="text_269" y="28.524914" x="109.68534" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_308" y="28.524914" x="109.68534" class="sheet_08_tspan_6">18</tspan></text>
+      <text xml:space="preserve" x="109.72535" y="30.723845" id="text_270" class="sheet_08_text_0"><tspan x="109.72535" y="30.723845" id="tspan_309" class="sheet_08_tspan_6">9</tspan></text>
+      <text xml:space="preserve" x="126.45926" y="34.895466" id="text_271" class="sheet_08_text_0"><tspan x="126.45926" y="34.895466" id="tspan_310" class="sheet_08_tspan_6">11</tspan></text>
+      <text id="text_272" y="28.678074" x="126.47314" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_311" y="28.678074" x="126.47314" class="sheet_08_tspan_6">14</tspan></text>
+      <text id="text_273" y="45.30896" x="109.62665" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_312" y="45.30896" x="109.62665" class="sheet_08_tspan_6">3</tspan></text>
+      <text xml:space="preserve" x="109.73425" y="47.479507" id="text_274" class="sheet_08_text_0"><tspan x="109.73425" y="47.479507" id="tspan_313" class="sheet_08_tspan_6">2</tspan></text>
+      <text xml:space="preserve" x="109.71481" y="39.119316" id="text_275" class="sheet_08_text_0"><tspan x="109.71481" y="39.119316" id="tspan_314" class="sheet_08_tspan_6">6</tspan></text>
+      <text id="text_276" y="41.093243" x="109.71745" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_315" y="41.093243" x="109.71745" class="sheet_08_tspan_6">7</tspan></text>
+      <text xml:space="preserve" x="126.44461" y="32.904568" id="text_277" class="sheet_08_text_0"><tspan x="126.44461" y="32.904568" id="tspan_316" class="sheet_08_tspan_6">12</tspan></text>
+      <text id="text_278" y="30.670637" x="126.41652" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_317" y="30.670637" x="126.41652" class="sheet_08_tspan_6">13</tspan></text>
+      <text xml:space="preserve" x="113.90587" y="48.562714" id="text_279" class="sheet_08_text_0"><tspan x="113.90587" y="48.562714" id="tspan_318" class="sheet_08_tspan_6">A5</tspan></text>
+      <text id="text_280" y="54.756187" x="113.90614" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_319" y="54.756187" x="113.90614" class="sheet_08_tspan_6">A8</tspan></text>
+      <text xml:space="preserve" x="109.64356" y="51.594891" id="text_281" class="sheet_08_text_0"><tspan x="109.64356" y="51.594891" id="tspan_320" class="sheet_08_tspan_6">17</tspan></text>
+      <text xml:space="preserve" x="109.74948" y="53.686119" id="text_282" class="sheet_08_text_0"><tspan x="109.74948" y="53.686119" id="tspan_321" class="sheet_08_tspan_6">16</tspan></text>
+      <text xml:space="preserve" x="109.72442" y="32.83287" id="text_283" class="sheet_08_text_0"><tspan x="109.72442" y="32.83287" id="tspan_322" class="sheet_08_tspan_6">8</tspan></text>
+      <text id="text_284" y="38.010651" x="113.81709" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_323" y="38.010651" x="113.81709" class="sheet_08_tspan_6">A0</tspan></text>
+      <text xml:space="preserve" x="113.92592" y="56.931049" id="text_285" class="sheet_08_text_0"><tspan x="113.92592" y="56.931049" id="tspan_324" class="sheet_08_tspan_6">A9</tspan></text>
+      <text id="text_286" y="31.718943" x="114.83944" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_325" y="31.718943" x="114.83944" class="sheet_08_tspan_6">VSS</tspan></text>
+      <text xml:space="preserve" x="120.15709" y="26.480484" id="text_287" class="sheet_08_text_0"><tspan x="120.15709" y="26.480484" id="tspan_326" class="sheet_08_tspan_6">10</tspan></text>
+      <text id="text_288" y="43.311314" x="118.37117" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_327" y="43.311314" x="118.37117" class="sheet_08_tspan_0">IKX4</tspan></text>
+      <g transform="translate(-91.027451,-31.205108)" id="g_3" class="sheet_08_g_0">
+        <text id="text_289" y="65.028427" x="203.95747" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_328" y="65.028427" x="203.95747" class="sheet_08_tspan_0">CS</tspan></text>
+        <path id="path_18" d="m 203.01196,63.829314 h 1.82511" class="sheet_08_path_4"/>
+      </g>
+    </g>
+    <g transform="translate(58.458654,-52.062076)" id="chip#G10_74LS00_0" class="sheet_08_g_0">
+      <path id="path_19" d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" class="sheet_08_path_0"/>
+      <ellipse cx="126.56069" cy="75.466316" rx="0.44926631" ry="0.48355335" id="ellipse_10" class="sheet_08_ellipse_1"/>
+      <text id="text_290" y="75.925774" x="122.33887" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_329" y="75.925774" x="122.33887" class="sheet_08_tspan_0">G10</tspan></text>
+      <text xml:space="preserve" x="127.4677" y="74.957977" id="text_291" class="sheet_08_text_0"><tspan x="127.4677" y="74.957977" id="tspan_330" class="sheet_08_tspan_0">6</tspan></text>
+      <text id="text_292" y="72.717133" x="118.02953" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_331" y="72.717133" x="118.02953" class="sheet_08_tspan_0">5</tspan></text>
+      <text id="text_293" y="76.876495" x="118.08477" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_332" y="76.876495" x="118.08477" class="sheet_08_tspan_0">4</tspan></text>
+      <text id="text_294" y="80.107811" x="122.75421" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_333" y="80.107811" x="122.75421" class="sheet_08_tspan_0">74LS00</tspan></text>
+    </g>
+    <g id="chip#G10_74LS00_1" transform="translate(58.43789,-39.488014)" class="sheet_08_g_0">
+      <path d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" id="path_20" class="sheet_08_path_0"/>
+      <ellipse id="ellipse_11" ry="0.48355335" rx="0.44926631" cy="75.466316" cx="126.56069" class="sheet_08_ellipse_1"/>
+      <text xml:space="preserve" x="122.33887" y="75.925774" id="text_295" class="sheet_08_text_0"><tspan x="122.33887" y="75.925774" id="tspan_334" class="sheet_08_tspan_0">G10</tspan></text>
+      <text id="text_296" y="74.957977" x="127.4677" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_335" y="74.957977" x="127.4677" class="sheet_08_tspan_0">8</tspan></text>
+      <text xml:space="preserve" x="118.02953" y="72.717133" id="text_297" class="sheet_08_text_0"><tspan x="118.02953" y="72.717133" id="tspan_336" class="sheet_08_tspan_0">9</tspan></text>
+      <text xml:space="preserve" x="117.6161" y="76.843422" id="text_298" class="sheet_08_text_0"><tspan x="117.6161" y="76.843422" id="tspan_337" class="sheet_08_tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="122.75421" y="80.107811" id="text_299" class="sheet_08_text_0"><tspan x="122.75421" y="80.107811" id="tspan_338" class="sheet_08_tspan_0">74LS00</tspan></text>
+    </g>
+    <g id="chip#G11_74LS20_0" transform="translate(100.56992,-43.63249)" class="sheet_08_g_0">
+      <path d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" id="path_21" class="sheet_08_path_0"/>
+      <ellipse id="ellipse_12" ry="0.48355335" rx="0.44926631" cy="75.466316" cx="126.56069" class="sheet_08_ellipse_1"/>
+      <text xml:space="preserve" x="122.33887" y="75.925774" id="text_300" class="sheet_08_text_0"><tspan x="122.33887" y="75.925774" id="tspan_339" class="sheet_08_tspan_0">G11</tspan></text>
+      <text id="text_301" y="74.957977" x="127.4677" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_340" y="74.957977" x="127.4677" class="sheet_08_tspan_0">6</tspan></text>
+      <text xml:space="preserve" x="118.03518" y="76.954926" id="text_302" class="sheet_08_text_0"><tspan x="118.03518" y="76.954926" id="tspan_341" class="sheet_08_tspan_0">5</tspan></text>
+      <text xml:space="preserve" x="117.9642" y="72.81839" id="text_303" class="sheet_08_text_0"><tspan x="117.9642" y="72.81839" id="tspan_342" class="sheet_08_tspan_0">4</tspan></text>
+      <text xml:space="preserve" x="123.67785" y="80.15255" id="text_304" class="sheet_08_text_0"><tspan x="123.67785" y="80.15255" id="tspan_343" class="sheet_08_tspan_0">74LS20</tspan></text>
+      <path d="m 119.667,77.871846 v 2.787123" id="path_22" class="sheet_08_path_0"/>
+      <text id="text_305" y="74.776955" x="117.95614" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_344" y="74.776955" x="117.95614" class="sheet_08_tspan_0">1</tspan></text>
+      <text id="text_306" y="79.081085" x="118.08731" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_345" y="79.081085" x="118.08731" class="sheet_08_tspan_0">2</tspan></text>
+    </g>
+    <g transform="translate(-40.450412,-33.241883)" id="chip#G11_74LS20_1" class="sheet_08_g_0">
+      <path id="path_23" d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" class="sheet_08_path_0"/>
+      <ellipse cx="126.56069" cy="75.466316" rx="0.44926631" ry="0.48355335" id="ellipse_13" class="sheet_08_ellipse_1"/>
+      <text id="text_307" y="75.925774" x="122.33887" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_346" y="75.925774" x="122.33887" class="sheet_08_tspan_0">G11</tspan></text>
+      <text xml:space="preserve" x="127.4677" y="74.957977" id="text_308" class="sheet_08_text_0"><tspan x="127.4677" y="74.957977" id="tspan_347" class="sheet_08_tspan_0">8</tspan></text>
+      <text id="text_309" y="77.0877" x="118.03518" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_348" y="77.0877" x="118.03518" class="sheet_08_tspan_0">9</tspan></text>
+      <text id="text_310" y="72.908997" x="117.57574" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_349" y="72.908997" x="117.57574" class="sheet_08_tspan_0">13</tspan></text>
+      <text id="text_311" y="80.15255" x="123.67785" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_350" y="80.15255" x="123.67785" class="sheet_08_tspan_0">74LS20</tspan></text>
+      <path id="path_24" d="m 119.667,77.871846 v 2.787123" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="117.62402" y="74.969002" id="text_312" class="sheet_08_text_0"><tspan x="117.62402" y="74.969002" id="tspan_351" class="sheet_08_tspan_0">10</tspan></text>
+      <text xml:space="preserve" x="117.70481" y="79.258438" id="text_313" class="sheet_08_text_0"><tspan x="117.70481" y="79.258438" id="tspan_352" class="sheet_08_tspan_0">12</tspan></text>
+    </g>
+    <g id="wire#HORZDISPON_0" transform="translate(44.100307,-45.421607)" class="sheet_08_g_0">
+      <path d="M 4.6110888,104.43246 H -15.223819" id="path_25" class="sheet_08_path_6"/>
+      <text id="text_314" y="103.97466" x="-9.2247658" xml:space="preserve" class="sheet_08_text_7"><tspan id="tspan_353" y="103.97466" x="-9.2247658" class="sheet_08_tspan_0">HORZ  DISP  ON</tspan></text>
+      <path d="M 35.15775,85.560819 H -0.62259962 v 18.818821" id="path_26" class="sheet_08_path_6"/>
+      <path d="m 176.14156,81.458341 h -4.29019 v 12.55232 H 24.511084 v -8.447164" id="path_27" class="sheet_08_path_6"/>
+      <ellipse id="ellipse_14" cy="104.42083" cx="-0.61618078" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_2"/>
+      <ellipse id="ellipse_15" cy="85.574181" cx="24.52433" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_2"/>
+    </g>
+    <g id="pointer#6_0" transform="translate(-138.49409,36.027906)" class="sheet_08_g_0">
+      <path id="path_28" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_315" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_354" y="23.459679" x="163.86922" class="sheet_08_tspan_0">6</tspan></text>
+    </g>
+    <g id="chip#J7_0" transform="translate(44.075152,-45.504197)" class="sheet_08_g_0">
+      <path d="m 205.80127,75.199042 h 4.06167 v 4.039716 c -1.72789,-0.569737 -2.7725,0.650887 -4.06167,0 z" id="path_29" class="sheet_08_path_7"/>
+      <text id="text_316" y="77.742317" x="207.90916" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_355" y="77.742317" x="207.90916" class="sheet_08_tspan_0">1</tspan></text>
+      <text xml:space="preserve" x="207.99516" y="74.661118" id="text_317" class="sheet_08_text_0"><tspan x="207.99516" y="74.661118" id="tspan_356" class="sheet_08_tspan_0">J7</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#NEXT_0">
+      <path id="path_30" d="M 56.907953,71.805738 H 36.034969" class="sheet_08_path_8"/>
+      <path id="path_31" d="m 56.859497,76.088387 h -4.24702 V 71.79829" class="sheet_08_path_8"/>
+      <ellipse id="ellipse_16" cy="71.808624" cx="52.619427" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_3"/>
+      <text id="text_318" y="71.4142" x="38.65089" xml:space="preserve" class="sheet_08_text_8"><tspan id="tspan_357" y="71.4142" x="38.65089" class="sheet_08_tspan_0">NEXT</tspan></text>
+    </g>
+    <g transform="translate(-138.39344,40.256149)" id="pointer#7_0" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_32" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_319" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_358" class="sheet_08_tspan_0">7</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#RA7_0">
+      <path id="path_33" d="M 69.389611,67.597572 H 120.00937" class="sheet_08_path_9"/>
+      <path id="path_34" d="M 86.222085,50.720976 H 77.757149 V 67.562491" class="sheet_08_path_9"/>
+      <path id="path_35" d="M 105.2339,64.330778 H 94.749391 v 3.26218" class="sheet_08_path_9"/>
+      <text id="text_320" y="63.991261" x="102.53645" xml:space="preserve" class="sheet_08_text_9"><tspan id="tspan_359" y="63.991261" x="102.53645" class="sheet_08_tspan_0">RA7</tspan></text>
+      <ellipse id="ellipse_17" cy="67.601044" cx="77.754425" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_4"/>
+      <ellipse id="ellipse_18" cy="67.542107" cx="94.75985" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_4"/>
+    </g>
+    <g transform="translate(-63.136506,32.813001)" id="pointer#5_0" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_36" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_321" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_360" class="sheet_08_tspan_0">5</tspan></text>
+    </g>
+    <path d="M 48.764488,54.925107 H 45.631017" id="wire#NC_0" class="sheet_08_path_10"/>
+    <path d="m 62.365704,54.899387 h 4.287848" id="wire#H11_QA_0" class="sheet_08_path_11"/>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#RA8_0" class="sheet_08_g_0">
+      <path id="path_37" d="M 69.353953,71.809429 H 80.022805 V 52.906514 h 6.250175" class="sheet_08_path_12"/>
+      <path id="path_38" d="M 120.04417,69.668431 H 79.983078" class="sheet_08_path_12"/>
+      <ellipse id="ellipse_19" cy="69.659958" cx="80.023132" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_5"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#RA9_0">
+      <path id="path_39" d="M 69.423496,76.014518 H 90.61742" class="sheet_08_path_13"/>
+      <path id="path_40" d="M 86.258079,54.985234 H 82.106364 V 76.013746" class="sheet_08_path_13"/>
+      <path id="path_41" d="M 120.01483,71.788072 H 82.113915" class="sheet_08_path_13"/>
+      <text id="text_322" y="75.659592" x="87.695312" xml:space="preserve" class="sheet_08_text_10"><tspan id="tspan_361" y="75.659592" x="87.695312" class="sheet_08_tspan_0">RA9</tspan></text>
+      <ellipse id="ellipse_20" cy="75.981384" cx="82.105728" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_6"/>
+      <ellipse id="ellipse_21" cy="71.798401" cx="82.121613" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_6"/>
+    </g>
+    <g id="pointer#7_1" transform="translate(-77.851061,44.423966)" class="sheet_08_g_0">
+      <path id="path_42" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_323" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_362" y="23.459679" x="163.86922" class="sheet_08_tspan_0">7</tspan></text>
+    </g>
+    <g transform="translate(-63.124971,19.240854)" id="pointer#7_2" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_43" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_324" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_363" class="sheet_08_tspan_0">7</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#/RELOAD_0">
+      <path id="path_44" d="m 93.65839,50.784318 h 11.58355" class="sheet_08_path_14"/>
+      <g id="g_4" transform="translate(84.91851,-57.932147)" class="sheet_08_g_0">
+        <text transform="translate(-249.94997,64.902678)" xml:space="preserve" x="265.63831" y="43.471363" id="text_325" class="sheet_08_text_11"><tspan x="265.63831" y="43.471363" id="tspan_364" class="sheet_08_tspan_0">RELOAD</tspan></text>
+        <path transform="translate(-249.94997,64.902678)" d="m 262.83419,42.232666 h 5.69129" id="path_45" class="sheet_08_path_15"/>
+      </g>
+    </g>
+    <g transform="translate(-71.298052,4.532584)" id="pointer#6_1" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_46" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_326" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_365" class="sheet_08_tspan_0">6</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LOADSR_0">
+      <path id="path_47" d="M 132.61429,36.082173 H 103.13036" class="sheet_08_path_16"/>
+      <text xml:space="preserve" x="107.77817" y="35.687801" id="text_327" class="sheet_08_text_12"><tspan x="107.77817" y="35.687801" id="tspan_366" class="sheet_08_tspan_0">LOAD  SR</tspan></text>
+    </g>
+    <g id="pointer#6_2" transform="translate(-52.612619,15.057197)" class="sheet_08_g_0">
+      <path id="path_48" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_328" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_367" y="23.459679" x="163.86922" class="sheet_08_tspan_0">6</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#/INIT_0">
+      <path id="path_49" d="m 132.58428,92.82228 h 4.32278 V 45.35911" class="sheet_08_path_17"/>
+      <path id="path_50" d="m 121.81579,46.606785 h 15.08332" class="sheet_08_path_17"/>
+      <ellipse id="ellipse_22" cy="46.596771" cx="136.89629" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_7"/>
+      <g transform="translate(-139.45256,3.0408759)" id="g_5" class="sheet_08_g_0">
+        <text id="text_329" y="43.189308" x="264.25369" xml:space="preserve" class="sheet_08_text_13"><tspan id="tspan_368" y="43.189308" x="264.25369" class="sheet_08_tspan_0">INIT</tspan></text>
+        <path id="path_51" d="m 262.83926,41.950613 h 2.81706" class="sheet_08_path_18"/>
+      </g>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD7_0">
+      <path id="path_52" d="m 132.71496,126.4167 h 12.54587 v 8.42444 H 113.71685 V 29.767945 h 18.88848" class="sheet_08_path_19"/>
+      <text xml:space="preserve" x="124.12334" y="29.419394" id="text_330" class="sheet_08_text_14"><tspan x="124.12334" y="29.419394" id="tspan_369" class="sheet_08_tspan_0">LSD7</tspan></text>
+      <text xml:space="preserve" x="141.0247" y="126.04596" id="text_331" class="sheet_08_text_14"><tspan x="141.0247" y="126.04596" id="tspan_370" class="sheet_08_tspan_5">LSD7</tspan></text>
+    </g>
+    <g transform="translate(-2.8178308,-157.7523)" id="passive#R44_0" class="sheet_08_g_0">
+      <path id="path_53" d="m 132.50488,172.47272 0.003,-0.42266 -0.27023,-0.27023 0.60805,-0.45462 -0.64709,-0.45828 0.60418,-0.40458 -0.5966,-0.44405 0.65546,-0.50386 -0.34268,-0.22943 0.004,-0.47232" class="sheet_08_path_1"/>
+      <text id="text_332" y="170.04442" x="135.4404" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_371" y="170.04442" x="135.4404" class="sheet_08_tspan_0">R44</tspan></text>
+      <text xml:space="preserve" x="135.08952" y="172.11044" id="text_333" class="sheet_08_text_0"><tspan x="135.08952" y="172.11044" id="tspan_372" class="sheet_08_tspan_0">1K</tspan></text>
+    </g>
+    <g transform="translate(-2.8178308,-157.7523)" id="wire#VCC_0" class="sheet_08_g_0">
+      <path d="m 132.52297,168.81269 v -2.64816" id="wire#VCC_1" class="sheet_08_path_20"/>
+      <text xml:space="preserve" x="132.368" y="165.79825" id="text_334" class="sheet_08_text_15"><tspan id="tspan_373" x="132.368" y="165.79825" class="sheet_08_tspan_0">+5V</tspan><tspan x="132.368" y="179.02737" id="tspan_374" class="sheet_08_tspan_0"/></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#PULLUP1_0">
+      <path d="m 136.74488,23.28706 v 3.32545" id="path_54" class="sheet_08_path_21"/>
+      <path id="path_55" d="M 155.54464,24.52406 H 136.73837" class="sheet_08_path_22"/>
+      <text id="text_335" y="24.168905" x="148.61292" xml:space="preserve" class="sheet_08_text_16"><tspan id="tspan_375" y="24.168905" x="148.61292" class="sheet_08_tspan_0">PULLUP  1</tspan></text>
+      <ellipse id="ellipse_23" cy="24.522659" cx="136.73965" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_8"/>
+    </g>
+    <g id="pointer#67_0" transform="translate(-12.791292,-7.0849506)" class="sheet_08_g_0">
+      <path id="path_56" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_336" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_376" y="23.459679" x="163.86922" class="sheet_08_tspan_0">6, 7</tspan></text>
+    </g>
+    <path d="m 133.96718,21.244263 c 0.0661,0 44.13174,0 44.13174,0" id="wire#G9Q_0" class="sheet_08_path_23"/>
+    <path d="m 178.13037,25.323591 h -6.30586 v 37.879895 h -6.38524" id="wire#E11QH_0" class="sheet_08_path_24"/>
+    <path d="m 165.46049,75.765807 h 8.53662 v -37.85213 h 4.05554" id="wire#/E11QH_0" class="sheet_08_path_25"/>
+    <path d="m 133.98245,33.806746 h 44.12799" id="wire#/G9Q_0" class="sheet_08_path_26"/>
+    <path d="m 185.4821,23.387976 h 3.23116 v 4.173979 h 4.33263 v 0.01365" id="wire#G106_0" class="sheet_08_path_27"/>
+    <path d="m 185.49432,35.967564 h 3.28276 v -4.27858 h 4.23031" id="wire#G108_0" class="sheet_08_path_28"/>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#VIDEOON_0">
+      <text xml:space="preserve" x="211.38988" y="46.15015" id="text_337" class="sheet_08_text_17"><tspan x="211.38988" y="46.15015" id="tspan_377" class="sheet_08_tspan_0">VIDEO  ON</tspan></text>
+      <path d="m 227.29844,42.404596 h -6.4052 V 46.50768 H 206.2172" id="path_57" class="sheet_08_path_29"/>
+    </g>
+    <g transform="translate(31.788792,14.958091)" id="pointer#6_3" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_58" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_338" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_378" class="sheet_08_tspan_0">3</tspan></text>
+    </g>
+    <g transform="translate(73.379982,-45.784613)" id="chip#H10_74LS08_0" class="sheet_08_g_0">
+      <path id="path_59" d="m 123.79568,72.952654 c 3.25076,1.401584 2.60817,4.027861 0,4.919192 H 119.667 v -4.880338 z" class="sheet_08_path_0"/>
+      <text id="text_339" y="75.925774" x="122.33887" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_379" y="75.925774" x="122.33887" class="sheet_08_tspan_0">H10</tspan></text>
+      <text xml:space="preserve" x="127.4677" y="74.957977" id="text_340" class="sheet_08_text_0"><tspan x="127.4677" y="74.957977" id="tspan_380" class="sheet_08_tspan_0">8</tspan></text>
+      <text id="text_341" y="72.839745" x="117.43587" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_381" y="72.839745" x="117.43587" class="sheet_08_tspan_0">9</tspan></text>
+      <text id="text_342" y="76.957405" x="116.96925" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_382" y="76.957405" x="116.96925" class="sheet_08_tspan_0">10</tspan></text>
+      <text id="text_343" y="80.139534" x="122.53121" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_383" y="80.139534" x="122.53121" class="sheet_08_tspan_0">74LS08</tspan></text>
+    </g>
+    <path id="wire#H108_0" d="M 199.38976,29.716262 H 220.2108" class="sheet_08_path_30"/>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#VCC_2">
+      <path d="m 227.25817,40.335888 h -6.4022" id="path_60" class="sheet_08_path_20"/>
+      <text xml:space="preserve" x="218.35661" y="40.795902" id="text_344" class="sheet_08_text_15"><tspan x="218.35661" y="40.795902" id="tspan_384" class="sheet_08_tspan_0">+5V</tspan></text>
+    </g>
+    <g id="pointer#6_4" transform="translate(77.931634,13.020895)" class="sheet_08_g_0">
+      <path id="path_61" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_345" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_385" y="23.459679" x="163.86922" class="sheet_08_tspan_0">3</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#VIDEO_0" class="sheet_08_g_0">
+      <text id="text_346" y="39.993015" x="253.14598" xml:space="preserve" class="sheet_08_text_18"><tspan id="tspan_386" y="39.993015" x="253.14598" class="sheet_08_tspan_0">VIDEO</tspan></text>
+      <text xml:space="preserve" x="242.56082" y="44.207359" id="text_347" class="sheet_08_text_18"><tspan x="242.56082" y="44.207359" id="tspan_387" class="sheet_08_tspan_0">VIDEO</tspan></text>
+      <path id="path_62" d="m 234.66581,40.411487 h 22.23754" class="sheet_08_path_31"/>
+      <path id="path_63" d="m 246.24317,44.61701 h -8.42742 v -4.173009" class="sheet_08_path_31"/>
+      <ellipse id="ellipse_24" cy="40.413799" cx="237.82706" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_9"/>
+    </g>
+    <path d="m 125.54098,67.430612 h 27.3151" id="wire#CD0_0" class="sheet_08_path_32"/>
+    <path id="wire#CD1_0" d="m 125.6815,69.58965 h 27.3151" class="sheet_08_path_33"/>
+    <path id="wire#CD2_0" d="m 125.50037,71.682118 h 27.3151" class="sheet_08_path_34"/>
+    <path d="m 125.64089,73.841156 h 27.3151" id="wire#CD3_0" class="sheet_08_path_35"/>
+    <path id="wire#CD4_0" d="m 125.52008,75.772936 h 27.3151" class="sheet_08_path_36"/>
+    <path d="m 125.6606,77.931974 h 27.3151" id="wire#CD5_0" class="sheet_08_path_37"/>
+    <path d="m 125.47947,80.024442 h 27.3151" id="wire#CD6_0" class="sheet_08_path_38"/>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#CD7_0">
+      <path d="m 132.67782,90.750122 h 27.3151" id="path_64" class="sheet_08_path_39"/>
+      <path id="path_65" d="m 159.93567,73.870295 h -6.32703 v 16.882853" class="sheet_08_path_40"/>
+      <ellipse id="ellipse_25" cy="90.702927" cx="153.6115" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_10"/>
+    </g>
+    <g transform="translate(90.723356,-103.02762)" id="wire#GND_0" class="sheet_08_g_0">
+      <path d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" id="path_66" class="sheet_08_path_41"/>
+      <path d="m 50.828435,168.88631 h 1.469499" id="path_67" class="sheet_08_path_41"/>
+      <path d="m 51.119855,169.40964 h 0.78101" id="path_68" class="sheet_08_path_41"/>
+      <path id="path_69" d="m 61.064022,166.26318 h -9.550574 v 2.03418" class="sheet_08_path_42"/>
+    </g>
+    <g transform="translate(-29.536003,38.233348)" id="pointer#6_5" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_70" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_348" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_388" class="sheet_08_tspan_0">6</tspan></text>
+    </g>
+    <g transform="translate(-29.516093,36.082331)" id="pointer#6_6" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_71" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_349" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_389" class="sheet_08_tspan_0">6</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#/LOADSR_0">
+      <path id="path_72" d="m 144.91232,67.63192 h 14.95774" class="sheet_08_path_43"/>
+      <g transform="translate(-115.57965,23.974035)" id="g_6" class="sheet_08_g_0">
+        <text id="text_350" y="43.27169" x="265.24875" xml:space="preserve" class="sheet_08_text_19"><tspan id="tspan_390" y="43.27169" x="265.24875" class="sheet_08_tspan_0">LOAD  SR</tspan></text>
+        <path id="path_73" d="m 262.00983,42.032994 h 6.56955" class="sheet_08_path_44"/>
+      </g>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#CLK8_0">
+      <path id="path_74" d="M 144.89241,69.782935 H 159.8278" class="sheet_08_path_45"/>
+      <text id="text_351" y="69.273376" x="149.98686" xml:space="preserve" class="sheet_08_text_20"><tspan id="tspan_391" y="69.273376" x="149.98686" class="sheet_08_tspan_6">CLK8</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA0_0">
+      <path d="m 132.65214,153.73238 h 29.53085" id="path_75" class="sheet_08_path_46"/>
+      <path d="m 120.11457,153.66291 h -13.89801 l -0.64384,-0.62078" id="path_76" class="sheet_08_path_46"/>
+      <text xml:space="preserve" x="107.65955" y="153.20142" id="text_352" class="sheet_08_text_21"><tspan x="107.65955" y="153.20142" id="tspan_392" class="sheet_08_tspan_5">SA0</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA1_0">
+      <path id="path_77" d="m 132.58697,155.84877 h 29.53085" class="sheet_08_path_47"/>
+      <path id="path_78" d="m 120.13268,155.75221 h -13.89801 l -0.64384,-0.62079" class="sheet_08_path_47"/>
+      <text id="text_353" y="155.28003" x="107.61691" xml:space="preserve" class="sheet_08_text_22"><tspan id="tspan_393" y="155.28003" x="107.61691" class="sheet_08_tspan_5">SA1</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA2_0">
+      <path id="path_79" d="m 132.64103,157.93839 h 29.53085" class="sheet_08_path_48"/>
+      <path id="path_80" d="m 120.07659,157.86108 h -13.89801 l -0.64384,-0.62079" class="sheet_08_path_48"/>
+      <text id="text_354" y="157.35626" x="107.61755" xml:space="preserve" class="sheet_08_text_23"><tspan id="tspan_394" y="157.35626" x="107.61755" class="sheet_08_tspan_5">SA2</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA3_0">
+      <path d="m 132.57586,160.05478 h 29.53085" id="path_81" class="sheet_08_path_49"/>
+      <path d="m 120.0947,159.95038 h -13.89801 l -0.64384,-0.62079" id="path_82" class="sheet_08_path_49"/>
+      <text xml:space="preserve" x="107.5749" y="159.43488" id="text_355" class="sheet_08_text_24"><tspan x="107.5749" y="159.43488" id="tspan_395" class="sheet_08_tspan_5">SA3</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA4_0">
+      <path id="path_83" d="M 132.67884,162.13091 H 162.2097" class="sheet_08_path_50"/>
+      <path d="m 120.09308,162.01969 h -13.89801 l -0.64384,-0.62079" id="path_84" class="sheet_08_path_50"/>
+      <text id="text_356" y="161.57066" x="107.65448" xml:space="preserve" class="sheet_08_text_25"><tspan id="tspan_396" y="161.57066" x="107.65448" class="sheet_08_tspan_5">SA4</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA5_0">
+      <path d="m 132.61367,164.2473 h 29.53086" id="path_85" class="sheet_08_path_51"/>
+      <path id="path_86" d="m 120.11119,164.10899 h -13.89801 l -0.64384,-0.62079" class="sheet_08_path_51"/>
+      <text xml:space="preserve" x="107.61185" y="163.64928" id="text_357" class="sheet_08_text_26"><tspan x="107.61185" y="163.64928" id="tspan_397" class="sheet_08_tspan_5">SA5</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA6_0">
+      <path d="m 132.66773,166.33692 h 29.53086" id="path_87" class="sheet_08_path_52"/>
+      <path id="path_88" d="m 120.11057,166.22165 h -13.89801 l -0.64384,-0.62079" class="sheet_08_path_52"/>
+      <text xml:space="preserve" x="107.61248" y="165.72551" id="text_358" class="sheet_08_text_27"><tspan x="107.61248" y="165.72551" id="tspan_398" class="sheet_08_tspan_5">SA6</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA7_0">
+      <path id="path_89" d="m 132.60256,168.45331 h 29.53086" class="sheet_08_path_53"/>
+      <path d="m 120.12868,168.31095 h -13.898 l -0.64384,-0.62079" id="path_90" class="sheet_08_path_53"/>
+      <text id="text_359" y="167.80412" x="107.56982" xml:space="preserve" class="sheet_08_text_28"><tspan id="tspan_399" y="167.80412" x="107.56982" class="sheet_08_tspan_5">SA7</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA8_0">
+      <path id="path_91" d="m 132.70065,170.52257 h 29.53086" class="sheet_08_path_54"/>
+      <path d="m 120.08323,170.42433 h -13.898 l -0.64384,-0.62079" id="path_92" class="sheet_08_path_54"/>
+      <text id="text_360" y="169.89841" x="107.65797" xml:space="preserve" class="sheet_08_text_29"><tspan id="tspan_400" y="169.89841" x="107.65797" class="sheet_08_tspan_5">SA8</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SA9_0">
+      <path d="m 132.63548,172.63896 h 29.53086" id="path_93" class="sheet_08_path_55"/>
+      <path id="path_94" d="m 120.10135,172.51363 h -13.89801 l -0.64384,-0.62079" class="sheet_08_path_55"/>
+      <text xml:space="preserve" x="107.6153" y="171.97702" id="text_361" class="sheet_08_text_30"><tspan x="107.6153" y="171.97702" id="tspan_401" class="sheet_08_tspan_5">SA9</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="bus#SA09_0">
+      <path d="m 96.579996,147.35398 h 8.137314 l 0.8639,0.8639 v 23.77572" id="path_95" class="sheet_08_path_56"/>
+      <text id="text_362" y="146.86859" x="98.236778" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_402" y="146.86859" x="98.236778" class="sheet_08_tspan_5">SA0-9  BUS</tspan></text>
+    </g>
+    <g id="wire#GND_1" transform="translate(57.321175,-25.295384)" class="sheet_08_g_0">
+      <path id="path_96" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="sheet_08_path_41"/>
+      <path id="path_97" d="m 50.828435,168.88631 h 1.469499" class="sheet_08_path_41"/>
+      <path id="path_98" d="m 51.119855,169.40964 h 0.78101" class="sheet_08_path_41"/>
+      <path d="m 55.615296,164.17393 h -2.494569 -1.607279 v 4.12343" id="path_99" class="sheet_08_path_42"/>
+      <path id="path_100" d="M 55.613819,166.25494 H 51.504174" class="sheet_08_path_42"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="51.529697" cy="166.2375" id="ellipse_26" class="sheet_08_ellipse_11"/>
+    </g>
+    <g transform="translate(-112.1374,96.378468)" id="wire#VCC_3" class="sheet_08_g_0">
+      <path id="path_101" d="m 225.02513,40.335888 h -4.16916" class="sheet_08_path_20"/>
+      <text id="text_363" y="40.795902" x="218.35661" xml:space="preserve" class="sheet_08_text_15"><tspan id="tspan_403" y="40.795902" x="218.35661" class="sheet_08_tspan_0">+5V</tspan></text>
+      <g transform="translate(211.48849,-121.58974)" id="wire#GND_2" class="sheet_08_g_0">
+        <path d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" id="path_102" class="sheet_08_path_41"/>
+        <path d="m 50.828435,168.88631 h 1.469499" id="path_103" class="sheet_08_path_41"/>
+        <path d="m 51.119855,169.40964 h 0.78101" id="path_104" class="sheet_08_path_41"/>
+        <path id="path_105" d="m 55.615296,164.17393 h -2.494569 -1.607279 v 4.12343" class="sheet_08_path_42"/>
+        <path d="M 55.613819,166.25494 H 51.504174" id="path_106" class="sheet_08_path_42"/>
+        <ellipse id="ellipse_27" cy="166.2375" cx="51.529697" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_11"/>
+      </g>
+      <path d="m 267.05504,40.420007 h -4.16916" id="path_107" class="sheet_08_path_20"/>
+      <text xml:space="preserve" x="260.38654" y="40.880032" id="text_364" class="sheet_08_text_15"><tspan x="260.38654" y="40.880032" id="tspan_404" class="sheet_08_tspan_0">+5V</tspan></text>
+    </g>
+    <g transform="translate(-77.867726,107.51895)" id="pointer#7_3" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_108" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_365" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_405" class="sheet_08_tspan_0">7</tspan></text>
+    </g>
+    <g transform="translate(-77.867726,115.79036)" id="pointer#7_4" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_109" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_366" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_406" class="sheet_08_tspan_0">7</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#TVRAMRW_0">
+      <g id="g_7" class="sheet_08_g_0">
+        <ellipse ry="0.21078888" rx="0.21147294" cx="126.3754" cy="139.04941" id="ellipse_28" class="sheet_08_ellipse_12"/>
+        <ellipse ry="0.21078888" rx="0.21147294" cx="168.44614" cy="139.03893" id="ellipse_29" class="sheet_08_ellipse_12"/>
+        <ellipse ry="0.21078888" rx="0.21147294" cx="202.32573" cy="128.41583" id="ellipse_30" class="sheet_08_ellipse_12"/>
+      </g>
+      <path id="path_110" d="M 96.572996,139.1157 H 202.34352 V 92.734915 h 7.33031" class="sheet_08_path_57"/>
+      <path id="path_111" d="m 209.76304,128.43744 h -7.36322" class="sheet_08_path_57"/>
+      <path d="m 168.41921,143.17999 v -4.10131" id="path_112" class="sheet_08_path_57"/>
+      <path d="m 126.35695,143.12687 v -4.04335" id="path_113" class="sheet_08_path_57"/>
+      <text xml:space="preserve" x="98.15387" y="138.63199" id="text_367" class="sheet_08_text_31"><tspan x="98.15387" y="138.63199" id="tspan_407" class="sheet_08_tspan_5">TV  RAM  R/W</tspan></text>
+    </g>
+    <g id="wire#SD4_0" transform="translate(35.084101,-8.5709419)" class="sheet_08_g_0">
+      <path id="path_114" d="m 132.54647,145.34723 h 13.99059 l 0.84697,-0.4958" class="sheet_08_path_58"/>
+      <text xml:space="preserve" x="142.16103" y="144.96184" id="text_368" class="sheet_08_text_32"><tspan x="142.16103" y="144.96184" id="tspan_408" class="sheet_08_tspan_5">SD4</tspan></text>
+    </g>
+    <g transform="translate(77.237671,-8.6612112)" id="wire#SD6_1" class="sheet_08_g_0">
+      <path d="m 126.30945,120.20127 h -20.29258 l -0.70607,0.40765" id="path_115" class="sheet_08_path_2"/>
+      <text id="text_369" y="119.60442" x="107.49521" xml:space="preserve" class="sheet_08_text_4"><tspan id="tspan_409" y="119.60442" x="107.49521" class="sheet_08_tspan_5">SD6</tspan></text>
+      <path d="m 126.2877,122.30123 h -4.13514 v -2.08118" id="path_116" class="sheet_08_path_2"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="122.16325" cy="120.2096" id="ellipse_31" class="sheet_08_ellipse_13"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="bus#SD07_0">
+      <path d="m 105.3546,116.23459 v 19.83707 l 0.81609,0.81609 h 82.71277 l 0.69556,-0.69556 V 76.299698" id="path_117" class="sheet_08_path_56"/>
+      <path d="m 189.57902,136.19219 v 15.05266" id="path_118" class="sheet_08_path_56"/>
+      <path d="m 188.88346,136.88775 0.67281,0.67281" id="path_119" class="sheet_08_path_56"/>
+      <path d="m 147.35295,151.35581 v -13.01429 l 0.75901,-1.47068" id="path_120" class="sheet_08_path_56"/>
+      <path d="m 147.35295,137.62985 -0.75264,-0.75264" id="path_121" class="sheet_08_path_56"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD0_0">
+      <path id="path_122" d="m 120.08244,115.94368 h -14.01052 l -0.70607,0.40765" class="sheet_08_path_59"/>
+      <text xml:space="preserve" x="107.49521" y="115.39375" id="text_370" class="sheet_08_text_33"><tspan x="107.49521" y="115.39375" id="tspan_410" class="sheet_08_tspan_5">SD0</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD1_0">
+      <path d="m 120.12127,118.06798 h -14.01052 l -0.70607,0.40765" id="path_123" class="sheet_08_path_60"/>
+      <text id="text_371" y="117.44617" x="107.49521" xml:space="preserve" class="sheet_08_text_34"><tspan id="tspan_411" y="117.44617" x="107.49521" class="sheet_08_tspan_5">SD1</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD2_0">
+      <path d="m 120.02739,120.20127 h -14.01052 l -0.70607,0.40765" id="path_124" class="sheet_08_path_61"/>
+      <text id="text_372" y="119.60442" x="107.49521" xml:space="preserve" class="sheet_08_text_35"><tspan id="tspan_412" y="119.60442" x="107.49521" class="sheet_08_tspan_5">SD2</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD3_0">
+      <path id="path_125" d="M 120.06622,122.32557 H 106.0557 l -0.70607,0.40765" class="sheet_08_path_62"/>
+      <text id="text_373" y="121.65467" x="107.49521" xml:space="preserve" class="sheet_08_text_36"><tspan id="tspan_413" y="121.65467" x="107.49521" class="sheet_08_tspan_5">SD3</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD4_1">
+      <path d="M 120.08832,124.28263 H 106.0778 l -0.70607,0.40765" id="path_126" class="sheet_08_path_63"/>
+      <text id="text_374" y="123.77846" x="107.49521" xml:space="preserve" class="sheet_08_text_32"><tspan id="tspan_414" y="123.77846" x="107.49521" class="sheet_08_tspan_5">SD4</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD5_1">
+      <path id="path_127" d="m 120.12715,126.40693 h -14.01052 l -0.70607,0.40765" class="sheet_08_path_5"/>
+      <text id="text_375" y="125.78979" x="107.49521" xml:space="preserve" class="sheet_08_text_6"><tspan id="tspan_415" y="125.78979" x="107.49521" class="sheet_08_tspan_5">SD5</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD6_2">
+      <path id="path_128" d="m 120.03327,128.54022 h -14.01052 l -0.70607,0.40765" class="sheet_08_path_2"/>
+      <text id="text_376" y="127.98894" x="107.49521" xml:space="preserve" class="sheet_08_text_4"><tspan id="tspan_416" y="127.98894" x="107.49521" class="sheet_08_tspan_5">SD6</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD7_1">
+      <path d="m 120.0721,130.66452 h -14.01052 l -0.70607,0.40765" id="path_129" class="sheet_08_path_64"/>
+      <text id="text_377" y="130.10587" x="107.49521" xml:space="preserve" class="sheet_08_text_5"><tspan id="tspan_417" y="130.10587" x="107.49521" class="sheet_08_tspan_5">SD7</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD0_1">
+      <path d="m 132.54647,145.34723 h 13.99059 l 0.82392,-0.4757" id="path_130" class="sheet_08_path_65"/>
+      <text id="text_378" y="144.96184" x="142.16103" xml:space="preserve" class="sheet_08_text_33"><tspan id="tspan_418" y="144.96184" x="142.16103" class="sheet_08_tspan_5">SD0</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD1_1">
+      <path id="path_131" d="m 132.50758,147.51948 h 13.99059 l 0.82392,-0.4757" class="sheet_08_path_60"/>
+      <text xml:space="preserve" x="142.16103" y="147.01425" id="text_379" class="sheet_08_text_34"><tspan x="142.16103" y="147.01425" id="tspan_419" class="sheet_08_tspan_5">SD1</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD2_1">
+      <path id="path_132" d="m 132.55728,149.54281 h 13.99059 l 0.82392,-0.4757" class="sheet_08_path_61"/>
+      <text xml:space="preserve" x="142.16103" y="149.17252" id="text_380" class="sheet_08_text_35"><tspan x="142.16103" y="149.17252" id="tspan_420" class="sheet_08_tspan_5">SD2</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#SD3_1">
+      <path d="m 132.51839,151.71506 h 13.99059 l 0.82392,-0.4757" id="path_133" class="sheet_08_path_62"/>
+      <text xml:space="preserve" x="142.16103" y="151.22276" id="text_381" class="sheet_08_text_36"><tspan x="142.16103" y="151.22276" id="tspan_421" class="sheet_08_tspan_5">SD3</tspan></text>
+    </g>
+    <path d="M 140.28731,115.03609 V 97.842648 l -0.9409,-0.94091 H 96.958518 l -0.83764,-0.83764 V 68.082054" id="bus#LSD07_0" class="sheet_08_path_66"/>
+    <g id="wire#GND_3" transform="translate(57.260083,-44.176535)" class="sheet_08_g_0">
+      <path id="path_134" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="sheet_08_path_41"/>
+      <path id="path_135" d="m 50.828435,168.88631 h 1.469499" class="sheet_08_path_41"/>
+      <path id="path_136" d="m 51.119855,169.40964 h 0.78101" class="sheet_08_path_41"/>
+      <path d="m 54.722574,149.44032 h -3.209126 v 18.85704" id="path_137" class="sheet_08_path_42"/>
+    </g>
+    <g id="pointer#6_7" transform="translate(-90.09976,80.194998)" class="sheet_08_g_0">
+      <path id="path_138" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_382" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_422" y="23.459679" x="163.86922" class="sheet_08_tspan_0">6</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#VIDEOLATCH_0">
+      <text id="text_383" y="111.2056" x="85.498108" xml:space="preserve" class="sheet_08_text_37"><tspan id="tspan_423" y="111.2056" x="85.498108" class="sheet_08_tspan_5">VIDEO  LATCH</tspan></text>
+      <path id="path_139" d="M 120.13733,111.74459 H 84.328652" class="sheet_08_path_67"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD0_0">
+      <path id="path_140" d="M 119.98725,75.979146 H 103.9643 l -0.7653,0.765305" class="sheet_08_path_68"/>
+      <text id="text_384" y="75.554428" x="105.28643" xml:space="preserve" class="sheet_08_text_38"><tspan id="tspan_424" y="75.554428" x="105.28643" class="sheet_08_tspan_5">LSD0</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD1_0">
+      <path d="m 119.95127,78.067952 h -16.02295 l -0.7653,0.765305" id="path_141" class="sheet_08_path_69"/>
+      <text xml:space="preserve" x="105.25045" y="77.643234" id="text_385" class="sheet_08_text_39"><tspan x="105.25045" y="77.643234" id="tspan_425" class="sheet_08_tspan_5">LSD1</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD2_0">
+      <path d="m 119.95878,80.204832 h -16.02295 l -0.7653,0.765305" id="path_142" class="sheet_08_path_70"/>
+      <text xml:space="preserve" x="105.25796" y="79.780113" id="text_386" class="sheet_08_text_40"><tspan x="105.25796" y="79.780113" id="tspan_426" class="sheet_08_tspan_5">LSD2</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD3_0">
+      <path id="path_143" d="m 119.9228,82.293638 h -16.02295 l -0.7653,0.765305" class="sheet_08_path_71"/>
+      <text id="text_387" y="81.868919" x="105.22198" xml:space="preserve" class="sheet_08_text_41"><tspan id="tspan_427" y="81.868919" x="105.22198" class="sheet_08_tspan_5">LSD3</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD4_0">
+      <path id="path_144" d="m 119.96478,84.42616 h -16.02295 l -0.7653,0.765305" class="sheet_08_path_72"/>
+      <text id="text_388" y="84.001442" x="105.26397" xml:space="preserve" class="sheet_08_text_42"><tspan id="tspan_428" y="84.001442" x="105.26397" class="sheet_08_tspan_5">LSD4</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD5_0">
+      <path id="path_145" d="m 119.97229,86.56304 h -16.02295 l -0.7653,0.765305" class="sheet_08_path_73"/>
+      <text id="text_389" y="86.138321" x="105.27147" xml:space="preserve" class="sheet_08_text_43"><tspan id="tspan_429" y="86.138321" x="105.27147" class="sheet_08_tspan_5">LSD5</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD6_0">
+      <path d="m 119.93631,88.651846 h -16.02295 l -0.7653,0.765305" id="path_146" class="sheet_08_path_74"/>
+      <text xml:space="preserve" x="105.23549" y="88.227127" id="text_390" class="sheet_08_text_44"><tspan x="105.23549" y="88.227127" id="tspan_430" class="sheet_08_tspan_5">LSD6</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD0_1">
+      <text xml:space="preserve" x="141.01537" y="111.30946" id="text_391" class="sheet_08_text_38"><tspan x="141.01537" y="111.30946" id="tspan_431" class="sheet_08_tspan_5">LSD0</tspan></text>
+      <path id="path_147" d="m 132.76282,111.73709 h 13.74554 l 0.78746,-0.78746" class="sheet_08_path_68"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD1_1">
+      <text id="text_392" y="113.39827" x="140.97939" xml:space="preserve" class="sheet_08_text_39"><tspan id="tspan_432" y="113.39827" x="140.97939" class="sheet_08_tspan_5">LSD1</tspan></text>
+      <path d="m 132.80286,113.83961 h 13.74554 l 0.78746,-0.78746" id="path_148" class="sheet_08_path_69"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD2_1">
+      <text id="text_393" y="115.53515" x="140.98689" xml:space="preserve" class="sheet_08_text_40"><tspan id="tspan_433" y="115.53515" x="140.98689" class="sheet_08_tspan_5">LSD2</tspan></text>
+      <path d="m 132.77314,115.94213 h 13.74554 l 0.78746,-0.78746" id="path_149" class="sheet_08_path_70"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD3_1">
+      <text xml:space="preserve" x="140.95091" y="117.62396" id="text_394" class="sheet_08_text_41"><tspan x="140.95091" y="117.62396" id="tspan_434" class="sheet_08_tspan_5">LSD3</tspan></text>
+      <path id="path_150" d="m 132.81318,118.04465 h 13.74554 l 0.78746,-0.78746" class="sheet_08_path_71"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD4_1">
+      <text xml:space="preserve" x="140.9929" y="119.75648" id="text_395" class="sheet_08_text_42"><tspan x="140.9929" y="119.75648" id="tspan_435" class="sheet_08_tspan_5">LSD4</tspan></text>
+      <path id="path_151" d="m 132.80182,120.08721 h 13.74554 l 0.78746,-0.78746" class="sheet_08_path_72"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD5_1">
+      <text xml:space="preserve" x="141.0004" y="121.89336" id="text_396" class="sheet_08_text_43"><tspan x="141.0004" y="121.89336" id="tspan_436" class="sheet_08_tspan_5">LSD5</tspan></text>
+      <path id="path_152" d="m 132.7721,122.18973 h 13.74554 l 0.78746,-0.78746" class="sheet_08_path_73"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#LSD6_1">
+      <text id="text_397" y="123.98216" x="140.96442" xml:space="preserve" class="sheet_08_text_44"><tspan id="tspan_437" y="123.98216" x="140.96442" class="sheet_08_tspan_5">LSD6</tspan></text>
+      <path d="m 132.81214,124.29225 h 13.74554 l 0.78746,-0.78746" id="path_153" class="sheet_08_path_74"/>
+    </g>
+    <g id="wire#GND_4" transform="translate(67.737031,-75.720384)" class="sheet_08_g_0">
+      <path id="path_154" d="m 50.474815,168.35322 c 2.08559,0 2.19854,0 2.19854,0" class="sheet_08_path_41"/>
+      <path id="path_155" d="m 50.828435,168.88631 h 1.469499" class="sheet_08_path_41"/>
+      <path id="path_156" d="m 51.119855,169.40964 h 0.78101" class="sheet_08_path_41"/>
+      <path d="m 51.513448,164.2085 v 4.08886" id="path_157" class="sheet_08_path_42"/>
+      <path d="m 45.191685,159.95106 h -4.113713 v 6.2425 l 10.340478,0.0318 v 0" id="path_158" class="sheet_08_path_42"/>
+      <path d="M 45.206078,162.09211 H 40.985022" id="path_159" class="sheet_08_path_42"/>
+      <ellipse id="ellipse_32" cy="162.03912" cx="41.083729" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_11"/>
+      <ellipse id="ellipse_33" cy="166.23529" cx="51.529453" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_11"/>
+    </g>
+    <g id="wire#GRAPHIC_0" transform="translate(-7.2412222,-29.624448)" class="sheet_08_g_0">
+      <text xml:space="preserve" x="85.498108" y="111.2056" id="text_398" class="sheet_08_text_45"><tspan x="85.498108" y="111.2056" id="tspan_438" class="sheet_08_tspan_5">GRAPHIC</tspan></text>
+      <path d="M 120.13733,111.74459 H 84.328652" id="path_160" class="sheet_08_path_75"/>
+    </g>
+    <g transform="translate(-90.28315,59.137195)" id="pointer#6_8" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_161" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_399" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_439" class="sheet_08_tspan_0">3</tspan></text>
+    </g>
+    <g id="wire#SD0_2" transform="translate(77.214217,-48.511591)" class="sheet_08_g_0">
+      <path d="m 126.32198,115.94368 h -20.25006 l -0.70607,0.40765" id="path_162" class="sheet_08_path_59"/>
+      <text id="text_400" y="115.39375" x="107.49521" xml:space="preserve" class="sheet_08_text_33"><tspan id="tspan_440" y="115.39375" x="107.49521" class="sheet_08_tspan_5">SD0</tspan></text>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="122.09607" cy="115.93046" id="ellipse_34" class="sheet_08_ellipse_14"/>
+      <path d="m 126.30452,118.04347 h -4.20261 v -2.15871" id="path_163" class="sheet_08_path_65"/>
+    </g>
+    <g id="wire#SD1_2" transform="translate(77.214217,-46.467426)" class="sheet_08_g_0">
+      <path id="path_164" d="m 126.30936,118.06798 h -20.19861 l -0.80016,0.50314" class="sheet_08_path_60"/>
+      <text xml:space="preserve" x="107.49521" y="117.44617" id="text_401" class="sheet_08_text_34"><tspan x="107.49521" y="117.44617" id="tspan_441" class="sheet_08_tspan_5">SD1</tspan></text>
+      <path d="m 126.32858,120.17689 h -4.13514 v -2.08118" id="path_165" class="sheet_08_path_76"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="122.20413" cy="118.08526" id="ellipse_35" class="sheet_08_ellipse_15"/>
+    </g>
+    <g id="wire#SD2_2" transform="translate(77.214217,-44.378428)" class="sheet_08_g_0">
+      <path id="path_166" d="m 126.30945,120.20127 h -20.29258 l -0.70607,0.40765" class="sheet_08_path_61"/>
+      <text xml:space="preserve" x="107.49521" y="119.60442" id="text_402" class="sheet_08_text_35"><tspan x="107.49521" y="119.60442" id="tspan_442" class="sheet_08_tspan_5">SD2</tspan></text>
+      <path id="path_167" d="m 126.2877,122.30123 h -4.13514 v -2.08118" class="sheet_08_path_61"/>
+      <ellipse id="ellipse_36" cy="120.2096" cx="122.16325" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_16"/>
+    </g>
+    <g id="wire#SD3_2" transform="translate(77.214217,-42.313364)" class="sheet_08_g_0">
+      <path d="m 126.3438,122.32557 h -20.2881 l -0.70607,0.40765" id="path_168" class="sheet_08_path_62"/>
+      <text xml:space="preserve" x="107.49521" y="121.65467" id="text_403" class="sheet_08_text_36"><tspan x="107.49521" y="121.65467" id="tspan_443" class="sheet_08_tspan_5">SD3</tspan></text>
+      <path id="path_169" d="m 126.3361,124.35441 h -4.13514 v -2.08118" class="sheet_08_path_62"/>
+      <ellipse id="ellipse_37" cy="122.26278" cx="122.21165" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_17"/>
+    </g>
+    <g transform="translate(77.237671,-12.794371)" id="wire#SD4_2" class="sheet_08_g_0">
+      <path id="path_170" d="m 126.32198,115.94368 h -20.25006 l -0.70607,0.40765" class="sheet_08_path_63"/>
+      <text xml:space="preserve" x="107.49521" y="115.39375" id="text_404" class="sheet_08_text_32"><tspan x="107.49521" y="115.39375" id="tspan_444" class="sheet_08_tspan_5">SD4</tspan></text>
+      <ellipse id="ellipse_38" cy="115.93046" cx="122.09607" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_18"/>
+      <path id="path_171" d="m 126.30452,118.04347 h -4.20261 v -2.15871" class="sheet_08_path_58"/>
+    </g>
+    <g transform="translate(77.237671,-10.750211)" id="wire#SD5_2" class="sheet_08_g_0">
+      <path d="m 126.30936,118.06798 h -20.19861 l -0.80016,0.50314" id="path_172" class="sheet_08_path_5"/>
+      <text id="text_405" y="117.44617" x="107.49521" xml:space="preserve" class="sheet_08_text_6"><tspan id="tspan_445" y="117.44617" x="107.49521" class="sheet_08_tspan_5">SD5</tspan></text>
+      <path id="path_173" d="m 126.32858,120.17689 h -4.13514 v -2.08118" class="sheet_08_path_77"/>
+      <ellipse id="ellipse_39" cy="118.08526" cx="122.20413" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_19"/>
+    </g>
+    <g transform="translate(77.237671,-6.5961512)" id="wire#SD7_2" class="sheet_08_g_0">
+      <path id="path_174" d="m 126.3438,122.32557 h -20.2881 l -0.70607,0.40765" class="sheet_08_path_3"/>
+      <text id="text_406" y="121.65467" x="107.49521" xml:space="preserve" class="sheet_08_text_5"><tspan id="tspan_446" y="121.65467" x="107.49521" class="sheet_08_tspan_5">SD7</tspan></text>
+      <path d="m 126.3361,124.35441 h -4.13514 v -2.08118" id="path_175" class="sheet_08_path_3"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="122.21165" cy="122.26278" id="ellipse_40" class="sheet_08_ellipse_20"/>
+    </g>
+    <g id="pointer#7_5" transform="translate(2.0673718,63.335758)" class="sheet_08_g_0">
+      <path id="path_176" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_407" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_447" y="23.459679" x="163.86922" class="sheet_08_tspan_0">7</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#/TVREAD_0">
+      <path id="path_177" d="m 176.49578,94.885347 h 33.05457" class="sheet_08_path_78"/>
+      <path id="path_178" d="m 209.75634,130.57052 h -5.34265 V 94.866596" class="sheet_08_path_78"/>
+      <ellipse id="ellipse_41" cy="94.871735" cx="204.4306" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_21"/>
+      <g transform="translate(-84.065874,51.238187)" id="g_8" class="sheet_08_g_0">
+        <text id="text_408" y="43.275349" x="265.32123" xml:space="preserve" class="sheet_08_text_46"><tspan id="tspan_448" y="43.275349" x="265.32123" class="sheet_08_tspan_0">TV  READ</tspan></text>
+        <path id="path_179" d="m 262.00983,42.032994 h 6.56955" class="sheet_08_path_79"/>
+      </g>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="label#read_0">
+      <text xml:space="preserve" x="195.81497" y="94.421227" id="text_409" class="sheet_08_text_0"><tspan id="tspan_449" x="195.81497" y="94.421227" class="sheet_08_tspan_0">LO=READ</tspan><tspan x="195.81497" y="107.65035" id="tspan_450" class="sheet_08_tspan_0"/></text>
+      <path id="path_180" d="m 200.82878,92.80555 h -4.33396 v 0.0376" class="sheet_08_path_80"/>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="label#write_0">
+      <path d="m 195.78119,136.59983 h 4.33396 v 0.0376" id="path_181" class="sheet_08_path_81"/>
+      <text id="text_410" y="138.64006" x="196.45026" xml:space="preserve" class="sheet_08_text_0"><tspan y="138.64006" x="196.45026" id="tspan_451" class="sheet_08_tspan_0">LO=WRITE</tspan><tspan id="tspan_452" y="151.86919" x="196.45026" class="sheet_08_tspan_0"/></text>
+    </g>
+    <g transform="translate(67.462,44.510735)" id="pointer#1_0" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_182" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_411" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_453" class="sheet_08_tspan_0">1</tspan></text>
+    </g>
+    <g transform="translate(-7.057832,-8.566642)" id="wire#BD0_0">
+      <text xml:space="preserve" x="232.96114" y="75.624313" id="text_412" class="sheet_08_text_47"><tspan x="232.96114" y="75.624313" id="tspan_454" class="sheet_08_tspan_0">BD0</tspan></text>
+      <path id="path_183" d="M 235.87341,76.095036 H 223.15463" class="sheet_08_path_82"/>
+      <path id="path_184" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="sheet_08_path_82"/>
+      <ellipse id="ellipse_42" cy="76.098312" cx="227.34492" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_22"/>
+    </g>
+    <g id="pointer#1_1" transform="translate(67.445877,48.680763)" class="sheet_08_g_0">
+      <path id="path_185" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_413" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_455" y="23.459679" x="163.86922" class="sheet_08_tspan_0">1</tspan></text>
+    </g>
+    <g id="wire#BD1_0" transform="translate(-7.073953,-4.3966138)" class="sheet_08_g_0">
+      <text id="text_414" y="75.624313" x="232.96114" xml:space="preserve" class="sheet_08_text_48"><tspan id="tspan_456" y="75.624313" x="232.96114" class="sheet_08_tspan_0">BD1</tspan></text>
+      <path d="M 235.87341,76.095036 H 223.15463" id="path_186" class="sheet_08_path_83"/>
+      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_187" class="sheet_08_path_83"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="227.34492" cy="76.098312" id="ellipse_43" class="sheet_08_ellipse_23"/>
+    </g>
+    <g id="pointer#1_2" transform="translate(67.477496,52.889291)" class="sheet_08_g_0">
+      <path id="path_188" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_415" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_457" y="23.459679" x="163.86922" class="sheet_08_tspan_0">1</tspan></text>
+    </g>
+    <g id="wire#BD2_0" transform="translate(-7.0423337,-0.1880865)" class="sheet_08_g_0">
+      <text id="text_416" y="75.624313" x="232.96114" xml:space="preserve" class="sheet_08_text_49"><tspan id="tspan_458" y="75.624313" x="232.96114" class="sheet_08_tspan_0">BD2</tspan></text>
+      <path d="M 235.87341,76.095036 H 223.15463" id="path_189" class="sheet_08_path_84"/>
+      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_190" class="sheet_08_path_84"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="227.34492" cy="76.098312" id="ellipse_44" class="sheet_08_ellipse_24"/>
+    </g>
+    <g id="pointer#1_3" transform="translate(67.50531,57.059643)" class="sheet_08_g_0">
+      <path id="path_191" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_417" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_459" y="23.459679" x="163.86922" class="sheet_08_tspan_0">1</tspan></text>
+    </g>
+    <g id="wire#BD3_0" transform="translate(-7.0145199,3.982266)" class="sheet_08_g_0">
+      <text id="text_418" y="75.624313" x="232.96114" xml:space="preserve" class="sheet_08_text_50"><tspan id="tspan_460" y="75.624313" x="232.96114" class="sheet_08_tspan_0">BD3</tspan></text>
+      <path d="M 235.87341,76.095036 H 223.15463" id="path_192" class="sheet_08_path_85"/>
+      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_193" class="sheet_08_path_85"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="227.34492" cy="76.098312" id="ellipse_45" class="sheet_08_ellipse_25"/>
+    </g>
+    <g id="pointer#1_4" transform="translate(67.593166,80.156478)" class="sheet_08_g_0">
+      <path id="path_194" d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" class="sheet_08_path_0"/>
+      <text id="text_419" y="23.459679" x="163.86922" xml:space="preserve" class="sheet_08_text_0"><tspan id="tspan_461" y="23.459679" x="163.86922" class="sheet_08_tspan_0">1</tspan></text>
+    </g>
+    <g id="wire#BD4_0" transform="translate(-6.926663,27.079101)" class="sheet_08_g_0">
+      <text id="text_420" y="75.624313" x="232.96114" xml:space="preserve" class="sheet_08_text_51"><tspan id="tspan_462" y="75.624313" x="232.96114" class="sheet_08_tspan_0">BD4</tspan></text>
+      <path d="M 235.87341,76.095036 H 223.15463" id="path_195" class="sheet_08_path_86"/>
+      <path d="m 223.1998,78.178828 h 4.12073 v -2.071634" id="path_196" class="sheet_08_path_86"/>
+      <ellipse ry="0.21078888" rx="0.21147294" cx="227.34492" cy="76.098312" id="ellipse_46" class="sheet_08_ellipse_26"/>
+    </g>
+    <g transform="translate(67.577046,84.326505)" id="pointer#1_5" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_197" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_421" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_463" class="sheet_08_tspan_0">1</tspan></text>
+    </g>
+    <g transform="translate(-6.942783,31.24913)" id="wire#BD5_0" class="sheet_08_g_0">
+      <text xml:space="preserve" x="232.96114" y="75.624313" id="text_422" class="sheet_08_text_52"><tspan x="232.96114" y="75.624313" id="tspan_464" class="sheet_08_tspan_0">BD5</tspan></text>
+      <path id="path_198" d="M 235.87341,76.095036 H 223.15463" class="sheet_08_path_87"/>
+      <path id="path_199" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="sheet_08_path_87"/>
+      <ellipse id="ellipse_47" cy="76.098312" cx="227.34492" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_27"/>
+    </g>
+    <g transform="translate(67.608666,88.535033)" id="pointer#1_6" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_200" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_423" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_465" class="sheet_08_tspan_0">1</tspan></text>
+    </g>
+    <g transform="translate(-6.911163,35.457656)" id="wire#BD6_0" class="sheet_08_g_0">
+      <text xml:space="preserve" x="232.96114" y="75.624313" id="text_424" class="sheet_08_text_53"><tspan x="232.96114" y="75.624313" id="tspan_466" class="sheet_08_tspan_0">BD6</tspan></text>
+      <path id="path_201" d="M 235.87341,76.095036 H 223.15463" class="sheet_08_path_88"/>
+      <path id="path_202" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="sheet_08_path_88"/>
+      <ellipse id="ellipse_48" cy="76.098312" cx="227.34492" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_28"/>
+    </g>
+    <g transform="translate(67.636476,92.705388)" id="pointer#1_7" class="sheet_08_g_0">
+      <path d="m 162.1504,21.939018 c -1.03477,0.737009 -1.15217,1.454763 0,2.145868 h 3.31157 l 1.90861,-1.101939 -1.8887,-1.049078 z" id="path_203" class="sheet_08_path_0"/>
+      <text xml:space="preserve" x="163.86922" y="23.459679" id="text_425" class="sheet_08_text_0"><tspan x="163.86922" y="23.459679" id="tspan_467" class="sheet_08_tspan_0">1</tspan></text>
+    </g>
+    <g transform="translate(-6.883353,39.628008)" id="wire#BD7_0" class="sheet_08_g_0">
+      <text xml:space="preserve" x="232.96114" y="75.624313" id="text_426" class="sheet_08_text_54"><tspan x="232.96114" y="75.624313" id="tspan_468" class="sheet_08_tspan_0">BD7</tspan></text>
+      <path id="path_204" d="M 235.87341,76.095036 H 223.15463" class="sheet_08_path_89"/>
+      <path id="path_205" d="m 223.1998,78.178828 h 4.12073 v -2.071634" class="sheet_08_path_89"/>
+      <ellipse id="ellipse_49" cy="76.098312" cx="227.34492" rx="0.21147294" ry="0.21078888" class="sheet_08_ellipse_29"/>
+    </g>
+    <g id="wire#VCC_4" transform="translate(-13.291772,-111.5893)" class="sheet_08_g_0">
+      <path id="wire#VCC_5" d="m 132.52297,168.53879 v -2.37426" class="sheet_08_path_20"/>
+      <text id="text_427" y="165.79825" x="132.368" xml:space="preserve" class="sheet_08_text_15"><tspan y="165.79825" x="132.368" id="tspan_469" class="sheet_08_tspan_0">+5V</tspan><tspan id="tspan_470" y="179.02737" x="132.368" class="sheet_08_tspan_0"/></text>
+    </g>
+  </g>
+<style>.sheet_08_tspan_0 {font-size:1.41111px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.sheet_08_text_0 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_tspan_1 {font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.11667px;font-family:Roboto;-inkscape-font-specification:'Roboto Bold';text-align:center;text-anchor:middle;stroke-width:0.264583}
+.sheet_08_tspan_2 {font-size:1.05833px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.sheet_08_text_1 {font-style:normal;font-weight:normal;font-size:1.05833px;line-height:1.25;font-family:Roboto;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_tspan_3 {font-weight:normal;font-size:1.76389px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.sheet_08_tspan_4 {font-weight:normal;font-size:2.11667px;text-align:center;text-anchor:middle;stroke-width:0.264583}
+.sheet_08_text_2 {font-style:normal;font-weight:normal;font-size:2.11667px;line-height:1.25;font-family:Roboto;letter-spacing:0.325437px;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_text_3 {font-style:normal;font-weight:normal;font-size:2.11667px;line-height:1.25;font-family:Roboto;display:inline;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_0 {fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_1 {display:inline;fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_g_0 {display:inline}
+.sheet_08_rect_0 {fill:none;stroke:#000000;stroke-width:0.264999;stroke-linecap:round}
+.sheet_08_path_2 {display:inline;fill:none;stroke:var(--color-SD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_tspan_5 {font-size:1.41111px;text-align:start;text-anchor:start;stroke-width:0.264583}
+.sheet_08_text_4 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SD6);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_3 {display:inline;fill:none;stroke:var(--color-SD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_5 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SD7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_rect_1 {fill:none;stroke:#000000;stroke-width:0.3;stroke-linecap:round}
+.sheet_08_tspan_6 {font-size:1.41111px;text-align:end;text-anchor:end;stroke-width:0.264583}
+.sheet_08_ellipse_0 {display:inline;fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
+.sheet_08_path_4 {fill:none;stroke:#000000;stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_rect_2 {fill:none;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_5 {display:inline;fill:none;stroke:var(--color-SD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_6 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SD5);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_ellipse_1 {fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none}
+.sheet_08_path_6 {fill:none;stroke:var(--color-HORZDISPON);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_7 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-HORZDISPON);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_ellipse_2 {display:inline;fill:var(--color-HORZDISPON);stroke:var(--color-HORZDISPON);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_7 {fill:none;stroke:#000000;stroke-width:0.264999;stroke-miterlimit:4;stroke-dasharray:none}
+.sheet_08_path_8 {fill:none;stroke:var(--color-NEXT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_3 {display:inline;fill:var(--color-NEXT);stroke:var(--color-NEXT);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_8 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-NEXT);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_9 {display:inline;fill:none;stroke:var(--color-RA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_9 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-RA7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_ellipse_4 {display:inline;fill:var(--color-RA7);stroke:var(--color-RA7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_10 {fill:none;stroke:var(--color-NC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_11 {fill:none;stroke:var(--color-H11_QA);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_12 {fill:none;stroke:var(--color-RA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_5 {display:inline;fill:var(--color-RA8);stroke:var(--color-RA8);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_13 {fill:none;stroke:var(--color-RA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_10 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-RA9);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_ellipse_6 {display:inline;fill:var(--color-RA9);stroke:var(--color-RA9);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_14 {fill:none;stroke:var(--color-barRELOAD);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_11 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-barRELOAD);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_15 {display:inline;fill:none;stroke:var(--color-barRELOAD);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_16 {fill:none;stroke:var(--color-LOADSR);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_12 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-LOADSR);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_17 {fill:none;stroke:var(--color-barINIT);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_7 {display:inline;fill:var(--color-barINIT);stroke:var(--color-barINIT);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_13 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-barINIT);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_18 {display:inline;fill:none;stroke:var(--color-barINIT);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_19 {fill:none;stroke:var(--color-LSD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_14 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-LSD7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_20 {display:inline;fill:none;stroke:var(--color-VCC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_15 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-VCC);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_21 {display:inline;fill:none;stroke:var(--color-PULLUP1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_22 {fill:none;stroke:var(--color-PULLUP1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_16 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-PULLUP1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_ellipse_8 {display:inline;fill:var(--color-PULLUP1);stroke:var(--color-PULLUP1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_23 {fill:none;stroke:var(--color-G9Q);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_24 {fill:none;stroke:var(--color-E11QH);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_25 {fill:none;stroke:var(--color-barE11QH);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_26 {fill:none;stroke:var(--color-barG9Q);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_27 {fill:none;stroke:var(--color-G106);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_28 {fill:none;stroke:var(--color-G108);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_17 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-VIDEOON);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_29 {display:inline;fill:none;stroke:var(--color-VIDEOON);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_30 {display:inline;fill:none;stroke:var(--color-H108);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_18 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-VIDEO);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_31 {fill:none;stroke:var(--color-VIDEO);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_9 {display:inline;fill:var(--color-VIDEO);stroke:var(--color-VIDEO);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_32 {fill:none;stroke:var(--color-CD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_33 {display:inline;fill:none;stroke:var(--color-CD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_34 {display:inline;fill:none;stroke:var(--color-CD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_35 {display:inline;fill:none;stroke:var(--color-CD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_36 {display:inline;fill:none;stroke:var(--color-CD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_37 {display:inline;fill:none;stroke:var(--color-CD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_38 {display:inline;fill:none;stroke:var(--color-CD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_39 {display:inline;fill:none;stroke:var(--color-CD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_40 {fill:none;stroke:var(--color-CD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_10 {display:inline;fill:var(--color-CD7);stroke:var(--color-CD7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_41 {display:inline;fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_42 {fill:none;stroke:var(--color-GND);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_43 {fill:none;stroke:var(--color-barLOADSR);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_19 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-barLOADSR);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_44 {display:inline;fill:none;stroke:var(--color-barLOADSR);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_45 {fill:none;stroke:var(--color-CLK8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_20 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-CLK8);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_46 {display:inline;fill:none;stroke:var(--color-SA0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_21 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_47 {display:inline;fill:none;stroke:var(--color-SA1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_22 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_48 {display:inline;fill:none;stroke:var(--color-SA2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_23 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_49 {display:inline;fill:none;stroke:var(--color-SA3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_24 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_50 {display:inline;fill:none;stroke:var(--color-SA4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_25 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_51 {display:inline;fill:none;stroke:var(--color-SA5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_26 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA5);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_52 {display:inline;fill:none;stroke:var(--color-SA6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_27 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA6);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_53 {display:inline;fill:none;stroke:var(--color-SA7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_28 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_54 {display:inline;fill:none;stroke:var(--color-SA8);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_29 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA8);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_55 {display:inline;fill:none;stroke:var(--color-SA9);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_30 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SA9);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_56 {display:inline;fill:none;stroke:#000080;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_11 {display:inline;fill:var(--color-GND);stroke:var(--color-GND);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_ellipse_12 {display:inline;fill:var(--color-TVRAMRW);stroke:var(--color-TVRAMRW);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_57 {display:inline;fill:none;stroke:var(--color-TVRAMRW);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_31 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-TVRAMRW);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_58 {fill:none;stroke:var(--color-SD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_32 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SD4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_ellipse_13 {display:inline;fill:var(--color-SD6);stroke:var(--color-SD6);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_59 {display:inline;fill:none;stroke:var(--color-SD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_33 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SD0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_60 {display:inline;fill:none;stroke:var(--color-SD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_34 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SD1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_61 {display:inline;fill:none;stroke:var(--color-SD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_35 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SD2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_62 {display:inline;fill:none;stroke:var(--color-SD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_36 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-SD3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_63 {display:inline;fill:none;stroke:var(--color-SD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_64 {fill:none;stroke:var(--color-SD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_65 {fill:none;stroke:var(--color-SD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_66 {fill:none;stroke:#000080;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_37 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-VIDEOLATCH);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_67 {display:inline;fill:none;stroke:var(--color-VIDEOLATCH);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_path_68 {fill:none;stroke:var(--color-LSD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_38 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-LSD0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_69 {display:inline;fill:none;stroke:var(--color-LSD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_39 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-LSD1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_70 {display:inline;fill:none;stroke:var(--color-LSD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_40 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-LSD2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_71 {display:inline;fill:none;stroke:var(--color-LSD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_41 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-LSD3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_72 {display:inline;fill:none;stroke:var(--color-LSD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_42 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-LSD4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_73 {display:inline;fill:none;stroke:var(--color-LSD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_43 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-LSD5);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_74 {display:inline;fill:none;stroke:var(--color-LSD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_text_44 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-LSD6);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_text_45 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-GRAPHIC);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_75 {display:inline;fill:none;stroke:var(--color-GRAPHIC);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_14 {display:inline;fill:var(--color-SD0);stroke:var(--color-SD0);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_76 {fill:none;stroke:var(--color-SD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_15 {display:inline;fill:var(--color-SD1);stroke:var(--color-SD1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_ellipse_16 {display:inline;fill:var(--color-SD2);stroke:var(--color-SD2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_ellipse_17 {display:inline;fill:var(--color-SD3);stroke:var(--color-SD3);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_ellipse_18 {display:inline;fill:var(--color-SD4);stroke:var(--color-SD4);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_77 {fill:none;stroke:var(--color-SD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_19 {display:inline;fill:var(--color-SD5);stroke:var(--color-SD5);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_ellipse_20 {display:inline;fill:var(--color-SD7);stroke:var(--color-SD7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_78 {fill:none;stroke:var(--color-barTVREAD);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_21 {display:inline;fill:var(--color-barTVREAD);stroke:var(--color-barTVREAD);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_46 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-barTVREAD);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_79 {display:inline;fill:none;stroke:var(--color-barTVREAD);stroke-width:0.15;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_path_80 {display:inline;fill:none;stroke:#000000;stroke-width:0.264999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart-6)}
+.sheet_08_path_81 {display:inline;fill:none;stroke:#000000;stroke-width:0.264999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow1Mstart)}
+.sheet_08_text_47 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-BD0);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_82 {fill:none;stroke:var(--color-BD0);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_22 {display:inline;fill:var(--color-BD0);stroke:var(--color-BD0);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_48 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-BD1);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_83 {fill:none;stroke:var(--color-BD1);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_23 {display:inline;fill:var(--color-BD1);stroke:var(--color-BD1);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_49 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-BD2);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_84 {fill:none;stroke:var(--color-BD2);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_24 {display:inline;fill:var(--color-BD2);stroke:var(--color-BD2);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_50 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-BD3);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_85 {fill:none;stroke:var(--color-BD3);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_25 {display:inline;fill:var(--color-BD3);stroke:var(--color-BD3);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_51 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-BD4);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_86 {fill:none;stroke:var(--color-BD4);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_26 {display:inline;fill:var(--color-BD4);stroke:var(--color-BD4);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_52 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-BD5);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_87 {fill:none;stroke:var(--color-BD5);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_27 {display:inline;fill:var(--color-BD5);stroke:var(--color-BD5);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_53 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-BD6);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_88 {fill:none;stroke:var(--color-BD6);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_28 {display:inline;fill:var(--color-BD6);stroke:var(--color-BD6);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+.sheet_08_text_54 {font-style:normal;font-weight:normal;font-size:10.5833px;line-height:1.25;font-family:Roboto;display:inline;fill:var(--color-BD7);fill-opacity:1;stroke:none;stroke-width:0.264583}
+.sheet_08_path_89 {fill:none;stroke:var(--color-BD7);stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1}
+.sheet_08_ellipse_29 {display:inline;fill:var(--color-BD7);stroke:var(--color-BD7);stroke-width:0.2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
+:root {--color-SD6:#000000;--color-SD7:#000000;--color-F9_74LS373:#000000;--color-F10_6316:#000000;--color-G9_74LS74:#000000;--color-E11_74LS165:#000000;--color-E8_74LS244:#000000;--color-E7_74LS244:#000000;--color-H11_74LS93:#000000;--color-F8_6114:#000000;--color-SD5:#000000;--color-F7_6114:#000000;--color-G10_74LS00:#000000;--color-G11_74LS20:#000000;--color-HORZDISPON:#000000;--color-6:#000000;--color-J7:#000000;--color-NEXT:#000000;--color-7:#000000;--color-RA7:#000000;--color-5:#000000;--color-NC:#000000;--color-H11_QA:#000000;--color-RA8:#000000;--color-RA9:#000000;--color-barRELOAD:#000000;--color-LOADSR:#000000;--color-barINIT:#000000;--color-LSD7:#000000;--color-R44:#000000;--color-VCC:#000000;--color-PULLUP1:#000000;--color-67:#000000;--color-G9Q:#000000;--color-E11QH:#000000;--color-barE11QH:#000000;--color-barG9Q:#000000;--color-G106:#000000;--color-G108:#000000;--color-VIDEOON:#000000;--color-H10_74LS08:#000000;--color-H108:#000000;--color-VIDEO:#000000;--color-CD0:#000000;--color-CD1:#000000;--color-CD2:#000000;--color-CD3:#000000;--color-CD4:#000000;--color-CD5:#000000;--color-CD6:#000000;--color-CD7:#000000;--color-GND:#000000;--color-barLOADSR:#000000;--color-CLK8:#000000;--color-SA0:#000000;--color-SA1:#000000;--color-SA2:#000000;--color-SA3:#000000;--color-SA4:#000000;--color-SA5:#000000;--color-SA6:#000000;--color-SA7:#000000;--color-SA8:#000000;--color-SA9:#000000;--color-SA09:#000000;--color-TVRAMRW:#000000;--color-SD4:#000000;--color-SD07:#000000;--color-SD0:#000000;--color-SD1:#000000;--color-SD2:#000000;--color-SD3:#000000;--color-LSD07:#000000;--color-VIDEOLATCH:#000000;--color-LSD0:#000000;--color-LSD1:#000000;--color-LSD2:#000000;--color-LSD3:#000000;--color-LSD4:#000000;--color-LSD5:#000000;--color-LSD6:#000000;--color-GRAPHIC:#000000;--color-barTVREAD:#000000;--color-read:#000000;--color-write:#000000;--color-1:#000000;--color-BD0:#000000;--color-BD1:#000000;--color-BD2:#000000;--color-BD3:#000000;--color-BD4:#000000;--color-BD5:#000000;--color-BD6:#000000;--color-BD7:#000000;}</style></svg>
