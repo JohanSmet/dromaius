@@ -26,6 +26,11 @@
             -ms-interpolation-mode: nearest-neighbor;
         }
     </style>
+	<!-- Workaround for webserver where it's not possible to change the headers (e.g. GitHub Pages)
+		 This can be removed if you can set the Cross-Origin-Opener-Policy and Cross-Origin-Embedder-Policy headers
+		 required for SharedArrayBuffer (and subsequently threads) to work.  -->
+	<script src="coi-serviceworker.js"></script>
+	<!-- End of workaround -->
   </head>
   <body>
     <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>

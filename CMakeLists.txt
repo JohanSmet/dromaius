@@ -293,6 +293,7 @@ if (EMSCRIPTEN)
 						${PROJECT_BINARY_DIR}/dromaius.js
 						${PROJECT_BINARY_DIR}/dromaius.wasm
 						${PROJECT_BINARY_DIR}/dromaius.worker.js
+						src/htmlview/coi-serviceworker.js
 			DESTINATION gui)
 	install(FILES		${PROJECT_BINARY_DIR}/dromaius.html
 			RENAME		index.html
