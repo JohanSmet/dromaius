@@ -70,22 +70,24 @@ static inline void stopwatch_platform_sleep(int64_t interval_ps) {
 #ifdef DMS_TIMER_WIN32
 
 static LARGE_INTEGER qpc_ticks_per_second = { 0 };
+static LARGE_INTEGER qpc_initial_count = { 0 };
 
 static inline void stopwatch_init(void) {
 	if (qpc_ticks_per_second.QuadPart == 0 && !QueryPerformanceFrequency(&qpc_ticks_per_second)) {
 		// FIXME: error reporting
 	}
+	QueryPerformanceCounter(&qpc_initial_count);
 }
 
 static inline int64_t timestamp_current(void) {
 	LARGE_INTEGER count;
 
 	QueryPerformanceCounter(&count);
-	return (S_TO_PS(count.QuadPart)) / qpc_ticks_per_second.QuadPart;
+	return (count.QuadPart - qpc_initial_count.QuadPart) * (1000000000000ll / qpc_ticks_per_second.QuadPart);
 }
 
 static inline void stopwatch_platform_sleep(int64_t interval_ps) {
-	Sleep(PS_TO_MS(interval_ps));
+	Sleep((DWORD) PS_TO_MS(interval_ps));
 }
 
 #endif // DMS_TIMER_WIN32
