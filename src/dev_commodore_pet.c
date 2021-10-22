@@ -1755,7 +1755,7 @@ void dev_commodore_pet_read_memory(DevCommodorePet *device, size_t start_address
 void dev_commodore_pet_write_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *input);
 void dev_commodore_pet_lite_read_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *output);
 void dev_commodore_pet_lite_write_memory(DevCommodorePet *device, size_t start_address, size_t size, uint8_t *input);
-size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, struct SignalBreak **irq_signals);
+size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, SignalBreakpoint **irq_signals);
 
 Cpu6502* dev_commodore_pet_get_cpu(DevCommodorePet *device) {
 	assert(device);
@@ -2405,14 +2405,14 @@ void dev_commodore_pet_lite_write_memory(DevCommodorePet *device, size_t start_a
 	}
 }
 
-size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, struct SignalBreak **irq_signals) {
+size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, SignalBreakpoint **irq_signals) {
 	assert(device);
 	assert(irq_signals);
 
-	static SignalBreak pet_irq[1] = {0};
+	static SignalBreakpoint pet_irq[1] = {0};
 
 	if (pet_irq[0].signal == 0) {
-		pet_irq[0] = (SignalBreak) {SIGNAL(IRQ_B), false, true};
+		pet_irq[0] = (SignalBreakpoint) {SIGNAL(IRQ_B), false, true};
 	}
 
 	*irq_signals = pet_irq;

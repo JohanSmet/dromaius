@@ -176,6 +176,9 @@ target_sources(${LIB_TARGET}
 		src/rom_8d_16a.h
 		src/signal_line.c
 		src/signal_line.h
+		src/signal_pool.c
+		src/signal_pool.h
+		src/signal_types.h
 		src/simulator.c
 		src/simulator.h
 		src/stopwatch.c

@@ -102,7 +102,7 @@ Cpu6502* dev_minimal_6502_get_cpu(DevMinimal6502 *device) {
 	return device->cpu;
 }
 
-size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, struct SignalBreak **irq_signals);
+size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, SignalBreakpoint **irq_signals);
 
 DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DevMinimal6502 *device = (DevMinimal6502 *) calloc(1, sizeof(DevMinimal6502));
@@ -384,14 +384,14 @@ void dev_minimal_6502_write_memory(DevMinimal6502 *device, size_t start_address,
 	memcpy(device->ram->data_array + start_address, input, real_size);
 }
 
-size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, struct SignalBreak **irq_signals) {
+size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, SignalBreakpoint **irq_signals) {
 	assert(device);
 	assert(irq_signals);
 
-	static SignalBreak irqs[1] = {0};
+	static SignalBreakpoint irqs[1] = {0};
 
 	if (irqs[0].signal == 0) {
-		irqs[0] = (SignalBreak) {SIGNAL(CPU_IRQ_B), false, true};
+		irqs[0] = (SignalBreakpoint) {SIGNAL(CPU_IRQ_B), false, true};
 	}
 
 	*irq_signals = irqs;

@@ -30,10 +30,10 @@ struct Config {
 
 	int64_t			target_sim_real_ratio;		// (4 decimal places)
 
-	SignalBreak		step_signal;				// signal to use for the step-signal feature (normally a clock signal)
-	SignalBreak *	signal_breakpoints;			// dynamic array of signal breakpoints
-	int64_t *		pc_breakpoints;				// dynamic array of program counter breakpoints
-	bool			bp_updated;
+	SignalBreakpoint	step_signal;			// signal to use for the step-signal feature (normally a clock signal)
+	SignalBreakpoint *	signal_breakpoints;		// dynamic array of signal breakpoints
+	int64_t *			pc_breakpoints;			// dynamic array of program counter breakpoints
+	bool				bp_updated;
 };
 
 typedef struct DmsContext {
@@ -102,7 +102,7 @@ static inline int signal_breakpoint_index(DmsContext *dms, Signal signal) {
 	return -1;
 }
 
-static inline bool signal_breakpoint_check(DmsContext *dms, SignalBreak *bp) {
+static inline bool signal_breakpoint_check(DmsContext *dms, SignalBreakpoint *bp) {
 
 	if (!signal_changed(dms->simulator->signal_pool, bp->signal)) {
 		return false;
@@ -163,7 +163,7 @@ static inline void context_update_config(DmsContext *dms) {
 		if (dms->config_usr.bp_updated) {
 			size_t len = arrlenu(dms->config_usr.signal_breakpoints);
 			arrsetlen(dms->config.signal_breakpoints, len);
-			memcpy(dms->config.signal_breakpoints, dms->config_usr.signal_breakpoints, sizeof(SignalBreak) * len);
+			memcpy(dms->config.signal_breakpoints, dms->config_usr.signal_breakpoints, sizeof(SignalBreakpoint) * len);
 
 			len = arrlenu(dms->config_usr.pc_breakpoints);
 			arrsetlen(dms->config.pc_breakpoints, len);
@@ -392,7 +392,7 @@ void dms_step_signal(struct DmsContext *dms, Signal signal, bool pos_edge, bool 
 	assert(dms);
 
 	if (dms->config_usr.state == DS_WAIT) {
-		dms->config_usr.step_signal = (SignalBreak) {
+		dms->config_usr.step_signal = (SignalBreakpoint) {
 			.signal = signal,
 			.pos_edge = pos_edge,
 			.neg_edge = neg_edge
@@ -459,7 +459,7 @@ bool dms_toggle_breakpoint(DmsContext *dms, int64_t addr) {
 	return result;
 }
 
-SignalBreak *dms_breakpoint_signal_list(DmsContext *dms) {
+SignalBreakpoint *dms_breakpoint_signal_list(DmsContext *dms) {
 	assert(dms);
 	return dms->config_usr.signal_breakpoints;
 }
@@ -469,7 +469,7 @@ void dms_breakpoint_signal_set(DmsContext *dms, Signal signal, bool pos_edge, bo
 
 	MUTEX_CONFIG_LOCK(dms);
 		if (signal_breakpoint_index(dms, signal) < 0) {
-			arrpush(dms->config_usr.signal_breakpoints, ((SignalBreak) {signal, pos_edge, neg_edge}));
+			arrpush(dms->config_usr.signal_breakpoints, ((SignalBreakpoint) {signal, pos_edge, neg_edge}));
 			dms->config_usr.bp_updated = true;
 		}
 	MUTEX_CONFIG_UNLOCK(dms);
@@ -493,7 +493,7 @@ bool dms_toggle_signal_breakpoint(DmsContext *dms, Signal signal) {
 	MUTEX_CONFIG_LOCK(dms);
 		int idx = signal_breakpoint_index(dms, signal);
 		if (idx < 0) {
-			arrpush(dms->config_usr.signal_breakpoints, ((SignalBreak) {signal, true, true}));
+			arrpush(dms->config_usr.signal_breakpoints, ((SignalBreakpoint) {signal, true, true}));
 			result = true;
 		} else {
 			arrdelswap(dms->config_usr.signal_breakpoints, idx);
@@ -508,7 +508,7 @@ bool dms_toggle_signal_breakpoint(DmsContext *dms, Signal signal) {
 void dms_break_on_irq_set(struct DmsContext *dms) {
 	assert(dms);
 
-	SignalBreak *irq_signals = NULL;
+	SignalBreakpoint *irq_signals = NULL;
 	size_t count = dms->device->get_irq_signals(dms->device, &irq_signals);
 
 	for (size_t i = 0; i < count; ++i) {
@@ -519,7 +519,7 @@ void dms_break_on_irq_set(struct DmsContext *dms) {
 void dms_break_on_irq_clear(struct DmsContext *dms) {
 	assert(dms);
 
-	SignalBreak *irq_signals = NULL;
+	SignalBreakpoint *irq_signals = NULL;
 	size_t count = dms->device->get_irq_signals(dms->device, &irq_signals);
 
 	for (size_t i = 0; i < count; ++i) {

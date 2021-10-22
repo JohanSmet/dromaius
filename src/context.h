@@ -50,7 +50,7 @@ void dms_reset(struct DmsContext *dms);
 void dms_change_simulation_speed_ratio(struct DmsContext *dms, double ratio);
 double dms_simulation_speed_ratio(struct DmsContext *dms);
 
-SignalBreak *dms_breakpoint_signal_list(struct DmsContext *dms);
+SignalBreakpoint *dms_breakpoint_signal_list(struct DmsContext *dms);
 void dms_breakpoint_signal_set(struct DmsContext *dms, Signal signal, bool pos_edge, bool neg_edge);
 void dms_breakpoint_signal_clear(struct DmsContext *dms, Signal signal);
 
