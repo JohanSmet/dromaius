@@ -5,6 +5,7 @@ project(dromaius)
 # options
 option (NO_THREADING "Disable multithreading in the Dromaius context" OFF)
 option (BUILD_SIGNAL_TRACING "Enable dumping of signals to GTKWave" OFF)
+option (ENABLE_SIGNAL_STATISTICS "Print statistics of actual signal changes vs total writes to signals" OFF)
 
 # force C11 for all targets
 #  - don't do this on MSVC anymore. In march 2020 support for a fully compliant C11 preprocessor
@@ -194,6 +195,11 @@ if (BUILD_SIGNAL_TRACING)
 	)
 	target_link_libraries(${LIB_TARGET} PRIVATE ZLIB::ZLIB BZip2::BZip2)
 	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_SIGNAL_TRACING)
+endif()
+
+if (ENABLE_SIGNAL_STATISTICS)
+	message(STATUS "Enabling signal statistics")
+	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_SIGNAL_STATISTICS)
 endif()
 
 target_include_directories(${LIB_TARGET} PRIVATE libs)

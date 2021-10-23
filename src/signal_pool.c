@@ -3,6 +3,10 @@
 #include "signal_pool.h"
 #include "signal_line.h"
 
+#ifdef DMS_SIGNAL_STATISTICS
+#include <stdio.h>
+#endif
+
 //
 // private (helper) functions
 //
@@ -83,6 +87,11 @@ uint64_t signal_pool_cycle(SignalPool *pool) {
 
 	signal_pool_process_high_impedance__internal(pool);
 
+#ifdef DMS_SIGNAL_STATISTICS
+	size_t stat_total_writes   = 0;
+	size_t stat_signal_changes = 0;
+#endif // DMS_SIGNAL_STATISTICS
+
 	// handle writes
 	memset(pool->signals_changed, false, arrlenu(pool->signals_changed));
 	uint64_t dirty_chips = 0;
@@ -103,10 +112,22 @@ uint64_t signal_pool_cycle(SignalPool *pool) {
 
 			const uint64_t mask = (uint64_t) (!pool->signals_changed[sw->signal] - 1);
 			dirty_chips |= mask & pool->dependent_components[sw->signal];
+
+			#ifdef DMS_SIGNAL_STATISTICS
+				stat_signal_changes += pool->signals_changed[sw->signal];
+			#endif // DMS_SIGNAL_STATISTICS
 		}
+
+		#ifdef DMS_SIGNAL_STATISTICS
+			stat_total_writes += pool->signals_write_queue[q].size;
+		#endif // DMS_SIGNAL_STATISTICS
 
 		pool->signals_write_queue[q].size = 0;
 	}
+
+	#ifdef DMS_SIGNAL_STATISTICS
+		printf("%ld %ld\n", stat_signal_changes, stat_total_writes);
+	#endif // DMS_SIGNAL_STATISTICS
 
 	pool->swq_snapshot = 0;
 	pool->cycle_count += 1;
