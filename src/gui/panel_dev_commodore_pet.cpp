@@ -73,13 +73,14 @@ public:
 
 					signal_trace_set_timestep_duration(trace, device->simulator->tick_duration_ps);
 
-					signal_trace_enable_signal(trace, device->signals.reset_b);
-					signal_trace_enable_signal(trace, device->signals.clk1);
-					signal_trace_enable_signal(trace, device->signals.ram_rw);
-					signal_trace_enable_signal(trace, device->signals.ras0_b);
-					signal_trace_enable_signal(trace, device->signals.cas0_b);
-					signal_trace_enable_signal(trace, device->signals.cas1_b);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_RESET_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_CLK1]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_RAMRW]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_RAS0_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_CAS0_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_CAS1_B]);
 
+					/*
 					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 0, 1));
 					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 1, 1));
 					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 2, 1));
@@ -114,6 +115,7 @@ public:
 					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 5, 1));
 					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 6, 1));
 					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 7, 1));
+					*/
 				}
 			}
 			#endif // DMS_SIGNAL_TRACING
