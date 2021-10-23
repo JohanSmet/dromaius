@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 3.12)
 project(dromaius)
 
 # options
-option (NO_THREADING "Disable multithreading in the Dromaius context" OFF)
-option (BUILD_SIGNAL_TRACING "Enable dumping of signals to GTKWave" OFF)
+option (ENABLE_THREADING "Enable multithreading in the Dromaius context" ON)
+option (ENABLE_SIGNAL_TRACING "Enable dumping of signals to GTKWave" OFF)
 option (ENABLE_SIGNAL_STATISTICS "Print statistics of actual signal changes vs total writes to signals" OFF)
 
 # force C11 for all targets
@@ -108,7 +108,7 @@ target_include_directories(${IMGUI_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_link_libraries(${IMGUI_TARGET} PUBLIC glfw)
 target_link_libraries(${IMGUI_TARGET} PRIVATE ${OPENGL_LIBRARIES})
 
-if (BUILD_SIGNAL_TRACING)
+if (ENABLE_SIGNAL_TRACING)
 	# external library - Zlib
 	find_package(ZLIB REQUIRED)
 
@@ -188,7 +188,8 @@ target_sources(${LIB_TARGET}
 		src/utils.h
 )
 
-if (BUILD_SIGNAL_TRACING)
+if (ENABLE_SIGNAL_TRACING)
+	message(STATUS "Enabling signal tracing with GTKWave")
 	target_sources(${LIB_TARGET} PRIVATE
 		src/signal_dumptrace.c
 		src/signal_dumptrace.h
@@ -206,7 +207,7 @@ target_include_directories(${LIB_TARGET} PRIVATE libs)
 target_link_libraries(${LIB_TARGET} PRIVATE ${SFL_TARGET})
 target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
 target_compile_definitions(${LIB_TARGET} PRIVATE ${PLATFORM_DEF})
-if (NO_THREADING)
+if (NOT ENABLE_THREADING)
 	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_NO_THREADING)
 endif()
 target_compile_warning(${LIB_TARGET})
@@ -268,7 +269,7 @@ endif()
 
 # emscripten options for all previous targets
 if (EMSCRIPTEN)
-	if (NOT NO_THREADING)
+	if (ENABLE_THREADING)
 		target_compile_options(${IMGUI_TARGET} PRIVATE -sUSE_PTHREADS=1)
 
 		target_compile_options(${GUI_TARGET} PRIVATE -sUSE_PTHREADS=1)
@@ -328,7 +329,7 @@ if (EMSCRIPTEN)
 	)
 	target_link_libraries(${HTML_TARGET} PRIVATE "--bind")
 
-	if (NOT NO_THREADING)
+	if (ENABLE_THREADING)
 		target_link_libraries(${HTML_TARGET} PRIVATE "-s USE_PTHREADS=1")
 		target_link_libraries(${HTML_TARGET} PRIVATE "-s PTHREAD_POOL_SIZE=2")
 	endif()
