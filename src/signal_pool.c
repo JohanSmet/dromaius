@@ -16,26 +16,25 @@ static inline uint64_t signal_pool_process_high_impedance__internal(SignalPool *
 
 	uint64_t rerun_chips = 0;
 
-	for (size_t i = 0, n = pool->signals_highz_queue.size; i < n; ++i) {
-		const Signal s = pool->signals_highz_queue.queue[i].signal;
-		const uint64_t w_mask = pool->signals_highz_queue.queue[i].writer_mask;
+	for (size_t q = 0, nq = pool->signals_highz_log->num_queues; q < nq; ++q) {
+		SignalWriteQueue *queue = pool->signals_highz_log->queues[q];
 
-		// clear the corresponding bit in the writers mask
-		pool->signals_writers[s] &= ~w_mask;
+		for (size_t i = 0, n = queue->count; i < n; ++i) {
+			const Signal s = queue->writes[i].signal;
+			const uint64_t w_mask = queue->writes[i].writer_mask;
 
-		if (pool->signals_writers[s] != 0) {
-			rerun_chips |= pool->signals_writers[s];
-		} else {
-			// TODO: replace with signal_write call that has a queue-index parameter
-			SignalQueueEntry *entry = &pool->signals_write_queue[0].queue[pool->signals_write_queue[0].size++];
-			entry->signal = s;
-			entry->writer_mask = 0;
-			entry->new_value  = pool->signals_default[s];
+			// clear the corresponding bit in the writers mask
+			pool->signals_writers[s] &= ~w_mask;
+
+			if (pool->signals_writers[s] != 0) {
+				rerun_chips |= pool->signals_writers[s];
+			} else {
+				signal_write_log_add(pool->signals_write_log, 0, s, pool->signals_default[s], 0);
+			}
 		}
-	}
 
-	// clearn highz queue
-	pool->signals_highz_queue.size = 0;
+		queue->count = 0;
+	}
 
 	return rerun_chips;
 }
@@ -53,9 +52,8 @@ SignalPool *signal_pool_create(size_t max_concurrent_writes) {
 	signal_create(pool);
 
 	// create queues
-	pool->signals_write_queue[0].queue = (SignalQueueEntry *) malloc(max_concurrent_writes * sizeof(SignalQueueEntry));
-	pool->signals_write_queue[1].queue = (SignalQueueEntry *) malloc(max_concurrent_writes * sizeof(SignalQueueEntry));
-	pool->signals_highz_queue.queue = (SignalQueueEntry *) malloc(max_concurrent_writes * sizeof(SignalQueueEntry));
+	pool->signals_write_log = signal_write_log_create(max_concurrent_writes, 2);
+	pool->signals_highz_log = signal_write_log_create(max_concurrent_writes, 1);
 
 	return pool;
 }
@@ -72,9 +70,8 @@ void signal_pool_destroy(SignalPool *pool) {
 	arrfree(pool->signals_changed);
 	arrfree(pool->dependent_components);
 
-	free(pool->signals_write_queue[0].queue);
-	free(pool->signals_write_queue[1].queue);
-	free(pool->signals_highz_queue.queue);
+	signal_write_log_destroy(pool->signals_write_log);
+	signal_write_log_destroy(pool->signals_highz_log);
 
 	free(pool);
 }
@@ -96,16 +93,20 @@ uint64_t signal_pool_cycle(SignalPool *pool) {
 	memset(pool->signals_changed, false, arrlenu(pool->signals_changed));
 	uint64_t dirty_chips = 0;
 
-	for (int q = 0; q < 2; ++q) {
-		for (size_t i = 0, n = pool->signals_write_queue[q].size; i < n; ++i) {
-			const SignalQueueEntry *sw = &pool->signals_write_queue[q].queue[i];
+	for (size_t q = 0, nq = pool->signals_write_log->num_queues; q < nq; ++q) {
+		SignalWriteQueue *queue = pool->signals_write_log->queues[q];
+
+		for (size_t i = 0, n = queue->count; i < n; ++i) {
+			const SignalQueueEntry *sw = &queue->writes[i];
 			pool->signals_changed[sw->signal] = pool->signals_value[sw->signal] != sw->new_value;
 		}
 	}
 
-	for (int q = 0; q < 2; ++q) {
-		for (size_t i = 0, n = pool->signals_write_queue[q].size; i < n; ++i) {
-			const SignalQueueEntry *sw = &pool->signals_write_queue[q].queue[i];
+	for (size_t q = 0, nq = pool->signals_write_log->num_queues; q < nq; ++q) {
+		SignalWriteQueue *queue = pool->signals_write_log->queues[q];
+
+		for (size_t i = 0, n = queue->count; i < n; ++i) {
+			const SignalQueueEntry *sw = &queue->writes[i];
 
 			pool->signals_writers[sw->signal] |= sw->writer_mask;
 			pool->signals_value[sw->signal] = sw->new_value;
@@ -119,10 +120,10 @@ uint64_t signal_pool_cycle(SignalPool *pool) {
 		}
 
 		#ifdef DMS_SIGNAL_STATISTICS
-			stat_total_writes += pool->signals_write_queue[q].size;
+			stat_total_writes += queue->count;
 		#endif // DMS_SIGNAL_STATISTICS
 
-		pool->signals_write_queue[q].size = 0;
+		queue->count = 0;
 	}
 
 	#ifdef DMS_SIGNAL_STATISTICS

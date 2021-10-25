@@ -71,23 +71,23 @@ static MunitResult test_write(const MunitParameter params[], void* user_data_or_
 	munit_assert_false(pool->signals_value[prv]);
 	munit_assert_false(pool->signals_value[sig]);
 	munit_assert_false(pool->signals_value[nxt]);
-	munit_assert_size(pool->signals_write_queue[1].size, ==, 0);
+	munit_assert_size(pool->signals_write_log->queues[1]->count, ==, 0);
 
 	// test
 	signal_write(pool, sig, true, 0);
-	munit_assert_size(pool->signals_write_queue[1].size, ==, 1);
-	munit_assert_uint32(pool->signals_write_queue[1].queue[0].signal, ==, sig);
-	munit_assert_uint32(pool->signals_write_queue[1].queue[0].new_value, ==, true);
+	munit_assert_size(pool->signals_write_log->queues[1]->count, ==, 1);
+	munit_assert_uint32(pool->signals_write_log->queues[1]->writes[0].signal, ==, sig);
+	munit_assert_uint32(pool->signals_write_log->queues[1]->writes[0].new_value, ==, true);
 	munit_assert_false(pool->signals_value[prv]);
 	munit_assert_false(pool->signals_value[sig]);
 	munit_assert_false(pool->signals_value[nxt]);
 
 	signal_write(pool, sig, false, 0);
-	munit_assert_size(pool->signals_write_queue[1].size, ==, 2);
-	munit_assert_uint32(pool->signals_write_queue[1].queue[0].signal, ==, sig);
-	munit_assert_uint32(pool->signals_write_queue[1].queue[0].new_value, ==, true);
-	munit_assert_uint32(pool->signals_write_queue[1].queue[1].signal, ==, sig);
-	munit_assert_uint32(pool->signals_write_queue[1].queue[1].new_value, ==, false);
+	munit_assert_size(pool->signals_write_log->queues[1]->count, ==, 2);
+	munit_assert_uint32(pool->signals_write_log->queues[1]->writes[0].signal, ==, sig);
+	munit_assert_uint32(pool->signals_write_log->queues[1]->writes[0].new_value, ==, true);
+	munit_assert_uint32(pool->signals_write_log->queues[1]->writes[1].signal, ==, sig);
+	munit_assert_uint32(pool->signals_write_log->queues[1]->writes[1].new_value, ==, false);
 	munit_assert_false(pool->signals_value[prv]);
 	munit_assert_false(pool->signals_value[sig]);
 	munit_assert_false(pool->signals_value[nxt]);

@@ -16,15 +16,4 @@ typedef struct SignalBreakpoint {
 	bool		neg_edge;						// break on negative edge
 } SignalBreakpoint;
 
-typedef struct {
-	Signal		signal;							// signal to write to
-	uint64_t	writer_mask;					// id-mask of the chip writing to the signal
-	bool		new_value;						// value to write
-} SignalQueueEntry;
-
-typedef struct {
-	size_t				size;
-	SignalQueueEntry *	queue;
-} SignalQueue;
-
  #endif // DROMAIUS_SIGNAL_TYPES_H

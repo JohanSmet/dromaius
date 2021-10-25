@@ -133,14 +133,14 @@ bool signal_read_next(SignalPool *pool, Signal signal) {
 	assert(pool);
 
 	if (pool->read_next_cycle != pool->cycle_count ||
-		pool->swq_snapshot != pool->signals_write_queue[1].size + pool->signals_highz_queue.size) {
+		pool->swq_snapshot != pool->signals_write_log->queues[1]->count + pool->signals_highz_log->queues[0]->count) {
 
 		memcpy(pool->signals_next_value, pool->signals_value, sizeof(*pool->signals_value) * arrlenu(pool->signals_value));
 		memcpy(pool->signals_next_writers, pool->signals_writers, sizeof(*pool->signals_writers) * arrlenu(pool->signals_writers));
 
-		for (size_t i = 0, n = pool->signals_highz_queue.size; i < n; ++i) {
-			const Signal s = pool->signals_highz_queue.queue[i].signal;
-			const uint64_t w_mask = pool->signals_highz_queue.queue[i].writer_mask;
+		for (size_t i = 0, n = pool->signals_highz_log->queues[0]->count; i < n; ++i) {
+			const Signal s = pool->signals_highz_log->queues[0]->writes[i].signal;
+			const uint64_t w_mask = pool->signals_highz_log->queues[0]->writes[i].writer_mask;
 
 			// clear the corresponding bit in the writers mask
 			pool->signals_next_writers[s] &= ~w_mask;
@@ -150,12 +150,12 @@ bool signal_read_next(SignalPool *pool, Signal signal) {
 			}
 		}
 
-		for (size_t i = 0, n = pool->signals_write_queue[1].size; i < n; ++i) {
-			SignalQueueEntry *sw = &pool->signals_write_queue[1].queue[i];
+		for (size_t i = 0, n = pool->signals_write_log->queues[1]->count; i < n; ++i) {
+			SignalQueueEntry *sw = &pool->signals_write_log->queues[1]->writes[i];
 			pool->signals_next_value[sw->signal] = sw->new_value;
 		}
 
-		pool->swq_snapshot = pool->signals_write_queue[1].size + pool->signals_highz_queue.size;
+		pool->swq_snapshot = pool->signals_write_log->queues[1]->count + pool->signals_highz_log->queues[0]->count;
 		pool->read_next_cycle = pool->cycle_count;
 	}
 

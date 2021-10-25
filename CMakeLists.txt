@@ -180,6 +180,8 @@ target_sources(${LIB_TARGET}
 		src/signal_pool.c
 		src/signal_pool.h
 		src/signal_types.h
+		src/signal_write_log.c
+		src/signal_write_log.h
 		src/simulator.c
 		src/simulator.h
 		src/stopwatch.c

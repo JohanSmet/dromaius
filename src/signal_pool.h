@@ -4,9 +4,7 @@
 #define DROMAIUS_SIGNAL_POOL_H
 
 #include "signal_types.h"
-#include <assert.h>
-#include <string.h>
-#include <stb/stb_ds.h>
+#include "signal_write_log.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,10 +25,10 @@ typedef struct SignalPool {
 	uint64_t *		dependent_components;		// id's of the chips that depend on this signal
 
 	const char **	signals_name;				// names of the signal (id -> name)
-	SignalNameMap	*signal_names;				// hashmap name -> signal
+	SignalNameMap *	signal_names;				// hashmap name -> signal
 
-	SignalQueue 	signals_write_queue[2];	// queue of pending writes to the signals
-	SignalQueue 	signals_highz_queue;	// queue of signals that have had an active writer go away
+	SignalWriteLog *signals_write_log;			// queue of pending writes to the signals
+	SignalWriteLog *signals_highz_log;			// queue of signals that have had an active writer go away
 
 	// variables specifically to make read_next work (normally only used in unit-tests)
 	bool *			signals_next_value;
