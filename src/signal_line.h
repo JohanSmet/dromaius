@@ -13,10 +13,7 @@
 extern "C" {
 #endif
 
-extern const uint64_t lut_bit_to_byte[256];
-
 #define MAX_SIGNAL_NAME		8
-
 
 // functions - signals
 Signal signal_create(SignalPool *pool);
