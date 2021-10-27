@@ -49,6 +49,9 @@ bool thread_join(thread_t thr, int *res);
 #define cond_init(c)			cnd_init((c))
 #define cond_wait(c,m)			cnd_wait((c),(m))
 #define cond_signal(c)			cnd_signal((c))
+#define cond_signal_all(c)		cnd_broadcast((c))
+
+#define THREAD_LOCAL			thread_local
 
 #endif // DMS_THREADS_C11
 
@@ -78,6 +81,9 @@ bool thread_join(thread_t thread, int *thread_res);
 #define cond_init(c)			pthread_cond_init((c), NULL)
 #define cond_wait(c,m)			pthread_cond_wait((c),(m))
 #define cond_signal(c)			pthread_cond_signal((c))
+#define cond_signal_all(c)		pthread_cond_broadcast((c))
+
+#define THREAD_LOCAL			__thread
 
 #endif // DMS_THREADS_POSIX
 
@@ -111,8 +117,15 @@ bool cond_init(cond_t *cond);
 bool cond_destroy(cond_t* cond);
 bool cond_wait(cond_t* cond, mutex_t* mutex);
 bool cond_signal(cond_t* cond);
+bool cond_signal_all(cond_t* cond);
+
+#define THREAD_LOCAL			__declspec(thread)
 
 #endif // DMS_THREADS_WIN32
+
+#ifndef THREAD_LOCAL
+#define THREAD_LOCAL
+#endif
 
 
 #endif // DROMAIUS_SYS_THREADS_H
