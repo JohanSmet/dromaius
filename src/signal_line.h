@@ -5,6 +5,8 @@
 
 #include "signal_types.h"
 #include "signal_pool.h"
+#include "sys/threads.h"
+
 #include <assert.h>
 #include <string.h>
 #include <stb/stb_ds.h>
@@ -12,6 +14,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+extern THREAD_LOCAL size_t signal_write_queue_id;
+extern THREAD_LOCAL size_t signal_highz_queue_id;
 
 #define MAX_SIGNAL_NAME		8
 
@@ -33,7 +38,7 @@ static inline bool signal_read(SignalPool *pool, Signal signal) {
 
 static inline void signal_write(SignalPool *pool, Signal signal, bool value, int32_t chip_id) {
 	assert(pool);
-	signal_write_log_add(pool->signals_write_log, 1, signal, value, 1ull << chip_id);
+	signal_write_log_add(pool->signals_write_log, signal_write_queue_id, signal, value, 1ull << chip_id);
 }
 
 static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t chip_id) {
@@ -42,7 +47,7 @@ static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t 
 	const uint64_t w_mask = 1ull << chip_id;
 
 	if (pool->signals_writers[signal] & w_mask) {
-		signal_write_log_add(pool->signals_highz_log, 0, signal, false, w_mask);
+		signal_write_log_add(pool->signals_highz_log, signal_highz_queue_id, signal, false, w_mask);
 	}
 }
 

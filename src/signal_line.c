@@ -12,6 +12,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+THREAD_LOCAL size_t signal_write_queue_id = 1;
+THREAD_LOCAL size_t signal_highz_queue_id = 0;
+
 Signal signal_create(SignalPool *pool) {
 	assert(pool);
 
