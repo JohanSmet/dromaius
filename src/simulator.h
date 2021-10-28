@@ -13,18 +13,18 @@ extern "C" {
 
 // types
 typedef struct ChipEvent {
-	int32_t				chip_id;
+	uint64_t			chip_mask;
 	int64_t				timestamp;
-	struct ChipEvent *	next;
+	struct ChipEvent *  next;
 } ChipEvent;
 
 typedef struct Simulator {
 	struct SignalPool *		signal_pool;
-	ChipEvent *				event_schedule;			// scheduled event
+	ChipEvent **			event_schedule;			// scheduled event (array of linked lists)
 
 	// time keeping
 	int64_t			current_tick;
-	int64_t			tick_duration_ps;		// in pico-seconds
+	int64_t			tick_duration_ps;				// in pico-seconds
 } Simulator;
 
 struct Chip;
@@ -43,7 +43,8 @@ void simulator_simulate_timestep(Simulator *sim);
 
 // scheduler
 void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp);
-int32_t simulator_pop_scheduled_event(Simulator *sim, int64_t timestamp);
+int64_t simulator_next_scheduled_event_timestamp(Simulator *sim);
+uint64_t simulator_pop_next_scheduled_event(Simulator *sim, int64_t timestamp);
 
 // time keeping
 static inline int64_t simulator_interval_to_tick_count(Simulator *sim, int64_t interval_ps) {
