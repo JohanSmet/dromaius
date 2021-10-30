@@ -6,7 +6,7 @@
 #include "stb/stb_ds.h"
 
 static void *signal_setup(const MunitParameter params[], void *user_data) {
-	SignalPool *pool = signal_pool_create(16);
+	SignalPool *pool = signal_pool_create(1, 16);
 	return pool;
 }
 

@@ -43,7 +43,7 @@ static inline uint64_t signal_pool_process_high_impedance__internal(SignalPool *
 // public functions
 //
 
-SignalPool *signal_pool_create(size_t max_concurrent_writes) {
+SignalPool *signal_pool_create(size_t num_threads, size_t max_concurrent_writes) {
 
 	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool));
 	sh_new_arena(pool->signal_names);
@@ -52,8 +52,8 @@ SignalPool *signal_pool_create(size_t max_concurrent_writes) {
 	signal_create(pool);
 
 	// create queues
-	pool->signals_write_log = signal_write_log_create(max_concurrent_writes, 2);
-	pool->signals_highz_log = signal_write_log_create(max_concurrent_writes, 1);
+	pool->signals_write_log = signal_write_log_create(max_concurrent_writes, num_threads + 1);
+	pool->signals_highz_log = signal_write_log_create(max_concurrent_writes, num_threads);
 
 	return pool;
 }

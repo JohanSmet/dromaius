@@ -78,6 +78,11 @@ if (NOT EMSCRIPTEN)
 	find_package(OpenGL REQUIRED)
 endif()
 
+# external library - Threading
+if (ENABLE_THREADING)
+	find_package(Threads REQUIRED)
+endif()
+
 # external library Dear Imgui
 set (IMGUI_TARGET imgui)
 add_library(${IMGUI_TARGET} STATIC)
@@ -211,6 +216,8 @@ target_link_libraries(${LIB_TARGET} PRIVATE ${LIBS_MATH})
 target_compile_definitions(${LIB_TARGET} PUBLIC ${PLATFORM_DEF})
 if (NOT ENABLE_THREADING)
 	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_NO_THREADING)
+else()
+	target_link_libraries(${LIB_TARGET} PRIVATE Threads::Threads)
 endif()
 target_compile_warning(${LIB_TARGET})
 

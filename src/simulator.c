@@ -5,14 +5,38 @@
 #include "simulator.h"
 #include "chip.h"
 #include "signal_line.h"
+#include "sys/threads.h"
+
+//#define DMS_LOG_TRACE
+#define LOG_SIMULATOR	PUBLIC(sim)
+#include "log.h"
 
 #include <stb/stb_ds.h>
 #include <assert.h>
+#include <inttypes.h>
+#include <stdatomic.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //
 // types
 //
+
+#define NUM_SIMULATOR_THREADS	2					// TODO: hardcoded for now, change to be dynamic
+#define MAX_SCHEDULED_EVENTS	16					// TODO: should be set by device
+
+#ifndef DMS_NO_THREADING
+
+static const uint64_t THREAD_CHIP_MASK[NUM_SIMULATOR_THREADS] = {
+	0x5555555555555555,
+	0xAAAAAAAAAAAAAAAA
+};
+
+typedef struct WorkerInfo {
+	thread_t					thread;
+	size_t						thread_id;
+	struct Simulator_private *	sim;
+}   WorkerInfo;
+#endif // DMS_NO_THREADING
 
 typedef struct Simulator_private {
 	Simulator				public;
@@ -22,13 +46,22 @@ typedef struct Simulator_private {
 
 	ChipEvent *				event_buffer;
 	ChipEvent **			event_free_pool;				// re-use pool
+
+#ifndef DMS_NO_THREADING
+	mutex_t					mtx_process;
+	cond_t					cnd_work_available;
+	cond_t					cnd_work_all_done;
+	size_t					workers_to_start;
+	size_t					workers_to_finish;
+
+	WorkerInfo				workers[NUM_SIMULATOR_THREADS];
+#endif
+
 } Simulator_private;
 
 #define PRIVATE(sim)	((Simulator_private *) (sim))
 #define PUBLIC(sim)		(&(sim)->public)
 
-#define NUM_SIMULATOR_THREADS	1					// TODO: hardcoded for now, change to be dynamic
-#define MAX_SCHEDULED_EVENTS	16					// TODO: should be set by device
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -56,6 +89,72 @@ static inline void sim_process_sequential(Simulator_private *sim, uint64_t dirty
 	}
 }
 
+#ifndef DMS_NO_THREADING
+
+static int sim_worker_thread(WorkerInfo *worker) {
+	assert(worker);
+
+	Simulator_private *sim = worker->sim;
+
+	LOG_TRACE("SimWorker [%d]: worker thread starting", worker->thread_id);
+
+	// set signal queue indices for this thread
+	signal_write_queue_id = worker->thread_id + 1;
+	signal_highz_queue_id = worker->thread_id;
+
+	while (true) {
+
+		// wait for work
+		mutex_lock(&sim->mtx_process);
+		while (sim->workers_to_start == 0) {
+			LOG_TRACE("SimWorker [%d]: waiting for work", worker->thread_id);
+			cond_wait(&sim->cnd_work_available, &sim->mtx_process);
+		}
+		--sim->workers_to_start;
+		uint64_t chip_mask = THREAD_CHIP_MASK[sim->workers_to_start];
+		LOG_TRACE("SimWorker [%d]: work available (%d workers to finish / %d workers to start)",
+					worker->thread_id, sim->workers_to_finish, sim->workers_to_start);
+		mutex_unlock(&sim->mtx_process);
+
+		// execute the work
+		LOG_TRACE("SimWorker [%d]: dirty chips = 0x%016" PRIX64 " - mask = 0x%016" PRIX64 " => running chips 0x%016" PRIX64 "",
+					worker->thread_id, sim->dirty_chips, chip_mask, sim->dirty_chips & chip_mask);
+		sim_process_sequential(sim, sim->dirty_chips & chip_mask);
+
+		// mark work as done
+		mutex_lock(&sim->mtx_process);
+		bool all_done = (--sim->workers_to_finish) == 0;
+		LOG_TRACE("SimWorker [%d]: work done (%d workers to finish / %d workers to start)",
+					worker->thread_id, sim->workers_to_finish, sim->workers_to_start);
+		mutex_unlock(&sim->mtx_process);
+
+		if (all_done) {
+			LOG_TRACE("SimWorker [%d]: all work done", worker->thread_id);
+			cnd_signal(&sim->cnd_work_all_done);
+		}
+	}
+
+	return 0;
+}
+
+static inline void sim_process_concurrent(Simulator_private *sim) {
+
+	// wake up the worker threads
+	mutex_lock(&sim->mtx_process);
+	LOG_TRACE("Simulator [manager]: work available (0x%016" PRIX64 ")", sim->dirty_chips);
+	sim->workers_to_start = NUM_SIMULATOR_THREADS;
+	sim->workers_to_finish = NUM_SIMULATOR_THREADS;
+	cond_signal_all(&sim->cnd_work_available);
+
+	// wait until the work is done
+	while (sim->workers_to_finish > 0) {
+		cond_wait(&sim->cnd_work_all_done, &sim->mtx_process);
+	}
+	mutex_unlock(&sim->mtx_process);
+}
+
+#endif // DMS_NO_THREADING
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
@@ -65,7 +164,7 @@ Simulator *simulator_create(int64_t tick_duration_ps) {
 	Simulator_private *priv_sim = (Simulator_private *) calloc(1, sizeof(Simulator_private));
 
 	// TODO: max number of concurrent signals should be given by the caller
-	PUBLIC(priv_sim)->signal_pool = signal_pool_create(512);
+	PUBLIC(priv_sim)->signal_pool = signal_pool_create(NUM_SIMULATOR_THREADS, 256);
 	PUBLIC(priv_sim)->tick_duration_ps = tick_duration_ps;
 
 	// allocate scheduled events
@@ -93,6 +192,25 @@ Simulator *simulator_create(int64_t tick_duration_ps) {
 			priv_sim->event_free_pool[thread_id] = event_ptr++;
 		}
 	}
+
+#ifndef DMS_NO_THREADING
+	// threading
+	mutex_init_plain(&priv_sim->mtx_process);
+	cond_init(&priv_sim->cnd_work_available);
+	cond_init(&priv_sim->cnd_work_all_done);
+	priv_sim->workers_to_start = 0;
+	priv_sim->workers_to_finish = 0;
+
+	for (size_t idx = 0; idx < NUM_SIMULATOR_THREADS; ++idx) {
+		priv_sim->workers[idx].sim = priv_sim;
+		priv_sim->workers[idx].thread_id = idx;
+
+		thread_create_joinable(&priv_sim->workers[idx].thread,
+							   (thread_func_t) sim_worker_thread, &priv_sim->workers[idx]);
+	}
+
+
+#endif // DMS_NO_THREADING
 
 	return &priv_sim->public;
 }
@@ -174,7 +292,11 @@ void simulator_simulate_timestep(Simulator *sim) {
 	PRIVATE(sim)->dirty_chips |= simulator_pop_next_scheduled_event(sim, sim->current_tick);
 
 	// process all chips that have a dependency on signal that was changed in the last timestep or have a scheduled wakeup
+#ifdef DMS_NO_THREADING
 	sim_process_sequential(PRIVATE(sim), PRIVATE(sim)->dirty_chips);
+#else
+	sim_process_concurrent(PRIVATE(sim));
+#endif
 
 	// process any chips that wrote to a signal of which the active writers changed
 	//	(TODO: shouldn't really call processs, only outputting previous signals should be enough/safer)
@@ -188,7 +310,7 @@ void simulator_simulate_timestep(Simulator *sim) {
 void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp) {
 	assert(sim);
 
-	const size_t thread_id = 0;
+	const size_t thread_id = signal_highz_queue_id;
 
 	// find the insertion spot
 	ChipEvent *next  = sim->event_schedule[thread_id];

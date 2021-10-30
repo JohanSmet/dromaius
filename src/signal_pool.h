@@ -43,7 +43,7 @@ typedef struct SignalPool {
 } SignalPool;
 
 // functions - signal pool
-SignalPool *signal_pool_create(size_t max_concurrent_writes);
+SignalPool *signal_pool_create(size_t num_threads, size_t max_concurrent_writes);
 void signal_pool_destroy(SignalPool *pool);
 
 uint64_t signal_pool_process_high_impedance(SignalPool *pool);
