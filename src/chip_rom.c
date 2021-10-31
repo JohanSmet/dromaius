@@ -26,12 +26,12 @@ Chip63xxRom *chip_6316_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
 	Chip63xxRom *chip = (Chip63xxRom *) calloc(1, sizeof(Chip63xxRom) + ROM_6316_DATA_SIZE);
 
-	chip->simulator = sim;
+	CHIP_SET_FUNCTIONS(chip, chip_6316_rom_process, chip_63xx_rom_destroy, chip_63xx_rom_register_dependencies);
+	CHIP_SET_VARIABLES(chip, sim, chip->signals, CHIP_63XX_PIN_COUNT);
 	chip->signal_pool = sim->signal_pool;
 	chip->data_size = ROM_6316_DATA_SIZE;
 	chip->output_delay = simulator_interval_to_tick_count(chip->simulator, NS_TO_PS(60));
 	chip->last_address = -1;
-	CHIP_SET_FUNCTIONS(chip, chip_6316_rom_process, chip_63xx_rom_destroy, chip_63xx_rom_register_dependencies);
 
 	chip->sg_address = signal_group_create();
 	chip->sg_data = signal_group_create();
@@ -124,12 +124,13 @@ Chip63xxRom *chip_6332_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
 	Chip63xxRom *chip = (Chip63xxRom *) calloc(1, sizeof(Chip63xxRom) + ROM_6332_DATA_SIZE);
 
-	chip->simulator = sim;
+	CHIP_SET_FUNCTIONS(chip, chip_6332_rom_process, chip_63xx_rom_destroy, chip_63xx_rom_register_dependencies);
+	CHIP_SET_VARIABLES(chip, sim, chip->signals, CHIP_63XX_PIN_COUNT);
+
 	chip->signal_pool = sim->signal_pool;
 	chip->data_size = ROM_6332_DATA_SIZE;
 	chip->output_delay = simulator_interval_to_tick_count(chip->simulator, NS_TO_PS(60));
 	chip->last_address = -1;
-	CHIP_SET_FUNCTIONS(chip, chip_6332_rom_process, chip_63xx_rom_destroy, chip_63xx_rom_register_dependencies);
 
 	chip->sg_address = signal_group_create();
 	chip->sg_data = signal_group_create();

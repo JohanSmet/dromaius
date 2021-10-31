@@ -28,10 +28,11 @@ typedef enum {
 	CHIP_7400_A4 = CHIP_PIN_13
 } Chip7400SignalAssignment;
 
-typedef Signal Chip7400Signals[14];
+#define CHIP_7400_PIN_COUNT 14
+typedef Signal Chip7400Signals[CHIP_7400_PIN_COUNT];
 
 typedef struct Chip7400Nand {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip7400Signals		signals;
@@ -53,10 +54,11 @@ typedef enum {
 	CHIP_7474_CLR2_B = CHIP_PIN_13
 } Chip7474SignalAssignment;
 
-typedef Signal Chip7474Signals[14];
+#define CHIP_7474_PIN_COUNT 14
+typedef Signal Chip7474Signals[CHIP_7474_PIN_COUNT];
 
 typedef struct Chip7474DFlipFlop {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip7474Signals		signals;
@@ -79,10 +81,11 @@ typedef enum {
 	CHIP_7493_A_B = CHIP_PIN_14
 } Chip7493SignalAssignment;
 
-typedef Signal Chip7493Signals[14];
+#define CHIP_7493_PIN_COUNT 14
+typedef Signal Chip7493Signals[CHIP_7493_PIN_COUNT];
 
 typedef struct Chip7493BinaryCounter {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip7493Signals		signals;
@@ -107,10 +110,11 @@ typedef enum {
 	CHIP_74107_CLR1_B = CHIP_PIN_13
 } Chip74107SignalAssigment;
 
-typedef Signal Chip74107Signals[14];
+#define CHIP_74107_PIN_COUNT 14
+typedef Signal Chip74107Signals[CHIP_74107_PIN_COUNT];
 
 typedef struct Chip74107JKFlipFlop {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74107Signals	signals;
@@ -137,10 +141,11 @@ typedef enum {
 	CHIP_74145_A = CHIP_PIN_15
 } Chip74145SignalAssignment;
 
-typedef Signal Chip74145Signals[16];
+#define CHIP_74145_PIN_COUNT 16
+typedef Signal Chip74145Signals[CHIP_74145_PIN_COUNT];
 
 typedef struct Chip74145BcdDecoder {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74145Signals	signals;
@@ -164,10 +169,11 @@ typedef enum {
 	CHIP_74153_G2 = CHIP_PIN_15		// strobe group 2
 } Chip74153SignalAssignment;
 
-typedef Signal Chip74153Signals[16];
+#define CHIP_74153_PIN_COUNT 16
+typedef Signal Chip74153Signals[CHIP_74153_PIN_COUNT];
 
 typedef struct Chip74153Multiplexer {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74153Signals	signals;
@@ -201,10 +207,11 @@ typedef enum {
 	CHIP_74154_A = CHIP_PIN_23
 } Chip74154SignalAssignment;
 
-typedef Signal Chip74154Signals[24];
+#define CHIP_74154_PIN_COUNT 24
+typedef Signal Chip74154Signals[CHIP_74154_PIN_COUNT];
 
 typedef struct Chip74154Decoder {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74154Signals	signals;
@@ -228,10 +235,11 @@ typedef enum {
 	CHIP_74157_ENABLE_B = CHIP_PIN_15,	// chip enable
 } Chip74157SignalAssigment;
 
-typedef Signal Chip74157Signals[16];
+#define CHIP_74157_PIN_COUNT 16
+typedef Signal Chip74157Signals[CHIP_74157_PIN_COUNT];
 
 typedef struct Chip74157Multiplexer {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74157Signals	signals;
@@ -253,10 +261,11 @@ typedef enum {
 	CHIP_74164_QH = CHIP_PIN_13,	// parallel output D
 } Chip74164SignalAssignment;
 
-typedef Signal Chip74164Signals[14];
+#define CHIP_74164_PIN_COUNT 14
+typedef Signal Chip74164Signals[CHIP_74164_PIN_COUNT];
 
 typedef struct Chip74164ShiftRegister {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74164Signals	signals;
@@ -282,10 +291,11 @@ typedef enum {
 	CHIP_74165_CLK_INH = CHIP_PIN_15,	// clock inhibit
 } Chip74165SignalAssignment;
 
-typedef Signal Chip74165Signals[16];
+#define CHIP_74165_PIN_COUNT 16
+typedef Signal Chip74165Signals[CHIP_74165_PIN_COUNT];
 
 typedef struct Chip74165ShiftRegister {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74165Signals	signals;
@@ -310,10 +320,11 @@ typedef enum {
 	CHIP_74177_CLEAR_B = CHIP_PIN_13,
 } Chip74177SignalAssignment;
 
-typedef Signal Chip74177Signals[14];
+#define CHIP_74177_PIN_COUNT 14
+typedef Signal Chip74177Signals[CHIP_74177_PIN_COUNT];
 
 typedef struct Chip74177BinaryCounter {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74177Signals	signals;
@@ -340,10 +351,11 @@ typedef enum {
 	CHIP_74191_A = CHIP_PIN_15
 } Chip74191SignalAssignment;
 
-typedef Signal Chip74191Signals[16];
+#define CHIP_74191_PIN_COUNT 16
+typedef Signal Chip74191Signals[CHIP_74191_PIN_COUNT];
 
 typedef struct Chip74191BinaryCounter {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74191Signals	signals;
@@ -374,10 +386,11 @@ typedef enum {
 	CHIP_74244_G2_B = CHIP_PIN_19,	// enable output on group 2
 } Chip74244SignalAssignment;
 
-typedef Signal Chip74244Signals[20];
+#define CHIP_74244_PIN_COUNT 20
+typedef Signal Chip74244Signals[CHIP_74244_PIN_COUNT];
 
 typedef struct Chip74244OctalBuffer {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74244Signals	signals;
@@ -405,10 +418,11 @@ typedef enum {
 	CHIP_74373_Q8 = CHIP_PIN_19
 } Chip74373SignalAssignment;
 
-typedef Signal Chip74373Signals[20];
+#define CHIP_74373_PIN_COUNT 20
+typedef Signal Chip74373Signals[CHIP_74373_PIN_COUNT];
 
 typedef struct Chip74373Latch {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *		signal_pool;
 	Chip74373Signals	signals;

@@ -37,7 +37,7 @@
 //
 
 typedef struct ChipGlueLogic {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	DevCommodorePet *device;
 } ChipGlueLogic;
@@ -447,7 +447,7 @@ static void glue_logic_process_08(ChipGlueLogic *chip) {
 //
 
 typedef struct ChipLiteDisplay {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	DevCommodorePet *	device;
 	Ram8d16a *			vram;

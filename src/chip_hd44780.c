@@ -432,9 +432,10 @@ static void chip_hd44780_process(ChipHd44780 *lcd);
 ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 	ChipHd44780_private *priv = (ChipHd44780_private *) calloc(1, sizeof(ChipHd44780_private));
 	ChipHd44780 *lcd = &priv->intf;
-	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy, chip_hd44780_register_dependencies);
 
-	lcd->simulator = sim;
+	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy, chip_hd44780_register_dependencies);
+	CHIP_SET_VARIABLES(lcd, sim, lcd->signals, CHIP_HD44780_PIN_COUNT);
+
 	lcd->signal_pool = sim->signal_pool;
 	PRIVATE(lcd)->cursor_blink_cycles = simulator_interval_to_tick_count(lcd->simulator, CURSOR_BLINK_INTERVAL_PS);
 

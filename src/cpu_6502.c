@@ -2132,13 +2132,13 @@ static void cpu_6502_process(Cpu6502 *cpu);
 
 Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 
-	Cpu6502_private *priv = (Cpu6502_private *) malloc(sizeof(Cpu6502_private));
+	Cpu6502_private *priv = (Cpu6502_private *) calloc(1, sizeof(Cpu6502_private));
 	Cpu6502 *cpu = &priv->intf;
-	memset(priv, 0, sizeof(Cpu6502_private));
 
-	cpu->simulator = sim;
-	cpu->signal_pool = sim->signal_pool;
 	CHIP_SET_FUNCTIONS(cpu, cpu_6502_process, cpu_6502_destroy, cpu_6502_register_dependencies);
+	CHIP_SET_VARIABLES(cpu, sim, cpu->signals, CHIP_6502_PIN_COUNT);
+
+	cpu->signal_pool = sim->signal_pool;
 	cpu->override_next_instruction_address = (CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS) cpu_6502_override_next_instruction_address;
 	cpu->is_at_start_of_instruction = (CPU_IS_AT_START_OF_INSTRUCTION) cpu_6502_at_start_of_instruction;
 	cpu->irq_is_asserted = (CPU_IRQ_IS_ASSERTED) cpu_6502_irq_is_asserted;

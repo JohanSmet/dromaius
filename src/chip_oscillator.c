@@ -24,9 +24,10 @@ static void oscillator_process(Oscillator *tmr);
 Oscillator *oscillator_create(int64_t frequency, Simulator *sim, OscillatorSignals signals) {
 	Oscillator *tmr = (Oscillator *) calloc(1, sizeof(Oscillator));
 
-	tmr->simulator = sim;
-	tmr->signal_pool = sim->signal_pool;
 	CHIP_SET_FUNCTIONS(tmr, oscillator_process, oscillator_destroy, oscillator_register_dependencies);
+	CHIP_SET_VARIABLES(tmr, sim, tmr->signals, CHIP_OSCILLATOR_PIN_COUNT);
+
+	tmr->signal_pool = sim->signal_pool;
 
 	memcpy(tmr->signals, signals, sizeof(OscillatorSignals));
 	SIGNAL_DEFINE_DEFAULT(CLK_OUT, false);

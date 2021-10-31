@@ -31,7 +31,7 @@
 //
 
 typedef struct ChipGlueLogic {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	DevMinimal6502 *device;
 } ChipGlueLogic;

@@ -322,12 +322,12 @@ static void chip_6520_process(Chip6520 *pia);
 
 Chip6520 *chip_6520_create(Simulator *sim, Chip6520Signals signals) {
 	Chip6520_private *priv = (Chip6520_private *) calloc(1, sizeof(Chip6520_private));
-
 	Chip6520 *pia = &priv->intf;
-	pia->simulator = sim;
-	pia->signal_pool = sim->signal_pool;
-	CHIP_SET_FUNCTIONS(pia, chip_6520_process, chip_6520_destroy, chip_6520_register_dependencies);
 
+	CHIP_SET_FUNCTIONS(pia, chip_6520_process, chip_6520_destroy, chip_6520_register_dependencies);
+	CHIP_SET_VARIABLES(pia, sim, pia->signals, CHIP_6520_PIN_COUNT);
+
+	pia->signal_pool = sim->signal_pool;
 	memcpy(pia->signals, signals, sizeof(Chip6520Signals));
 
 	pia->sg_port_a = signal_group_create();

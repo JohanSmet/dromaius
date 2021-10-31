@@ -63,7 +63,8 @@ typedef enum {
 
 } Chip6522SignalAssignment;
 
-typedef Signal Chip6522Signals[40];
+#define CHIP_6522_PIN_COUNT 40
+typedef Signal Chip6522Signals[CHIP_6522_PIN_COUNT];
 
 typedef enum Chip6522AuxiliaryControl {
 	MASK_6522_ACR_PA_LATCH			= 0b00000001,
@@ -150,7 +151,7 @@ typedef enum Chip6522InterruptEnable {
 } Chip6522InterruptEnable;
 
 typedef struct Chip6522 {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

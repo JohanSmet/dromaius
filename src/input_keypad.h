@@ -14,7 +14,7 @@ extern "C" {
 
 // types
 typedef struct InputKeypad {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

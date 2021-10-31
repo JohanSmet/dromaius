@@ -47,11 +47,12 @@ enum Ram8d16aSignalAssignment {
 	CHIP_RAM8D16A_OE_B = CHIP_PIN_27				// 1-bit output enable (active low)
 };
 
-typedef Signal Ram8d16aSignals[27];
+#define CHIP_RAM8D16A_PIN_COUNT 27
+typedef Signal Ram8d16aSignals[CHIP_RAM8D16A_PIN_COUNT];
 
 typedef struct Ram8d16a {
 
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

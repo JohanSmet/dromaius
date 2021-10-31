@@ -13,7 +13,7 @@ typedef bool (*CPU_IRQ_IS_ASSERTED)(void *cpu);
 typedef int64_t  (*CPU_PROGRAM_COUNTER)(void *cpu);
 
 #define CPU_DECLARE_FUNCTIONS		\
-	CHIP_DECLARE_FUNCTIONS														\
+	CHIP_DECLARE_BASE														\
 	CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS override_next_instruction_address;	\
 	CPU_IS_AT_START_OF_INSTRUCTION is_at_start_of_instruction;					\
 	CPU_IRQ_IS_ASSERTED irq_is_asserted;										\

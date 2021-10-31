@@ -31,7 +31,8 @@ enum PerifDatassetteSignalAssignment {
 	PIN_DS1530_SENSE		= CHIP_PIN_06,	// F-6
 };
 
-typedef Signal PerifDatassetteSignals[6];
+#define CHIP_DS1530_PIN_COUNT 6
+typedef Signal PerifDatassetteSignals[CHIP_DS1530_PIN_COUNT];
 
 typedef struct TapData {
 	int8_t *	raw;
@@ -46,7 +47,7 @@ typedef struct TapData {
 } TapData;
 
 typedef struct PerifDatassette {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *			signal_pool;
 	PerifDatassetteSignals	signals;

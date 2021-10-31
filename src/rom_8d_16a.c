@@ -26,11 +26,12 @@ Rom8d16a *rom_8d16a_create(size_t num_address_lines, Simulator *sim, Rom8d16aSig
 	size_t data_size = (size_t) 1 << num_address_lines;
 	Rom8d16a *rom = (Rom8d16a *) calloc(1, sizeof(Rom8d16a) + data_size);
 
-	rom->simulator = sim;
+	CHIP_SET_FUNCTIONS(rom, rom_8d16a_process, rom_8d16a_destroy, rom_8d16a_register_dependencies);
+	CHIP_SET_VARIABLES(rom, sim, rom->signals, CHIP_ROM8D16A_PIN_COUNT);
+
 	rom->signal_pool = sim->signal_pool;
 	rom->data_size = data_size;
 	rom->output_delay = simulator_interval_to_tick_count(rom->simulator, NS_TO_PS(60));
-	CHIP_SET_FUNCTIONS(rom, rom_8d16a_process, rom_8d16a_destroy, rom_8d16a_register_dependencies);
 
 	memcpy(rom->signals, signals, sizeof(Rom8d16aSignals));
 

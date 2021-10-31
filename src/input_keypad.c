@@ -52,13 +52,15 @@ InputKeypad *input_keypad_create(Simulator *sim,
 
 	InputKeypadPrivate *priv = calloc(1, sizeof(InputKeypadPrivate));
 	InputKeypad *keypad = &priv->intf;
+	keypad->signals = calloc(row_count + col_count, sizeof(Signal));
+
 	CHIP_SET_FUNCTIONS(keypad, input_keypad_process, input_keypad_destroy, input_keypad_register_dependencies);
+	CHIP_SET_VARIABLES(keypad, sim, keypad->signals, (uint32_t) (row_count + col_count));
 
 	keypad->keys = (bool *) calloc(row_count * col_count, sizeof(bool));
 	priv->key_release_ticks = (int64_t *) calloc(row_count * col_count, sizeof(int64_t));
 	priv->keys_down = (size_t *) calloc(row_count * col_count, sizeof(size_t));
 
-	keypad->simulator = sim;
 	keypad->signal_pool = sim->signal_pool;
 	keypad->active_high = active_high;
 	keypad->row_count = row_count;
@@ -70,8 +72,6 @@ InputKeypad *input_keypad_create(Simulator *sim,
 	priv->keypad_scan_interval = simulator_interval_to_tick_count(keypad->simulator, FREQUENCY_TO_PS(priv->matrix_scan_frequency));
 	priv->next_keypad_scan_tick = priv->keypad_scan_interval;
 	priv->key_dwell_cycles = simulator_interval_to_tick_count(keypad->simulator, MS_TO_PS(priv->dwell_ms));
-
-	keypad->signals = calloc(row_count + col_count, sizeof(Signal));
 
 	if (row_signals == NULL || col_signals == NULL) {
 		keypad->sg_rows = signal_group_create();
@@ -157,7 +157,7 @@ void input_keypad_process(InputKeypad *keypad) {
 		if (input != keypad->active_high) {
 			continue;
 		}
-		signal_write(SIGNAL_POOL, keypad->sg_cols[c], input, keypad->id);
+		signal_write(SIGNAL_POOL, keypad->sg_cols[c], input, SIGNAL_CHIP_LAYER);
 	}
 }
 

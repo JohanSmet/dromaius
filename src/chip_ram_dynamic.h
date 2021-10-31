@@ -52,11 +52,12 @@ enum Chip8x4116DRamSignalAssignment {
 	CHIP_4116_CAS_B = CHIP_PIN_26,  // 1-bit column-address-select (active low)
 };
 
-typedef Signal Chip8x4116DRamSignals[26];
+#define CHIP_4116_PIN_COUNT 26
+typedef Signal Chip8x4116DRamSignals[CHIP_4116_PIN_COUNT];
 
 typedef struct Chip8x4116DRam {
 
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

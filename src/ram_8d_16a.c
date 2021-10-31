@@ -27,10 +27,11 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, Simulator *sim, Ram8d16aSi
 	size_t data_size = (size_t) 1 << num_address_lines;
 	Ram8d16a *ram = (Ram8d16a *) calloc(1, sizeof(Ram8d16a) + data_size);
 
-	ram->simulator = sim;
+	CHIP_SET_FUNCTIONS(ram, ram_8d16a_process, ram_8d16a_destroy, ram_8d16a_register_dependencies);
+	CHIP_SET_VARIABLES(ram, sim, ram->signals, CHIP_RAM8D16A_PIN_COUNT);
+
 	ram->signal_pool = sim->signal_pool;
 	ram->data_size = data_size;
-	CHIP_SET_FUNCTIONS(ram, ram_8d16a_process, ram_8d16a_destroy, ram_8d16a_register_dependencies);
 
 	memcpy(ram->signals, signals, sizeof(Ram8d16aSignals));
 

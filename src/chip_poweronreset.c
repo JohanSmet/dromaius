@@ -24,10 +24,10 @@ static void poweronreset_process(PowerOnReset *por);
 PowerOnReset *poweronreset_create(int64_t duration_ps, Simulator *sim, PowerOnResetSignals signals) {
 	PowerOnReset *por = (PowerOnReset *) calloc(1, sizeof(PowerOnReset));
 
-	por->simulator = sim;
-	por->signal_pool = sim->signal_pool;
 	CHIP_SET_FUNCTIONS(por, poweronreset_process, poweronreset_destroy, poweronreset_register_dependencies);
+	CHIP_SET_VARIABLES(por, sim, por->signals, CHIP_POR_PIN_COUNT);
 
+	por->signal_pool = sim->signal_pool;
 	memcpy(por->signals, signals, sizeof(PowerOnResetSignals));
 	SIGNAL_DEFINE(RESET_B);
 	SIGNAL_DEFINE_DEFAULT(TRIGGER_B, ACTLO_DEASSERT);

@@ -27,11 +27,12 @@ void chip_8x4116_dram_process(Chip8x4116DRam *chip);
 
 Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals signals) {
 	Chip8x4116DRam *chip = (Chip8x4116DRam *) calloc(1, sizeof(Chip8x4116DRam));
-	chip->simulator = sim;
-	chip->signal_pool = sim->signal_pool;
-	chip->access_time = simulator_interval_to_tick_count(sim, NS_TO_PS(100));
 
 	CHIP_SET_FUNCTIONS(chip, chip_8x4116_dram_process, chip_8x4116_dram_destroy, chip_8x4116_dram_register_dependencies);
+	CHIP_SET_VARIABLES(chip, sim, chip->signals, CHIP_4116_PIN_COUNT);
+
+	chip->signal_pool = sim->signal_pool;
+	chip->access_time = simulator_interval_to_tick_count(sim, NS_TO_PS(100));
 
 	memcpy(chip->signals, signals, sizeof(Chip8x4116DRamSignals));
 

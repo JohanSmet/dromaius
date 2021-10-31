@@ -54,22 +54,30 @@ typedef void (*CHIP_PROCESS_FUNC)(void *chip);
 typedef void (*CHIP_DESTROY_FUNC)(void *chip);
 typedef void (*CHIP_DEPENDENCIES_FUNC)(void *chip);
 
-#define CHIP_DECLARE_FUNCTIONS		\
-	CHIP_PROCESS_FUNC process;		\
-	CHIP_DESTROY_FUNC destroy;		\
+#define CHIP_DECLARE_BASE							\
+	CHIP_PROCESS_FUNC process;						\
+	CHIP_DESTROY_FUNC destroy;						\
 	CHIP_DEPENDENCIES_FUNC register_dependencies;	\
 	int32_t			  id;							\
 	const char *	  name;							\
 	int64_t			  schedule_timestamp;			\
-	struct Simulator *simulator;
+	struct Simulator *simulator;					\
+	uint32_t		  signal_layer;					\
+	uint32_t		  pin_count;					\
+	uint32_t *		  pins;
 
 #define CHIP_SET_FUNCTIONS(chip, pf, df, rdf)		\
 	(chip)->process = (CHIP_PROCESS_FUNC) (pf);		\
 	(chip)->destroy = (CHIP_DESTROY_FUNC) (df);		\
 	(chip)->register_dependencies = (CHIP_DEPENDENCIES_FUNC) (rdf);
 
+#define CHIP_SET_VARIABLES(chip, sim, signals, pc)	\
+	(chip)->simulator = (sim);						\
+	(chip)->pin_count = (pc);						\
+	(chip)->pins = (signals);
+
 typedef struct Chip {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 } Chip;
 
 #endif // DROMAIUS_CHIP_H

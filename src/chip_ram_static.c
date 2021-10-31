@@ -23,11 +23,11 @@ static void chip_6114_sram_process(Chip6114SRam *chip);
 
 Chip6114SRam *chip_6114_sram_create(Simulator *sim, Chip6114SRamSignals signals) {
 	Chip6114SRam *chip = (Chip6114SRam *) calloc(1, sizeof(Chip6114SRam));
-	chip->simulator = sim;
-	chip->signal_pool = sim->signal_pool;
 
 	CHIP_SET_FUNCTIONS(chip, chip_6114_sram_process, chip_6114_sram_destroy, chip_6114_sram_register_dependencies);
+	CHIP_SET_VARIABLES(chip, sim, chip->signals, CHIP_6114_PIN_COUNT);
 
+	chip->signal_pool = sim->signal_pool;
 	memcpy(chip->signals, signals, sizeof(Chip6114SRamSignals));
 
 	SIGNAL_DEFINE_GROUP(A0, address);

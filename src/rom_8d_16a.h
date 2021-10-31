@@ -46,10 +46,11 @@ enum Rom8d16aSignalAssignment {
 	CHIP_ROM8D16A_CE_B = CHIP_PIN_25,				// 1-bit chip enable (active low)
 };
 
-typedef Signal Rom8d16aSignals[25];
+#define CHIP_ROM8D16A_PIN_COUNT 25
+typedef Signal Rom8d16aSignals[CHIP_ROM8D16A_PIN_COUNT];
 
 typedef struct Rom8d16a {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

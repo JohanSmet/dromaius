@@ -64,7 +64,8 @@ typedef enum {
 	CHIP_6520_RW = CHIP_PIN_21,			// 1-bit read/write-line (true = read (pia -> cpu), false = write (cpu -> pia))
 } Chip6520SignalAssignment;
 
-typedef Signal Chip6520Signals[40];
+#define CHIP_6520_PIN_COUNT 40
+typedef Signal Chip6520Signals[CHIP_6520_PIN_COUNT];
 
 typedef enum Chip6520ControlFlags {
 	// flags for cl2 == input (and common fields for cl2 == output)
@@ -83,7 +84,7 @@ typedef enum Chip6520ControlFlags {
 } Chip6520ControlFlags;
 
 typedef struct Chip6520 {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

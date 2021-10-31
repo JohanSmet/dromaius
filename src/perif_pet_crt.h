@@ -20,10 +20,11 @@ enum PerifPetCrtSignalAssignment {
 	PIN_PETCRT_HORZ_DRIVE_IN = CHIP_PIN_03
 };
 
-typedef Signal PerifPetCrtSignals[3];
+#define CHIP_PETCRT_PIN_COUNT 3
+typedef Signal PerifPetCrtSignals[CHIP_PETCRT_PIN_COUNT];
 
 typedef struct PerifPetCrt {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	SignalPool *			signal_pool;
 	PerifPetCrtSignals		signals;

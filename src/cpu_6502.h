@@ -50,7 +50,8 @@ enum Cpu6502SignalAssignments {
 	PIN_6502_RES_B = CHIP_PIN_40		// reset line (input)
 };
 
-typedef Signal Cpu6502Signals[40];
+#define CHIP_6502_PIN_COUNT 40
+typedef Signal Cpu6502Signals[CHIP_6502_PIN_COUNT];
 
 typedef enum Cpu6502Flags {
 	FLAG_6502_CARRY				= 0b00000001,

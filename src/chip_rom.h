@@ -75,10 +75,11 @@ typedef enum {
 #define ROM_6316_DATA_SIZE	2048
 #define ROM_6332_DATA_SIZE	4096
 
-typedef Signal Chip63xxSignals[24];
+#define CHIP_63XX_PIN_COUNT 24
+typedef Signal Chip63xxSignals[CHIP_63XX_PIN_COUNT];
 
 typedef struct Chip63xxRom {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

@@ -36,11 +36,12 @@ typedef enum {
 	CHIP_6114_RW = CHIP_PIN_10					// 1-bit R/w select (high = read / low = write)
 } Chip6114SRamSignalAssignment;
 
-typedef Signal Chip6114SRamSignals[18];
+#define CHIP_6114_PIN_COUNT 18
+typedef Signal Chip6114SRamSignals[CHIP_6114_PIN_COUNT];
 
 typedef struct Chip6114SRam {
 
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

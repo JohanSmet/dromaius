@@ -18,11 +18,12 @@ typedef enum {
 	CHIP_POR_RESET_B = CHIP_PIN_02			// 1-bit reset signal (output)
 } PowerOnResetSignalAssignment;
 
-typedef Signal PowerOnResetSignals[2];
+#define CHIP_POR_PIN_COUNT 2
+typedef Signal PowerOnResetSignals[CHIP_POR_PIN_COUNT];
 
 typedef struct PowerOnReset {
 
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

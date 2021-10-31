@@ -46,10 +46,11 @@ typedef enum {
 
 } ChipHd44780SignalAssignment;
 
-typedef Signal ChipHd44780Signals[11];
+#define CHIP_HD44780_PIN_COUNT 11
+typedef Signal ChipHd44780Signals[CHIP_HD44780_PIN_COUNT];
 
 typedef struct ChipHd44780 {
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;

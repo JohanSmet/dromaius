@@ -17,11 +17,12 @@ typedef enum {
 	CHIP_OSCILLATOR_CLK_OUT = CHIP_PIN_01,			// 1-bit clock signal
 } OscillatorSignalAssignment;
 
-typedef Signal OscillatorSignals[1];
+#define CHIP_OSCILLATOR_PIN_COUNT 1
+typedef Signal OscillatorSignals[CHIP_OSCILLATOR_PIN_COUNT];
 
 typedef struct Oscillator {
 
-	CHIP_DECLARE_FUNCTIONS
+	CHIP_DECLARE_BASE
 
 	// interface
 	SignalPool *		signal_pool;
