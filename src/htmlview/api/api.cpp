@@ -200,10 +200,20 @@ public:
 									 reinterpret_cast<uint8_t *> (pet_device->crt->display->frame)));
 	}
 
-	val signal_data() const {
+	val signal_data() {
 		assert(pet_device);
 		auto pool = pet_device->simulator->signal_pool;
-		return val(typed_memory_view(arrlenu(pool->signals_value), reinterpret_cast<uint8_t *> (pool->signals_value)));
+
+		signal_data_buffer.clear();
+
+		for (uint32_t blk = 0; blk < SIGNAL_BLOCKS; ++blk) {
+			for (int i = 0; i < SIGNAL_BLOCK_SIZE; ++i) {
+				uint64_t signal_mask = 1ull << i;
+				signal_data_buffer.push_back(FLAG_IS_SET(pool->signals_value[blk], signal_mask));
+			}
+		}
+
+		return val(typed_memory_view(pool->signals_count, signal_data_buffer.data()));
 	}
 
 	// breakpoints
@@ -267,7 +277,7 @@ public:
 
 		if (result.signal > 0) {
 			// writer (FIXME: return multiple writers)
-			result.writer_id = bit_lowest_set(pool->signals_writers[result.signal]);
+			result.writer_id = bit_lowest_set(simulator_signal_writers(pet_device->simulator, result.signal));
 			result.writer_name = simulator_chip_name(pet_device->simulator, result.writer_id);
 
 			// value
@@ -293,6 +303,7 @@ private:
 	DmsContext *		dms_ctx;
 	DevCommodorePet *	pet_device;
 	Signal				step_clock;
+	std::vector<uint8_t>	signal_data_buffer;
 };
 
 void DmsApi::launch_commodore_pet() {
