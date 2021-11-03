@@ -31,32 +31,45 @@
 #undef  SIGNAL_CHIP_ID
 #define SIGNAL_CHIP_ID		chip->id
 
+#undef  SIGNAL_CHIP_LAYER
+#define SIGNAL_CHIP_LAYER	chip->signal_layer
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // internal - glue logic
 //
 
+#define CHIP_GLUE_LOGIC_MAX_PIN_COUNT 40
+
 typedef struct ChipGlueLogic {
 	CHIP_DECLARE_BASE
 
 	DevCommodorePet *device;
+	Signal			signals[CHIP_GLUE_LOGIC_MAX_PIN_COUNT];
 } ChipGlueLogic;
 
 static void glue_logic_destroy(ChipGlueLogic *chip);
+static uint32_t glue_logic_init_signals_01(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_01(ChipGlueLogic *chip);
 static void glue_logic_process_01(ChipGlueLogic *chip);
+static uint32_t glue_logic_init_signals_03(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_03(ChipGlueLogic *chip);
 static void glue_logic_process_03(ChipGlueLogic *chip);
+static uint32_t glue_logic_init_signals_05(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_05(ChipGlueLogic *chip);
 static void glue_logic_process_05(ChipGlueLogic *chip);
+static uint32_t glue_logic_init_signals_06(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_06(ChipGlueLogic *chip);
 static void glue_logic_process_06(ChipGlueLogic *chip);
+static uint32_t glue_logic_init_signals_07(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_07(ChipGlueLogic *chip);
 static void glue_logic_process_07(ChipGlueLogic *chip);
+static uint32_t glue_logic_init_signals_08(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_08(ChipGlueLogic *chip);
 static void glue_logic_process_08(ChipGlueLogic *chip);
 
 static void glue_logic_process_07_lite(ChipGlueLogic *chip);
+static uint32_t glue_logic_init_signals_07_lite(ChipGlueLogic *chip);
 static void glue_logic_register_dependencies_07_lite(ChipGlueLogic *chip);
 
 static ChipGlueLogic *glue_logic_create(DevCommodorePet *device, int sheet) {
@@ -64,19 +77,33 @@ static ChipGlueLogic *glue_logic_create(DevCommodorePet *device, int sheet) {
 	chip->device = device;
 
 	if (sheet == 1) {
+		uint32_t count = glue_logic_init_signals_01(chip);
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_01, glue_logic_destroy, glue_logic_register_dependencies_01);
+		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
 	} else if (sheet == 3) {
+		uint32_t count = glue_logic_init_signals_03(chip);
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_03, glue_logic_destroy, glue_logic_register_dependencies_03);
+		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
 	} else if (sheet == 5) {
+		uint32_t count = glue_logic_init_signals_05(chip);
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_05, glue_logic_destroy, glue_logic_register_dependencies_05);
+		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
 	} else if (sheet == 6) {
+		uint32_t count = glue_logic_init_signals_06(chip);
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_06, glue_logic_destroy, glue_logic_register_dependencies_06);
+		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
 	} else if (sheet == 7) {
+		uint32_t count = glue_logic_init_signals_07(chip);
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_07, glue_logic_destroy, glue_logic_register_dependencies_07);
+		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
 	} else if (sheet == 8) {
+		uint32_t count = glue_logic_init_signals_08(chip);
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_08, glue_logic_destroy, glue_logic_register_dependencies_08);
+		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
 	} else if (sheet == 17) {
+		uint32_t count = glue_logic_init_signals_07_lite(chip);
 		CHIP_SET_FUNCTIONS(chip, glue_logic_process_07_lite, glue_logic_destroy, glue_logic_register_dependencies_07_lite);
+		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
 	} else {
 		assert(false && "bad programmer!");
 	}
@@ -90,6 +117,43 @@ static void glue_logic_destroy(ChipGlueLogic *chip) {
 }
 
 // glue-logic: micro-processor / memory expansion
+
+static uint32_t glue_logic_init_signals_01(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	uint32_t pin = 0;
+	chip->signals[pin++] = SIGNAL(BA8);
+	chip->signals[pin++] = SIGNAL(BA9);
+	chip->signals[pin++] = SIGNAL(BA10);
+	chip->signals[pin++] = SIGNAL(BA15);
+	chip->signals[pin++] = SIGNAL(SEL8_B);
+	chip->signals[pin++] = SIGNAL(RW);
+	chip->signals[pin++] = SIGNAL(RESET_BTN_B);
+	chip->signals[pin++] = SIGNAL(RESET_B);
+	chip->signals[pin++] = SIGNAL(RESET);
+	chip->signals[pin++] = SIGNAL(INIT_B);
+	chip->signals[pin++] = SIGNAL(INIT);
+	chip->signals[pin++] = SIGNAL(IFC_B);
+	chip->signals[pin++] = SIGNAL(SEL8);
+	chip->signals[pin++] = SIGNAL(BA11);
+	chip->signals[pin++] = SIGNAL(BA11_B);
+	chip->signals[pin++] = SIGNAL(X8XX);
+	chip->signals[pin++] = SIGNAL(88XX_B);
+	chip->signals[pin++] = SIGNAL(ROMA_B);
+	chip->signals[pin++] = SIGNAL(RAMR_B);
+	chip->signals[pin++] = SIGNAL(RAMW_B);
+	chip->signals[pin++] = SIGNAL(BRW);
+	chip->signals[pin++] = SIGNAL(BRW_B);
+	chip->signals[pin++] = SIGNAL(RAMRW);
+	chip->signals[pin++] = SIGNAL(PHI2);
+	chip->signals[pin++] = SIGNAL(BPHI2);
+	chip->signals[pin++] = SIGNAL(CPHI2);
+	chip->signals[pin++] = SIGNAL(CS1);
+	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
+
+	return pin;
+}
 
 static void glue_logic_register_dependencies_01(ChipGlueLogic *chip) {
 	assert(chip);
@@ -177,6 +241,20 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 
 // glue-logic: cassette & keyboard
 
+static uint32_t glue_logic_init_signals_03(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	uint32_t pin = 0;
+	chip->signals[pin++] = SIGNAL(CASS_MOTOR_1);
+	chip->signals[pin++] = SIGNAL(CASS_MOTOR_1_B);
+	chip->signals[pin++] = SIGNAL(CASS_MOTOR_2);
+	chip->signals[pin++] = SIGNAL(CASS_MOTOR_2_B);
+	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
+
+	return pin;
+}
+
 static void glue_logic_register_dependencies_03(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
@@ -194,6 +272,19 @@ static void glue_logic_process_03(ChipGlueLogic *chip) {
 }
 
 // glue-logic: rams
+static uint32_t glue_logic_init_signals_05(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	uint32_t pin = 0;
+	chip->signals[pin++] = SIGNAL(BA15);
+	chip->signals[pin++] = SIGNAL(BANKSEL);
+	chip->signals[pin++] = SIGNAL(BRW);
+	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
+
+	return pin;
+}
+
 static void glue_logic_register_dependencies_05(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
@@ -216,6 +307,54 @@ static void glue_logic_process_05(ChipGlueLogic *chip) {
 }
 
 // glue-logic: master timing
+static uint32_t glue_logic_init_signals_06(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	uint32_t pin = 0;
+	chip->signals[pin++] = SIGNAL(BPHI2A_B);
+	chip->signals[pin++] = SIGNAL(BPHI2A);
+	chip->signals[pin++] = SIGNAL(BPHI2B_B);
+	chip->signals[pin++] = SIGNAL(BPHI2B);
+	chip->signals[pin++] = SIGNAL(BPHI2F_B);
+	chip->signals[pin++] = SIGNAL(BPHI2F);
+	chip->signals[pin++] = SIGNAL(BPHI2G_B);
+	chip->signals[pin++] = SIGNAL(BPHI2G);
+	chip->signals[pin++] = SIGNAL(RA1AND3);
+	chip->signals[pin++] = SIGNAL(RA1);
+	chip->signals[pin++] = SIGNAL(RA3);
+	chip->signals[pin++] = SIGNAL(RA4AND6);
+	chip->signals[pin++] = SIGNAL(RA4);
+	chip->signals[pin++] = SIGNAL(RA6);
+	chip->signals[pin++] = SIGNAL(RA5AND6_B);
+	chip->signals[pin++] = SIGNAL(RA5);
+	chip->signals[pin++] = SIGNAL(RA6_B);
+	chip->signals[pin++] = SIGNAL(BPHI2F);
+	chip->signals[pin++] = SIGNAL(BPHI2H);
+	chip->signals[pin++] = SIGNAL(VIDEO_LATCH);
+	chip->signals[pin++] = SIGNAL(H8Q);
+	chip->signals[pin++] = SIGNAL(H8Q2);
+	chip->signals[pin++] = SIGNAL(VIDEO_ON);
+	chip->signals[pin++] = SIGNAL(H8Q2_B);
+	chip->signals[pin++] = SIGNAL(H8Q_B);
+	chip->signals[pin++] = SIGNAL(VERT_DRIVE);
+	chip->signals[pin++] = SIGNAL(BANKSEL);
+	chip->signals[pin++] = SIGNAL(BPHI2);
+	chip->signals[pin++] = SIGNAL(H53);
+	chip->signals[pin++] = SIGNAL(H1Q1_B);
+	chip->signals[pin++] = SIGNAL(H1Q2_B);
+	chip->signals[pin++] = SIGNAL(RAS0_B);
+	chip->signals[pin++] = SIGNAL(H4Y4);
+	chip->signals[pin++] = SIGNAL(BA14);
+	chip->signals[pin++] = SIGNAL(CAS1_B);
+	chip->signals[pin++] = SIGNAL(BA14);
+	chip->signals[pin++] = SIGNAL(BA14_B);
+	chip->signals[pin++] = SIGNAL(H4Y4);
+	chip->signals[pin++] = SIGNAL(CAS0_B);
+	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
+
+	return pin;
+}
 
 static void glue_logic_register_dependencies_06(ChipGlueLogic *chip) {
 	assert(chip);
@@ -303,6 +442,45 @@ static void glue_logic_process_06(ChipGlueLogic *chip) {
 
 // glue-logic: display logic
 
+static uint32_t glue_logic_init_signals_07(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	uint32_t pin = 0;
+	chip->signals[pin++] = SIGNAL(BRW);
+	chip->signals[pin++] = SIGNAL(BA11_B);
+	chip->signals[pin++] = SIGNAL(SEL8);
+	chip->signals[pin++] = SIGNAL(TV_SEL);
+	chip->signals[pin++] = SIGNAL(TV_READ_B);
+	chip->signals[pin++] = SIGNAL(BPHI2);
+	chip->signals[pin++] = SIGNAL(A5_12);
+	chip->signals[pin++] = SIGNAL(VIDEO_ON_B);
+	chip->signals[pin++] = SIGNAL(VIDEO_ON);
+	chip->signals[pin++] = SIGNAL(GA6);
+	chip->signals[pin++] = SIGNAL(PULLUP_2);
+	chip->signals[pin++] = SIGNAL(VIDEO_ON);
+	chip->signals[pin++] = SIGNAL(RA9);
+	chip->signals[pin++] = SIGNAL(LINES_20_B);
+	chip->signals[pin++] = SIGNAL(LGA6);
+	chip->signals[pin++] = SIGNAL(LGA7);
+	chip->signals[pin++] = SIGNAL(LGA8);
+	chip->signals[pin++] = SIGNAL(LGA9);
+	chip->signals[pin++] = SIGNAL(LGA_HI_B);
+	chip->signals[pin++] = SIGNAL(LGA_HI);
+	chip->signals[pin++] = SIGNAL(LGA3);
+	chip->signals[pin++] = SIGNAL(LGA_HI);
+	chip->signals[pin++] = SIGNAL(LINES_200_B);
+	chip->signals[pin++] = SIGNAL(LINE_220);
+	chip->signals[pin++] = SIGNAL(HORZ_DISP_OFF);
+	chip->signals[pin++] = SIGNAL(W220_OFF);
+	chip->signals[pin++] = SIGNAL(RELOAD_B);
+	chip->signals[pin++] = SIGNAL(NEXT_B);
+	chip->signals[pin++] = SIGNAL(RELOAD_NEXT);
+	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
+
+	return pin;
+}
+
 static void glue_logic_register_dependencies_07(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
@@ -374,6 +552,21 @@ static void glue_logic_process_07(ChipGlueLogic *chip) {
 	SIGNAL_WRITE(RELOAD_NEXT, reload_next);
 }
 
+static uint32_t glue_logic_init_signals_07_lite(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	uint32_t pin = 0;
+	chip->signals[pin++] = SIGNAL(BA11_B);
+	chip->signals[pin++] = SIGNAL(SEL8);
+	chip->signals[pin++] = SIGNAL(TV_SEL);
+	chip->signals[pin++] = SIGNAL(BRW);
+	chip->signals[pin++] = SIGNAL(TV_READ_B);
+	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
+
+	return pin;
+}
+
 static void glue_logic_register_dependencies_07_lite(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
@@ -397,6 +590,30 @@ static void glue_logic_process_07_lite(ChipGlueLogic *chip) {
 }
 
 // glue-logic: display rams
+static uint32_t glue_logic_init_signals_08(ChipGlueLogic *chip) {
+	assert(chip);
+	DevCommodorePet *device = chip->device;
+
+	uint32_t pin = 0;
+	chip->signals[pin++] = SIGNAL(HORZ_DISP_ON);
+	chip->signals[pin++] = SIGNAL(RA7);
+	chip->signals[pin++] = SIGNAL(RA8);
+	chip->signals[pin++] = SIGNAL(RA9);
+	chip->signals[pin++] = SIGNAL(RELOAD_B);
+	chip->signals[pin++] = SIGNAL(G9Q);
+	chip->signals[pin++] = SIGNAL(E11QH);
+	chip->signals[pin++] = SIGNAL(G106);
+	chip->signals[pin++] = SIGNAL(G9Q_B);
+	chip->signals[pin++] = SIGNAL(E11QH_B);
+	chip->signals[pin++] = SIGNAL(G108);
+	chip->signals[pin++] = SIGNAL(H108);
+	chip->signals[pin++] = SIGNAL(VIDEO_ON);
+	chip->signals[pin++] = SIGNAL(HORZ_DISP_ON);
+	chip->signals[pin++] = SIGNAL(VIDEO);
+	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
+
+	return pin;
+}
 
 static void glue_logic_register_dependencies_08(ChipGlueLogic *chip) {
 	assert(chip);

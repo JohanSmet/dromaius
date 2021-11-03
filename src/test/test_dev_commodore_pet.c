@@ -38,19 +38,21 @@ static bool	    override_cpu_rw = CPU_READ;
 static uint8_t  override_bus_bd = 0;
 
 static void override_cpu_process(Cpu6502 *cpu) {
-	signal_group_write(cpu->signal_pool, cpu->sg_address, override_bus_address, cpu->id);
-	signal_write(cpu->signal_pool, cpu->signals[PIN_6502_RW], override_cpu_rw, cpu->id);
+	signal_group_write(cpu->signal_pool, cpu->sg_address, override_bus_address, cpu->signal_layer);
+	signal_write(cpu->signal_pool, cpu->signals[PIN_6502_RW], override_cpu_rw, cpu->signal_layer);
 	if (override_cpu_rw == CPU_WRITE) {
-		signal_group_write(cpu->signal_pool, cpu->sg_data, override_bus_data, cpu->id);
+		signal_group_write(cpu->signal_pool, cpu->sg_data, override_bus_data, cpu->signal_layer);
+	} else {
+		signal_group_clear_writer(cpu->signal_pool, cpu->sg_data, cpu->signal_layer);
 	}
 }
 
 static void override_ram_process(Chip8x4116DRam *ram) {
-	signal_group_write(ram->signal_pool, ram->sg_dout, override_bus_bd, ram->id);
+	signal_group_write(ram->signal_pool, ram->sg_dout, override_bus_bd, ram->signal_layer);
 }
 
 static void override_ram_process_lite(Ram8d16a *ram) {
-	signal_group_write(ram->signal_pool, ram->sg_data, override_bus_bd, ram->id);
+	signal_group_write(ram->signal_pool, ram->sg_data, override_bus_bd, ram->signal_layer);
 }
 
 static void override_do_nothing(void *device) {
@@ -98,7 +100,7 @@ MunitResult test_signals_data(const MunitParameter params[], void *user_data_or_
 	Chip *ram = simulator_chip_by_name(device->simulator, "RAM");
 	if (!ram) {
 		simulator_chip_by_name(device->simulator, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
-		simulator_chip_by_name(device->simulator, "I2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
+		simulator_chip_by_name(device->simulator, "J2-9")->process = (CHIP_PROCESS_FUNC) override_ram_process;
 	} else {
 		ram->process = (CHIP_PROCESS_FUNC) override_ram_process;
 	}
