@@ -27,17 +27,17 @@ static MunitResult test_create(const MunitParameter params[], void* user_data_or
 
 	// 8-bit signal
 	SignalGroup sg2 = signal_group_create_new(pool, 8);
-	munit_assert_uint32(signal_group_size(sg2), ==, 8);
+	munit_assert_size(signal_group_size(sg2), ==, 8);
 	munit_assert_uint32(pool->signals_count, ==, 10);
 
 	// 16-bit signal
 	SignalGroup sg3 = signal_group_create_new(pool, 16);
-	munit_assert_uint32(signal_group_size(sg3), ==, 16);
+	munit_assert_size(signal_group_size(sg3), ==, 16);
 	munit_assert_uint32(pool->signals_count, ==, 26);
 
 	// 12-bit signal
 	SignalGroup sg4 = signal_group_create_new(pool, 12);
-	munit_assert_uint32(signal_group_size(sg4), ==, 12);
+	munit_assert_size(signal_group_size(sg4), ==, 12);
 	munit_assert_uint32(pool->signals_count, ==, 38);
 
     return MUNIT_OK;

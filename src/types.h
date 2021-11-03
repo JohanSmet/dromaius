@@ -42,9 +42,9 @@
 #define FLAG_CLEAR_U8(x,f)		((x) &= (uint8_t) ~(f))
 #define FLAG_CLEAR_U64(x,f)		((x) &= (uint64_t) ~(f))
 #define FLAG_IS_SET(x,f)		((bool) (((x) & (f)) == (f)))
-#define FLAG_SET_CLEAR(x,f,c)		((x) = ((x) & ~(f)) | (-(c) & (f)))
 #define FLAG_SET_CLEAR_U8(x,f,c)	((x) = (uint8_t) (((x) & ~(f)) | (-(int)(c) & (f))))
 #define FLAG_SET_CLEAR_U16(x,f,c)	((x) = (uint16_t) (((x) & ~(f)) | (-(int)(c) & (f))))
+#define FLAG_SET_CLEAR_U64(x,f,c)	((x) = (uint64_t) (((x) & ~(f)) | ((uint64_t) -(int64_t)(c) & (f))))
 
 #define MASK_IS_SET(x,m,v)		((bool) (((x) & (m)) == (v)))
 

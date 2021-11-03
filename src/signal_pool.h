@@ -19,7 +19,7 @@ extern "C" {
 
 // types
 typedef struct SignalNameMap {
-	const char *key;
+	char *key;
 	Signal		value;
 } SignalNameMap;
 
@@ -37,7 +37,7 @@ typedef struct SignalPool {
 
 	uint64_t *		dependent_components;								// ids of the chips that depend on the signal
 
-	const char **	signals_name;										// names of the signal (id -> name)
+	char **			signals_name;										// names of the signal (id -> name)
 	SignalNameMap	*signal_names;										// hashmap name -> signal
 
 #ifdef DMS_SIGNAL_TRACING

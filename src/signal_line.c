@@ -53,8 +53,8 @@ void signal_default(SignalPool *pool, Signal signal, bool value) {
 	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
 	uint64_t signal_flag = 1ull << (signal & 0x3f);
 
-	FLAG_SET_CLEAR(pool->signals_default[signal_block], signal_flag, value);
-	FLAG_SET_CLEAR(pool->signals_value[signal_block], signal_flag, value);
+	FLAG_SET_CLEAR_U64(pool->signals_default[signal_block], signal_flag, value);
+	FLAG_SET_CLEAR_U64(pool->signals_value[signal_block], signal_flag, value);
 }
 
 Signal signal_by_name(SignalPool *pool, const char *name) {

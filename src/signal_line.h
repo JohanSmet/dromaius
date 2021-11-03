@@ -39,7 +39,7 @@ static inline void signal_write(SignalPool *pool, Signal signal, bool value, uin
 	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
 	uint64_t signal_flag = 1ull << (signal & 0x3f);
 
-	FLAG_SET_CLEAR(pool->signals_next_value[layer][signal_block], signal_flag, value);
+	FLAG_SET_CLEAR_U64(pool->signals_next_value[layer][signal_block], signal_flag, value);
 	FLAG_SET(pool->signals_next_mask[layer][signal_block], signal_flag);
 }
 
