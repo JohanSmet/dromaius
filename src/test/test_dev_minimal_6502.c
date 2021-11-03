@@ -112,7 +112,6 @@ MunitResult test_pia(const MunitParameter params[], void *user_data_or_fixture) 
 	DevMinimal6502 *dev = dev_minimal_6502_setup(1);
 
 	// run the computer until the program counter reaches the IRQ-handler
-	signal_write(dev->simulator->signal_pool, dev->signals[SIG_M6502_RESET_B], ACTLO_DEASSERT, -1);
 	int limit = 1000;
 
 	while (limit > 0 && dev->cpu->reg_pc != 0xfe00) {

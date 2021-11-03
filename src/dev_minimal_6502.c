@@ -25,15 +25,21 @@
 #undef  SIGNAL_CHIP_ID
 #define SIGNAL_CHIP_ID		chip->id
 
+#undef  SIGNAL_CHIP_LAYER
+#define SIGNAL_CHIP_LAYER	chip->signal_layer
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // internal types / functions
 //
 
+#define CHIP_GLUE_LOGIC_PIN_COUNT 24
+
 typedef struct ChipGlueLogic {
 	CHIP_DECLARE_BASE
 
 	DevMinimal6502 *device;
+	Signal			signals[CHIP_GLUE_LOGIC_PIN_COUNT];
 } ChipGlueLogic;
 
 static void glue_logic_register_dependencies(ChipGlueLogic *chip);
@@ -45,6 +51,22 @@ static ChipGlueLogic *glue_logic_create(DevMinimal6502 *device) {
 	chip->device = device;
 
 	CHIP_SET_FUNCTIONS(chip, glue_logic_process, glue_logic_destroy, glue_logic_register_dependencies);
+	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, CHIP_GLUE_LOGIC_PIN_COUNT);
+
+	int pin = 0;
+	chip->signals[pin++] = SIGNAL(CPU_RW);
+	chip->signals[pin++] = SIGNAL(CLOCK);
+	chip->signals[pin++] = SIGNAL(RESET_BTN_B);
+	chip->signals[pin++] = SIGNAL(RAM_OE_B);
+	chip->signals[pin++] = SIGNAL(RAM_WE_B);
+	chip->signals[pin++] = SIGNAL(ROM_CE_B);
+	chip->signals[pin++] = SIGNAL(AB14);
+	chip->signals[pin++] = SIGNAL(PIA_CS2_B);
+
+	for (int i = 0; i < 16; ++i) {
+		chip->signals[pin++] = device->sg_address[i];
+	}
+	assert(pin == CHIP_GLUE_LOGIC_PIN_COUNT);
 
 	return chip;
 }
