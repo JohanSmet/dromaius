@@ -6,6 +6,7 @@
 #define DROMAIUS_SIMULATOR_H
 
 #include "types.h"
+#include "signal_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,6 +41,7 @@ const char *simulator_chip_name(Simulator *sim, int32_t chip_id);
 
 // simulation
 void simulator_simulate_timestep(Simulator *sim);
+uint64_t simulator_signal_writers(Simulator *sim, Signal signal);
 
 // scheduler
 void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp);

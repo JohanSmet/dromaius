@@ -19,6 +19,7 @@ typedef struct Simulator_private {
 
 	Chip **					chips;
 	uint64_t				dirty_chips;
+	uint64_t				layer_chips[SIGNAL_LAYERS];
 
 	ChipEvent *				event_pool;				// re-use pool
 } Simulator_private;
@@ -137,8 +138,6 @@ void simulator_device_complete(Simulator *sim) {
 	}
 
 	// determine what signal-layer each chip should write to
-	uint64_t pin_layers[SIGNAL_MAX_DEFINED] = {0};
-
 	for (int32_t chip_id = 0; chip_id < arrlen(PRIVATE(sim)->chips); ++chip_id) {
 		Chip *chip = PRIVATE(sim)->chips[chip_id];
 
@@ -147,7 +146,7 @@ void simulator_device_complete(Simulator *sim) {
 
 		for (uint32_t pin_idx = 0; pin_idx < chip->pin_count; ++pin_idx) {
 			if (chip->pins[pin_idx] != 0) {
-				used_layers |= pin_layers[chip->pins[pin_idx]];
+				used_layers |= sim->signal_pool->signals_layers[chip->pins[pin_idx]];
 			}
 		}
 
@@ -159,8 +158,11 @@ void simulator_device_complete(Simulator *sim) {
 		uint64_t layer_mask = 1ull << chip->signal_layer;
 
 		for (uint32_t pin_idx = 1; pin_idx < chip->pin_count; ++pin_idx) {
-			pin_layers[chip->pins[pin_idx]] |= layer_mask;
+			sim->signal_pool->signals_layers[chip->pins[pin_idx]] |= layer_mask;
 		}
+
+		// mark chip as used on the layer
+		PRIVATE(sim)->layer_chips[chip->signal_layer] |= 1ull << chip_id;
 	}
 }
 
@@ -183,6 +185,39 @@ void simulator_simulate_timestep(Simulator *sim) {
 
 	// determine changed signals and dirty chips for next simulation step
 	PRIVATE(sim)->dirty_chips = signal_pool_cycle(sim->signal_pool);
+}
+
+uint64_t simulator_signal_writers(Simulator *sim, Signal signal) {
+	assert(sim);
+
+	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
+	uint64_t signal_flag = 1ull << (signal & 0x3f);
+	uint64_t result = 0;
+
+	// check all layers that are used by this signal
+	for (uint64_t layers = sim->signal_pool->signals_layers[signal]; layers; layers &= layers - 1) {
+
+		int32_t layer = bit_lowest_set(layers);
+
+		// skip if no write on this layer
+		if (!FLAG_IS_SET(sim->signal_pool->signals_next_mask[layer][signal_block], signal_flag)) {
+			continue;
+		}
+
+		// check all chips that use this layer
+		for (uint64_t layer_chips = PRIVATE(sim)->layer_chips[layer]; layer_chips; layer_chips &= layer_chips - 1) {
+			int32_t chip_id = bit_lowest_set(layer_chips);
+			Chip *chip = PRIVATE(sim)->chips[chip_id];
+
+			for (uint32_t pin_idx = 0; pin_idx < chip->pin_count; ++pin_idx) {
+				if (chip->pins[pin_idx] == signal) {
+					result |= 1ull << chip_id;
+				}
+			}
+		}
+	}
+
+	return result;
 }
 
 void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp) {

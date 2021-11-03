@@ -35,7 +35,8 @@ typedef struct SignalPool {
 	uint64_t		signals_next_mask[SIGNAL_LAYERS][SIGNAL_BLOCKS];	// write mask of the signals
 	uint64_t		signals_default[SIGNAL_BLOCKS];						// default value of signals if not explicitly written to
 
-	uint64_t *		dependent_components;								// ids of the chips that depend on the signal
+	uint64_t *		signals_layers;										// mask of layers that are used for each signal
+	uint64_t *		dependent_components;								// ids of the chips that depend on each signal
 
 	char **			signals_name;										// names of the signal (id -> name)
 	SignalNameMap	*signal_names;										// hashmap name -> signal

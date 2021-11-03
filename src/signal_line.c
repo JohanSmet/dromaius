@@ -19,6 +19,7 @@ Signal signal_create(SignalPool *pool) {
 	Signal result = pool->signals_count++;
 
 	arrpush(pool->signals_name, NULL);
+	arrpush(pool->signals_layers, 0ull);
 	arrpush(pool->dependent_components, 0);
 
 	return result;
