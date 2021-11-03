@@ -390,7 +390,7 @@ static void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 	Signal **outputs = ((Chip74145BcdDecoder_private *) chip)->outputs;
 
 	for (int i = 0; i < 10; ++i) {
-		signal_write(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, chip->id);
+		signal_write(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, SIGNAL_CHIP_LAYER);
 	}
 
 	int value = SIGNAL_READ(A) |
@@ -399,7 +399,7 @@ static void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 				SIGNAL_READ(D) << 3;
 
 	if (value < 10) {
-		signal_write(chip->signal_pool, *outputs[value], ACTLO_ASSERT, chip->id);
+		signal_write(chip->signal_pool, *outputs[value], ACTLO_ASSERT, SIGNAL_CHIP_LAYER);
 	}
 
 }
@@ -559,7 +559,7 @@ static void chip_74154_decoder_process(Chip74154Decoder *chip) {
 	Signal **outputs = ((Chip74154Decoder_private *) chip)->outputs;
 
 	for (int i = 0; i < 16; ++i) {
-		signal_write(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, chip->id);
+		signal_write(chip->signal_pool, *outputs[i], ACTLO_DEASSERT, SIGNAL_CHIP_LAYER);
 	}
 
 	if (!(ACTLO_ASSERTED(SIGNAL_READ(G1_B)) && ACTLO_ASSERTED(SIGNAL_READ(G2_B)))) {
@@ -570,7 +570,7 @@ static void chip_74154_decoder_process(Chip74154Decoder *chip) {
 				SIGNAL_READ(B) << 1 |
 				SIGNAL_READ(C) << 2 |
 				SIGNAL_READ(D) << 3;
-	signal_write(chip->signal_pool, *outputs[value], ACTLO_ASSERT, chip->id);
+	signal_write(chip->signal_pool, *outputs[value], ACTLO_ASSERT, SIGNAL_CHIP_LAYER);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

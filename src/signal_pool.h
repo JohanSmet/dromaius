@@ -12,6 +12,11 @@
 extern "C" {
 #endif
 
+#define SIGNAL_BLOCK_SIZE	64
+#define SIGNAL_BLOCKS		6
+#define SIGNAL_MAX_DEFINED	(SIGNAL_BLOCK_SIZE * SIGNAL_BLOCKS)
+#define SIGNAL_LAYERS		32
+
 // types
 typedef struct SignalNameMap {
 	const char *key;
@@ -19,25 +24,21 @@ typedef struct SignalNameMap {
 } SignalNameMap;
 
 typedef struct SignalPool {
-	bool *			signals_value;				// current value of the signal
-	uint64_t *		signals_writers;			// id's of the chips that are actively writing to the signal (bit-mask)
-	bool *			signals_changed;			// did the signal change since the last cycle
 
-	bool *			signals_default;			// value of the signal when nobody is writing to it (pull-up or down)
-	uint64_t *		dependent_components;		// id's of the chips that depend on this signal
+	uint32_t		signals_count;										// the number of defined signals
+	uint32_t		layer_count;										// the number of signal layers that are used
 
-	const char **	signals_name;				// names of the signal (id -> name)
-	SignalNameMap	*signal_names;				// hashmap name -> signal
+	uint64_t		signals_value[SIGNAL_BLOCKS];						// current value of the signals (read-only)
+	uint64_t		signals_changed[SIGNAL_BLOCKS];						// did the signal change in the previous timestep
 
-	SignalQueue 	signals_write_queue[2];	// queue of pending writes to the signals
-	SignalQueue 	signals_highz_queue;	// queue of signals that have had an active writer go away
+	uint64_t		signals_next_value[SIGNAL_LAYERS][SIGNAL_BLOCKS];	// value of the signals after this timestep
+	uint64_t		signals_next_mask[SIGNAL_LAYERS][SIGNAL_BLOCKS];	// write mask of the signals
+	uint64_t		signals_default[SIGNAL_BLOCKS];						// default value of signals if not explicitly written to
 
-	// variables specifically to make read_next work (normally only used in unit-tests)
-	bool *			signals_next_value;
-	uint64_t *		signals_next_writers;
-	size_t			swq_snapshot;
-	size_t			cycle_count;
-	size_t			read_next_cycle;
+	uint64_t *		dependent_components;								// ids of the chips that depend on the signal
+
+	const char **	signals_name;										// names of the signal (id -> name)
+	SignalNameMap	*signal_names;										// hashmap name -> signal
 
 #ifdef DMS_SIGNAL_TRACING
 	struct SignalTrace *trace;
@@ -45,10 +46,8 @@ typedef struct SignalPool {
 } SignalPool;
 
 // functions - signal pool
-SignalPool *signal_pool_create(size_t max_concurrent_writes);
+SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
-
-uint64_t signal_pool_process_high_impedance(SignalPool *pool);
 uint64_t signal_pool_cycle(SignalPool *pool);
 
 #ifdef __cplusplus

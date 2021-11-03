@@ -73,8 +73,7 @@ static inline void sim_process_sequential(Simulator_private *sim, uint64_t dirty
 Simulator *simulator_create(int64_t tick_duration_ps) {
 	Simulator_private *priv_sim = (Simulator_private *) calloc(1, sizeof(Simulator_private));
 
-	// TODO: max number of concurrent signals should be given by the caller
-	PUBLIC(priv_sim)->signal_pool = signal_pool_create(512);
+	PUBLIC(priv_sim)->signal_pool = signal_pool_create();
 	PUBLIC(priv_sim)->tick_duration_ps = tick_duration_ps;
 
 	return &priv_sim->public;
@@ -102,6 +101,7 @@ Chip *simulator_register_chip(Simulator *sim, Chip *chip, const char *name) {
 	chip->simulator = sim;
 	arrpush(PRIVATE(sim)->chips, chip);
 	PRIVATE(sim)->dirty_chips |= 1ull << chip->id;
+
 	return chip;
 }
 
@@ -135,6 +135,33 @@ void simulator_device_complete(Simulator *sim) {
 	for (int32_t id = 0; id < arrlen(PRIVATE(sim)->chips); ++id) {
 		PRIVATE(sim)->chips[id]->register_dependencies(PRIVATE(sim)->chips[id]);
 	}
+
+	// determine what signal-layer each chip should write to
+	uint64_t pin_layers[SIGNAL_MAX_DEFINED] = {0};
+
+	for (int32_t chip_id = 0; chip_id < arrlen(PRIVATE(sim)->chips); ++chip_id) {
+		Chip *chip = PRIVATE(sim)->chips[chip_id];
+
+		// check which layers are already in use on signals connected to this chip
+		uint64_t used_layers = 0;
+
+		for (uint32_t pin_idx = 0; pin_idx < chip->pin_count; ++pin_idx) {
+			if (chip->pins[pin_idx] != 0) {
+				used_layers |= pin_layers[chip->pins[pin_idx]];
+			}
+		}
+
+		// use lowest available layer
+		chip->signal_layer = (uint32_t) bit_lowest_set(~used_layers);
+		sim->signal_pool->layer_count = MAX(sim->signal_pool->layer_count, chip->signal_layer + 1);
+
+		// mark layer as used on all pins
+		uint64_t layer_mask = 1ull << chip->signal_layer;
+
+		for (uint32_t pin_idx = 1; pin_idx < chip->pin_count; ++pin_idx) {
+			pin_layers[chip->pins[pin_idx]] |= layer_mask;
+		}
+	}
 }
 
 void simulator_simulate_timestep(Simulator *sim) {
@@ -153,11 +180,6 @@ void simulator_simulate_timestep(Simulator *sim) {
 
 	// process all chips that have a dependency on signal that was changed in the last timestep or have a scheduled wakeup
 	sim_process_sequential(PRIVATE(sim), PRIVATE(sim)->dirty_chips);
-
-	// process any chips that wrote to a signal of which the active writers changed
-	//	(TODO: shouldn't really call processs, only outputting previous signals should be enough/safer)
-	uint64_t rerun_chips = signal_pool_process_high_impedance(sim->signal_pool);
-	sim_process_sequential(PRIVATE(sim), rerun_chips);
 
 	// determine changed signals and dirty chips for next simulation step
 	PRIVATE(sim)->dirty_chips = signal_pool_cycle(sim->signal_pool);

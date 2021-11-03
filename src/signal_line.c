@@ -14,16 +14,11 @@
 
 Signal signal_create(SignalPool *pool) {
 	assert(pool);
+	assert(pool->signals_count < SIGNAL_MAX_DEFINED);
 
-	Signal result = (uint32_t) arrlenu(pool->signals_value);
+	Signal result = pool->signals_count++;
 
-	arrpush(pool->signals_changed, false);
-	arrpush(pool->signals_value, false);
-	arrpush(pool->signals_next_value, 0);
-	arrpush(pool->signals_default, false);
 	arrpush(pool->signals_name, NULL);
-	arrpush(pool->signals_writers, 0);
-	arrpush(pool->signals_next_writers, 0);
 	arrpush(pool->dependent_components, 0);
 
 	return result;
@@ -55,8 +50,11 @@ void signal_add_dependency(SignalPool *pool, Signal signal, int32_t chip_id) {
 void signal_default(SignalPool *pool, Signal signal, bool value) {
 	assert(pool);
 
-	pool->signals_default[signal] = value;
-	pool->signals_value[signal] = value;
+	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
+	uint64_t signal_flag = 1ull << (signal & 0x3f);
+
+	FLAG_SET_CLEAR(pool->signals_default[signal_block], signal_flag, value);
+	FLAG_SET_CLEAR(pool->signals_value[signal_block], signal_flag, value);
 }
 
 Signal signal_by_name(SignalPool *pool, const char *name) {
@@ -66,34 +64,23 @@ Signal signal_by_name(SignalPool *pool, const char *name) {
 bool signal_read_next(SignalPool *pool, Signal signal) {
 	assert(pool);
 
-	if (pool->read_next_cycle != pool->cycle_count ||
-		pool->swq_snapshot != pool->signals_write_queue[1].size + pool->signals_highz_queue.size) {
+	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
+	uint64_t signal_flag = 1ull << (signal & 0x3f);
 
-		memcpy(pool->signals_next_value, pool->signals_value, sizeof(*pool->signals_value) * arrlenu(pool->signals_value));
-		memcpy(pool->signals_next_writers, pool->signals_writers, sizeof(*pool->signals_writers) * arrlenu(pool->signals_writers));
+	// first layer
+	uint64_t value = (pool->signals_next_value[0][signal_block] & pool->signals_next_mask[0][signal_block]) & signal_flag;
+	uint64_t combined_mask = pool->signals_next_mask[0][signal_block] & signal_flag;
 
-		for (size_t i = 0, n = pool->signals_highz_queue.size; i < n; ++i) {
-			const Signal s = pool->signals_highz_queue.queue[i].signal;
-			const uint64_t w_mask = pool->signals_highz_queue.queue[i].writer_mask;
-
-			// clear the corresponding bit in the writers mask
-			pool->signals_next_writers[s] &= ~w_mask;
-
-			if (pool->signals_next_writers[s] == 0) {
-				pool->signals_next_value[s] =  pool->signals_default[s];
-			}
-		}
-
-		for (size_t i = 0, n = pool->signals_write_queue[1].size; i < n; ++i) {
-			SignalQueueEntry *sw = &pool->signals_write_queue[1].queue[i];
-			pool->signals_next_value[sw->signal] = sw->new_value;
-		}
-
-		pool->swq_snapshot = pool->signals_write_queue[1].size + pool->signals_highz_queue.size;
-		pool->read_next_cycle = pool->cycle_count;
+	// next layers
+	for (uint32_t layer = 1; layer < pool->layer_count; ++layer) {
+		value |= (pool->signals_next_value[layer][signal_block] & pool->signals_next_mask[layer][signal_block]) & signal_flag;
+		combined_mask |= pool->signals_next_mask[layer][signal_block] & signal_flag;
 	}
 
-	return pool->signals_next_value[signal];
+	// default
+	value |= (pool->signals_default[signal_block] & ~combined_mask) & signal_flag;
+
+	return (value & signal_flag) == signal_flag;
 }
 
 void signal_group_set_name(SignalPool *pool, SignalGroup sg, const char *group_name, const char *signal_name, uint32_t start_idx) {

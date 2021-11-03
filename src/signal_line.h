@@ -28,35 +28,35 @@ void signal_default(SignalPool *pool, Signal signal, bool value);
 
 static inline bool signal_read(SignalPool *pool, Signal signal) {
 	assert(pool);
-	return pool->signals_value[signal];
+	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
+	uint64_t signal_flag = 1ull << (signal & 0x3f);
+	return FLAG_IS_SET(pool->signals_value[signal_block], signal_flag);
 }
 
-static inline void signal_write(SignalPool *pool, Signal signal, bool value, int32_t chip_id) {
+static inline void signal_write(SignalPool *pool, Signal signal, bool value, uint32_t layer) {
 	assert(pool);
 
-	SignalQueueEntry *entry = &pool->signals_write_queue[1].queue[pool->signals_write_queue[1].size++];
-	entry->signal = signal;
-	entry->writer_mask = 1ull << chip_id;
-	entry->new_value  = value;
+	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
+	uint64_t signal_flag = 1ull << (signal & 0x3f);
+
+	FLAG_SET_CLEAR(pool->signals_next_value[layer][signal_block], signal_flag, value);
+	FLAG_SET(pool->signals_next_mask[layer][signal_block], signal_flag);
 }
 
-static inline void signal_clear_writer(SignalPool *pool, Signal signal, int32_t chip_id) {
+static inline void signal_clear_writer(SignalPool *pool, Signal signal, uint32_t layer) {
 	assert(pool);
 
-	const uint64_t w_mask = 1ull << chip_id;
-
-	if (pool->signals_writers[signal] & w_mask) {
-		SignalQueueEntry *entry = &pool->signals_highz_queue.queue[pool->signals_highz_queue.size++];
-		entry->signal = signal;
-		entry->writer_mask = w_mask;
-	}
+	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
+	uint64_t signal_flag = 1ull << (signal & 0x3f);
+	FLAG_CLEAR_U64(pool->signals_next_mask[layer][signal_block], signal_flag);
 }
 
 bool signal_read_next(SignalPool *pool, Signal signal);
 
 static inline bool signal_changed(SignalPool *pool, Signal signal) {
-	assert(pool);
-	return pool->signals_changed[signal];
+	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
+	uint64_t signal_flag = 1ull << (signal & 0x3f);
+	return FLAG_IS_SET(pool->signals_changed[signal_block], signal_flag);
 }
 
 // functions - signal groups
@@ -127,23 +127,23 @@ static inline int32_t signal_group_read_next(SignalPool* pool, SignalGroup sg) {
 	return result;
 }
 
-static inline void signal_group_clear_writer(SignalPool* pool, SignalGroup sg, int32_t chip_id) {
+static inline void signal_group_clear_writer(SignalPool* pool, SignalGroup sg, uint32_t layer) {
 	for (size_t i = 0; i < arrlenu(sg); ++i) {
-		signal_clear_writer(pool, sg[i], chip_id);
+		signal_clear_writer(pool, sg[i], layer);
 	}
 }
 
-static inline void signal_group_write(SignalPool* pool, SignalGroup sg, int32_t value, int32_t chip_id) {
+static inline void signal_group_write(SignalPool* pool, SignalGroup sg, int32_t value, uint32_t layer) {
 	assert(pool);
 	assert(arrlen(sg) <= 32);
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
-		signal_write(pool, sg[i], value & 1, chip_id);
+		signal_write(pool, sg[i], value & 1, layer);
 		value >>= 1;
 	}
 }
 
-static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, int32_t value, uint32_t mask, int32_t chip_id) {
+static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, int32_t value, uint32_t mask, uint32_t layer) {
 	assert(pool);
 	assert(arrlen(sg) <= 32);
 
@@ -153,7 +153,7 @@ static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, i
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
 		if (mask & 1) {
-			signal_write(pool, sg[i], value & 1, chip_id);
+			signal_write(pool, sg[i], value & 1, layer);
 		}
 		value >>= 1;
 		mask >>= 1;
@@ -165,8 +165,8 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 
 	bool result = false;
 
-	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
-		result |= pool->signals_changed[sg[i]];
+	for (size_t i = 0, n = arrlenu(sg); !result && i < n; ++i) {
+		result |= signal_changed(pool, sg[i]);
 	}
 
 	return result;
@@ -181,6 +181,7 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 #define SIGNAL_POOL			SIGNAL_OWNER->signal_pool
 #define SIGNAL_COLLECTION	SIGNAL_OWNER->signals
 #define SIGNAL_CHIP_ID		SIGNAL_OWNER->id
+#define SIGNAL_CHIP_LAYER	SIGNAL_OWNER->signal_layer
 
 #define SIGNAL(sig)			SIGNAL_COLLECTION[SIGNAL_CONCAT(SIGNAL_PREFIX, sig)]
 #define SIGNAL_GROUP(grp)	SIGNAL_OWNER->sg_ ## grp
@@ -221,15 +222,15 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 #define SIGNAL_READ_NEXT(sig)				signal_read_next(SIGNAL_POOL, SIGNAL(sig))
 #define SIGNAL_CHANGED(sig)					signal_changed(SIGNAL_POOL, SIGNAL(sig))
 
-#define SIGNAL_WRITE(sig,v)					signal_write(SIGNAL_POOL, SIGNAL(sig), (v), SIGNAL_CHIP_ID)
+#define SIGNAL_WRITE(sig,v)					signal_write(SIGNAL_POOL, SIGNAL(sig), (v), SIGNAL_CHIP_LAYER)
 
-#define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_ID)
+#define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_LAYER)
 
 #define SIGNAL_GROUP_NEW(grp,cnt)			SIGNAL_GROUP(grp)  = signal_group_create_new(SIGNAL_POOL, (cnt))
 #define SIGNAL_GROUP_NEW_N(grp,cnt,gn,sn)	SIGNAL_GROUP(grp)  = signal_group_create_new(SIGNAL_POOL, (cnt));		\
 											signal_group_set_name(SIGNAL_POOL, SIGNAL_GROUP(grp), (gn), (sn), 0);
 
-#define SIGNAL_GROUP_DEPENDENCY(grp)		signal_group_dependency(SIGNAL_POOL, SIGNAL_GROUP(grp) , SIGNAL_CHIP_ID)
+#define SIGNAL_GROUP_DEPENDENCY(grp)		signal_group_dependency(SIGNAL_POOL, SIGNAL_GROUP(grp), SIGNAL_CHIP_ID)
 #define SIGNAL_GROUP_DEFAULTS(grp,v)		signal_group_defaults(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v))
 #define SIGNAL_GROUP_READ_U8(grp)			((uint8_t) signal_group_read(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
 #define SIGNAL_GROUP_READ_U16(grp)			((uint16_t) signal_group_read(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
@@ -237,9 +238,9 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 #define SIGNAL_GROUP_READ_NEXT_U8(grp)		((uint8_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
 #define SIGNAL_GROUP_READ_NEXT_U16(grp)		((uint16_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
 #define SIGNAL_GROUP_READ_NEXT_U32(grp)		(signal_group_read_next(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
-#define SIGNAL_GROUP_WRITE(grp,v)			signal_group_write(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v), SIGNAL_CHIP_ID)
-#define SIGNAL_GROUP_WRITE_MASKED(grp,v,m)	signal_group_write_masked(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v), (m), SIGNAL_CHIP_ID)
-#define SIGNAL_GROUP_NO_WRITE(grp)			signal_group_clear_writer(SIGNAL_POOL, SIGNAL_GROUP(grp) , SIGNAL_CHIP_ID)
+#define SIGNAL_GROUP_WRITE(grp,v)			signal_group_write(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v), SIGNAL_CHIP_LAYER)
+#define SIGNAL_GROUP_WRITE_MASKED(grp,v,m)	signal_group_write_masked(SIGNAL_POOL, SIGNAL_GROUP(grp), (v), (m), SIGNAL_CHIP_LAYER)
+#define SIGNAL_GROUP_NO_WRITE(grp)			signal_group_clear_writer(SIGNAL_POOL, SIGNAL_GROUP(grp), SIGNAL_CHIP_LAYER)
 
 #ifdef __cplusplus
 }
