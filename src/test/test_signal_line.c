@@ -161,7 +161,7 @@ static MunitResult test_default(const MunitParameter params[], void* user_data_o
 
 static MunitResult test_clear_writer(const MunitParameter params[], void* user_data_or_fixture) {
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
-	pool->layer_count = 2;
+	signal_pool_set_layer_count(pool, 2);
 
 	// setup
 	Signal sig_a = signal_create(pool);

@@ -138,6 +138,8 @@ void simulator_device_complete(Simulator *sim) {
 	}
 
 	// determine what signal-layer each chip should write to
+	memset(sim->signal_pool->block_layers, 0, sizeof(uint64_t) * SIGNAL_BLOCKS);
+
 	for (int32_t chip_id = 0; chip_id < arrlen(PRIVATE(sim)->chips); ++chip_id) {
 		Chip *chip = PRIVATE(sim)->chips[chip_id];
 
@@ -159,7 +161,11 @@ void simulator_device_complete(Simulator *sim) {
 
 		for (uint32_t pin_idx = 1; pin_idx < chip->pin_count; ++pin_idx) {
 			sim->signal_pool->signals_layers[chip->pins[pin_idx]] |= layer_mask;
+
+			uint32_t signal_block = (chip->pins[pin_idx] & 0xffffffc0) >> 6;
+			sim->signal_pool->block_layers[signal_block] |= layer_mask;
 		}
+
 
 		// mark chip as used on the layer
 		PRIVATE(sim)->layer_chips[chip->signal_layer] |= 1ull << chip_id;

@@ -31,6 +31,9 @@ typedef struct SignalPool {
 	uint64_t		signals_value[SIGNAL_BLOCKS];						// current value of the signals (read-only)
 	uint64_t		signals_changed[SIGNAL_BLOCKS];						// did the signal change in the previous timestep
 
+	uint32_t		blocks_touched;										// bitmask to track which blocks have to be processed
+	uint64_t		block_layers[SIGNAL_BLOCKS];						// bitmask to track which layers are in use for each block
+
 	uint64_t		signals_next_value[SIGNAL_LAYERS][SIGNAL_BLOCKS];	// value of the signals after this timestep
 	uint64_t		signals_next_mask[SIGNAL_LAYERS][SIGNAL_BLOCKS];	// write mask of the signals
 	uint64_t		signals_default[SIGNAL_BLOCKS];						// default value of signals if not explicitly written to
@@ -49,6 +52,8 @@ typedef struct SignalPool {
 // functions - signal pool
 SignalPool *signal_pool_create(void);
 void signal_pool_destroy(SignalPool *pool);
+void signal_pool_set_layer_count(SignalPool *pool, uint32_t layer_count);
+
 uint64_t signal_pool_cycle(SignalPool *pool);
 
 #ifdef __cplusplus
