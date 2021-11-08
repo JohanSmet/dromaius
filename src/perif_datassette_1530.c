@@ -239,7 +239,7 @@ PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteS
 
 	// chip
 	CHIP_SET_FUNCTIONS(datassette, perif_datassette_process, perif_datassette_destroy, perif_datassette_register_dependencies);
-	CHIP_SET_VARIABLES(datassette, sim, signals, CHIP_DS1530_PIN_COUNT);
+	CHIP_SET_VARIABLES(datassette, sim, datassette->signals, CHIP_DS1530_PIN_COUNT);
 
 	// signals
 	datassette->signal_pool = sim->signal_pool;

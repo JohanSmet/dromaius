@@ -25,7 +25,7 @@ PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
 
 	// chip
 	CHIP_SET_FUNCTIONS(crt, perif_pet_crt_process, perif_pet_crt_destroy, perif_pet_crt_register_dependencies);
-	CHIP_SET_VARIABLES(crt, sim, signals, CHIP_PETCRT_PIN_COUNT);
+	CHIP_SET_VARIABLES(crt, sim, crt->signals, CHIP_PETCRT_PIN_COUNT);
 
 	// signals
 	crt->signal_pool = sim->signal_pool;
