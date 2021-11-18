@@ -829,9 +829,7 @@ static MunitResult test_porta_out(const MunitParameter params[], void *user_data
 	pia->reg_ddra = 0xff;		// all pins configured as output
 
 	// cycle clock ; entire ora-register should have been written to port-A
-	PIA_CYCLE_START
-		SIGNAL_GROUP_WRITE(port_a, 0x12);
-	PIA_CYCLE_END
+	PIA_CYCLE();
 	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_a), ==, 0xf5);
 
 	// reconfigure ddra, upper nibble = output, lower nibble = input + peripheral active on lower nibble
@@ -866,9 +864,7 @@ static MunitResult test_portb_out(const MunitParameter params[], void *user_data
 	pia->reg_ddrb = 0xff;		// all pins configured as output
 
 	// cycle clock ; entire ora-register should have been written to port-B
-	PIA_CYCLE_START
-		SIGNAL_GROUP_WRITE(port_b, 0x12);
-	PIA_CYCLE_END
+	PIA_CYCLE()
 	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_b), ==, 0xf5);
 
 	// reconfigure ddrb, upper nibble = output, lower nibble = input + peripheral active on lower nibble

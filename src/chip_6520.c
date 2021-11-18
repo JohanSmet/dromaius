@@ -32,6 +32,25 @@ typedef struct Chip6520_pstate {			// port state
 	bool			write_port;
 } Chip6520_pstate;
 
+typedef struct Chip6520_output {
+	bool			drv_data;
+	uint8_t			data;
+
+	bool			irqa_b;
+	bool			irqb_b;
+
+	bool			drv_ca2;
+	bool			ca2;
+
+	bool			drv_cb2;
+	bool			cb2;
+
+	uint8_t			reg_ora;
+	uint8_t			reg_orb;
+	uint8_t			reg_ddra;
+	uint8_t			reg_ddrb;
+} Chip6520_output;
+
 typedef struct Chip6520_private {
 	Chip6520		intf;
 
@@ -40,14 +59,8 @@ typedef struct Chip6520_private {
 	Chip6520_pstate	state_a;
 	Chip6520_pstate	state_b;
 
-	bool			internal_ca2;
-	bool			internal_cb2;
-
-	bool			out_irqa_b;
-	bool			out_irqb_b;
-
-	bool			out_enabled;
-	uint8_t			out_data;
+	Chip6520_output output;
+	Chip6520_output last_output;
 } Chip6520_private;
 
 #define RW_READ  true
@@ -86,8 +99,8 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			pia->reg_cra = (uint8_t)((pia->reg_cra & 0b11000000) | (data & 0b00111111));
 			LOG_TRACE("6520 [%s]: set reg_cra = 0x%.2x", pia->name, pia->reg_cra);
 			if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT) && !CR_FLAG(pia->reg_cra, CL2_OUTPUT)) {
-				PRIVATE(pia)->internal_ca2 = true;
-				LOG_TRACE("6520 [%s]: cra change causes internal_ca2 to become true", pia->name);
+				PRIVATE(pia)->output.ca2 = true;
+				LOG_TRACE("6520 [%s]: cra change causes output.ca2 to become true", pia->name);
 			}
 			break;
 		case 2:
@@ -107,8 +120,8 @@ static inline void write_register(Chip6520 *pia, uint8_t data) {
 			pia->reg_crb = (uint8_t)((pia->reg_crb & 0b11000000) | (data & 0b00111111));
 			LOG_TRACE("6520 [%s]: set reg_crb = 0x%.2x", pia->name, pia->reg_crb);
 			if (CR_FLAG(pia->reg_crb, CL2_MODE_SELECT) && !CR_FLAG(pia->reg_crb, CL2_OUTPUT)) {
-				PRIVATE(pia)->internal_cb2 = true;
-				LOG_TRACE("6520 [%s]: cra change causes internal_cb2 to become true", pia->name);
+				PRIVATE(pia)->output.cb2 = true;
+				LOG_TRACE("6520 [%s]: cra change causes output.cb2 to become true", pia->name);
 			}
 			break;
 	}
@@ -189,8 +202,8 @@ static inline void control_register_irq_routine(Chip6520 *pia, uint8_t *reg_ctrl
 
 static inline void process_positive_enable_edge(Chip6520 *pia) {
 	if (PRIVATE(pia)->strobe && SIGNAL_READ(RW) == RW_READ) {
-		PRIVATE(pia)->out_data = read_register(pia);
-		PRIVATE(pia)->out_enabled = true;
+		PRIVATE(pia)->output.data = read_register(pia);
+		PRIVATE(pia)->output.drv_data = true;
 	}
 }
 
@@ -201,8 +214,8 @@ void process_negative_enable_edge(Chip6520 *pia) {
 		if (SIGNAL_READ(RW) == RW_WRITE) {
 			write_register(pia, SIGNAL_GROUP_READ_U8(data));
 		} else {
-			PRIVATE(pia)->out_data = read_register(pia);
-			PRIVATE(pia)->out_enabled = true;
+			PRIVATE(pia)->output.data = read_register(pia);
+			PRIVATE(pia)->output.drv_data = true;
 		}
 	}
 
@@ -221,25 +234,25 @@ void process_negative_enable_edge(Chip6520 *pia) {
 			&PRIVATE(pia)->state_b);
 
 	// irq output lines
-	PRIVATE(pia)->out_irqa_b = !((CR_FLAG(pia->reg_cra, IRQ1) && CR_FLAG(pia->reg_cra, IRQ1_ENABLE)) ||
-								 (CR_FLAG(pia->reg_cra, IRQ2) && CR_FLAG(pia->reg_cra, IRQ2_ENABLE)));
-	PRIVATE(pia)->out_irqb_b = !((CR_FLAG(pia->reg_crb, IRQ1) && CR_FLAG(pia->reg_crb, IRQ1_ENABLE)) ||
-								 (CR_FLAG(pia->reg_crb, IRQ2) && CR_FLAG(pia->reg_crb, IRQ2_ENABLE)));
+	PRIVATE(pia)->output.irqa_b = !((CR_FLAG(pia->reg_cra, IRQ1) && CR_FLAG(pia->reg_cra, IRQ1_ENABLE)) ||
+								    (CR_FLAG(pia->reg_cra, IRQ2) && CR_FLAG(pia->reg_cra, IRQ2_ENABLE)));
+	PRIVATE(pia)->output.irqb_b = !((CR_FLAG(pia->reg_crb, IRQ1) && CR_FLAG(pia->reg_crb, IRQ1_ENABLE)) ||
+								    (CR_FLAG(pia->reg_crb, IRQ2) && CR_FLAG(pia->reg_crb, IRQ2_ENABLE)));
 
 	// pin_ca2 output mode
 	if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT)) {
 		if (CR_FLAG(pia->reg_cra, CL2_OUTPUT)) {
 			// ca2 follows the value written to bit 3 of cra (ca2 restore)
-			PRIVATE(pia)->internal_ca2 = CR_FLAG(pia->reg_cra, CL2_RESTORE);
+			PRIVATE(pia)->output.ca2 = CR_FLAG(pia->reg_cra, CL2_RESTORE);
 		} else if (PRIVATE(pia)->state_a.read_port) {
 			// ca2 goes low when porta is read, returning high depends on ca2-restore
-			PRIVATE(pia)->internal_ca2 = 0;
+			PRIVATE(pia)->output.ca2 = 0;
 		} else if (CR_FLAG(pia->reg_cra, CL2_RESTORE)) {
 			// return high on the next cycle
-			PRIVATE(pia)->internal_ca2 = 1;
+			PRIVATE(pia)->output.ca2 = 1;
 		} else {
 			// return high on next active CA1 transition
-			PRIVATE(pia)->internal_ca2 = PRIVATE(pia)->internal_ca2 | PRIVATE(pia)->state_a.act_trans_cl1;
+			PRIVATE(pia)->output.ca2 = PRIVATE(pia)->output.ca2 | PRIVATE(pia)->state_a.act_trans_cl1;
 		}
 	}
 
@@ -247,67 +260,101 @@ void process_negative_enable_edge(Chip6520 *pia) {
 	if (CR_FLAG(pia->reg_crb, CL2_MODE_SELECT)) {
 		if (CR_FLAG(pia->reg_crb, CL2_OUTPUT)) {
 			// cb2 follows the value written to bit 3 of crb (cb2 restore)
-			PRIVATE(pia)->internal_cb2 = CR_FLAG(pia->reg_crb, CL2_RESTORE);
+			PRIVATE(pia)->output.cb2 = CR_FLAG(pia->reg_crb, CL2_RESTORE);
 		} else if (PRIVATE(pia)->state_b.write_port) {
 			// ca2 goes low when port-B is written, returning high depends on cb2-restore
-			PRIVATE(pia)->internal_cb2 = 0;
+			PRIVATE(pia)->output.cb2 = 0;
 		} else if (CR_FLAG(pia->reg_crb, CL2_RESTORE)) {
 			// return high on the next cycle
-			PRIVATE(pia)->internal_cb2 = 1;
+			PRIVATE(pia)->output.cb2 = 1;
 		} else {
 			// return high on next active CA1 transition
-			PRIVATE(pia)->internal_cb2 = PRIVATE(pia)->internal_cb2 | PRIVATE(pia)->state_b.act_trans_cl1;
+			PRIVATE(pia)->output.cb2 = PRIVATE(pia)->output.cb2 | PRIVATE(pia)->state_b.act_trans_cl1;
 		}
 	}
 }
 
 static inline void process_end(Chip6520 *pia) {
 
+	Chip6520_output *output = &PRIVATE(pia)->output;
+	Chip6520_output *last_output = &PRIVATE(pia)->last_output;
+
 	// the IRQ-lines are open-drain; output is either low (tied to ground) or hi-z (floating, to be pulled up externally)
 	// be careful when the IRQ-lines are tied to the same signal
-	if (SIGNAL(IRQA_B) != SIGNAL(IRQB_B)) {
-		if (!PRIVATE(pia)->out_irqa_b) {
-			SIGNAL_WRITE(IRQA_B, false);
+	if ((output->irqa_b != last_output->irqa_b) || (output->irqb_b != last_output->irqb_b)) {
+		if (SIGNAL(IRQA_B) != SIGNAL(IRQB_B)) {
+			if (!output->irqa_b) {
+				SIGNAL_WRITE(IRQA_B, false);
+			} else {
+				SIGNAL_NO_WRITE(IRQA_B);
+			}
+
+			if (!output->irqb_b) {
+				SIGNAL_WRITE(IRQB_B, false);
+			} else {
+				SIGNAL_NO_WRITE(IRQB_B);
+			}
 		} else {
-			SIGNAL_NO_WRITE(IRQA_B);
+			if (!output->irqa_b || !output->irqb_b) {
+				SIGNAL_WRITE(IRQA_B, false);
+			} else {
+				SIGNAL_NO_WRITE(IRQA_B);
+			}
 		}
 
-		if (!PRIVATE(pia)->out_irqb_b) {
-			SIGNAL_WRITE(IRQB_B, false);
-		} else {
-			SIGNAL_NO_WRITE(IRQB_B);
-		}
-	} else {
-		if (!PRIVATE(pia)->out_irqa_b || !PRIVATE(pia)->out_irqb_b) {
-			SIGNAL_WRITE(IRQA_B, false);
-		} else {
-			SIGNAL_NO_WRITE(IRQA_B);
-		}
+		last_output->irqa_b = output->irqa_b;
+		last_output->irqb_b = output->irqb_b;
 	}
 
 	// output on the ports
-	SIGNAL_GROUP_WRITE_MASKED(port_a, pia->reg_ora, pia->reg_ddra);
-	SIGNAL_GROUP_WRITE_MASKED(port_b, pia->reg_orb, pia->reg_ddrb);
+	if (pia->reg_ora != last_output->reg_ora || pia->reg_ddra != last_output->reg_ddra) {
+		SIGNAL_GROUP_WRITE_MASKED(port_a, pia->reg_ora, pia->reg_ddra);
+		last_output->reg_ora = pia->reg_ora;
+		last_output->reg_ddra = pia->reg_ddra;
+	}
 
-	// output on ca2 if in output mode
-	if (CR_FLAG(pia->reg_cra, CL2_MODE_SELECT)) {
-		SIGNAL_WRITE(CA2, PRIVATE(pia)->internal_ca2);
-	} else {
+	if (pia->reg_orb != last_output->reg_orb || pia->reg_ddrb != last_output->reg_ddrb) {
+		SIGNAL_GROUP_WRITE_MASKED(port_b, pia->reg_orb, pia->reg_ddrb);
+		last_output->reg_orb = pia->reg_orb;
+		last_output->reg_ddrb = pia->reg_ddrb;
+	}
+
+	// output on ca2 if in output mode (tri-state)
+	output->drv_ca2 = CR_FLAG(pia->reg_cra, CL2_MODE_SELECT);
+	if (output->drv_ca2) {
+		if (output->ca2 != last_output->ca2 || !last_output->drv_ca2) {
+			SIGNAL_WRITE(CA2, output->ca2);
+			last_output->drv_ca2 = output->drv_ca2;
+			last_output->ca2 = output->ca2;
+		}
+	} else if (last_output->drv_ca2) {
 		SIGNAL_NO_WRITE(CA2);
 	}
 
-	// output on cb2 if in output mode
-	if (CR_FLAG(pia->reg_crb, CL2_MODE_SELECT)) {
-		SIGNAL_WRITE(CB2, PRIVATE(pia)->internal_cb2);
-	} else  {
+	// output on cb2 if in output mode (tri-state)
+	output->drv_cb2 = CR_FLAG(pia->reg_crb, CL2_MODE_SELECT);
+	if (output->drv_cb2) {
+		if (output->cb2 != last_output->cb2 || !last_output->drv_cb2) {
+			SIGNAL_WRITE(CB2, output->cb2);
+			last_output->drv_cb2 = output->drv_cb2;
+			last_output->cb2 = output->cb2;
+		}
+	} else if (last_output->drv_cb2) {
 		SIGNAL_NO_WRITE(CB2);
 	}
 
-	// output on databus
-	if (PRIVATE(pia)->out_enabled) {
-		SIGNAL_GROUP_WRITE(data, PRIVATE(pia)->out_data);
-	} else {
+	// output on databus (tri-state)
+	if (output->drv_data) {
+		// pia is active - write if data changed or pia just became active
+		if (output->data != last_output->drv_data || !last_output->drv_data) {
+			SIGNAL_GROUP_WRITE(data, output->data);
+			last_output->data = output->data;
+			last_output->drv_data = output->drv_data;
+		}
+	} else if (last_output->drv_data) {
+		// pia just went inactive
 		SIGNAL_GROUP_NO_WRITE(data);
+		last_output->drv_data = false;
 	}
 }
 
@@ -397,8 +444,8 @@ static void chip_6520_process(Chip6520 *pia) {
 		pia->reg_ddrb = 0;
 		pia->reg_crb = 0;
 		pia->reg_orb = 0;
-		PRIVATE(pia)->out_irqa_b = ACTLO_DEASSERT;
-		PRIVATE(pia)->out_irqb_b = ACTLO_DEASSERT;
+		PRIVATE(pia)->output.irqa_b = ACTLO_DEASSERT;
+		PRIVATE(pia)->output.irqb_b = ACTLO_DEASSERT;
 	}
 
 	// do nothing:
@@ -413,7 +460,7 @@ static void chip_6520_process(Chip6520 *pia) {
 	PRIVATE(pia)->strobe =	ACTHI_ASSERTED(SIGNAL_READ(CS0)) &&
 							ACTHI_ASSERTED(SIGNAL_READ(CS1)) &&
 							ACTLO_ASSERTED(SIGNAL_READ(CS2_B));
-	PRIVATE(pia)->out_enabled = false;
+	PRIVATE(pia)->output.drv_data = false;
 
 	if (SIGNAL_READ(PHI2)) {
 		process_positive_enable_edge(pia);
