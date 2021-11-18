@@ -106,15 +106,21 @@ typedef union addr_t {
 	};
 } addr_t;
 
+typedef struct output_t {
+	bool			drv_data;			// should cpu be driving the databus?
+	uint8_t			data;				// data to be written to the databus
+
+	uint16_t		address;			// data to be written to the addressbus
+	bool			rw;					// rw pin
+	bool			sync;				// sync pin
+} output_t;
+
 typedef struct Cpu6502_private {
 	Cpu6502			intf;
 
 	uint8_t			in_data;				// incoming data (only valid when signal rw is high)
-	uint8_t			out_data;				// outgoing data
-	bool			drv_data;				// cpu will drive the databus ?
-
-	uint16_t		out_address;			// internal address bus
-	bool			out_rw;					// internal rw latch
+	output_t		output;
+	output_t		last_output;
 
 	CPU_6502_STATE	state;
 	int8_t			decode_cycle;			// instruction decode cycle
@@ -126,6 +132,8 @@ typedef struct Cpu6502_private {
 	bool			nmi_triggered;
 
 	bool			delayed_cycle;
+
+	uint16_t		last_out_address;
 } Cpu6502_private;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -136,24 +144,48 @@ typedef struct Cpu6502_private {
 #define PRIVATE(cpu)	((Cpu6502_private *) (cpu))
 
 #define OUTPUT_DATA(d)						\
-	PRIVATE(cpu)->out_data = (uint8_t) (d);	\
-	PRIVATE(cpu)->drv_data = true;
+	PRIVATE(cpu)->output.data = (uint8_t) (d);	\
+	PRIVATE(cpu)->output.drv_data = true;
 
 #define CPU_CHANGE_FLAG(flag, cond)			\
 	FLAG_SET_CLEAR_U8(cpu->reg_p, FLAG_6502_##flag, (cond))
 
 static void process_end(Cpu6502 *cpu) {
 
-	// always write to the output pins that aren't tristate
-	SIGNAL_GROUP_WRITE(address, PRIVATE(cpu)->out_address);
-	SIGNAL_WRITE(RW, PRIVATE(cpu)->out_rw);
-	SIGNAL_WRITE(SYNC, PRIVATE(cpu)->decode_cycle == 0);
+	output_t *output = &PRIVATE(cpu)->output;
+	output_t *last_output = &PRIVATE(cpu)->last_output;
 
-	// optionally drive the line for tri-state outputs
-	if (PRIVATE(cpu)->drv_data) {
-		SIGNAL_GROUP_WRITE(data, PRIVATE(cpu)->out_data);
-	} else {
+	// address bus
+	if (output->address != last_output->address) {
+		SIGNAL_GROUP_WRITE(address, output->address);
+		last_output->address = output->address;
+	}
+
+	// data bus (tri-state)
+	if (output->drv_data) {
+		// cpu should be active - write if data changed or if cpu just became active
+		if (output->data != last_output->drv_data || !last_output->drv_data) {
+			SIGNAL_GROUP_WRITE(data, output->data);
+			last_output->data = output->data;
+			last_output->drv_data = output->drv_data;
+		}
+	} else if (last_output->drv_data) {
+		// cpu was active last time but not anymore
 		SIGNAL_GROUP_NO_WRITE(data);
+		last_output->drv_data = false;
+	}
+
+	// rw pin
+	if (output->rw != last_output->rw) {
+		SIGNAL_WRITE(RW, output->rw);
+		last_output->rw = output->rw;
+	}
+
+	// sync pin
+	output->sync = PRIVATE(cpu)->decode_cycle == 0;
+	if (output->sync != last_output->sync) {
+		SIGNAL_WRITE(SYNC, output->sync);
+		last_output->sync = output->sync;
 	}
 }
 
@@ -190,7 +222,7 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 	switch(PRIVATE(cpu)->decode_cycle) {
 		case 0 :		// finish previous operation
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->out_address = cpu->reg_pc;
+				PRIVATE(cpu)->output.address = cpu->reg_pc;
 			}
 			break;
 		case 1 :		// force a BRK instruction
@@ -201,58 +233,58 @@ static void interrupt_sequence(Cpu6502 *cpu, CPU_6502_CYCLE phase, CPU_6502_INTE
 		case 2 :		// push high byte of PC
 			switch (phase) {
 				case CYCLE_BEGIN:
-					PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
-					PRIVATE(cpu)->out_rw = RW_WRITE | FORCE_READ[irq_type];
+					PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
+					PRIVATE(cpu)->output.rw = RW_WRITE | FORCE_READ[irq_type];
 					break;
 				case CYCLE_MIDDLE:
 					OUTPUT_DATA(HI_BYTE(cpu->reg_pc));
 					break;
 				case CYCLE_END:
 					cpu->reg_sp--;
-					PRIVATE(cpu)->out_rw = RW_READ;
+					PRIVATE(cpu)->output.rw = RW_READ;
 					break;
 			}
 			break;
 		case 3 :		// push low byte of PC
 			switch (phase) {
 				case CYCLE_BEGIN:
-					PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
-					PRIVATE(cpu)->out_rw = RW_WRITE | FORCE_READ[irq_type];
+					PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
+					PRIVATE(cpu)->output.rw = RW_WRITE | FORCE_READ[irq_type];
 					break;
 				case CYCLE_MIDDLE:
 					OUTPUT_DATA(LO_BYTE(cpu->reg_pc));
 					break;
 				case CYCLE_END:
 					cpu->reg_sp--;
-					PRIVATE(cpu)->out_rw = RW_READ;
+					PRIVATE(cpu)->output.rw = RW_READ;
 					break;
 			}
 			break;
 		case 4 :		// push processor state
 			switch (phase) {
 				case CYCLE_BEGIN:
-					PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
-					PRIVATE(cpu)->out_rw = RW_WRITE | FORCE_READ[irq_type];
+					PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
+					PRIVATE(cpu)->output.rw = RW_WRITE | FORCE_READ[irq_type];
 					break;
 				case CYCLE_MIDDLE:
 					OUTPUT_DATA(cpu->reg_p);
 					break;
 				case CYCLE_END:
 					cpu->reg_sp--;
-					PRIVATE(cpu)->out_rw = RW_READ;
+					PRIVATE(cpu)->output.rw = RW_READ;
 					break;
 			}
 			break;
 		case 5 :		// read low byte of the reset vector
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->out_address = VECTOR_LOW[irq_type];
+				PRIVATE(cpu)->output.address = VECTOR_LOW[irq_type];
 			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_LO_BYTE(cpu->reg_pc, PRIVATE(cpu)->in_data);
 			}
 			break;
 		case 6 :		// read high byte of the reset vector
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->out_address = VECTOR_HIGH[irq_type];
+				PRIVATE(cpu)->output.address = VECTOR_HIGH[irq_type];
 			} else if (phase == CYCLE_END) {
 				cpu->reg_pc = SET_HI_BYTE(cpu->reg_pc, PRIVATE(cpu)->in_data);
 				CPU_CHANGE_FLAG(I, true);
@@ -273,7 +305,7 @@ static inline void fetch_memory(Cpu6502 *cpu, uint16_t addr, uint8_t *dst, CPU_6
 
 	switch (phase) {
 		case CYCLE_BEGIN :
-			PRIVATE(cpu)->out_address = addr;
+			PRIVATE(cpu)->output.address = addr;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -288,14 +320,14 @@ static inline void store_memory(Cpu6502 *cpu, uint16_t addr, uint8_t value, CPU_
 
 	switch (phase) {
 		case CYCLE_BEGIN :
-			PRIVATE(cpu)->out_address = addr;
-			PRIVATE(cpu)->out_rw = RW_WRITE;
+			PRIVATE(cpu)->output.address = addr;
+			PRIVATE(cpu)->output.rw = RW_WRITE;
 			break;
 		case CYCLE_MIDDLE:
 			OUTPUT_DATA(value);
 			break;
 		case CYCLE_END :
-			PRIVATE(cpu)->out_rw = RW_READ;
+			PRIVATE(cpu)->output.rw = RW_READ;
 			break;
 	}
 }
@@ -310,7 +342,7 @@ static inline void fetch_zp_discard_add(Cpu6502 *cpu, uint8_t index, CPU_6502_CY
 	switch (phase) {
 		case CYCLE_BEGIN:
 			PRIVATE(cpu)->addr.hi_byte = 0;
-			PRIVATE(cpu)->out_address = PRIVATE(cpu)->addr.full;
+			PRIVATE(cpu)->output.address = PRIVATE(cpu)->addr.full;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -329,7 +361,7 @@ static inline void fetch_high_byte_address_indexed(Cpu6502 *cpu, uint8_t index, 
 	switch (phase) {
 		case CYCLE_BEGIN:
 			PRIVATE(cpu)->addr.hi_byte = 0;
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			PRIVATE(cpu)->addr.full = (uint16_t) (PRIVATE(cpu)->addr.full + index);
@@ -347,7 +379,7 @@ static inline bool fetch_memory_page_crossed(Cpu6502 *cpu, CPU_6502_CYCLE phase)
 
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = PRIVATE(cpu)->addr.full;
+			PRIVATE(cpu)->output.address = PRIVATE(cpu)->addr.full;
 			return false;
 		case CYCLE_MIDDLE:
 			PRIVATE(cpu)->addr.hi_byte = (uint8_t) (PRIVATE(cpu)->addr.hi_byte + PRIVATE(cpu)->page_crossed);
@@ -366,7 +398,7 @@ static inline void fetch_pc_memory(Cpu6502 *cpu, uint8_t *dst, CPU_6502_CYCLE ph
 
 	switch (phase) {
 		case CYCLE_BEGIN :
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -678,15 +710,15 @@ static inline bool store_to_memory_g1(Cpu6502 *cpu, uint8_t value, CPU_6502_CYCL
 static inline void stack_push(Cpu6502 *cpu, uint8_t value, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
-			PRIVATE(cpu)->out_rw = RW_WRITE;
+			PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
+			PRIVATE(cpu)->output.rw = RW_WRITE;
 			break;
 		case CYCLE_MIDDLE:
 			OUTPUT_DATA(value);
 			break;
 		case CYCLE_END:
 			cpu->reg_sp--;
-			PRIVATE(cpu)->out_rw = RW_READ;
+			PRIVATE(cpu)->output.rw = RW_READ;
 			break;
 	}
 }
@@ -697,7 +729,7 @@ static inline uint8_t stack_pop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
 			cpu->reg_sp++;
-			PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
+			PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -727,7 +759,7 @@ static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t 
 		case 2:		// add relative address + check for page crossing
 			switch (phase) {
 				case CYCLE_BEGIN:
-					PRIVATE(cpu)->out_address = cpu->reg_pc;
+					PRIVATE(cpu)->output.address = cpu->reg_pc;
 					PRIVATE(cpu)->i_addr.hi_byte = HI_BYTE(cpu->reg_pc);
 					INC_UINT16(cpu->reg_pc, (int8_t) PRIVATE(cpu)->i_addr.lo_byte);
 					break;
@@ -745,7 +777,7 @@ static inline void decode_branch_instruction(Cpu6502 *cpu, uint8_t bit, uint8_t 
 			switch (phase) {
 				case CYCLE_BEGIN:
 					PRIVATE(cpu)->i_addr.lo_byte = LO_BYTE(cpu->reg_pc);
-					PRIVATE(cpu)->out_address = PRIVATE(cpu)->i_addr.full;
+					PRIVATE(cpu)->output.address = PRIVATE(cpu)->i_addr.full;
 					break;
 				case CYCLE_MIDDLE:
 					break;
@@ -821,7 +853,7 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (cpu->reg_ir == OP_6502_ASL_ACC) {
 		switch (phase) {
 			case CYCLE_BEGIN:
-				PRIVATE(cpu)->out_address = cpu->reg_pc;
+				PRIVATE(cpu)->output.address = cpu->reg_pc;
 				break;
 			case CYCLE_MIDDLE:
 				break;
@@ -858,7 +890,7 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_BEGIN:
 					break;
 				case CYCLE_MIDDLE:
-					PRIVATE(cpu)->out_rw = RW_WRITE;
+					PRIVATE(cpu)->output.rw = RW_WRITE;
 					break;
 				case CYCLE_END:
 					CPU_CHANGE_FLAG(C, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
@@ -874,7 +906,7 @@ static inline void decode_asl(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
-					PRIVATE(cpu)->out_rw = RW_READ;
+					PRIVATE(cpu)->output.rw = RW_READ;
 					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
 					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -948,7 +980,7 @@ static inline void decode_bvs(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_clc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -962,7 +994,7 @@ static inline void decode_clc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_cld(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -976,7 +1008,7 @@ static inline void decode_cld(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_cli(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -990,7 +1022,7 @@ static inline void decode_cli(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_clv(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -1057,7 +1089,7 @@ static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_BEGIN:
 					break;
 				case CYCLE_MIDDLE:
-					PRIVATE(cpu)->out_rw = RW_WRITE;
+					PRIVATE(cpu)->output.rw = RW_WRITE;
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->operand--;
@@ -1072,7 +1104,7 @@ static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
-					PRIVATE(cpu)->out_rw = RW_READ;
+					PRIVATE(cpu)->output.rw = RW_READ;
 					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
 					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1085,7 +1117,7 @@ static inline void decode_dec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_dex(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -1101,7 +1133,7 @@ static inline void decode_dex(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_dey(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -1148,7 +1180,7 @@ static inline void decode_inc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_BEGIN:
 					break;
 				case CYCLE_MIDDLE:
-					PRIVATE(cpu)->out_rw = RW_WRITE;
+					PRIVATE(cpu)->output.rw = RW_WRITE;
 					break;
 				case CYCLE_END:
 					PRIVATE(cpu)->operand++;
@@ -1163,7 +1195,7 @@ static inline void decode_inc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
-					PRIVATE(cpu)->out_rw = RW_READ;
+					PRIVATE(cpu)->output.rw = RW_READ;
 					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
 					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1176,7 +1208,7 @@ static inline void decode_inc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_inx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -1192,7 +1224,7 @@ static inline void decode_inx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_iny(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -1229,7 +1261,7 @@ static inline void decode_jsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case 2 :		// store adl in cpu, put stack pointer on address bus
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
+				PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
 			}
 			break;
 		case 3 :		// push program_counter - high byte
@@ -1305,7 +1337,7 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (cpu->reg_ir == OP_6502_LSR_ACC) {
 		switch (phase) {
 			case CYCLE_BEGIN:
-				PRIVATE(cpu)->out_address = cpu->reg_pc;
+				PRIVATE(cpu)->output.address = cpu->reg_pc;
 				break;
 			case CYCLE_MIDDLE:
 				break;
@@ -1342,7 +1374,7 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_BEGIN:
 					break;
 				case CYCLE_MIDDLE:
-					PRIVATE(cpu)->out_rw = RW_WRITE;
+					PRIVATE(cpu)->output.rw = RW_WRITE;
 					break;
 				case CYCLE_END:
 					CPU_CHANGE_FLAG(C, BIT_IS_SET(PRIVATE(cpu)->operand, 0));
@@ -1358,7 +1390,7 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
-					PRIVATE(cpu)->out_rw = RW_READ;
+					PRIVATE(cpu)->output.rw = RW_READ;
 					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
 					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1371,7 +1403,7 @@ static inline void decode_lsr(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_nop(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -1418,7 +1450,7 @@ static inline void decode_pla(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case 2 :		// read stack,
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
+				PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
 			}
 			break;
 		case 3 :		// pop value from stack
@@ -1439,7 +1471,7 @@ static inline void decode_plp(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case 2 :		// read stack
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
+				PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
 			}
 			break;
 		case 3 :		// pop value from stack
@@ -1468,7 +1500,7 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (cpu->reg_ir == OP_6502_ROL_ACC) {
 		switch (phase) {
 			case CYCLE_BEGIN:
-				PRIVATE(cpu)->out_address = cpu->reg_pc;
+				PRIVATE(cpu)->output.address = cpu->reg_pc;
 				break;
 			case CYCLE_MIDDLE:
 				break;
@@ -1507,7 +1539,7 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_BEGIN:
 					break;
 				case CYCLE_MIDDLE:
-					PRIVATE(cpu)->out_rw = RW_WRITE;
+					PRIVATE(cpu)->output.rw = RW_WRITE;
 					break;
 				case CYCLE_END: {
 					int carry = FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY);
@@ -1525,7 +1557,7 @@ static inline void decode_rol(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
-					PRIVATE(cpu)->out_rw = RW_READ;
+					PRIVATE(cpu)->output.rw = RW_READ;
 					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
 					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1541,7 +1573,7 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (cpu->reg_ir == OP_6502_ROR_ACC) {
 		switch (phase) {
 			case CYCLE_BEGIN:
-				PRIVATE(cpu)->out_address = cpu->reg_pc;
+				PRIVATE(cpu)->output.address = cpu->reg_pc;
 				break;
 			case CYCLE_MIDDLE:
 				break;
@@ -1580,7 +1612,7 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 				case CYCLE_BEGIN:
 					break;
 				case CYCLE_MIDDLE:
-					PRIVATE(cpu)->out_rw = RW_WRITE;
+					PRIVATE(cpu)->output.rw = RW_WRITE;
 					break;
 				case CYCLE_END: {
 					int carry = FLAG_IS_SET(cpu->reg_p, FLAG_6502_CARRY);
@@ -1598,7 +1630,7 @@ static inline void decode_ror(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 					OUTPUT_DATA(PRIVATE(cpu)->operand);
 					break;
 				case CYCLE_END:
-					PRIVATE(cpu)->out_rw = RW_READ;
+					PRIVATE(cpu)->output.rw = RW_READ;
 					CPU_CHANGE_FLAG(Z, PRIVATE(cpu)->operand == 0);
 					CPU_CHANGE_FLAG(N, BIT_IS_SET(PRIVATE(cpu)->operand, 7));
 					PRIVATE(cpu)->decode_cycle = -1;
@@ -1616,7 +1648,7 @@ static inline void decode_rts(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case 2 :		// "increment stack pointer
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
+				PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
 			}
 			break;
 		case 3 :		// pop program_counter - low byte
@@ -1642,7 +1674,7 @@ static inline void decode_rti(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 			break;
 		case 2 :		// "increment" stack pointer
 			if (phase == CYCLE_BEGIN) {
-				PRIVATE(cpu)->out_address = MAKE_WORD(0x01, cpu->reg_sp);
+				PRIVATE(cpu)->output.address = MAKE_WORD(0x01, cpu->reg_sp);
 			}
 			break;
 		case 3 :		// pop status register
@@ -1699,7 +1731,7 @@ static inline void decode_sbc(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_sec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -1713,7 +1745,7 @@ static inline void decode_sec(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_sed(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -1727,7 +1759,7 @@ static inline void decode_sed(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void decode_sei(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	switch (phase) {
 		case CYCLE_BEGIN:
-			PRIVATE(cpu)->out_address = cpu->reg_pc;
+			PRIVATE(cpu)->output.address = cpu->reg_pc;
 			break;
 		case CYCLE_MIDDLE:
 			break;
@@ -1788,7 +1820,7 @@ static inline void decode_sty(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_tax(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_BEGIN) {
-		PRIVATE(cpu)->out_address = cpu->reg_pc;
+		PRIVATE(cpu)->output.address = cpu->reg_pc;
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_x = cpu->reg_a;
@@ -1800,7 +1832,7 @@ static inline void decode_tax(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_tay(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_BEGIN) {
-		PRIVATE(cpu)->out_address = cpu->reg_pc;
+		PRIVATE(cpu)->output.address = cpu->reg_pc;
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_y = cpu->reg_a;
@@ -1812,7 +1844,7 @@ static inline void decode_tay(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_tsx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_BEGIN) {
-		PRIVATE(cpu)->out_address = cpu->reg_pc;
+		PRIVATE(cpu)->output.address = cpu->reg_pc;
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_x = cpu->reg_sp;
@@ -1824,7 +1856,7 @@ static inline void decode_tsx(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_txa(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_BEGIN) {
-		PRIVATE(cpu)->out_address = cpu->reg_pc;
+		PRIVATE(cpu)->output.address = cpu->reg_pc;
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_a = cpu->reg_x;
@@ -1836,7 +1868,7 @@ static inline void decode_txa(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_txs(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_BEGIN) {
-		PRIVATE(cpu)->out_address = cpu->reg_pc;
+		PRIVATE(cpu)->output.address = cpu->reg_pc;
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_sp = cpu->reg_x;
@@ -1846,7 +1878,7 @@ static inline void decode_txs(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 static inline void decode_tya(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 	if (phase == CYCLE_BEGIN) {
-		PRIVATE(cpu)->out_address = cpu->reg_pc;
+		PRIVATE(cpu)->output.address = cpu->reg_pc;
 	}
 	if (phase == CYCLE_END) {
 		cpu->reg_a = cpu->reg_y;
@@ -2057,7 +2089,7 @@ static inline void decode_instruction(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 static inline void cpu_6502_execute_phase(Cpu6502 *cpu, CPU_6502_CYCLE phase) {
 
 	// data-bus
-	PRIVATE(cpu)->drv_data = false;
+	PRIVATE(cpu)->output.drv_data = false;
 	PRIVATE(cpu)->in_data = SIGNAL_GROUP_READ_U8(data);
 
 	// initialization is treated seperately
@@ -2215,8 +2247,8 @@ static void cpu_6502_process(Cpu6502 *cpu) {
 	if (SIGNAL_CHANGED(RES_B)) {
 		if (ACTLO_ASSERTED(reset_b)) {
 			// reset was just asserted
-			priv->out_address = 0;
-			priv->out_rw = RW_READ;
+			priv->output.address = 0;
+			priv->output.rw = RW_READ;
 		} else {
 			// reset was just deasserted - start initialization sequence
 			priv->state = CS_INIT;
