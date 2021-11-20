@@ -39,6 +39,25 @@ typedef struct Chip6522_pstate {		// port state
 	bool			out_cl2;
 } Chip6522_pstate;
 
+typedef struct Chip6522_output {
+	bool			drv_data;
+	uint8_t			data;
+
+	bool			irq;
+
+	bool			drv_ca2;
+	bool			drv_cb1;
+	bool			drv_cb2;
+	bool			ca2;
+	bool			cb1;
+	bool			cb2;
+
+	uint8_t			reg_ora;
+	uint8_t			reg_orb;
+	uint8_t			reg_ddra;
+	uint8_t			reg_ddrb;
+} Chip6522_output;
+
 typedef struct Chip6522_private {
 	Chip6522		intf;
 
@@ -68,11 +87,8 @@ typedef struct Chip6522_private {
 	bool			sr_clr_irq;
 	bool			sr_set_irq;
 
-	bool			out_irq;
-
-	bool			out_enabled;
-	uint8_t			out_data;
-
+	Chip6522_output output;
+	Chip6522_output last_output;
 } Chip6522_private;
 
 typedef enum Chip6522_address {
@@ -236,43 +252,80 @@ static inline uint8_t read_register(Chip6522 *via) {
 
 static void process_end(Chip6522 *via) {
 
+	Chip6522_output *output = &PRIVATE(via)->output;
+	Chip6522_output *last_output = &PRIVATE(via)->last_output;
+
 	// the IRQ-line is open-drain; output is either low (tied to ground) or hi-z (floating, to be pulled up externally)
-	if (!PRIVATE(via)->out_irq) {
-		SIGNAL_WRITE(IRQ_B, false);
-	} else {
-		SIGNAL_NO_WRITE(IRQ_B);
+	if (output->irq != last_output->irq) {
+		if (!output->irq) {
+			SIGNAL_WRITE(IRQ_B, false);
+		} else {
+			SIGNAL_NO_WRITE(IRQ_B);
+		}
+		last_output->irq = output->irq;
 	}
 
 	// output on the ports
-	SIGNAL_GROUP_WRITE_MASKED(port_a, via->reg_ora, via->reg_ddra);
-	SIGNAL_GROUP_WRITE_MASKED(port_b, via->reg_orb, via->reg_ddrb);
+	if (via->reg_ora != last_output->reg_ora || via->reg_ddra != last_output->reg_ddra) {
+		SIGNAL_GROUP_WRITE_MASKED(port_a, via->reg_ora, via->reg_ddra);
+		last_output->reg_ora = via->reg_ora;
+		last_output->reg_ddra = via->reg_ddra;
+	}
+
+	if (via->reg_orb != last_output->reg_orb || via->reg_ddrb != last_output->reg_ddrb) {
+		SIGNAL_GROUP_WRITE_MASKED(port_b, via->reg_orb, via->reg_ddrb);
+		last_output->reg_orb = via->reg_orb;
+		last_output->reg_ddrb = via->reg_ddrb;
+	}
 
 	// optional output on databus
-	if (PRIVATE(via)->out_enabled) {
-		SIGNAL_GROUP_WRITE(data, PRIVATE(via)->out_data);
-	} else {
+	if (output->drv_data) {
+		// via is active - write if data changed or via just became active
+		if (output->data != last_output->drv_data || !last_output->drv_data) {
+			SIGNAL_GROUP_WRITE(data, output->data);
+			last_output->data = output->data;
+			last_output->drv_data = output->drv_data;
+		}
+	} else if (last_output->drv_data) {
+		// via just went inactive
 		SIGNAL_GROUP_NO_WRITE(data);
+		last_output->drv_data = false;
 	}
 
 	// optional output on ca2
 	if (PRIVATE(via)->state_a.cl2_is_output) {
-		SIGNAL_WRITE(CA2, PRIVATE(via)->state_a.out_cl2);
-	} else {
+		if (PRIVATE(via)->state_a.out_cl2 != last_output->ca2 || !last_output->drv_ca2) {
+			SIGNAL_WRITE(CA2, PRIVATE(via)->state_a.out_cl2);
+			last_output->drv_ca2 = true;
+			last_output->ca2 = PRIVATE(via)->state_a.out_cl2;
+		}
+	} else if (last_output->drv_ca2) {
 		SIGNAL_NO_WRITE(CA2);
+		last_output->drv_ca2 = false;
 	}
 
 	// optional output on cb1
 	if (PRIVATE(via)->state_b.cl1_is_output) {
-		SIGNAL_WRITE(CB1, PRIVATE(via)->state_b.out_cl1);
-	} else {
+		if (PRIVATE(via)->state_b.out_cl1 != last_output->cb1 || !last_output->drv_cb1) {
+			SIGNAL_WRITE(CB1, PRIVATE(via)->state_b.out_cl1);
+			last_output->drv_cb1 = true;
+			last_output->cb1 = PRIVATE(via)->state_b.out_cl1;
+		}
+	} else if (last_output->drv_cb1) {
 		SIGNAL_NO_WRITE(CB1);
+		last_output->drv_cb1 = false;
 	}
 
 	// optional output on cb2
 	if (PRIVATE(via)->state_b.cl2_is_output) {
-		SIGNAL_WRITE(CB2, PRIVATE(via)->state_b.out_cl2);
-	} else {
+		if (PRIVATE(via)->state_b.out_cl2 != last_output->cb2 || !last_output->drv_cb2) {
+			SIGNAL_WRITE(CB2, PRIVATE(via)->state_b.out_cl2);
+			last_output->drv_cb2 = true;
+			last_output->cb2 = PRIVATE(via)->state_b.out_cl2;
+		}
+	} else if (last_output->drv_cb2) {
 		SIGNAL_NO_WRITE(CB2);
+		last_output->drv_cb2 = false;
 	}
 }
 
@@ -383,10 +436,10 @@ static void build_interrupt_register(Chip6522 *via) {
 	// set IFR[7] and output irq when any of the lower 7-bits are set
 	if ((via->reg_ifr & via->reg_ier) > 0) {
 		via->reg_ifr |= 0x80;
-		PRIVATE(via)->out_irq = ACTLO_ASSERT;
+		PRIVATE(via)->output.irq = ACTLO_ASSERT;
 	} else {
 		via->reg_ifr &= 0x7f;
-		PRIVATE(via)->out_irq = ACTLO_DEASSERT;
+		PRIVATE(via)->output.irq = ACTLO_DEASSERT;
 	}
 }
 
@@ -545,8 +598,8 @@ static void process_positive_enable_edge(Chip6522 *via) {
 	process_edge_common(via);
 
 	if (PRIVATE(via)->strobe && SIGNAL_READ(RW) == RW_READ) {
-		PRIVATE(via)->out_data = read_register(via);
-		PRIVATE(via)->out_enabled = true;
+		PRIVATE(via)->output.data = read_register(via);
+		PRIVATE(via)->output.drv_data = true;
 	}
 }
 
@@ -571,8 +624,8 @@ static void process_negative_enable_edge(Chip6522 *via) {
 		if (SIGNAL_READ(RW) == RW_WRITE) {
 			write_register(via, SIGNAL_GROUP_READ_U8(data));
 		} else {
-			PRIVATE(via)->out_data = read_register(via);
-			PRIVATE(via)->out_enabled = true;
+			PRIVATE(via)->output.data = read_register(via);
+			PRIVATE(via)->output.drv_data = true;
 
 			// unlatch if port was read
 			PRIVATE(via)->state_a.latched = PRIVATE(via)->state_a.latched && !PRIVATE(via)->state_a.port_read;
@@ -647,6 +700,7 @@ Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
 
 	priv->state_a.out_cl2 = true;
 	priv->state_b.out_cl2 = true;
+	priv->last_output.irq = true;
 
 	return via;
 }
@@ -694,7 +748,7 @@ static void chip_6522_process(Chip6522 *via) {
 	}
 
 	PRIVATE(via)->strobe = ACTHI_ASSERTED(SIGNAL_READ(CS1)) && ACTLO_ASSERTED(SIGNAL_READ(CS2_B));
-	PRIVATE(via)->out_enabled = false;
+	PRIVATE(via)->output.drv_data = false;
 
 	if (SIGNAL_READ(PHI2)) {
 		process_positive_enable_edge(via);
