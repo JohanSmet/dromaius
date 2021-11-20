@@ -146,6 +146,11 @@ static inline void signal_group_write(SignalPool* pool, SignalGroup sg, int32_t 
 }
 
 static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, int32_t value, uint32_t mask, uint32_t layer) {
+// only write to the signals in the group with a 1 in the corresponding bit in the mask.
+// Please note: the signals with a 0 in the mask are NOT touched at all, not even to clear a writer-flag that may have been
+//				set by a previous write with another mask. If a writer-flag should be cleared when the mask changes, this should
+//				be done explicitly by the chip.
+
 	assert(pool);
 	assert(arrlen(sg) <= 32);
 
