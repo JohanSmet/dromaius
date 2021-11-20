@@ -6,13 +6,70 @@
 
 #include "stb/stb_ds.h"
 
-#define SIGNAL_PREFIX		CHIP_6522_
-#define SIGNAL_OWNER		via
+enum Test6522DeviceSignalAssignment {
+	SIG_6522_PA0 = 0,
+	SIG_6522_PA1,
+	SIG_6522_PA2,
+	SIG_6522_PA3,
+	SIG_6522_PA4,
+	SIG_6522_PA5,
+	SIG_6522_PA6,
+	SIG_6522_PA7,
+	SIG_6522_PB0,
+	SIG_6522_PB1,
+	SIG_6522_PB2,
+	SIG_6522_PB3,
+	SIG_6522_PB4,
+	SIG_6522_PB5,
+	SIG_6522_PB6,
+	SIG_6522_PB7,
+	SIG_6522_D0,
+	SIG_6522_D1,
+	SIG_6522_D2,
+	SIG_6522_D3,
+	SIG_6522_D4,
+	SIG_6522_D5,
+	SIG_6522_D6,
+	SIG_6522_D7,
+	SIG_6522_CA1,
+	SIG_6522_CA2,
+	SIG_6522_CB1,
+	SIG_6522_CB2,
+	SIG_6522_RS0,
+	SIG_6522_RS1,
+	SIG_6522_RS2,
+	SIG_6522_RS3,
+	SIG_6522_RESET_B,
+	SIG_6522_PHI2,
+	SIG_6522_CS1,
+	SIG_6522_CS2_B,
+	SIG_6522_RW,
+	SIG_6522_IRQ_B,
+
+	SIG_6522_SIGNAL_COUNT
+};
+
+typedef struct TestFixture6522 {
+	Simulator *		simulator;
+	Signal			signals[SIG_6522_SIGNAL_COUNT];
+	uint32_t		signal_layer;
+	Chip6522 *		via;
+
+	SignalGroup		sg_port_a;
+	SignalGroup		sg_port_b;
+	SignalGroup		sg_data;
+} TestFixture6522;
+
+#define SIGNAL_PREFIX		SIG_6522_
+#define SIGNAL_OWNER		fixture
+
+#undef SIGNAL_POOL
+#define SIGNAL_POOL			fixture->simulator->signal_pool
 
 #define VIA_CYCLE_START				\
 	for (int i = 0; i < 2; ++i) {
 #define VIA_CYCLE_END				\
-		half_clock_cycle(via);		\
+		half_clock_cycle(fixture);	\
 	}
 
 #define VIA_CYCLE()					\
@@ -63,39 +120,125 @@ typedef enum Chip6522_regs {
 
 
 static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
-	Chip6522 *via = chip_6522_create(simulator_create(NS_TO_PS(100)), (Chip6522Signals) {0});
+
+	// create test fixture
+	TestFixture6522 *fixture = (TestFixture6522 *) calloc(1, sizeof(TestFixture6522));
+	fixture->simulator = simulator_create(NS_TO_PS(100));
+	fixture->signal_layer = 0;
+
+	signal_pool_set_layer_count(fixture->simulator->signal_pool, 2);
+
+	// >> setup signals
+	fixture->sg_port_a = signal_group_create();
+	fixture->sg_port_b = signal_group_create();
+	fixture->sg_data = signal_group_create();
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE_GROUP(PA0 + i, port_a);
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE_GROUP(PB0 + i, port_b);
+	}
+
+	for (int i = 0; i < 8; ++i) {
+		SIGNAL_DEFINE_GROUP(D0 + i, data);
+	}
+
+	SIGNAL_DEFINE_DEFAULT(CA1,		false);
+	SIGNAL_DEFINE_DEFAULT(CA2,		false);
+	SIGNAL_DEFINE_DEFAULT(CB1,		false);
+	SIGNAL_DEFINE_DEFAULT(CB2,		false);
+	SIGNAL_DEFINE_DEFAULT(IRQ_B,	ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(RS0,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(RS1,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(RS2,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(RS3,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(RESET_B,	ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(PHI2,		true);
+	SIGNAL_DEFINE_DEFAULT(CS1,		ACTHI_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(CS2_B,	ACTLO_DEASSERT);
+	SIGNAL_DEFINE_DEFAULT(RW,		true);
+
+	// create via
+	fixture->via = chip_6522_create(fixture->simulator, (Chip6522Signals) {
+										[CHIP_6522_D0] = SIGNAL(D0),
+										[CHIP_6522_D1] = SIGNAL(D1),
+										[CHIP_6522_D2] = SIGNAL(D2),
+										[CHIP_6522_D3] = SIGNAL(D3),
+										[CHIP_6522_D4] = SIGNAL(D4),
+										[CHIP_6522_D5] = SIGNAL(D5),
+										[CHIP_6522_D6] = SIGNAL(D6),
+										[CHIP_6522_D7] = SIGNAL(D7),
+										[CHIP_6522_PHI2] = SIGNAL(PHI2),
+										[CHIP_6522_RESET_B] = SIGNAL(RESET_B),
+										[CHIP_6522_RW] = SIGNAL(RW),
+										[CHIP_6522_CS1] = SIGNAL(CS1),
+										[CHIP_6522_CS2_B] = SIGNAL(CS2_B),
+										[CHIP_6522_RS0] = SIGNAL(RS0),
+										[CHIP_6522_RS1] = SIGNAL(RS1),
+										[CHIP_6522_RS2] = SIGNAL(RS2),
+										[CHIP_6522_RS3] = SIGNAL(RS3),
+										[CHIP_6522_CA1] = SIGNAL(CA1),
+										[CHIP_6522_CA2] = SIGNAL(CA2),
+										[CHIP_6522_PA0] = SIGNAL(PA0),
+										[CHIP_6522_PA1] = SIGNAL(PA1),
+										[CHIP_6522_PA2] = SIGNAL(PA2),
+										[CHIP_6522_PA3] = SIGNAL(PA3),
+										[CHIP_6522_PA4] = SIGNAL(PA4),
+										[CHIP_6522_PA5] = SIGNAL(PA5),
+										[CHIP_6522_PA6] = SIGNAL(PA6),
+										[CHIP_6522_PA7] = SIGNAL(PA7),
+										[CHIP_6522_PB0] = SIGNAL(PB0),
+										[CHIP_6522_PB1] = SIGNAL(PB1),
+										[CHIP_6522_PB2] = SIGNAL(PB2),
+										[CHIP_6522_PB3] = SIGNAL(PB3),
+										[CHIP_6522_PB4] = SIGNAL(PB4),
+										[CHIP_6522_PB5] = SIGNAL(PB5),
+										[CHIP_6522_PB6] = SIGNAL(PB6),
+										[CHIP_6522_PB7] = SIGNAL(PB7),
+										[CHIP_6522_CB1] = SIGNAL(CB1),
+										[CHIP_6522_CB2] = SIGNAL(CB2),
+										[CHIP_6522_IRQ_B] = SIGNAL(IRQ_B)
+	});
+	fixture->via->signal_layer = 1;
 
 	// run chip with reset asserted
 	SIGNAL_WRITE(PHI2, false);
 	SIGNAL_WRITE(RESET_B, ACTLO_ASSERT);
-	signal_pool_cycle(via->signal_pool);
-	via->process(via);
+	signal_pool_cycle(fixture->simulator->signal_pool);
+	fixture->via->process(fixture->via);
 
 	// deassert reset
 	SIGNAL_WRITE(RESET_B, ACTLO_DEASSERT);
 
-	return via;
+	return fixture;
 }
 
-static void chip_6522_teardown(void *fixture) {
-	Chip6522 *via = (Chip6522 *) fixture;
-	via->destroy(via);
+static void chip_6522_teardown(void *munit_fixture) {
+	TestFixture6522 *fixture = (TestFixture6522 *) munit_fixture;
+
+	simulator_destroy(fixture->simulator);
+	fixture->via->destroy(fixture->via);
+	free(fixture);
 }
 
-static inline void strobe_via(Chip6522 *via, bool strobe) {
+static inline void strobe_via(TestFixture6522 *fixture, bool strobe) {
 	SIGNAL_WRITE(CS1, strobe);
 	SIGNAL_WRITE(CS2_B, !strobe);
 }
 
-static inline void half_clock_cycle(Chip6522 *via) {
+static inline void half_clock_cycle(TestFixture6522 *fixture) {
 	SIGNAL_WRITE(PHI2, !SIGNAL_READ(PHI2));
-	signal_pool_cycle(via->signal_pool);
-	via->process(via);
+	signal_pool_cycle(fixture->simulator->signal_pool);
+	fixture->via->process(fixture->via);
 }
 
 static MunitResult test_create(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
+
 	munit_assert_ptr_not_null(via);
 	munit_assert_ptr_not_null(via->process);
 	munit_assert_ptr_not_null(via->destroy);
@@ -105,7 +248,8 @@ static MunitResult test_create(const MunitParameter params[], void *user_data_or
 }
 
 static MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// force registers to junk values
 	via->reg_ifr = 0xde;
@@ -156,14 +300,15 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 }
 
 static MunitResult test_read_ddra(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ddra = 0xa5;
 
 	// read the DDRA register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -174,7 +319,7 @@ static MunitResult test_read_ddra(const MunitParameter params[], void *user_data
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -187,14 +332,15 @@ static MunitResult test_read_ddra(const MunitParameter params[], void *user_data
 }
 
 static MunitResult test_read_ddrb(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ddrb = 0xa5;
 
 	// read the DDRA register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -205,7 +351,7 @@ static MunitResult test_read_ddrb(const MunitParameter params[], void *user_data
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -218,14 +364,15 @@ static MunitResult test_read_ddrb(const MunitParameter params[], void *user_data
 }
 
 static MunitResult test_write_ddra(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
 
 	// write to the DDRA register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -238,7 +385,7 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -254,14 +401,15 @@ static MunitResult test_write_ddra(const MunitParameter params[], void *user_dat
 }
 
 static MunitResult test_write_ddrb(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
 
 	// write to the DDRA register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -273,11 +421,11 @@ static MunitResult test_write_ddrb(const MunitParameter params[], void *user_dat
 	ASSERT_REGISTERS_DEFAULT(REG_DDRB);
 
 	// disable via
-	strobe_via(via, false);
+	strobe_via(fixture, false);
 
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -293,14 +441,15 @@ static MunitResult test_write_ddrb(const MunitParameter params[], void *user_dat
 }
 
 static MunitResult test_read_acr(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_acr = 0xa5;
 
 	// read the DDRA register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -311,7 +460,7 @@ static MunitResult test_read_acr(const MunitParameter params[], void *user_data_
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -324,14 +473,15 @@ static MunitResult test_read_acr(const MunitParameter params[], void *user_data_
 }
 
 static MunitResult test_write_acr(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
 
 	// write to the ACR register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -344,7 +494,7 @@ static MunitResult test_write_acr(const MunitParameter params[], void *user_data
 
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -360,14 +510,16 @@ static MunitResult test_write_acr(const MunitParameter params[], void *user_data
 }
 
 static MunitResult test_read_pcr(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
+
 
 	// initialize registers
 	via->reg_pcr = 0xa5;
 
 	// read the DDRA register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -378,7 +530,7 @@ static MunitResult test_read_pcr(const MunitParameter params[], void *user_data_
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -391,14 +543,15 @@ static MunitResult test_read_pcr(const MunitParameter params[], void *user_data_
 }
 
 static MunitResult test_write_pcr(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
 
 	// write to the PCR register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -411,7 +564,7 @@ static MunitResult test_write_pcr(const MunitParameter params[], void *user_data
 
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -427,14 +580,15 @@ static MunitResult test_write_pcr(const MunitParameter params[], void *user_data
 }
 
 static MunitResult test_write_ora(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
 
 	// write to the ORA register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -447,7 +601,7 @@ static MunitResult test_write_ora(const MunitParameter params[], void *user_data
 
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -463,14 +617,15 @@ static MunitResult test_write_ora(const MunitParameter params[], void *user_data
 }
 
 static MunitResult test_write_orb(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
 
 	// write to the ORA register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -483,7 +638,7 @@ static MunitResult test_write_orb(const MunitParameter params[], void *user_data
 
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -499,21 +654,20 @@ static MunitResult test_write_orb(const MunitParameter params[], void *user_data
 }
 
 static MunitResult test_porta_out(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ora = 0xf5;
 	via->reg_ddra = 0xff;		// all pins configured as output
 
 	// cycle clock ; entire ora-register should have been written to port-A
-	VIA_CYCLE_START
-		SIGNAL_GROUP_WRITE(port_a, 0x12);
-	VIA_CYCLE_END
+	VIA_CYCLE()
 	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_a), ==, 0xf5);
 
 	// reconfigure ddra, upper nibble = output, lower nibble = input + peripheral active on lower nibble
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE_MASKED(port_a, 0x09, 0x0f);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
@@ -524,10 +678,10 @@ static MunitResult test_porta_out(const MunitParameter params[], void *user_data
 	VIA_CYCLE_END
 
 	// cycle clock
-	half_clock_cycle(via);
+	half_clock_cycle(fixture);
 	SIGNAL_GROUP_WRITE_MASKED(port_a, 0x09, 0x0f);
 	SIGNAL_WRITE(RW, true);
-	half_clock_cycle(via);
+	half_clock_cycle(fixture);
 	SIGNAL_GROUP_WRITE_MASKED(port_a, 0x09, 0x0f);
 
 	munit_assert_uint8(via->reg_ddra, ==, 0xf0);
@@ -537,21 +691,20 @@ static MunitResult test_porta_out(const MunitParameter params[], void *user_data
 }
 
 static MunitResult test_portb_out(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_orb = 0xf5;
 	via->reg_ddrb = 0xff;		// all pins configured as output
 
 	// cycle clock ; entire ora-register should have been written to port-A
-	VIA_CYCLE_START
-		SIGNAL_GROUP_WRITE(port_b, 0x12);
-	VIA_CYCLE_END
+	VIA_CYCLE ()
 	munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(port_b), ==, 0xf5);
 
 	// reconfigure ddrb, upper nibble = output, lower nibble = input + peripheral active on lower nibble
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE_MASKED(port_b, 0x09, 0x0f);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
@@ -562,10 +715,10 @@ static MunitResult test_portb_out(const MunitParameter params[], void *user_data
 	VIA_CYCLE_END
 
 	// cycle clock
-	half_clock_cycle(via);
+	half_clock_cycle(fixture);
 	SIGNAL_GROUP_WRITE_MASKED(port_b, 0x09, 0x0f);
 	SIGNAL_WRITE(RW, true);
-	half_clock_cycle(via);
+	half_clock_cycle(fixture);
 	SIGNAL_GROUP_WRITE_MASKED(port_b, 0x09, 0x0f);
 	munit_assert_uint8(via->reg_ddrb, ==, 0xf0);
 	munit_assert_uint8(SIGNAL_GROUP_READ_U8(port_b), ==, 0xf9);
@@ -575,7 +728,8 @@ static MunitResult test_portb_out(const MunitParameter params[], void *user_data
 
 static MunitResult test_read_porta_input(const MunitParameter params[], void *user_data_or_fixture) {
 // read from port-A while pins are configured as input
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ora = 0xf5;
@@ -588,7 +742,7 @@ static MunitResult test_read_porta_input(const MunitParameter params[], void *us
 
 	// read from the port
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(port_a, 0x12);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
@@ -599,7 +753,7 @@ static MunitResult test_read_porta_input(const MunitParameter params[], void *us
 
 	// enable latching on port-A (default == on negative edge)
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(data, 0b00000001);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
@@ -611,6 +765,7 @@ static MunitResult test_read_porta_input(const MunitParameter params[], void *us
 
 	// start writing to port-A, keep CA1 high
 	VIA_CYCLE_START
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_GROUP_WRITE(port_a, 0x3e);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(RW, true);
@@ -633,7 +788,7 @@ static MunitResult test_read_porta_input(const MunitParameter params[], void *us
 
 	// read from the port
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 		SIGNAL_GROUP_WRITE(port_a, 0x12);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
@@ -658,7 +813,8 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 // when all pins are configured as output one wouldn't normally expect external writes to the port_a signals,
 // but the test does this to simulate pins being pulled down, thus returning a different value than is being output
 // by the via-chip
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ora = 0xf5;
@@ -666,7 +822,7 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 
 	// read from the port
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -676,7 +832,7 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 
 	// enable latching on port-A (default == on negative edge)
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(data, 0b00000001);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
@@ -688,32 +844,33 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 
 	// start writing to port-A, keep CA1 high
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_GROUP_WRITE(port_a, 0x3e);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
-	munit_assert_uint8(via->reg_ila, ==, 0x3e);
+	munit_assert_uint8(via->reg_ila, ==, 0x34);
 
 	// bring CA1 low, latching data on the port
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_a, 0x3e);
 		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(via->reg_ila, ==, 0x3e);
+	munit_assert_uint8(via->reg_ila, ==, 0x34);
 
 	// bring CA1 high, change data on port, internal register shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_a, 0x15);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(via->reg_ila, ==, 0x3e);
+	munit_assert_uint8(via->reg_ila, ==, 0x34);
 
 	// read from the port
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 		SIGNAL_GROUP_WRITE(port_a, 0x12);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
@@ -721,11 +878,11 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS3, ACTHI_DEASSERT);
 	VIA_CYCLE_END
-	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x3e);
+	munit_assert_uint8(SIGNAL_GROUP_READ_U8(data), ==, 0x34);
 
 	// read unlatched port - ila should follow port again
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_a, 0x15);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -735,8 +892,9 @@ static MunitResult test_read_porta_output(const MunitParameter params[], void *u
 }
 
 static MunitResult test_read_portb_input(const MunitParameter params[], void *user_data_or_fixture) {
-// read from port-A while pins are configured as input
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+// read from port-B while pins are configured as input
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_orb = 0xf5;
@@ -749,7 +907,7 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// read from the port
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(port_b, 0x12);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
@@ -760,7 +918,7 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// enable latching on port-B (default == on negative edge)
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(data, 0b00000010);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
@@ -772,8 +930,9 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// start writing to port-B, keep CB1 high
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_b, 0x3e);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
@@ -781,7 +940,7 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// bring CB1 low, latching data on the port
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_b, 0x3e);
 		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
 	VIA_CYCLE_END
@@ -789,7 +948,7 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// bring CB1 high, change data on port, internal register shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_b, 0x15);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -797,7 +956,7 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// read from the port
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_GROUP_WRITE(port_b, 0x12);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
@@ -809,7 +968,7 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 	// read unlatched port - ilb should follow port again
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_b, 0x15);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -820,7 +979,8 @@ static MunitResult test_read_portb_input(const MunitParameter params[], void *us
 
 static MunitResult test_read_portb_output(const MunitParameter params[], void *user_data_or_fixture) {
 // read from port-B while pins are configured as output - contrary to port-A: pin level has NO effect. Always reads ORB-register.
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_orb = 0xf5;
@@ -828,7 +988,7 @@ static MunitResult test_read_portb_output(const MunitParameter params[], void *u
 
 	// read from the port - no pins pulled down
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -838,7 +998,7 @@ static MunitResult test_read_portb_output(const MunitParameter params[], void *u
 
 	// read from the port - some pins pulled down
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(port_b, 0b11101010);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
@@ -849,7 +1009,7 @@ static MunitResult test_read_portb_output(const MunitParameter params[], void *u
 
 	// reconfigure ddrb, upper nibble = output, lower nibble = input + peripheral active on lower nibble
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -860,8 +1020,9 @@ static MunitResult test_read_portb_output(const MunitParameter params[], void *u
 
 	// read from the port - some pins pulled down (only affect lower nibble)
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(port_b, 0b11101010);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -874,11 +1035,12 @@ static MunitResult test_read_portb_output(const MunitParameter params[], void *u
 }
 
 static MunitResult test_hs_porta_read(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// configure CA2 to operate in handshake-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -892,6 +1054,7 @@ static MunitResult test_hs_porta_read(const MunitParameter params[], void *user_
 	// assert CA1 to indicate there's available data
 	VIA_CYCLE_START
 		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
@@ -904,7 +1067,7 @@ static MunitResult test_hs_porta_read(const MunitParameter params[], void *user_
 
 	// read port-A - CA2 shoukd go low
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(port_a, 0xab);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
@@ -941,11 +1104,12 @@ static MunitResult test_hs_porta_read(const MunitParameter params[], void *user_
 }
 
 static MunitResult test_hs_porta_read_pulse(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// configure CA2 to operate in pulse-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -959,6 +1123,7 @@ static MunitResult test_hs_porta_read_pulse(const MunitParameter params[], void 
 	// assert CA1 to indicate there's available data
 	VIA_CYCLE_START
 		SIGNAL_GROUP_WRITE(port_a, 0xab);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
@@ -971,7 +1136,7 @@ static MunitResult test_hs_porta_read_pulse(const MunitParameter params[], void 
 
 	// read port-A - CA2 shoukd go low
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(port_a, 0xab);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
@@ -985,7 +1150,7 @@ static MunitResult test_hs_porta_read_pulse(const MunitParameter params[], void 
 
 	// clock-cycle - CA2 goes high again
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_a, 0xab);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -995,14 +1160,15 @@ static MunitResult test_hs_porta_read_pulse(const MunitParameter params[], void 
 }
 
 static MunitResult test_hs_porta_write(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ddra = 0xff;		// all pins configured as output
 
 	// configure CA2 to operate in handshake-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1015,7 +1181,7 @@ static MunitResult test_hs_porta_write(const MunitParameter params[], void *user
 
 	// write data to port-A - CA2 goes low to signal available data
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1029,7 +1195,7 @@ static MunitResult test_hs_porta_write(const MunitParameter params[], void *user
 
 	// clock cycle - CA2 stays low
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
@@ -1037,14 +1203,14 @@ static MunitResult test_hs_porta_write(const MunitParameter params[], void *user
 
 	// clock cycle - CA2 stays low
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
 	munit_assert_false(SIGNAL_READ_NEXT(CA2));
 
 	// assert CA1 - CA2 goes high
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CA2));
@@ -1053,14 +1219,15 @@ static MunitResult test_hs_porta_write(const MunitParameter params[], void *user
 }
 
 static MunitResult test_hs_porta_write_pulse(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ddra = 0xff;		// all pins configured as output
 
 	// configure CA2 to operate in pulse-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1073,7 +1240,7 @@ static MunitResult test_hs_porta_write_pulse(const MunitParameter params[], void
 
 	// write data to port-A - CA2 goes low to signal available data
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1087,7 +1254,7 @@ static MunitResult test_hs_porta_write_pulse(const MunitParameter params[], void
 
 	// clock cycle - CA2 goes high again
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CA1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
@@ -1097,11 +1264,12 @@ static MunitResult test_hs_porta_write_pulse(const MunitParameter params[], void
 }
 
 static MunitResult test_hs_portb_read(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// configure CB2 to operate in handshake-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1115,7 +1283,8 @@ static MunitResult test_hs_portb_read(const MunitParameter params[], void *user_
 
 	// assert CB1 to indicate there's available data
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		SIGNAL_GROUP_NO_WRITE(data);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_b, 0xab);
 		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
 		SIGNAL_WRITE(RW, true);
@@ -1124,7 +1293,7 @@ static MunitResult test_hs_portb_read(const MunitParameter params[], void *user_
 
 	// another cycle
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_b, 0xab);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -1132,7 +1301,7 @@ static MunitResult test_hs_portb_read(const MunitParameter params[], void *user_
 
 	// read port-B - CB2 should not change - no read handshake on port-B
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(port_b, 0xab);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
@@ -1148,11 +1317,12 @@ static MunitResult test_hs_portb_read(const MunitParameter params[], void *user_
 }
 
 static MunitResult test_hs_portb_read_pulse(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// configure CB2 to operate in pulse-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1166,8 +1336,9 @@ static MunitResult test_hs_portb_read_pulse(const MunitParameter params[], void 
 
 	// assert CB1 to indicate there's available data
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_b, 0xab);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
@@ -1175,7 +1346,7 @@ static MunitResult test_hs_portb_read_pulse(const MunitParameter params[], void 
 
 	// another cycle
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_GROUP_WRITE(port_b, 0xab);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 	VIA_CYCLE_END
@@ -1183,7 +1354,7 @@ static MunitResult test_hs_portb_read_pulse(const MunitParameter params[], void 
 
 	// read port-B - CB2 should not change - no read handshake on port-B
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_GROUP_WRITE(port_b, 0xab);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
@@ -1199,14 +1370,15 @@ static MunitResult test_hs_portb_read_pulse(const MunitParameter params[], void 
 }
 
 static MunitResult test_hs_portb_write(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ddrb = 0xff;		// all pins configured as output
 
 	// configure CB2 to operate in handshake-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1219,7 +1391,7 @@ static MunitResult test_hs_portb_write(const MunitParameter params[], void *user
 
 	// write data to port-B - CB2 goes low to signal available data
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1234,6 +1406,7 @@ static MunitResult test_hs_portb_write(const MunitParameter params[], void *user
 	// clock cycle - CB2 stays low
 	VIA_CYCLE_START
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_NO_WRITE(data);
 	VIA_CYCLE_END
 	munit_assert_false(SIGNAL_READ_NEXT(CB2));
 
@@ -1253,14 +1426,15 @@ static MunitResult test_hs_portb_write(const MunitParameter params[], void *user
 }
 
 static MunitResult test_hs_portb_write_pulse(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ddrb = 0xff;		// all pins configured as output
 
 	// configure CB2 to operate in pulse-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1273,7 +1447,7 @@ static MunitResult test_hs_portb_write_pulse(const MunitParameter params[], void
 
 	// write data to port-B - CB2 goes low to signal available data
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1287,9 +1461,10 @@ static MunitResult test_hs_portb_write_pulse(const MunitParameter params[], void
 
 	// clock cycle - CB2 goes high again
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RW, true);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
+		SIGNAL_GROUP_NO_WRITE(data);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB2));
 
@@ -1297,14 +1472,15 @@ static MunitResult test_hs_portb_write_pulse(const MunitParameter params[], void
 }
 
 static MunitResult test_read_ifr(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ifr = 0x15;
 
 	// read the IFR register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1315,7 +1491,7 @@ static MunitResult test_read_ifr(const MunitParameter params[], void *user_data_
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1328,7 +1504,8 @@ static MunitResult test_read_ifr(const MunitParameter params[], void *user_data_
 }
 
 static MunitResult test_write_ifr(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -1339,7 +1516,7 @@ static MunitResult test_write_ifr(const MunitParameter params[], void *user_data
 
 	// clear bits 1 & 2
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1353,7 +1530,7 @@ static MunitResult test_write_ifr(const MunitParameter params[], void *user_data
 
 	// clear all bits
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1369,14 +1546,15 @@ static MunitResult test_write_ifr(const MunitParameter params[], void *user_data
 }
 
 static MunitResult test_read_ier(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_ier = 0x15;
 
 	// read the Interrupt Enable register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1387,7 +1565,7 @@ static MunitResult test_read_ier(const MunitParameter params[], void *user_data_
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1400,14 +1578,15 @@ static MunitResult test_read_ier(const MunitParameter params[], void *user_data_
 }
 
 static MunitResult test_write_ier(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
 
 	// set a few bits
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1420,7 +1599,7 @@ static MunitResult test_write_ier(const MunitParameter params[], void *user_data
 
 	// set some more bits
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1433,7 +1612,7 @@ static MunitResult test_write_ier(const MunitParameter params[], void *user_data
 
 	// clear a bit
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1445,7 +1624,7 @@ static MunitResult test_write_ier(const MunitParameter params[], void *user_data
 
 	// clear all the bits
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1460,7 +1639,8 @@ static MunitResult test_write_ier(const MunitParameter params[], void *user_data
 
 static MunitResult test_irq_port(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -1508,7 +1688,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1523,7 +1703,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1543,7 +1723,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1556,11 +1736,12 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 
 	// negative edge triggers interrupt
 	VIA_CYCLE_START
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CA1, ACTLO_ASSERT);
 		SIGNAL_WRITE(CA2, ACTLO_ASSERT);
 		SIGNAL_WRITE(CB1, ACTLO_ASSERT);
 		SIGNAL_WRITE(CB2, ACTLO_ASSERT);
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
@@ -1572,7 +1753,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 	VIA_CYCLE_END
 	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
@@ -1583,7 +1764,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1598,7 +1779,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1613,7 +1794,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1634,7 +1815,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTLO_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTLO_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1651,7 +1832,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1664,6 +1845,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 
 	// trigger interrupt
 	VIA_CYCLE_START
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CA1, ACTHI_ASSERT);
 		SIGNAL_WRITE(CA2, ACTHI_ASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_ASSERT);
@@ -1688,7 +1870,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1703,7 +1885,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1718,7 +1900,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1740,7 +1922,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1757,7 +1939,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1770,10 +1952,12 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 
 	// positive edge triggers interrupt
 	VIA_CYCLE_START
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CA1, ACTHI_ASSERT);
 		SIGNAL_WRITE(CA2, ACTHI_ASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_ASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_ASSERT);
+		SIGNAL_GROUP_NO_WRITE(data);
 	VIA_CYCLE_END
 	munit_assert_false(SIGNAL_READ_NEXT(IRQ_B));
 	munit_assert_uint8(via->reg_ifr, ==, 0b10011011);
@@ -1794,7 +1978,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1809,7 +1993,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1824,7 +2008,7 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 		SIGNAL_WRITE(CA2, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(CB2, ACTHI_DEASSERT);
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1840,7 +2024,8 @@ static MunitResult test_irq_port(const MunitParameter params[], void *user_data_
 
 static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -1850,7 +2035,7 @@ static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_
 
 	// setup t1-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1861,7 +2046,7 @@ static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1876,7 +2061,7 @@ static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_
 
 	// load high-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1891,7 +2076,8 @@ static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_
 
 	// run until timer ends
 	SIGNAL_WRITE(RW, true);
-	strobe_via(via, false);
+	SIGNAL_GROUP_NO_WRITE(data);
+	strobe_via(fixture, false);
 
 	for (int i = 400; i >= 0; --i) {
 		VIA_CYCLE();
@@ -1906,7 +2092,7 @@ static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_
 
 	// clear t1 interrupt by reading t1c_l
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1920,7 +2106,8 @@ static MunitResult test_t1_once_nopb7(const MunitParameter params[], void *user_
 
 static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -1930,7 +2117,7 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 
 	// setup t1-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -1941,7 +2128,7 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1956,7 +2143,7 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 
 	// load high-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1974,7 +2161,7 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 	for (int j = 0; j < 3; ++j) {
 		// clear t1 interrupt by reading t1c_l
 		VIA_CYCLE_START
-			strobe_via(via, true);					// enable via
+			strobe_via(fixture, true);					// enable via
 			SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 			SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 			SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -1985,7 +2172,7 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 		munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 		// run until timer ends
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 
 		for (int i = 49; i >= 0; --i) {
 			VIA_CYCLE();
@@ -2001,7 +2188,7 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 
 	// clear t1 interrupt by reading t1c_l
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -2015,7 +2202,8 @@ static MunitResult test_t1_freerun_nopb7(const MunitParameter params[], void *us
 
 static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -2026,7 +2214,7 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 
 	// setup t1-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2037,7 +2225,7 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -2052,7 +2240,7 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 
 	// load high-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -2068,7 +2256,7 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 
 	// run until timer ends
 	SIGNAL_WRITE(RW, true);
-	strobe_via(via, false);
+	strobe_via(fixture, false);
 
 	for (int i = 400; i >= 0; --i) {
 		VIA_CYCLE();
@@ -2085,7 +2273,7 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 
 	// clear t1 interrupt by reading t1c_l
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -2099,7 +2287,8 @@ static MunitResult test_t1_once_pb7(const MunitParameter params[], void *user_da
 
 static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 	bool val_pb7 = false;
 
 	// assert initial state
@@ -2111,7 +2300,7 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 
 	// setup t1-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2122,7 +2311,7 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -2137,7 +2326,7 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 
 	// load high-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -2157,7 +2346,7 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 
 		// clear t1 interrupt by reading t1c_l
 		VIA_CYCLE_START
-			strobe_via(via, true);					// enable via
+			strobe_via(fixture, true);					// enable via
 			SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 			SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 			SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -2168,7 +2357,7 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 		munit_assert_uint8(via->reg_ifr, ==, 0b00000000);
 
 		// run until timer ends
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		for (int i = 49; i >= 0; --i) {
 			VIA_CYCLE();
 			munit_assert_uint16(via->reg_t1c, ==, i);
@@ -2187,7 +2376,7 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 
 	// clear t1 interrupt by reading t1c_l
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_ASSERT);
@@ -2201,7 +2390,8 @@ static MunitResult test_t1_freerun_pb7(const MunitParameter params[], void *user
 
 static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -2211,7 +2401,7 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 
 	// setup t2-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2222,7 +2412,7 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2236,7 +2426,7 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 
 	// load high-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2250,7 +2440,7 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 
 	// run until timer ends
 	SIGNAL_WRITE(RW, true);
-	strobe_via(via, false);
+	strobe_via(fixture, false);
 
 	for (int i = 10; i >= 0; --i) {
 		VIA_CYCLE();
@@ -2265,7 +2455,7 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 
 	// clear t2 interrupt by reading t2c_l
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2288,7 +2478,7 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 
 	// write t2-h to re-enable irq
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2301,7 +2491,7 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 
 	// run until timer ends
 	SIGNAL_WRITE(RW, true);
-	strobe_via(via, false);
+	strobe_via(fixture, false);
 
 	for (int i = 10; i >= 0; --i) {
 		VIA_CYCLE();
@@ -2318,7 +2508,8 @@ static MunitResult test_t2_timed(const MunitParameter params[], void *user_data_
 
 static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_data_or_fixture) {
 
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -2328,7 +2519,7 @@ static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_d
 
 	// setup t2-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2339,7 +2530,7 @@ static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_d
 
 	// load low-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2353,7 +2544,7 @@ static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_d
 
 	// load high-byte of timer counter
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2367,7 +2558,7 @@ static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_d
 
 	// cycle until timer is done
 	SIGNAL_WRITE(RW, true);
-	strobe_via(via, false);
+	strobe_via(fixture, false);
 
 	for (int i = 10; i > 0; --i) {
 		VIA_CYCLE_START
@@ -2399,7 +2590,7 @@ static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_d
 
 	// clear t2 interrupt by reading t2c_l
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2413,14 +2604,15 @@ static MunitResult test_t2_count_pb6(const MunitParameter params[], void *user_d
 }
 
 static MunitResult test_read_sr(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// initialize registers
 	via->reg_sr = 0x15;
 
 	// read the SR register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2431,7 +2623,7 @@ static MunitResult test_read_sr(const MunitParameter params[], void *user_data_o
 
 	// try reading again from a disabled via, bus_data shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2444,14 +2636,15 @@ static MunitResult test_read_sr(const MunitParameter params[], void *user_data_o
 }
 
 static MunitResult test_write_sr(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
 
 	// write to the SR register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2464,7 +2657,7 @@ static MunitResult test_write_sr(const MunitParameter params[], void *user_data_
 
 	// try writing again with a disabled via, register shouldn't change
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2480,7 +2673,8 @@ static MunitResult test_write_sr(const MunitParameter params[], void *user_data_
 }
 
 static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -2490,7 +2684,7 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 
 	// setup sr-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2502,7 +2696,8 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 
 	// read shift register to active shift in
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		SIGNAL_GROUP_NO_WRITE(data);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2513,7 +2708,7 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
@@ -2552,7 +2747,7 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 
 	// read shift register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2563,7 +2758,7 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
@@ -2604,7 +2799,8 @@ static MunitResult test_sr_shift_in_phi2(const MunitParameter params[], void *us
 }
 
 static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	const int sr_pulses = 4;
 
@@ -2616,7 +2812,7 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 
 	// setup t2 enough for the shift register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2629,7 +2825,7 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 
 	// setup sr-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2641,7 +2837,8 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 
 	// read shift register to active shift in
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		SIGNAL_GROUP_NO_WRITE(data);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2652,7 +2849,7 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
@@ -2695,7 +2892,7 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 
 	// read shift register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2706,7 +2903,7 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
@@ -2751,7 +2948,8 @@ static MunitResult test_sr_shift_in_t2(const MunitParameter params[], void *user
 }
 
 static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	const int sr_pulses = 4;
 
@@ -2763,7 +2961,7 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 
 	// setup sr-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2775,7 +2973,8 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 
 	// read shift register to active shift in
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		SIGNAL_GROUP_NO_WRITE(data);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2786,7 +2985,7 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 	munit_assert_uint8(via->reg_sr, ==, 0b00000000);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CB1, true);
 		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
@@ -2829,7 +3028,7 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 
 	// read shift register
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2840,7 +3039,7 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 	munit_assert_true(SIGNAL_READ_NEXT(IRQ_B));
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
 		SIGNAL_WRITE(CB1, true);
 		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
@@ -2885,7 +3084,8 @@ static MunitResult test_sr_shift_in_cb1(const MunitParameter params[], void *use
 }
 
 static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	// assert initial state
 	ASSERT_REGISTERS_DEFAULT(0);
@@ -2895,7 +3095,7 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 
 	// setup sr-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2909,7 +3109,7 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 	uint8_t data_1 = 0b10110011;
 
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2921,12 +3121,14 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CB2, true);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+	SIGNAL_NO_WRITE(CB2);
 
 	// shift out 8 bits
 	uint8_t done_1 = 0;
@@ -2958,7 +3160,7 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 	uint8_t data_2 = 0b11110000;
 
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -2970,12 +3172,14 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CB2, true);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+	SIGNAL_NO_WRITE(CB2);
 
 	// shift out 8 bits
 	uint8_t done_2 = 0;
@@ -3007,7 +3211,8 @@ static MunitResult test_sr_shift_out_phi2(const MunitParameter params[], void *u
 }
 
 static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	const int sr_pulses = 4;
 
@@ -3019,7 +3224,7 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 
 	// setup t2 enough for the shift register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3032,7 +3237,7 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 
 	// setup sr-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3046,7 +3251,7 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 	uint8_t data_1 = 0b10110011;
 
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3058,12 +3263,14 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CB2, true);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+	SIGNAL_NO_WRITE(CB2);
 
 	// shift out 8 bits
 	uint8_t done_1 = 0;
@@ -3102,7 +3309,7 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 	uint8_t data_2 = 0b11110000;
 
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3114,12 +3321,14 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(RW, true);
 		SIGNAL_WRITE(CB2, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+	SIGNAL_NO_WRITE(CB2);
 
 	// shift out 8 bits
 	uint8_t done_2 = 0;
@@ -3158,7 +3367,8 @@ static MunitResult test_sr_shift_out_t2(const MunitParameter params[], void *use
 }
 
 static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	const int sr_pulses = 4;
 
@@ -3170,7 +3380,7 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 
 	// setup t2 enough for the shift register
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3183,7 +3393,7 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 
 	// setup sr-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3197,7 +3407,7 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 	uint8_t data_1 = 0b10110011;
 
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3209,12 +3419,14 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CB2, true);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+	SIGNAL_NO_WRITE(CB2);
 
 	// shift out 8 bits
 	uint8_t done_1 = 0;
@@ -3274,7 +3486,7 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 	uint8_t data_2 = 0b11110000;
 
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3285,12 +3497,14 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CB2, true);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_true(SIGNAL_READ_NEXT(CB1));
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
+	SIGNAL_NO_WRITE(CB2);
 
 	// shift out 8 bits
 	uint8_t done_2 = 0;
@@ -3323,7 +3537,8 @@ static MunitResult test_sr_shift_out_t2_free(const MunitParameter params[], void
 }
 
 static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *user_data_or_fixture) {
-	Chip6522 *via = (Chip6522 *) user_data_or_fixture;
+	TestFixture6522 *fixture = (TestFixture6522 *) user_data_or_fixture;
+	Chip6522 *via = fixture->via;
 
 	const int sr_pulses = 4;
 
@@ -3335,7 +3550,7 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 
 	// setup sr-mode
 	VIA_CYCLE_START
-		strobe_via(via, true);					// enable via
+		strobe_via(fixture, true);					// enable via
 		SIGNAL_WRITE(RS0, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3349,7 +3564,7 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 	uint8_t data_1 = 0b10110011;
 
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3361,12 +3576,14 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(CB1, true);
 		SIGNAL_WRITE(CB2, true);
 		SIGNAL_WRITE(RW, true);
 	VIA_CYCLE_END
 	munit_assert_uint8(via->reg_sr, ==, 0b10110011);
+	SIGNAL_NO_WRITE(CB2);
 
 	// shift out 8 bits
 	uint8_t done_1 = 0;
@@ -3409,7 +3626,7 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 	uint8_t data_2 = 0b11110000;
 
 	VIA_CYCLE_START
-		strobe_via(via, true);
+		strobe_via(fixture, true);
 		SIGNAL_WRITE(RS0, ACTHI_DEASSERT);
 		SIGNAL_WRITE(RS1, ACTHI_ASSERT);
 		SIGNAL_WRITE(RS2, ACTHI_DEASSERT);
@@ -3421,7 +3638,8 @@ static MunitResult test_sr_shift_out_cb1(const MunitParameter params[], void *us
 	munit_assert_uint8(via->reg_sr, ==, 0b11110000);
 
 	VIA_CYCLE_START
-		strobe_via(via, false);
+		strobe_via(fixture, false);
+		SIGNAL_GROUP_NO_WRITE(data);
 		SIGNAL_WRITE(RW, true);
 		SIGNAL_WRITE(CB1, true);
 	VIA_CYCLE_END
