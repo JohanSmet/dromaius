@@ -52,18 +52,19 @@ uint64_t signal_pool_cycle(SignalPool *pool) {
 	for (uint32_t blocks_touched = pool->blocks_touched; blocks_touched; blocks_touched &= blocks_touched - 1) {
 		int blk = bit_lowest_set(blocks_touched);
 
-		// combine the layers
+		// combine the layers - invert the values so when there are multiple writes to the same signal the result is only
+		//						high when all the writes are high (even one low pulls everything low)
 		uint64_t combined_mask = 0;
 		uint64_t new_value = 0;
 
 		for (uint64_t layers = pool->block_layers[blk]; layers; layers &= layers - 1) {
 			int layer = bit_lowest_set(layers);
-			new_value |= pool->signals_next_value[layer][blk] & pool->signals_next_mask[layer][blk];
+			new_value |= ~pool->signals_next_value[layer][blk] & pool->signals_next_mask[layer][blk];
 			combined_mask |= pool->signals_next_mask[layer][blk];
 		}
 
 		// apply the defaults
-		new_value |= pool->signals_default[blk] & ~combined_mask;
+		new_value = (~new_value & combined_mask) | (pool->signals_default[blk] & ~combined_mask);
 
 		// determine which signals changed
 		pool->signals_changed[blk] = pool->signals_value[blk] ^ new_value;
