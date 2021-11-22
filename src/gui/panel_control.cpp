@@ -71,7 +71,7 @@ public:
 				ImGui::SameLine();
 			}
 
-			if (step_next_instruction.signal > 0 && ImGui::Button("Next Instruction")) {
+			if (!signal_is_undefined(step_next_instruction.signal)  && ImGui::Button("Next Instruction")) {
 				dms_step_signal(ui_context->dms_ctx, step_next_instruction.signal, step_next_instruction.pos_edge, step_next_instruction.neg_edge);
 			}
 			ImGui::SameLine();

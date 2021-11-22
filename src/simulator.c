@@ -147,8 +147,8 @@ void simulator_device_complete(Simulator *sim) {
 		uint64_t used_layers = 0;
 
 		for (uint32_t pin_idx = 0; pin_idx < chip->pin_count; ++pin_idx) {
-			if (chip->pins[pin_idx] != 0) {
-				used_layers |= sim->signal_pool->signals_layers[chip->pins[pin_idx]];
+			if (!signal_is_undefined(chip->pins[pin_idx])) {
+				used_layers |= sim->signal_pool->signals_layers[signal_array_subscript(chip->pins[pin_idx])];
 			}
 		}
 
@@ -160,10 +160,8 @@ void simulator_device_complete(Simulator *sim) {
 		uint64_t layer_mask = 1ull << chip->signal_layer;
 
 		for (uint32_t pin_idx = 1; pin_idx < chip->pin_count; ++pin_idx) {
-			sim->signal_pool->signals_layers[chip->pins[pin_idx]] |= layer_mask;
-
-			uint32_t signal_block = (chip->pins[pin_idx] & 0xffffffc0) >> 6;
-			sim->signal_pool->block_layers[signal_block] |= layer_mask;
+			sim->signal_pool->signals_layers[signal_array_subscript(chip->pins[pin_idx])] |= layer_mask;
+			sim->signal_pool->block_layers[chip->pins[pin_idx].block] |= layer_mask;
 		}
 
 
@@ -196,17 +194,16 @@ void simulator_simulate_timestep(Simulator *sim) {
 uint64_t simulator_signal_writers(Simulator *sim, Signal signal) {
 	assert(sim);
 
-	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
-	uint64_t signal_flag = 1ull << (signal & 0x3f);
+	uint64_t signal_flag = 1ull << signal.index;
 	uint64_t result = 0;
 
 	// check all layers that are used by this signal
-	for (uint64_t layers = sim->signal_pool->signals_layers[signal]; layers; layers &= layers - 1) {
+	for (uint64_t layers = sim->signal_pool->signals_layers[signal_array_subscript(signal)]; layers; layers &= layers - 1) {
 
 		int32_t layer = bit_lowest_set(layers);
 
 		// skip if no write on this layer
-		if (!FLAG_IS_SET(sim->signal_pool->signals_next_mask[layer][signal_block], signal_flag)) {
+		if (!FLAG_IS_SET(sim->signal_pool->signals_next_mask[layer][signal.block], signal_flag)) {
 			continue;
 		}
 
@@ -216,7 +213,7 @@ uint64_t simulator_signal_writers(Simulator *sim, Signal signal) {
 			Chip *chip = PRIVATE(sim)->chips[chip_id];
 
 			for (uint32_t pin_idx = 0; pin_idx < chip->pin_count; ++pin_idx) {
-				if (chip->pins[pin_idx] == signal) {
+				if (signal_equal(chip->pins[pin_idx], signal)) {
 					result |= 1ull << chip_id;
 				}
 			}

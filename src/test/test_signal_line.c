@@ -22,7 +22,7 @@ static MunitResult test_create(const MunitParameter params[], void* user_data_or
 
 	// 1-bit signal
 	Signal sig1 = signal_create(pool);
-	munit_assert_uint32(sig1, ==, 1);
+	munit_assert_uint32(signal_array_subscript(sig1), ==, 1);
 	munit_assert_uint32(pool->signals_count, ==, 2);
 
 	// 8-bit signal
@@ -40,6 +40,26 @@ static MunitResult test_create(const MunitParameter params[], void* user_data_or
 	munit_assert_size(signal_group_size(sg4), ==, 12);
 	munit_assert_uint32(pool->signals_count, ==, 38);
 
+	// fill the first block of 64 signals
+	SignalGroup sg5 = signal_group_create_new(pool, 26);
+	munit_assert_size(signal_group_size(sg5), ==, 26);
+	munit_assert_uint32(pool->signals_count, ==, 64);
+	munit_assert_uint8(sg5[25].block, ==, 0);
+	munit_assert_uint16(sg5[25].index, ==, 63);
+
+	// fill up some more blocks
+	SignalGroup sg6 = signal_group_create_new(pool, 256);
+	munit_assert_size(signal_group_size(sg6), ==, 256);
+	munit_assert_uint32(pool->signals_count, ==, 320);
+	munit_assert_uint8(sg6[0].block, ==, 1);
+	munit_assert_uint16(sg6[0].index, ==, 0);
+	munit_assert_uint8(sg6[64].block, ==, 2);
+	munit_assert_uint16(sg6[64].index, ==, 0);
+	munit_assert_uint8(sg6[128].block, ==, 3);
+	munit_assert_uint16(sg6[128].index, ==, 0);
+	munit_assert_uint8(sg6[192].block, ==, 4);
+	munit_assert_uint16(sg6[192].index, ==, 0);
+
     return MUNIT_OK;
 }
 
@@ -51,8 +71,8 @@ static MunitResult test_read(const MunitParameter params[], void* user_data_or_f
 	Signal sig_b = signal_create(pool);
 	pool->signals_value[0] = 0x0000000000000002;
 
-	munit_assert_uint32(sig_a, == , 1);
-	munit_assert_uint32(sig_b, == , 2);
+	munit_assert_uint32(signal_array_subscript(sig_a), == , 1);
+	munit_assert_uint32(signal_array_subscript(sig_b), == , 2);
 
 	// test
 	munit_assert_true(signal_read(pool, sig_a));
@@ -296,7 +316,7 @@ static MunitResult test_names(const MunitParameter params[], void* user_data_or_
 }
 
 static inline void assert_signal_equal(Signal a, Signal b) {
-	munit_assert_uint32(a, ==, b);
+	munit_assert_true(signal_equal(a, b));
 }
 
 static MunitResult test_fetch_by_name(const MunitParameter params[], void* user_data_or_fixture) {
@@ -313,36 +333,36 @@ static MunitResult test_fetch_by_name(const MunitParameter params[], void* user_
 	signal_group_set_name(pool, sg_word, "word", "word_%x", 0);
 
 	// test
-	munit_assert_uint32(signal_by_name(pool, "bit"), ==, sig_bit);
+	assert_signal_equal(signal_by_name(pool, "bit"), sig_bit);
 
-	munit_assert_uint32(signal_by_name(pool, "byte_0"), ==, sg_byte[0]);
-	munit_assert_uint32(signal_by_name(pool, "byte_1"), ==, sg_byte[1]);
-	munit_assert_uint32(signal_by_name(pool, "byte_2"), ==, sg_byte[2]);
-	munit_assert_uint32(signal_by_name(pool, "byte_3"), ==, sg_byte[3]);
-	munit_assert_uint32(signal_by_name(pool, "byte_4"), ==, sg_byte[4]);
-	munit_assert_uint32(signal_by_name(pool, "byte_5"), ==, sg_byte[5]);
-	munit_assert_uint32(signal_by_name(pool, "byte_6"), ==, sg_byte[6]);
-	munit_assert_uint32(signal_by_name(pool, "byte_7"), ==, sg_byte[7]);
+	assert_signal_equal(signal_by_name(pool, "byte_0"), sg_byte[0]);
+	assert_signal_equal(signal_by_name(pool, "byte_1"), sg_byte[1]);
+	assert_signal_equal(signal_by_name(pool, "byte_2"), sg_byte[2]);
+	assert_signal_equal(signal_by_name(pool, "byte_3"), sg_byte[3]);
+	assert_signal_equal(signal_by_name(pool, "byte_4"), sg_byte[4]);
+	assert_signal_equal(signal_by_name(pool, "byte_5"), sg_byte[5]);
+	assert_signal_equal(signal_by_name(pool, "byte_6"), sg_byte[6]);
+	assert_signal_equal(signal_by_name(pool, "byte_7"), sg_byte[7]);
 
-	munit_assert_uint32(signal_by_name(pool, "word_0"), ==, sg_word[0]);
-	munit_assert_uint32(signal_by_name(pool, "word_1"), ==, sg_word[1]);
-	munit_assert_uint32(signal_by_name(pool, "word_2"), ==, sg_word[2]);
-	munit_assert_uint32(signal_by_name(pool, "word_3"), ==, sg_word[3]);
-	munit_assert_uint32(signal_by_name(pool, "word_4"), ==, sg_word[4]);
-	munit_assert_uint32(signal_by_name(pool, "word_5"), ==, sg_word[5]);
-	munit_assert_uint32(signal_by_name(pool, "word_6"), ==, sg_word[6]);
-	munit_assert_uint32(signal_by_name(pool, "word_7"), ==, sg_word[7]);
-	munit_assert_uint32(signal_by_name(pool, "word_8"), ==, sg_word[8]);
-	munit_assert_uint32(signal_by_name(pool, "word_9"), ==, sg_word[9]);
-	munit_assert_uint32(signal_by_name(pool, "word_a"), ==, sg_word[10]);
-	munit_assert_uint32(signal_by_name(pool, "word_b"), ==, sg_word[11]);
-	munit_assert_uint32(signal_by_name(pool, "word_c"), ==, sg_word[12]);
-	munit_assert_uint32(signal_by_name(pool, "word_d"), ==, sg_word[13]);
-	munit_assert_uint32(signal_by_name(pool, "word_e"), ==, sg_word[14]);
-	munit_assert_uint32(signal_by_name(pool, "word_f"), ==, sg_word[15]);
+	assert_signal_equal(signal_by_name(pool, "word_0"), sg_word[0]);
+	assert_signal_equal(signal_by_name(pool, "word_1"), sg_word[1]);
+	assert_signal_equal(signal_by_name(pool, "word_2"), sg_word[2]);
+	assert_signal_equal(signal_by_name(pool, "word_3"), sg_word[3]);
+	assert_signal_equal(signal_by_name(pool, "word_4"), sg_word[4]);
+	assert_signal_equal(signal_by_name(pool, "word_5"), sg_word[5]);
+	assert_signal_equal(signal_by_name(pool, "word_6"), sg_word[6]);
+	assert_signal_equal(signal_by_name(pool, "word_7"), sg_word[7]);
+	assert_signal_equal(signal_by_name(pool, "word_8"), sg_word[8]);
+	assert_signal_equal(signal_by_name(pool, "word_9"), sg_word[9]);
+	assert_signal_equal(signal_by_name(pool, "word_a"), sg_word[10]);
+	assert_signal_equal(signal_by_name(pool, "word_b"), sg_word[11]);
+	assert_signal_equal(signal_by_name(pool, "word_c"), sg_word[12]);
+	assert_signal_equal(signal_by_name(pool, "word_d"), sg_word[13]);
+	assert_signal_equal(signal_by_name(pool, "word_e"), sg_word[14]);
+	assert_signal_equal(signal_by_name(pool, "word_f"), sg_word[15]);
 
 	Signal unknown = signal_by_name(pool, "unknown");
-	munit_assert_uint32(unknown, ==, 0);
+	munit_assert_true(signal_is_undefined(unknown));
 
 	return MUNIT_OK;
 }

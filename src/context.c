@@ -566,7 +566,7 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 	} else if (cmd[0] == 'b' && cmd[1] == 's') {		// toggle "b"reak on signal change
 		Signal signal = signal_by_name(dms->simulator->signal_pool, cmd + 3);
 
-		if (signal != 0) {
+		if (!signal_is_undefined(signal)) {
 			static const char *disp_break[] = {"unset", "set"};
 			bool set = dms_toggle_signal_breakpoint(dms, signal);
 			arr_printf(*reply, "OK: signal-change breakpoint on %s %s", cmd + 3, disp_break[set]);

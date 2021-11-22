@@ -282,7 +282,7 @@ static inline void process_end(Chip6520 *pia) {
 	// the IRQ-lines are open-drain; output is either low (tied to ground) or hi-z (floating, to be pulled up externally)
 	// be careful when the IRQ-lines are tied to the same signal
 	if ((output->irqa_b != last_output->irqa_b) || (output->irqb_b != last_output->irqb_b)) {
-		if (SIGNAL(IRQA_B) != SIGNAL(IRQB_B)) {
+		if (!signal_equal(SIGNAL(IRQA_B), SIGNAL(IRQB_B))) {
 			if (!output->irqa_b) {
 				SIGNAL_WRITE(IRQA_B, false);
 			} else {

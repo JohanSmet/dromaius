@@ -66,7 +66,7 @@ public:
 			if (ImGui::InputText("##input", input, sizeof(input) - 1, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				auto signal = signal_by_name(signal_pool, input);
 
-				if (signal > 0) {
+				if (!signal_is_undefined(signal)) {
 					signal_names.push_back(input);
 					signals.push_back(signal);
 

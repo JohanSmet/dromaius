@@ -26,39 +26,44 @@ void signal_add_dependency(SignalPool *pool, Signal signal, int32_t chip_id);
 
 void signal_default(SignalPool *pool, Signal signal, bool value);
 
+static inline bool signal_equal(Signal a, Signal b) {
+	return a.block == b.block && a.index == b.index;
+}
+
+static inline bool signal_is_undefined(Signal signal) {
+	return signal.block == 0 && signal.index == 0;
+}
+
+static inline size_t signal_array_subscript(Signal signal) {
+	return (size_t) (signal.block * 64) + signal.index;
+}
+
 static inline bool signal_read(SignalPool *pool, Signal signal) {
 	assert(pool);
-	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
-	uint64_t signal_flag = 1ull << (signal & 0x3f);
-	return FLAG_IS_SET(pool->signals_value[signal_block], signal_flag);
+	return FLAG_IS_SET(pool->signals_value[signal.block], 1ull << signal.index);
 }
 
 static inline void signal_write(SignalPool *pool, Signal signal, bool value, uint32_t layer) {
 	assert(pool);
 
-	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
-	uint64_t signal_flag = 1ull << (signal & 0x3f);
+	uint64_t signal_flag = 1ull << signal.index;
 
-	FLAG_SET_CLEAR_U64(pool->signals_next_value[layer][signal_block], signal_flag, value);
-	FLAG_SET(pool->signals_next_mask[layer][signal_block], signal_flag);
-	pool->blocks_touched |= 1u << signal_block;
+	FLAG_SET_CLEAR_U64(pool->signals_next_value[layer][signal.block], signal_flag, value);
+	FLAG_SET(pool->signals_next_mask[layer][signal.block], signal_flag);
+	pool->blocks_touched |= 1u << signal.block;
 }
 
 static inline void signal_clear_writer(SignalPool *pool, Signal signal, uint32_t layer) {
 	assert(pool);
 
-	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
-	uint64_t signal_flag = 1ull << (signal & 0x3f);
-	FLAG_CLEAR_U64(pool->signals_next_mask[layer][signal_block], signal_flag);
-	pool->blocks_touched |= 1u << signal_block;
+	FLAG_CLEAR_U64(pool->signals_next_mask[layer][signal.block], 1ull << signal.index);
+	pool->blocks_touched |= 1u << signal.block;
 }
 
 bool signal_read_next(SignalPool *pool, Signal signal);
 
 static inline bool signal_changed(SignalPool *pool, Signal signal) {
-	uint32_t signal_block = (signal & 0xffffffc0) >> 6;
-	uint64_t signal_flag = 1ull << (signal & 0x3f);
-	return FLAG_IS_SET(pool->signals_changed[signal_block], signal_flag);
+	return FLAG_IS_SET(pool->signals_changed[signal.block], 1ull << signal.index);
 }
 
 // functions - signal groups
@@ -193,31 +198,33 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 #define SIGNAL(sig)			SIGNAL_COLLECTION[SIGNAL_CONCAT(SIGNAL_PREFIX, sig)]
 #define SIGNAL_GROUP(grp)	SIGNAL_OWNER->sg_ ## grp
 
+#define SIGNAL_INIT_UNDEFINED {0, 0}
+
 #define SIGNAL_DEFINE(sig)							\
-	if (SIGNAL(sig) == 0) {							\
+	if (signal_is_undefined(SIGNAL(sig))) {			\
 		SIGNAL(sig) = signal_create(SIGNAL_POOL);	\
 	}
 
 #define SIGNAL_DEFINE_N(sig,name)							\
-	if (SIGNAL(sig) == 0) {									\
+	if (signal_is_undefined(SIGNAL(sig))) {					\
 		SIGNAL(sig) = signal_create(SIGNAL_POOL);			\
 		signal_set_name(SIGNAL_POOL, SIGNAL(sig), (name));	\
 	}
 
 #define SIGNAL_DEFINE_GROUP(sig, grp)						\
-	if (SIGNAL(sig) == 0) {									\
+	if (signal_is_undefined(SIGNAL(sig))) {					\
 		SIGNAL(sig) = signal_create(SIGNAL_POOL);			\
 	}														\
 	signal_group_push(&SIGNAL_OWNER->sg_ ## grp, SIGNAL(sig));
 
 #define SIGNAL_DEFINE_DEFAULT(sig,def)						\
-	if (SIGNAL(sig) == 0) {									\
+	if (signal_is_undefined(SIGNAL(sig))) {					\
 		SIGNAL(sig) = signal_create(SIGNAL_POOL);			\
 		signal_default(SIGNAL_POOL, SIGNAL(sig), (def));	\
 	}
 
 #define SIGNAL_DEFINE_DEFAULT_N(sig,def,name)				\
-	if (SIGNAL(sig) == 0) {									\
+	if (signal_is_undefined(SIGNAL(sig))) {					\
 		SIGNAL(sig) = signal_create(SIGNAL_POOL);			\
 		signal_default(SIGNAL_POOL, SIGNAL(sig), (def));	\
 		signal_set_name(SIGNAL_POOL, SIGNAL(sig), (name));	\

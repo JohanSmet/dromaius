@@ -7,7 +7,11 @@
 
 #include "types.h"
 
-typedef uint32_t Signal;
+typedef struct Signal {
+	uint16_t	index;
+	uint8_t		block;
+} Signal;
+
 typedef Signal *SignalGroup;					// dynamic array of Signal
 
 typedef struct SignalBreakpoint {

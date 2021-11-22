@@ -6,6 +6,7 @@
 #define DROMAIUS_CHIP_H
 
 #include "types.h"
+#include "signal_types.h"
 
 typedef enum  {
 	CHIP_PIN_01 = 0,
@@ -64,7 +65,7 @@ typedef void (*CHIP_DEPENDENCIES_FUNC)(void *chip);
 	struct Simulator *simulator;					\
 	uint32_t		  signal_layer;					\
 	uint32_t		  pin_count;					\
-	uint32_t *		  pins;
+	Signal *		  pins;
 
 #define CHIP_SET_FUNCTIONS(chip, pf, df, rdf)		\
 	(chip)->process = (CHIP_PROCESS_FUNC) (pf);		\

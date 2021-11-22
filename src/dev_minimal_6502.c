@@ -412,7 +412,7 @@ size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, SignalBreakpoint
 
 	static SignalBreakpoint irqs[1] = {0};
 
-	if (irqs[0].signal == 0) {
+	if (signal_is_undefined(irqs[0].signal)) {
 		irqs[0] = (SignalBreakpoint) {SIGNAL(CPU_IRQ_B), false, true};
 	}
 

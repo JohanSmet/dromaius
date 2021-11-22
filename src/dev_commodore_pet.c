@@ -2628,7 +2628,7 @@ size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, SignalBreakpoi
 
 	static SignalBreakpoint pet_irq[1] = {0};
 
-	if (pet_irq[0].signal == 0) {
+	if (signal_is_undefined(pet_irq[0].signal)) {
 		pet_irq[0] = (SignalBreakpoint) {SIGNAL(IRQ_B), false, true};
 	}
 
