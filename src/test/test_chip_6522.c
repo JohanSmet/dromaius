@@ -242,7 +242,6 @@ static MunitResult test_create(const MunitParameter params[], void *user_data_or
 	munit_assert_ptr_not_null(via);
 	munit_assert_ptr_not_null(via->process);
 	munit_assert_ptr_not_null(via->destroy);
-	munit_assert_ptr_not_null(via->register_dependencies);
 
 	return MUNIT_OK;
 }

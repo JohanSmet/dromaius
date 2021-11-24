@@ -57,7 +57,6 @@ static MunitResult test_create(const MunitParameter params[], void *user_data_or
 	munit_assert_ptr_not_null(pia);
 	munit_assert_ptr_not_null(pia->process);
 	munit_assert_ptr_not_null(pia->destroy);
-	munit_assert_ptr_not_null(pia->register_dependencies);
 
 	return MUNIT_OK;
 }

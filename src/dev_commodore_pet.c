@@ -48,62 +48,49 @@ typedef struct ChipGlueLogic {
 	Signal			signals[CHIP_GLUE_LOGIC_MAX_PIN_COUNT];
 } ChipGlueLogic;
 
+static uint8_t ChipGlueLogic01_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
+static uint8_t ChipGlueLogic03_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
+static uint8_t ChipGlueLogic05_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
+static uint8_t ChipGlueLogic06_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
+static uint8_t ChipGlueLogic07_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
+static uint8_t ChipGlueLogic08_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
+static uint8_t ChipGlueLogic17_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
+
 static void glue_logic_destroy(ChipGlueLogic *chip);
-static uint32_t glue_logic_init_signals_01(ChipGlueLogic *chip);
-static void glue_logic_register_dependencies_01(ChipGlueLogic *chip);
+static void glue_logic_init_01(ChipGlueLogic *chip);
 static void glue_logic_process_01(ChipGlueLogic *chip);
-static uint32_t glue_logic_init_signals_03(ChipGlueLogic *chip);
-static void glue_logic_register_dependencies_03(ChipGlueLogic *chip);
+static void glue_logic_init_03(ChipGlueLogic *chip);
 static void glue_logic_process_03(ChipGlueLogic *chip);
-static uint32_t glue_logic_init_signals_05(ChipGlueLogic *chip);
-static void glue_logic_register_dependencies_05(ChipGlueLogic *chip);
+static void glue_logic_init_05(ChipGlueLogic *chip);
 static void glue_logic_process_05(ChipGlueLogic *chip);
-static uint32_t glue_logic_init_signals_06(ChipGlueLogic *chip);
-static void glue_logic_register_dependencies_06(ChipGlueLogic *chip);
+static void glue_logic_init_06(ChipGlueLogic *chip);
 static void glue_logic_process_06(ChipGlueLogic *chip);
-static uint32_t glue_logic_init_signals_07(ChipGlueLogic *chip);
-static void glue_logic_register_dependencies_07(ChipGlueLogic *chip);
+static void glue_logic_init_07(ChipGlueLogic *chip);
 static void glue_logic_process_07(ChipGlueLogic *chip);
-static uint32_t glue_logic_init_signals_08(ChipGlueLogic *chip);
-static void glue_logic_register_dependencies_08(ChipGlueLogic *chip);
+static void glue_logic_init_08(ChipGlueLogic *chip);
 static void glue_logic_process_08(ChipGlueLogic *chip);
 
 static void glue_logic_process_07_lite(ChipGlueLogic *chip);
-static uint32_t glue_logic_init_signals_07_lite(ChipGlueLogic *chip);
-static void glue_logic_register_dependencies_07_lite(ChipGlueLogic *chip);
+static void glue_logic_init_07_lite(ChipGlueLogic *chip);
 
 static ChipGlueLogic *glue_logic_create(DevCommodorePet *device, int sheet) {
 	ChipGlueLogic *chip = (ChipGlueLogic *) calloc(1, sizeof(ChipGlueLogic));
 	chip->device = device;
 
 	if (sheet == 1) {
-		uint32_t count = glue_logic_init_signals_01(chip);
-		CHIP_SET_FUNCTIONS(chip, glue_logic_process_01, glue_logic_destroy, glue_logic_register_dependencies_01);
-		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
+		glue_logic_init_01(chip);
 	} else if (sheet == 3) {
-		uint32_t count = glue_logic_init_signals_03(chip);
-		CHIP_SET_FUNCTIONS(chip, glue_logic_process_03, glue_logic_destroy, glue_logic_register_dependencies_03);
-		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
+		glue_logic_init_03(chip);
 	} else if (sheet == 5) {
-		uint32_t count = glue_logic_init_signals_05(chip);
-		CHIP_SET_FUNCTIONS(chip, glue_logic_process_05, glue_logic_destroy, glue_logic_register_dependencies_05);
-		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
+		glue_logic_init_05(chip);
 	} else if (sheet == 6) {
-		uint32_t count = glue_logic_init_signals_06(chip);
-		CHIP_SET_FUNCTIONS(chip, glue_logic_process_06, glue_logic_destroy, glue_logic_register_dependencies_06);
-		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
+		glue_logic_init_06(chip);
 	} else if (sheet == 7) {
-		uint32_t count = glue_logic_init_signals_07(chip);
-		CHIP_SET_FUNCTIONS(chip, glue_logic_process_07, glue_logic_destroy, glue_logic_register_dependencies_07);
-		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
+		glue_logic_init_07(chip);
 	} else if (sheet == 8) {
-		uint32_t count = glue_logic_init_signals_08(chip);
-		CHIP_SET_FUNCTIONS(chip, glue_logic_process_08, glue_logic_destroy, glue_logic_register_dependencies_08);
-		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
+		glue_logic_init_08(chip);
 	} else if (sheet == 17) {
-		uint32_t count = glue_logic_init_signals_07_lite(chip);
-		CHIP_SET_FUNCTIONS(chip, glue_logic_process_07_lite, glue_logic_destroy, glue_logic_register_dependencies_07_lite);
-		CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, count);
+		glue_logic_init_07_lite(chip);
 	} else {
 		assert(false && "bad programmer!");
 	}
@@ -116,60 +103,52 @@ static void glue_logic_destroy(ChipGlueLogic *chip) {
 	free(chip);
 }
 
+#define GLUE_PIN(s,t)					\
+	chip->signals[pin] = SIGNAL(s);		\
+	chip->pin_types[pin] = (t);			\
+	++pin;
+
 // glue-logic: micro-processor / memory expansion
 
-static uint32_t glue_logic_init_signals_01(ChipGlueLogic *chip) {
+static void glue_logic_init_01(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
+	chip->pin_types = ChipGlueLogic01_PinTypes;
 
 	uint32_t pin = 0;
-	chip->signals[pin++] = SIGNAL(BA8);
-	chip->signals[pin++] = SIGNAL(BA9);
-	chip->signals[pin++] = SIGNAL(BA10);
-	chip->signals[pin++] = SIGNAL(BA15);
-	chip->signals[pin++] = SIGNAL(SEL8_B);
-	chip->signals[pin++] = SIGNAL(RW);
-	chip->signals[pin++] = SIGNAL(RESET_BTN_B);
-	chip->signals[pin++] = SIGNAL(RESET_B);
-	chip->signals[pin++] = SIGNAL(RESET);
-	chip->signals[pin++] = SIGNAL(INIT_B);
-	chip->signals[pin++] = SIGNAL(INIT);
-	chip->signals[pin++] = SIGNAL(IFC_B);
-	chip->signals[pin++] = SIGNAL(SEL8);
-	chip->signals[pin++] = SIGNAL(BA11);
-	chip->signals[pin++] = SIGNAL(BA11_B);
-	chip->signals[pin++] = SIGNAL(X8XX);
-	chip->signals[pin++] = SIGNAL(88XX_B);
-	chip->signals[pin++] = SIGNAL(ROMA_B);
-	chip->signals[pin++] = SIGNAL(RAMR_B);
-	chip->signals[pin++] = SIGNAL(RAMW_B);
-	chip->signals[pin++] = SIGNAL(BRW);
-	chip->signals[pin++] = SIGNAL(BRW_B);
-	chip->signals[pin++] = SIGNAL(RAMRW);
-	chip->signals[pin++] = SIGNAL(PHI2);
-	chip->signals[pin++] = SIGNAL(BPHI2);
-	chip->signals[pin++] = SIGNAL(CPHI2);
-	chip->signals[pin++] = SIGNAL(CS1);
+	GLUE_PIN(BA6,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BA8,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BA9,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BA10,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BA11,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BA15,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(SEL8_B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RW,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(CLK1,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RESET_BTN_B,	CHIP_PIN_OUTPUT);
+	GLUE_PIN(RESET_B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RESET,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(INIT_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(INIT,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(IFC_B,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(SEL8,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(BA11_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(X8XX,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(88XX_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(ROMA_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(RAMR_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(RAMW_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BRW,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(BRW_B,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(RAMRW,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(PHI2,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(CPHI2,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(CS1,			CHIP_PIN_OUTPUT);
 	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
 
-	return pin;
-}
-
-static void glue_logic_register_dependencies_01(ChipGlueLogic *chip) {
-	assert(chip);
-	DevCommodorePet *device = chip->device;
-
-	SIGNAL_DEPENDENCY(RESET_B);
-	SIGNAL_DEPENDENCY(SEL8_B);
-	SIGNAL_DEPENDENCY(SELE_B);
-	SIGNAL_DEPENDENCY(BA6);
-	SIGNAL_DEPENDENCY(BA8);
-	SIGNAL_DEPENDENCY(BA9);
-	SIGNAL_DEPENDENCY(BA10);
-	SIGNAL_DEPENDENCY(BA11);
-	SIGNAL_DEPENDENCY(BA15);
-	SIGNAL_DEPENDENCY(RW);
-	SIGNAL_DEPENDENCY(CLK1);
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process_01, glue_logic_destroy);
+	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, ChipGlueLogic01_PinTypes, pin);
 }
 
 static void glue_logic_process_01(ChipGlueLogic *chip) {
@@ -241,26 +220,20 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 
 // glue-logic: cassette & keyboard
 
-static uint32_t glue_logic_init_signals_03(ChipGlueLogic *chip) {
+static void glue_logic_init_03(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
+	chip->pin_types = ChipGlueLogic03_PinTypes;
 
 	uint32_t pin = 0;
-	chip->signals[pin++] = SIGNAL(CASS_MOTOR_1);
-	chip->signals[pin++] = SIGNAL(CASS_MOTOR_1_B);
-	chip->signals[pin++] = SIGNAL(CASS_MOTOR_2);
-	chip->signals[pin++] = SIGNAL(CASS_MOTOR_2_B);
+	GLUE_PIN(CASS_MOTOR_1,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(CASS_MOTOR_1_B,	CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(CASS_MOTOR_2,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(CASS_MOTOR_2_B,	CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
 
-	return pin;
-}
-
-static void glue_logic_register_dependencies_03(ChipGlueLogic *chip) {
-	assert(chip);
-	DevCommodorePet *device = chip->device;
-
-	SIGNAL_DEPENDENCY(CASS_MOTOR_1_B);
-	SIGNAL_DEPENDENCY(CASS_MOTOR_2_B);
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process_03, glue_logic_destroy);
+	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, ChipGlueLogic03_PinTypes, pin);
 }
 
 static void glue_logic_process_03(ChipGlueLogic *chip) {
@@ -272,25 +245,20 @@ static void glue_logic_process_03(ChipGlueLogic *chip) {
 }
 
 // glue-logic: rams
-static uint32_t glue_logic_init_signals_05(ChipGlueLogic *chip) {
+static void glue_logic_init_05(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
+	chip->pin_types = ChipGlueLogic05_PinTypes;
 
 	uint32_t pin = 0;
-	chip->signals[pin++] = SIGNAL(BA15);
-	chip->signals[pin++] = SIGNAL(BANKSEL);
-	chip->signals[pin++] = SIGNAL(BRW);
+	GLUE_PIN(BA15,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BANKSEL,	CHIP_PIN_OUTPUT);
+	GLUE_PIN(BRW,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(G7_8,		CHIP_PIN_OUTPUT);
 	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
 
-	return pin;
-}
-
-static void glue_logic_register_dependencies_05(ChipGlueLogic *chip) {
-	assert(chip);
-	DevCommodorePet *device = chip->device;
-
-	SIGNAL_DEPENDENCY(BA15);
-	SIGNAL_DEPENDENCY(BRW);
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process_05, glue_logic_destroy);
+	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, ChipGlueLogic05_PinTypes, pin);
 }
 
 static void glue_logic_process_05(ChipGlueLogic *chip) {
@@ -307,85 +275,52 @@ static void glue_logic_process_05(ChipGlueLogic *chip) {
 }
 
 // glue-logic: master timing
-static uint32_t glue_logic_init_signals_06(ChipGlueLogic *chip) {
+static void glue_logic_init_06(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
+	chip->pin_types = ChipGlueLogic06_PinTypes;
 
 	uint32_t pin = 0;
-	chip->signals[pin++] = SIGNAL(BPHI2A_B);
-	chip->signals[pin++] = SIGNAL(BPHI2A);
-	chip->signals[pin++] = SIGNAL(BPHI2B_B);
-	chip->signals[pin++] = SIGNAL(BPHI2B);
-	chip->signals[pin++] = SIGNAL(BPHI2F_B);
-	chip->signals[pin++] = SIGNAL(BPHI2F);
-	chip->signals[pin++] = SIGNAL(BPHI2G_B);
-	chip->signals[pin++] = SIGNAL(BPHI2G);
-	chip->signals[pin++] = SIGNAL(RA1AND3);
-	chip->signals[pin++] = SIGNAL(RA1);
-	chip->signals[pin++] = SIGNAL(RA3);
-	chip->signals[pin++] = SIGNAL(RA4AND6);
-	chip->signals[pin++] = SIGNAL(RA4);
-	chip->signals[pin++] = SIGNAL(RA6);
-	chip->signals[pin++] = SIGNAL(RA5AND6_B);
-	chip->signals[pin++] = SIGNAL(RA5);
-	chip->signals[pin++] = SIGNAL(RA6_B);
-	chip->signals[pin++] = SIGNAL(BPHI2F);
-	chip->signals[pin++] = SIGNAL(BPHI2H);
-	chip->signals[pin++] = SIGNAL(VIDEO_LATCH);
-	chip->signals[pin++] = SIGNAL(H8Q);
-	chip->signals[pin++] = SIGNAL(H8Q2);
-	chip->signals[pin++] = SIGNAL(VIDEO_ON);
-	chip->signals[pin++] = SIGNAL(H8Q2_B);
-	chip->signals[pin++] = SIGNAL(H8Q_B);
-	chip->signals[pin++] = SIGNAL(VERT_DRIVE);
-	chip->signals[pin++] = SIGNAL(BANKSEL);
-	chip->signals[pin++] = SIGNAL(BPHI2);
-	chip->signals[pin++] = SIGNAL(H53);
-	chip->signals[pin++] = SIGNAL(H1Q1_B);
-	chip->signals[pin++] = SIGNAL(H1Q2_B);
-	chip->signals[pin++] = SIGNAL(RAS0_B);
-	chip->signals[pin++] = SIGNAL(H4Y4);
-	chip->signals[pin++] = SIGNAL(BA14);
-	chip->signals[pin++] = SIGNAL(CAS1_B);
-	chip->signals[pin++] = SIGNAL(BA14);
-	chip->signals[pin++] = SIGNAL(BA14_B);
-	chip->signals[pin++] = SIGNAL(H4Y4);
-	chip->signals[pin++] = SIGNAL(CAS0_B);
+	GLUE_PIN(BPHI2A_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2A,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BPHI2B_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BPHI2F_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2F,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BPHI2G_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2G,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BPHI2H,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA1AND3,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(RA1,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA3,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA4AND6,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(RA4,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA6,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA5AND6_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(RA5,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA6_B,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(VIDEO_LATCH,	CHIP_PIN_OUTPUT);
+	GLUE_PIN(H8Q,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(H8Q2,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(VIDEO_ON,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(H8Q2_B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(H8Q_B,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(VERT_DRIVE,	CHIP_PIN_OUTPUT);
+	GLUE_PIN(BANKSEL,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BPHI2,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(H53,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(H1Q1_B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(H1Q2_B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RAS0_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(H4Y4,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(CAS1_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BA14,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BA14_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(CAS0_B,		CHIP_PIN_OUTPUT);
 	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
 
-	return pin;
-}
-
-static void glue_logic_register_dependencies_06(ChipGlueLogic *chip) {
-	assert(chip);
-	DevCommodorePet *device = chip->device;
-
-	SIGNAL_DEPENDENCY(BPHI2A);
-	SIGNAL_DEPENDENCY(BPHI2B);
-	SIGNAL_DEPENDENCY(BPHI2F);
-	SIGNAL_DEPENDENCY(BPHI2G);
-	SIGNAL_DEPENDENCY(BPHI2H);
-
-	SIGNAL_DEPENDENCY(RA1);
-	SIGNAL_DEPENDENCY(RA3);
-	SIGNAL_DEPENDENCY(RA4);
-	SIGNAL_DEPENDENCY(RA5);
-	SIGNAL_DEPENDENCY(RA6);
-	SIGNAL_DEPENDENCY(RA6_B);
-
-	SIGNAL_DEPENDENCY(H8Q);
-	SIGNAL_DEPENDENCY(H8Q_B);
-	SIGNAL_DEPENDENCY(H8Q2);
-	SIGNAL_DEPENDENCY(H8Q2_B);
-
-	SIGNAL_DEPENDENCY(BPHI2);
-	SIGNAL_DEPENDENCY(BANKSEL);
-
-	SIGNAL_DEPENDENCY(H1Q1_B);
-	SIGNAL_DEPENDENCY(H1Q2_B);
-
-	SIGNAL_DEPENDENCY(H4Y4);
-	SIGNAL_DEPENDENCY(BA14);
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process_06, glue_logic_destroy);
+	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, ChipGlueLogic06_PinTypes, pin);
 }
 
 static void glue_logic_process_06(ChipGlueLogic *chip) {
@@ -442,65 +377,43 @@ static void glue_logic_process_06(ChipGlueLogic *chip) {
 
 // glue-logic: display logic
 
-static uint32_t glue_logic_init_signals_07(ChipGlueLogic *chip) {
+static void glue_logic_init_07(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
+	chip->pin_types = ChipGlueLogic07_PinTypes;
 
 	uint32_t pin = 0;
-	chip->signals[pin++] = SIGNAL(BRW);
-	chip->signals[pin++] = SIGNAL(BA11_B);
-	chip->signals[pin++] = SIGNAL(SEL8);
-	chip->signals[pin++] = SIGNAL(TV_SEL);
-	chip->signals[pin++] = SIGNAL(TV_READ_B);
-	chip->signals[pin++] = SIGNAL(BPHI2);
-	chip->signals[pin++] = SIGNAL(A5_12);
-	chip->signals[pin++] = SIGNAL(VIDEO_ON_B);
-	chip->signals[pin++] = SIGNAL(VIDEO_ON);
-	chip->signals[pin++] = SIGNAL(GA6);
-	chip->signals[pin++] = SIGNAL(PULLUP_2);
-	chip->signals[pin++] = SIGNAL(VIDEO_ON);
-	chip->signals[pin++] = SIGNAL(RA9);
-	chip->signals[pin++] = SIGNAL(LINES_20_B);
-	chip->signals[pin++] = SIGNAL(LGA6);
-	chip->signals[pin++] = SIGNAL(LGA7);
-	chip->signals[pin++] = SIGNAL(LGA8);
-	chip->signals[pin++] = SIGNAL(LGA9);
-	chip->signals[pin++] = SIGNAL(LGA_HI_B);
-	chip->signals[pin++] = SIGNAL(LGA_HI);
-	chip->signals[pin++] = SIGNAL(LGA3);
-	chip->signals[pin++] = SIGNAL(LGA_HI);
-	chip->signals[pin++] = SIGNAL(LINES_200_B);
-	chip->signals[pin++] = SIGNAL(LINE_220);
-	chip->signals[pin++] = SIGNAL(HORZ_DISP_OFF);
-	chip->signals[pin++] = SIGNAL(W220_OFF);
-	chip->signals[pin++] = SIGNAL(RELOAD_B);
-	chip->signals[pin++] = SIGNAL(NEXT_B);
-	chip->signals[pin++] = SIGNAL(RELOAD_NEXT);
+	GLUE_PIN(BRW,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BA11_B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(SEL8,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(TV_SEL,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(TV_READ_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(A5_12,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(VIDEO_ON_B,	CHIP_PIN_OUTPUT);
+	GLUE_PIN(VIDEO_ON,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(GA6,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(PULLUP_2,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA9,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(LINES_20_B,	CHIP_PIN_OUTPUT);
+	GLUE_PIN(LGA6,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(LGA7,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(LGA8,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(LGA9,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(LGA_HI_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(LGA_HI,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(LGA3,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(LINES_200_B,	CHIP_PIN_OUTPUT);
+	GLUE_PIN(LINE_220,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(HORZ_DISP_OFF,	CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(W220_OFF,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(RELOAD_B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(NEXT_B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RELOAD_NEXT,	CHIP_PIN_OUTPUT);
 	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
 
-	return pin;
-}
-
-static void glue_logic_register_dependencies_07(ChipGlueLogic *chip) {
-	assert(chip);
-	DevCommodorePet *device = chip->device;
-
-	SIGNAL_DEPENDENCY(BRW);
-	SIGNAL_DEPENDENCY(BA11_B);
-	SIGNAL_DEPENDENCY(BPHI2);
-	SIGNAL_DEPENDENCY(GA6);
-	SIGNAL_DEPENDENCY(LGA3);
-	SIGNAL_DEPENDENCY(LGA6);
-	SIGNAL_DEPENDENCY(LGA7);
-	SIGNAL_DEPENDENCY(LGA8);
-	SIGNAL_DEPENDENCY(LGA9);
-	SIGNAL_DEPENDENCY(RA9);
-	SIGNAL_DEPENDENCY(SEL8);
-	SIGNAL_DEPENDENCY(VIDEO_ON);
-	SIGNAL_DEPENDENCY(PULLUP_2);
-	SIGNAL_DEPENDENCY(HORZ_DISP_OFF);
-	SIGNAL_DEPENDENCY(RELOAD_B);
-	SIGNAL_DEPENDENCY(NEXT_B);
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process_07, glue_logic_destroy);
+	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, ChipGlueLogic07_PinTypes, pin);
 }
 
 static void glue_logic_process_07(ChipGlueLogic *chip) {
@@ -552,28 +465,21 @@ static void glue_logic_process_07(ChipGlueLogic *chip) {
 	SIGNAL_WRITE(RELOAD_NEXT, reload_next);
 }
 
-static uint32_t glue_logic_init_signals_07_lite(ChipGlueLogic *chip) {
+static void glue_logic_init_07_lite(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
+	chip->pin_types = ChipGlueLogic17_PinTypes;
 
 	uint32_t pin = 0;
-	chip->signals[pin++] = SIGNAL(BA11_B);
-	chip->signals[pin++] = SIGNAL(SEL8);
-	chip->signals[pin++] = SIGNAL(TV_SEL);
-	chip->signals[pin++] = SIGNAL(BRW);
-	chip->signals[pin++] = SIGNAL(TV_READ_B);
+	GLUE_PIN(BA11_B,	CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(SEL8,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(TV_SEL,	CHIP_PIN_OUTPUT);
+	GLUE_PIN(BRW,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(TV_READ_B,	CHIP_PIN_OUTPUT);
 	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
 
-	return pin;
-}
-
-static void glue_logic_register_dependencies_07_lite(ChipGlueLogic *chip) {
-	assert(chip);
-	DevCommodorePet *device = chip->device;
-
-	SIGNAL_DEPENDENCY(BA11_B);
-	SIGNAL_DEPENDENCY(SEL8);
-	SIGNAL_DEPENDENCY(BRW);
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process_07_lite, glue_logic_destroy);
+	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, ChipGlueLogic17_PinTypes, pin);
 }
 
 static void glue_logic_process_07_lite(ChipGlueLogic *chip) {
@@ -590,47 +496,31 @@ static void glue_logic_process_07_lite(ChipGlueLogic *chip) {
 }
 
 // glue-logic: display rams
-static uint32_t glue_logic_init_signals_08(ChipGlueLogic *chip) {
+static void glue_logic_init_08(ChipGlueLogic *chip) {
 	assert(chip);
 	DevCommodorePet *device = chip->device;
+	chip->pin_types = ChipGlueLogic08_PinTypes;
 
 	uint32_t pin = 0;
-	chip->signals[pin++] = SIGNAL(HORZ_DISP_ON);
-	chip->signals[pin++] = SIGNAL(RA7);
-	chip->signals[pin++] = SIGNAL(RA8);
-	chip->signals[pin++] = SIGNAL(RA9);
-	chip->signals[pin++] = SIGNAL(RELOAD_B);
-	chip->signals[pin++] = SIGNAL(G9Q);
-	chip->signals[pin++] = SIGNAL(E11QH);
-	chip->signals[pin++] = SIGNAL(G106);
-	chip->signals[pin++] = SIGNAL(G9Q_B);
-	chip->signals[pin++] = SIGNAL(E11QH_B);
-	chip->signals[pin++] = SIGNAL(G108);
-	chip->signals[pin++] = SIGNAL(H108);
-	chip->signals[pin++] = SIGNAL(VIDEO_ON);
-	chip->signals[pin++] = SIGNAL(HORZ_DISP_ON);
-	chip->signals[pin++] = SIGNAL(VIDEO);
+	GLUE_PIN(HORZ_DISP_ON,	CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA7,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA8,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RA9,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(RELOAD_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(G9Q,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(E11QH,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(G106,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(G9Q_B,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(E11QH_B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(G108,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(H108,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(VIDEO_ON,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(HORZ_DISP_ON,	CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(VIDEO,			CHIP_PIN_OUTPUT);
 	assert(pin <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT);
 
-	return pin;
-}
-
-static void glue_logic_register_dependencies_08(ChipGlueLogic *chip) {
-	assert(chip);
-	DevCommodorePet *device = chip->device;
-
-	SIGNAL_DEPENDENCY(HORZ_DISP_ON);
-	SIGNAL_DEPENDENCY(RA7);
-	SIGNAL_DEPENDENCY(RA8);
-	SIGNAL_DEPENDENCY(RA9);
-
-	SIGNAL_DEPENDENCY(G9Q);
-	SIGNAL_DEPENDENCY(G9Q_B);
-	SIGNAL_DEPENDENCY(E11QH);
-	SIGNAL_DEPENDENCY(E11QH);
-
-	SIGNAL_DEPENDENCY(VIDEO_ON);
-	SIGNAL_DEPENDENCY(HORZ_DISP_ON);
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process_08, glue_logic_destroy);
+	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, ChipGlueLogic08_PinTypes, pin);
 }
 
 static void glue_logic_process_08(ChipGlueLogic *chip) {
@@ -675,13 +565,12 @@ typedef struct ChipLiteDisplay {
 } ChipLiteDisplay;
 
 static void lite_display_destroy(ChipLiteDisplay *chip);
-static void lite_display_register_dependencies(ChipLiteDisplay *chip);
 static void lite_display_process(ChipLiteDisplay *chip);
 
 static ChipLiteDisplay *lite_display_create(DevCommodorePet *device) {
 	ChipLiteDisplay *chip = (ChipLiteDisplay *) calloc(1, sizeof(ChipLiteDisplay));
 
-	CHIP_SET_FUNCTIONS(chip, lite_display_process, lite_display_destroy, lite_display_register_dependencies);
+	CHIP_SET_FUNCTIONS(chip, lite_display_process, lite_display_destroy);
 	chip->device = device;
 	chip->vram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "VRAM");
 
@@ -696,10 +585,6 @@ static ChipLiteDisplay *lite_display_create(DevCommodorePet *device) {
 static void lite_display_destroy(ChipLiteDisplay *chip) {
 	assert(chip);
 	free(chip);
-}
-
-static void lite_display_register_dependencies(ChipLiteDisplay *chip) {
-	(void) chip;
 }
 
 void pet_lite_fake_display(ChipLiteDisplay *chip) {

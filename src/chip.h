@@ -51,31 +51,36 @@ typedef enum  {
 	CHIP_PIN_40 = 39
 } ChipPinNumbers;
 
+typedef enum {
+	CHIP_PIN_INPUT   = 0b00000001,				// chips reads from this pin
+	CHIP_PIN_OUTPUT  = 0b00000010,				// chips writes to this pin
+	CHIP_PIN_TRIGGER = 0b00000100,				// processing is triggered by changes on this pin
+} ChipPinType;
+
 typedef void (*CHIP_PROCESS_FUNC)(void *chip);
 typedef void (*CHIP_DESTROY_FUNC)(void *chip);
-typedef void (*CHIP_DEPENDENCIES_FUNC)(void *chip);
 
 #define CHIP_DECLARE_BASE							\
 	CHIP_PROCESS_FUNC process;						\
 	CHIP_DESTROY_FUNC destroy;						\
-	CHIP_DEPENDENCIES_FUNC register_dependencies;	\
 	int32_t			  id;							\
 	const char *	  name;							\
 	int64_t			  schedule_timestamp;			\
 	struct Simulator *simulator;					\
 	uint32_t		  signal_layer;					\
 	uint32_t		  pin_count;					\
-	Signal *		  pins;
+	Signal *		  pins;							\
+	uint8_t *		  pin_types;
 
-#define CHIP_SET_FUNCTIONS(chip, pf, df, rdf)		\
+#define CHIP_SET_FUNCTIONS(chip, pf, df)			\
 	(chip)->process = (CHIP_PROCESS_FUNC) (pf);		\
-	(chip)->destroy = (CHIP_DESTROY_FUNC) (df);		\
-	(chip)->register_dependencies = (CHIP_DEPENDENCIES_FUNC) (rdf);
+	(chip)->destroy = (CHIP_DESTROY_FUNC) (df);
 
-#define CHIP_SET_VARIABLES(chip, sim, signals, pc)	\
-	(chip)->simulator = (sim);						\
-	(chip)->pin_count = (pc);						\
-	(chip)->pins = (signals);
+#define CHIP_SET_VARIABLES(chip, sim, signals, pt, pc)		\
+	(chip)->simulator = (sim);								\
+	(chip)->pin_count = (pc);								\
+	(chip)->pins = (signals);								\
+	(chip)->pin_types = (pt);
 
 typedef struct Chip {
 	CHIP_DECLARE_BASE

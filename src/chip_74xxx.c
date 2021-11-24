@@ -12,10 +12,10 @@
 #define SIGNAL_OWNER		chip
 
 #define CHIP_74XXX_SET_FUNCTIONS(prefix)	\
-		CHIP_SET_FUNCTIONS(chip, prefix##_process, prefix##_destroy, prefix##_register_dependencies)
+		CHIP_SET_FUNCTIONS(chip, prefix##_process, prefix##_destroy)
 
-#define CHIP_74XXX_SET_VARIABLES()			\
-		CHIP_SET_VARIABLES(chip, sim, chip->signals, SIGNAL_CONCAT(SIGNAL_PREFIX, PIN_COUNT))
+#define CHIP_74XXX_SET_VARIABLES(pt)			\
+		CHIP_SET_VARIABLES(chip, sim, chip->signals, (pt), SIGNAL_CONCAT(SIGNAL_PREFIX, PIN_COUNT))
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -24,14 +24,28 @@
 
 #define SIGNAL_PREFIX		CHIP_7400_
 
-static void chip_7400_nand_register_dependencies(Chip7400Nand *chip);
+static uint8_t Chip7400_PinTypes[CHIP_7400_PIN_COUNT] = {
+	[CHIP_7400_A1] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7400_A2] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7400_A3] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7400_A4] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7400_B1] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7400_B2] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7400_B3] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7400_B4] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7400_Y1] = CHIP_PIN_OUTPUT,
+	[CHIP_7400_Y2] = CHIP_PIN_OUTPUT,
+	[CHIP_7400_Y3] = CHIP_PIN_OUTPUT,
+	[CHIP_7400_Y4] = CHIP_PIN_OUTPUT
+};
+
 static void chip_7400_nand_destroy(Chip7400Nand *chip);
 static void chip_7400_nand_process(Chip7400Nand *chip);
 
 Chip7400Nand *chip_7400_nand_create(Simulator *sim, Chip7400Signals signals) {
 	Chip7400Nand *chip = (Chip7400Nand *) calloc(1, sizeof(Chip7400Nand));
 	CHIP_74XXX_SET_FUNCTIONS(chip_7400_nand);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip7400_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 	memcpy(chip->signals, signals, sizeof(Chip7400Signals));
@@ -49,18 +63,6 @@ Chip7400Nand *chip_7400_nand_create(Simulator *sim, Chip7400Signals signals) {
 	SIGNAL_DEFINE(Y4);
 
 	return chip;
-}
-
-static void chip_7400_nand_register_dependencies(Chip7400Nand *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(A1);
-	SIGNAL_DEPENDENCY(A2);
-	SIGNAL_DEPENDENCY(A3);
-	SIGNAL_DEPENDENCY(A4);
-	SIGNAL_DEPENDENCY(B1);
-	SIGNAL_DEPENDENCY(B2);
-	SIGNAL_DEPENDENCY(B3);
-	SIGNAL_DEPENDENCY(B4);
 }
 
 static void chip_7400_nand_destroy(Chip7400Nand *chip) {
@@ -85,14 +87,29 @@ static void chip_7400_nand_process(Chip7400Nand *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_7474_
 
-static void chip_7474_d_flipflop_register_dependencies(Chip7474DFlipFlop *chip);
+static uint8_t Chip7474_PinTypes[CHIP_7474_PIN_COUNT] = {
+	[CHIP_7474_CLR1_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7474_PR1_B ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7474_CLK1  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7474_D1    ] = CHIP_PIN_INPUT,
+	[CHIP_7474_Q1    ] = CHIP_PIN_OUTPUT,
+	[CHIP_7474_Q1_B  ] = CHIP_PIN_OUTPUT,
+
+	[CHIP_7474_CLR2_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7474_PR2_B ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7474_CLK2  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7474_D2    ] = CHIP_PIN_INPUT,
+	[CHIP_7474_Q2_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_7474_Q2    ] = CHIP_PIN_OUTPUT
+};
+
 static void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip);
 static void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip);
 
 Chip7474DFlipFlop *chip_7474_d_flipflop_create(Simulator *sim, Chip7474Signals signals) {
 	Chip7474DFlipFlop *chip = (Chip7474DFlipFlop *) calloc(1, sizeof(Chip7474DFlipFlop));
 	CHIP_74XXX_SET_FUNCTIONS(chip_7474_d_flipflop);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip7474_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 	memcpy(chip->signals, signals, sizeof(Chip7474Signals));
@@ -110,16 +127,6 @@ Chip7474DFlipFlop *chip_7474_d_flipflop_create(Simulator *sim, Chip7474Signals s
 	SIGNAL_DEFINE_DEFAULT(CLR2_B, ACTLO_DEASSERT);
 
 	return chip;
-}
-
-static void chip_7474_d_flipflop_register_dependencies(Chip7474DFlipFlop *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(CLR1_B);
-	SIGNAL_DEPENDENCY(PR1_B);
-	SIGNAL_DEPENDENCY(CLK1);
-	SIGNAL_DEPENDENCY(CLR2_B);
-	SIGNAL_DEPENDENCY(PR2_B);
-	SIGNAL_DEPENDENCY(CLK2);
 }
 
 static void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip) {
@@ -175,14 +182,24 @@ static void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_7493_
 
-static void chip_7493_binary_counter_register_dependencies(Chip7493BinaryCounter *chip);
+static uint8_t Chip7493_PinTypes[CHIP_7493_PIN_COUNT] = {
+	[CHIP_7493_A_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7493_B_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7493_R01] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7493_R02] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_7493_QA ] = CHIP_PIN_OUTPUT,
+	[CHIP_7493_QB ] = CHIP_PIN_OUTPUT,
+	[CHIP_7493_QC ] = CHIP_PIN_OUTPUT,
+	[CHIP_7493_QD ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip);
 static void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip);
 
 Chip7493BinaryCounter *chip_7493_binary_counter_create(Simulator *sim, Chip7493Signals signals) {
 	Chip7493BinaryCounter *chip = (Chip7493BinaryCounter *) calloc(1, sizeof(Chip7493BinaryCounter));
 	CHIP_74XXX_SET_FUNCTIONS(chip_7493_binary_counter);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip7493_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -197,14 +214,6 @@ Chip7493BinaryCounter *chip_7493_binary_counter_create(Simulator *sim, Chip7493S
 	SIGNAL_DEFINE(A_B);
 
 	return chip;
-}
-
-static void chip_7493_binary_counter_register_dependencies(Chip7493BinaryCounter *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(A_B);
-	SIGNAL_DEPENDENCY(B_B);
-	SIGNAL_DEPENDENCY(R01);
-	SIGNAL_DEPENDENCY(R02);
 }
 
 static void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip) {
@@ -226,7 +235,7 @@ static void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip) {
 
 		// ok, a bit hacky ... if the second stage's clock is connected to the output of the first stage:
 		// don't wait until the next process call to trigger the second stage
-		if (memcmp(&SIGNAL(B_B), &SIGNAL(QA), sizeof(Signal)) == 0) {
+		if (signal_equal(SIGNAL(B_B), SIGNAL(QA))) {
 			chip->count_b += trigger_a & !chip->count_a;
 		} else {
 			bool trigger_b = SIGNAL_CHANGED(B_B) && !SIGNAL_READ(B_B);
@@ -248,14 +257,29 @@ static void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74107_
 
-static void chip_74107_jk_flipflop_register_dependencies(Chip74107JKFlipFlop *chip);
+static uint8_t Chip74107_PinTypes[CHIP_74107_PIN_COUNT] = {
+	[CHIP_74107_CLK1  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74107_CLR1_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74107_J1    ] = CHIP_PIN_INPUT,
+	[CHIP_74107_K1    ] = CHIP_PIN_INPUT,
+	[CHIP_74107_Q1_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74107_Q1    ] = CHIP_PIN_OUTPUT,
+
+	[CHIP_74107_CLK2  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74107_CLR2_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74107_J2    ] = CHIP_PIN_INPUT,
+	[CHIP_74107_K2    ] = CHIP_PIN_INPUT,
+	[CHIP_74107_Q2    ] = CHIP_PIN_OUTPUT,
+	[CHIP_74107_Q2_B  ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip);
 static void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip);
 
 Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(Simulator *sim, Chip74107Signals signals) {
 	Chip74107JKFlipFlop *chip = (Chip74107JKFlipFlop *) calloc(1, sizeof(Chip74107JKFlipFlop));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74107_jk_flipflop);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74107_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -274,14 +298,6 @@ Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(Simulator *sim, Chip74107Sign
 	SIGNAL_DEFINE_DEFAULT(CLR1_B, true);
 
 	return chip;
-}
-
-static void chip_74107_jk_flipflop_register_dependencies(Chip74107JKFlipFlop *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(CLK1);
-	SIGNAL_DEPENDENCY(CLR1_B);
-	SIGNAL_DEPENDENCY(CLK2);
-	SIGNAL_DEPENDENCY(CLR2_B);
 }
 
 static void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip) {
@@ -329,7 +345,23 @@ static void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74145_
 
-static void chip_74145_bcd_decoder_register_dependencies(Chip74145BcdDecoder *chip);
+static uint8_t Chip74145_PinTypes[CHIP_74145_PIN_COUNT] = {
+	[CHIP_74145_A    ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74145_B    ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74145_C    ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74145_D    ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74145_Y0_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74145_Y1_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74145_Y2_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74145_Y3_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74145_Y4_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74145_Y5_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74145_Y6_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74145_Y7_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74145_Y8_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74145_Y9_B ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip);
 static void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip);
 
@@ -342,7 +374,7 @@ Chip74145BcdDecoder *chip_74145_bcd_decoder_create(Simulator *sim, Chip74145Sign
 	Chip74145BcdDecoder_private *priv = (Chip74145BcdDecoder_private *) calloc(1, sizeof(Chip74145BcdDecoder_private));
 	Chip74145BcdDecoder *chip = &priv->intf;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74145_bcd_decoder);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74145_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -369,14 +401,6 @@ Chip74145BcdDecoder *chip_74145_bcd_decoder_create(Simulator *sim, Chip74145Sign
 	priv->outputs[8]  = &SIGNAL(Y8_B);	priv->outputs[9]  = &SIGNAL(Y9_B);
 
 	return chip;
-}
-
-static void chip_74145_bcd_decoder_register_dependencies(Chip74145BcdDecoder *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(A);
-	SIGNAL_DEPENDENCY(B);
-	SIGNAL_DEPENDENCY(C);
-	SIGNAL_DEPENDENCY(D);
 }
 
 static void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip) {
@@ -412,7 +436,23 @@ static void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74153_
 
-static void chip_74153_multiplexer_register_dependencies(Chip74153Multiplexer *chip);
+static uint8_t Chip74153_PinTypes[CHIP_74153_PIN_COUNT] = {
+	[CHIP_74153_G1 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_G2 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_A  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_B  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_C10] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_C11] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_C12] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_C13] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_C20] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_C21] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_C22] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_C23] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74153_Y1 ] = CHIP_PIN_OUTPUT,
+	[CHIP_74153_Y2 ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74153_multiplexer_destroy(Chip74153Multiplexer *chip);
 static void chip_74153_multiplexer_process(Chip74153Multiplexer *chip);
 
@@ -420,7 +460,7 @@ Chip74153Multiplexer *chip_74153_multiplexer_create(Simulator *sim, Chip74153Sig
 
 	Chip74153Multiplexer *chip = (Chip74153Multiplexer *) calloc(1, sizeof(Chip74153Multiplexer));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74153_multiplexer);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74153_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -448,22 +488,6 @@ Chip74153Multiplexer *chip_74153_multiplexer_create(Simulator *sim, Chip74153Sig
 	return chip;
 }
 
-static void chip_74153_multiplexer_register_dependencies(Chip74153Multiplexer *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(G1);
-	SIGNAL_DEPENDENCY(G2);
-	SIGNAL_DEPENDENCY(A);
-	SIGNAL_DEPENDENCY(B);
-	SIGNAL_DEPENDENCY(C10);
-	SIGNAL_DEPENDENCY(C11);
-	SIGNAL_DEPENDENCY(C12);
-	SIGNAL_DEPENDENCY(C13);
-	SIGNAL_DEPENDENCY(C20);
-	SIGNAL_DEPENDENCY(C21);
-	SIGNAL_DEPENDENCY(C22);
-	SIGNAL_DEPENDENCY(C23);
-}
-
 static void chip_74153_multiplexer_destroy(Chip74153Multiplexer *chip) {
 	assert(chip);
 	free(chip);
@@ -485,7 +509,31 @@ static void chip_74153_multiplexer_process(Chip74153Multiplexer *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74154_
 
-static void chip_74154_decoder_register_dependencies(Chip74154Decoder *chip);
+static uint8_t Chip74154_PinTypes[CHIP_74154_PIN_COUNT] = {
+	[CHIP_74154_G1_B  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74154_G2_B  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74154_A     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74154_B     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74154_C     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74154_D     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74154_Y0_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y1_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y2_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y3_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y4_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y5_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y6_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y7_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y8_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y9_B  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y10_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y11_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y12_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y13_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y14_B ] = CHIP_PIN_OUTPUT,
+	[CHIP_74154_Y15_B ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74154_decoder_destroy(Chip74154Decoder *chip);
 static void chip_74154_decoder_process(Chip74154Decoder *chip);
 
@@ -498,7 +546,7 @@ Chip74154Decoder *chip_74154_decoder_create(Simulator *sim, Chip74154Signals sig
 	Chip74154Decoder_private *priv = (Chip74154Decoder_private *) calloc(1, sizeof(Chip74154Decoder_private));
 	Chip74154Decoder *chip = &priv->intf;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74154_decoder);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74154_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -538,16 +586,6 @@ Chip74154Decoder *chip_74154_decoder_create(Simulator *sim, Chip74154Signals sig
 	return chip;
 }
 
-static void chip_74154_decoder_register_dependencies(Chip74154Decoder *chip) {
-	assert((Chip74154Decoder_private *) chip);
-	SIGNAL_DEPENDENCY(A);
-	SIGNAL_DEPENDENCY(B);
-	SIGNAL_DEPENDENCY(C);
-	SIGNAL_DEPENDENCY(D);
-	SIGNAL_DEPENDENCY(G1_B);
-	SIGNAL_DEPENDENCY(G2_B);
-}
-
 static void chip_74154_decoder_destroy(Chip74154Decoder *chip) {
 	assert((Chip74154Decoder_private *) chip);
 	free(chip);
@@ -581,14 +619,30 @@ static void chip_74154_decoder_process(Chip74154Decoder *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74157_
 
-static void chip_74157_multiplexer_register_dependencies(Chip74157Multiplexer *chip);
+static uint8_t Chip74157_PinTypes[CHIP_74157_PIN_COUNT] = {
+	[CHIP_74157_SEL]      = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_ENABLE_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_I0A     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_I0B     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_I0C     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_I0D     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_I1A     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_I1B     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_I1C     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_I1D     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74157_ZA      ] = CHIP_PIN_OUTPUT,
+	[CHIP_74157_ZB      ] = CHIP_PIN_OUTPUT,
+	[CHIP_74157_ZC      ] = CHIP_PIN_OUTPUT,
+	[CHIP_74157_ZD      ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip);
 static void chip_74157_multiplexer_process(Chip74157Multiplexer *chip);
 
 Chip74157Multiplexer *chip_74157_multiplexer_create(Simulator *sim, Chip74157Signals signals) {
 	Chip74157Multiplexer *chip = (Chip74157Multiplexer *) calloc(1, sizeof(Chip74157Multiplexer));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74157_multiplexer);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74157_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -609,20 +663,6 @@ Chip74157Multiplexer *chip_74157_multiplexer_create(Simulator *sim, Chip74157Sig
 	SIGNAL_DEFINE(ENABLE_B);
 
 	return chip;
-}
-
-static void chip_74157_multiplexer_register_dependencies(Chip74157Multiplexer *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(I0A);
-	SIGNAL_DEPENDENCY(I0B);
-	SIGNAL_DEPENDENCY(I0C);
-	SIGNAL_DEPENDENCY(I0D);
-	SIGNAL_DEPENDENCY(I1A);
-	SIGNAL_DEPENDENCY(I1B);
-	SIGNAL_DEPENDENCY(I1C);
-	SIGNAL_DEPENDENCY(I1D);
-	SIGNAL_DEPENDENCY(SEL);
-	SIGNAL_DEPENDENCY(ENABLE_B);
 }
 
 static void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip) {
@@ -650,14 +690,28 @@ static void chip_74157_multiplexer_process(Chip74157Multiplexer *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74164_
 
-static void chip_74164_shift_register_register_dependencies(Chip74164ShiftRegister *chip);
+static uint8_t Chip74164_PinTypes[CHIP_74164_PIN_COUNT] = {
+	[CHIP_74164_CLK    ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74164_CLEAR_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74164_A      ] = CHIP_PIN_INPUT,
+	[CHIP_74164_B      ] = CHIP_PIN_INPUT,
+	[CHIP_74164_QA     ] = CHIP_PIN_OUTPUT,
+	[CHIP_74164_QB     ] = CHIP_PIN_OUTPUT,
+	[CHIP_74164_QC     ] = CHIP_PIN_OUTPUT,
+	[CHIP_74164_QD     ] = CHIP_PIN_OUTPUT,
+	[CHIP_74164_QE     ] = CHIP_PIN_OUTPUT,
+	[CHIP_74164_QF     ] = CHIP_PIN_OUTPUT,
+	[CHIP_74164_QG     ] = CHIP_PIN_OUTPUT,
+	[CHIP_74164_QH     ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip);
 static void chip_74164_shift_register_process(Chip74164ShiftRegister *chip);
 
 Chip74164ShiftRegister *chip_74164_shift_register_create(Simulator *sim, Chip74164Signals signals) {
 	Chip74164ShiftRegister *chip = (Chip74164ShiftRegister *) calloc(1, sizeof(Chip74164ShiftRegister));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74164_shift_register);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74164_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -676,12 +730,6 @@ Chip74164ShiftRegister *chip_74164_shift_register_create(Simulator *sim, Chip741
 	SIGNAL_DEFINE(QH);
 
 	return chip;
-}
-
-static void chip_74164_shift_register_register_dependencies(Chip74164ShiftRegister *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(CLK);
-	SIGNAL_DEPENDENCY(CLEAR_B);
 }
 
 static void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip) {
@@ -719,7 +767,23 @@ static void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74165_
 
-static void chip_74165_shift_register_register_dependencies(Chip74165ShiftRegister *chip);
+static uint8_t Chip74165_PinTypes[CHIP_74165_PIN_COUNT] = {
+	[CHIP_74165_SL      ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74165_CLK     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74165_SI      ] = CHIP_PIN_INPUT,
+	[CHIP_74165_CLK_INH ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74165_A       ] = CHIP_PIN_INPUT,
+	[CHIP_74165_B       ] = CHIP_PIN_INPUT,
+	[CHIP_74165_C       ] = CHIP_PIN_INPUT,
+	[CHIP_74165_D       ] = CHIP_PIN_INPUT,
+	[CHIP_74165_E       ] = CHIP_PIN_INPUT,
+	[CHIP_74165_F       ] = CHIP_PIN_INPUT,
+	[CHIP_74165_G       ] = CHIP_PIN_INPUT,
+	[CHIP_74165_H       ] = CHIP_PIN_INPUT,
+	[CHIP_74165_QH      ] = CHIP_PIN_OUTPUT,
+	[CHIP_74165_QH_B    ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74165_shift_register_destroy(Chip74165ShiftRegister *chip);
 static void chip_74165_shift_register_process(Chip74165ShiftRegister *chip);
 
@@ -727,7 +791,7 @@ Chip74165ShiftRegister *chip_74165_shift_register_create(Simulator *sim, Chip741
 
 	Chip74165ShiftRegister *chip = (Chip74165ShiftRegister *) calloc(1, sizeof(Chip74165ShiftRegister));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74165_shift_register);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74165_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -748,13 +812,6 @@ Chip74165ShiftRegister *chip_74165_shift_register_create(Simulator *sim, Chip741
 	SIGNAL_DEFINE(CLK_INH);
 
 	return chip;
-}
-
-static void chip_74165_shift_register_register_dependencies(Chip74165ShiftRegister *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(SL);
-	SIGNAL_DEPENDENCY(CLK);
-	SIGNAL_DEPENDENCY(CLK_INH);
 }
 
 static void chip_74165_shift_register_destroy(Chip74165ShiftRegister *chip) {
@@ -805,14 +862,28 @@ static void chip_74165_shift_register_process(Chip74165ShiftRegister *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74177_
 
-static void chip_74177_binary_counter_register_dependencies(Chip74177BinaryCounter *chip);
+static uint8_t Chip74177_PinTypes[CHIP_74177_PIN_COUNT] = {
+	[CHIP_74177_LOAD_B   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74177_CLEAR_B  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74177_CLK1     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74177_CLK2     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74177_A        ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74177_B        ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74177_C        ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74177_D        ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74177_QA       ] = CHIP_PIN_OUTPUT,
+	[CHIP_74177_QB       ] = CHIP_PIN_OUTPUT,
+	[CHIP_74177_QC       ] = CHIP_PIN_OUTPUT,
+	[CHIP_74177_QD       ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip);
 static void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip);
 
 Chip74177BinaryCounter *chip_74177_binary_counter_create(Simulator *sim, Chip74177Signals signals) {
 	Chip74177BinaryCounter *chip = (Chip74177BinaryCounter *) calloc(1, sizeof(Chip74177BinaryCounter));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74177_binary_counter);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74177_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -833,17 +904,6 @@ Chip74177BinaryCounter *chip_74177_binary_counter_create(Simulator *sim, Chip741
 	return chip;
 }
 
-static void chip_74177_binary_counter_register_dependencies(Chip74177BinaryCounter *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(LOAD_B);
-	SIGNAL_DEPENDENCY(CLEAR_B);
-	SIGNAL_DEPENDENCY(CLK1);
-	SIGNAL_DEPENDENCY(CLK2);
-	SIGNAL_DEPENDENCY(A);
-	SIGNAL_DEPENDENCY(B);
-	SIGNAL_DEPENDENCY(C);
-	SIGNAL_DEPENDENCY(D);
-}
 static void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip) {
 	assert(chip);
 	free(chip);
@@ -864,7 +924,7 @@ static void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip) {
 
 		// ok, a bit hacky ... if the second stage's clock is connected to the output of the first stage:
 		// don't wait until the next process call to trigger the second stage
-		if (memcmp(&SIGNAL(CLK2), &SIGNAL(QA), sizeof(Signal)) == 0) {
+		if (signal_equal(SIGNAL(CLK2), SIGNAL(QA))) {
 			chip->count_2 += trigger_1 & !chip->count_1;
 		} else {
 			bool trigger_2 = !SIGNAL_READ(CLK2) && SIGNAL_CHANGED(CLK2);
@@ -886,7 +946,23 @@ static void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74191_
 
-static void chip_74191_binary_counter_register_dependencies(Chip74191BinaryCounter *chip);
+static uint8_t Chip74191_PinTypes[CHIP_74191_PIN_COUNT] = {
+	[CHIP_74191_ENABLE_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74191_LOAD_B  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74191_CLK     ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74191_A       ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74191_B       ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74191_C       ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74191_D       ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74191_D_U     ] = CHIP_PIN_INPUT,
+	[CHIP_74191_QA      ] = CHIP_PIN_OUTPUT,
+	[CHIP_74191_QB      ] = CHIP_PIN_OUTPUT,
+	[CHIP_74191_QC      ] = CHIP_PIN_OUTPUT,
+	[CHIP_74191_QD      ] = CHIP_PIN_OUTPUT,
+	[CHIP_74191_MAX_MIN ] = CHIP_PIN_OUTPUT,
+	[CHIP_74191_RCO_B   ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip);
 static void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip);
 
@@ -894,7 +970,7 @@ Chip74191BinaryCounter *chip_74191_binary_counter_create(Simulator *sim, Chip741
 
 	Chip74191BinaryCounter *chip = (Chip74191BinaryCounter *) calloc(1, sizeof(Chip74191BinaryCounter));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74191_binary_counter);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74191_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -915,17 +991,6 @@ Chip74191BinaryCounter *chip_74191_binary_counter_create(Simulator *sim, Chip741
 	SIGNAL_DEFINE(A);
 
 	return chip;
-}
-
-static void chip_74191_binary_counter_register_dependencies(Chip74191BinaryCounter *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(A);
-	SIGNAL_DEPENDENCY(B);
-	SIGNAL_DEPENDENCY(C);
-	SIGNAL_DEPENDENCY(D);
-	SIGNAL_DEPENDENCY(ENABLE_B);
-	SIGNAL_DEPENDENCY(LOAD_B);
-	SIGNAL_DEPENDENCY(CLK);
 }
 
 static void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip) {
@@ -971,14 +1036,34 @@ static void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74244_
 
-static void chip_74244_octal_buffer_register_dependencies(Chip74244OctalBuffer *chip);
+static uint8_t Chip74244_PinTypes[CHIP_74244_PIN_COUNT] = {
+	[CHIP_74244_G1_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_G2_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_A11 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_A12 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_A13 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_A14 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_A21 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_A22 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_A23 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_A24 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74244_Y11 ] = CHIP_PIN_OUTPUT,
+	[CHIP_74244_Y12 ] = CHIP_PIN_OUTPUT,
+	[CHIP_74244_Y13 ] = CHIP_PIN_OUTPUT,
+	[CHIP_74244_Y14 ] = CHIP_PIN_OUTPUT,
+	[CHIP_74244_Y21 ] = CHIP_PIN_OUTPUT,
+	[CHIP_74244_Y22 ] = CHIP_PIN_OUTPUT,
+	[CHIP_74244_Y23 ] = CHIP_PIN_OUTPUT,
+	[CHIP_74244_Y24 ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip);
 static void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip);
 
 Chip74244OctalBuffer *chip_74244_octal_buffer_create(Simulator *sim, Chip74244Signals signals) {
 	Chip74244OctalBuffer *chip = (Chip74244OctalBuffer *) calloc(1, sizeof(Chip74244OctalBuffer));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74244_octal_buffer);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74244_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -1003,20 +1088,6 @@ Chip74244OctalBuffer *chip_74244_octal_buffer_create(Simulator *sim, Chip74244Si
 	SIGNAL_DEFINE(G2_B);
 
 	return chip;
-}
-
-static void chip_74244_octal_buffer_register_dependencies(Chip74244OctalBuffer *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(A11);
-	SIGNAL_DEPENDENCY(A12);
-	SIGNAL_DEPENDENCY(A13);
-	SIGNAL_DEPENDENCY(A14);
-	SIGNAL_DEPENDENCY(A21);
-	SIGNAL_DEPENDENCY(A22);
-	SIGNAL_DEPENDENCY(A23);
-	SIGNAL_DEPENDENCY(A24);
-	SIGNAL_DEPENDENCY(G1_B);
-	SIGNAL_DEPENDENCY(G2_B);
 }
 
 static void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip) {
@@ -1060,14 +1131,34 @@ static void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_74373_
 
-static void chip_74373_latch_register_dependencies(Chip74373Latch *chip);
+static uint8_t Chip74373_PinTypes[CHIP_74373_PIN_COUNT] = {
+	[CHIP_74373_OC_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_C   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_D1  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_D2  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_D3  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_D4  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_D5  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_D6  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_D7  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_D8  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_74373_Q1  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74373_Q2  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74373_Q3  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74373_Q4  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74373_Q5  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74373_Q6  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74373_Q7  ] = CHIP_PIN_OUTPUT,
+	[CHIP_74373_Q8  ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_74373_latch_destroy(Chip74373Latch *chip);
 static void chip_74373_latch_process(Chip74373Latch *chip);
 
 Chip74373Latch *chip_74373_latch_create(Simulator *sim, Chip74373Signals signals) {
 	Chip74373Latch *chip = (Chip74373Latch *) calloc(1, sizeof(Chip74373Latch));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74373_latch);
-	CHIP_74XXX_SET_VARIABLES()
+	CHIP_74XXX_SET_VARIABLES(Chip74373_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
@@ -1092,20 +1183,6 @@ Chip74373Latch *chip_74373_latch_create(Simulator *sim, Chip74373Signals signals
 	SIGNAL_DEFINE(Q8);
 
 	return chip;
-}
-
-static void chip_74373_latch_register_dependencies(Chip74373Latch *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(D1);
-	SIGNAL_DEPENDENCY(D2);
-	SIGNAL_DEPENDENCY(D3);
-	SIGNAL_DEPENDENCY(D4);
-	SIGNAL_DEPENDENCY(D5);
-	SIGNAL_DEPENDENCY(D6);
-	SIGNAL_DEPENDENCY(D7);
-	SIGNAL_DEPENDENCY(D8);
-	SIGNAL_DEPENDENCY(C);
-	SIGNAL_DEPENDENCY(OC_B);
 }
 
 static void chip_74373_latch_destroy(Chip74373Latch *chip) {

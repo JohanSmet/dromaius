@@ -18,7 +18,31 @@
 
 #define SIGNAL_PREFIX		CHIP_6316_
 
-static void chip_63xx_rom_register_dependencies(Chip63xxRom *chip);
+static uint8_t Chip6316Rom_PinTypes[CHIP_63XX_PIN_COUNT] = {
+	[CHIP_6316_CS1_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_CS2_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_CS3  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A0   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A1   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A2   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A3   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A4   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A5   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A6   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A7   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A8   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A9   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_A10  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6316_D0   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6316_D1   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6316_D2   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6316_D3   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6316_D4   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6316_D5   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6316_D6   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6316_D7   ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_63xx_rom_destroy(Chip63xxRom *chip);
 static void chip_6316_rom_process(Chip63xxRom *chip);
 
@@ -26,8 +50,8 @@ Chip63xxRom *chip_6316_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
 	Chip63xxRom *chip = (Chip63xxRom *) calloc(1, sizeof(Chip63xxRom) + ROM_6316_DATA_SIZE);
 
-	CHIP_SET_FUNCTIONS(chip, chip_6316_rom_process, chip_63xx_rom_destroy, chip_63xx_rom_register_dependencies);
-	CHIP_SET_VARIABLES(chip, sim, chip->signals, CHIP_63XX_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(chip, chip_6316_rom_process, chip_63xx_rom_destroy);
+	CHIP_SET_VARIABLES(chip, sim, chip->signals, Chip6316Rom_PinTypes, CHIP_63XX_PIN_COUNT);
 	chip->signal_pool = sim->signal_pool;
 	chip->data_size = ROM_6316_DATA_SIZE;
 	chip->output_delay = simulator_interval_to_tick_count(chip->simulator, NS_TO_PS(60));
@@ -65,25 +89,6 @@ Chip63xxRom *chip_6316_rom_create(Simulator *sim, Chip63xxSignals signals) {
 	return chip;
 }
 
-static void chip_63xx_rom_register_dependencies(Chip63xxRom *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(A0);
-	SIGNAL_DEPENDENCY(A1);
-	SIGNAL_DEPENDENCY(A2);
-	SIGNAL_DEPENDENCY(A3);
-	SIGNAL_DEPENDENCY(A4);
-	SIGNAL_DEPENDENCY(A5);
-	SIGNAL_DEPENDENCY(A6);
-	SIGNAL_DEPENDENCY(A7);
-	SIGNAL_DEPENDENCY(A8);
-	SIGNAL_DEPENDENCY(A9);
-	SIGNAL_DEPENDENCY(A10);
-
-	SIGNAL_DEPENDENCY(CS1_B);
-	SIGNAL_DEPENDENCY(CS2_B);
-	SIGNAL_DEPENDENCY(CS3);
-}
-
 static void chip_63xx_rom_destroy(Chip63xxRom *chip) {
 	assert(chip);
 	free(chip);
@@ -118,14 +123,39 @@ static void chip_6316_rom_process(Chip63xxRom *chip) {
 #undef SIGNAL_PREFIX
 #define SIGNAL_PREFIX		CHIP_6332_
 
+static uint8_t Chip6332Rom_PinTypes[CHIP_63XX_PIN_COUNT] = {
+	[CHIP_6332_CS1_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_CS3  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A0   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A1   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A2   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A3   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A4   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A5   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A6   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A7   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A8   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A9   ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A10  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_A11  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6332_D0   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6332_D1   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6332_D2   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6332_D3   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6332_D4   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6332_D5   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6332_D6   ] = CHIP_PIN_OUTPUT,
+	[CHIP_6332_D7   ] = CHIP_PIN_OUTPUT,
+};
+
 static void chip_6332_rom_process(Chip63xxRom *chip);
 
 Chip63xxRom *chip_6332_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
 	Chip63xxRom *chip = (Chip63xxRom *) calloc(1, sizeof(Chip63xxRom) + ROM_6332_DATA_SIZE);
 
-	CHIP_SET_FUNCTIONS(chip, chip_6332_rom_process, chip_63xx_rom_destroy, chip_63xx_rom_register_dependencies);
-	CHIP_SET_VARIABLES(chip, sim, chip->signals, CHIP_63XX_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(chip, chip_6332_rom_process, chip_63xx_rom_destroy);
+	CHIP_SET_VARIABLES(chip, sim, chip->signals, Chip6332Rom_PinTypes, CHIP_63XX_PIN_COUNT);
 
 	chip->signal_pool = sim->signal_pool;
 	chip->data_size = ROM_6332_DATA_SIZE;

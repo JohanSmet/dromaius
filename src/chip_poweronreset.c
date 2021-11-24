@@ -12,20 +12,24 @@
 #define SIGNAL_PREFIX		CHIP_POR_
 #define SIGNAL_OWNER		por
 
+static uint8_t ChipPor_PinTypes[CHIP_POR_PIN_COUNT] = {
+	[CHIP_POR_TRIGGER_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_POR_RESET_B  ] = CHIP_PIN_OUTPUT
+};
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
 //
 
-static void poweronreset_register_dependencies(PowerOnReset *por);
 static void poweronreset_destroy(PowerOnReset *por);
 static void poweronreset_process(PowerOnReset *por);
 
 PowerOnReset *poweronreset_create(int64_t duration_ps, Simulator *sim, PowerOnResetSignals signals) {
 	PowerOnReset *por = (PowerOnReset *) calloc(1, sizeof(PowerOnReset));
 
-	CHIP_SET_FUNCTIONS(por, poweronreset_process, poweronreset_destroy, poweronreset_register_dependencies);
-	CHIP_SET_VARIABLES(por, sim, por->signals, CHIP_POR_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(por, poweronreset_process, poweronreset_destroy);
+	CHIP_SET_VARIABLES(por, sim, por->signals, ChipPor_PinTypes, CHIP_POR_PIN_COUNT);
 
 	por->signal_pool = sim->signal_pool;
 	memcpy(por->signals, signals, sizeof(PowerOnResetSignals));
@@ -38,10 +42,6 @@ PowerOnReset *poweronreset_create(int64_t duration_ps, Simulator *sim, PowerOnRe
 	por->schedule_timestamp = por->next_action;
 
 	return por;
-}
-
-static void poweronreset_register_dependencies(PowerOnReset *por) {
-	SIGNAL_DEPENDENCY(TRIGGER_B);
 }
 
 static void poweronreset_destroy(PowerOnReset *por) {

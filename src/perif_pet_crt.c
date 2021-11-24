@@ -13,19 +13,24 @@
 #define SIGNAL_PREFIX		PIN_PETCRT_
 #define SIGNAL_OWNER		crt
 
+static uint8_t PerifPetCrt_PinTypes[CHIP_PETCRT_PIN_COUNT] = {
+	[PIN_PETCRT_VIDEO_IN     ] = CHIP_PIN_INPUT,
+	[PIN_PETCRT_VERT_DRIVE_IN] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[PIN_PETCRT_HORZ_DRIVE_IN] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+};
+
 #define COLOR_ON	0xff55ff55
 #define COLOR_BEAM  0xffffffff
 
 static void perif_pet_crt_destroy(PerifPetCrt *crt);
-static void perif_pet_crt_register_dependencies(PerifPetCrt *crt);
 static void perif_pet_crt_process(PerifPetCrt *crt);
 
 PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
 	PerifPetCrt *crt = (PerifPetCrt *) calloc(1, sizeof(PerifPetCrt));
 
 	// chip
-	CHIP_SET_FUNCTIONS(crt, perif_pet_crt_process, perif_pet_crt_destroy, perif_pet_crt_register_dependencies);
-	CHIP_SET_VARIABLES(crt, sim, crt->signals, CHIP_PETCRT_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(crt, perif_pet_crt_process, perif_pet_crt_destroy);
+	CHIP_SET_VARIABLES(crt, sim, crt->signals, PerifPetCrt_PinTypes, CHIP_PETCRT_PIN_COUNT);
 
 	// signals
 	crt->signal_pool = sim->signal_pool;
@@ -53,12 +58,6 @@ static void perif_pet_crt_destroy(PerifPetCrt *crt) {
 	assert(crt);
 	display_rgba_destroy(crt->display);
 	free(crt);
-}
-
-static void perif_pet_crt_register_dependencies(PerifPetCrt *crt) {
-	assert(crt);
-	SIGNAL_DEPENDENCY(VERT_DRIVE_IN);
-	SIGNAL_DEPENDENCY(HORZ_DRIVE_IN);
 }
 
 static void perif_pet_crt_process(PerifPetCrt *crt) {

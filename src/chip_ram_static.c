@@ -17,15 +17,33 @@
 // UM6114 - 1K x 4bits Static Random Access Memory
 //
 
-static void chip_6114_sram_register_dependencies(Chip6114SRam *chip);
+static uint8_t Chip6114SRam_PinTypes[CHIP_6114_PIN_COUNT] = {
+	[CHIP_6114_A0  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_A1  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_A2  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_A3  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_A4  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_A5  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_A6  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_A7  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_A8  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_A9  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_IO0 ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_IO1 ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_IO2 ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_IO3 ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_CE_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6114_RW  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+};
+
 static void chip_6114_sram_destroy(Chip6114SRam *chip);
 static void chip_6114_sram_process(Chip6114SRam *chip);
 
 Chip6114SRam *chip_6114_sram_create(Simulator *sim, Chip6114SRamSignals signals) {
 	Chip6114SRam *chip = (Chip6114SRam *) calloc(1, sizeof(Chip6114SRam));
 
-	CHIP_SET_FUNCTIONS(chip, chip_6114_sram_process, chip_6114_sram_destroy, chip_6114_sram_register_dependencies);
-	CHIP_SET_VARIABLES(chip, sim, chip->signals, CHIP_6114_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(chip, chip_6114_sram_process, chip_6114_sram_destroy);
+	CHIP_SET_VARIABLES(chip, sim, chip->signals, Chip6114SRam_PinTypes, CHIP_6114_PIN_COUNT);
 
 	chip->signal_pool = sim->signal_pool;
 	memcpy(chip->signals, signals, sizeof(Chip6114SRamSignals));
@@ -50,26 +68,6 @@ Chip6114SRam *chip_6114_sram_create(Simulator *sim, Chip6114SRamSignals signals)
 	SIGNAL_DEFINE(RW);
 
 	return chip;
-}
-
-static void chip_6114_sram_register_dependencies(Chip6114SRam *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(A0);
-	SIGNAL_DEPENDENCY(A1);
-	SIGNAL_DEPENDENCY(A2);
-	SIGNAL_DEPENDENCY(A3);
-	SIGNAL_DEPENDENCY(A4);
-	SIGNAL_DEPENDENCY(A5);
-	SIGNAL_DEPENDENCY(A6);
-	SIGNAL_DEPENDENCY(A7);
-	SIGNAL_DEPENDENCY(A8);
-	SIGNAL_DEPENDENCY(A9);
-	SIGNAL_DEPENDENCY(IO0);
-	SIGNAL_DEPENDENCY(IO1);
-	SIGNAL_DEPENDENCY(IO2);
-	SIGNAL_DEPENDENCY(IO3);
-	SIGNAL_DEPENDENCY(CE_B);
-	SIGNAL_DEPENDENCY(RW);
 }
 
 static void chip_6114_sram_destroy(Chip6114SRam *chip) {

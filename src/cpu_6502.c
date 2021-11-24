@@ -75,6 +75,43 @@ Notes:
 // internal data types
 //
 
+static uint8_t Cpu6502_PinTypes[CHIP_6502_PIN_COUNT] = {
+	[PIN_6502_RDY  ] = CHIP_PIN_INPUT,
+	[PIN_6502_IRQ_B] = CHIP_PIN_INPUT,
+	[PIN_6502_NMI_B] = CHIP_PIN_INPUT,
+	[PIN_6502_SYNC ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB0  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB1  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB2  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB3  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB4  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB5  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB6  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB7  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB8  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB9  ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB10 ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB11 ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB12 ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB13 ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB14 ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_AB15 ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_DB7  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[PIN_6502_DB6  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[PIN_6502_DB5  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[PIN_6502_DB4  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[PIN_6502_DB3  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[PIN_6502_DB2  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[PIN_6502_DB1  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[PIN_6502_DB0  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[PIN_6502_RW   ] = CHIP_PIN_OUTPUT,
+	[PIN_6502_CLK  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[PIN_6502_SO   ] = CHIP_PIN_INPUT,
+	[PIN_6502_PHI2O] = CHIP_PIN_OUTPUT,
+	[PIN_6502_PHI1O] = CHIP_PIN_OUTPUT,
+	[PIN_6502_RES_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+};
+
 #define RW_READ  true
 #define RW_WRITE false
 
@@ -2159,7 +2196,6 @@ int64_t cpu_6502_program_counter(Cpu6502 *cpu) {
 //
 
 static void cpu_6502_destroy(Cpu6502 *cpu);
-static void cpu_6502_register_dependencies(Cpu6502 *cpu);
 static void cpu_6502_process(Cpu6502 *cpu);
 
 Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
@@ -2167,8 +2203,8 @@ Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 	Cpu6502_private *priv = (Cpu6502_private *) calloc(1, sizeof(Cpu6502_private));
 	Cpu6502 *cpu = &priv->intf;
 
-	CHIP_SET_FUNCTIONS(cpu, cpu_6502_process, cpu_6502_destroy, cpu_6502_register_dependencies);
-	CHIP_SET_VARIABLES(cpu, sim, cpu->signals, CHIP_6502_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(cpu, cpu_6502_process, cpu_6502_destroy);
+	CHIP_SET_VARIABLES(cpu, sim, cpu->signals, Cpu6502_PinTypes, CHIP_6502_PIN_COUNT);
 
 	cpu->signal_pool = sim->signal_pool;
 	cpu->override_next_instruction_address = (CPU_OVERRIDE_NEXT_INSTRUCTION_ADDRESS) cpu_6502_override_next_instruction_address;
@@ -2224,12 +2260,6 @@ Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 	priv->override_pc = 0;
 
 	return cpu;
-}
-
-static void cpu_6502_register_dependencies(Cpu6502 *cpu) {
-	assert(cpu);
-	SIGNAL_DEPENDENCY(CLK);
-	SIGNAL_DEPENDENCY(RES_B);
 }
 
 static void cpu_6502_destroy(Cpu6502 *cpu) {

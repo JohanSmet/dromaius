@@ -12,20 +12,23 @@
 #define SIGNAL_PREFIX		CHIP_OSCILLATOR_
 #define SIGNAL_OWNER		tmr
 
+static uint8_t ChipOscillator_PinTypes[CHIP_OSCILLATOR_PIN_COUNT] = {
+	[CHIP_OSCILLATOR_CLK_OUT] = CHIP_PIN_OUTPUT
+};
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
 //
 
-static void oscillator_register_dependencies(Oscillator *tmr);
 static void oscillator_destroy(Oscillator *tmr);
 static void oscillator_process(Oscillator *tmr);
 
 Oscillator *oscillator_create(int64_t frequency, Simulator *sim, OscillatorSignals signals) {
 	Oscillator *tmr = (Oscillator *) calloc(1, sizeof(Oscillator));
 
-	CHIP_SET_FUNCTIONS(tmr, oscillator_process, oscillator_destroy, oscillator_register_dependencies);
-	CHIP_SET_VARIABLES(tmr, sim, tmr->signals, CHIP_OSCILLATOR_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(tmr, oscillator_process, oscillator_destroy);
+	CHIP_SET_VARIABLES(tmr, sim, tmr->signals, ChipOscillator_PinTypes, CHIP_OSCILLATOR_PIN_COUNT);
 
 	tmr->signal_pool = sim->signal_pool;
 
@@ -38,10 +41,6 @@ Oscillator *oscillator_create(int64_t frequency, Simulator *sim, OscillatorSigna
 	tmr->schedule_timestamp = tmr->tick_next_transition;
 
 	return tmr;
-}
-
-static void oscillator_register_dependencies(Oscillator *tmr) {
-	(void) tmr;
 }
 
 static void oscillator_destroy(Oscillator *tmr) {

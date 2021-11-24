@@ -23,6 +23,51 @@
 // internal types
 //
 
+static uint8_t Chip6522_PinTypes[CHIP_6522_PIN_COUNT] = {
+
+	[CHIP_6522_PA0] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PA1] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PA2] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PA3] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PA4] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PA5] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PA6] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PA7] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+
+	[CHIP_6522_PB0] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PB1] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PB2] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PB3] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PB4] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PB5] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PB6] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_PB7] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+
+	[CHIP_6522_D0] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_D1] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_D2] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_D3] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_D4] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_D5] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_D6] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_D7] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+
+	[CHIP_6522_CA1] =		CHIP_PIN_INPUT,
+	[CHIP_6522_CA2] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_CB1] =		CHIP_PIN_INPUT,
+	[CHIP_6522_CB2] =		CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
+	[CHIP_6522_RS0] =		CHIP_PIN_INPUT,
+	[CHIP_6522_RS1] =		CHIP_PIN_INPUT,
+	[CHIP_6522_RS2] =		CHIP_PIN_INPUT,
+	[CHIP_6522_RS3] =		CHIP_PIN_INPUT,
+	[CHIP_6522_RESET_B] =	CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6522_PHI2] =		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_6522_CS1] =		CHIP_PIN_INPUT,
+	[CHIP_6522_CS2_B] =		CHIP_PIN_INPUT,
+	[CHIP_6522_RW] =		CHIP_PIN_INPUT,
+	[CHIP_6522_IRQ_B] =		CHIP_PIN_OUTPUT,
+};
+
 typedef struct Chip6522_pstate {		// port state
 	bool			prev_cl1;
 	bool			prev_cl2;
@@ -654,7 +699,6 @@ static void process_negative_enable_edge(Chip6522 *via) {
 // interface functions
 //
 
-static void chip_6522_register_dependencies(Chip6522 *via);
 static void chip_6522_destroy(Chip6522 *via);
 static void chip_6522_process(Chip6522 *via);
 
@@ -662,8 +706,8 @@ Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
 	Chip6522_private *priv = (Chip6522_private *) calloc(1, sizeof(Chip6522_private));
 
 	Chip6522 *via = &priv->intf;
-	CHIP_SET_VARIABLES(via, sim, via->signals, CHIP_6522_PIN_COUNT);
-	CHIP_SET_FUNCTIONS(via, chip_6522_process, chip_6522_destroy, chip_6522_register_dependencies);
+	CHIP_SET_VARIABLES(via, sim, via->signals, Chip6522_PinTypes, CHIP_6522_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(via, chip_6522_process, chip_6522_destroy);
 	via->signal_pool = sim->signal_pool;
 
 	memcpy(via->signals, signals, sizeof(Chip6522Signals));
@@ -703,12 +747,6 @@ Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
 	priv->last_output.irq = true;
 
 	return via;
-}
-
-static void chip_6522_register_dependencies(Chip6522 *via) {
-	assert(via);
-	SIGNAL_DEPENDENCY(RESET_B);
-	SIGNAL_DEPENDENCY(PHI2);
 }
 
 static void chip_6522_destroy(Chip6522 *via) {

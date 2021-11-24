@@ -12,12 +12,41 @@
 #define SIGNAL_PREFIX		CHIP_RAM8D16A_
 #define SIGNAL_OWNER		ram
 
+static uint8_t Ram8d16a_PinTypes[CHIP_RAM8D16A_PIN_COUNT] = {
+	[CHIP_RAM8D16A_CE_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_WE_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_OE_B] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A0  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A1  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A2  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A3  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A4  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A5  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A6  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A7  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A8  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A9  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A10 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A11 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A12 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A13 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A14 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_A15 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_D0  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_D1  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_D2  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_D3  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_D4  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_D5  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_D6  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+	[CHIP_RAM8D16A_D7  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER,
+};
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
 //
 
-static void ram_8d16a_register_dependencies(Ram8d16a *ram);
 static void ram_8d16a_destroy(Ram8d16a *ram);
 static void ram_8d16a_process(Ram8d16a *ram);
 
@@ -27,8 +56,8 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, Simulator *sim, Ram8d16aSi
 	size_t data_size = (size_t) 1 << num_address_lines;
 	Ram8d16a *ram = (Ram8d16a *) calloc(1, sizeof(Ram8d16a) + data_size);
 
-	CHIP_SET_FUNCTIONS(ram, ram_8d16a_process, ram_8d16a_destroy, ram_8d16a_register_dependencies);
-	CHIP_SET_VARIABLES(ram, sim, ram->signals, CHIP_RAM8D16A_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(ram, ram_8d16a_process, ram_8d16a_destroy);
+	CHIP_SET_VARIABLES(ram, sim, ram->signals, Ram8d16a_PinTypes, CHIP_RAM8D16A_PIN_COUNT);
 
 	ram->signal_pool = sim->signal_pool;
 	ram->data_size = data_size;
@@ -52,20 +81,6 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, Simulator *sim, Ram8d16aSi
 	SIGNAL_DEFINE(OE_B);
 
 	return ram;
-}
-
-static void ram_8d16a_register_dependencies(Ram8d16a *ram) {
-	assert(ram);
-	for (int i = 0; i < arrlen(ram->sg_address); ++i) {
-		signal_add_dependency(ram->signal_pool, ram->sg_address[i], ram->id);
-	}
-	for (int i = 0; i < arrlen(ram->sg_data); ++i) {
-		signal_add_dependency(ram->signal_pool, ram->sg_data[i], ram->id);
-	}
-
-	SIGNAL_DEPENDENCY(CE_B);
-	SIGNAL_DEPENDENCY(WE_B);
-	SIGNAL_DEPENDENCY(OE_B);
 }
 
 static void ram_8d16a_destroy(Ram8d16a *ram) {

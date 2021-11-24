@@ -134,7 +134,13 @@ void simulator_device_complete(Simulator *sim) {
 
 	// register dependencies
 	for (int32_t id = 0; id < arrlen(PRIVATE(sim)->chips); ++id) {
-		PRIVATE(sim)->chips[id]->register_dependencies(PRIVATE(sim)->chips[id]);
+		Chip *chip = PRIVATE(sim)->chips[id];
+
+		for (uint32_t pin = 0; pin < chip->pin_count; ++pin) {
+			if (chip->pin_types[pin] & CHIP_PIN_TRIGGER) {
+				signal_add_dependency(sim->signal_pool, chip->pins[pin], chip->id);
+			}
+		}
 	}
 
 	// determine what signal-layer each chip should write to

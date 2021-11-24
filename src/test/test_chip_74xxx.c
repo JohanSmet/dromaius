@@ -19,7 +19,6 @@ static MunitResult test_7400_nand(const MunitParameter params[], void *user_data
 	Chip7400Nand *chip = chip_7400_nand_create(simulator_create(NS_TO_PS(100)), (Chip7400Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	for (int i = 0; i < 4; ++i) {
@@ -52,7 +51,6 @@ static MunitResult test_7474_d_flipflop(const MunitParameter params[], void *use
 	Chip7474DFlipFlop *chip = chip_7474_d_flipflop_create(simulator_create(NS_TO_PS(100)), (Chip7474Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	// set both flip-flops
@@ -178,7 +176,6 @@ static MunitResult test_7493_binary_counter(const MunitParameter params[], void 
 	Chip7493BinaryCounter *chip = chip_7493_binary_counter_create(simulator_create(NS_TO_PS(100)), (Chip7493Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	SIGNAL(B_B) = SIGNAL(QA);
@@ -229,7 +226,6 @@ static MunitResult test_74107_jk_flipflop(const MunitParameter params[], void *u
 	Chip74107JKFlipFlop *chip = chip_74107_jk_flipflop_create(simulator_create(NS_TO_PS(100)), (Chip74107Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	// reset both flip-flops
@@ -332,7 +328,6 @@ static MunitResult test_74145_bcd_decoder(const MunitParameter params[], void *u
 	Chip74145BcdDecoder *chip = chip_74145_bcd_decoder_create(simulator_create(NS_TO_PS(100)), (Chip74145Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	for (int input = 0; input < 16; ++input) {
@@ -370,7 +365,6 @@ static MunitResult test_74153_multiplexer(const MunitParameter params[], void *u
 	Chip74153Multiplexer *chip = chip_74153_multiplexer_create(simulator_create(NS_TO_PS(100)), (Chip74153Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	const bool truth_table[][7] = {
@@ -444,7 +438,6 @@ static MunitResult test_74154_decoder(const MunitParameter params[], void *user_
 	Chip74154Decoder *chip = chip_74154_decoder_create(simulator_create(NS_TO_PS(100)), (Chip74154Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	bool truth_table[4][2] = {
@@ -499,7 +492,6 @@ static MunitResult test_74157_multiplexer(const MunitParameter params[], void *u
 	Chip74157Multiplexer *chip = chip_74157_multiplexer_create(simulator_create(NS_TO_PS(100)), (Chip74157Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	// all outputs false when chip is not enabled
@@ -552,7 +544,6 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 	Chip74164ShiftRegister *chip = chip_74164_shift_register_create(simulator_create(NS_TO_PS(100)), (Chip74164Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	chip->state = 0xaf;				// 'random' startup state
@@ -747,7 +738,6 @@ static MunitResult test_74177_binary_counter(const MunitParameter params[], void
 	Chip74177BinaryCounter *chip = chip_74177_binary_counter_create(simulator_create(NS_TO_PS(100)), (Chip74177Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 	SIGNAL(CLK2) = SIGNAL(QA);
 
@@ -809,7 +799,6 @@ static MunitResult test_74191_binary_counter(const MunitParameter params[], void
 	Chip74191BinaryCounter *chip = chip_74191_binary_counter_create(simulator_create(NS_TO_PS(100)), (Chip74191Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	// initialize with 'random' value
@@ -896,7 +885,6 @@ static MunitResult test_74244_octal_buffer(const MunitParameter params[], void *
 	Chip74244OctalBuffer *chip = chip_74244_octal_buffer_create(simulator_create(NS_TO_PS(100)), (Chip74244Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	for (int i = 0; i < 4; ++i) {
@@ -942,7 +930,6 @@ static MunitResult test_74373_latch(const MunitParameter params[], void *user_da
 	Chip74373Latch *chip = chip_74373_latch_create(simulator_create(NS_TO_PS(100)), (Chip74373Signals) {0});
 	munit_assert_ptr_not_null(chip);
 	munit_assert_ptr_not_null(chip->process);
-	munit_assert_ptr_not_null(chip->register_dependencies);
 	munit_assert_ptr_not_null(chip->destroy);
 
 	bool truth_table[][18] = {

@@ -19,6 +19,13 @@
 // private types
 //
 
+static uint8_t PerifDatassette_PinTypes[CHIP_DS1530_PIN_COUNT] = {
+	[PIN_DS1530_MOTOR		 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[PIN_DS1530_DATA_TO_DS	 ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[PIN_DS1530_DATA_FROM_DS ] = CHIP_PIN_OUTPUT,
+	[PIN_DS1530_SENSE		 ] = CHIP_PIN_OUTPUT
+};
+
 typedef enum {
 	STATE_IDLE			= 0,
 	STATE_TAPE_LOADED	= 1,
@@ -231,15 +238,14 @@ static inline void ds_rewind(PerifDatassette *datassette) {
 //
 
 static void perif_datassette_destroy(PerifDatassette *datassette);
-static void perif_datassette_register_dependencies(PerifDatassette *datassette);
 static void perif_datassette_process(PerifDatassette *datassette);
 
 PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteSignals signals) {
 	PerifDatassette *datassette = (PerifDatassette *) calloc(1, sizeof(PerifDatassette));
 
 	// chip
-	CHIP_SET_FUNCTIONS(datassette, perif_datassette_process, perif_datassette_destroy, perif_datassette_register_dependencies);
-	CHIP_SET_VARIABLES(datassette, sim, datassette->signals, CHIP_DS1530_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(datassette, perif_datassette_process, perif_datassette_destroy);
+	CHIP_SET_VARIABLES(datassette, sim, datassette->signals, PerifDatassette_PinTypes, CHIP_DS1530_PIN_COUNT);
 
 	// signals
 	datassette->signal_pool = sim->signal_pool;
@@ -264,12 +270,6 @@ PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteS
 static void perif_datassette_destroy(PerifDatassette *datassette) {
 	assert(datassette);
 	free(datassette);
-}
-
-static void perif_datassette_register_dependencies(PerifDatassette *datassette) {
-	assert(datassette);
-	SIGNAL_DEPENDENCY(MOTOR);
-	SIGNAL_DEPENDENCY(DATA_TO_DS);
 }
 
 static void perif_datassette_process(PerifDatassette *datassette) {

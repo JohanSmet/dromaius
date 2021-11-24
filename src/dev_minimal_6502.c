@@ -42,42 +42,38 @@ typedef struct ChipGlueLogic {
 	Signal			signals[CHIP_GLUE_LOGIC_PIN_COUNT];
 } ChipGlueLogic;
 
-static void glue_logic_register_dependencies(ChipGlueLogic *chip);
+static uint8_t ChipGlueLogic_PinTypes[CHIP_GLUE_LOGIC_PIN_COUNT] = {0};
+
 static void glue_logic_process(ChipGlueLogic *chip);
 static void glue_logic_destroy(ChipGlueLogic *chip);
+
+#define GLUE_PIN(s,t)					\
+	chip->signals[pin] = s;				\
+	chip->pin_types[pin] = (t);			\
+	++pin;
 
 static ChipGlueLogic *glue_logic_create(DevMinimal6502 *device) {
 	ChipGlueLogic *chip = (ChipGlueLogic *) calloc(1, sizeof(ChipGlueLogic));
 	chip->device = device;
 
-	CHIP_SET_FUNCTIONS(chip, glue_logic_process, glue_logic_destroy, glue_logic_register_dependencies);
-	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, CHIP_GLUE_LOGIC_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process, glue_logic_destroy);
+	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, ChipGlueLogic_PinTypes, CHIP_GLUE_LOGIC_PIN_COUNT);
 
 	int pin = 0;
-	chip->signals[pin++] = SIGNAL(CPU_RW);
-	chip->signals[pin++] = SIGNAL(CLOCK);
-	chip->signals[pin++] = SIGNAL(RESET_BTN_B);
-	chip->signals[pin++] = SIGNAL(RAM_OE_B);
-	chip->signals[pin++] = SIGNAL(RAM_WE_B);
-	chip->signals[pin++] = SIGNAL(ROM_CE_B);
-	chip->signals[pin++] = SIGNAL(AB14);
-	chip->signals[pin++] = SIGNAL(PIA_CS2_B);
+	GLUE_PIN(SIGNAL(CPU_RW),      CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(SIGNAL(CLOCK),	      CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(SIGNAL(RESET_BTN_B), CHIP_PIN_OUTPUT);
+	GLUE_PIN(SIGNAL(RAM_OE_B),    CHIP_PIN_OUTPUT);
+	GLUE_PIN(SIGNAL(RAM_WE_B),    CHIP_PIN_OUTPUT);
+	GLUE_PIN(SIGNAL(ROM_CE_B),    CHIP_PIN_OUTPUT);
+	GLUE_PIN(SIGNAL(PIA_CS2_B),   CHIP_PIN_OUTPUT);
 
 	for (int i = 0; i < 16; ++i) {
-		chip->signals[pin++] = device->sg_address[i];
+		GLUE_PIN(device->sg_address[i], CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 	}
 	assert(pin == CHIP_GLUE_LOGIC_PIN_COUNT);
 
 	return chip;
-}
-
-static void glue_logic_register_dependencies(ChipGlueLogic *chip) {
-	assert(chip);
-	DevMinimal6502 *device = chip->device;
-
-	SIGNAL_DEPENDENCY(CPU_RW);
-	SIGNAL_DEPENDENCY(CLOCK);
-	SIGNAL_GROUP_DEPENDENCY(address);
 }
 
 static void glue_logic_destroy(ChipGlueLogic *chip) {

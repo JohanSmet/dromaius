@@ -17,19 +17,47 @@
 // 8x MK 4116 (16K x 1 Bit Dynamic Ram)
 //
 
+static uint8_t Chip8x4116DRam_PinTypes[CHIP_4116_PIN_COUNT] = {
+	[CHIP_4116_A0    ] = CHIP_PIN_INPUT,
+	[CHIP_4116_A1    ] = CHIP_PIN_INPUT,
+	[CHIP_4116_A2    ] = CHIP_PIN_INPUT,
+	[CHIP_4116_A3    ] = CHIP_PIN_INPUT,
+	[CHIP_4116_A4    ] = CHIP_PIN_INPUT,
+	[CHIP_4116_A5    ] = CHIP_PIN_INPUT,
+	[CHIP_4116_A6    ] = CHIP_PIN_INPUT,
+	[CHIP_4116_DI0   ] = CHIP_PIN_INPUT,
+	[CHIP_4116_DI1   ] = CHIP_PIN_INPUT,
+	[CHIP_4116_DI2   ] = CHIP_PIN_INPUT,
+	[CHIP_4116_DI3   ] = CHIP_PIN_INPUT,
+	[CHIP_4116_DI4   ] = CHIP_PIN_INPUT,
+	[CHIP_4116_DI5   ] = CHIP_PIN_INPUT,
+	[CHIP_4116_DI6   ] = CHIP_PIN_INPUT,
+	[CHIP_4116_DI7   ] = CHIP_PIN_INPUT,
+	[CHIP_4116_DO0   ] = CHIP_PIN_OUTPUT,
+	[CHIP_4116_DO1   ] = CHIP_PIN_OUTPUT,
+	[CHIP_4116_DO2   ] = CHIP_PIN_OUTPUT,
+	[CHIP_4116_DO3   ] = CHIP_PIN_OUTPUT,
+	[CHIP_4116_DO4   ] = CHIP_PIN_OUTPUT,
+	[CHIP_4116_DO5   ] = CHIP_PIN_OUTPUT,
+	[CHIP_4116_DO6   ] = CHIP_PIN_OUTPUT,
+	[CHIP_4116_DO7   ] = CHIP_PIN_OUTPUT,
+	[CHIP_4116_WE_B  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_4116_RAS_B ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+	[CHIP_4116_CAS_B ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+};
+
 #define CHIP_8x4116_IDLE 0
 #define CHIP_8x4116_OUTPUT_BEGIN 1
 #define CHIP_8x4116_OUTPUT 2
 
-void chip_8x4116_dram_register_dependencies(Chip8x4116DRam *chip);
 void chip_8x4116_dram_destroy(Chip8x4116DRam *chip);
 void chip_8x4116_dram_process(Chip8x4116DRam *chip);
 
 Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals signals) {
 	Chip8x4116DRam *chip = (Chip8x4116DRam *) calloc(1, sizeof(Chip8x4116DRam));
 
-	CHIP_SET_FUNCTIONS(chip, chip_8x4116_dram_process, chip_8x4116_dram_destroy, chip_8x4116_dram_register_dependencies);
-	CHIP_SET_VARIABLES(chip, sim, chip->signals, CHIP_4116_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(chip, chip_8x4116_dram_process, chip_8x4116_dram_destroy);
+	CHIP_SET_VARIABLES(chip, sim, chip->signals, Chip8x4116DRam_PinTypes, CHIP_4116_PIN_COUNT);
 
 	chip->signal_pool = sim->signal_pool;
 	chip->access_time = simulator_interval_to_tick_count(sim, NS_TO_PS(100));
@@ -57,13 +85,6 @@ Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals si
 	SIGNAL_DEFINE(CAS_B);
 
 	return chip;
-}
-
-void chip_8x4116_dram_register_dependencies(Chip8x4116DRam *chip) {
-	assert(chip);
-	SIGNAL_DEPENDENCY(RAS_B);
-	SIGNAL_DEPENDENCY(CAS_B);
-	SIGNAL_DEPENDENCY(WE_B);
 }
 
 void chip_8x4116_dram_destroy(Chip8x4116DRam *chip) {

@@ -19,6 +19,20 @@
 // internal types
 //
 
+static uint8_t ChipHd44780_PinTypes[CHIP_HD44780_PIN_COUNT] = {
+	[CHIP_HD44780_DB0] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_DB1] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_DB2] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_DB3] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_DB4] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_DB5] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_DB6] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_DB7] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_RS ] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_RW ] = CHIP_PIN_INPUT,
+	[CHIP_HD44780_E  ] = CHIP_PIN_INPUT | CHIP_PIN_TRIGGER,
+};
+
 typedef enum RamMode {
 	RM_DDRAM = 0,
 	RM_CGRAM = 1
@@ -425,7 +439,6 @@ static void process_end(ChipHd44780 *lcd) {
 // interface functions
 //
 
-static void chip_hd44780_register_dependencies(ChipHd44780 *lcd);
 static void chip_hd44780_destroy(ChipHd44780 *lcd);
 static void chip_hd44780_process(ChipHd44780 *lcd);
 
@@ -433,8 +446,8 @@ ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 	ChipHd44780_private *priv = (ChipHd44780_private *) calloc(1, sizeof(ChipHd44780_private));
 	ChipHd44780 *lcd = &priv->intf;
 
-	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy, chip_hd44780_register_dependencies);
-	CHIP_SET_VARIABLES(lcd, sim, lcd->signals, CHIP_HD44780_PIN_COUNT);
+	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy);
+	CHIP_SET_VARIABLES(lcd, sim, lcd->signals, ChipHd44780_PinTypes, CHIP_HD44780_PIN_COUNT);
 
 	lcd->signal_pool = sim->signal_pool;
 	PRIVATE(lcd)->cursor_blink_cycles = simulator_interval_to_tick_count(lcd->simulator, CURSOR_BLINK_INTERVAL_PS);
@@ -463,11 +476,6 @@ ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 	refresh_screen(lcd);
 
 	return lcd;
-}
-
-static void chip_hd44780_register_dependencies(ChipHd44780 *lcd) {
-	assert(lcd);
-	SIGNAL_DEPENDENCY(E);
 }
 
 static void chip_hd44780_destroy(ChipHd44780 *lcd) {

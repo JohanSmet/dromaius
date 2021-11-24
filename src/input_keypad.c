@@ -53,9 +53,10 @@ InputKeypad *input_keypad_create(Simulator *sim,
 	InputKeypadPrivate *priv = calloc(1, sizeof(InputKeypadPrivate));
 	InputKeypad *keypad = &priv->intf;
 	keypad->signals = calloc(row_count + col_count, sizeof(Signal));
+	uint8_t *pin_types = calloc(row_count + col_count, sizeof(uint8_t));
 
-	CHIP_SET_FUNCTIONS(keypad, input_keypad_process, input_keypad_destroy, input_keypad_register_dependencies);
-	CHIP_SET_VARIABLES(keypad, sim, keypad->signals, (uint32_t) (row_count + col_count));
+	CHIP_SET_FUNCTIONS(keypad, input_keypad_process, input_keypad_destroy);
+	CHIP_SET_VARIABLES(keypad, sim, keypad->signals, pin_types, (uint32_t) (row_count + col_count));
 
 	keypad->keys = (bool *) calloc(row_count * col_count, sizeof(bool));
 	priv->key_release_ticks = (int64_t *) calloc(row_count * col_count, sizeof(int64_t));
@@ -92,20 +93,18 @@ InputKeypad *input_keypad_create(Simulator *sim,
 		memcpy(keypad->signals + row_count, col_signals, col_count * sizeof(Signal));
 	}
 
-	return keypad;
-}
+	// setup pin types
+	memset(pin_types, CHIP_PIN_INPUT | CHIP_PIN_TRIGGER, row_count);
+	memset(pin_types + row_count, CHIP_PIN_OUTPUT, col_count);
 
-void input_keypad_register_dependencies(InputKeypad *keypad) {
-	assert(keypad);
-	for (size_t i = 0; i < arrlenu(keypad->sg_rows); ++i) {
-		signal_add_dependency(SIGNAL_POOL, keypad->sg_rows[i], keypad->id);
-	}
+	return keypad;
 }
 
 void input_keypad_destroy(InputKeypad *keypad) {
 	assert(keypad);
 	free(keypad->keys);
 	free(keypad->signals);
+	free(keypad->pin_types);
 	free(PRIVATE(keypad)->key_release_ticks);
 	free(PRIVATE(keypad));
 }
