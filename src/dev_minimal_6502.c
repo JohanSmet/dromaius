@@ -19,27 +19,54 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define SIGNAL_PREFIX		SIG_M6502_
-#define SIGNAL_OWNER		device
-
-#undef  SIGNAL_CHIP_ID
-#define SIGNAL_CHIP_ID		chip->id
-
-#undef  SIGNAL_CHIP_LAYER
-#define SIGNAL_CHIP_LAYER	chip->signal_layer
-
 ///////////////////////////////////////////////////////////////////////////////
 //
-// internal types / functions
+// internal - glue logic
 //
 
-#define CHIP_GLUE_LOGIC_PIN_COUNT 24
+#define SIGNAL_PREFIX		CHIP_GLUE_LOGIC_
+#define SIGNAL_OWNER		chip
+
+typedef enum {
+	CHIP_GLUE_LOGIC_AB0 = CHIP_PIN_01,
+	CHIP_GLUE_LOGIC_AB1,
+	CHIP_GLUE_LOGIC_AB2,
+	CHIP_GLUE_LOGIC_AB3,
+	CHIP_GLUE_LOGIC_AB4,
+	CHIP_GLUE_LOGIC_AB5,
+	CHIP_GLUE_LOGIC_AB6,
+	CHIP_GLUE_LOGIC_AB7,
+	CHIP_GLUE_LOGIC_AB8,
+	CHIP_GLUE_LOGIC_AB9,
+	CHIP_GLUE_LOGIC_AB10,
+	CHIP_GLUE_LOGIC_AB11,
+	CHIP_GLUE_LOGIC_AB12,
+	CHIP_GLUE_LOGIC_AB13,
+	CHIP_GLUE_LOGIC_AB14,
+	CHIP_GLUE_LOGIC_AB15,
+
+	CHIP_GLUE_LOGIC_CPU_RW,
+	CHIP_GLUE_LOGIC_CLOCK,
+	CHIP_GLUE_LOGIC_RESET_BTN_B,
+
+	CHIP_GLUE_LOGIC_RAM_OE_B,
+	CHIP_GLUE_LOGIC_RAM_WE_B,
+	CHIP_GLUE_LOGIC_ROM_CE_B,
+
+	CHIP_GLUE_LOGIC_PIA_CS2_B,
+
+	CHIP_GLUE_LOGIC_PIN_COUNT
+} GlueLogicSignalAssignment;
 
 typedef struct ChipGlueLogic {
 	CHIP_DECLARE_BASE
 
 	DevMinimal6502 *device;
+
 	Signal			signals[CHIP_GLUE_LOGIC_PIN_COUNT];
+	SignalPool *	signal_pool;
+
+	SignalGroup		sg_address;
 } ChipGlueLogic;
 
 static uint8_t ChipGlueLogic_PinTypes[CHIP_GLUE_LOGIC_PIN_COUNT] = {0};
@@ -55,22 +82,26 @@ static void glue_logic_destroy(ChipGlueLogic *chip);
 static ChipGlueLogic *glue_logic_create(DevMinimal6502 *device) {
 	ChipGlueLogic *chip = (ChipGlueLogic *) calloc(1, sizeof(ChipGlueLogic));
 	chip->device = device;
+	chip->signal_pool = device->signal_pool;
 
 	CHIP_SET_FUNCTIONS(chip, glue_logic_process, glue_logic_destroy);
 	CHIP_SET_VARIABLES(chip, device->simulator, chip->signals, ChipGlueLogic_PinTypes, CHIP_GLUE_LOGIC_PIN_COUNT);
 
 	int pin = 0;
-	GLUE_PIN(SIGNAL(CPU_RW),      CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
-	GLUE_PIN(SIGNAL(CLOCK),	      CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
-	GLUE_PIN(SIGNAL(RESET_BTN_B), CHIP_PIN_OUTPUT);
-	GLUE_PIN(SIGNAL(RAM_OE_B),    CHIP_PIN_OUTPUT);
-	GLUE_PIN(SIGNAL(RAM_WE_B),    CHIP_PIN_OUTPUT);
-	GLUE_PIN(SIGNAL(ROM_CE_B),    CHIP_PIN_OUTPUT);
-	GLUE_PIN(SIGNAL(PIA_CS2_B),   CHIP_PIN_OUTPUT);
 
 	for (int i = 0; i < 16; ++i) {
 		GLUE_PIN(device->sg_address[i], CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 	}
+	SIGNAL_GROUP(address) = signal_group_create_from_array(16, chip->signals);
+
+	GLUE_PIN(device->signals[SIG_M6502_CPU_RW],      CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(device->signals[SIG_M6502_CLOCK],	     CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(device->signals[SIG_M6502_RESET_BTN_B], CHIP_PIN_OUTPUT);
+	GLUE_PIN(device->signals[SIG_M6502_RAM_OE_B],    CHIP_PIN_OUTPUT);
+	GLUE_PIN(device->signals[SIG_M6502_RAM_WE_B],    CHIP_PIN_OUTPUT);
+	GLUE_PIN(device->signals[SIG_M6502_ROM_CE_B],    CHIP_PIN_OUTPUT);
+	GLUE_PIN(device->signals[SIG_M6502_PIA_CS2_B],   CHIP_PIN_OUTPUT);
+
 	assert(pin == CHIP_GLUE_LOGIC_PIN_COUNT);
 
 	return chip;
@@ -115,6 +146,12 @@ static void glue_logic_process(ChipGlueLogic *chip) {
 // interface functions
 //
 
+#undef  SIGNAL_PREFIX
+#define SIGNAL_PREFIX		SIG_M6502_
+#undef  SIGNAL_OWNER
+#define SIGNAL_OWNER		device
+
+
 Cpu6502* dev_minimal_6502_get_cpu(DevMinimal6502 *device) {
 	assert(device);
 	return device->cpu;
@@ -151,6 +188,11 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	SIGNAL_DEFINE_DEFAULT(CPU_NMI_B, ACTLO_DEASSERT);
 	SIGNAL_DEFINE(CPU_SYNC);
 	SIGNAL_DEFINE_DEFAULT(CPU_RDY, ACTHI_ASSERT);
+
+	SIGNAL_DEFINE(RAM_OE_B);
+	SIGNAL_DEFINE(RAM_WE_B);
+	SIGNAL_DEFINE(ROM_CE_B);
+	SIGNAL_DEFINE(PIA_CS2_B);
 
 	SIGNAL_DEFINE_DEFAULT(LOW, false);
 	SIGNAL_DEFINE_DEFAULT(HIGH, true);
@@ -235,7 +277,9 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										[CHIP_RAM8D16A_D6] = SIGNAL(DB6),
 										[CHIP_RAM8D16A_D7] = SIGNAL(DB7),
 
-										[CHIP_RAM8D16A_CE_B] = SIGNAL(AB15)
+										[CHIP_RAM8D16A_CE_B] = SIGNAL(AB15),
+										[CHIP_RAM8D16A_OE_B] = SIGNAL(RAM_OE_B),
+										[CHIP_RAM8D16A_WE_B] = SIGNAL(RAM_WE_B)
 	});
 	DEVICE_REGISTER_CHIP("RAM", device->ram);
 
@@ -264,6 +308,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										[CHIP_ROM8D16A_D5] = SIGNAL(DB5),
 										[CHIP_ROM8D16A_D6] = SIGNAL(DB6),
 										[CHIP_ROM8D16A_D7] = SIGNAL(DB7),
+
+										[CHIP_ROM8D16A_CE_B] = SIGNAL(ROM_CE_B)
 	});
 	DEVICE_REGISTER_CHIP("ROM", device->rom);
 
@@ -287,7 +333,8 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 										[CHIP_6520_CS0] = SIGNAL(AB15),
 										[CHIP_6520_CS1] = SIGNAL(HIGH),
 										[CHIP_6520_RS0] = SIGNAL(AB0),
-										[CHIP_6520_RS1] = SIGNAL(AB1)
+										[CHIP_6520_RS1] = SIGNAL(AB1),
+										[CHIP_6520_CS2_B] = SIGNAL(PIA_CS2_B)
 	});
 	DEVICE_REGISTER_CHIP("PIA", device->pia);
 
@@ -317,11 +364,6 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	// custom chip for the glue logic
 	DEVICE_REGISTER_CHIP("LOGIC", glue_logic_create(device));
 
-	// copy some signals for easy access
-	SIGNAL(RAM_OE_B) = device->ram->signals[CHIP_RAM8D16A_OE_B];
-	SIGNAL(RAM_WE_B) = device->ram->signals[CHIP_RAM8D16A_WE_B];
-	SIGNAL(ROM_CE_B) = device->rom->signals[CHIP_ROM8D16A_CE_B];
-	SIGNAL(PIA_CS2_B) = device->pia->signals[CHIP_6520_CS2_B];
 
 	// let the simulator know no more chips will be added
 	simulator_device_complete(device->simulator);
