@@ -156,7 +156,7 @@ void input_keypad_process(InputKeypad *keypad) {
 		if (input != keypad->active_high) {
 			continue;
 		}
-		signal_write(SIGNAL_POOL, *keypad->sg_cols[c], input, SIGNAL_CHIP_LAYER);
+		signal_write(SIGNAL_POOL, *keypad->sg_cols[c], input);
 	}
 }
 

@@ -159,20 +159,21 @@ void simulator_device_complete(Simulator *sim) {
 		}
 
 		// use lowest available layer
-		chip->signal_layer = (uint32_t) bit_lowest_set(~used_layers);
-		sim->signal_pool->layer_count = MAX(sim->signal_pool->layer_count, chip->signal_layer + 1);
+		uint32_t signal_layer = (uint32_t) bit_lowest_set(~used_layers);
+		sim->signal_pool->layer_count = MAX(sim->signal_pool->layer_count, signal_layer + 1);
 
 		// mark layer as used on all pins
-		uint64_t layer_mask = 1ull << chip->signal_layer;
+		uint64_t layer_mask = 1ull << signal_layer;
 
 		for (uint32_t pin_idx = 1; pin_idx < chip->pin_count; ++pin_idx) {
+			chip->pins[pin_idx].layer = (uint8_t) signal_layer;
 			sim->signal_pool->signals_layers[signal_array_subscript(chip->pins[pin_idx])] |= layer_mask;
 			sim->signal_pool->block_layers[chip->pins[pin_idx].block] |= layer_mask;
 		}
 
 
 		// mark chip as used on the layer
-		PRIVATE(sim)->layer_chips[chip->signal_layer] |= 1ull << chip_id;
+		PRIVATE(sim)->layer_chips[signal_layer] |= 1ull << chip_id;
 	}
 }
 

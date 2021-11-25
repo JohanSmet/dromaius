@@ -43,20 +43,20 @@ static inline bool signal_read(SignalPool *pool, Signal signal) {
 	return FLAG_IS_SET(pool->signals_value[signal.block], 1ull << signal.index);
 }
 
-static inline void signal_write(SignalPool *pool, Signal signal, bool value, uint32_t layer) {
+static inline void signal_write(SignalPool *pool, Signal signal, bool value) {
 	assert(pool);
 
 	uint64_t signal_flag = 1ull << signal.index;
 
-	FLAG_SET_CLEAR_U64(pool->signals_next_value[layer][signal.block], signal_flag, value);
-	FLAG_SET(pool->signals_next_mask[layer][signal.block], signal_flag);
+	FLAG_SET_CLEAR_U64(pool->signals_next_value[signal.layer][signal.block], signal_flag, value);
+	FLAG_SET(pool->signals_next_mask[signal.layer][signal.block], signal_flag);
 	pool->blocks_touched |= 1u << signal.block;
 }
 
-static inline void signal_clear_writer(SignalPool *pool, Signal signal, uint32_t layer) {
+static inline void signal_clear_writer(SignalPool *pool, Signal signal) {
 	assert(pool);
 
-	FLAG_CLEAR_U64(pool->signals_next_mask[layer][signal.block], 1ull << signal.index);
+	FLAG_CLEAR_U64(pool->signals_next_mask[signal.layer][signal.block], 1ull << signal.index);
 	pool->blocks_touched |= 1u << signal.block;
 }
 
@@ -135,23 +135,23 @@ static inline int32_t signal_group_read_next(SignalPool* pool, SignalGroup sg) {
 	return result;
 }
 
-static inline void signal_group_clear_writer(SignalPool* pool, SignalGroup sg, uint32_t layer) {
+static inline void signal_group_clear_writer(SignalPool* pool, SignalGroup sg) {
 	for (size_t i = 0; i < arrlenu(sg); ++i) {
-		signal_clear_writer(pool, *sg[i], layer);
+		signal_clear_writer(pool, *sg[i]);
 	}
 }
 
-static inline void signal_group_write(SignalPool* pool, SignalGroup sg, int32_t value, uint32_t layer) {
+static inline void signal_group_write(SignalPool* pool, SignalGroup sg, int32_t value) {
 	assert(pool);
 	assert(arrlen(sg) <= 32);
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
-		signal_write(pool, *sg[i], value & 1, layer);
+		signal_write(pool, *sg[i], value & 1);
 		value >>= 1;
 	}
 }
 
-static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, int32_t value, uint32_t mask, uint32_t layer) {
+static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, int32_t value, uint32_t mask) {
 // only write to the signals in the group with a 1 in the corresponding bit in the mask.
 // Please note: the signals with a 0 in the mask are NOT touched at all, not even to clear a writer-flag that may have been
 //				set by a previous write with another mask. If a writer-flag should be cleared when the mask changes, this should
@@ -166,7 +166,7 @@ static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, i
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
 		if (mask & 1) {
-			signal_write(pool, *sg[i], value & 1, layer);
+			signal_write(pool, *sg[i], value & 1);
 		}
 		value >>= 1;
 		mask >>= 1;
@@ -194,14 +194,13 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 #define SIGNAL_POOL			SIGNAL_OWNER->signal_pool
 #define SIGNAL_COLLECTION	SIGNAL_OWNER->signals
 #define SIGNAL_CHIP_ID		SIGNAL_OWNER->id
-#define SIGNAL_CHIP_LAYER	SIGNAL_OWNER->signal_layer
 
 #define SIGNAL_ENUM(sig)	SIGNAL_CONCAT(SIGNAL_PREFIX, sig)
 
 #define SIGNAL(sig)			SIGNAL_COLLECTION[SIGNAL_ENUM(sig)]
 #define SIGNAL_GROUP(grp)	SIGNAL_OWNER->sg_ ## grp
 
-#define SIGNAL_INIT_UNDEFINED {0, 0}
+#define SIGNAL_INIT_UNDEFINED {0, 0, 0}
 
 #define SIGNAL_DEFINE(sig)							\
 	if (signal_is_undefined(SIGNAL(sig))) {			\
@@ -239,9 +238,9 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 #define SIGNAL_READ_NEXT(sig)				signal_read_next(SIGNAL_POOL, SIGNAL(sig))
 #define SIGNAL_CHANGED(sig)					signal_changed(SIGNAL_POOL, SIGNAL(sig))
 
-#define SIGNAL_WRITE(sig,v)					signal_write(SIGNAL_POOL, SIGNAL(sig), (v), SIGNAL_CHIP_LAYER)
+#define SIGNAL_WRITE(sig,v)					signal_write(SIGNAL_POOL, SIGNAL(sig), (v))
 
-#define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_LAYER)
+#define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL(sig))
 
 #define SIGNAL_GROUP_NEW_N(grp,cnt,arr,gn,sn)		SIGNAL_GROUP(grp) = signal_group_create_new(SIGNAL_POOL, (cnt), (arr));	\
 													signal_group_set_name(SIGNAL_POOL, SIGNAL_GROUP(grp), (gn), (sn), 0);
@@ -254,9 +253,9 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 #define SIGNAL_GROUP_READ_NEXT_U8(grp)		((uint8_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
 #define SIGNAL_GROUP_READ_NEXT_U16(grp)		((uint16_t) signal_group_read_next(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
 #define SIGNAL_GROUP_READ_NEXT_U32(grp)		(signal_group_read_next(SIGNAL_POOL, SIGNAL_GROUP(grp) ))
-#define SIGNAL_GROUP_WRITE(grp,v)			signal_group_write(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v), SIGNAL_CHIP_LAYER)
-#define SIGNAL_GROUP_WRITE_MASKED(grp,v,m)	signal_group_write_masked(SIGNAL_POOL, SIGNAL_GROUP(grp), (v), (m), SIGNAL_CHIP_LAYER)
-#define SIGNAL_GROUP_NO_WRITE(grp)			signal_group_clear_writer(SIGNAL_POOL, SIGNAL_GROUP(grp), SIGNAL_CHIP_LAYER)
+#define SIGNAL_GROUP_WRITE(grp,v)			signal_group_write(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v))
+#define SIGNAL_GROUP_WRITE_MASKED(grp,v,m)	signal_group_write_masked(SIGNAL_POOL, SIGNAL_GROUP(grp), (v), (m))
+#define SIGNAL_GROUP_NO_WRITE(grp)			signal_group_clear_writer(SIGNAL_POOL, SIGNAL_GROUP(grp))
 
 #ifdef __cplusplus
 }

@@ -38,21 +38,21 @@ static bool	    override_cpu_rw = CPU_READ;
 static uint8_t  override_bus_bd = 0;
 
 static void override_cpu_process(Cpu6502 *cpu) {
-	signal_group_write(cpu->signal_pool, cpu->sg_address, override_bus_address, cpu->signal_layer);
-	signal_write(cpu->signal_pool, cpu->signals[PIN_6502_RW], override_cpu_rw, cpu->signal_layer);
+	signal_group_write(cpu->signal_pool, cpu->sg_address, override_bus_address);
+	signal_write(cpu->signal_pool, cpu->signals[PIN_6502_RW], override_cpu_rw);
 	if (override_cpu_rw == CPU_WRITE) {
-		signal_group_write(cpu->signal_pool, cpu->sg_data, override_bus_data, cpu->signal_layer);
+		signal_group_write(cpu->signal_pool, cpu->sg_data, override_bus_data);
 	} else {
-		signal_group_clear_writer(cpu->signal_pool, cpu->sg_data, cpu->signal_layer);
+		signal_group_clear_writer(cpu->signal_pool, cpu->sg_data);
 	}
 }
 
 static void override_ram_process(Chip8x4116DRam *ram) {
-	signal_group_write(ram->signal_pool, ram->sg_dout, override_bus_bd, ram->signal_layer);
+	signal_group_write(ram->signal_pool, ram->sg_dout, override_bus_bd);
 }
 
 static void override_ram_process_lite(Ram8d16a *ram) {
-	signal_group_write(ram->signal_pool, ram->sg_data, override_bus_bd, ram->signal_layer);
+	signal_group_write(ram->signal_pool, ram->sg_data, override_bus_bd);
 }
 
 static void override_do_nothing(void *device) {

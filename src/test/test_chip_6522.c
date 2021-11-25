@@ -52,7 +52,6 @@ enum Test6522DeviceSignalAssignment {
 typedef struct TestFixture6522 {
 	Simulator *		simulator;
 	Signal			signals[SIG_6522_SIGNAL_COUNT];
-	uint32_t		signal_layer;
 	Chip6522 *		via;
 
 	SignalGroup		sg_port_a;
@@ -124,8 +123,6 @@ static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
 	// create test fixture
 	TestFixture6522 *fixture = (TestFixture6522 *) calloc(1, sizeof(TestFixture6522));
 	fixture->simulator = simulator_create(NS_TO_PS(100));
-	fixture->signal_layer = 0;
-
 	signal_pool_set_layer_count(fixture->simulator->signal_pool, 2);
 
 	// >> setup signals
@@ -201,7 +198,13 @@ static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
 										[CHIP_6522_CB2] = SIGNAL(CB2),
 										[CHIP_6522_IRQ_B] = SIGNAL(IRQ_B)
 	});
-	fixture->via->signal_layer = 1;
+	simulator_device_complete(fixture->simulator);
+
+	// via should write to a different signal layer (can not use simulator_device_complete because fixture is not a chip)
+	for (uint32_t s = 0; s < fixture->via->pin_count; ++s) {
+		fixture->via->pins[s].layer = 1;
+	}
+	fixture->simulator->signal_pool->block_layers[0] = 0b11;
 
 	// run chip with reset asserted
 	SIGNAL_WRITE(PHI2, false);

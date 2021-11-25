@@ -67,7 +67,6 @@ typedef void (*CHIP_DESTROY_FUNC)(void *chip);
 	const char *	  name;							\
 	int64_t			  schedule_timestamp;			\
 	struct Simulator *simulator;					\
-	uint32_t		  signal_layer;					\
 	uint32_t		  pin_count;					\
 	Signal *		  pins;							\
 	uint8_t *		  pin_types;

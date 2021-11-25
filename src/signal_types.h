@@ -10,6 +10,7 @@
 typedef struct Signal {
 	uint16_t	index;
 	uint8_t		block;
+	uint8_t		layer;
 } Signal;
 
 typedef Signal **SignalGroup;					// dynamic array of Signal *
