@@ -100,7 +100,7 @@ void signal_group_set_name(SignalPool *pool, SignalGroup sg, const char *group_n
 	char sub_name[MAX_SIGNAL_NAME];
 	for (uint32_t i = 0; i < signal_group_size(sg); ++i) {
 		snprintf(sub_name, MAX_SIGNAL_NAME, signal_name, i + start_idx);
-		shput(pool->signal_names, sub_name, sg[i]);
-		pool->signals_name[signal_array_subscript(sg[i])] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
+		shput(pool->signal_names, sub_name, *sg[i]);
+		pool->signals_name[signal_array_subscript(*sg[i])] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
 	}
 }

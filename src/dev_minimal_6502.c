@@ -90,7 +90,7 @@ static ChipGlueLogic *glue_logic_create(DevMinimal6502 *device) {
 	int pin = 0;
 
 	for (int i = 0; i < 16; ++i) {
-		GLUE_PIN(device->sg_address[i], CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+		GLUE_PIN(*device->sg_address[i], CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 	}
 	SIGNAL_GROUP(address) = signal_group_create_from_array(16, chip->signals);
 
@@ -174,11 +174,9 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	device->signal_pool = device->simulator->signal_pool;
 
 	// signals
-	SIGNAL_GROUP_NEW(address, 16);
-	memcpy(&SIGNAL(AB0), SIGNAL_GROUP(address), 16 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(address, 16, &SIGNAL(AB0), "cpu_address", "AB%d");
 
-	SIGNAL_GROUP_NEW(data, 8);
-	memcpy(&SIGNAL(DB0), SIGNAL_GROUP(data), 8 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(data, 8, &SIGNAL(DB0), "cpu_data", "DB%d");
 
 	SIGNAL_DEFINE_DEFAULT(CLOCK, true);
 	SIGNAL_DEFINE_DEFAULT(RESET_BTN_B, ACTLO_DEASSERT);
@@ -352,10 +350,10 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 	// keypad
 	device->keypad = input_keypad_create(device->simulator, true, 4, 4, 500, 100,
-										 (Signal[]) {device->pia->sg_port_b[4], device->pia->sg_port_b[5],
-													 device->pia->sg_port_b[6], device->pia->sg_port_b[7]},
-										 (Signal[]) {device->pia->sg_port_b[0], device->pia->sg_port_b[1],
-													 device->pia->sg_port_b[2], device->pia->sg_port_b[3]}
+										 (Signal[]) {device->pia->signals[CHIP_6520_PB4], device->pia->signals[CHIP_6520_PB5],
+													 device->pia->signals[CHIP_6520_PB6], device->pia->signals[CHIP_6520_PB7]},
+										 (Signal[]) {device->pia->signals[CHIP_6520_PB0], device->pia->signals[CHIP_6520_PB1],
+													 device->pia->signals[CHIP_6520_PB2], device->pia->signals[CHIP_6520_PB3]}
 	);
 
 	DEVICE_REGISTER_CHIP("KEYPAD", device->keypad);

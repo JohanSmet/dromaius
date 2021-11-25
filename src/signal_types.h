@@ -12,7 +12,7 @@ typedef struct Signal {
 	uint8_t		block;
 } Signal;
 
-typedef Signal *SignalGroup;					// dynamic array of Signal
+typedef Signal **SignalGroup;					// dynamic array of Signal *
 
 typedef struct SignalBreakpoint {
 	Signal		signal;							// signal to monitor

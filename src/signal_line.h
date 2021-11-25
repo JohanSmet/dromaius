@@ -75,15 +75,16 @@ static inline SignalGroup signal_group_create(void) {
 static inline SignalGroup signal_group_create_from_array(size_t size, Signal *signals) {
 	SignalGroup result = NULL;
 	for (size_t i = 0; i < size; ++i) {
-		arrpush(result, signals[i]);
+		arrpush(result, &signals[i]);
 	}
 	return result;
 }
 
-static inline SignalGroup signal_group_create_new(SignalPool *pool, size_t size) {
+static inline SignalGroup signal_group_create_new(SignalPool *pool, size_t size, Signal *signals) {
 	SignalGroup result = NULL;
 	for (size_t i = 0; i < size; ++i) {
-		arrpush(result, signal_create(pool));
+		signals[i] = signal_create(pool);
+		arrpush(result, &signals[i]);
 	}
 	return result;
 }
@@ -94,7 +95,7 @@ static inline size_t signal_group_size(SignalGroup sg) {
 	return arrlenu(sg);
 }
 
-static inline void signal_group_push(SignalGroup *group, Signal signal) {
+static inline void signal_group_push(SignalGroup *group, Signal *signal) {
 	assert(group);
 	arrpush(*group, signal);
 }
@@ -103,7 +104,7 @@ static inline void signal_group_defaults(SignalPool *pool, SignalGroup sg, int32
 	assert(arrlen(sg) <= 32);
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
-		signal_default(pool, sg[i], value & 1);
+		signal_default(pool, *sg[i], value & 1);
 		value >>= 1;
 	}
 }
@@ -112,7 +113,7 @@ static inline void signal_group_dependency(SignalPool *pool, SignalGroup sg, int
 	assert(arrlen(sg) <= 32);
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
-		signal_add_dependency(pool, sg[i], chip_id);
+		signal_add_dependency(pool, *sg[i], chip_id);
 	}
 }
 
@@ -120,7 +121,7 @@ static inline int32_t signal_group_read(SignalPool* pool, SignalGroup sg) {
 	int32_t result = 0;
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
-		result |= (signal_read(pool, sg[i]) << i);
+		result |= (signal_read(pool, *sg[i]) << i);
 	}
 	return result;
 }
@@ -129,14 +130,14 @@ static inline int32_t signal_group_read_next(SignalPool* pool, SignalGroup sg) {
 	int32_t result = 0;
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
-		result |= (signal_read_next(pool, sg[i]) << i);
+		result |= (signal_read_next(pool, *sg[i]) << i);
 	}
 	return result;
 }
 
 static inline void signal_group_clear_writer(SignalPool* pool, SignalGroup sg, uint32_t layer) {
 	for (size_t i = 0; i < arrlenu(sg); ++i) {
-		signal_clear_writer(pool, sg[i], layer);
+		signal_clear_writer(pool, *sg[i], layer);
 	}
 }
 
@@ -145,7 +146,7 @@ static inline void signal_group_write(SignalPool* pool, SignalGroup sg, int32_t 
 	assert(arrlen(sg) <= 32);
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
-		signal_write(pool, sg[i], value & 1, layer);
+		signal_write(pool, *sg[i], value & 1, layer);
 		value >>= 1;
 	}
 }
@@ -165,7 +166,7 @@ static inline void signal_group_write_masked(SignalPool* pool, SignalGroup sg, i
 
 	for (size_t i = 0, n = arrlenu(sg); i < n; ++i) {
 		if (mask & 1) {
-			signal_write(pool, sg[i], value & 1, layer);
+			signal_write(pool, *sg[i], value & 1, layer);
 		}
 		value >>= 1;
 		mask >>= 1;
@@ -178,7 +179,7 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 	bool result = false;
 
 	for (size_t i = 0, n = arrlenu(sg); !result && i < n; ++i) {
-		result |= signal_changed(pool, sg[i]);
+		result |= signal_changed(pool, *sg[i]);
 	}
 
 	return result;
@@ -217,7 +218,7 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 	if (signal_is_undefined(SIGNAL(sig))) {					\
 		SIGNAL(sig) = signal_create(SIGNAL_POOL);			\
 	}														\
-	signal_group_push(&SIGNAL_OWNER->sg_ ## grp, SIGNAL(sig));
+	signal_group_push(&SIGNAL_OWNER->sg_ ## grp, &SIGNAL(sig));
 
 #define SIGNAL_DEFINE_DEFAULT(sig,def)						\
 	if (signal_is_undefined(SIGNAL(sig))) {					\
@@ -242,9 +243,8 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 
 #define	SIGNAL_NO_WRITE(sig)				signal_clear_writer(SIGNAL_POOL, SIGNAL(sig), SIGNAL_CHIP_LAYER)
 
-#define SIGNAL_GROUP_NEW(grp,cnt)			SIGNAL_GROUP(grp)  = signal_group_create_new(SIGNAL_POOL, (cnt))
-#define SIGNAL_GROUP_NEW_N(grp,cnt,gn,sn)	SIGNAL_GROUP(grp)  = signal_group_create_new(SIGNAL_POOL, (cnt));		\
-											signal_group_set_name(SIGNAL_POOL, SIGNAL_GROUP(grp), (gn), (sn), 0);
+#define SIGNAL_GROUP_NEW_N(grp,cnt,arr,gn,sn)		SIGNAL_GROUP(grp) = signal_group_create_new(SIGNAL_POOL, (cnt), (arr));	\
+													signal_group_set_name(SIGNAL_POOL, SIGNAL_GROUP(grp), (gn), (sn), 0);
 
 #define SIGNAL_GROUP_DEPENDENCY(grp)		signal_group_dependency(SIGNAL_POOL, SIGNAL_GROUP(grp), SIGNAL_CHIP_ID)
 #define SIGNAL_GROUP_DEFAULTS(grp,v)		signal_group_defaults(SIGNAL_POOL, SIGNAL_GROUP(grp) , (v))

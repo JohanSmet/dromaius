@@ -456,12 +456,12 @@ ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 
 	for (int i = 0; i < 4; ++i) {
 		SIGNAL_DEFINE_GROUP(DB0 + i, data);
-		signal_group_push(&lcd->sg_db0_3, SIGNAL(DB0 + i));
+		signal_group_push(&lcd->sg_db0_3, &SIGNAL(DB0 + i));
 	}
 
 	for (int i = 4; i < 8; ++i) {
 		SIGNAL_DEFINE_GROUP(DB0 + i, data);
-		signal_group_push(&lcd->sg_db4_7, SIGNAL(DB0 + i));
+		signal_group_push(&lcd->sg_db4_7, &SIGNAL(DB0 + i));
 	}
 
 	SIGNAL_DEFINE(RS);

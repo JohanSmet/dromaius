@@ -2078,24 +2078,19 @@ DevCommodorePet *create_pet_device(bool lite) {
 	SIGNAL_DEFINE_DEFAULT_N(IRQ_B, ACTLO_DEASSERT, "/IRQ");
 	SIGNAL_DEFINE_DEFAULT_N(NMI_B, ACTLO_DEASSERT, "/NMI");
 
-	SIGNAL_GROUP_NEW_N(cpu_address, 16, "cpu_address", "AB%d");
-	memcpy(&SIGNAL(AB0), SIGNAL_GROUP(cpu_address), 16 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(cpu_address, 16, &SIGNAL(AB0), "cpu_address", "AB%d");
 
-	SIGNAL_GROUP_NEW_N(cpu_data, 8, "cpu_data", "D%d");
-	memcpy(&SIGNAL(D0), SIGNAL_GROUP(cpu_data), 8 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(cpu_data, 8, &SIGNAL(D0), "cpu_data", "D%d");
 
 	SIGNAL_DEFINE_DEFAULT_N(RW, true, "RW");
 	SIGNAL_DEFINE_N(SYNC, "SYNC");
 	SIGNAL_DEFINE_DEFAULT_N(RDY, ACTHI_ASSERT, "RDY");
 
-	SIGNAL_GROUP_NEW_N(buf_address, 16, "buffered_address", "BA%d");
-	memcpy(&SIGNAL(BA0), SIGNAL_GROUP(buf_address), 16 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(buf_address, 16, &SIGNAL(BA0), "buffered_address", "BA%d");
 
-	SIGNAL_GROUP_NEW_N(buf_data, 8, "buffered_data", "BD%d");
-	memcpy(&SIGNAL(BD0), SIGNAL_GROUP(buf_data), 8 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(buf_data, 8, &SIGNAL(BD0), "buffered_data", "BD%d");
 
-	SIGNAL_GROUP_NEW_N(mem_sel, 16, "mem_sel", "/SEL%X");
-	memcpy(&SIGNAL(SEL0_B), SIGNAL_GROUP(mem_sel), 16 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(mem_sel, 16, &SIGNAL(SEL0_B), "mem_sel", "/SEL%X");
 
 	SIGNAL_DEFINE_N(SEL8, "SEL8");
 
@@ -2128,13 +2123,8 @@ DevCommodorePet *create_pet_device(bool lite) {
 	SIGNAL_DEFINE_N(SRQ_IN_B, "/SRQIN");
 	SIGNAL_DEFINE_N(DAV_OUT_B, "/DAVOUT");
 
-	SIGNAL_GROUP_NEW(ieee488_di, 8);
-	signal_group_set_name(SIGNAL_POOL, SIGNAL_GROUP(ieee488_di), "ieee488_di", "DI%d", 1);
-	memcpy(&SIGNAL(DI0), SIGNAL_GROUP(ieee488_di), 8 * sizeof(Signal));
-
-	SIGNAL_GROUP_NEW(ieee488_do, 8);
-	signal_group_set_name(SIGNAL_POOL, SIGNAL_GROUP(ieee488_do), "ieee488_do", "DO%d", 1);
-	memcpy(&SIGNAL(DI0), SIGNAL_GROUP(ieee488_do), 8 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(ieee488_di, 8, &SIGNAL(DI0), "ieee488_di", "DI%d");
+	SIGNAL_GROUP_NEW_N(ieee488_do, 8, &SIGNAL(DI0), "ieee488_di", "DO%d");
 
 	SIGNAL_DEFINE_N(CS1, "CS1");
 
@@ -2170,15 +2160,12 @@ DevCommodorePet *create_pet_device(bool lite) {
 	SIGNAL_DEFINE_N(CASS_MOTOR_1, "CASSMOTOR1");
 	SIGNAL_DEFINE_N(CASS_MOTOR_1_B, "/CASSMOTOR1");
 
-	SIGNAL_GROUP_NEW_N(pa, 8, "c5_pa", "PA%d");
-	memcpy(&SIGNAL(PA0), SIGNAL_GROUP(pa), 8 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(pa, 8, &SIGNAL(PA0), "c5_pa", "PA%d");
 
-	SIGNAL_GROUP_NEW_N(keyboard_in, 8, "keyboard_in", "KIN%d");
+	SIGNAL_GROUP_NEW_N(keyboard_in, 8, &SIGNAL(KIN0), "keyboard_in", "KIN%d");
 	SIGNAL_GROUP_DEFAULTS(keyboard_in, 0xff);							// pull-up resistors R18-R25
-	memcpy(&SIGNAL(KIN0), SIGNAL_GROUP(keyboard_in), 8 * sizeof(Signal));
 
-	SIGNAL_GROUP_NEW_N(keyboard_out, 10, "keyboard_out", "KOUT%d");
-	memcpy(&SIGNAL(KOUT0), SIGNAL_GROUP(keyboard_out), 10 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(keyboard_out, 10, &SIGNAL(KOUT0), "keyboard_out", "KOUT%d");
 
 	//
 	// signals - sheet 5: RAMS
@@ -2187,11 +2174,9 @@ DevCommodorePet *create_pet_device(bool lite) {
 	SIGNAL_DEFINE_N(BANKSEL, "BANKSEL");
 	SIGNAL_DEFINE_N(G7_8, "G78");
 
-	SIGNAL_GROUP_NEW_N(ram_address, 7, "ram_address", "FA%d");
-	memcpy(&SIGNAL(FA0), SIGNAL_GROUP(ram_address), 7 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(ram_address, 7, &SIGNAL(FA0), "ram_address", "FA%d");
 
-	SIGNAL_GROUP_NEW_N(ram_data, 8, "ram_data", "RD%d");
-	memcpy(&SIGNAL(RD0), SIGNAL_GROUP(ram_data), 8 * sizeof(Signal));
+	SIGNAL_GROUP_NEW_N(ram_data, 8, &SIGNAL(RD0), "ram_data", "RD%d");
 
 	//
 	// signals - sheet 6: Master timing
@@ -2287,8 +2272,7 @@ DevCommodorePet *create_pet_device(bool lite) {
 		SIGNAL_DEFINE_N(TV_RAM_RW, "TVRAMRW");
 		SIGNAL_DEFINE_N(F6_Y3, "F6Y3");
 
-		SIGNAL_GROUP_NEW_N(vram_address, 10, "vram_address", "SA%d");
-		memcpy(&SIGNAL(SA0), SIGNAL_GROUP(vram_address), 10 * sizeof(Signal));
+		SIGNAL_GROUP_NEW_N(vram_address, 10, &SIGNAL(SA0), "vram_address", "SA%d");
 
 		SIGNAL_DEFINE_N(GA2, "GA2");
 		SIGNAL_DEFINE_N(GA3, "GA3");
@@ -2333,14 +2317,9 @@ DevCommodorePet *create_pet_device(bool lite) {
 		SIGNAL_DEFINE_N(RELOAD_B, "/RELOAD");
 		SIGNAL_DEFINE_DEFAULT_N(PULLUP_1, true, "PULLUP1");
 
-		SIGNAL_GROUP_NEW_N(vram_data, 8, "vram_data", "SD%d");
-		memcpy(&SIGNAL(SD0), SIGNAL_GROUP(vram_data), 8 * sizeof(Signal));
-
-		SIGNAL_GROUP_NEW_N(latched_vram_data, 8, "latched_vram_data", "LSD%d");
-		memcpy(&SIGNAL(LSD0), SIGNAL_GROUP(latched_vram_data), 8 * sizeof(Signal));
-
-		SIGNAL_GROUP_NEW_N(char_data, 8, "char_data", "CD%d");
-		memcpy(&SIGNAL(CD0), SIGNAL_GROUP(char_data), 8 * sizeof(Signal));
+		SIGNAL_GROUP_NEW_N(vram_data, 8, &SIGNAL(SD0), "vram_data", "SD%d");
+		SIGNAL_GROUP_NEW_N(latched_vram_data, 8, &SIGNAL(LSD0), "latched_vram_data", "LSD%d");
+		SIGNAL_GROUP_NEW_N(char_data, 8, &SIGNAL(CD0), "char_data", "CD%d");
 
 		SIGNAL_DEFINE_N(G9Q, "G9Q");
 		SIGNAL_DEFINE_N(G9Q_B, "/G9Q");

@@ -86,11 +86,11 @@ InputKeypad *input_keypad_create(Simulator *sim,
 		}
 	}
 	else {
-		keypad->sg_rows = signal_group_create_from_array(row_count, row_signals);
-		keypad->sg_cols = signal_group_create_from_array(col_count, col_signals);
-
 		memcpy(keypad->signals, row_signals, row_count * sizeof(Signal));
 		memcpy(keypad->signals + row_count, col_signals, col_count * sizeof(Signal));
+
+		keypad->sg_rows = signal_group_create_from_array(row_count, keypad->signals);
+		keypad->sg_cols = signal_group_create_from_array(col_count, keypad->signals + row_count);
 	}
 
 	// setup pin types
@@ -152,11 +152,11 @@ void input_keypad_process(InputKeypad *keypad) {
 		uint32_t r = k / (uint32_t) keypad->col_count;
 		uint32_t c = k - (r * (uint32_t) keypad->col_count);
 
-		bool input = signal_read(SIGNAL_POOL, keypad->sg_rows[r]);
+		bool input = signal_read(SIGNAL_POOL, *keypad->sg_rows[r]);
 		if (input != keypad->active_high) {
 			continue;
 		}
-		signal_write(SIGNAL_POOL, keypad->sg_cols[c], input, SIGNAL_CHIP_LAYER);
+		signal_write(SIGNAL_POOL, *keypad->sg_cols[c], input, SIGNAL_CHIP_LAYER);
 	}
 }
 
