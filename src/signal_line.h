@@ -195,7 +195,9 @@ static inline bool signal_group_changed(SignalPool *pool, SignalGroup sg) {
 #define SIGNAL_CHIP_ID		SIGNAL_OWNER->id
 #define SIGNAL_CHIP_LAYER	SIGNAL_OWNER->signal_layer
 
-#define SIGNAL(sig)			SIGNAL_COLLECTION[SIGNAL_CONCAT(SIGNAL_PREFIX, sig)]
+#define SIGNAL_ENUM(sig)	SIGNAL_CONCAT(SIGNAL_PREFIX, sig)
+
+#define SIGNAL(sig)			SIGNAL_COLLECTION[SIGNAL_ENUM(sig)]
 #define SIGNAL_GROUP(grp)	SIGNAL_OWNER->sg_ ## grp
 
 #define SIGNAL_INIT_UNDEFINED {0, 0}
