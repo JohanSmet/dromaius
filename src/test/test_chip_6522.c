@@ -204,7 +204,7 @@ static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
 	for (uint32_t s = 0; s < fixture->via->pin_count; ++s) {
 		fixture->via->pins[s].layer = 1;
 	}
-	fixture->simulator->signal_pool->block_layers[0] = 0b11;
+	fixture->simulator->signal_pool->block_layer_count[0] = 2;
 
 	// run chip with reset asserted
 	SIGNAL_WRITE(PHI2, false);

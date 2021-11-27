@@ -29,15 +29,14 @@ void signal_pool_destroy(SignalPool *pool) {
 	free(pool);
 }
 
-void signal_pool_set_layer_count(SignalPool *pool, uint32_t layer_count) {
+void signal_pool_set_layer_count(SignalPool *pool, uint8_t layer_count) {
 	assert(pool);
 	assert(layer_count > 0);
 
 	pool->layer_count = layer_count;
 
-	uint64_t layer_mask = (1ull << layer_count) - 1;
 	for (int i = 0; i < SIGNAL_BLOCKS; ++i) {
-		pool->block_layers[i] = layer_mask;
+		pool->block_layer_count[i] = layer_count;
 	}
 }
 
@@ -57,8 +56,7 @@ uint64_t signal_pool_cycle(SignalPool *pool) {
 		uint64_t combined_mask = 0;
 		uint64_t new_value = 0;
 
-		for (uint64_t layers = pool->block_layers[blk]; layers; layers &= layers - 1) {
-			int layer = bit_lowest_set(layers);
+		for (uint8_t layer = 0; layer < pool->block_layer_count[blk]; ++layer) {
 			new_value |= ~pool->signals_next_value[layer][blk] & pool->signals_next_mask[layer][blk];
 			combined_mask |= pool->signals_next_mask[layer][blk];
 		}

@@ -132,48 +132,28 @@ const char *simulator_chip_name(Simulator *sim, int32_t chip_id) {
 void simulator_device_complete(Simulator *sim) {
 	assert(sim);
 
-	// register dependencies
+	uint8_t signal_layer_count[SIGNAL_MAX_DEFINED] = {0};
+
 	for (int32_t id = 0; id < arrlen(PRIVATE(sim)->chips); ++id) {
 		Chip *chip = PRIVATE(sim)->chips[id];
 
 		for (uint32_t pin = 0; pin < chip->pin_count; ++pin) {
+			// register dependencies
 			if (chip->pin_types[pin] & CHIP_PIN_TRIGGER) {
 				signal_add_dependency(sim->signal_pool, chip->pins[pin], chip->id);
 			}
-		}
-	}
 
-	// determine what signal-layer each chip should write to
-	memset(sim->signal_pool->block_layers, 0, sizeof(uint64_t) * SIGNAL_BLOCKS);
+			// determine which signal layer to use for each pin
+			if (chip->pin_types[pin] & CHIP_PIN_OUTPUT) {
+				uint8_t signal_layer = signal_layer_count[signal_array_subscript(chip->pins[pin])]++;
+				chip->pins[pin].layer  = signal_layer;
 
-	for (int32_t chip_id = 0; chip_id < arrlen(PRIVATE(sim)->chips); ++chip_id) {
-		Chip *chip = PRIVATE(sim)->chips[chip_id];
-
-		// check which layers are already in use on signals connected to this chip
-		uint64_t used_layers = 0;
-
-		for (uint32_t pin_idx = 0; pin_idx < chip->pin_count; ++pin_idx) {
-			if (!signal_is_undefined(chip->pins[pin_idx])) {
-				used_layers |= sim->signal_pool->signals_layers[signal_array_subscript(chip->pins[pin_idx])];
+				sim->signal_pool->layer_count = MAX(sim->signal_pool->layer_count, (uint32_t) signal_layer + 1);
+				sim->signal_pool->block_layer_count[chip->pins[pin].block] =
+					MAX(sim->signal_pool->block_layer_count[chip->pins[pin].block], signal_layer + 1);
+				sim->signal_pool->signals_layer_component[signal_array_subscript(chip->pins[pin])][signal_layer] = id;
 			}
 		}
-
-		// use lowest available layer
-		uint32_t signal_layer = (uint32_t) bit_lowest_set(~used_layers);
-		sim->signal_pool->layer_count = MAX(sim->signal_pool->layer_count, signal_layer + 1);
-
-		// mark layer as used on all pins
-		uint64_t layer_mask = 1ull << signal_layer;
-
-		for (uint32_t pin_idx = 1; pin_idx < chip->pin_count; ++pin_idx) {
-			chip->pins[pin_idx].layer = (uint8_t) signal_layer;
-			sim->signal_pool->signals_layers[signal_array_subscript(chip->pins[pin_idx])] |= layer_mask;
-			sim->signal_pool->block_layers[chip->pins[pin_idx].block] |= layer_mask;
-		}
-
-
-		// mark chip as used on the layer
-		PRIVATE(sim)->layer_chips[signal_layer] |= 1ull << chip_id;
 	}
 }
 
@@ -201,33 +181,17 @@ void simulator_simulate_timestep(Simulator *sim) {
 uint64_t simulator_signal_writers(Simulator *sim, Signal signal) {
 	assert(sim);
 
-	uint64_t signal_flag = 1ull << signal.index;
-	uint64_t result = 0;
+	uint64_t active_chips = 0;
+	uint64_t signal_mask = 1ull << signal.index;
+	uint64_t signal_subscript = signal_array_subscript(signal);
 
-	// check all layers that are used by this signal
-	for (uint64_t layers = sim->signal_pool->signals_layers[signal_array_subscript(signal)]; layers; layers &= layers - 1) {
-
-		int32_t layer = bit_lowest_set(layers);
-
-		// skip if no write on this layer
-		if (!FLAG_IS_SET(sim->signal_pool->signals_next_mask[layer][signal.block], signal_flag)) {
-			continue;
-		}
-
-		// check all chips that use this layer
-		for (uint64_t layer_chips = PRIVATE(sim)->layer_chips[layer]; layer_chips; layer_chips &= layer_chips - 1) {
-			int32_t chip_id = bit_lowest_set(layer_chips);
-			Chip *chip = PRIVATE(sim)->chips[chip_id];
-
-			for (uint32_t pin_idx = 0; pin_idx < chip->pin_count; ++pin_idx) {
-				if (signal_equal(chip->pins[pin_idx], signal)) {
-					result |= 1ull << chip_id;
-				}
-			}
+	for (uint8_t layer = 0; layer < sim->signal_pool->block_layer_count[signal.block]; ++layer) {
+		if (sim->signal_pool->signals_next_mask[layer][signal.block] & signal_mask) {
+			active_chips |= 1ull << sim->signal_pool->signals_layer_component[signal_subscript][layer];
 		}
 	}
 
-	return result;
+	return active_chips;
 }
 
 void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp) {
