@@ -136,6 +136,8 @@ target_sources(${LIB_TARGET}
 		src/chip_6522.h
 		src/chip_74xxx.c
 		src/chip_74xxx.h
+		src/chip_dummy.c
+		src/chip_dummy.h
 		src/chip_hd44780.c
 		src/chip_hd44780.h
 		src/chip_oscillator.c
