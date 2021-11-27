@@ -23,13 +23,15 @@ public:
 		size_t height;
 	};
 
+	using SignalSubscript = int32_t;
+
 	struct SignalInfo {
-		size_t							count;
-		std::map<std::string, Signal>	names;
+		size_t									count;
+		std::map<std::string, SignalSubscript>	names;
 	};
 
 	struct SignalDetails {
-		Signal			signal;
+		SignalSubscript	signal;
 		int32_t			value;
 		int32_t			writer_id;
 		std::string		writer_name;
@@ -68,7 +70,7 @@ public:
 
 	void context_select_step_clock(const std::string &signal_name) {
 		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
-		if (signal != 0) {
+		if (!signal_is_undefined(signal)) {
 			step_clock = signal;
 		}
 	}
@@ -224,7 +226,7 @@ public:
 		auto pool = pet_device->simulator->signal_pool;
 
 		for (ptrdiff_t idx = 0; idx < arrlen(bps); ++idx) {
-			result.push_back(pool->signals_name[bps[idx].signal]);
+			result.push_back(signal_get_name(pool, bps[idx].signal));
 		}
 
 		return result;
@@ -232,14 +234,14 @@ public:
 
 	void breakpoint_signal_set(const std::string &signal_name) {
 		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
-		if (signal != 0) {
+		if (!signal_is_undefined(signal)) {
 			dms_breakpoint_signal_set(dms_ctx, signal, true, true);
 		}
 	}
 
 	void breakpoint_signal_clear(const std::string &signal_name) {
 		auto signal = signal_by_name(pet_device->simulator->signal_pool, signal_name.c_str());
-		if (signal != 0) {
+		if (!signal_is_undefined(signal)) {
 			dms_breakpoint_signal_clear(dms_ctx, signal);
 		}
 	}
@@ -260,7 +262,7 @@ public:
 		for (int s = 0; s < shlen(pool->signal_names); ++s) {
 			std::string name = pool->signal_names[s].key;
 			auto &signal = pool->signal_names[s].value;
-			result.names[name] = signal;
+			result.names[name] = signal_array_subscript(signal);
 		}
 
 		return result;
@@ -271,17 +273,18 @@ public:
 		auto pool = pet_device->simulator->signal_pool;
 		SignalDetails result;
 
-		result.signal = shget(pool->signal_names, name.c_str());
+		auto signal = shget(pool->signal_names, name.c_str());
+		result.signal = signal_array_subscript(signal);
 		result.value = 0;
 		result.writer_id = -1;
 
-		if (result.signal > 0) {
+		if (!signal_is_undefined(signal)) {
 			// writer (FIXME: return multiple writers)
-			result.writer_id = bit_lowest_set(simulator_signal_writers(pet_device->simulator, result.signal));
+			result.writer_id = bit_lowest_set(simulator_signal_writers(pet_device->simulator, signal));
 			result.writer_name = simulator_chip_name(pet_device->simulator, result.writer_id);
 
 			// value
-			result.value = signal_read_next(pet_device->simulator->signal_pool, result.signal);
+			result.value = signal_read_next(pet_device->simulator->signal_pool, signal);
 		}
 
 		return result;
@@ -331,7 +334,7 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 	register_vector<size_t>("VectorSize");
 	register_vector<std::string>("VectorString");
 	register_vector<DmsApi::KeyInfo>("VectorKeyInfo");
-	register_map<std::string, Signal>("MapStringSignal");
+	register_map<std::string, DmsApi::SignalSubscript>("MapStringSignal");
 
 	value_object<Cpu6502>("Cpu6502")
 		.field("reg_a", &Cpu6502::reg_a)
