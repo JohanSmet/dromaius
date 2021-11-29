@@ -91,6 +91,7 @@ typedef struct Chip63xxRom {
 	// data
 	int64_t		output_delay;
 	int			last_address;
+	int			last_data;
 
 	size_t		data_size;
 	uint8_t		data_array[];

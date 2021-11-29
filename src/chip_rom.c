@@ -56,6 +56,7 @@ Chip63xxRom *chip_6316_rom_create(Simulator *sim, Chip63xxSignals signals) {
 	chip->data_size = ROM_6316_DATA_SIZE;
 	chip->output_delay = simulator_interval_to_tick_count(chip->simulator, NS_TO_PS(60));
 	chip->last_address = -1;
+	chip->last_data = -1;
 
 	chip->sg_address = signal_group_create();
 	chip->sg_data = signal_group_create();
@@ -98,7 +99,10 @@ static void chip_6316_rom_process(Chip63xxRom *chip) {
 	assert(chip);
 
 	if (!(ACTLO_ASSERTED(SIGNAL_READ(CS1_B)) && ACTLO_ASSERTED(SIGNAL_READ(CS2_B)) && ACTHI_ASSERTED(SIGNAL_READ(CS3)))) {
-		SIGNAL_GROUP_NO_WRITE(data);
+		if (chip->last_data != -1) {
+			SIGNAL_GROUP_NO_WRITE(data);
+			chip->last_data = -1;
+		}
 		return;
 	}
 
@@ -112,7 +116,10 @@ static void chip_6316_rom_process(Chip63xxRom *chip) {
 	}
 
 	uint8_t data = chip->data_array[address];
-	SIGNAL_GROUP_WRITE(data, data);
+	if (chip->last_data != data) {
+		SIGNAL_GROUP_WRITE(data, data);
+		chip->last_data = data;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -161,6 +168,7 @@ Chip63xxRom *chip_6332_rom_create(Simulator *sim, Chip63xxSignals signals) {
 	chip->data_size = ROM_6332_DATA_SIZE;
 	chip->output_delay = simulator_interval_to_tick_count(chip->simulator, NS_TO_PS(60));
 	chip->last_address = -1;
+	chip->last_data = -1;
 
 	chip->sg_address = signal_group_create();
 	chip->sg_data = signal_group_create();
@@ -198,7 +206,10 @@ static void chip_6332_rom_process(Chip63xxRom *chip) {
 	assert(chip);
 
 	if (!(ACTLO_ASSERTED(SIGNAL_READ(CS1_B)) && ACTHI_ASSERTED(SIGNAL_READ(CS3)))) {
-		SIGNAL_GROUP_NO_WRITE(data);
+		if (chip->last_data != -1) {
+			SIGNAL_GROUP_NO_WRITE(data);
+			chip->last_data = -1;
+		}
 		return;
 	}
 
@@ -212,6 +223,9 @@ static void chip_6332_rom_process(Chip63xxRom *chip) {
 	}
 
 	uint8_t data = chip->data_array[address];
-	SIGNAL_GROUP_WRITE(data, data);
+	if (chip->last_data != data) {
+		SIGNAL_GROUP_WRITE(data, data);
+		chip->last_data = data;
+	}
 }
 

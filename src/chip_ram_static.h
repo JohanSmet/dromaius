@@ -51,6 +51,7 @@ typedef struct Chip6114SRam {
 	SignalGroup			sg_io;
 
 	// data
+	int			last_data;
 	uint8_t		data_array[1024];
 } Chip6114SRam;
 

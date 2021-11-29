@@ -131,13 +131,9 @@ void chip_8x4116_dram_process(Chip8x4116DRam *chip) {
 		chip->state = CHIP_8x4116_OUTPUT;
 	}
 
-	if (chip->state == CHIP_8x4116_OUTPUT) {
-		if (cas_b) {
-			SIGNAL_GROUP_NO_WRITE(dout);
-			chip->state = CHIP_8x4116_IDLE;
-		} else {
-			SIGNAL_GROUP_WRITE(dout, chip->do_latch);
-		}
+	if (chip->state == CHIP_8x4116_OUTPUT && cas_b) {
+		SIGNAL_GROUP_NO_WRITE(dout);
+		chip->state = CHIP_8x4116_IDLE;
 	}
 }
 

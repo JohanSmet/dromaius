@@ -61,6 +61,9 @@ typedef struct Ram8d16a {
 	SignalGroup			sg_address;
 	SignalGroup			sg_data;
 
+	// cache
+	int16_t				last_data;
+
 	// data
 	size_t		data_size;
 	uint8_t		data_array[];

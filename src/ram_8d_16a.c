@@ -75,10 +75,12 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, Simulator *sim, Ram8d16aSi
 		SIGNAL_DEFINE_GROUP(D0 + i, data);
 	}
 
-
 	SIGNAL_DEFINE(CE_B);
 	SIGNAL_DEFINE(WE_B);
 	SIGNAL_DEFINE(OE_B);
+
+	// init cache variables
+	ram->last_data = -1;
 
 	return ram;
 }
@@ -92,16 +94,25 @@ static void ram_8d16a_process(Ram8d16a *ram) {
 	assert(ram);
 
 	if (!ACTLO_ASSERTED(SIGNAL_READ(CE_B))) {
-		SIGNAL_GROUP_NO_WRITE(data);
+		if (SIGNAL_CHANGED(CE_B)) {
+			SIGNAL_GROUP_NO_WRITE(data);
+			ram->last_data = -1;
+		}
 		return;
 	}
 
 	uint16_t address = SIGNAL_GROUP_READ_U16(address);
 
 	if (ACTLO_ASSERTED(SIGNAL_READ(OE_B))) {
-		SIGNAL_GROUP_WRITE(data, ram->data_array[address]);
+		if (ram->data_array[address] != ram->last_data) {
+			SIGNAL_GROUP_WRITE(data, ram->data_array[address]);
+			ram->last_data = ram->data_array[address];
+		}
 	} else {
-		SIGNAL_GROUP_NO_WRITE(data);
+		if (SIGNAL_CHANGED(OE_B)) {
+			SIGNAL_GROUP_NO_WRITE(data);
+			ram->last_data = -1;
+		}
 		if (ACTLO_ASSERTED(SIGNAL_READ(WE_B))) {
 			ram->data_array[address] = SIGNAL_GROUP_READ_U8(data);
 		}

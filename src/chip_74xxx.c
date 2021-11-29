@@ -1103,7 +1103,7 @@ static void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 		SIGNAL_WRITE(Y12, SIGNAL_READ(A12));
 		SIGNAL_WRITE(Y13, SIGNAL_READ(A13));
 		SIGNAL_WRITE(Y14, SIGNAL_READ(A14));
-	} else {
+	} else if (SIGNAL_CHANGED(G1_B)) {
 		SIGNAL_NO_WRITE(Y11);
 		SIGNAL_NO_WRITE(Y12);
 		SIGNAL_NO_WRITE(Y13);
@@ -1115,7 +1115,7 @@ static void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
 		SIGNAL_WRITE(Y22, SIGNAL_READ(A22));
 		SIGNAL_WRITE(Y23, SIGNAL_READ(A23));
 		SIGNAL_WRITE(Y24, SIGNAL_READ(A24));
-	} else {
+	} else if (SIGNAL_CHANGED(G2_B)) {
 		SIGNAL_NO_WRITE(Y21);
 		SIGNAL_NO_WRITE(Y22);
 		SIGNAL_NO_WRITE(Y23);

@@ -56,7 +56,7 @@ uint64_t signal_pool_cycle(SignalPool *pool) {
 		uint64_t combined_mask = 0;
 		uint64_t new_value = 0;
 
-		for (uint8_t layer = 0; layer < pool->block_layer_count[blk]; ++layer) {
+		for (uint8_t layer = 0, n = pool->block_layer_count[blk]; layer < n; ++layer) {
 			new_value |= ~pool->signals_next_value[layer][blk] & pool->signals_next_mask[layer][blk];
 			combined_mask |= pool->signals_next_mask[layer][blk];
 		}
