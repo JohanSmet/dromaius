@@ -202,9 +202,6 @@ static bool context_execute(DmsContext *dms) {
 	Cpu *cpu = dms->device->get_cpu(dms->device);
 	int64_t tick_max = dms->simulator->current_tick + dms->sync_tick_interval;
 
-	// check for changed config by UI
-	context_update_config(dms);
-
 	while (dms->config.state != DS_WAIT && dms->simulator->current_tick < tick_max) {
 
 		// start stopwatch if not already activated
@@ -236,9 +233,6 @@ static bool context_execute(DmsContext *dms) {
 			case DS_WAIT:
 				break;
 		}
-
-		// check for changed config by UI
-		context_update_config(dms);
 	}
 
 	if (dms->config.state == DS_WAIT) {
