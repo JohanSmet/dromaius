@@ -150,7 +150,7 @@ void simulator_device_complete(Simulator *sim) {
 
 				sim->signal_pool->layer_count = MAX(sim->signal_pool->layer_count, (uint32_t) signal_layer + 1);
 				sim->signal_pool->block_layer_count[chip->pins[pin].block] =
-					MAX(sim->signal_pool->block_layer_count[chip->pins[pin].block], signal_layer + 1);
+					MAX(sim->signal_pool->block_layer_count[chip->pins[pin].block], (uint8_t) (signal_layer + 1));
 				sim->signal_pool->signals_layer_component[signal_array_subscript(chip->pins[pin])][signal_layer] = id;
 			}
 		}
