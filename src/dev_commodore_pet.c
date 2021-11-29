@@ -2603,7 +2603,7 @@ void dev_commodore_pet_lite_read_memory(DevCommodorePet *device, size_t start_ad
 			case 4:				// basic-rom 2
 			case 5:				// basic-rom 3
 			case 6:				// editor rom
-				memcpy(output + done, device->roms[region-4]->data_array + region_offset, to_copy);
+				memcpy(output + done, device->roms[region-3]->data_array + region_offset, to_copy);
 				break;
 			case 8:				// kernal rom
 				memcpy(output + done, device->roms[4]->data_array + region_offset, to_copy);
