@@ -86,6 +86,20 @@ bool signal_read_next(SignalPool *pool, Signal signal) {
 	return (value & signal_flag) == signal_flag;
 }
 
+SignalValue signal_value_at_chip(SignalPool *pool, Signal signal) {
+
+	assert(pool);
+
+	uint64_t signal_flag = 1ull << signal.index;
+
+	if (!(pool->signals_next_mask[signal.layer][signal.block] & signal_flag)) {
+		return SV_HIGH_Z;
+	}
+
+	uint64_t value = (pool->signals_next_value[signal.layer][signal.block] & pool->signals_next_mask[signal.layer][signal.block]) & signal_flag;
+	return (value) ? SV_HIGH : SV_LOW;
+}
+
 void signal_group_set_name(SignalPool *pool, SignalGroup sg, const char *group_name, const char *signal_name, uint32_t start_idx) {
 	assert(pool);
 	assert(sg);

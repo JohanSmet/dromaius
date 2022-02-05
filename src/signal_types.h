@@ -13,6 +13,12 @@ typedef struct Signal {
 	uint8_t		layer;
 } Signal;
 
+typedef enum SignalValue {
+	SV_LOW = 0,
+	SV_HIGH = 1,
+	SV_HIGH_Z = 2,
+} SignalValue;
+
 typedef Signal **SignalGroup;					// dynamic array of Signal *
 
 typedef struct SignalBreakpoint {
