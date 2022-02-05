@@ -6,8 +6,13 @@
 #define DROMAIUS_GUI_WIDGETS_H
 
 #include "imgui_ex.h"
+#include "signal_types.h"
 #include <stdint.h>
 #include <stdbool.h>
+
+static ImVec4 UI_COLOR_SIGNAL_HIGH = {0.0f, 0.9f, 0.0f, 1.0f};
+static ImVec4 UI_COLOR_SIGNAL_LOW  = {0.0f, 0.6f, 0.0f, 1.0f};
+static ImVec4 UI_COLOR_SIGNAL_HIZ  = {0.7f, 0.7f, 0.7f, 1.0f};
 
 static const char *nibble_bit_string[16] = {
 	/*[ 0] =*/ "0000", /*[ 1] =*/ "0001", /*[ 2] =*/ "0010", /*[ 3] =*/ "0011",
@@ -46,12 +51,35 @@ static inline void ui_key_value(float left, const char *label, const char *value
 
 static inline void ui_signal(float left, const char *name, bool value, bool asserted) {
 	constexpr const char *STR_VALUE[] = {"Low", "High"};
-	static const ImVec4 SIG_COLOR[] = { ImVec4(0.8f, 0.0f, 0.0f, 1.0f), ImVec4(0.0f, 0.8f, 0.0f, 1.0f)};
+	constexpr const ImVec4 *SIG_COLOR[] = {&UI_COLOR_SIGNAL_LOW, &UI_COLOR_SIGNAL_HIGH, &UI_COLOR_SIGNAL_HIZ};
 
 	ImGui::SetCursorPos({left, ImGui::GetCursorPosY()});
 
 	ImGuiEx::Text(48, ImGuiEx::string_format("%s: ", name), ImGuiEx::TAH_RIGHT);
-	ImGuiEx::TextColored(SIG_COLOR[value == asserted], 32, STR_VALUE[value], ImGuiEx::TAH_LEFT);
+	ImGuiEx::TextColored(*SIG_COLOR[value == asserted], 32, STR_VALUE[value], ImGuiEx::TAH_LEFT);
+	ImGui::NewLine();
+}
+
+static inline void ui_signal(SignalValue value) {
+	constexpr const char *STR_VALUE[] = {"Low", "High", "High-Z"};
+	constexpr const ImVec4 *SIG_COLOR[] = {&UI_COLOR_SIGNAL_LOW, &UI_COLOR_SIGNAL_HIGH, &UI_COLOR_SIGNAL_HIZ};
+
+	int color_idx = (value == SV_HIGH_Z) ? 2 : value;
+	ImGui::TextColored(*SIG_COLOR[color_idx], "%s", STR_VALUE[value]);
+}
+
+static inline void ui_signal_bits(float left, const char *label, float label_width, SignalValue *values, uint32_t count) {
+
+	constexpr const char *STR_VALUE[] = {"L", "H", "-"};
+	constexpr const ImVec4 *SIG_COLOR[] = {&UI_COLOR_SIGNAL_LOW, &UI_COLOR_SIGNAL_HIGH, &UI_COLOR_SIGNAL_HIZ};
+
+	ImGui::SetCursorPos({left, ImGui::GetCursorPosY()});
+	ImGuiEx::Text(label_width, ImGuiEx::string_format("%s: ", label), ImGuiEx::TAH_RIGHT);
+
+	for (uint32_t i = 0; i < count; ++i) {
+		ImGui::TextColored(*SIG_COLOR[values[i]], "%s", STR_VALUE[values[i]]);
+		ImGui::SameLine(0, 0);
+	}
 	ImGui::NewLine();
 }
 

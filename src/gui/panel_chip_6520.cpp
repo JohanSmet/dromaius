@@ -26,43 +26,99 @@ public:
 
 	void display() override {
 
+		SignalValue sig_values[8];
+
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
 		if (ImGui::Begin(title.c_str(), &stay_open)) {
-			auto origin = ImGui::GetCursorPos();
+			if (ImGui::CollapsingHeader("Registers", ImGuiTreeNodeFlags_DefaultOpen)) {
+				ui_register_8bit(8, "Periph. Output A", pia->reg_ora);
+				ui_register_8bit_binary(8, "Data Direction A", pia->reg_ddra);
+				ui_register_8bit_binary(8, "Control Reg. A", pia->reg_cra);
+				ImGui::Separator();
+				ui_register_8bit(8, "Periph. Output B", pia->reg_orb);
+				ui_register_8bit_binary(8, "Data Direction B", pia->reg_ddrb);
+				ui_register_8bit_binary(8, "Control Reg. B", pia->reg_crb);
+			}
 
-			// left column
-			ui_register_8bit(8, "Periph. Output A", pia->reg_ora);
-			ui_register_8bit_binary(8, "Data Direction A", pia->reg_ddra);
-			ui_register_8bit_binary(8, "Control Reg. A", pia->reg_cra);
+			if (ImGui::CollapsingHeader("Ports", ImGuiTreeNodeFlags_DefaultOpen)) {
+				ui_signal_bits(8, "Port-A  In", 128, SIGNAL_GROUP_VALUE(port_a, sig_values), 8);
+				ui_signal_bits(8, "Port-A Out", 128, SIGNAL_GROUP_VALUE_AT_CHIP(port_a, sig_values), 8);
+				ImGui::Separator();
+				ui_signal_bits(8, "Port-B  In", 128, SIGNAL_GROUP_VALUE(port_b, sig_values), 8);
+				ui_signal_bits(8, "Port-B Out", 128, SIGNAL_GROUP_VALUE_AT_CHIP(port_b, sig_values), 8);
+			}
 
-			ui_register_8bit(8, "Periph. Output B", pia->reg_orb);
-			ui_register_8bit_binary(8, "Data Direction B", pia->reg_ddrb);
-			ui_register_8bit_binary(8, "Control Reg. B", pia->reg_crb);
+			if (ImGui::CollapsingHeader("Signals", ImGuiTreeNodeFlags_DefaultOpen)) {
+				ImGui::Columns(3);
 
-			ui_register_8bit(8, "Port-A", SIGNAL_GROUP_READ_NEXT_U8(port_a));
-			ui_register_8bit(8, "Port-B", SIGNAL_GROUP_READ_NEXT_U8(port_b));
+				// header
+				ImGui::NextColumn();
+				ImGui::Text("Input"); ImGui::NextColumn();
+				ImGui::Text("Output"); ImGui::NextColumn();
+				ImGui::Separator();
 
-			// middle column
-			ImGui::SetCursorPos(origin);
-			ui_signal(220, "CA1", SIGNAL_READ_NEXT(CA1), ACTHI_ASSERT);
-			ui_signal(220, "CA2", SIGNAL_READ_NEXT(CA2), ACTHI_ASSERT);
-			ui_signal(220, "/IRQA", SIGNAL_READ_NEXT(IRQA_B), ACTLO_ASSERT);
+				ImGui::Text("/RES");					ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(RESET_B));		ImGui::NextColumn();
+				ImGui::NextColumn();
+				ImGui::Separator();
 
-			ui_signal(220, "CS0", SIGNAL_READ_NEXT(CS0), ACTHI_ASSERT);
-			ui_signal(220, "CS1", SIGNAL_READ_NEXT(CS1), ACTHI_ASSERT);
-			ui_signal(220, "/CS2", SIGNAL_READ_NEXT(CS2_B), ACTLO_ASSERT);
+				ImGui::Text("CA1");						ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(CA1));			ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE_AT_CHIP(CA1));	ImGui::NextColumn();
+				ImGui::Separator();
 
-			// right column
-			ImGui::SetCursorPos(origin);
-			ui_signal(330, "CB1", SIGNAL_READ_NEXT(CB1), ACTHI_ASSERT);
-			ui_signal(330, "CB2", SIGNAL_READ_NEXT(CB2), ACTHI_ASSERT);
-			ui_signal(330, "/IRQB", SIGNAL_READ_NEXT(IRQB_B), ACTLO_ASSERT);
+				ImGui::Text("CA2");						ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(CA2));			ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE_AT_CHIP(CA2));	ImGui::NextColumn();
+				ImGui::Separator();
 
-			ui_signal(330, "RS0", SIGNAL_READ_NEXT(RS0), ACTHI_ASSERT);
-			ui_signal(330, "RS1", SIGNAL_READ_NEXT(RS1), ACTHI_ASSERT);
-			ui_signal(330, "/RES", SIGNAL_READ_NEXT(RESET_B), ACTLO_ASSERT);
+				ImGui::Text("CB1");						ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(CB1));			ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE_AT_CHIP(CB1));	ImGui::NextColumn();
+				ImGui::Separator();
+
+				ImGui::Text("CB2");						ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(CB2));			ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE_AT_CHIP(CB2));	ImGui::NextColumn();
+				ImGui::Separator();
+
+				ImGui::Text("/IRQA");					ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(IRQA_B));		ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE_AT_CHIP(IRQA_B));ImGui::NextColumn();
+				ImGui::Separator();
+
+				ImGui::Text("/IRQB");					ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(IRQB_B));		ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE_AT_CHIP(IRQB_B));ImGui::NextColumn();
+				ImGui::Separator();
+
+				ImGui::Text("CS0");						ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(CS0));			ImGui::NextColumn();
+				ImGui::NextColumn();
+				ImGui::Separator();
+
+				ImGui::Text("CS1");						ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(CS1));			ImGui::NextColumn();
+				ImGui::NextColumn();
+				ImGui::Separator();
+
+				ImGui::Text("/CS2");					ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(CS2_B));			ImGui::NextColumn();
+				ImGui::NextColumn();
+				ImGui::Separator();
+
+				ImGui::Text("RS0");						ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(RS0));			ImGui::NextColumn();
+				ImGui::NextColumn();
+				ImGui::Separator();
+
+				ImGui::Text("RS1");						ImGui::NextColumn();
+				ui_signal(SIGNAL_VALUE(RS1));			ImGui::NextColumn();
+				ImGui::NextColumn();
+				ImGui::Separator();
+			}
 		}
 
 		ImGui::End();
@@ -70,7 +126,7 @@ public:
 
 private:
 	ImVec2				position;
-	const ImVec2		size = {460, 0};
+	const ImVec2		size = {240, 0};
 	std::string			title;
 
 	Chip6520 *			pia;
