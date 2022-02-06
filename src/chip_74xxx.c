@@ -772,23 +772,48 @@ static void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip) {
 static void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
 	assert(chip);
 
+
+	uint8_t state = chip->state;
+
 	if (ACTLO_ASSERTED(SIGNAL_READ(CLEAR_B))) {
 		chip->state = 0;
 	} else if (SIGNAL_READ(CLK) && SIGNAL_CHANGED(CLK)) {
 		// shift on the positive clock edge
 		bool in = SIGNAL_READ(A) && SIGNAL_READ(B);
 		chip->state = (uint8_t) (((chip->state << 1) | in) & 0xff);
+	} else {
+		// state not changed, nothing to output
+		return;
 	}
 
-	// always output the signals
-	SIGNAL_WRITE(QA, (chip->state & 0b00000001) != 0);
-	SIGNAL_WRITE(QB, (chip->state & 0b00000010) != 0);
-	SIGNAL_WRITE(QC, (chip->state & 0b00000100) != 0);
-	SIGNAL_WRITE(QD, (chip->state & 0b00001000) != 0);
-	SIGNAL_WRITE(QE, (chip->state & 0b00010000) != 0);
-	SIGNAL_WRITE(QF, (chip->state & 0b00100000) != 0);
-	SIGNAL_WRITE(QG, (chip->state & 0b01000000) != 0);
-	SIGNAL_WRITE(QH, (chip->state & 0b10000000) != 0);
+	if (state == chip->state) {
+		return;
+	}
+
+	if ((chip->state & 0b00000001) != (state & 0b00000001)) {
+		SIGNAL_WRITE(QA, chip->state & 0x1);
+	}
+	if ((chip->state & 0b00000010) != (state & 0b00000010)) {
+		SIGNAL_WRITE(QB, (chip->state >> 1) & 0x1);
+	}
+	if ((chip->state & 0b00000100) != (state & 0b00000100)) {
+		SIGNAL_WRITE(QC, (chip->state >> 2) & 0x1);
+	}
+	if ((chip->state & 0b00001000) != (state & 0b00001000)) {
+		SIGNAL_WRITE(QD, (chip->state >> 3) & 0x1);
+	}
+	if ((chip->state & 0b00010000) != (state & 0b00010000)) {
+		SIGNAL_WRITE(QE, (chip->state >> 4) & 0x1);
+	}
+	if ((chip->state & 0b00100000) != (state & 0b00100000)) {
+		SIGNAL_WRITE(QF, (chip->state >> 5) & 0x1);
+	}
+	if ((chip->state & 0b01000000) != (state & 0b01000000)) {
+		SIGNAL_WRITE(QG, (chip->state >> 6) & 0x1);
+	}
+	if ((chip->state & 0b10000000) != (state & 0b10000000)) {
+		SIGNAL_WRITE(QH, (chip->state >> 7) & 0x1);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
