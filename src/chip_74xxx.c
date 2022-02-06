@@ -318,6 +318,11 @@ Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(Simulator *sim, Chip74107Sign
 	SIGNAL_DEFINE(CLK1);
 	SIGNAL_DEFINE_DEFAULT(CLR1_B, true);
 
+	SIGNAL_WRITE(Q1, chip->q1);
+	SIGNAL_WRITE(Q1_B, !chip->q1);
+	SIGNAL_WRITE(Q2, chip->q2);
+	SIGNAL_WRITE(Q2_B, !chip->q2);
+
 	return chip;
 }
 
@@ -330,6 +335,7 @@ static void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip) {
 	assert(chip);
 
 	// flip-flop 1
+	bool q1 = chip->q1;
 	if (ACTLO_ASSERTED(SIGNAL_READ(CLR1_B))) {
 		chip->q1 = false;
 	} else if (!SIGNAL_READ(CLK1) && SIGNAL_CHANGED(CLK1)) {
@@ -340,10 +346,13 @@ static void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip) {
 		}
 	}
 
-	SIGNAL_WRITE(Q1, chip->q1);
-	SIGNAL_WRITE(Q1_B, !chip->q1);
+	if (q1 != chip->q1) {
+		SIGNAL_WRITE(Q1, chip->q1);
+		SIGNAL_WRITE(Q1_B, !chip->q1);
+	}
 
 	// flip-flop 2
+	bool q2 = chip->q2;
 	if (ACTLO_ASSERTED(SIGNAL_READ(CLR2_B))) {
 		chip->q2 = false;
 	} else if (!SIGNAL_READ(CLK2) && SIGNAL_CHANGED(CLK2)) {
@@ -354,8 +363,10 @@ static void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip) {
 		}
 	}
 
-	SIGNAL_WRITE(Q2, chip->q2);
-	SIGNAL_WRITE(Q2_B, !chip->q2);
+	if (q2 != chip->q2) {
+		SIGNAL_WRITE(Q2, chip->q2);
+		SIGNAL_WRITE(Q2_B, !chip->q2);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
