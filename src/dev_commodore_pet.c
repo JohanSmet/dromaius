@@ -44,6 +44,7 @@ static uint8_t ChipGlueLogic01_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
 static uint8_t ChipGlueLogic03_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
 static uint8_t ChipGlueLogic05_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
 static uint8_t ChipGlueLogic06_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
+static uint8_t ChipGlueLogic06P_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
 static uint8_t ChipGlueLogic07_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
 static uint8_t ChipGlueLogic08_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
 static uint8_t ChipGlueLogic17_PinTypes[CHIP_GLUE_LOGIC_MAX_PIN_COUNT] = {0};
@@ -56,6 +57,8 @@ static ChipGlueLogic *glue_logic_create_05(DevCommodorePet *device);
 static void glue_logic_process_05(ChipGlueLogic *chip);
 static ChipGlueLogic *glue_logic_create_06(DevCommodorePet *device);
 static void glue_logic_process_06(ChipGlueLogic *chip);
+static ChipGlueLogic *glue_logic_create_06_phases(DevCommodorePet *device);
+static void glue_logic_process_06_phases(ChipGlueLogic *chip);
 static ChipGlueLogic *glue_logic_create_07(DevCommodorePet *device);
 static void glue_logic_process_07(ChipGlueLogic *chip);
 static ChipGlueLogic *glue_logic_create_08(DevCommodorePet *device);
@@ -317,15 +320,6 @@ static void glue_logic_process_05(ChipGlueLogic *chip) {
 #define SIGNAL_OWNER		chip
 
 enum ChipGlueLogic06SignalAssignment {
-	CHIP_GLUE_06_BPHI2A_B = CHIP_PIN_01,
-	CHIP_GLUE_06_BPHI2A,
-	CHIP_GLUE_06_BPHI2B_B,
-	CHIP_GLUE_06_BPHI2B,
-	CHIP_GLUE_06_BPHI2F_B,
-	CHIP_GLUE_06_BPHI2F,
-	CHIP_GLUE_06_BPHI2G_B,
-	CHIP_GLUE_06_BPHI2G,
-	CHIP_GLUE_06_BPHI2H,
 	CHIP_GLUE_06_RA1AND3,
 	CHIP_GLUE_06_RA1,
 	CHIP_GLUE_06_RA3,
@@ -335,7 +329,6 @@ enum ChipGlueLogic06SignalAssignment {
 	CHIP_GLUE_06_RA5AND6_B,
 	CHIP_GLUE_06_RA5,
 	CHIP_GLUE_06_RA6_B,
-	CHIP_GLUE_06_VIDEO_LATCH,
 	CHIP_GLUE_06_H8Q,
 	CHIP_GLUE_06_H8Q2,
 	CHIP_GLUE_06_VIDEO_ON,
@@ -365,15 +358,6 @@ static ChipGlueLogic *glue_logic_create_06(DevCommodorePet *device) {
 	CHIP_SET_FUNCTIONS(chip, glue_logic_process_06, glue_logic_destroy);
 	CHIP_SET_VARIABLES(chip, chip->device->simulator, chip->signals, ChipGlueLogic06_PinTypes, CHIP_GLUE_06_PIN_COUNT);
 
-	GLUE_PIN(BPHI2A_B,		CHIP_PIN_OUTPUT);
-	GLUE_PIN(BPHI2A,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
-	GLUE_PIN(BPHI2B_B,		CHIP_PIN_OUTPUT);
-	GLUE_PIN(BPHI2B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
-	GLUE_PIN(BPHI2F_B,		CHIP_PIN_OUTPUT);
-	GLUE_PIN(BPHI2F,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
-	GLUE_PIN(BPHI2G_B,		CHIP_PIN_OUTPUT);
-	GLUE_PIN(BPHI2G,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
-	GLUE_PIN(BPHI2H,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 	GLUE_PIN(RA1AND3,		CHIP_PIN_OUTPUT);
 	GLUE_PIN(RA1,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 	GLUE_PIN(RA3,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
@@ -383,7 +367,6 @@ static ChipGlueLogic *glue_logic_create_06(DevCommodorePet *device) {
 	GLUE_PIN(RA5AND6_B,		CHIP_PIN_OUTPUT);
 	GLUE_PIN(RA5,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 	GLUE_PIN(RA6_B,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
-	GLUE_PIN(VIDEO_LATCH,	CHIP_PIN_OUTPUT);
 	GLUE_PIN(H8Q,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 	GLUE_PIN(H8Q2,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 	GLUE_PIN(VIDEO_ON,		CHIP_PIN_OUTPUT);
@@ -408,12 +391,6 @@ static ChipGlueLogic *glue_logic_create_06(DevCommodorePet *device) {
 static void glue_logic_process_06(ChipGlueLogic *chip) {
 	assert(chip);
 
-	// H2 (1,2) + (3,4) + (11,10) + (13,12)
-	SIGNAL_WRITE(BPHI2A_B, !SIGNAL_READ(BPHI2A));
-	SIGNAL_WRITE(BPHI2B_B, !SIGNAL_READ(BPHI2B));
-	SIGNAL_WRITE(BPHI2F_B, !SIGNAL_READ(BPHI2F));
-	SIGNAL_WRITE(BPHI2G_B, !SIGNAL_READ(BPHI2G));
-
 	// F1 (8,9,10)
 	SIGNAL_WRITE(RA1AND3, SIGNAL_READ(RA1) & SIGNAL_READ(RA3));
 
@@ -422,10 +399,6 @@ static void glue_logic_process_06(ChipGlueLogic *chip) {
 
 	// H10 (1,2,3)
 	SIGNAL_WRITE(RA5AND6_B, SIGNAL_READ(RA5) & SIGNAL_READ(RA6_B));
-
-	// G1 (8,9,10)
-	bool video_latch = (!SIGNAL_READ(BPHI2F) & SIGNAL_READ(BPHI2H));
-	SIGNAL_WRITE(VIDEO_LATCH, video_latch);
 
 	// H10 (11,12,13)
 	bool video_on = SIGNAL_READ(H8Q) & SIGNAL_READ(H8Q2);
@@ -454,6 +427,64 @@ static void glue_logic_process_06(ChipGlueLogic *chip) {
 	// G7 (1,2,12,13)
 	bool cas0_b = !(SIGNAL_READ(H4Y4) && ba14_b);
 	SIGNAL_WRITE(CAS0_B, cas0_b);
+}
+
+// glue-logic: master timing
+
+#undef  SIGNAL_PREFIX
+#define SIGNAL_PREFIX		CHIP_GLUE_06P_
+#undef  SIGNAL_OWNER
+#define SIGNAL_OWNER		chip
+
+enum ChipGlueLogic06PSignalAssignment {
+	CHIP_GLUE_06P_BPHI2A_B = CHIP_PIN_01,
+	CHIP_GLUE_06P_BPHI2A,
+	CHIP_GLUE_06P_BPHI2B_B,
+	CHIP_GLUE_06P_BPHI2B,
+	CHIP_GLUE_06P_BPHI2F_B,
+	CHIP_GLUE_06P_BPHI2F,
+	CHIP_GLUE_06P_BPHI2G_B,
+	CHIP_GLUE_06P_BPHI2G,
+	CHIP_GLUE_06P_BPHI2H,
+	CHIP_GLUE_06P_VIDEO_LATCH,
+
+	CHIP_GLUE_06P_PIN_COUNT
+};
+static_assert(CHIP_GLUE_06P_PIN_COUNT <= CHIP_GLUE_LOGIC_MAX_PIN_COUNT, "Too many signals in GlueLogic06P");
+
+static ChipGlueLogic *glue_logic_create_06_phases(DevCommodorePet *device) {
+	assert(device);
+
+	ChipGlueLogic *chip = glue_logic_create(device);
+	CHIP_SET_FUNCTIONS(chip, glue_logic_process_06_phases, glue_logic_destroy);
+	CHIP_SET_VARIABLES(chip, chip->device->simulator, chip->signals, ChipGlueLogic06P_PinTypes, CHIP_GLUE_06P_PIN_COUNT);
+
+	GLUE_PIN(BPHI2A_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2A,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BPHI2B_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2B,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BPHI2F_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2F,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BPHI2G_B,		CHIP_PIN_OUTPUT);
+	GLUE_PIN(BPHI2G,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(BPHI2H,		CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(VIDEO_LATCH,	CHIP_PIN_OUTPUT);
+
+	return chip;
+}
+
+static void glue_logic_process_06_phases(ChipGlueLogic *chip) {
+	assert(chip);
+
+	// H2 (1,2) + (3,4) + (11,10) + (13,12)
+	SIGNAL_WRITE(BPHI2A_B, !SIGNAL_READ(BPHI2A));
+	SIGNAL_WRITE(BPHI2B_B, !SIGNAL_READ(BPHI2B));
+	SIGNAL_WRITE(BPHI2F_B, !SIGNAL_READ(BPHI2F));
+	SIGNAL_WRITE(BPHI2G_B, !SIGNAL_READ(BPHI2G));
+
+	// G1 (8,9,10)
+	bool video_latch = (!SIGNAL_READ(BPHI2F) & SIGNAL_READ(BPHI2H));
+	SIGNAL_WRITE(VIDEO_LATCH, video_latch);
 }
 
 // glue-logic: display logic
@@ -1592,6 +1623,7 @@ void circuit_create_06(DevCommodorePet *device) {
 
 	// glue-logic
 	DEVICE_REGISTER_CHIP("LOGIC6", glue_logic_create_06(device));
+	DEVICE_REGISTER_CHIP("LOGIC6P", glue_logic_create_06_phases(device));
 }
 
 // sheet 07 - display logic components
