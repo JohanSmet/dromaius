@@ -91,14 +91,15 @@ target_sources(${IMGUI_TARGET}
 		libs/imgui/imgui.h
 		libs/imgui/imgui_draw.cpp
 		libs/imgui/imgui_internal.h
+		libs/imgui/imgui_tables.cpp
+		libs/imgui/imgui_widgets.cpp
 		libs/imgui/imstb_rectpack.h
 		libs/imgui/imstb_textedit.h
 		libs/imgui/imstb_truetype.h
-		libs/imgui/imgui_widgets.cpp
-		libs/imgui/examples/imgui_impl_glfw.cpp
-		libs/imgui/examples/imgui_impl_glfw.h
-		libs/imgui/examples/imgui_impl_opengl3.cpp
-		libs/imgui/examples/imgui_impl_opengl3.h
+		libs/imgui/backends/imgui_impl_glfw.cpp
+		libs/imgui/backends/imgui_impl_glfw.h
+		libs/imgui/backends/imgui_impl_opengl3.cpp
+		libs/imgui/backends/imgui_impl_opengl3.h
 		libs/imgui/misc/cpp/imgui_stdlib.cpp
 		libs/imgui/misc/cpp/imgui_stdlib.h
 )
