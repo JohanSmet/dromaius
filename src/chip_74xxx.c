@@ -126,6 +126,11 @@ Chip7474DFlipFlop *chip_7474_d_flipflop_create(Simulator *sim, Chip7474Signals s
 	SIGNAL_DEFINE(D2);
 	SIGNAL_DEFINE_DEFAULT(CLR2_B, ACTLO_DEASSERT);
 
+	SIGNAL_WRITE(Q1, chip->q1);
+	SIGNAL_WRITE(Q1_B, chip->q1_b);
+	SIGNAL_WRITE(Q2, chip->q2);
+	SIGNAL_WRITE(Q2_B, chip->q2_b);
+
 	return chip;
 }
 
@@ -138,6 +143,9 @@ static void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
 	assert(chip);
 
 	// flip-flop 1
+	bool q1 = chip->q1;
+	bool q1_b = chip->q1_b;
+
 	if (ACTLO_ASSERTED(SIGNAL_READ(PR1_B)) && ACTLO_ASSERTED(SIGNAL_READ(CLR1_B))) {
 		chip->q1 = true;
 		chip->q1_b = true;
@@ -152,10 +160,18 @@ static void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
 		chip->q1_b = !chip->q1;
 	}
 
-	SIGNAL_WRITE(Q1, chip->q1);
-	SIGNAL_WRITE(Q1_B, chip->q1_b);
+	if (q1 != chip->q1) {
+		SIGNAL_WRITE(Q1, chip->q1);
+	}
+
+	if (q1_b != chip->q1_b) {
+		SIGNAL_WRITE(Q1_B, chip->q1_b);
+	}
 
 	// flip-flop 2
+	bool q2 = chip->q2;
+	bool q2_b = chip->q2_b;
+
 	if (ACTLO_ASSERTED(SIGNAL_READ(PR2_B)) && ACTLO_ASSERTED(SIGNAL_READ(CLR2_B))) {
 		chip->q2 = true;
 		chip->q2_b = true;
@@ -170,8 +186,13 @@ static void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
 		chip->q2_b = !chip->q2;
 	}
 
-	SIGNAL_WRITE(Q2, chip->q2);
-	SIGNAL_WRITE(Q2_B, chip->q2_b);
+	if (q2 != chip->q2) {
+		SIGNAL_WRITE(Q2, chip->q2);
+	}
+
+	if (q2_b != chip->q2_b) {
+		SIGNAL_WRITE(Q2_B, chip->q2_b);
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
