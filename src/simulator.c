@@ -51,6 +51,7 @@ static inline void sim_process_sequential(Simulator_private *sim, uint64_t dirty
 
 		// find the lowest set bit
 		int32_t chip_id = bit_lowest_set(dirty_chips);
+		dirty_chips &= dirty_chips - 1;
 
 		// process
 		Chip *chip = sim->chips[chip_id];
@@ -60,9 +61,6 @@ static inline void sim_process_sequential(Simulator_private *sim, uint64_t dirty
 			simulator_schedule_event(PUBLIC(sim), chip->id, chip->schedule_timestamp);
 			chip->schedule_timestamp = 0;
 		}
-
-		// clear the lowest bit
-		dirty_chips &= ~(1ull << chip_id);
 	}
 }
 
