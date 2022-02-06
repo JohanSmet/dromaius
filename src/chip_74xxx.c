@@ -1068,20 +1068,34 @@ static void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip) {
 					  (SIGNAL_READ(B) << 1) |
 					  (SIGNAL_READ(C) << 2) |
 					  (SIGNAL_READ(D) << 3);
+
+		SIGNAL_WRITE(QA, (chip->state & 0x1));
+		SIGNAL_WRITE(QB, (chip->state >> 1) & 0x1);
+		SIGNAL_WRITE(QC, (chip->state >> 2) & 0x1);
+		SIGNAL_WRITE(QD, (chip->state >> 3) & 0x1);
 	} else if (ACTLO_ASSERTED(SIGNAL_READ(ENABLE_B)) && clk && clk_edge) {
 		// count on the positive clock edge
+		int state = chip->state;
 		chip->state = (chip->state - d_u + !d_u) & 0xf;
 		chip->max_min = (d_u && chip->state == 0) || (!d_u && chip->state == 0xf);
+
+		if ((state & 0b0001) != (chip->state & 0b0001)) {
+			SIGNAL_WRITE(QA, (chip->state & 0x1));
+		}
+		if ((state & 0b0010) != (chip->state & 0b0010)) {
+			SIGNAL_WRITE(QB, (chip->state >> 1) & 0x1);
+		}
+		if ((state & 0b0100) != (chip->state & 0b0100)) {
+			SIGNAL_WRITE(QC, (chip->state >> 2) & 0x1);
+		}
+		if ((state & 0b1000) != (chip->state & 0b1000)) {
+			SIGNAL_WRITE(QD, (chip->state >> 3) & 0x1);
+		}
+		SIGNAL_WRITE(MAX_MIN, chip->max_min);
 	} else if (!clk && clk_edge) {
 		// negative clock edge
 		rco = !chip->max_min;
 	}
-
-	SIGNAL_WRITE(QA, (chip->state & 0b00000001) != 0);
-	SIGNAL_WRITE(QB, (chip->state & 0b00000010) != 0);
-	SIGNAL_WRITE(QC, (chip->state & 0b00000100) != 0);
-	SIGNAL_WRITE(QD, (chip->state & 0b00001000) != 0);
-	SIGNAL_WRITE(MAX_MIN, chip->max_min);
 	SIGNAL_WRITE(RCO_B, rco);
 }
 
