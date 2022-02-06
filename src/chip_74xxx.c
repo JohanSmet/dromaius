@@ -708,10 +708,10 @@ static void chip_74157_multiplexer_process(Chip74157Multiplexer *chip) {
 	bool mask_0 = !SIGNAL_READ(ENABLE_B) && !SIGNAL_READ(SEL);
 	bool mask_1 = !SIGNAL_READ(ENABLE_B) && SIGNAL_READ(SEL);
 
-	SIGNAL_WRITE(ZA, (SIGNAL_READ(I0A) && mask_0) || (SIGNAL_READ(I1A) && mask_1));
-	SIGNAL_WRITE(ZB, (SIGNAL_READ(I0B) && mask_0) || (SIGNAL_READ(I1B) && mask_1));
-	SIGNAL_WRITE(ZC, (SIGNAL_READ(I0C) && mask_0) || (SIGNAL_READ(I1C) && mask_1));
-	SIGNAL_WRITE(ZD, (SIGNAL_READ(I0D) && mask_0) || (SIGNAL_READ(I1D) && mask_1));
+	SIGNAL_WRITE(ZA, (SIGNAL_READ(I0A) & mask_0) | (SIGNAL_READ(I1A) & mask_1));
+	SIGNAL_WRITE(ZB, (SIGNAL_READ(I0B) & mask_0) | (SIGNAL_READ(I1B) & mask_1));
+	SIGNAL_WRITE(ZC, (SIGNAL_READ(I0C) & mask_0) | (SIGNAL_READ(I1C) & mask_1));
+	SIGNAL_WRITE(ZD, (SIGNAL_READ(I0D) & mask_0) | (SIGNAL_READ(I1D) & mask_1));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
