@@ -2156,7 +2156,7 @@ DevCommodorePet *create_pet_device(bool lite) {
 	SIGNAL_DEFINE_N(DAV_OUT_B, "/DAVOUT");
 
 	SIGNAL_GROUP_NEW_N(ieee488_di, 8, &SIGNAL(DI0), "ieee488_di", "DI%d");
-	SIGNAL_GROUP_NEW_N(ieee488_do, 8, &SIGNAL(DI0), "ieee488_di", "DO%d");
+	SIGNAL_GROUP_NEW_N(ieee488_do, 8, &SIGNAL(DO0), "ieee488_do", "DO%d");
 
 	SIGNAL_DEFINE_N(CS1, "CS1");
 
