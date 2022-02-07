@@ -71,19 +71,19 @@ bool signal_read_next(SignalPool *pool, Signal signal) {
 	uint64_t signal_flag = 1ull << signal.index;
 
 	// first layer
-	uint64_t value = (pool->signals_next_value[0][signal.block] & pool->signals_next_mask[0][signal.block]) & signal_flag;
-	uint64_t combined_mask = pool->signals_next_mask[0][signal.block] & signal_flag;
+	uint64_t value = ~pool->signals_next_value[0][signal.block] & pool->signals_next_mask[0][signal.block];
+	uint64_t combined_mask = pool->signals_next_mask[0][signal.block];
 
 	// next layers
 	for (uint32_t layer = 1; layer < pool->layer_count; ++layer) {
-		value |= (pool->signals_next_value[layer][signal.block] & pool->signals_next_mask[layer][signal.block]) & signal_flag;
-		combined_mask |= pool->signals_next_mask[layer][signal.block] & signal_flag;
+		value |= ~pool->signals_next_value[layer][signal.block] & pool->signals_next_mask[layer][signal.block];
+		combined_mask |= pool->signals_next_mask[layer][signal.block];
 	}
 
 	// default
-	value |= (pool->signals_default[signal.block] & ~combined_mask) & signal_flag;
+	value = (~value & combined_mask) | (pool->signals_default[signal.block] & ~combined_mask);
 
-	return (value & signal_flag) == signal_flag;
+	return (value & signal_flag) >> signal.index;
 }
 
 SignalValue signal_value_at_chip(SignalPool *pool, Signal signal) {
