@@ -9,6 +9,7 @@
 #include "chip_6520.h"
 #include "chip_6522.h"
 #include "chip_74xxx.h"
+#include "chip_mc3446a.h"
 #include "chip_oscillator.h"
 #include "chip_poweronreset.h"
 #include "chip_ram_static.h"
@@ -185,7 +186,6 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 
 	SIGNAL_WRITE(INIT_B, reset_b);
 	SIGNAL_WRITE(INIT, !reset_b);
-	SIGNAL_WRITE(IFC_B, reset_b);
 
 	// A3 (11, 10)
 	bool sel8 = !sel8_b;
@@ -227,9 +227,16 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 	SIGNAL_WRITE(BPHI2, phi2);
 	SIGNAL_WRITE(CPHI2, phi2);
 
-	// >> pia logic
+	// IEEE-488: F1 (11,12,13)
 	bool cs1 = x8xx && SIGNAL_READ(BA6);
 	SIGNAL_WRITE(CS1, cs1);
+
+	// IEEE-488: A10 (10,11): open collector buffer
+	if (!SIGNAL_READ(RESET_B)) {
+		SIGNAL_WRITE(IFC_B, false);
+	} else {
+		SIGNAL_NO_WRITE(IFC_B);
+	}
 }
 
 // glue-logic: cassette & keyboard
@@ -243,6 +250,10 @@ enum ChipGlueLogic03SignalAssignment {
 	CHIP_GLUE_03_CASS_MOTOR_1_B,
 	CHIP_GLUE_03_CASS_MOTOR_2,
 	CHIP_GLUE_03_CASS_MOTOR_2_B,
+
+	CHIP_GLUE_03_EOI_OUT_B,
+	CHIP_GLUE_03_EOI_IN_B,
+	CHIP_GLUE_03_EOI_B,
 
 	CHIP_GLUE_03_PIN_COUNT
 };
@@ -260,6 +271,10 @@ static ChipGlueLogic *glue_logic_create_03(DevCommodorePet *device) {
 	GLUE_PIN(CASS_MOTOR_2,		CHIP_PIN_OUTPUT);
 	GLUE_PIN(CASS_MOTOR_2_B,	CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
 
+	GLUE_PIN(EOI_OUT_B,			CHIP_PIN_INPUT | CHIP_PIN_TRIGGER);
+	GLUE_PIN(EOI_IN_B,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(EOI_B,				CHIP_PIN_INPUT | CHIP_PIN_OUTPUT | CHIP_PIN_TRIGGER);
+
 	return chip;
 }
 
@@ -268,6 +283,15 @@ static void glue_logic_process_03(ChipGlueLogic *chip) {
 
 	SIGNAL_WRITE(CASS_MOTOR_1, !SIGNAL_READ(CASS_MOTOR_1_B));
 	SIGNAL_WRITE(CASS_MOTOR_2, !SIGNAL_READ(CASS_MOTOR_2_B));
+
+	// IEEE-488: A10 (5,6): open collector buffer
+	if (!SIGNAL_READ(EOI_OUT_B)) {
+		SIGNAL_WRITE(EOI_B, false);
+		SIGNAL_WRITE(EOI_IN_B, false);
+	} else {
+		SIGNAL_NO_WRITE(EOI_B);
+		SIGNAL_WRITE(EOI_IN_B, SIGNAL_READ(EOI_B));
+	}
 }
 
 // glue-logic: rams
@@ -1147,6 +1171,60 @@ void circuit_create_02(DevCommodorePet *device) {
 										[CHIP_6520_IRQB_B] = SIGNAL(IRQ_B)
 	});
 	DEVICE_REGISTER_CHIP("C6", device->pia_1);
+
+	// >> A9 - bus transceiver
+	DEVICE_REGISTER_CHIP("A9", chip_mc3446a_create(device->simulator, (ChipMC3446ASignals) {
+										[CHIP_MC3446A_AO] = SIGNAL(DAV_IN_B),		// 01
+										[CHIP_MC3446A_AB] = SIGNAL(DAV_B),			// 02
+										[CHIP_MC3446A_AI] = SIGNAL(DAV_OUT_B),		// 03
+										[CHIP_MC3446A_ABCE_B] = SIGNAL(LOW),		// 04
+										[CHIP_MC3446A_BI] = SIGNAL(NRFD_OUT_B),		// 05
+										[CHIP_MC3446A_BB] = SIGNAL(NRFD_B),			// 06
+										[CHIP_MC3446A_BO] = SIGNAL(NRFD_IN_B),		// 07
+										[CHIP_MC3446A_CO] = SIGNAL(NDAC_IN_B),		// 09
+										[CHIP_MC3446A_CB] = SIGNAL(NDAC_B),			// 10
+										[CHIP_MC3446A_CI] = SIGNAL(NDAC_OUT_B),		// 11
+										[CHIP_MC3446A_DE_B] = SIGNAL(LOW),			// 12
+										[CHIP_MC3446A_DI] = SIGNAL(ATN_OUT_B),		// 13
+										[CHIP_MC3446A_DB] = SIGNAL(ATN_B),			// 14
+										[CHIP_MC3446A_DO] = SIGNAL(ATN_IN_B)		// 15
+	}));
+
+	// >> A8 - bus transceiver
+	DEVICE_REGISTER_CHIP("A8", chip_mc3446a_create(device->simulator, (ChipMC3446ASignals) {
+										[CHIP_MC3446A_AO] = SIGNAL(DI0),			// 01
+										[CHIP_MC3446A_AB] = SIGNAL(DIO0),			// 02
+										[CHIP_MC3446A_AI] = SIGNAL(DO0),			// 03
+										[CHIP_MC3446A_ABCE_B] = SIGNAL(LOW),		// 04
+										[CHIP_MC3446A_BI] = SIGNAL(DO1),			// 05
+										[CHIP_MC3446A_BB] = SIGNAL(DIO1),			// 06
+										[CHIP_MC3446A_BO] = SIGNAL(DI1),			// 07
+										[CHIP_MC3446A_CO] = SIGNAL(DI2),			// 09
+										[CHIP_MC3446A_CB] = SIGNAL(DIO2),			// 10
+										[CHIP_MC3446A_CI] = SIGNAL(DO2),			// 11
+										[CHIP_MC3446A_DE_B] = SIGNAL(LOW),			// 12
+										[CHIP_MC3446A_DI] = SIGNAL(DO3),			// 13
+										[CHIP_MC3446A_DB] = SIGNAL(DIO3),			// 14
+										[CHIP_MC3446A_DO] = SIGNAL(DI3)				// 15
+	}));
+
+	// >> A7 - bus transceiver
+	DEVICE_REGISTER_CHIP("A8", chip_mc3446a_create(device->simulator, (ChipMC3446ASignals) {
+										[CHIP_MC3446A_AO] = SIGNAL(DI4),			// 01
+										[CHIP_MC3446A_AB] = SIGNAL(DIO4),			// 02
+										[CHIP_MC3446A_AI] = SIGNAL(DO4),			// 03
+										[CHIP_MC3446A_ABCE_B] = SIGNAL(LOW),		// 04
+										[CHIP_MC3446A_BI] = SIGNAL(DO5),			// 05
+										[CHIP_MC3446A_BB] = SIGNAL(DIO5),			// 06
+										[CHIP_MC3446A_BO] = SIGNAL(DI5),			// 07
+										[CHIP_MC3446A_CO] = SIGNAL(DI6),			// 09
+										[CHIP_MC3446A_CB] = SIGNAL(DIO6),			// 10
+										[CHIP_MC3446A_CI] = SIGNAL(DO6),			// 11
+										[CHIP_MC3446A_DE_B] = SIGNAL(LOW),			// 12
+										[CHIP_MC3446A_DI] = SIGNAL(DO7),			// 13
+										[CHIP_MC3446A_DB] = SIGNAL(DIO7),			// 14
+										[CHIP_MC3446A_DO] = SIGNAL(DI7)				// 15
+	}));
 }
 
 // sheet 03: cassette & keyboard
@@ -2151,9 +2229,23 @@ DevCommodorePet *create_pet_device(bool lite) {
 
 	SIGNAL_DEFINE_N(ATN_IN_B, "/ATNIN");
 	SIGNAL_DEFINE_N(NDAC_OUT_B, "/NDACOUT");
-	SIGNAL_DEFINE_N(IFC_B, "/IFC");
-	SIGNAL_DEFINE_N(SRQ_IN_B, "/SRQIN");
 	SIGNAL_DEFINE_N(DAV_OUT_B, "/DAVOUT");
+
+	SIGNAL_DEFINE_DEFAULT_N(EOI_B, true, "/EOI");
+	SIGNAL_DEFINE_N(DAV_B, "/DAV");
+	SIGNAL_DEFINE_N(NRFD_B, "/NRFD");
+	SIGNAL_DEFINE_N(NDAC_B, "/NDAC");
+	SIGNAL_DEFINE_N(ATN_B, "/ATN");
+	SIGNAL_DEFINE_N(DIO0, "DIO0");
+	SIGNAL_DEFINE_N(DIO1, "DIO1");
+	SIGNAL_DEFINE_N(DIO2, "DIO2");
+	SIGNAL_DEFINE_N(DIO3, "DIO3");
+	SIGNAL_DEFINE_N(DIO4, "DIO4");
+	SIGNAL_DEFINE_N(DIO5, "DIO5");
+	SIGNAL_DEFINE_N(DIO6, "DIO6");
+	SIGNAL_DEFINE_N(DIO7, "DIO7");
+	SIGNAL_DEFINE_N(SRQ_IN_B, "/SRQIN");
+	SIGNAL_DEFINE_DEFAULT_N(IFC_B, true, "/IFC");
 
 	SIGNAL_GROUP_NEW_N(ieee488_di, 8, &SIGNAL(DI0), "ieee488_di", "DI%d");
 	SIGNAL_GROUP_NEW_N(ieee488_do, 8, &SIGNAL(DO0), "ieee488_do", "DO%d");
