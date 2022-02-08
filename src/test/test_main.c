@@ -10,6 +10,7 @@ extern MunitTest chip_6520_tests[];
 extern MunitTest chip_6522_tests[];
 extern MunitTest chip_74xxx_tests[];
 extern MunitTest chip_hd44780_tests[];
+extern MunitTest chip_mc3446a_tests[];
 extern MunitTest chip_oscillator_tests[];
 extern MunitTest chip_poweronreset_tests[];
 extern MunitTest chip_ram_dynamic_tests[];
@@ -69,6 +70,12 @@ static MunitSuite extern_suites[] = {
 	},
 	{	.prefix = "/chip_hd44780",
 		.tests = chip_hd44780_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
+	{	.prefix = "/chip_mc3446a",
+		.tests = chip_mc3446a_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE
