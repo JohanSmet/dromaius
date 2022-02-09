@@ -174,6 +174,8 @@ target_sources(${LIB_TARGET}
 		src/log.h
 		src/perif_datassette_1530.h
 		src/perif_datassette_1530.c
+		src/perif_ieee488_tester.c
+		src/perif_ieee488_tester.h
 		src/perif_pet_crt.c
 		src/perif_pet_crt.h
 		src/ram_8d_16a.c

@@ -453,6 +453,8 @@ typedef struct DevCommodorePet {
 	struct DisplayRGBA *	screen;
 	struct PerifDatassette *datassette;
 
+	struct Perif488Tester * ieee488_tester;
+
 	bool					in_reset;
 
 	// signals

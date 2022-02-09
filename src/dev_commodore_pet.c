@@ -19,6 +19,7 @@
 #include "input_keypad.h"
 #include "perif_pet_crt.h"
 #include "perif_datassette_1530.h"
+#include "perif_ieee488_tester.h"
 #include "stb/stb_ds.h"
 
 #include "ram_8d_16a.h"
@@ -2052,6 +2053,27 @@ void circuit_create_peripherals(DevCommodorePet *device, bool lite) {
 											[PIN_DS1530_DATA_TO_DS] = SIGNAL(CASS_WRITE)
 	});
 	DEVICE_REGISTER_CHIP("CASS1", device->datassette);
+
+	// ieee-488 tester
+	device->ieee488_tester = perif_ieee488_tester_create(device->simulator, (Perif488TesterSignals) {
+											[CHIP_488TEST_EOI_B ] = SIGNAL(EOI_B),
+											[CHIP_488TEST_DAV_B ] = SIGNAL(DAV_B),
+											[CHIP_488TEST_NRFD_B] = SIGNAL(NRFD_B),
+											[CHIP_488TEST_NDAC_B] = SIGNAL(NDAC_B),
+											[CHIP_488TEST_ATN_B ] = SIGNAL(ATN_B),
+											[CHIP_488TEST_SRQ_B ] = SIGNAL(SRQ_IN_B),
+											[CHIP_488TEST_IFC_B ] = SIGNAL(IFC_B),
+
+											[CHIP_488TEST_DIO0  ] = SIGNAL(DIO0),
+											[CHIP_488TEST_DIO1  ] = SIGNAL(DIO1),
+											[CHIP_488TEST_DIO2  ] = SIGNAL(DIO2),
+											[CHIP_488TEST_DIO3  ] = SIGNAL(DIO3),
+											[CHIP_488TEST_DIO4  ] = SIGNAL(DIO4),
+											[CHIP_488TEST_DIO5  ] = SIGNAL(DIO5),
+											[CHIP_488TEST_DIO6  ] = SIGNAL(DIO6),
+											[CHIP_488TEST_DIO7  ] = SIGNAL(DIO7),
+	});
+	DEVICE_REGISTER_CHIP("488TEST", device->ieee488_tester);
 }
 
 // lite-PET: RAM circuitry
