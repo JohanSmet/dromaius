@@ -5,7 +5,9 @@
 #include "imgui_ex.h"
 
 #include "input_keypad.h"
-#include "GLFW/glfw3.h"
+
+#include <GLFW/glfw3.h>
+#include <imgui/misc/cpp/imgui_stdlib.h>
 
 class PanelInputPet : public Panel {
 public:
@@ -27,7 +29,7 @@ public:
 
 			// keyboard
 			auto region = ImGui::GetContentRegionAvail();
-			region.y -= 30;
+			region.y -= 45;
 			ImGui::BeginChild("raw", region, false, 0);
 
 			// >> regular keys
@@ -77,8 +79,30 @@ public:
 			if (ImGui::SliderInt("Decay", &key_dwell_ms, 1, 2000)) {
 				input_keypad_set_dwell_time_ms(keypad, key_dwell_ms);
 			}
+
+			if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) {
+				ImGui::SetKeyboardFocusHere(0);
+			}
+
+			if (ImGui::InputText("ASCII input", &input_text, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				send_text = input_text;
+				send_text += '\n';
+				send_index = 0;
+				input_text = "";
+				ImGui::SetItemDefaultFocus();
+			}
 		}
 		ImGui::End();
+
+		if (send_index < send_text.size() && input_keypad_keys_down_count(keypad) == 0) {
+			auto found = label_to_index.find(send_text[send_index]);
+			if (found != label_to_index.end()) {
+				auto r = found->second / 8;
+				auto c = found->second % 8;
+				input_keypad_key_pressed(keypad, r, c);
+			}
+			++send_index;
+		}
 	}
 
 	static std::vector<std::string> default_labels() {
@@ -93,6 +117,20 @@ public:
 				"SHIFT", "@", "]", "--", ">", "SHIFT", "0", "-",		// row 8
 				"RVS", "[", "SPACE", "<", "STOP", "--", ".", "="		// row 9
 		};
+	}
+
+	static std::unordered_map<char, uint32_t> label_index_lookup(const std::vector<std::string> &labels) {
+		std::unordered_map<char, uint32_t> result;
+
+		for (uint32_t i = 0; i < labels.size(); ++i) {
+			if (labels[i].size() == 1) {
+				result[labels[i][0]] = i;
+			}
+		}
+
+		result['\n'] = (6 * 8) + 5;
+
+		return result;
 	}
 
 private:
@@ -215,8 +253,14 @@ private:
 	InputKeypad *	keypad;
 	bool			shift_locked = false;
 
-	std::vector<std::string>	labels = default_labels();
+	std::vector<std::string>			labels = default_labels();
+	std::unordered_map<char, uint32_t>  label_to_index = label_index_lookup(labels);
+
 	int							key_dwell_ms = 500;
+
+	std::string					input_text;
+	std::string					send_text;
+	size_t						send_index;
 
 	constexpr static const char *title = "Keyboard - PET";
 };
