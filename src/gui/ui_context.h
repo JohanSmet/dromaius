@@ -40,6 +40,7 @@ public:
 // member variables
 public:
 	struct DmsContext *dms_ctx;
+	struct GLFWwindow *glfw_window;
 
 	struct Device * device;
 	int64_t			last_pc;

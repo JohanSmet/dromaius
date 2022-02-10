@@ -156,7 +156,7 @@ int main(int, char**)
     //IM_ASSERT(font != NULL);
 
 	// initialize application
-    g_window_main.on_start();
+    g_window_main.on_start(g_window);
 
     // main loop
 #ifdef __EMSCRIPTEN__

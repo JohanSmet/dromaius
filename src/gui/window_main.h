@@ -10,7 +10,7 @@ public:
 	WindowMain() = default;
 	WindowMain(WindowMain& other) = delete;
 
-	void on_start();
+	void on_start(struct GLFWwindow *glfw_window);
 	void on_render_frame();
 
 private:

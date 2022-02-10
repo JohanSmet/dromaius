@@ -30,7 +30,8 @@ namespace {
 
 } // unnamed namespace
 
-void WindowMain::on_start() {
+void WindowMain::on_start(struct GLFWwindow *glfw_window) {
+	ui_context.glfw_window = glfw_window;
 	create_device(0);
 	panel_memory_load_fonts();
 }
