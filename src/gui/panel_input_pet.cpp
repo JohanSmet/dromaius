@@ -48,7 +48,7 @@ public:
 					ImGuiEx::RectFilled({pos.x + 1, pos.y+1}, {pos.x + key.width - 2, pos.y + KEY_SIZE - 2}, colors[keypad->keys[k]]);
 					ImGuiEx::Text(labels[k].c_str(), {key.width, KEY_SIZE}, ImGuiEx::TAH_CENTER , ImGuiEx::TAV_CENTER);
 					if (ImGui::InvisibleButton(labels[k].c_str(), {key.width, KEY_SIZE}) ||
-				        (key.key_code != 0 && ImGui::GetIO().KeysDown[key.key_code])) {
+				        (key.key_code != 0 && ImGui::IsWindowFocused() && glfwGetKey(ui_context->glfw_window, key.key_code))) {
 						input_keypad_key_pressed(keypad, r, c);
 					}
 					ImGui::PopID();
@@ -64,7 +64,7 @@ public:
 			ImGuiEx::Text("Shift\nLock", sl_size, ImGuiEx::TAH_CENTER, ImGuiEx::TAV_CENTER);
 
 			if (ImGui::InvisibleButton("ShiftLock", sl_size) ||
-				ImGui::IsKeyPressed(GLFW_KEY_CAPS_LOCK)) {
+				glfwGetKey(ui_context->glfw_window, GLFW_KEY_CAPS_LOCK)) {
 				shift_locked = !shift_locked;
 			}
 
@@ -176,7 +176,7 @@ private:
 		{10.2f*KEY_SIZE,3*KEY_SIZE, KEY_SIZE, GLFW_KEY_PERIOD},		// column 4 (;)
 		{12.7f*KEY_SIZE,2*KEY_SIZE, KEY_SIZE*1.5f, GLFW_KEY_ENTER},	// column 5 (RETURN)
 		{500+0*KEY_SIZE,3*KEY_SIZE, KEY_SIZE, GLFW_KEY_KP_1},		// column 6 (1)
-		{500+2*KEY_SIZE,3*KEY_SIZE, KEY_SIZE, GLFW_KEY_KP_7},		// column 7 (3)
+		{500+2*KEY_SIZE,3*KEY_SIZE, KEY_SIZE, GLFW_KEY_KP_3},		// column 7 (3)
 
 		// row 7
 		{3.2f*KEY_SIZE,	3*KEY_SIZE, KEY_SIZE, GLFW_KEY_X},			// column 0 (x)
