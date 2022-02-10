@@ -68,6 +68,13 @@ static inline void ui_signal(SignalValue value) {
 	ImGui::TextColored(*SIG_COLOR[color_idx], "%s", STR_VALUE[value]);
 }
 
+static inline void ui_signal_short(SignalValue value) {
+	constexpr const char *STR_VALUE[] = {"L", "H", "-"};
+	constexpr const ImVec4 *SIG_COLOR[] = {&UI_COLOR_SIGNAL_LOW, &UI_COLOR_SIGNAL_HIGH, &UI_COLOR_SIGNAL_HIZ};
+	int color_idx = (value == SV_HIGH_Z) ? 2 : value;
+	ImGui::TextColored(*SIG_COLOR[color_idx], "%s", STR_VALUE[value]);
+}
+
 static inline void ui_signal_bits(float left, const char *label, float label_width, SignalValue *values, uint32_t count) {
 
 	constexpr const char *STR_VALUE[] = {"L", "H", "-"};

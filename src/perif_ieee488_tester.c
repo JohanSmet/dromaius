@@ -72,6 +72,13 @@ static void perif_ieee488_tester_destroy(Perif488Tester *chip) {
 static void perif_ieee488_tester_process(Perif488Tester *chip) {
 	assert(chip);
 
-	SIGNAL_WRITE(NRFD_B, false);
-	SIGNAL_WRITE(NDAC_B, false);
+	for (int i = 0; i < CHIP_488TEST_PIN_COUNT; ++i) {
+		if (chip->force_output_low[i]) {
+			signal_write(SIGNAL_POOL, chip->signals[i], false);
+		} else {
+			signal_clear_writer(SIGNAL_POOL, chip->signals[i]);
+		}
+	}
+
+	chip->schedule_timestamp = chip->simulator->current_tick + simulator_interval_to_tick_count(chip->simulator, MS_TO_PS(100));
 }

@@ -21,6 +21,7 @@
 #include "panel_display_rgba.h"
 #include "panel_signals.h"
 #include "panel_datassette.h"
+#include "panel_ieee488_tester.h"
 
 #include "popup_file_selector.h"
 
@@ -209,6 +210,13 @@ public:
 				ImGui::SameLine();
 				if (ImGui::SmallButton("Open##open_datasette")) {
 					auto pnl = panel_datassette_create(ui_context, {340, 310}, device->datassette);
+					ui_context->panel_add(std::move(pnl));
+				}
+
+				ImGui::Text("IEEE-488 Tester");
+				ImGui::SameLine();
+				if (ImGui::SmallButton("Open##open_ieee488_tester")) {
+					auto pnl = panel_ieee488_tester_create(ui_context, {340, 310}, device->ieee488_tester);
 					ui_context->panel_add(std::move(pnl));
 				}
 

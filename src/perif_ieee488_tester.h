@@ -41,6 +41,8 @@ typedef struct Perif488Tester {
 
 	SignalPool *			signal_pool;
 	Perif488TesterSignals	signals;
+
+	bool					force_output_low[CHIP_488TEST_PIN_COUNT];
 } Perif488Tester;
 
 // functions

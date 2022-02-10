@@ -247,6 +247,8 @@ target_sources(${GUI_TARGET}
 		src/gui/panel_dev_minimal_6502.h
 		src/gui/panel_display_rgba.cpp
 		src/gui/panel_display_rgba.h
+		src/gui/panel_ieee488_tester.cpp
+		src/gui/panel_ieee488_tester.h
 		src/gui/panel_input_keypad.cpp
 		src/gui/panel_input_keypad.h
 		src/gui/panel_input_pet.cpp
