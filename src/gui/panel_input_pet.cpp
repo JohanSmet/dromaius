@@ -128,6 +128,7 @@ public:
 			}
 		}
 
+		result[' '] = (9 * 8) + 2;
 		result['\n'] = (6 * 8) + 5;
 
 		return result;
