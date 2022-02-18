@@ -52,11 +52,12 @@ void signal_trace_set_timestep_duration(SignalTrace *trace, int64_t timestep_dur
 
 void signal_trace_enable_signal(struct SignalTrace *trace, Signal signal) {
 	assert(trace);
-	assert(trace->symbols[signal] == NULL);
+	size_t signal_idx = signal_array_subscript(signal);
+	assert(trace->symbols[signal_idx] == NULL);
 
-	trace->symbols[signal] = lt_symbol_add(trace->lxt, trace->signal_pool->signals_name[signal], 0, 0, 0, LT_SYM_F_BITS);
-	lt_emit_value_int(trace->lxt, trace->symbols[signal], 0, trace->signal_pool->signals_value[signal]);
-	assert(trace->symbols[signal]);
+	trace->symbols[signal_idx] = lt_symbol_add(trace->lxt, trace->signal_pool->signals_name[signal_idx], 0, 0, 0, LT_SYM_F_BITS);
+	lt_emit_value_int(trace->lxt, trace->symbols[signal_idx], 0, signal_read_next(trace->signal_pool, signal));
+	assert(trace->symbols[signal_idx]);
 }
 
 void signal_trace_mark_timestep(struct SignalTrace *trace, int64_t current_time_ps) {
@@ -66,7 +67,9 @@ void signal_trace_mark_timestep(struct SignalTrace *trace, int64_t current_time_
 }
 
 void signal_trace_value(struct SignalTrace *trace, Signal signal) {
-	if (trace && trace->symbols[signal]) {
-		lt_emit_value_int(trace->lxt, trace->symbols[signal], 0, trace->signal_pool->signals_value[signal]);
+	size_t signal_idx = signal_array_subscript(signal);
+
+	if (trace && trace->symbols[signal_idx]) {
+		lt_emit_value_int(trace->lxt, trace->symbols[signal_idx], 0, signal_read_next(trace->signal_pool, signal));
 	}
 }

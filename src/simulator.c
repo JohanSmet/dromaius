@@ -6,6 +6,10 @@
 #include "chip.h"
 #include "signal_line.h"
 
+#if DMS_SIGNAL_TRACING
+#include "signal_dumptrace.h"
+#endif
+
 #include <stb/stb_ds.h>
 #include <assert.h>
 
@@ -171,6 +175,10 @@ void simulator_simulate_timestep(Simulator *sim) {
 
 	// process all chips that have a dependency on signal that was changed in the last timestep or have a scheduled wakeup
 	sim_process_sequential(PRIVATE(sim), PRIVATE(sim)->dirty_chips);
+
+	#if DMS_SIGNAL_TRACING
+		signal_trace_mark_timestep(sim->signal_pool->trace, sim->current_tick);
+	#endif
 
 	// determine changed signals and dirty chips for next simulation step
 	PRIVATE(sim)->dirty_chips = signal_pool_cycle(sim->signal_pool);
