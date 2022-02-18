@@ -88,18 +88,20 @@ public:
 				send_text = input_text;
 				send_text += '\n';
 				send_index = 0;
+				send_delay = 0;
 				input_text = "";
 				ImGui::SetItemDefaultFocus();
 			}
 		}
 		ImGui::End();
 
-		if (send_index < send_text.size() && input_keypad_keys_down_count(keypad) == 0) {
+		if (send_index < send_text.size() && input_keypad_keys_down_count(keypad) == 0 && send_delay-- <= 0) {
 			auto found = label_to_index.find(send_text[send_index]);
 			if (found != label_to_index.end()) {
 				auto r = found->second / 8;
 				auto c = found->second % 8;
 				input_keypad_key_pressed(keypad, r, c);
+				send_delay = 5;
 			}
 			++send_index;
 		}
@@ -262,6 +264,7 @@ private:
 	std::string					input_text;
 	std::string					send_text;
 	size_t						send_index;
+	int32_t						send_delay;
 
 	constexpr static const char *title = "Keyboard - PET";
 };
