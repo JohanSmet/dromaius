@@ -74,48 +74,56 @@ public:
 
 					signal_trace_set_timestep_duration(trace, device->simulator->tick_duration_ps);
 
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_EOI_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_EOI_IN_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_EOI_OUT_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DAV_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DAV_IN_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DAV_OUT_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NRFD_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NRFD_IN_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NRFD_OUT_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NDAC_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NDAC_IN_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NDAC_OUT_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_ATN_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_ATN_IN_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_ATN_OUT_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_IFC_B]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_SRQ_IN_B]);
+
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO0]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO1]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO2]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO3]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO4]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO5]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO6]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO7]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI0]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI1]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI2]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI3]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI4]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI5]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI6]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI7]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO0]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO1]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO2]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO3]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO4]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO5]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO6]);
+					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO7]);
+
+					/*
 					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_RESET_B]);
 					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_CLK1]);
 					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_RAMRW]);
 					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_RAS0_B]);
 					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_CAS0_B]);
 					signal_trace_enable_signal(trace, device->signals[SIG_P2001N_CAS1_B]);
-
-					/*
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 0, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 1, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 2, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 3, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 4, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 5, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 6, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 7, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 8, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 9, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 10, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 11, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 12, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 13, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 14, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_ba, 15, 1));
-
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 0, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 1, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 2, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 3, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 4, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 5, 1));
-					signal_trace_enable_signal(trace, signal_split(device->signals.bus_fa, 6, 1));
-
-					Chip8x4116DRam *ram = (Chip8x4116DRam *) simulator_chip_by_name(device->simulator, "I2-9");
-					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 0, 1));
-					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 1, 1));
-					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 2, 1));
-					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 3, 1));
-					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 4, 1));
-					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 5, 1));
-					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 6, 1));
-					signal_trace_enable_signal(trace, signal_split(ram->signals.bus_do, 7, 1));
 					*/
 				}
 			}
