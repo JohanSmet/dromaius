@@ -14,6 +14,7 @@ extern "C" {
 struct SignalTrace;
 
 // interface
+// Please note: these functions aren't currently thread-safe: stop simulation before calling them.
 struct SignalTrace *signal_trace_open(const char *filename, SignalPool *signal_pool);
 void signal_trace_close(struct SignalTrace *trace);
 
