@@ -115,10 +115,53 @@ public:
 				ImGui::Columns(1);
 			}
 
+			if (ImGui::CollapsingHeader("Configuration", ImGuiTreeNodeFlags_DefaultOpen)) {
+				ImGui::SliderInt("Address", (int *) &tester->address, 0, 15);
+			}
+
+			if (ImGui::CollapsingHeader("State", ImGuiTreeNodeFlags_DefaultOpen)) {
+				ImGui::Text("State: %s", STATE_LABELS[tester->bus_state]);
+				ImGui::Text("Comm. State %s", COMM_STATE_LABELS[tester->comm_state]);
+				ImGui::Text("Active channel = %ld", tester->active_channel);
+			}
+
+			if (ImGui::CollapsingHeader("Channels", ImGuiTreeNodeFlags_DefaultOpen)) {
+				ImGui::Columns(3);
+
+				for (int i = 0; i < PERIF488_MAX_CHANNELS; ++i) {
+					ImGui::Text("%d", i);													ImGui::NextColumn();
+					ImGui::Text("%s", (tester->channels[i].open) ? "Open" : "Closed");		ImGui::NextColumn();
+					ImGui::Text("%s", tester->channels[i].name);							ImGui::NextColumn();
+				}
+
+				ImGui::Columns(1);
+			}
+
 		}
 
 		ImGui::End();
 	}
+
+private:
+	constexpr static const char *STATE_LABELS[] = {
+		"Idle",
+		"AcceptorStart",
+		"AcceptorReady",
+		"AcceptorDataAvailable",
+		"AcceptorDataTaken",
+		"SourceStart",
+		"SourceReady",
+		"SourceDataValid",
+		"SourceDataTaken"
+	};
+
+	constexpr static const char *COMM_STATE_LABELS[] = {
+		"Idle",
+		"Listening",
+		"StartTalking",
+		"Talking",
+		"Opening"
+	};
 
 private:
 	ImVec2					position;

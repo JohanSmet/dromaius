@@ -34,14 +34,58 @@ enum Perif488TesterSignalAssignment {
 	CHIP_488TEST_PIN_COUNT
 };
 
+typedef enum {
+	IEEE488_BUS_IDLE = 0,
+	IEEE488_BUS_ACCEPTOR_START,
+	IEEE488_BUS_ACCEPTOR_READY,
+	IEEE488_BUS_ACCEPTOR_DATA_AVAILABLE,
+	IEEE488_BUS_ACCEPTOR_DATA_TAKEN,
+	IEEE488_BUS_SOURCE_START,
+	IEEE488_BUS_SOURCE_READY,
+	IEEE488_BUS_SOURCE_DATA_VALID,
+	IEEE488_BUS_SOURCE_DATA_TAKEN,
+} Perif488TesterBusState;
+
+typedef enum {
+	IEEE488_COMM_IDLE = 0,
+	IEEE488_COMM_LISTENING,
+	IEEE488_COMM_START_TALKING,
+	IEEE488_COMM_TALKING,
+	IEEE488_COMM_OPENING,
+} Perif488TesterCommState;
+
+typedef struct Perif488Channel {
+	bool	open;
+
+	char	name[17];
+	size_t	name_len;
+
+	uint8_t *talk_data;
+	size_t  talk_available;
+} Perif488Channel;
+
+#define PERIF488_MAX_CHANNELS	16
+
 typedef Signal Perif488TesterSignals[CHIP_488TEST_PIN_COUNT];
 
 typedef struct Perif488Tester {
 	CHIP_DECLARE_BASE
 
+	// interface
 	SignalPool *			signal_pool;
 	Perif488TesterSignals	signals;
 
+	// signal groups
+	SignalGroup				sg_dio;
+
+	// data
+	uint8_t					address;
+	Perif488TesterBusState	bus_state;
+	Perif488TesterCommState comm_state;
+	Perif488Channel			channels[PERIF488_MAX_CHANNELS];
+	size_t					active_channel;
+
+	bool					output[CHIP_488TEST_PIN_COUNT];
 	bool					force_output_low[CHIP_488TEST_PIN_COUNT];
 } Perif488Tester;
 
