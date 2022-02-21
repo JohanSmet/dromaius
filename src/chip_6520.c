@@ -374,6 +374,7 @@ static inline void process_end(Chip6520 *pia) {
 		}
 	} else if (last_output->drv_ca2) {
 		SIGNAL_NO_WRITE(CA2);
+		last_output->drv_ca2 = false;
 	}
 
 	// output on cb2 if in output mode (tri-state)
@@ -386,6 +387,7 @@ static inline void process_end(Chip6520 *pia) {
 		}
 	} else if (last_output->drv_cb2) {
 		SIGNAL_NO_WRITE(CB2);
+		last_output->drv_cb2 = false;
 	}
 
 	// output on databus (tri-state)
@@ -483,14 +485,18 @@ static void chip_6520_process(Chip6520 *pia) {
 		pia->reg_ddrb = 0;
 		pia->reg_crb = 0;
 		pia->reg_orb = 0;
+		pia->reg_dir = 0;
 		PRIVATE(pia)->output.irqa_b = ACTLO_DEASSERT;
 		PRIVATE(pia)->output.irqb_b = ACTLO_DEASSERT;
+		PRIVATE(pia)->output.drv_data = false;
+		SIGNAL_GROUP_NO_WRITE(port_a);
+		SIGNAL_GROUP_NO_WRITE(port_b);
 	}
 
 	// do nothing:
 	//	- if reset is asserted or
 	//  - if not on the edge of a clock cycle
-	if (ACTLO_ASSERTED(SIGNAL_READ(RESET_B)) || !SIGNAL_CHANGED(PHI2)) {
+	if (ACTLO_ASSERTED(reset_b) || !SIGNAL_CHANGED(PHI2)) {
 		LOG_TRACE("6520 [%s]: exit without processing", pia->name);
 		process_end(pia);
 		return;
