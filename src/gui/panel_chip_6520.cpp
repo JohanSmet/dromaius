@@ -66,7 +66,7 @@ public:
 
 				ImGui::Text("CA1");						ImGui::NextColumn();
 				ui_signal(SIGNAL_VALUE(CA1));			ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE_AT_CHIP(CA1));	ImGui::NextColumn();
+				ImGui::NextColumn();
 				ImGui::Separator();
 
 				ImGui::Text("CA2");						ImGui::NextColumn();
@@ -76,7 +76,7 @@ public:
 
 				ImGui::Text("CB1");						ImGui::NextColumn();
 				ui_signal(SIGNAL_VALUE(CB1));			ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE_AT_CHIP(CB1));	ImGui::NextColumn();
+				ImGui::NextColumn();
 				ImGui::Separator();
 
 				ImGui::Text("CB2");						ImGui::NextColumn();
