@@ -168,6 +168,8 @@ target_sources(${LIB_TARGET}
 		src/display_rgba.h
 		src/filt_6502_asm.c
 		src/filt_6502_asm.h
+		src/img_d64.c
+		src/img_d64.h
 		src/input_keypad.c
 		src/input_keypad.h
 		src/log.c

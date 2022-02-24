@@ -6,6 +6,7 @@
 #define DROMAIUS_PERIF_IEEE488_TESTER_H
 
 #include "chip.h"
+#include "img_d64.h"
 #include "signal_line.h"
 
 #ifdef __cplusplus
@@ -55,13 +56,14 @@ typedef enum {
 } Perif488TesterCommState;
 
 typedef struct Perif488Channel {
-	bool	open;
+	bool		open;
 
-	char	name[17];
-	size_t	name_len;
+	char		name[17];
+	size_t		name_len;
 
-	uint8_t *talk_data;
-	size_t  talk_available;
+	int8_t *	talk_data;
+	ptrdiff_t	talk_available;
+	uint16_t	talk_next_track_sector;
 } Perif488Channel;
 
 #define PERIF488_MAX_CHANNELS	16
@@ -85,12 +87,18 @@ typedef struct Perif488Tester {
 	Perif488Channel			channels[PERIF488_MAX_CHANNELS];
 	size_t					active_channel;
 
+	DiskImageD64 	 		d64_img;
+
+	int64_t					next_wakeup;
+
 	bool					output[CHIP_488TEST_PIN_COUNT];
 	bool					force_output_low[CHIP_488TEST_PIN_COUNT];
 } Perif488Tester;
 
 // functions
 Perif488Tester *perif_ieee488_tester_create(struct Simulator *sim, Perif488TesterSignals signals);
+
+void perif_ieee488_tester_load_d64_from_file(Perif488Tester *tester, const char *filename);
 
 #ifdef __cplusplus
 }

@@ -4,11 +4,13 @@
 
 #include "perif_ieee488_tester.h"
 #include "simulator.h"
+#include "utils.h"
+#include "img_d64.h"
 
 #include <assert.h>
 #include <stdlib.h>
 
-//#define DMS_LOG_TRACE
+#define DMS_LOG_TRACE
 #define LOG_SIMULATOR		chip->simulator
 #include "log.h"
 
@@ -34,10 +36,11 @@ static uint8_t Perif488Tester_PinTypes[CHIP_488TEST_PIN_COUNT] = {
 	[CHIP_488TEST_DIO7  ] = CHIP_PIN_INPUT | CHIP_PIN_OUTPUT,
 };
 
+/*
 static uint8_t TEST_DATA[] = {
 	0x01, 0x04, 0x0f, 0x04, 0x0a, 0x00, 0x99, 0x20, 0x22, 0x48, 0x45, 0x4c, 0x4c, 0x4f, 0x22, 0x00, 0x00, 0x00
 };
-
+*/
 #define IEEE_MASK_COMMAND	0xf0
 #define IEEE_MASK_ADDRESS	0x0f
 
@@ -74,10 +77,29 @@ static inline char petscii_to_ascii(int pet) {
 		[0x50] = 'P',	[0x51] = 'Q',	[0x52] = 'R',	[0x53] = 'S',
 		[0x54] = 'T',	[0x55] = 'U',	[0x56] = 'V',	[0x57] = 'W',
 		[0x58] = 'X',	[0x59] = 'Y',	[0x5A] = 'Z',	[0x5B] = '[',
-		[0x5D] = ']',
+		[0x5D] = ']',	[0xA0] = ' '
 	};
 
 	return LUT[pet];
+}
+
+static void ieee488_load_channel_data(Perif488Tester *chip) {
+
+	Perif488Channel *channel = &chip->channels[chip->active_channel];
+
+	if (!img_d64_is_valid(&chip->d64_img)) {
+		channel->talk_available = 0;
+		channel->talk_data = NULL;
+		channel->talk_next_track_sector = 0;
+	} else if (channel->name_len == 1 && channel->name[0] == '$') {
+		channel->talk_available = img_d64_basic_directory_list(&chip->d64_img, &channel->talk_data);
+		channel->talk_next_track_sector = 0;
+	} else {
+		uint16_t file_track_sector = img_d64_file_start_track_sector(&chip->d64_img, (uint8_t *) channel->name, channel->name_len);
+		channel->talk_available = img_d64_file_block(
+										&chip->d64_img, file_track_sector,
+										(uint8_t **) &channel->talk_data, &channel->talk_next_track_sector);
+	}
 }
 
 static inline uint8_t ieee488_read_data(Perif488Tester *chip) {
@@ -121,8 +143,7 @@ static void ieee488_handle_command_in(Perif488Tester *chip) {
 				chip->active_channel = address;
 			} else if (chip->comm_state == IEEE488_COMM_START_TALKING) {
 				chip->active_channel = address;
-				chip->channels[address].talk_data = TEST_DATA;
-				chip->channels[address].talk_available = sizeof(TEST_DATA);
+				ieee488_load_channel_data(chip);
 				chip->comm_state = IEEE488_COMM_TALKING;
 			}
 			break;
@@ -179,6 +200,11 @@ static void ieee488_reset(Perif488Tester *chip) {
 	for (size_t idx = 0; idx < CHIP_488TEST_PIN_COUNT; ++idx) {
 		chip->output[idx] = false;
 	}
+}
+
+static inline void ieee488_change_bus_state(Perif488Tester *chip, Perif488TesterBusState new_state) {
+	chip->bus_state = new_state;
+	chip->schedule_timestamp = chip->simulator->current_tick + simulator_interval_to_tick_count(chip->simulator, MS_TO_PS(100));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -244,7 +270,7 @@ static void perif_ieee488_tester_process(Perif488Tester *chip) {
 		case IEEE488_BUS_ACCEPTOR_START:
 			chip->output[SIGNAL_ENUM(NRFD_B)] = true;
 			chip->output[SIGNAL_ENUM(NDAC_B)] = true;
-			chip->bus_state = IEEE488_BUS_ACCEPTOR_READY;
+			ieee488_change_bus_state(chip, IEEE488_BUS_ACCEPTOR_READY);
 			break;
 
 		case IEEE488_BUS_ACCEPTOR_READY:
@@ -252,7 +278,7 @@ static void perif_ieee488_tester_process(Perif488Tester *chip) {
 			chip->output[SIGNAL_ENUM(NRFD_B)] = false;
 
 			if (ACTLO_ASSERTED(SIGNAL_READ(DAV_B))) {
-				chip->bus_state = IEEE488_BUS_ACCEPTOR_DATA_AVAILABLE;
+				ieee488_change_bus_state(chip, IEEE488_BUS_ACCEPTOR_DATA_AVAILABLE);
 			}
 			break;
 
@@ -264,18 +290,18 @@ static void perif_ieee488_tester_process(Perif488Tester *chip) {
 				ieee488_handle_data_in(chip);
 			}
 			chip->output[SIGNAL_ENUM(NDAC_B)] = false;
-			chip->bus_state = IEEE488_BUS_ACCEPTOR_DATA_TAKEN;
+			ieee488_change_bus_state(chip, IEEE488_BUS_ACCEPTOR_DATA_TAKEN);
 			break;
 
 		case IEEE488_BUS_ACCEPTOR_DATA_TAKEN:
 			if (!ACTLO_ASSERTED(SIGNAL_READ(DAV_B))) {
 				chip->output[SIGNAL_ENUM(NDAC_B)] = true;
 				if (chip->comm_state == IEEE488_COMM_TALKING) {
-					chip->bus_state = IEEE488_BUS_SOURCE_START;
+					ieee488_change_bus_state(chip, IEEE488_BUS_SOURCE_START);
 				} else if (chip->comm_state != IEEE488_COMM_IDLE) {
-					chip->bus_state = IEEE488_BUS_ACCEPTOR_READY;
+					ieee488_change_bus_state(chip, IEEE488_BUS_ACCEPTOR_READY);
 				} else {
-					chip->bus_state = IEEE488_BUS_IDLE;
+					ieee488_change_bus_state(chip, IEEE488_BUS_IDLE);
 				}
 			}
 			break;
@@ -286,17 +312,24 @@ static void perif_ieee488_tester_process(Perif488Tester *chip) {
 			chip->output[SIGNAL_ENUM(NDAC_B)] = false;
 			if (ACTLO_ASSERTED(SIGNAL_READ(ATN_B))) {
 				// wait until controller has released ATN
-				chip->bus_state = IEEE488_BUS_SOURCE_START;
+				ieee488_change_bus_state(chip, IEEE488_BUS_SOURCE_START);
 			} else if (!ACTLO_ASSERTED(SIGNAL_READ(NRFD_B)) && !ACTLO_ASSERTED(SIGNAL_READ(NDAC_B))) {
 				// error
-				chip->bus_state = IEEE488_BUS_IDLE;
+				ieee488_change_bus_state(chip, IEEE488_BUS_IDLE);
 			} else {
-				chip->bus_state = IEEE488_BUS_SOURCE_READY;
+				ieee488_change_bus_state(chip, IEEE488_BUS_SOURCE_READY);
 			}
 			break;
 
 		case IEEE488_BUS_SOURCE_READY: {
-			uint8_t data = (chip->channels[chip->active_channel].talk_available > 0) ? *chip->channels[chip->active_channel].talk_data : 0;
+			if (chip->channels[chip->active_channel].talk_available <= 0) {
+				// no data available - no disk loaded or file not found
+				ieee488_change_bus_state(chip, IEEE488_BUS_IDLE);
+				chip->comm_state = IEEE488_COMM_IDLE;
+				break;
+			}
+
+			int8_t data = *chip->channels[chip->active_channel].talk_data;
 
 			// SIGNAL_GROUP_WRITE(dio, data);
 			chip->output[SIGNAL_ENUM(DIO0)] = data & 0b00000001;
@@ -308,11 +341,11 @@ static void perif_ieee488_tester_process(Perif488Tester *chip) {
 			chip->output[SIGNAL_ENUM(DIO6)] = data & 0b01000000;
 			chip->output[SIGNAL_ENUM(DIO7)] = data & 0b10000000;
 
-			if (chip->channels[chip->active_channel].talk_available <= 1) {
+			if (chip->channels[chip->active_channel].talk_available <= 1 && chip->channels[chip->active_channel].talk_next_track_sector == 0) {
 				chip->output[SIGNAL_ENUM(EOI_B)] = true;
 			}
 			if (!ACTLO_ASSERTED(SIGNAL_READ(NRFD_B))) {
-				chip->bus_state = IEEE488_BUS_SOURCE_DATA_VALID;
+				ieee488_change_bus_state(chip, IEEE488_BUS_SOURCE_DATA_VALID);
 			}
 			break;
 		}
@@ -320,11 +353,12 @@ static void perif_ieee488_tester_process(Perif488Tester *chip) {
 		case IEEE488_BUS_SOURCE_DATA_VALID:
 			chip->output[SIGNAL_ENUM(DAV_B)] = true;
 			if (!ACTLO_ASSERTED(SIGNAL_READ(NDAC_B))) {
-				chip->bus_state = IEEE488_BUS_SOURCE_DATA_TAKEN;
+				ieee488_change_bus_state(chip, IEEE488_BUS_SOURCE_DATA_TAKEN);
 			}
 			break;
 
-		case IEEE488_BUS_SOURCE_DATA_TAKEN:
+		case IEEE488_BUS_SOURCE_DATA_TAKEN: {
+			Perif488Channel *channel = &chip->channels[chip->active_channel];
 			chip->output[SIGNAL_ENUM(DAV_B)] = false;
 			chip->output[SIGNAL_ENUM(EOI_B)] = false;
 			chip->output[SIGNAL_ENUM(DIO0)] = false;
@@ -335,15 +369,21 @@ static void perif_ieee488_tester_process(Perif488Tester *chip) {
 			chip->output[SIGNAL_ENUM(DIO5)] = false;
 			chip->output[SIGNAL_ENUM(DIO6)] = false;
 			chip->output[SIGNAL_ENUM(DIO7)] = false;
-			chip->channels[chip->active_channel].talk_data += 1;
-			chip->channels[chip->active_channel].talk_available -= 1;;
-			if (chip->channels[chip->active_channel].talk_available > 0) {
-				chip->bus_state = IEEE488_BUS_SOURCE_READY;
+			channel->talk_data += 1;
+			channel->talk_available -= 1;
+			if (channel->talk_available > 0) {
+				ieee488_change_bus_state(chip, IEEE488_BUS_SOURCE_READY);
+			} else if (channel->talk_next_track_sector > 0) {
+				channel->talk_available = img_d64_file_block(
+											&chip->d64_img, channel->talk_next_track_sector,
+											(uint8_t **) &channel->talk_data, &channel->talk_next_track_sector);
+				ieee488_change_bus_state(chip, IEEE488_BUS_SOURCE_READY);
 			} else {
-				chip->bus_state = IEEE488_BUS_IDLE;
+				ieee488_change_bus_state(chip, IEEE488_BUS_IDLE);
 				chip->comm_state = IEEE488_COMM_IDLE;
 			}
 			break;
+		}
 
 		default:
 			assert(false);
@@ -359,5 +399,20 @@ static void perif_ieee488_tester_process(Perif488Tester *chip) {
 	}
 
 	// schedule wakeup to check for 'commands' from the UI-panel
-	chip->schedule_timestamp = chip->simulator->current_tick + simulator_interval_to_tick_count(chip->simulator, MS_TO_PS(100));
+	if (chip->simulator->current_tick >= chip->next_wakeup) {
+		chip->next_wakeup = chip->simulator->current_tick + simulator_interval_to_tick_count(chip->simulator, MS_TO_PS(100));
+		chip->schedule_timestamp = chip->next_wakeup;
+	}
 }
+
+void perif_ieee488_tester_load_d64_from_file(Perif488Tester *tester, const char *filename) {
+	assert(tester);
+	assert(filename);
+
+	int8_t *raw = NULL;
+	if (!file_load_binary(filename, &raw)) {
+	}
+
+	img_d64_parse_memory(raw, &tester->d64_img);
+}
+

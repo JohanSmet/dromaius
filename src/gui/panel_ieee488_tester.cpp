@@ -7,9 +7,25 @@
 
 #include "widgets.h"
 #include "imgui_ex.h"
+#include <imgui/misc/cpp/imgui_stdlib.h>
+#include "popup_file_selector.h"
 
 #define SIGNAL_PREFIX		CHIP_488TEST_
 #define SIGNAL_OWNER		tester
+
+namespace {
+
+static std::string d64_path = "runtime/commodore_pet/d64";
+
+static inline std::string path_for_d64_file(const std::string & filename) {
+	std::string result = d64_path;
+	result += "/";
+	result += filename;
+
+	return result;
+}
+
+}
 
 class Panel488Tester : public Panel {
 public:
@@ -23,7 +39,11 @@ public:
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
+		bool load_d64 = false;
+
 		if (ImGui::Begin(title, &stay_open)) {
+
+			load_d64 = ImGui::Button("Load");
 
 			if (ImGui::CollapsingHeader("Control Signals", ImGuiTreeNodeFlags_DefaultOpen)) {
 
@@ -136,7 +156,13 @@ public:
 
 				ImGui::Columns(1);
 			}
+		}
 
+		d64_selection->define_popup();
+		if (load_d64) {
+			d64_selection->display_popup([&](std::string selected_file) {
+				perif_ieee488_tester_load_d64_from_file(tester, path_for_d64_file(selected_file).c_str());
+			});
 		}
 
 		ImGui::End();
@@ -167,6 +193,9 @@ private:
 	ImVec2					position;
 	const ImVec2			size = {330, 0};
 	Perif488Tester *		tester;
+	std::string				d64_filename = "new.d64";
+
+	PopupFileSelector::uptr_t d64_selection = PopupFileSelector::make_unique(ui_context, d64_path.c_str() , ".d64", "");
 
 	static constexpr const char *title = "IEEE-488 Tester";
 };
@@ -177,8 +206,8 @@ private:
 //
 
 Panel::uptr_t panel_ieee488_tester_create(	class UIContext *ctx, struct ImVec2 pos,
-										Perif488Tester *datassette) {
-	return std::make_unique<Panel488Tester>(ctx, pos, datassette);
+										Perif488Tester *tester) {
+	return std::make_unique<Panel488Tester>(ctx, pos, tester);
 };
 
 
