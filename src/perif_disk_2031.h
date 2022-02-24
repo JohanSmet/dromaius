@@ -93,7 +93,7 @@ typedef struct PerifDisk2031 {
 	int64_t					next_wakeup;
 
 	bool					output[PERIF_FD2031_PIN_COUNT];
-	bool					force_output_low[PERIF_FD2031_PIN_COUNT];
+	bool					last_output[PERIF_FD2031_PIN_COUNT];
 } PerifDisk2031;
 
 // functions

@@ -77,15 +77,6 @@ public:
 				ui_signal_short(SIGNAL_VALUE_AT_CHIP(SRQ_B));	ImGui::NextColumn();
 				ui_signal_short(SIGNAL_VALUE_AT_CHIP(IFC_B));	ImGui::NextColumn();
 
-				ImGui::NextColumn();
-				ImGui::Checkbox("##EOI", &tester->force_output_low[SIGNAL_ENUM(EOI_B)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##DAV", &tester->force_output_low[SIGNAL_ENUM(DAV_B)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##NRFD", &tester->force_output_low[SIGNAL_ENUM(NRFD_B)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##NDAC", &tester->force_output_low[SIGNAL_ENUM(NDAC_B)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##ATN", &tester->force_output_low[SIGNAL_ENUM(ATN_B)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##SRQ", &tester->force_output_low[SIGNAL_ENUM(SRQ_B)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##IFC", &tester->force_output_low[SIGNAL_ENUM(IFC_B)]);	ImGui::NextColumn();
-
 				ImGui::Columns(1);
 			}
 
@@ -121,16 +112,6 @@ public:
 				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO5));	ImGui::NextColumn();
 				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO6));	ImGui::NextColumn();
 				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO7));	ImGui::NextColumn();
-
-				ImGui::NextColumn();
-				ImGui::Checkbox("##DIO0", &tester->force_output_low[SIGNAL_ENUM(DIO0)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##DIO1", &tester->force_output_low[SIGNAL_ENUM(DIO1)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##DIO2", &tester->force_output_low[SIGNAL_ENUM(DIO2)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##DIO3", &tester->force_output_low[SIGNAL_ENUM(DIO3)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##DIO4", &tester->force_output_low[SIGNAL_ENUM(DIO4)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##DIO5", &tester->force_output_low[SIGNAL_ENUM(DIO5)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##DIO6", &tester->force_output_low[SIGNAL_ENUM(DIO6)]);	ImGui::NextColumn();
-				ImGui::Checkbox("##DIO7", &tester->force_output_low[SIGNAL_ENUM(DIO7)]);	ImGui::NextColumn();
 
 				ImGui::Columns(1);
 			}
