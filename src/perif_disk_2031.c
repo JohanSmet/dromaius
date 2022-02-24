@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#define DMS_LOG_TRACE
+//#define DMS_LOG_TRACE
 #define LOG_SIMULATOR		disk->simulator
 #include "log.h"
 
@@ -386,10 +386,13 @@ static void perif_fd2031_process(PerifDisk2031 *disk) {
 
 	// manually forced low (true) lines
 	for (int i = 0; i < PERIF_FD2031_PIN_COUNT; ++i) {
-		if (disk->output[i]) {
-			signal_write(SIGNAL_POOL, disk->signals[i], false);
-		} else {
-			signal_clear_writer(SIGNAL_POOL, disk->signals[i]);
+		if (disk->last_output[i] != disk->output[i]) {
+			if (disk->output[i]) {
+				signal_write(SIGNAL_POOL, disk->signals[i], false);
+			} else {
+				signal_clear_writer(SIGNAL_POOL, disk->signals[i]);
+			}
+			disk->last_output[i] = disk->output[i];
 		}
 	}
 
