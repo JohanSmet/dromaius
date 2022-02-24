@@ -176,8 +176,8 @@ target_sources(${LIB_TARGET}
 		src/log.h
 		src/perif_datassette_1530.h
 		src/perif_datassette_1530.c
-		src/perif_ieee488_tester.c
-		src/perif_ieee488_tester.h
+		src/perif_disk_2031.c
+		src/perif_disk_2031.h
 		src/perif_pet_crt.c
 		src/perif_pet_crt.h
 		src/ram_8d_16a.c
@@ -249,8 +249,8 @@ target_sources(${GUI_TARGET}
 		src/gui/panel_dev_minimal_6502.h
 		src/gui/panel_display_rgba.cpp
 		src/gui/panel_display_rgba.h
-		src/gui/panel_ieee488_tester.cpp
-		src/gui/panel_ieee488_tester.h
+		src/gui/panel_disk_2031.cpp
+		src/gui/panel_disk_2031.h
 		src/gui/panel_input_keypad.cpp
 		src/gui/panel_input_keypad.h
 		src/gui/panel_input_pet.cpp

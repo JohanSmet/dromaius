@@ -21,7 +21,7 @@
 #include "panel_display_rgba.h"
 #include "panel_signals.h"
 #include "panel_datassette.h"
-#include "panel_ieee488_tester.h"
+#include "panel_disk_2031.h"
 
 #include "popup_file_selector.h"
 
@@ -221,10 +221,10 @@ public:
 					ui_context->panel_add(std::move(pnl));
 				}
 
-				ImGui::Text("IEEE-488 Tester");
+				ImGui::Text("Floppy Disk #1");
 				ImGui::SameLine();
-				if (ImGui::SmallButton("Open##open_ieee488_tester")) {
-					auto pnl = panel_ieee488_tester_create(ui_context, {340, 310}, device->ieee488_tester);
+				if (ImGui::SmallButton("Open##open_fd2031")) {
+					auto pnl = panel_fd2031_create(ui_context, {340, 310}, device->disk_2031);
 					ui_context->panel_add(std::move(pnl));
 				}
 
