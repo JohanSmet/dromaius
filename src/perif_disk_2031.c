@@ -98,7 +98,7 @@ static void prv2031_load_channel_data(PerifDisk2031 *disk) {
 }
 
 static inline uint8_t prv2031_read_data(PerifDisk2031 *disk) {
-	return ~SIGNAL_GROUP_READ_U8(dio);
+	return (uint8_t) ~SIGNAL_GROUP_READ_U8(dio);
 }
 
 static void prv2031_handle_command_in(PerifDisk2031 *disk) {
