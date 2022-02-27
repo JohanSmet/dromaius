@@ -89,6 +89,7 @@ target_sources(${IMGUI_TARGET}
 		libs/imgui/imconfig.h
 		libs/imgui/imgui.cpp
 		libs/imgui/imgui.h
+		libs/imgui/imgui_demo.cpp
 		libs/imgui/imgui_draw.cpp
 		libs/imgui/imgui_internal.h
 		libs/imgui/imgui_tables.cpp
@@ -103,7 +104,6 @@ target_sources(${IMGUI_TARGET}
 		libs/imgui/misc/cpp/imgui_stdlib.cpp
 		libs/imgui/misc/cpp/imgui_stdlib.h
 )
-target_compile_definitions(${IMGUI_TARGET} PUBLIC -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 target_include_directories(${IMGUI_TARGET} SYSTEM PUBLIC libs libs/imgui libs/glad)
 target_include_directories(${IMGUI_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_link_libraries(${IMGUI_TARGET} PUBLIC glfw)
