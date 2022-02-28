@@ -264,10 +264,9 @@ target_sources(${GUI_TARGET}
 		src/gui/popup_file_selector.cpp
 		src/gui/popup_file_selector.h
 		src/gui/std_helper.h
+		src/gui/ui_context.cpp
 		src/gui/ui_context.h
 		src/gui/widgets.h
-		src/gui/window_main.cpp
-		src/gui/window_main.h
 )
 target_include_directories(${GUI_TARGET} PRIVATE libs src)
 target_link_libraries(${GUI_TARGET} PRIVATE ${IMGUI_TARGET})

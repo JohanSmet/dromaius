@@ -19,6 +19,12 @@
 // private types
 //
 
+constexpr static const char *MACHINE_NAMES[] = {
+	"Commodore PET - 2001N",
+	"Commodore PET - 2001N (lite)",
+	"Minimal 6502"
+};
+
 class PanelControl : public Panel {
 public:
 	PanelControl(UIContext *ctx, ImVec2 pos, Oscillator *oscillator,
@@ -40,6 +46,18 @@ public:
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
 		ImGui::Begin(title);
+
+			ImGui::AlignTextToFramePadding();
+
+			// choose which machine to emulate
+			ImGui::Text("Machine");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			if (ImGui::Combo("##machine", &ui_context->active_machine, MACHINE_NAMES, sizeof(MACHINE_NAMES) / sizeof(MACHINE_NAMES[0]))) {
+				ui_context->switch_machine((MachineType) ui_context->active_machine);
+				ImGui::End();
+				return;
+			}
 
 			if (ImGui::Button("Single")) {
 				dms_single_step(ui_context->dms_ctx);

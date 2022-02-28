@@ -2,9 +2,10 @@
 // dear imgui: standalone example application for GLFW + OpenGL 3, using programmable pipeline
 
 #include "imgui.h"
+
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-#include "gui/window_main.h"
+#include "gui/ui_context.h"
 #include <stdio.h>
 
 #include <glad/glad.h>  // Initialize with gladLoadGL()
@@ -23,7 +24,7 @@ namespace {
 
 // Emscripten requires full control of the main loop. Store GLFW book-keeping variables globally.
 GLFWwindow *g_window = nullptr;
-WindowMain g_window_main;
+UIContext g_ui_context;
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -73,7 +74,7 @@ int main(int, char**)
 #endif
 
     // Create window with graphics context
-    g_window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), WindowMain::title, NULL, NULL);
+    g_window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), "Dromaius", NULL, NULL);
     if (g_window == NULL)
         return 1;
     glfwMakeContextCurrent(g_window);
@@ -140,7 +141,7 @@ int main(int, char**)
     //IM_ASSERT(font != NULL);
 
 	// initialize application
-    g_window_main.on_start(g_window);
+	g_ui_context.setup_ui(g_window);
 
     // main loop
 #ifdef __EMSCRIPTEN__
@@ -181,7 +182,8 @@ void main_loop([[maybe_unused]] void *arg) {
 	ImGui::NewFrame();
 
 	// application specific stuff
-    g_window_main.on_render_frame();
+	g_ui_context.draw_ui();
+
 	//ImGui::ShowDemoWindow();
 	//ImGui::ShowMetricsWindow();
 
