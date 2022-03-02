@@ -412,6 +412,10 @@ void dms_pause(DmsContext *dms) {
 	}
 }
 
+bool dms_is_paused(DmsContext *dms) {
+	return dms->config_usr.state == DS_WAIT;
+}
+
 void dms_change_simulation_speed_ratio(DmsContext *dms, double ratio) {
 	assert(dms);
 
