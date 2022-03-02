@@ -34,6 +34,13 @@ inline ImVec2 aligned_position(ImVec2 pos, ImVec2 rect, const char *text, ImGuiE
 
 namespace ImGuiEx {
 
+float ButtonWidth(const char *text) {
+	const ImGuiStyle &style = ImGui::GetStyle();
+
+    auto text_size = ImGui::CalcTextSize(text);
+	return text_size.x + style.FramePadding.x * 2.0f;
+}
+
 void Text(float width, const char *text, TextAlignHor align_hor) {
 	auto org = ImGui::GetCursorScreenPos();
     auto pos = aligned_position(org, {width, 0.0f}, text, align_hor, TAV_TOP);

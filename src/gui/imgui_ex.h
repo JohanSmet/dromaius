@@ -6,6 +6,7 @@
 #define DROMAIUS_GUI_IMGUI_EX_H
 
 #include "imgui/imgui.h"
+#include "imgui/imgui_internal.h"
 #include <string>
 #include <cassert>
 
@@ -33,6 +34,8 @@ std::string string_format(const char* format, Args... args ) {
 
   return result;
 }
+
+float ButtonWidth(const char *text);
 
 void Text(float width, const char *text, TextAlignHor align_hor = TAH_LEFT);
 void TextColored(const ImVec4 &color, float width, const char *text, TextAlignHor align_hor = TAH_LEFT);
