@@ -69,7 +69,7 @@ void UIContext::draw_ui() {
 
 	for (auto &panel : panels) {
 		if (!panel) return;
-		panel->display();
+		panel->display_panel();
 
 		if (panel->want_close()) {
 			panel_close(panel.get());

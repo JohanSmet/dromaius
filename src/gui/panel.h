@@ -17,15 +17,29 @@ public:
 
 public:
 	virtual ~Panel() = default;
-	virtual void display() = 0;
+
+	virtual void display_panel() {
+		if (first_run) {
+			init();
+			first_run = false;
+		}
+
+		display();
+	}
 
 	constexpr bool want_close() const noexcept {
 		return !stay_open;
 	}
 
 protected:
+	virtual void init() {}
+	virtual void display() = 0;
+
+
+protected:
 	class UIContext *ui_context = nullptr;
 	bool stay_open = true;
+	bool first_run = true;
 };
 
 #endif // DROMAIUS_GUI_PANEL_BASE_H
