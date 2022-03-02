@@ -7,8 +7,11 @@
 
 #include "imgui_ex.h"
 #include "signal_types.h"
+#include "ui_context.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <initializer_list>
+#include <functional>
 
 static ImVec4 UI_COLOR_SIGNAL_HIGH = {0.0f, 0.9f, 0.0f, 1.0f};
 static ImVec4 UI_COLOR_SIGNAL_LOW  = {0.0f, 0.6f, 0.0f, 1.0f};
@@ -89,5 +92,100 @@ static inline void ui_signal_bits(float left, const char *label, float label_wid
 	}
 	ImGui::NewLine();
 }
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Table/TreeNode widget for use in device hardware overview panels
+//
+
+template <typename device_t>
+struct UITreeAction {
+	using action_func_t = std::function<Panel::uptr_t(UIContext *, device_t *)>;
+
+	const char *		label = nullptr;
+	int32_t				button_id = 0;
+	action_func_t		func = nullptr;
+};
+
+template <typename device_t>
+struct UITreeNode {
+
+	using callback_func_t = std::function<void(int32_t button_id)>;
+
+	const char *									label;
+	std::initializer_list<UITreeAction<device_t>>	actions;
+	std::initializer_list<UITreeNode>				children;
+
+	void display_node(UIContext *ui_context, device_t *device, callback_func_t callback = nullptr) const {
+
+		ImGui::TableNextRow();
+		ImGui::TableNextColumn();
+
+		if (children.size() > 0) {
+			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+			bool open = ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_SpanFullWidth);
+			if (open) {
+				for (auto &child : children) {
+					child.display_node(ui_context, device, callback);
+				}
+				ImGui::TreePop();
+			}
+		} else {
+			ImGui::AlignTextToFramePadding();
+			ImGui::TreeNodeEx(label,	ImGuiTreeNodeFlags_Leaf |
+										ImGuiTreeNodeFlags_Bullet |
+										ImGuiTreeNodeFlags_NoTreePushOnOpen |
+										ImGuiTreeNodeFlags_SpanFullWidth);
+			ImGui::TableNextColumn();
+			ImGui::PushID(this);
+			for (auto &action : actions) {
+				if (action.func && ImGui::Button(action.label)) {
+					auto pnl = action.func(ui_context, device);
+					if (pnl) {
+						ui_context->panel_add(std::move(pnl));
+					}
+				}
+				if (action.button_id > 0 && callback && ImGui::Button(action.label)) {
+					callback(action.button_id);
+				}
+				ImGui::SameLine();
+			}
+			ImGui::PopID();
+		}
+	}
+};
+
+template <typename device_t>
+struct UITree {
+	using data_t = std::initializer_list<UITreeNode<device_t>>;
+	using callback_func_t = std::function<void(int32_t button_id)>;
+
+	static void display(data_t hardware, UIContext *ui_context, device_t *device, callback_func_t callback = nullptr) {
+		ImGui::PushID(device);
+		if (ImGui::BeginTable("table", 2, ImGuiTableFlags_RowBg)) {
+
+			ImGui::TableSetupColumn("Device", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Device", ImGuiTableColumnFlags_WidthFixed);
+
+			for (auto &root: hardware) {
+				root.display_node(ui_context, device, callback);
+			}
+
+			ImGui::EndTable();
+		}
+		ImGui::PopID();
+	}
+};
+
+#define UI_TREE_NODE(l)		{ l, {}, {
+#define UI_TREE_NODE_END	} }
+
+#define UI_TREE_LEAF(l)		{ l, {
+#define UI_TREE_LEAF_END	}, {}}
+
+#define UI_TREE_ACTION_PANEL(l)	{ l, 0, [] ([[maybe_unused]] auto *ctx, [[maybe_unused]] auto *dev) -> auto {
+#define UI_TREE_ACTION_CALLBACK(l, i) {l, i, nullptr }
+#define UI_TREE_ACTION_END	}}
+
 
 #endif // DROMAIUS_GUI_WIDGETS_H

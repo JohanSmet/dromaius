@@ -2,7 +2,7 @@
 
 #include "panel_dev_minimal_6502.h"
 
-#include "dev_minimal_6502.h"
+#include <dev_minimal_6502.h>
 #include "ui_context.h"
 #include "widgets.h"
 
@@ -12,6 +12,7 @@
 #include "panel_input_keypad.h"
 #include "panel_memory.h"
 #include "panel_monitor.h"
+#include "panel_signals.h"
 
 #include "popup_file_selector.h"
 
@@ -27,6 +28,55 @@ static inline std::string path_for_binary(const std::string & filename) {
 	return result;
 }
 
+static constexpr int32_t BUTTON_RAM_LOAD = 1;
+static constexpr int32_t BUTTON_ROM_LOAD = 2;
+
+static const UITree<DevMinimal6502>::data_t MINIMAL_6502_HARDWARE = {
+	UI_TREE_NODE("Memory")
+		UI_TREE_LEAF("RAM (32k)")
+			UI_TREE_ACTION_PANEL("View")
+				return	panel_memory_create(ctx, {2, 120}, ctx->unique_panel_id("RAM").c_str(), 0x0000, 0x8000);
+			UI_TREE_ACTION_END,
+			UI_TREE_ACTION_CALLBACK("Load", BUTTON_RAM_LOAD)
+		UI_TREE_LEAF_END,
+
+		UI_TREE_LEAF("ROM (16k)")
+			UI_TREE_ACTION_PANEL("View")
+				return panel_memory_create(ctx, {442, 120}, ctx->unique_panel_id("ROM").c_str(), 0xc000, 0x4000);
+			UI_TREE_ACTION_END,
+			UI_TREE_ACTION_CALLBACK("Load", BUTTON_ROM_LOAD)
+		UI_TREE_LEAF_END,
+	UI_TREE_NODE_END,
+
+	UI_TREE_NODE("CPU")
+		UI_TREE_LEAF("MOS Technology 6502")
+			UI_TREE_ACTION_PANEL("View")
+				return panel_cpu_6502_create(ctx, {2, 342}, dev->cpu);
+			UI_TREE_ACTION_END
+		UI_TREE_LEAF_END,
+	UI_TREE_NODE_END,
+
+	UI_TREE_NODE("Support Chips")
+		UI_TREE_LEAF("PIA (6520)")
+			UI_TREE_ACTION_PANEL("View")
+				return panel_chip_6520_create(ctx, {420, 342}, dev->pia);
+			UI_TREE_ACTION_END
+		UI_TREE_LEAF_END,
+	UI_TREE_NODE_END,
+
+	UI_TREE_NODE("Tools")
+		UI_TREE_LEAF("Monitor")
+			UI_TREE_ACTION_PANEL("Open")
+				return panel_monitor_create(ctx, {340, 310});
+			UI_TREE_ACTION_END
+		UI_TREE_LEAF_END,
+		UI_TREE_LEAF("Signal Debugger")
+			UI_TREE_ACTION_PANEL("Open")
+				return panel_signals_create(ctx, {340, 310});
+			UI_TREE_ACTION_END
+		UI_TREE_LEAF_END,
+	UI_TREE_NODE_END,
+};
 
 } // unnamed namespace
 
@@ -55,68 +105,29 @@ public:
 
 		if (ImGui::Begin(title)) {
 
-			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-			if (ImGui::TreeNode("Memory")) {
-				ImGui::Text("RAM (32k)");
-				ImGui::SameLine();
-				if (ImGui::SmallButton("View##view_ram")) {
-					auto pnl = panel_memory_create(ui_context, {2, 120}, ui_context->unique_panel_id("RAM").c_str(),
-												   0x0000, 0x8000);
-					ui_context->panel_add(std::move(pnl));
-				}
-				ImGui::SameLine();
-				load_ram = ImGui::SmallButton("Load##load_ram");
+			UITree<DevMinimal6502>::display(
+					MINIMAL_6502_HARDWARE, ui_context, device,
+					[&](int button) {
+						switch (button) {
+							case BUTTON_RAM_LOAD:
+								load_ram = true;
+								break;
+							case BUTTON_ROM_LOAD:
+								load_rom = true;
+								break;
+						}
+					}
+			);
 
-				ImGui::Text("ROM (32k)");
-				ImGui::SameLine();
-				if (ImGui::SmallButton("View##view_rom")) {
-					auto pnl = panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(),
-												   0xc000, 0x4000);
-					ui_context->panel_add(std::move(pnl));
-				}
-				ImGui::SameLine();
-				load_rom = ImGui::SmallButton("Load##load_rom");
-
+			if (!rom_last_loaded.empty() || !ram_last_loaded.empty()) {
+				ImGui::Spacing();
+				ImGui::Separator();
 				if (!rom_last_loaded.empty()) {
-					ImGui::Text(" - last loaded: %s", rom_last_loaded.c_str());
+					ImGui::Text("Loaded ROM: %s", rom_last_loaded.c_str());
 				}
-
-				ImGui::TreePop();
-			}
-
-			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-			if (ImGui::TreeNode("CPU")) {
-				ImGui::Text("MOS Technology 6502");
-				ImGui::SameLine();
-				if (ImGui::SmallButton("View##view_cpu")) {
-					auto pnl = panel_cpu_6502_create(ui_context, {2, 342}, device->cpu);
-					ui_context->panel_add(std::move(pnl));
+				if (!ram_last_loaded.empty()) {
+					ImGui::Text("Loaded RAM: %s", ram_last_loaded.c_str());
 				}
-
-				ImGui::TreePop();
-			}
-
-			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-			if (ImGui::TreeNode("Support Chips")) {
-				ImGui::Text("PIA - MOS Technology 6520");
-				ImGui::SameLine();
-				if (ImGui::SmallButton("View##view_pia")) {
-					auto pnl = panel_chip_6520_create(ui_context, {420, 342}, device->pia);
-					ui_context->panel_add(std::move(pnl));
-				}
-
-				ImGui::TreePop();
-			}
-
-			ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-			if (ImGui::TreeNode("Tools")) {
-				ImGui::Text("Monitor");
-				ImGui::SameLine();
-				if (ImGui::SmallButton("Open##open_monitor")) {
-					auto pnl = panel_monitor_create(ui_context, {340, 310});
-					ui_context->panel_add(std::move(pnl));
-				}
-				ImGui::TreePop();
 			}
 		}
 
