@@ -36,6 +36,7 @@ std::string string_format(const char* format, Args... args ) {
 }
 
 float ButtonWidth(const char *text);
+float LabelHeight(const char *text);
 
 void Text(float width, const char *text, TextAlignHor align_hor = TAH_LEFT);
 void TextColored(const ImVec4 &color, float width, const char *text, TextAlignHor align_hor = TAH_LEFT);
