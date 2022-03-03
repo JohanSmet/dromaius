@@ -818,7 +818,10 @@ static void lite_display_destroy(ChipLiteDisplay *chip) {
 void pet_lite_fake_display(ChipLiteDisplay *chip) {
 	DevCommodorePet *device = chip->device;
 
-	const uint32_t COLOR = 0xff55ff55;
+	const uint32_t COLORS[2] = {
+		0xff111111,
+		0xff55ff55
+	};
 
 	const size_t SCREEN_WIDTH = 40;
 	const size_t SCREEN_HEIGHT = 25;
@@ -841,7 +844,7 @@ void pet_lite_fake_display(ChipLiteDisplay *chip) {
 
 				// write character line to screen
 				for (int i = 7; i >= 0; --i) {
-					*screen_ptr++ = COLOR * (unsigned int) (((line_value >> i) & 0x1) ^ invert) | 0xff000000;
+					*screen_ptr++ = COLORS[((line_value >> i) & 0x1) ^ invert];
 				}
 			}
 		}

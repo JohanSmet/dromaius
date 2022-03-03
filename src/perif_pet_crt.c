@@ -20,7 +20,7 @@ static uint8_t PerifPetCrt_PinTypes[CHIP_PETCRT_PIN_COUNT] = {
 };
 
 #define COLOR_ON	0xff55ff55
-#define COLOR_BEAM  0xffffffff
+#define COLOR_OFF	0xff111111
 
 static void perif_pet_crt_destroy(PerifPetCrt *crt);
 static void perif_pet_crt_process(PerifPetCrt *crt);
@@ -63,6 +63,8 @@ static void perif_pet_crt_destroy(PerifPetCrt *crt) {
 static void perif_pet_crt_process(PerifPetCrt *crt) {
 	assert(crt);
 
+	static const uint32_t COLORS[2] = { COLOR_ON, COLOR_OFF };
+
 	// in vertical retrace?
 	if (!SIGNAL_READ(VERT_DRIVE_IN)) {
 		crt->pos_y = 0;
@@ -92,7 +94,7 @@ static void perif_pet_crt_process(PerifPetCrt *crt) {
 	}
 
 	if (crt->pos_y < crt->display->height && crt->pos_x < crt->display->width) {
-		crt->display->frame[(crt->pos_y * crt->display->width) + crt->pos_x] = (SIGNAL_READ(VIDEO_IN) ? 0 : COLOR_ON);
+		crt->display->frame[(crt->pos_y * crt->display->width) + crt->pos_x] = COLORS[SIGNAL_READ(VIDEO_IN)];
 	}
 	crt->pos_x += 1;
 	crt->schedule_timestamp = crt->simulator->current_tick + crt->pixel_delta_steps;
