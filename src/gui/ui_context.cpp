@@ -49,7 +49,7 @@ void UIContext::switch_machine(MachineType machine) {
 
 void UIContext::setup_ui(struct GLFWwindow *window) {
 	glfw_window = window;
-	switch_machine((MachineType) active_machine);
+	switch_machine(config.machine_type);
 	panel_memory_load_fonts();
 }
 

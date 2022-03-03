@@ -3,10 +3,14 @@
 
 #include "imgui.h"
 
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 #include "gui/ui_context.h"
-#include <stdio.h>
+
+#include <argh/argh.h>
+#include <cstdlib>
+#include <cstdio>
+#include <memory>
 
 #include <glad/glad.h>  // Initialize with gladLoadGL()
 
@@ -24,10 +28,37 @@ namespace {
 
 // Emscripten requires full control of the main loop. Store GLFW book-keeping variables globally.
 GLFWwindow *g_window = nullptr;
-UIContext g_ui_context;
+std::unique_ptr<UIContext> g_ui_context = nullptr;
 
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
+
+using argh_list_t = std::initializer_list<const char *const>;
+static constexpr argh_list_t ARG_MACHINE = {"-m", "--machine"};
+static constexpr argh_list_t ARG_HELP = {"-h", "--help"};
+
+void print_help() {
+	auto format_argh_list = [](const argh_list_t &args) -> auto {
+		std::string result;
+		const char *sepa = "";
+
+		for (const auto &a : args) {
+			result.append(sepa);
+			result.append(a);
+			sepa = ", ";
+		}
+
+		return result;
+	};
+
+	printf("Usage:\n\n");
+	printf("dromaius_gui [options]\n\n");
+	printf("Options\n");
+	printf(" %-25s specify machine to emulate (commodore-pet, commodore-pet-lite, minimal-6502).\n",
+			format_argh_list(ARG_MACHINE).c_str());
+	printf(" %-25s display this help message and stop execution.\n",
+			format_argh_list(ARG_HELP).c_str());
 }
 
 } // unnamed namespace
@@ -39,10 +70,34 @@ static void glfw_error_callback(int error, const char* description) {
 
 void main_loop(void *arg);
 
-int main(int, char**)
+int main(int argc, char **argv)
 {
 	double width = 1200;
 	double height = 800;
+
+	// parse command-line arguments
+	argh::parser cmd_line;
+	cmd_line.add_params(ARG_MACHINE);
+	cmd_line.add_params(ARG_HELP);
+	cmd_line.parse(argc, argv);
+
+	if (cmd_line[ARG_HELP]) {
+		print_help();
+		exit(EXIT_SUCCESS);
+	}
+
+	// fill-out configuration structure
+	Config ui_config;
+
+	{
+		std::string machine;
+		cmd_line(ARG_MACHINE, "commodore-pet") >> machine;
+
+		if (!ui_config.set_machine_type(machine.c_str())) {
+			fprintf(stderr, "Invalid machine type specified (%s)\n", machine.c_str());
+			exit(EXIT_FAILURE);
+		}
+	}
 
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
@@ -141,7 +196,8 @@ int main(int, char**)
     //IM_ASSERT(font != NULL);
 
 	// initialize application
-	g_ui_context.setup_ui(g_window);
+	g_ui_context = std::make_unique<UIContext>(ui_config);
+	g_ui_context->setup_ui(g_window);
 
     // main loop
 #ifdef __EMSCRIPTEN__
@@ -167,7 +223,7 @@ int main(int, char**)
 void main_loop([[maybe_unused]] void *arg) {
 
     ImGuiIO& io = ImGui::GetIO();
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 
 	// Poll and handle events (inputs, window resize, etc.)
 	// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -182,7 +238,7 @@ void main_loop([[maybe_unused]] void *arg) {
 	ImGui::NewFrame();
 
 	// application specific stuff
-	g_ui_context.draw_ui();
+	g_ui_context->draw_ui();
 
 	//ImGui::ShowDemoWindow();
 	//ImGui::ShowMetricsWindow();

@@ -227,6 +227,8 @@ set (GUI_TARGET dromaius_gui)
 add_executable(${GUI_TARGET} WIN32)
 target_sources(${GUI_TARGET}
 	PRIVATE
+		src/gui/config.cpp
+		src/gui/config.h
 		src/gui/imgui_ex.cpp
 		src/gui/imgui_ex.h
 		src/gui/main.cpp

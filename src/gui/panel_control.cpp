@@ -71,8 +71,8 @@ public:
 			ImGui::Text("Machine");
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(-FLT_MIN);
-			if (ImGui::Combo("##machine", &ui_context->active_machine, MACHINE_NAMES, sizeof(MACHINE_NAMES) / sizeof(MACHINE_NAMES[0]))) {
-				ui_context->switch_machine((MachineType) ui_context->active_machine);
+			if (ImGui::Combo("##machine", (int *) &ui_context->config.machine_type, MACHINE_NAMES, sizeof(MACHINE_NAMES) / sizeof(MACHINE_NAMES[0]))) {
+				ui_context->switch_machine(ui_context->config.machine_type);
 				ImGui::End();
 				return;
 			}

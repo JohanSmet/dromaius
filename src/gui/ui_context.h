@@ -4,19 +4,17 @@
 #define DROMAIUS_GUI_CONTEXT_H
 
 #include "types.h"
+#include "config.h"
 #include "panel.h"
 
 #include <vector>
 #include "std_helper.h"
 
-enum class MachineType : int {
-	CommodorePet = 0,
-	CommodorePetLite = 1,
-	Minimal6502 = 2
-};
-
 class UIContext {
 public:
+	UIContext(const Config &config) : config(config) {
+	};
+
 	// device management
 	void switch_machine(MachineType machine);
 
@@ -47,13 +45,12 @@ private:
 
 // member variables
 public:
+	Config config;
 	struct DmsContext *dms_ctx = nullptr;
 	struct GLFWwindow *glfw_window = nullptr;
 
 	struct Device * device = nullptr;
 	int64_t			last_pc = 0;
-
-	int				active_machine = (int) MachineType::CommodorePet;
 
 	unsigned int	dock_id_main = 0;
 	unsigned int	dock_id_left_top = 0;
