@@ -18,6 +18,10 @@ public:
 		input_keypad_set_dwell_time_ms(keypad, key_dwell_ms);
 	}
 
+	void init() override {
+		footer_height = ImGuiEx::LabelHeight(txt_dwell_time) + ImGui::GetStyle().FramePadding.y * 2.0f;
+	}
+
 	void display() override {
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
@@ -25,11 +29,13 @@ public:
 		static ImU32 colors[2] = {ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_Button)),
 								  ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive))};
 
-		if (ImGui::Begin(title)) {
+		if (ImGui::Begin(txt_title)) {
+
+			ImGui::AlignTextToFramePadding();
 
 			// keyboard
 			auto region = ImGui::GetContentRegionAvail();
-			region.y -= 45;
+			region.y -= footer_height;
 			ImGui::BeginChild("raw", region, false, 0);
 
 			// >> regular keys
@@ -76,7 +82,12 @@ public:
 
 			ImGui::EndChild();
 
-			if (ImGui::SliderInt("Decay", &key_dwell_ms, 1, 2000)) {
+			// dwell time
+			ImGui::Text(txt_dwell_time);
+			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(128);
+			if (ImGui::DragInt("##dwell", &key_dwell_ms, 1, 1, 2000, "%d ms")) {
 				input_keypad_set_dwell_time_ms(keypad, key_dwell_ms);
 			}
 
@@ -84,7 +95,13 @@ public:
 				ImGui::SetKeyboardFocusHere(0);
 			}
 
-			if (ImGui::InputText("ASCII input", &input_text, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			// ascii input
+			ImGui::SameLine();
+			ImGui::Text(txt_ascii_input);
+			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			if (ImGui::InputText("##ascii", &input_text, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				send_text = input_text;
 				send_text += '\n';
 				send_index = 0;
@@ -251,6 +268,11 @@ private:
 	};
 
 private:
+	static constexpr const char *txt_dwell_time = "Decay";
+	static constexpr const char *txt_ascii_input = "ASCII input";
+	static constexpr const char *txt_title = "Keyboard - PET";
+
+private:
 	ImVec2			position;
 	const ImVec2	size = {650, 230};
 	InputKeypad *	keypad;
@@ -259,14 +281,14 @@ private:
 	std::vector<std::string>			labels = default_labels();
 	std::unordered_map<char, uint32_t>  label_to_index = label_index_lookup(labels);
 
-	int							key_dwell_ms = 500;
+	float						footer_height = 0;
+
+	int							key_dwell_ms = 250;
 
 	std::string					input_text;
 	std::string					send_text;
 	size_t						send_index;
 	int32_t						send_delay;
-
-	constexpr static const char *title = "Keyboard - PET";
 };
 
 Panel::uptr_t panel_input_pet_create(UIContext *ctx, struct ImVec2 pos, struct InputKeypad *keypad) {
