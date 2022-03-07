@@ -9,6 +9,7 @@
 #include <cassert>
 #include <imgui.h>
 #include <stb/stb_ds.h>
+#include <utils.h>
 
 #include "filt_6502_asm.h"
 #include "ui_context.h"
@@ -39,7 +40,11 @@ public:
 
 		if (ImGui::Begin(title.c_str(), &stay_open)) {
 
-			ImGui::Combo("Display type", &display_type, display_types, sizeof(display_types) / sizeof(const char *));
+			ImGui::AlignTextToFramePadding();
+
+			ImGui::Text("Display Type");
+			ImGui::SameLine();
+			ImGui::Combo("##display_type", &display_type, display_types, sizeof(display_types) / sizeof(const char *));
 
 			switch (display_type) {
 				case DT_RAW:
@@ -58,9 +63,16 @@ public:
 
 	void memory_display_raw() {
 
-		ImGui::BeginChild("raw", ImGui::GetContentRegionAvail(), false, 0);
+		auto region = ImGui::GetContentRegionAvail();
+		region.y -= 20;
+		ImGui::BeginChild("raw", region, false, 0);
 
 		for (auto index = 0u; index < mem_size; ) {
+
+			if (jump_addr >= 0 && (size_t) jump_addr >= (index + mem_offset) && (size_t) jump_addr < (index + mem_offset + 16)) {
+				ImGui::SetScrollHereY();
+				jump_addr = -1;
+			}
 
 			// copy a line from the device memory
 			uint8_t buffer[16];
@@ -82,6 +94,16 @@ public:
 		}
 
 		ImGui::EndChild();
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::Text("Jump to Address");
+		ImGui::SameLine();
+
+		ImGui::SetNextItemWidth(64);
+		if (ImGui::InputText("##addr", input_addr, 5,
+							 ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+			string_to_hexint(input_addr, &jump_addr);
+		}
 	}
 
 	void memory_display_disasm_6502() {
@@ -100,6 +122,9 @@ public:
 
 			if (is_current && follow_pc) {
 				ImGui::SetScrollHereY();
+			} else if (jump_addr >= 0 && (size_t) jump_addr == (index + mem_offset)) {
+				ImGui::SetScrollHereY();
+				jump_addr = -1;
 			}
 
 			// copy a few bytes from the device memory
@@ -114,7 +139,18 @@ public:
 
 		ImGui::EndChild();
 
+		ImGui::AlignTextToFramePadding();
 		ImGui::Checkbox("Follow PC", &follow_pc);
+		ImGui::SameLine(0, 15);
+
+		ImGui::Text("Jump to Address");
+		ImGui::SameLine();
+
+		ImGui::SetNextItemWidth(64);
+		if (ImGui::InputText("##addr", input_addr, 5,
+							 ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+			string_to_hexint(input_addr, &jump_addr);
+		}
 	}
 
 	void memory_display_petscreen() {
@@ -182,6 +218,9 @@ private:
 
 	int						display_type = 0;
 	bool					follow_pc = false;
+
+	char					input_addr[16] = {};
+	int64_t					jump_addr = -1;
 
 	static ImFont *			pet_font;
 };
