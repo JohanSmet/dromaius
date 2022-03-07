@@ -268,6 +268,7 @@ target_sources(${GUI_TARGET}
 		src/gui/std_helper.h
 		src/gui/ui_context.cpp
 		src/gui/ui_context.h
+		src/gui/widgets.cpp
 		src/gui/widgets.h
 )
 target_include_directories(${GUI_TARGET} PRIVATE libs src)

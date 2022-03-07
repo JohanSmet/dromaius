@@ -7,6 +7,7 @@
 #include "widgets.h"
 #include "cpu_6502.h"
 #include "ui_context.h"
+#include <imgui.h>
 
 #define SIGNAL_OWNER		cpu
 #define SIGNAL_PREFIX		PIN_6502_
@@ -25,53 +26,126 @@ public:
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
 		if (ImGui::Begin(title.c_str(), &stay_open)) {
-			auto origin = ImGui::GetCursorPos();
 
-			// left column
-			ui_register_8bit(8, "Accumulator", cpu->reg_a);
-			ui_register_8bit(8, "index-X", cpu->reg_x);
-			ui_register_8bit(8, "index-Y", cpu->reg_y);
-			ui_register_8bit(8, "Stack Pointer", cpu->reg_sp);
-			ui_register_16bit(8, "Program Counter", cpu->reg_pc);
-			ui_register_8bit(8, "Instruction", cpu->reg_ir);
-			ui_register_8bit(8, "Processor Status", cpu->reg_p);
-			ui_register_16bit(8, "Address Bus", SIGNAL_GROUP_READ_NEXT_U16(address));
-			ui_register_8bit(8, "Data Bus", SIGNAL_GROUP_READ_NEXT_U8(data));
+			if (ImGui::CollapsingHeader(txt_header_registers, ImGuiTreeNodeFlags_DefaultOpen)) {
+				ui_register_8bit(8, "Accumulator", cpu->reg_a);
+				ui_register_8bit(8, "index-X", cpu->reg_x);
+				ui_register_8bit(8, "index-Y", cpu->reg_y);
+				ui_register_8bit(8, "Stack Pointer", cpu->reg_sp);
+				ui_register_16bit(8, "Program Counter", cpu->reg_pc);
+				ui_register_8bit(8, "Instruction", cpu->reg_ir);
+			}
 
-			// right column
-			ImGui::SetCursorPos({origin.x + 180, origin.y});
+			if (ImGui::CollapsingHeader(txt_header_flags, ImGuiTreeNodeFlags_DefaultOpen)) {
 
-			ImGuiEx::Text(10, "N", ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, "V", ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, "-", ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, "B", ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, "D", ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, "I", ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, "Z", ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, "C", ImGuiEx::TAH_CENTER);
-			ImGui::NewLine();
+				if (ImGui::BeginTable("flags", 9, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)) {
 
-			ImGui::SetCursorPos({origin.x + 180, ImGui::GetCursorPosY()});
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_N)), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_V)), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_E)), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_B)), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_D)), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_I)), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_Z)), ImGuiEx::TAH_CENTER);
-			ImGuiEx::Text(10, ImGuiEx::string_format("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_C)), ImGuiEx::TAH_CENTER);
-			ImGui::NewLine();
+					// header
+					ImGui::TableSetupColumn(ImGuiEx::string_format("$%.2x", cpu->reg_p).c_str());
+					ImGui::TableSetupColumn("N");
+					ImGui::TableSetupColumn("V");
+					ImGui::TableSetupColumn("-");
+					ImGui::TableSetupColumn("B");
+					ImGui::TableSetupColumn("D");
+					ImGui::TableSetupColumn("I");
+					ImGui::TableSetupColumn("Z");
+					ImGui::TableSetupColumn("C");
+					ImGui::TableHeadersRow();
 
-			ui_signal(180, "/RES", SIGNAL_READ_NEXT(RES_B), ACTLO_ASSERT);
-			ui_signal(180, "/IRQ", SIGNAL_READ_NEXT(IRQ_B), ACTLO_ASSERT);
-			ui_signal(180, "/NMI", SIGNAL_READ_NEXT(NMI_B), ACTLO_ASSERT);
-			ui_signal(180, "RDY",  SIGNAL_READ_NEXT(RDY), ACTHI_ASSERT);
-			ui_signal(180, "SYNC", SIGNAL_READ_NEXT(SYNC), ACTHI_ASSERT);
-			ui_signal(180, "R/W",  SIGNAL_READ_NEXT(RW), ACTHI_ASSERT);
+					// values
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();
+					ImGui::TableNextColumn();	ImGui::Text("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_N));
+					ImGui::TableNextColumn();	ImGui::Text("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_V));
+					ImGui::TableNextColumn();	ImGui::Text("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_E));
+					ImGui::TableNextColumn();	ImGui::Text("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_B));
+					ImGui::TableNextColumn();	ImGui::Text("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_D));
+					ImGui::TableNextColumn();	ImGui::Text("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_I));
+					ImGui::TableNextColumn();	ImGui::Text("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_Z));
+					ImGui::TableNextColumn();	ImGui::Text("%d", FLAG_IS_SET(cpu->reg_p, FLAG_6502_C));
+
+					ImGui::EndTable();
+				}
+			}
+
+			if (ImGui::CollapsingHeader(txt_header_signals, ImGuiTreeNodeFlags_DefaultOpen)) {
+
+				// address bus
+				ImGui::Text("Address Bus: $%.4x", SIGNAL_GROUP_READ_U16(address));
+				if (ui_bit_array_table_start("address_bits", 16, false)) {
+					SignalValue sig_addr[16];
+
+					SIGNAL_GROUP_VALUE(address, sig_addr);
+					ui_bit_array_table_row(nullptr, 16, sig_addr);
+
+					ui_bit_array_table_end();
+				}
+
+				// data bus
+				ImGui::Text("Data Bus: $%.2x", SIGNAL_GROUP_READ_U8(data));
+
+				if (ui_bit_array_table_start("data_bits", 8, true)) {
+
+					SignalValue sig_data[8];
+
+					SIGNAL_GROUP_VALUE(data, sig_data);
+					ui_bit_array_table_row("Bus", 8, sig_data);
+
+					SIGNAL_GROUP_VALUE_AT_CHIP(data, sig_data);
+					ui_bit_array_table_row("Out", 8, sig_data);
+
+					ImGui::EndTable();
+				}
+
+				// remaining signals
+				ImGui::Text("Remaining Signals");
+
+				if (ImGui::BeginTable("signals", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)) {
+					ImGui::TableSetupColumn("##type");
+					ImGui::TableSetupColumn("/RES");
+					ImGui::TableSetupColumn("/IRQ");
+					ImGui::TableSetupColumn("/NMI");
+					ImGui::TableSetupColumn("RDY");
+					ImGui::TableSetupColumn("SYNC");
+					ImGui::TableSetupColumn("R/W");
+					ImGui::TableHeadersRow();
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();	ImGui::Text("Bus");
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(RES_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(IRQ_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(NMI_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(RDY));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(SYNC));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(RW));
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();	ImGui::Text("Out");
+					ImGui::TableNextColumn();
+					ImGui::TableNextColumn();
+					ImGui::TableNextColumn();
+					ImGui::TableNextColumn();
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(SYNC));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(RW));
+
+					ImGui::EndTable();
+				}
+			}
 		}
 
 		ImGui::End();
 	}
+
+private:
+	static constexpr const char *txt_header_registers = "Registers";
+	static constexpr const char *txt_header_flags = "Status Flags";
+	static constexpr const char *txt_header_signals = "Signals";
+
+	static constexpr const char *table_header_digits[] = {
+		"0", "1", "2", "3", "4", "5", "6", "7",
+		"8", "9", "A", "B", "C", "D", "E", "F"
+	};
+
 
 private:
 	ImVec2				position;

@@ -93,6 +93,10 @@ static inline void ui_signal_bits(float left, const char *label, float label_wid
 	ImGui::NewLine();
 }
 
+bool ui_bit_array_table_start(const char *id, int colums, bool header_column);
+void ui_bit_array_table_end();
+void ui_bit_array_table_row(const char *label, int columns, SignalValue *values);
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // Table/TreeNode widget for use in device hardware overview panels
