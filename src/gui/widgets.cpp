@@ -4,7 +4,7 @@
 
 #include "widgets.h"
 
-bool ui_bit_array_table_start(const char *id, int columns, bool header_column) {
+bool ui_bit_array_table_start(const char *id, int columns, bool header_column, const char *label) {
 
 	static constexpr const char *table_header_digits[] = {
 		"0", "1", "2", "3", "4", "5", "6", "7",
@@ -16,7 +16,7 @@ bool ui_bit_array_table_start(const char *id, int columns, bool header_column) {
 	}
 
 	if (header_column) {
-		ImGui::TableSetupColumn("##type");
+		ImGui::TableSetupColumn((label) ? label : "##type");
 	}
 	for (int i = columns - 1; i >= 0; --i) {
 		ImGui::TableSetupColumn(table_header_digits[i]);

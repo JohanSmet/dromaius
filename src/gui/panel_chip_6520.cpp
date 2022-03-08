@@ -9,6 +9,7 @@
 #include "widgets.h"
 #include "ui_context.h"
 
+#include <imgui.h>
 #include <stb/stb_ds.h>
 #include <assert.h>
 
@@ -43,85 +44,118 @@ public:
 			}
 
 			if (ImGui::CollapsingHeader("Ports", ImGuiTreeNodeFlags_DefaultOpen)) {
-				ui_signal_bits(8, "Port-A  In", 128, SIGNAL_GROUP_VALUE(port_a, sig_values), 8);
-				ui_signal_bits(8, "Port-A Out", 128, SIGNAL_GROUP_VALUE_AT_CHIP(port_a, sig_values), 8);
-				ImGui::Separator();
-				ui_signal_bits(8, "Port-B  In", 128, SIGNAL_GROUP_VALUE(port_b, sig_values), 8);
-				ui_signal_bits(8, "Port-B Out", 128, SIGNAL_GROUP_VALUE_AT_CHIP(port_b, sig_values), 8);
+
+				if (ui_bit_array_table_start("databus", 8, true, "Data  ")) {
+
+					SIGNAL_GROUP_VALUE(data, sig_values);
+					ui_bit_array_table_row("Bus", 8, sig_values);
+
+					SIGNAL_GROUP_VALUE_AT_CHIP(data, sig_values);
+					ui_bit_array_table_row("Out", 8, sig_values);
+
+					ImGui::EndTable();
+				}
+
+				if (ui_bit_array_table_start("port_a", 8, true, "Port-A")) {
+
+					SIGNAL_GROUP_VALUE(port_a, sig_values);
+					ui_bit_array_table_row("Bus", 8, sig_values);
+
+					SIGNAL_GROUP_VALUE_AT_CHIP(port_a, sig_values);
+					ui_bit_array_table_row("Out", 8, sig_values);
+
+					ImGui::EndTable();
+				}
+
+				if (ui_bit_array_table_start("port_b", 8, true, "Port-B")) {
+
+					SIGNAL_GROUP_VALUE(port_b, sig_values);
+					ui_bit_array_table_row("Bus", 8, sig_values);
+
+					SIGNAL_GROUP_VALUE_AT_CHIP(port_b, sig_values);
+					ui_bit_array_table_row("Out", 8, sig_values);
+
+					ImGui::EndTable();
+				}
 			}
 
 			if (ImGui::CollapsingHeader("Signals", ImGuiTreeNodeFlags_DefaultOpen)) {
-				ImGui::Columns(3);
+				if (ImGui::BeginTable("signals_a", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)) {
+					ImGui::TableSetupColumn("##type");
+					ImGui::TableSetupColumn("CA1");
+					ImGui::TableSetupColumn("CA2");
+					ImGui::TableSetupColumn("CB1");
+					ImGui::TableSetupColumn("CB2");
+					ImGui::TableSetupColumn("/IRQA");
+					ImGui::TableSetupColumn("/IRQB");
+					ImGui::TableHeadersRow();
 
-				// header
-				ImGui::NextColumn();
-				ImGui::Text("Input"); ImGui::NextColumn();
-				ImGui::Text("Output"); ImGui::NextColumn();
-				ImGui::Separator();
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();	ImGui::Text("Bus");
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(CA1));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(CA2));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(CB1));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(CB2));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(IRQA_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(IRQB_B));
 
-				ImGui::Text("/RES");					ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(RESET_B));		ImGui::NextColumn();
-				ImGui::NextColumn();
-				ImGui::Separator();
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();	ImGui::Text("Out");
+					ImGui::TableNextColumn();
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(CA2));
+					ImGui::TableNextColumn();
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(CB2));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(IRQA_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(IRQB_B));
 
-				ImGui::Text("CA1");						ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(CA1));			ImGui::NextColumn();
-				ImGui::NextColumn();
-				ImGui::Separator();
+					ImGui::EndTable();
+				}
 
-				ImGui::Text("CA2");						ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(CA2));			ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE_AT_CHIP(CA2));	ImGui::NextColumn();
-				ImGui::Separator();
+				if (ImGui::BeginTable("signals_b", 7, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)) {
 
-				ImGui::Text("CB1");						ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(CB1));			ImGui::NextColumn();
-				ImGui::NextColumn();
-				ImGui::Separator();
+					ImGui::TableSetupColumn("##type");
+					ImGui::TableSetupColumn("/RES");
+					ImGui::TableSetupColumn("CS0");
+					ImGui::TableSetupColumn("CS1");
+					ImGui::TableSetupColumn("/CS2");
+					ImGui::TableSetupColumn("RS0");
+					ImGui::TableSetupColumn("RS1");
+					ImGui::TableHeadersRow();
 
-				ImGui::Text("CB2");						ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(CB2));			ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE_AT_CHIP(CB2));	ImGui::NextColumn();
-				ImGui::Separator();
+					ImGui::TableNextColumn();	ImGui::Text("Bus");
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(RESET_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(CS0));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(CS1));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(CS2_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(RS0));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(RS1));
 
-				ImGui::Text("/IRQA");					ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(IRQA_B));		ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE_AT_CHIP(IRQA_B));ImGui::NextColumn();
-				ImGui::Separator();
+					ImGui::EndTable();
+				}
+			}
 
-				ImGui::Text("/IRQB");					ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(IRQB_B));		ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE_AT_CHIP(IRQB_B));ImGui::NextColumn();
-				ImGui::Separator();
-
-				ImGui::Text("CS0");						ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(CS0));			ImGui::NextColumn();
-				ImGui::NextColumn();
-				ImGui::Separator();
-
-				ImGui::Text("CS1");						ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(CS1));			ImGui::NextColumn();
-				ImGui::NextColumn();
-				ImGui::Separator();
-
-				ImGui::Text("/CS2");					ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(CS2_B));			ImGui::NextColumn();
-				ImGui::NextColumn();
-				ImGui::Separator();
-
-				ImGui::Text("RS0");						ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(RS0));			ImGui::NextColumn();
-				ImGui::NextColumn();
-				ImGui::Separator();
-
-				ImGui::Text("RS1");						ImGui::NextColumn();
-				ui_signal(SIGNAL_VALUE(RS1));			ImGui::NextColumn();
-				ImGui::NextColumn();
-				ImGui::Separator();
+			if (ImGui::CollapsingHeader("Status", ImGuiTreeNodeFlags_DefaultOpen)) {
+				bool selected = SIGNAL_READ(CS0) && SIGNAL_READ(CS1) && !SIGNAL_READ(CS2_B);
+				ImGui::Text("Chip selected  : %s", (selected) ? "true": "false");
+				ImGui::Text("Register select: %s", selected_register());
 			}
 		}
 
 		ImGui::End();
+	}
+
+private:
+#define CR_FLAG(r,f)	FLAG_IS_SET((r), FLAG_6520_##f)
+	const char *selected_register() {
+		int reg_addr = (SIGNAL_READ(RS1) << 1) | SIGNAL_READ(RS0);
+
+		switch (reg_addr) {
+			case 0:		return (CR_FLAG(pia->reg_cra, DDR_OR_SELECT)) ? "ORA" : "DDRA";
+			case 1:		return "CRA";
+			case 2:		return (CR_FLAG(pia->reg_crb, DDR_OR_SELECT)) ? "ORB" : "DDRB";
+			case 3:		return "CRB";
+			default:	return "Unknown";
+		}
 	}
 
 private:
