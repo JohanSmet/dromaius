@@ -72,9 +72,7 @@ public:
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(-FLT_MIN);
 			if (ImGui::Combo("##machine", (int *) &ui_context->config.machine_type, MACHINE_NAMES, sizeof(MACHINE_NAMES) / sizeof(MACHINE_NAMES[0]))) {
-				ui_context->switch_machine(ui_context->config.machine_type);
-				ImGui::End();
-				return;
+				ui_context->switch_machine_requested = true;
 			}
 
 			ImGui::Spacing();

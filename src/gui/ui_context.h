@@ -52,6 +52,8 @@ public:
 	struct Device * device = nullptr;
 	int64_t			last_pc = 0;
 
+	bool			switch_machine_requested = false;
+
 	unsigned int	dock_id_main = 0;
 	unsigned int	dock_id_left_top = 0;
 	unsigned int	dock_id_left_mid = 0;

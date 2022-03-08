@@ -68,12 +68,16 @@ void UIContext::draw_ui() {
 	// setup_dockspace();
 
 	for (auto &panel : panels) {
-		if (!panel) return;
 		panel->display_panel();
 
-		if (panel->want_close()) {
+		if (panel && panel->want_close()) {
 			panel_close(panel.get());
 		}
+	}
+
+	if (switch_machine_requested) {
+		switch_machine(config.machine_type);
+		switch_machine_requested = false;
 	}
 }
 
