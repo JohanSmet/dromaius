@@ -7,6 +7,7 @@
 
 #include "widgets.h"
 #include "imgui_ex.h"
+#include <imgui.h>
 #include <imgui/misc/cpp/imgui_stdlib.h>
 #include "popup_file_selector.h"
 
@@ -43,105 +44,96 @@ public:
 
 		if (ImGui::Begin(title, &stay_open)) {
 
-			load_d64 = ImGui::Button("Load");
+			load_d64 = ImGui::Button("Load Floppy File");
 
-			if (ImGui::CollapsingHeader("Control Signals", ImGuiTreeNodeFlags_DefaultOpen)) {
-
-				ImGui::Columns(8);
-
-				ImGui::NextColumn();
-				ImGui::Text("/EOI");	ImGui::NextColumn();
-				ImGui::Text("/DAV");	ImGui::NextColumn();
-				ImGui::Text("/NRFD");	ImGui::NextColumn();
-				ImGui::Text("/NDAC");	ImGui::NextColumn();
-				ImGui::Text("/ATN");	ImGui::NextColumn();
-				ImGui::Text("/SRQ");	ImGui::NextColumn();
-				ImGui::Text("/IFC");	ImGui::NextColumn();
-				ImGui::Separator();
-
-				ImGui::Text("Bus");	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(EOI_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(DAV_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(NRFD_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(NDAC_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(ATN_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(SRQ_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(IFC_B));	ImGui::NextColumn();
-
-				ImGui::Text("Out");		ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(EOI_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DAV_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(NRFD_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(NDAC_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(ATN_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(SRQ_B));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(IFC_B));	ImGui::NextColumn();
-
-				ImGui::Columns(1);
-			}
-
-			if (ImGui::CollapsingHeader("Data Signals", ImGuiTreeNodeFlags_DefaultOpen)) {
-				ImGui::Columns(9);
-				ImGui::NextColumn();
-				ImGui::Text("0");	ImGui::NextColumn();
-				ImGui::Text("1");	ImGui::NextColumn();
-				ImGui::Text("2");	ImGui::NextColumn();
-				ImGui::Text("3");	ImGui::NextColumn();
-				ImGui::Text("4");	ImGui::NextColumn();
-				ImGui::Text("5");	ImGui::NextColumn();
-				ImGui::Text("6");	ImGui::NextColumn();
-				ImGui::Text("7");	ImGui::NextColumn();
-				ImGui::Separator();
-
-				ImGui::Text("Bus");	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(DIO0));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(DIO1));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(DIO2));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(DIO3));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(DIO4));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(DIO5));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(DIO6));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE(DIO7));	ImGui::NextColumn();
-
-				ImGui::Text("Out");		ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO0));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO1));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO2));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO3));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO4));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO5));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO6));	ImGui::NextColumn();
-				ui_signal_short(SIGNAL_VALUE_AT_CHIP(DIO7));	ImGui::NextColumn();
-
-				ImGui::Columns(1);
-			}
+			ImGui::SameLine(0, 15);
+			ImGui::Text("(%s)", loaded_filename.c_str());
+			ImGui::Spacing();
 
 			if (ImGui::CollapsingHeader("Configuration", ImGuiTreeNodeFlags_DefaultOpen)) {
 				ImGui::SliderInt("Address", (int *) &tester->address, 0, 15);
 			}
 
-			if (ImGui::CollapsingHeader("State", ImGuiTreeNodeFlags_DefaultOpen)) {
+			if (ImGui::CollapsingHeader("Control Signals", ImGuiTreeNodeFlags_DefaultOpen)) {
+
+				if (ImGui::BeginTable("control_signals", 8, ImGuiTableFlags_Borders | ImGuiTableFlags_NoHostExtendX | ImGuiTableFlags_SizingFixedFit)) {
+					ImGui::TableSetupColumn("##type");
+					ImGui::TableSetupColumn("/EOI");
+					ImGui::TableSetupColumn("/DAV");
+					ImGui::TableSetupColumn("/NRFD");
+					ImGui::TableSetupColumn("/NDAC");
+					ImGui::TableSetupColumn("/ATN");
+					ImGui::TableSetupColumn("/SRQ");
+					ImGui::TableSetupColumn("/IFC");
+					ImGui::TableHeadersRow();
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();	ImGui::Text("Bus");
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(EOI_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(DAV_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(NRFD_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(NDAC_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(ATN_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(SRQ_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE(IFC_B));
+
+					ImGui::TableNextRow();
+					ImGui::TableNextColumn();	ImGui::Text("Out");
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(EOI_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(DAV_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(NRFD_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(NDAC_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(ATN_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(SRQ_B));
+					ImGui::TableNextColumn();	ui_signal_short(SIGNAL_VALUE_AT_CHIP(IFC_B));
+
+					ImGui::EndTable();
+				}
+			}
+
+			if (ImGui::CollapsingHeader("Data Signals", ImGuiTreeNodeFlags_DefaultOpen)) {
+				SignalValue sig_values[8];
+
+				if (ui_bit_array_table_start("databus", 8, true, "I/0")) {
+
+					SIGNAL_GROUP_VALUE(dio, sig_values);
+					ui_bit_array_table_row("Bus", 8, sig_values);
+
+					SIGNAL_GROUP_VALUE_AT_CHIP(dio, sig_values);
+					ui_bit_array_table_row("Out", 8, sig_values);
+
+					ImGui::EndTable();
+				}
+			}
+
+			if (ImGui::CollapsingHeader("State")) {
 				ImGui::Text("State: %s", STATE_LABELS[tester->bus_state]);
 				ImGui::Text("Comm. State %s", COMM_STATE_LABELS[tester->comm_state]);
 				ImGui::Text("Active channel = %ld", tester->active_channel);
 			}
 
-			if (ImGui::CollapsingHeader("Channels", ImGuiTreeNodeFlags_DefaultOpen)) {
-				ImGui::Columns(3);
+			if (ImGui::CollapsingHeader("Channels")) {
+				if (ImGui::BeginTable("channels", 3, ImGuiTableFlags_Borders)) {
+					ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed);
+					ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthFixed, 100);
+					ImGui::TableSetupColumn("Filename", ImGuiTableColumnFlags_WidthStretch);
 
-				for (int i = 0; i < FD2031_MAX_CHANNELS; ++i) {
-					ImGui::Text("%d", i);													ImGui::NextColumn();
-					ImGui::Text("%s", (tester->channels[i].open) ? "Open" : "Closed");		ImGui::NextColumn();
-					ImGui::Text("%s", tester->channels[i].name);							ImGui::NextColumn();
+					for (int i = 0; i < FD2031_MAX_CHANNELS; ++i) {
+						ImGui::TableNextRow();
+						ImGui::TableNextColumn();	ImGui::Text("%d", i);
+						ImGui::TableNextColumn();	ImGui::Text("%s", (tester->channels[i].open) ? "Open" : "Closed");
+						ImGui::TableNextColumn();	ImGui::Text("%s", tester->channels[i].name);
+					}
+
+					ImGui::EndTable();
 				}
-
-				ImGui::Columns(1);
 			}
 		}
 
 		d64_selection->define_popup();
 		if (load_d64) {
 			d64_selection->display_popup([&](std::string selected_file) {
+				loaded_filename = selected_file;
 				perif_fd2031_load_d64_from_file(tester, path_for_d64_file(selected_file).c_str());
 			});
 		}
@@ -173,8 +165,9 @@ private:
 private:
 	ImVec2					position;
 	const ImVec2			size = {330, 0};
-	PerifDisk2031 *		tester;
-	std::string				d64_filename = "new.d64";
+	PerifDisk2031 *			tester;
+
+	std::string				loaded_filename = "no .d64 loaded";
 
 	PopupFileSelector::uptr_t d64_selection = PopupFileSelector::make_unique(ui_context, d64_path.c_str() , ".d64", "");
 
