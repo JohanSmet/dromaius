@@ -44,6 +44,28 @@ public:
 
 		if (ImGui::Begin(title, &stay_open)) {
 
+			// load .tap file
+			load_tap = ImGui::Button("Load Tape File");
+			ImGui::SameLine(0, 15);
+			ImGui::Text("(%s)", load_tap_filename.c_str());
+
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Spacing();
+
+			// new .tap file
+			if (ImGui::Button("Create New Tape File")) {
+				perif_datassette_new_tap(datassette, path_for_tap_file(new_tap_filename).c_str());
+			}
+			ImGui::SameLine();
+			ImGui::InputText("##new_tap", &new_tap_filename);
+
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Spacing();
+
+			// tape control buttons
+
 			if (ImGui::Button("Record")) {
 				perif_datassette_key_pressed(datassette, DS_KEY_RECORD);
 			}
@@ -73,15 +95,7 @@ public:
 				perif_datassette_key_pressed(datassette, DS_KEY_EJECT);
 			}
 
-			load_tap = ImGui::Button("Load");
-			ImGui::SameLine();
-
-			if (ImGui::Button("New")) {
-				perif_datassette_new_tap(datassette, path_for_tap_file(tap_filename).c_str());
-			}
-			ImGui::SameLine();
-			ImGui::InputText("##new_tap", &tap_filename);
-
+			// signals
 			auto origin = ImGui::GetCursorPos();
 			ui_signal(20, "/SENSE", SIGNAL_READ_NEXT(SENSE), ACTLO_ASSERT);
 			ui_signal(20, "MOTOR", SIGNAL_READ_NEXT(MOTOR), ACTHI_ASSERT);
@@ -95,6 +109,7 @@ public:
 		tap_selection->define_popup();
 		if (load_tap) {
 			tap_selection->display_popup([&](std::string selected_file) {
+				load_tap_filename = selected_file;
 				perif_datassette_load_tap_from_file(datassette, path_for_tap_file(selected_file).c_str());
 			});
 		}
@@ -107,7 +122,8 @@ private:
 	const ImVec2			size = {330, 0};
 	PerifDatassette *		datassette;
 
-	std::string				tap_filename = "new.tap";
+	std::string				load_tap_filename = "no .tap file loaded";
+	std::string				new_tap_filename = "new.tap";
 
 	PopupFileSelector::uptr_t tap_selection = PopupFileSelector::make_unique(ui_context, tap_path.c_str() , ".tap", "");
 
