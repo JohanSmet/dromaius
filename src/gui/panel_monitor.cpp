@@ -15,7 +15,12 @@ public:
 		Panel(ctx),
 		position(pos) {
 		input[0] = '\0';
-		title = ui_context->unique_panel_id("Monitor");
+		title = ui_context->unique_panel_id(txt_title);
+	}
+
+	void init() override {
+		footer_height = ImGuiEx::LabelHeight(txt_clear) + 4;
+		btn_clear_width = ImGuiEx::ButtonWidth(txt_clear) + ImGui::GetStyle().FramePadding.x;
 	}
 
 	void display() override {
@@ -27,7 +32,7 @@ public:
 
 			// previous input + output
 			auto region = ImGui::GetContentRegionAvail();
-			region.y -= 20;
+			region.y -= footer_height;
 			if (ImGui::BeginChild("output", region, false, 0)) {
 
 				for (const auto &line : output) {
@@ -40,7 +45,7 @@ public:
 			}
 
 			// input
-			ImGui::SetNextItemWidth(region.x * 0.8f);
+			ImGui::SetNextItemWidth(-btn_clear_width);
 
 			if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) {
 				ImGui::SetKeyboardFocusHere(0);
@@ -59,7 +64,7 @@ public:
 			}
 
 			ImGui::SameLine();
-			if (ImGui::Button("Clear")) {
+			if (ImGui::Button(txt_clear)) {
 				output.clear();
 			}
 		}
@@ -67,9 +72,16 @@ public:
 	}
 
 private:
+	static constexpr const char *txt_title = "Monitor";
+	static constexpr const char *txt_clear = "Clear";
+
+private:
 	ImVec2			position;
 	const ImVec2	size = {390, 400};
 	std::string		title;
+
+	float			footer_height;
+	float			btn_clear_width;
 
 	std::vector<std::string>	output;
 	char						input[256];
