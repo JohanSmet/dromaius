@@ -17,7 +17,6 @@ public:
 
 	void display() override {
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
 		static ImU32 colors[2] = {ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_Button)),
 								  ImGui::GetColorU32(ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive))};
@@ -41,7 +40,16 @@ public:
 				ImGui::NewLine();
 			}
 
-			if (ImGui::SliderInt("Dwell Time", &key_dwell_ms, 1, 50000)) {
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Spacing();
+
+			// dwell time
+			ImGui::Text(txt_dwell_time);
+			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			if (ImGui::DragInt("##dwell", &key_dwell_ms, 1, 1, 2000, "%d ms")) {
 				input_keypad_set_dwell_time_ms(keypad, key_dwell_ms);
 			}
 		}
@@ -56,8 +64,11 @@ public:
 	}
 
 private:
+	static constexpr const char *txt_dwell_time = "Decay";
+
+
+private:
 	ImVec2			position;
-	const ImVec2	size = {180, 200};
 	InputKeypad *	keypad;
 
 	std::vector<std::string>	labels = default_labels();

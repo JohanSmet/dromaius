@@ -125,12 +125,12 @@ void UIContext::create_minimal_6502() {
 	dms_set_device(dms_ctx, device);
 
 	// create UI panels
-	panel_add(panel_control_create(this, {0, 55}, device_6502->oscillator,
+	panel_add(panel_control_create(this, {0, 0}, device_6502->oscillator,
 								  {device_6502->signals[SIG_M6502_CPU_SYNC], true, false},
 								  {{device_6502->signals[SIG_M6502_CLOCK], true, true}}
 	));
 
-	panel_add(panel_dev_minimal_6502_create(this, {0, 110}, device_6502));
+	panel_add(panel_dev_minimal_6502_create(this, {0, 240}, device_6502));
 }
 
 void UIContext::create_commodore_pet(bool lite) {
@@ -143,14 +143,14 @@ void UIContext::create_commodore_pet(bool lite) {
 	dms_set_device(dms_ctx, device);
 
 	// create UI panels
-	panel_add(panel_control_create(this, {0, 55}, device_pet->oscillator_y1,
+	panel_add(panel_control_create(this, {0, 0}, device_pet->oscillator_y1,
 								  {device_pet->signals[SIG_P2001N_SYNC], true, false},
 								  {{device_pet->signals[SIG_P2001N_CLK1], true, true},
 								   {device_pet->signals[SIG_P2001N_CLK8], true, true},
 								   {device_pet->signals[SIG_P2001N_CLK16], true, true}}
 	));
 
-	panel_add(panel_dev_commodore_pet_create(this, {0, 110}, device_pet));
+	panel_add(panel_dev_commodore_pet_create(this, {0, 240}, device_pet));
 }
 
 void UIContext::setup_dockspace() {

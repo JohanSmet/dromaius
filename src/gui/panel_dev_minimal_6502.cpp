@@ -98,7 +98,6 @@ public:
 	void display() override {
 
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
 		bool load_rom = false;
 		bool load_ram = false;
@@ -152,7 +151,6 @@ public:
 
 private:
 	ImVec2			position;
-	const ImVec2	size = {330, 250};
 	DevMinimal6502 *device;
 
 	std::string		rom_last_loaded = "";

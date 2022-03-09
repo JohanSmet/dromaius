@@ -18,12 +18,12 @@ public:
 		Panel(ctx),
 		position(pos),
 		cpu(cpu) {
-		title = ui_context->unique_panel_id("CPU -  MOS 6502");
+		title = ui_context->unique_panel_id("CPU - MOS 6502");
 	}
 
 	void display() override {
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize({0, 0}, ImGuiCond_FirstUseEver);
 
 		if (ImGui::Begin(title.c_str(), &stay_open)) {
 
@@ -149,7 +149,6 @@ private:
 
 private:
 	ImVec2				position;
-	const ImVec2		size = {410, 0};
 	std::string			title;
 
 	Cpu6502	*			cpu;

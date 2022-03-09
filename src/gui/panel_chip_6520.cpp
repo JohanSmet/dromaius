@@ -30,7 +30,6 @@ public:
 		SignalValue sig_values[8];
 
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
 		if (ImGui::Begin(title.c_str(), &stay_open)) {
 			if (ImGui::CollapsingHeader("Registers", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -160,7 +159,6 @@ private:
 
 private:
 	ImVec2				position;
-	const ImVec2		size = {240, 0};
 	std::string			title;
 
 	Chip6520 *			pia;

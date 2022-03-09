@@ -7,13 +7,13 @@
 #include "panel_memory.h"
 
 #include <cassert>
-#include <imgui.h>
 #include <stb/stb_ds.h>
 #include <utils.h>
 
 #include "filt_6502_asm.h"
 #include "ui_context.h"
 #include "device.h"
+#include "imgui_ex.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -31,6 +31,10 @@ public:
 		mem_offset(data_offset) {
 	}
 
+	void init() override {
+		footer_height = ImGuiEx::LabelHeight("B") + ImGui::GetStyle().FramePadding.y * 2.0f;
+	}
+
 	void display() override {
 
 		static const char *display_types[] = {"Raw", "6502 Disassembly", "PET Screen"};
@@ -44,6 +48,8 @@ public:
 
 			ImGui::Text("Display Type");
 			ImGui::SameLine();
+
+			ImGui::SetNextItemWidth(-FLT_MIN);
 			ImGui::Combo("##display_type", &display_type, display_types, sizeof(display_types) / sizeof(const char *));
 
 			switch (display_type) {
@@ -64,7 +70,7 @@ public:
 	void memory_display_raw() {
 
 		auto region = ImGui::GetContentRegionAvail();
-		region.y -= 20;
+		region.y -= footer_height;
 		ImGui::BeginChild("raw", region, false, 0);
 
 		for (auto index = 0u; index < mem_size; ) {
@@ -112,7 +118,7 @@ public:
 		static const ImVec4 colors[] = { ImGui::GetStyle().Colors[ImGuiCol_Text], ImVec4(1.0f, 1.0f, 0.0f, 1.0f)};
 
 		auto region = ImGui::GetContentRegionAvail();
-		region.y -= 20;
+		region.y -= footer_height;
 		ImGui::BeginChild("raw", region, false, 0);
 
 		char *line = NULL;
@@ -210,8 +216,9 @@ private:
 
 private:
 	ImVec2					position;
-	const ImVec2			size = {440, 220};
+	const ImVec2			size = {460, 220};
 	std::string				title;
+	float					footer_height;
 
 	size_t					mem_size;
 	size_t					mem_offset;

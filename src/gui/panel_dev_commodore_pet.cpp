@@ -27,12 +27,12 @@ static const UITree<DevCommodorePet>::data_t PET_HARDWARE = {
 	UI_TREE_NODE("Memory")
 		UI_TREE_LEAF("Main Ram")
 			UI_TREE_ACTION_PANEL("View")
-				return panel_memory_create(ctx, {2, 120}, ctx->unique_panel_id("RAM").c_str(), 0x0000, 0x8000);
+				return panel_memory_create(ctx, {220, 120}, ctx->unique_panel_id("RAM").c_str(), 0x0000, 0x8000);
 			UI_TREE_ACTION_END
 		UI_TREE_LEAF_END,
 		UI_TREE_LEAF("Video Ram")
 			UI_TREE_ACTION_PANEL("View")
-				return panel_memory_create(ctx, {2, 120}, ctx->unique_panel_id("VRAM").c_str(), 0x8000, 40*25);
+				return panel_memory_create(ctx, {220, 120}, ctx->unique_panel_id("VRAM").c_str(), 0x8000, 40*25);
 			UI_TREE_ACTION_END
 		UI_TREE_LEAF_END,
 		UI_TREE_LEAF("Basic ROM")
@@ -55,7 +55,7 @@ static const UITree<DevCommodorePet>::data_t PET_HARDWARE = {
 	UI_TREE_NODE("CPU")
 		UI_TREE_LEAF("MOS Technology 6502")
 			UI_TREE_ACTION_PANEL("View")
-				return panel_cpu_6502_create(ctx, {2, 342}, dev->cpu);
+				return panel_cpu_6502_create(ctx, {220, 342}, dev->cpu);
 			UI_TREE_ACTION_END
 		UI_TREE_LEAF_END,
 	UI_TREE_NODE_END,
@@ -196,7 +196,7 @@ private:
 
 private:
 	ImVec2			position;
-	const ImVec2	size = {330, 320};
+	const ImVec2	size = {0, 0};
 	DevCommodorePet *device;
 
 	constexpr static const char *title = "Device - Commodore PET 2001N";
@@ -205,11 +205,11 @@ private:
 Panel::uptr_t panel_dev_commodore_pet_create(UIContext *ctx, ImVec2 pos, DevCommodorePet *device) {
 
 	// a keyboard panel is always useful
-	auto keyboard_pnl = panel_input_pet_create(ctx, {340, 400}, device->keypad);
+	auto keyboard_pnl = panel_input_pet_create(ctx, {340, 512}, device->keypad);
 	ctx->panel_add(std::move(keyboard_pnl));
 
 	// display panel
-	auto display_pnl = panel_display_rgba_create(ctx, {340, 20}, device->screen);
+	auto display_pnl = panel_display_rgba_create(ctx, {340, 10}, device->screen);
 	ctx->panel_add(std::move(display_pnl));
 
 	// create panel for the commodore pet

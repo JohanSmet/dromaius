@@ -22,6 +22,7 @@ public:
 	void init() override {
 		// just an approximation for the first call to the constraints
 		header_height = ImGuiEx::LabelHeight(txt_integer_scaling) + 8.0f;
+		size.x = static_cast<float>(display_rgba->width) * 2.0f + ImGui::GetStyle().WindowPadding.x * 2.0f;
 	}
 
 	void display() override {
@@ -34,6 +35,7 @@ public:
 
 		// set window properties
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSizeConstraints(
 				{0.0f, 0.0f}, {FLT_MAX, FLT_MAX},
 				[](auto *data) {
@@ -96,7 +98,7 @@ private:
 
 private:
 	ImVec2			position;
-	const ImVec2	size = {400, 300};
+	ImVec2			size = {0, 0};
 	DisplayRGBA *	display_rgba;
 	GLuint			texture_id;
 
