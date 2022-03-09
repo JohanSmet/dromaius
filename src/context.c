@@ -93,8 +93,8 @@ static inline int breakpoint_index(DmsContext *dms, int64_t addr) {
 }
 
 static inline int signal_breakpoint_index(DmsContext *dms, Signal signal) {
-	for (int i = 0; i < arrlen(dms->config.signal_breakpoints); ++i) {
-		if (memcmp(&dms->config.signal_breakpoints[i].signal, &signal, sizeof(signal)) == 0) {
+	for (int i = 0; i < arrlen(dms->config_usr.signal_breakpoints); ++i) {
+		if (memcmp(&dms->config_usr.signal_breakpoints[i].signal, &signal, sizeof(signal)) == 0) {
 			return i;
 		}
 	}
@@ -452,6 +452,7 @@ bool dms_toggle_breakpoint(DmsContext *dms, int64_t addr) {
 			result = false;
 		}
 		dms->config_usr.bp_updated = true;
+		dms->config_changed = true;
 	MUTEX_CONFIG_UNLOCK(dms);
 
 	return result;
@@ -469,6 +470,7 @@ void dms_breakpoint_signal_set(DmsContext *dms, Signal signal, bool pos_edge, bo
 		if (signal_breakpoint_index(dms, signal) < 0) {
 			arrpush(dms->config_usr.signal_breakpoints, ((SignalBreakpoint) {signal, pos_edge, neg_edge}));
 			dms->config_usr.bp_updated = true;
+			dms->config_changed = true;
 		}
 	MUTEX_CONFIG_UNLOCK(dms);
 }
@@ -481,8 +483,14 @@ void dms_breakpoint_signal_clear(DmsContext *dms, Signal signal) {
 		if (idx	>= 0) {
 			arrdelswap(dms->config_usr.signal_breakpoints, idx);
 			dms->config_usr.bp_updated = true;
+			dms->config_changed = true;
 		}
 	MUTEX_CONFIG_UNLOCK(dms);
+}
+
+bool dms_breakpoint_signal_is_set(struct DmsContext *dms, Signal signal) {
+	assert(dms);
+	return signal_breakpoint_index(dms, signal) >= 0;
 }
 
 bool dms_toggle_signal_breakpoint(DmsContext *dms, Signal signal) {
@@ -497,9 +505,10 @@ bool dms_toggle_signal_breakpoint(DmsContext *dms, Signal signal) {
 			arrdelswap(dms->config_usr.signal_breakpoints, idx);
 			result = false;
 		}
-	MUTEX_CONFIG_UNLOCK(dms);
 
-	dms->config_usr.bp_updated = true;
+		dms->config_usr.bp_updated = true;
+		dms->config_changed = true;
+	MUTEX_CONFIG_UNLOCK(dms);
 	return result;
 }
 

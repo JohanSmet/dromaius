@@ -54,6 +54,8 @@ double dms_simulation_speed_ratio(struct DmsContext *dms);
 SignalBreakpoint *dms_breakpoint_signal_list(struct DmsContext *dms);
 void dms_breakpoint_signal_set(struct DmsContext *dms, Signal signal, bool pos_edge, bool neg_edge);
 void dms_breakpoint_signal_clear(struct DmsContext *dms, Signal signal);
+bool dms_breakpoint_signal_is_set(struct DmsContext *dms, Signal signal);
+bool dms_toggle_signal_breakpoint(struct DmsContext *dms, Signal signal);
 
 void dms_break_on_irq_set(struct DmsContext *dms);
 void dms_break_on_irq_clear(struct DmsContext *dms);
