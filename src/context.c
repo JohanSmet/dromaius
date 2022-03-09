@@ -580,6 +580,11 @@ void dms_monitor_cmd(struct DmsContext *dms, const char *cmd, char **reply) {
 		} else {
 			arr_printf(*reply, "NOK: invalid address specified");
 		}
+	} else if (cmd[0] == 'h' || cmd[0] == '?') {		// help
+		arr_printf(*reply, "g <address> : make CPU jump to specified address.\n");
+		arr_printf(*reply, "bi          : set/clear breakpoint on IRQ assertion.\n");
+		arr_printf(*reply, "bs <signal> : set/clear breakpoint on signal modification.\n");
+		arr_printf(*reply, "b <address> : set/clear breakpoint on program counter.\n");
 	} else {
 		arr_printf(*reply, "NOK: invalid command");
 	}
