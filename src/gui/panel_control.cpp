@@ -201,7 +201,7 @@ public:
 		} else if (freq > 1000) {
 			ImGui::Text("%3.3f KHz", static_cast<float>(freq) / 1000.0f);
 		} else {
-			ImGui::Text("%ld Hz", freq);
+			ImGui::Text("%" PRId64 " Hz", freq);
 		}
 	}
 
