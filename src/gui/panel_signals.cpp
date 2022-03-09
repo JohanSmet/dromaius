@@ -9,6 +9,7 @@
 #include "device.h"
 
 #include "imgui_ex.h"
+#include <imgui.h>
 #include <vector>
 
 class PanelSignals : public Panel {
@@ -22,41 +23,12 @@ public:
 
 	void display() override {
 
-		auto signal_pool = ui_context->device->simulator->signal_pool;
-
 		ImGui::SetNextWindowPos(position, ImGuiCond_FirstUseEver);
 		ImGui::SetNextWindowSize(size, ImGuiCond_FirstUseEver);
 
 		if (ImGui::Begin(title.c_str(), &stay_open)) {
 
-			ImGui::Columns(4, "signal_colums");
-			ImGui::Separator();
-			ImGui::Text("Signal"); ImGui::NextColumn();
-			ImGui::Text("Current"); ImGui::NextColumn();
-			ImGui::Text("Next"); ImGui::NextColumn();
-			ImGui::NextColumn();
-			ImGui::Separator();
-
-			// tracked signals
-			std::vector<std::vector<int>::difference_type> to_remove;
-
-			for (size_t i = 0; i < signal_names.size(); ++i) {
-				ImGui::PushID(&signals[i]);
-				ImGui::Text("%s", signal_names[i].c_str()); ImGui::NextColumn();
-				ImGui::Text(signal_read(signal_pool, signals[i]) ? "true" : "false"); ImGui::NextColumn();
-				ImGui::Text(signal_read_next(signal_pool, signals[i]) ? "true" : "false"); ImGui::NextColumn();
-				if (ImGui::Button("Remove")) {
-					to_remove.push_back(static_cast<decltype(to_remove)::difference_type>(i));
-				}
-				ImGui::NextColumn();
-				ImGui::Separator();
-				ImGui::PopID();
-			}
-
-			for (auto remove_idx : to_remove) {
-				signal_names.erase(signal_names.begin() + remove_idx);
-				signals.erase(signals.begin() + remove_idx);
-			}
+			auto signal_pool = ui_context->device->simulator->signal_pool;
 
 			// add new signal
 			if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) {
@@ -64,18 +36,86 @@ public:
 			}
 
 			if (ImGui::InputText("##input", input, sizeof(input) - 1, ImGuiInputTextFlags_EnterReturnsTrue)) {
-				auto signal = signal_by_name(signal_pool, input);
+				add_input_signal();
+			}
 
-				if (!signal_is_undefined(signal)) {
-					signal_names.push_back(input);
-					signals.push_back(signal);
+			ImGui::SameLine();
 
-					input[0] = '\0';
-					ImGui::SetItemDefaultFocus();
+			ImGui::BeginDisabled(valid_input_signal());
+			if (ImGui::Button(" Add ##add")) {
+				add_input_signal();
+			}
+			ImGui::EndDisabled();
+
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Spacing();
+
+			if (!signals.empty() && ImGui::BeginTable("signals", 4, ImGuiTableFlags_Borders)) {
+
+				ImGui::TableSetupColumn("Signal");
+				ImGui::TableSetupColumn("Value");
+				ImGui::TableSetupColumn("Breakpoint");
+				ImGui::TableSetupColumn("##remove");
+				ImGui::TableHeadersRow();
+
+				// tracked signals
+				std::vector<std::vector<int>::difference_type> to_remove;
+
+				for (size_t i = 0; i < signal_names.size(); ++i) {
+					ImGui::PushID(&signals[i]);
+					ImGui::TableNextRow();
+
+					ImGui::TableNextColumn();
+					ImGui::AlignTextToFramePadding();
+					ImGui::Text("%s", signal_names[i].c_str());
+
+					ImGui::TableNextColumn();
+					ImGui::AlignTextToFramePadding();
+					ImGui::Text(signal_read(signal_pool, signals[i]) ? "true" : "false");
+
+					ImGui::TableNextColumn();
+					bool sb = dms_breakpoint_signal_is_set(ui_context->dms_ctx, signals[i]);
+					if (ImGui::Checkbox("##bp", &sb)) {
+						dms_toggle_signal_breakpoint(ui_context->dms_ctx, signals[i]);
+					}
+
+					ImGui::TableNextColumn();
+					if (ImGui::Button("Remove")) {
+						to_remove.push_back(static_cast<decltype(to_remove)::difference_type>(i));
+					}
+
+					ImGui::PopID();
+				}
+
+				ImGui::EndTable();
+
+				// remove signals
+				for (auto remove_idx : to_remove) {
+					signal_names.erase(signal_names.begin() + remove_idx);
+					signals.erase(signals.begin() + remove_idx);
 				}
 			}
 		}
 		ImGui::End();
+	}
+
+private:
+	bool valid_input_signal() {
+		auto signal = signal_by_name(ui_context->device->simulator->signal_pool, input);
+		return signal_is_undefined(signal);
+	}
+
+	void add_input_signal() {
+		auto signal = signal_by_name(ui_context->device->simulator->signal_pool, input);
+
+		if (!signal_is_undefined(signal)) {
+			signal_names.push_back(input);
+			signals.push_back(signal);
+
+			input[0] = '\0';
+			ImGui::SetItemDefaultFocus();
+		}
 	}
 
 private:
