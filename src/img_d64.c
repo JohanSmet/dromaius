@@ -141,8 +141,7 @@ ptrdiff_t img_d64_basic_directory_list(DiskImageD64 *d64, int8_t **listing) {
 	assert(listing);
 
 	const uint8_t FOOTER_TEXT[] = "BLOCKS FREE.";
-	const uint8_t TEXT_SPACES[24] = "                        ";
-
+	const uint8_t TEXT_SPACES[25] = "                        ";
 
 	if (d64->dirlist_buffer) {
 		stbds_header(d64->dirlist_buffer)->length = 0;
