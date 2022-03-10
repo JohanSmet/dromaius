@@ -14,11 +14,13 @@ export class PanelScreen extends Panel {
 		var canvas = $('<canvas/>', {id: 'display'})
 				.attr('width', display_info.width)
 				.attr('height', display_info.height)
+				.attr('style', 'width: 320px; height:200px; margin-left: 2px; margin-top: 4px')
 				.appendTo(this.panel_content)
 				[0];
 
 		this.display_context = canvas.getContext("2d");
 		this.display_imdata = this.display_context.createImageData(display_info.width, display_info.height);
+		this.display_info = display_info;
 
 		// jsPanel
 		this.create_js_panel();
@@ -35,13 +37,22 @@ export class PanelScreen extends Panel {
 	}
 
 	resize_canvas(canvas) {
-		canvas.style.width = (this.panel.content.clientWidth - 10) + 'px';
-		canvas.style.height = (this.panel.content.clientHeight - 10) + 'px';
-		canvas.style.marginLeft = '5px';
-		canvas.style.marginTop = '5px';
+
+		var scale_x = (this.panel.content.clientWidth - 8) / this.display_info.width;
+		var scale_y = (this.panel.content.clientHeight - 8) / this.display_info.height;
+		var scale = Math.min(scale_x, scale_y);
+
+		var width = this.display_info.width * scale;
+		var height = this.display_info.height * scale;
+
+		canvas.style.width = width + 'px';
+		canvas.style.height = height + 'px';
+		canvas.style.marginLeft = (this.panel.content.clientWidth - width) / 2 + 'px';
+		canvas.style.marginTop = (this.panel.content.clientHeight - height) / 2 + 'px';
 	}
 
 	display_context = null;
 	display_imdata = null;
+	display_info = null;
 }
 
