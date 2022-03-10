@@ -100,6 +100,7 @@ typedef struct PerifDisk2031 {
 PerifDisk2031 *perif_fd2031_create(struct Simulator *sim, PerifDisk2031Signals signals);
 
 void perif_fd2031_load_d64_from_file(PerifDisk2031 *disk, const char *filename);
+void perif_fd2031_load_d64_from_memory(PerifDisk2031 *disk, const int8_t *data, size_t data_len);
 
 #ifdef __cplusplus
 }

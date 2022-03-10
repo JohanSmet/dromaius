@@ -414,3 +414,15 @@ void perif_fd2031_load_d64_from_file(PerifDisk2031 *tester, const char *filename
 	img_d64_parse_memory(raw, &tester->d64_img);
 }
 
+void perif_fd2031_load_d64_from_memory(PerifDisk2031 *disk, const int8_t *data, size_t data_len) {
+	assert(disk);
+	assert(data);
+
+	// copy the data to a buffer that's owned by us
+	int8_t *raw = NULL;
+	arrsetlen(raw, data_len);
+	memcpy(raw, data, data_len);
+
+	img_d64_parse_memory(raw, &disk->d64_img);
+}
+

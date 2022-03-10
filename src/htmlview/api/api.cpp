@@ -10,6 +10,7 @@
 #include "dev_commodore_pet.h"
 #include "perif_pet_crt.h"
 #include "perif_datassette_1530.h"
+#include "perif_disk_2031.h"
 #include "input_keypad.h"
 
 #include "stb/stb_ds.h"
@@ -193,6 +194,18 @@ public:
 
 	float datassette_position() {
 		return PS_TO_S(pet_device->datassette->offset_ps);
+	}
+
+	// disk 2031 control
+	void disk2031_load_d64(std::string d64_data) {
+		perif_fd2031_load_d64_from_memory(
+				pet_device->disk_2031,
+				reinterpret_cast<const int8_t *>(d64_data.c_str()),
+				d64_data.size());
+	}
+
+	void disk2031_set_address(int address) {
+		pet_device->disk_2031->address = address;
 	}
 
 	// data access
@@ -399,6 +412,8 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("datassette_eject", &DmsApi::datassette_eject)
 		.function("datassette_valid_buttons", &DmsApi::datassette_valid_buttons)
 		.function("datassette_position", &DmsApi::datassette_position)
+		.function("disk2031_load_d64", &DmsApi::disk2031_load_d64)
+		.function("disk2031_set_address", &DmsApi::disk2031_set_address)
 		.function("display_data", &DmsApi::display_data)
 		.function("signal_data", &DmsApi::signal_data)
 		.function("breakpoint_signal_list", &DmsApi::breakpoint_signal_list)

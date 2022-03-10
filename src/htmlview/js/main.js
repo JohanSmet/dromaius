@@ -7,6 +7,7 @@ import {PanelSignalDetails} from './panel_signal_details.js';
 import {PanelScreen} from './panel_screen.js';
 import {PanelKeyboard} from './panel_keyboard.js';
 import {PanelDatassette} from './panel_datassette.js';
+import {PanelDisk2031} from './panel_disk2031.js';
 import {CircuitView} from './circuit_view.js';
 
 // configuration
@@ -44,6 +45,7 @@ export class MainUI {
 
 		this.panel_breakpoints_signal = new PanelBreakpointsSignal(this.dmsapi);
 		this.panel_datassette = new PanelDatassette(this.dmsapi);
+		this.panel_disk2031 = new PanelDisk2031(this.dmsapi);
 		this.panel_keyboard = new PanelKeyboard(this.dmsapi);
 
 		// UI - signal hovering
