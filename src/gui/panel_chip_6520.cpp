@@ -146,7 +146,7 @@ public:
 private:
 #define CR_FLAG(r,f)	FLAG_IS_SET((r), FLAG_6520_##f)
 	const char *selected_register() {
-		int reg_addr = (SIGNAL_READ(RS1) << 1) | SIGNAL_READ(RS0);
+		int reg_addr = (SIGNAL_READ(RS1) << 1) | static_cast<int>(SIGNAL_READ(RS0));
 
 		switch (reg_addr) {
 			case 0:		return (CR_FLAG(pia->reg_cra, DDR_OR_SELECT)) ? "ORA" : "DDRA";

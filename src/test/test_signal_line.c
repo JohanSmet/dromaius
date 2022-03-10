@@ -28,7 +28,7 @@ static MunitResult test_create(const MunitParameter params[], void* user_data_or
 
 	// 1-bit signal
 	Signal sig1 = signal_create(pool);
-	munit_assert_uint32(signal_array_subscript(sig1), ==, 1);
+	munit_assert_size(signal_array_subscript(sig1), ==, 1);
 	munit_assert_uint32(pool->signals_count, ==, 2);
 
 	// fill up blocks
@@ -55,8 +55,8 @@ static MunitResult test_read(const MunitParameter params[], void* user_data_or_f
 	Signal sig_b = signal_create(pool);
 	pool->signals_value[0] = 0x0000000000000002;
 
-	munit_assert_uint32(signal_array_subscript(sig_a), == , 1);
-	munit_assert_uint32(signal_array_subscript(sig_b), == , 2);
+	munit_assert_size(signal_array_subscript(sig_a), == , 1);
+	munit_assert_size(signal_array_subscript(sig_b), == , 2);
 
 	// test
 	munit_assert_true(signal_read(pool, sig_a));
