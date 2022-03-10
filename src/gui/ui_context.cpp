@@ -10,6 +10,9 @@
 #include <dev_minimal_6502.h>
 #include <dev_commodore_pet.h>
 
+#include <algorithm>
+#include <iterator>
+
 #include "panel_control.h"
 #include "panel_dev_commodore_pet.h"
 #include "panel_dev_minimal_6502.h"
@@ -33,7 +36,6 @@ void UIContext::switch_machine(MachineType machine) {
 
 	if (dms_ctx) {
 		// release device
-		auto *device = dms_get_device(dms_ctx);
 		if (device) {
 			device->destroy(device);
 			device = nullptr;
@@ -70,9 +72,14 @@ void UIContext::draw_ui() {
 	for (auto &panel : panels) {
 		panel->display_panel();
 
-		if (panel && panel->want_close()) {
+		if (panel->want_close()) {
 			panel_close(panel.get());
 		}
+	}
+
+	if (!new_panels.empty()) {
+		std::move(std::begin(new_panels), std::end(new_panels), std::back_inserter(panels));
+		new_panels.clear();
 	}
 
 	if (switch_machine_requested) {
@@ -82,7 +89,7 @@ void UIContext::draw_ui() {
 }
 
 void UIContext::panel_add(Panel::uptr_t panel) {
-	panels.push_back(std::move(panel));
+	new_panels.push_back(std::move(panel));
 }
 
 void UIContext::panel_close(Panel *panel) {

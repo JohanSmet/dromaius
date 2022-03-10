@@ -61,6 +61,7 @@ public:
 
 private:
 	std::vector<Panel::uptr_t>	panels;
+	std::vector<Panel::uptr_t>	new_panels;
 	int							panel_id = 0;
 };
 
