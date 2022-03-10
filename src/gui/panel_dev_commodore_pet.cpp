@@ -11,6 +11,7 @@
 
 #include "ui_context.h"
 #include "widgets.h"
+#include "imgui_ex.h"
 
 #include "panel_chip_6520.h"
 #include "panel_chip_6522.h"
@@ -23,95 +24,76 @@
 #include "panel_datassette.h"
 #include "panel_disk_2031.h"
 
-static const UITree<DevCommodorePet>::data_t PET_HARDWARE = {
-	UI_TREE_NODE("Memory")
-		UI_TREE_LEAF("Main Ram")
-			UI_TREE_ACTION_PANEL("View")
-				return panel_memory_create(ctx, {220, 120}, ctx->unique_panel_id("RAM").c_str(), 0x0000, 0x8000);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-		UI_TREE_LEAF("Video Ram")
-			UI_TREE_ACTION_PANEL("View")
-				return panel_memory_create(ctx, {220, 120}, ctx->unique_panel_id("VRAM").c_str(), 0x8000, 40*25);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-		UI_TREE_LEAF("Basic ROM")
-			UI_TREE_ACTION_PANEL("View")
-				return panel_memory_create(ctx, {442, 120}, ctx->unique_panel_id("ROM").c_str(), 0xb000, 0x3000);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-		UI_TREE_LEAF("Editor ROM")
-			UI_TREE_ACTION_PANEL("View")
-				return panel_memory_create(ctx, {442, 120}, ctx->unique_panel_id("ROM").c_str(), 0xe000, 0x0800);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-		UI_TREE_LEAF("Kernal ROM")
-			UI_TREE_ACTION_PANEL("View")
-				return panel_memory_create(ctx, {442, 120}, ctx->unique_panel_id("ROM").c_str(), 0xf000, 0x1000);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-	UI_TREE_NODE_END,
-
-	UI_TREE_NODE("CPU")
-		UI_TREE_LEAF("MOS Technology 6502")
-			UI_TREE_ACTION_PANEL("View")
-				return panel_cpu_6502_create(ctx, {220, 342}, dev->cpu);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-	UI_TREE_NODE_END,
-
-	UI_TREE_NODE("Support Chips")
-		UI_TREE_LEAF("PIA (6520) - IEEE-488")
-			UI_TREE_ACTION_PANEL("View")
-				return panel_chip_6520_create(ctx, {420, 342}, dev->pia_1);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-		UI_TREE_LEAF("PIA (6520) - Keyboard")
-			UI_TREE_ACTION_PANEL("View")
-				return panel_chip_6520_create(ctx, {420, 342}, dev->pia_2);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-		UI_TREE_LEAF("VIA (6522)")
-			UI_TREE_ACTION_PANEL("View")
-				return panel_chip_6522_create(ctx, {420, 342}, dev->via);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-	UI_TREE_NODE_END,
-
-	UI_TREE_NODE("Peripherals")
-		UI_TREE_LEAF("Datassette")
-			UI_TREE_ACTION_PANEL("Open")
-				return panel_datassette_create(ctx, {340, 310}, dev->datassette);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-		UI_TREE_LEAF("Floppy Disk")
-			UI_TREE_ACTION_PANEL("Open")
-				return panel_fd2031_create(ctx, {340, 310}, dev->disk_2031);
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-	UI_TREE_NODE_END,
-
-	UI_TREE_NODE("Tools")
-		UI_TREE_LEAF("Monitor")
-			UI_TREE_ACTION_PANEL("Open")
-				return panel_monitor_create(ctx, {340, 310});
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-		UI_TREE_LEAF("Signal Debugger")
-			UI_TREE_ACTION_PANEL("Open")
-				return panel_signals_create(ctx, {340, 310});
-			UI_TREE_ACTION_END
-		UI_TREE_LEAF_END,
-	UI_TREE_NODE_END,
-
-};
-
 class PanelDevCommodorePet : public Panel {
 public:
-	PanelDevCommodorePet(UIContext *ctx, ImVec2 pos, DevCommodorePet *device) :
+	PanelDevCommodorePet(UIContext *ctx, ImVec2 pos, DevCommodorePet *dev) :
 		Panel(ctx),
 		position(pos),
-		device(device) {
+		device(dev) {
+
+		auto &cat_memory = pet_hardware.add_category("Memory");
+		cat_memory.add_leaf("Main Ram")
+					.add_action("View", [&]() {
+						ui_context->panel_add(panel_memory_create(ui_context, {220, 120}, ui_context->unique_panel_id("RAM").c_str(), 0x0000, 0x8000));
+					});
+		cat_memory.add_leaf("Video Ram")
+					.add_action("View", [&]() {
+						ui_context->panel_add(panel_memory_create(ui_context, {220, 120}, ui_context->unique_panel_id("VRAM").c_str(), 0x8000, 40*25));
+					});
+		cat_memory.add_leaf("Basic Rom")
+					.add_action("View", [&]() {
+						ui_context->panel_add(panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(), 0xb000, 0x3000));
+					});
+		cat_memory.add_leaf("Editor Rom")
+					.add_action("View", [&]() {
+						ui_context->panel_add(panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(), 0xe000, 0x0800));
+					});
+		cat_memory.add_leaf("Kernal Rom")
+					.add_action("View", [&]() {
+						ui_context->panel_add(panel_memory_create(ui_context, {442, 120}, ui_context->unique_panel_id("ROM").c_str(), 0xf000, 0x1000));
+					});
+
+		auto &cat_cpu = pet_hardware.add_category("CPU");
+		cat_cpu.add_leaf("MOS Technology 6502")
+					.add_action("View", [&]() {
+						ui_context->panel_add(panel_cpu_6502_create(ui_context, {220, 342}, device->cpu));
+					});
+
+		auto &cat_support = pet_hardware.add_category("Support Chips");
+		cat_support.add_leaf("PIA (6520) - IEEE-488")
+					.add_action("View", [&]() {
+						ui_context->panel_add(panel_chip_6520_create(ui_context, {420, 342}, device->pia_1));
+					});
+
+		cat_support.add_leaf("PIA (6520) - Keyboard")
+					.add_action("View", [&]() {
+						ui_context->panel_add(panel_chip_6520_create(ui_context, {420, 342}, device->pia_2));
+					});
+		cat_support.add_leaf("VIA (6522)")
+					.add_action("View", [&]() {
+						ui_context->panel_add(panel_chip_6522_create(ui_context, {420, 342}, device->via));
+					});
+
+		auto &cat_perif = pet_hardware.add_category("Peripherals");
+		cat_perif.add_leaf("Datassette")
+					.add_action("Open", [&]() {
+						ui_context->panel_add(panel_datassette_create(ui_context, {340, 310}, device->datassette));
+					});
+		cat_perif.add_leaf("Floppy Disk")
+					.add_action("Open", [&]() {
+						ui_context->panel_add(panel_fd2031_create(ui_context, {340, 310}, device->disk_2031));
+					});
+
+		auto &cat_tools = pet_hardware.add_category("Tools");
+		cat_tools.add_leaf("Monitor")
+					.add_action("Open", [&]() {
+						ui_context->panel_add(panel_monitor_create(ui_context, {340, 310}));
+					});
+		cat_tools.add_leaf("Signal Debugger")
+					.add_action("Open", [&]() {
+						ui_context->panel_add(panel_signals_create(ui_context, {340, 310}));
+					});
+
 	}
 
 	void display() override {
@@ -125,7 +107,7 @@ public:
 				setup_signal_tracing();
 			#endif // DMS_SIGNAL_TRACING
 
-			UITree<DevCommodorePet>::display(PET_HARDWARE, ui_context, device);
+			pet_hardware.display();
 		}
 
 		ImGui::End();
@@ -198,6 +180,8 @@ private:
 	ImVec2			position;
 	const ImVec2	size = {0, 0};
 	DevCommodorePet *device;
+
+	UITree			pet_hardware;
 
 	constexpr static const char *title = "Device - Commodore PET 2001N";
 };

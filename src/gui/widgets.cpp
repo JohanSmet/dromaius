@@ -43,3 +43,52 @@ void ui_bit_array_table_row(const char *label, int columns, SignalValue *values)
 		ui_signal_short(values[i]);
 	}
 }
+
+void UITreeNode::display() const {
+	ImGui::TableNextRow();
+	ImGui::TableNextColumn();
+
+	if (children.size() > 0) {
+		ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+		bool open = ImGui::TreeNodeEx(label, ImGuiTreeNodeFlags_SpanFullWidth);
+		if (open) {
+			for (auto &child : children) {
+				child.display();
+			}
+			ImGui::TreePop();
+		}
+	} else {
+		ImGui::AlignTextToFramePadding();
+		ImGui::TreeNodeEx(label,	ImGuiTreeNodeFlags_Leaf |
+									ImGuiTreeNodeFlags_Bullet |
+									ImGuiTreeNodeFlags_NoTreePushOnOpen |
+									ImGuiTreeNodeFlags_SpanFullWidth);
+		ImGui::TableNextColumn();
+		ImGui::PushID(this);
+
+		for (auto &action : actions) {
+			if (ImGui::Button(action.label)) {
+				action.func();
+			}
+			ImGui::SameLine();
+		}
+
+		ImGui::PopID();
+	}
+}
+
+void UITree::display() const {
+	ImGui::PushID(&root);
+	if (ImGui::BeginTable("table", 2, ImGuiTableFlags_RowBg)) {
+
+		ImGui::TableSetupColumn("Device", ImGuiTableColumnFlags_WidthStretch);
+		ImGui::TableSetupColumn("Device", ImGuiTableColumnFlags_WidthFixed);
+
+		for (auto &child: root.children) {
+			child.display();
+		}
+
+		ImGui::EndTable();
+	}
+	ImGui::PopID();
+}
