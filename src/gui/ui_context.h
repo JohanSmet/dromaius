@@ -55,9 +55,6 @@ public:
 	bool			switch_machine_requested = false;
 
 	unsigned int	dock_id_main = 0;
-	unsigned int	dock_id_left_top = 0;
-	unsigned int	dock_id_left_mid = 0;
-	unsigned int	dock_id_left_bot = 0;
 
 private:
 	std::vector<Panel::uptr_t>	panels;

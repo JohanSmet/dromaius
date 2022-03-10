@@ -67,7 +67,7 @@ void UIContext::draw_ui() {
 		last_pc = cpu->program_counter(cpu);
 	}
 
-	// setup_dockspace();
+	setup_dockspace();
 
 	for (auto &panel : panels) {
 		panel->display_panel();
@@ -161,24 +161,6 @@ void UIContext::create_commodore_pet(bool lite) {
 }
 
 void UIContext::setup_dockspace() {
-
 	auto viewport = ImGui::GetMainViewport();
 	dock_id_main = ImGui::DockSpaceOverViewport(viewport, ImGuiDockNodeFlags_PassthruCentralNode);
-
-	if (dock_id_left_top == 0) {
-		ImGui::DockBuilderRemoveNode(dock_id_main);			// Clear out existing layout
-		ImGui::DockBuilderAddNode(dock_id_main, ImGuiDockNodeFlags_DockSpace);
-		ImGui::DockBuilderSetNodeSize(dock_id_main, viewport->Size);
-
-		dock_id_left_top = ImGui::DockBuilderSplitNode(	dock_id_main, ImGuiDir_Left, 0.25f,
-														NULL, &dock_id_main);
-		dock_id_left_mid = ImGui::DockBuilderSplitNode(	dock_id_left_top, ImGuiDir_Down, 0.80f,
-														NULL, &dock_id_left_top);
-		dock_id_left_bot = ImGui::DockBuilderSplitNode(	dock_id_left_mid, ImGuiDir_Down, 0.80f,
-														NULL, &dock_id_left_mid);
-
-		ImGui::DockBuilderSetNodeSize(dock_id_left_top, {viewport->Size.x * 0.25f, 50 });
-
-		ImGui::DockBuilderFinish(dock_id_main);
-	}
 }
