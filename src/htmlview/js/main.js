@@ -21,32 +21,36 @@ export class MainUI {
 		this.dmsapi = new emscripten_module.DmsApi();
 
 		// start the emulator
-		this.dmsapi.launch_commodore_pet();
+		this.switch_machine('Pet');
+
+		// UI - menu bar
+		this.ui_setup_menubar();
+	}
+
+	switch_machine(machine) {
+		// stop emulation
+		if (this.panel_screen) {
+			this.deactivate_refresh_timer();
+			this.ui_close_panels();
+			this.dmsapi.stop_emulation();
+
+			$('div#right_column').empty();
+			this.circuit_view = null;
+		}
+
+		// start machine
+		const lite = machine == 'PetLite';
+		this.dmsapi.launch_commodore_pet(lite);
 
 		// build list of css variables used to control the display color of a signal
 		this.signal_css_vars = []
 		this.setup_signal_css_variables();
 
-		// UI - menu bar
-		this.ui_setup_menubar();
+		// UI - panels
+		this.ui_setup_panels();
 
 		// UI - circuit viewport
-		this.circuit_view = new CircuitView($('div#right_column'));
-
-		// UI - panels
-		this.panel_screen = new PanelScreen(this.dmsapi.display_info());
-		this.panel_clock = new PanelClock();
-		this.panel_cpu = new PanelCpu6502();
-
-		this.panel_signal_details = new PanelSignalDetails(this.dmsapi);
-		this.panel_signal_details.on_breakpoint_set = (signal) => {
-			this.panel_breakpoints_signal.update();
-		};
-
-		this.panel_breakpoints_signal = new PanelBreakpointsSignal(this.dmsapi);
-		this.panel_datassette = new PanelDatassette(this.dmsapi);
-		this.panel_disk2031 = new PanelDisk2031(this.dmsapi);
-		this.panel_keyboard = new PanelKeyboard(this.dmsapi);
+		this.circuit_view = new CircuitView($('div#right_column'), lite);
 
 		// UI - signal hovering
 		this.hovered_signal = '';
@@ -147,9 +151,43 @@ export class MainUI {
 		return '--color-' + name.replace('/', 'bar');
 	}
 
+	ui_setup_panels() {
+		this.panel_screen = new PanelScreen(this.dmsapi.display_info());
+		this.panel_clock = new PanelClock();
+		this.panel_cpu = new PanelCpu6502();
+
+		this.panel_signal_details = new PanelSignalDetails(this.dmsapi);
+		this.panel_signal_details.on_breakpoint_set = (signal) => {
+			this.panel_breakpoints_signal.update();
+		};
+
+		this.panel_breakpoints_signal = new PanelBreakpointsSignal(this.dmsapi);
+		this.panel_datassette = new PanelDatassette(this.dmsapi);
+		this.panel_disk2031 = new PanelDisk2031(this.dmsapi);
+		this.panel_keyboard = new PanelKeyboard(this.dmsapi);
+	}
+
+	ui_close_panels() {
+		this.panel_screen.close();
+		this.panel_clock.close();
+		this.panel_cpu.close();
+
+		this.panel_signal_details.close();
+
+		this.panel_breakpoints_signal.close();
+		this.panel_datassette.close();
+		this.panel_disk2031.close();
+		this.panel_keyboard.close();
+	}
+
 	ui_setup_menubar() {
 		$('#btnStepInstruction').on('click', () => { this.ui_cmd_step_instruction(); });
 		$('#btnStepClock').on('click', () => { this.ui_cmd_step_clock(); });
+
+		$('#cmbMachine').on('change', () => {
+			const type = $('#cmbMachine').children('option:selected').val();
+			this.switch_machine(type);
+		});
 
 		$('#cmbStepClock').on('change', () => {
 			const signal_name =	$('#cmbStepClock').children('option:selected').val();

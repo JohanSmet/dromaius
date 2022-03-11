@@ -52,7 +52,47 @@ public:
 	DmsApi() = default;
 
 	// device control
-	void launch_commodore_pet();
+	void launch_commodore_pet(bool lite) {
+		// create pet
+		if (!lite) {
+			pet_device = dev_commodore_pet_create();
+		} else {
+			pet_device = dev_commodore_pet_lite_create();
+		}
+		assert(pet_device);
+
+		// create dromaius context
+		dms_ctx = dms_create_context();
+		assert(dms_ctx);
+		dms_set_device(dms_ctx, reinterpret_cast<Device *>(pet_device));
+
+		// default clock to step
+		step_clock = pet_device->signals[SIG_P2001N_CLK1];
+
+		// launch background thread
+		#ifndef DMS_NO_THREADING
+			dms_start_execution(dms_ctx);
+		#endif // DMS_NO_THREADING
+	}
+
+	void stop_emulation() {
+		// stop background thread
+		#ifndef DMS_NO_THREADING
+			dms_stop_execution(dms_ctx);
+		#endif
+
+		// destroy context
+		if (dms_ctx) {
+			dms_release_context(dms_ctx);
+			dms_ctx = nullptr;
+		}
+
+		// destroy device
+		if (pet_device) {
+			pet_device->destroy(pet_device);
+			pet_device = nullptr;
+		}
+	}
 
 	// dromaius context
 	bool context_execute() {
@@ -211,8 +251,8 @@ public:
 	// data access
 	val display_data() const {
 		assert(pet_device);
-		return val(typed_memory_view(pet_device->crt->display->width * pet_device->crt->display->height * 4,
-									 reinterpret_cast<uint8_t *> (pet_device->crt->display->frame)));
+		return val(typed_memory_view(pet_device->screen->width * pet_device->screen->height * 4,
+									 reinterpret_cast<uint8_t *> (pet_device->screen->frame)));
 	}
 
 	val signal_data() {
@@ -262,7 +302,7 @@ public:
 	// hardware info
 	DisplayInfo display_info() {
 		assert(pet_device);
-		return DisplayInfo{pet_device->crt->display->width, pet_device->crt->display->height};
+		return DisplayInfo{pet_device->screen->width, pet_device->screen->height};
 	}
 
 	SignalInfo signal_info() {
@@ -316,30 +356,12 @@ public:
 	}
 
 private:
-	DmsContext *		dms_ctx;
-	DevCommodorePet *	pet_device;
+	DmsContext *		dms_ctx = nullptr;
+	DevCommodorePet *	pet_device = nullptr;
 	Signal				step_clock;
 	std::vector<uint8_t>	signal_data_buffer;
 };
 
-void DmsApi::launch_commodore_pet() {
-	// create pet
-	pet_device = dev_commodore_pet_create();
-	assert(pet_device);
-
-	// create dromaius context
-	dms_ctx = dms_create_context();
-	assert(dms_ctx);
-	dms_set_device(dms_ctx, reinterpret_cast<Device *>(pet_device));
-
-	// default clock to step
-	step_clock = pet_device->signals[SIG_P2001N_CLK1];
-
-	// launch background thread
-#ifndef DMS_NO_THREADING
-	dms_start_execution(dms_ctx);
-#endif // DMS_NO_THREADING
-}
 
 // binding code
 EMSCRIPTEN_BINDINGS(DmsApiBindings) {
@@ -389,6 +411,7 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 	class_<DmsApi>("DmsApi")
 		.constructor()
 		.function("launch_commodore_pet", &DmsApi::launch_commodore_pet)
+		.function("stop_emulation", &DmsApi::stop_emulation)
 		.function("context_execute", &DmsApi::context_execute)
 		.function("context_select_step_clock", &DmsApi::context_select_step_clock)
 		.function("context_single_step", &DmsApi::context_single_step)
