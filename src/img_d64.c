@@ -44,6 +44,10 @@ static void d64prv_parse_directory_entries(DiskImageD64 *d64) {
 	uint8_t current_track = D64_DIRECTORY_TRACK;
 	uint8_t current_sector = 1;
 
+	if (d64->dir_entries) {
+		stbds_header(d64->dir_entries)->length = 0;
+	}
+
 	while (current_track != 0 && current_sector != 0) {
 
 		// get a pointer to the first directory entry in the sector
