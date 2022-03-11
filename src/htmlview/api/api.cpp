@@ -39,7 +39,8 @@ public:
 	};
 
 	struct ClockInfo {
-		int32_t current_tick;
+		uint32_t current_tick_low;
+		uint32_t current_tick_high;
 		double time_elapsed_ns;
 	};
 
@@ -350,7 +351,8 @@ public:
 
 	ClockInfo clock_info() {
 		return (ClockInfo) {
-			static_cast<int32_t>(pet_device->simulator->current_tick),		// fixme
+			static_cast<uint32_t>(pet_device->simulator->current_tick & 0xffffffff),
+			static_cast<uint32_t>((pet_device->simulator->current_tick >> 32) & 0xffffffff),
 			pet_device->simulator->current_tick * pet_device->simulator->tick_duration_ps / 1000.0
 		};
 	}
@@ -399,7 +401,8 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		;
 
 	value_object<DmsApi::ClockInfo>("DmsApi__ClockInfo")
-		.field("current_tick", &DmsApi::ClockInfo::current_tick)
+		.field("current_tick_low", &DmsApi::ClockInfo::current_tick_low)
+		.field("current_tick_high", &DmsApi::ClockInfo::current_tick_high)
 		.field("time_elapsed_ns", &DmsApi::ClockInfo::time_elapsed_ns)
 		;
 

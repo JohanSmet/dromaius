@@ -32,7 +32,8 @@ export class PanelClock extends Panel {
 
 	update(clock_info) {
 
-		$('#clock_current_tick').text(clock_info.current_tick);
+		$('#clock_current_tick').text((clock_info.current_tick_high << 32) + clock_info.current_tick_low);
+		//$('#clock_current_tick').text(clock_info.current_tick_low);
 
 		if (clock_info.time_elapsed_ns > 1000000) {
 			$('#clock_elapsed').text((clock_info.time_elapsed_ns / 1000000).toFixed(6) + ' ms');

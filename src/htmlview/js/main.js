@@ -58,7 +58,8 @@ export class MainUI {
 
 		// start ui refresh timer
 		this.refresh_timer = 0
-		this.last_simulation_tick = 0;
+		this.last_simulation_tick_low = 0;
+		this.last_simulation_tick_high = 0;
 		this.activate_refresh_timer();
 	}
 
@@ -122,11 +123,13 @@ export class MainUI {
 		var clock_info = this.dmsapi.clock_info();
 		this.panel_clock.update(clock_info);
 
-		if (clock_info.current_tick == this.last_simulation_tick) {
+		if (clock_info.current_tick_low == this.last_simulation_tick_low &&
+		    clock_info.current_tick_high == this.last_simulation_tick_high) {
 			this.deactivate_refresh_timer();
 		}
 
-		this.last_simulation_tick = clock_info.current_tick;
+		this.last_simulation_tick_low = clock_info.current_tick_low;
+		this.last_simulation_tick_high = clock_info.current_tick_high;
 	}
 
 	setup_signal_css_variables() {
