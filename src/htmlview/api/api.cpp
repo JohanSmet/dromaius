@@ -192,6 +192,16 @@ public:
 		return result;
 	}
 
+	int32_t keyboard_num_keys_down() const {
+		assert(pet_device);
+		return static_cast<int32_t>(input_keypad_keys_down_count(pet_device->keypad));
+	}
+
+	void keyboard_set_dwell_time(int32_t key_dwell_ms) const {
+		assert(pet_device);
+		input_keypad_set_dwell_time_ms(pet_device->keypad, key_dwell_ms);
+	}
+
 	// datassette control
 	void datassette_load_tap(std::string tap_data) {
 		perif_datassette_load_tap_from_memory(
@@ -428,6 +438,8 @@ EMSCRIPTEN_BINDINGS(DmsApiBindings) {
 		.function("keyboard_num_columns", &DmsApi::keyboard_num_columns)
 		.function("keyboard_key_pressed", &DmsApi::keyboard_key_pressed)
 		.function("keyboard_keys_down", &DmsApi::keyboard_keys_down)
+		.function("keyboard_num_keys_down", &DmsApi::keyboard_num_keys_down)
+		.function("keyboard_set_dwell_time", &DmsApi::keyboard_set_dwell_time)
 		.function("datassette_load_tap", &DmsApi::datassette_load_tap)
 		.function("datassette_status", &DmsApi::datassette_status)
 		.function("datassette_record", &DmsApi::datassette_record)
