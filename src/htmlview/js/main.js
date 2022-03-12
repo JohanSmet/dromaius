@@ -52,6 +52,17 @@ export class MainUI {
 		// UI - circuit viewport
 		this.circuit_view = new CircuitView($('div#right_column'), lite);
 
+		// UI - clock select
+		$('#cmbStepClock').empty();
+
+		$('#cmbStepClock').append($('<option/>').attr('value', 'CLK1').text('CLK1'));
+		if (!lite) {
+			$('#cmbStepClock')
+				.append($('<option/>').attr('value', 'CLK8').text('CLK8'))
+				.append($('<option/>').attr('value', 'CLK16').text('CLK16'))
+			;
+		}
+
 		// UI - signal hovering
 		this.hovered_signal = '';
 		this.ui_setup_signal_hovering()
