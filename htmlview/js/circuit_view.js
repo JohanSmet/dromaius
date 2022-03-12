@@ -23,17 +23,19 @@ export class CircuitView {
 	svg_pan_origin = null;
 	svg_pan_transform = null;
 
-	constructor(container) {
+	constructor(container, lite) {
 		var tabbar = $('<div/>').attr('class', 'tab');
 		container.append(tabbar);
 
+		this.svg_load_count = (lite) ? 3 : 0;
+
 		for (const sheet in SCHEMATIC_SHEETS) {
-			this.add_sheet(container, tabbar, SCHEMATIC_SHEETS[sheet].page, SCHEMATIC_SHEETS[sheet].title);
+			this.add_sheet(container, tabbar, SCHEMATIC_SHEETS[sheet].page, SCHEMATIC_SHEETS[sheet].title, lite);
 		}
 	}
 
 	// private functions
-	add_sheet(container, tabbar, sheet, title) {
+	add_sheet(container, tabbar, sheet, title, lite) {
 		var name = 'sheet_' + String(sheet).padStart(2, '0');
 
 		var sheet_div = $('<div/>')
@@ -42,7 +44,17 @@ export class CircuitView {
 			.appendTo(container)
 			;
 
-		sheet_div.load(BASE_PATH + name + '.svg', () => this.on_svg_loaded(name));
+		if (lite && sheet == 6) {
+			sheet_div.append($('<span/>')
+								.addClass('info')
+								.text("The Master Timing components are not emulated by the Pet Lite machine emulator for performance reasons."));
+		} else if (lite && sheet >= 7) {
+			sheet_div.append($('<span/>')
+								.addClass('info')
+								.text("The Display Logic components are not emulated by the Pet Lite machine emulator for performance reasons."));
+		} else {
+			sheet_div.load(BASE_PATH + name + '.svg', () => this.on_svg_loaded(name));
+		}
 
 		tabbar.append($('<button/>')
 						.attr('class', 'tab_button')

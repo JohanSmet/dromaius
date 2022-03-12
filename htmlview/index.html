@@ -29,7 +29,11 @@
 	<div id="main" class="hidden">
 		<div id="header">
 			<span>
-				Commodore PET 2001/N
+				Machine:
+				<select id="cmbMachine" autocomplete=off>
+					<option value="Pet" selected="selected">Commodore PET 2001/N</option>
+					<option value="PetLite">Commodore PET 2001/N (Lite)</option>
+				</select>
 			</span>
 			<span>
 				&nbsp;Commands:
@@ -46,6 +50,7 @@
 			</span>
 			<span style="margin-left: 10em">
 				<button type="button" id="btnAboutOpen">About</button>
+				<button type="button" id="btnHelpOpen">Help</button>
 			</span>
 		</div>
 		<div id="content">
@@ -61,8 +66,34 @@
 			<p>Prototype of a chip-level, cycle-accurate, simulation of a Commodore PET 2001-N using the
 			<a href="https://github.com/JohanSmet/dromaius">Dromaius emulator</a>.</p>
 
-			<p>Copyright (c) 2020 Johan Smet</p>
-			<input type="button" id="btnAboutClose" value="Close">
+			<p>Copyright (c) 2020 - 2022 Johan Smet</p>
+			<input type="button" id="btnAboutClose" class="button" value="Close">
+		</div>
+
+		<div id="help" class="hidden">
+			<h1>PET 2001-N Emulator - Schematic View - Help</h1>
+
+			<h2>Emulated Machine</h2>
+			<p>The Dromaius emulator can either emulate the entire Commodore PET 2001-N or a 'light'-version which substitutes some elements of the computer with a higher level emulation in order to improve runtime speed. You can select the type of machine in the top-left corner. The Lite machine replaces the display generation circuitry and does not simulate the DRAM refresh circuitry.</p>
+			<p>This should not have an impact on the emulation of the other circuitss, but improves runtime performance drastically.</p>
+
+			<h2>PET Keyboard</h2>
+			<p>The provided keyboard does not capture keyboard input by default because the focus of the application is on the interaction with the circuit. You can type by clicking on the buttons with the mouse or by inputting a text string in the "Text input"-field. When you press the "Enter" key, each character of this string is "typed" on the keyboard. This allows for a decent experience when the machine is running at less the real-time speed.</p>
+
+			<h2>Emulator Commands</h2>
+			<ul>
+				<li>Step Clock: run the machine until a change occurs in the specified clock-signal.</li>
+				<li>Step Instruction: run the machine until the beginning of the next instruction.</li>
+				<li>Run: run the machine continuously.</li>
+				<li>Pause: pause execution of the machine.</li>
+				<li>Reset: soft-reset the machine by asserting the reset-signal.</li>
+			</ul>
+
+			<h2>Working with Signals</h2>
+			<p>When you hover the mouse over a signal trace in the schematic, it turns a blue color. By left-clicking on it, you can see some information about the signal in the "Signal"-panel.</p>
+			<p>You can set breakpoints on signals to stop execution of the machine when the value of the signal changes. You can do by selecting the signal and using the "Set breakpoint"-button in the "Signal"-panel or directly in the "Signal Breakpoints"-panel.</p>
+
+			<input type="button" id="btnHelpClose" class="button" value="Close">
 		</div>
 	</div>
 

@@ -29,4 +29,9 @@ export class Panel {
 			}
 		});
 	}
+
+	close() {
+		this.panel.close();
+		this.panel = null;
+	}
 }

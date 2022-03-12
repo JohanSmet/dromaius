@@ -138,8 +138,8 @@
     <text xml:space="preserve" x="392.07013" y="140.21202" id="text_51" class="text_0"><tspan id="tspan_51" x="392.07013" y="140.21202" class="tspan_0">,</tspan></text>
     <text xml:space="preserve" x="432.57013" y="140.47569" id="text_52" class="text_0"><tspan id="tspan_52" x="432.57013" y="140.47569" class="tspan_0">;</tspan></text>
     <text xml:space="preserve" x="470.71661" y="140.21202" id="text_53" class="text_0"><tspan id="tspan_53" x="470.71661" y="140.21202" class="tspan_0">?</tspan></text>
-    <text xml:space="preserve" x="643.07013" y="16.565434" id="text_54" class="text_3"><tspan id="tspan_54" x="643.07013" y="16.565434" class="tspan_2">RUN</tspan></text>
-    <text id="text_55" y="33.157719" x="639.6214" xml:space="preserve" class="text_4"><tspan y="33.157719" x="639.6214" id="tspan_55" class="tspan_2">STOP</tspan></text>
+    <text xml:space="preserve" x="643.07013" y="16.565434" id="text_54" class="text_3"><tspan id="tspan_54" x="643.07013" y="16.565434" class="tspan_2">CLR</tspan></text>
+    <text id="text_55" y="32.557434" x="639.17889" xml:space="preserve" class="text_5"><tspan y="32.557434" x="639.17889" id="tspan_55" class="tspan_4">HOME</tspan></text>
     <text id="text_56" y="25.514942" x="679.3421" xml:space="preserve" class="text_3"><tspan y="25.514942" x="679.3421" id="tspan_56" class="tspan_2">CRSR </tspan></text>
     <g transform="translate(-20.602205,-193.70625)" id="g" class="g_0">
       <path d="m 712.08129,201.9794 7.29177,-4.20991 7.33756,4.23634" id="path_2" class="path_3"/>
@@ -181,7 +181,7 @@
     <text id="text_74" y="179.33015" x="735.68536" xml:space="preserve" class="text_0"><tspan y="179.33015" x="735.68536" id="tspan_74" class="tspan_0">-</tspan></text>
     <text id="text_75" y="180.1114" x="771.41486" xml:space="preserve" class="text_0"><tspan y="180.1114" x="771.41486" id="tspan_75" class="tspan_0">=</tspan></text>
   </g>
-<style>.path_0 {fill:#253137;stroke:#ffffff;stroke-width:0.3375;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;fill-opacity:1}
+<style>.path_0 {fill:#253137;fill-opacity:1;stroke:#ffffff;stroke-width:0.3375;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1}
 .tspan_0 {pointer-events:none;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';fill:#ffffff;stroke-width:0.75}
 .text_0 {font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:20px;line-height:1.25;font-family:'Nimbus Roman';-inkscape-font-specification:'Nimbus Roman, ';fill:#ffffff;stroke-width:0.75}
 .path_1 {fill:#ffffff;stroke:#ffffff;stroke-width:1.70079;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#TriangleOutM)}
@@ -193,6 +193,8 @@
 .text_3 {font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14px;line-height:1.25;font-family:'Nimbus Roman';-inkscape-font-specification:'Nimbus Roman, ';fill:#ffffff;stroke-width:0.75}
 .text_4 {font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';fill:#ffffff;stroke-width:0.75}
 .tspan_3 {pointer-events:none;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:14px;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';text-align:center;text-anchor:middle;fill:#ffffff;stroke-width:0.75}
+.tspan_4 {pointer-events:none;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.7px;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';fill:#ffffff;stroke-width:0.75}
+.text_5 {font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:12.7px;line-height:1.25;font-family:'Bitstream Vera Sans';-inkscape-font-specification:'Bitstream Vera Sans';fill:#ffffff;stroke-width:0.75}
 .path_3 {fill:none;stroke:#ffffff;stroke-width:1.13386;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .path_4 {fill:none;stroke:#ffffff;stroke-width:1.13386;stroke-linecap:square;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1}
 .g_0 {fill:none;stroke:#ffffff}</style></svg>
