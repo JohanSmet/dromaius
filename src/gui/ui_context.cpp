@@ -150,11 +150,14 @@ void UIContext::create_commodore_pet(bool lite) {
 	dms_set_device(dms_ctx, device);
 
 	// create UI panels
+	auto lite_signals = {(StepSignal) {device_pet->signals[SIG_P2001N_CLK1], true, true}};
+	auto all_signals  = {(StepSignal) {device_pet->signals[SIG_P2001N_CLK1], true, true},
+									  {device_pet->signals[SIG_P2001N_CLK8], true, true},
+									  {device_pet->signals[SIG_P2001N_CLK16], true, true}};
+
 	panel_add(panel_control_create(this, {0, 0}, device_pet->oscillator_y1,
 								  {device_pet->signals[SIG_P2001N_SYNC], true, false},
-								  {{device_pet->signals[SIG_P2001N_CLK1], true, true},
-								   {device_pet->signals[SIG_P2001N_CLK8], true, true},
-								   {device_pet->signals[SIG_P2001N_CLK16], true, true}}
+								  (lite) ? lite_signals : all_signals
 	));
 
 	panel_add(panel_dev_commodore_pet_create(this, {0, 240}, device_pet));
