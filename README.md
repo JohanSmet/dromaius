@@ -27,9 +27,9 @@ Cycle-accurate in this case means that every opcode takes the same amount of clo
 The 6502 passes the functional tests for 6502/65C02 type processors by Klaus Dorman ([GitHub repo](https://github.com/Klaus2m5/6502_65C02_functional_tests)). With exception of the BRK-instruction because the current test setup doesn't allow the interrupt vectors to be changed.
 
 ### Commodore PET 2001N
-Dromaius emulates the digital logic of all the ICs in the PET. This makes for a signal accurate, baring bugs, albeit rather slow emulation of the pet. The implementation is almost complete, only lacking the IEEE-488 interface.
+Dromaius emulates the digital logic of all the ICs in the PET. This makes for a signal accurate, barring bugs, albeit rather slow emulation of the pet.
 
-The emulator boots up to the basic prompt, which should be fully functional. Programs can be loaded from an emulated datassette or injected directly into memory. The fully emulated PET runs at about 1/10th of the speed of a real PET on my aging quad core computer. A lite version that drops emulation of the DRAM refresh circuitry and simplifies the display section is also implemented. This runs about six times faster allowing for more testability.
+The emulator boots up to the basic prompt, which should be fully functional. Programs can be loaded from an emulated datassette or emulated floppy disk. The fully emulated PET runs at about 1/10th of the speed of a real PET on my aging quad core computer. A lite version that drops emulation of the DRAM refresh circuitry and simplifies the display section is also implemented. This runs at about full speed (again on my ageing computer) allowing for better testability of the other components.
 
 ## More information
 - [Building](docs/building.md) Dromaius from source.
