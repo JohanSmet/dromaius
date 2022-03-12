@@ -25,7 +25,7 @@ export class PanelKeyboard extends Panel {
 
 		$('<span/>')
 			.addClass('info')
-			.text('ASCII input: ')
+			.text('Text input: ')
 			.appendTo(this.panel_content)
 		;
 

@@ -203,10 +203,26 @@ export class MainUI {
 
 		$("#btnAboutOpen").on("click", function (event) {
 			$("#about").show();
+			$("#btnAboutOpen").attr("disabled", "");
+			$("#btnHelpOpen").attr("disabled", "");
 		});
 
 		$("#btnAboutClose").on("click", function (event) {
 			$("#about").hide();
+			$("#btnAboutOpen").removeAttr("disabled");
+			$("#btnHelpOpen").removeAttr("disabled");
+		});
+
+		$("#btnHelpOpen").on("click", function (event) {
+			$("#help").show();
+			$("#btnAboutOpen").attr("disabled", "");
+			$("#btnHelpOpen").attr("disabled", "");
+		});
+
+		$("#btnHelpClose").on("click", function (event) {
+			$("#help").hide();
+			$("#btnAboutOpen").removeAttr("disabled");
+			$("#btnHelpOpen").removeAttr("disabled");
 		});
 	}
 

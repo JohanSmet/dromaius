@@ -238,7 +238,7 @@ path.pressed {
 	fill: darkblue;
 }
 
-div#about {
+div#about,div#help {
 	z-index: 20;
 	position: fixed;
 	border: 2px black solid;
@@ -249,6 +249,14 @@ div#about {
 	padding: 20px;
 	font-family: sans-serif;
 	background-color: white;
+}
+
+div#help p,ul {
+	text-align: left;
+}
+
+div#about .button, div#help .button {
+	width: 100%;
 }
 
 /* tabs */
