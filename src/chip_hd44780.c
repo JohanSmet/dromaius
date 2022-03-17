@@ -79,7 +79,7 @@ static const uint8_t rom_a00[256][16] = {
 	#include "chip_hd44780_a00.inc"
 };
 
-static const int64_t CURSOR_BLINK_INTERVAL_PS = 409600 * 1000;	// 409.6ms
+static const int64_t CURSOR_BLINK_INTERVAL_PS = US_TO_PS(409600ll);	// 409.6ms
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -489,7 +489,7 @@ static void chip_hd44780_process(ChipHd44780 *lcd) {
 
 	// cursor blink: datasheet states the cursor blinks at a speed of 409.6 ms intervals when the input frequency is standard
 	if (PRIVATE(lcd)->cursor_enabled && PRIVATE(lcd)->cursor_blink &&
-		PRIVATE(lcd)->cursor_blink_time >= lcd->simulator->current_tick) {
+		PRIVATE(lcd)->cursor_blink_time <= lcd->simulator->current_tick) {
 
 		PRIVATE(lcd)->cursor_block = !PRIVATE(lcd)->cursor_block;
 		PRIVATE(lcd)->refresh_screen = true;
