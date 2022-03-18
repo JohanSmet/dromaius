@@ -94,6 +94,7 @@ public:
 						ui_context->panel_add(panel_signals_create(ui_context, {340, 310}));
 					});
 
+		diag_mode = device->diag_mode;
 	}
 
 	void display() override {
@@ -108,6 +109,12 @@ public:
 			#endif // DMS_SIGNAL_TRACING
 
 			pet_hardware.display();
+
+			if (ImGui::CollapsingHeader("Advanced")) {
+				if (ImGui::Checkbox("Assert Diagnostice Sense Line", &diag_mode)) {
+					dev_commodore_pet_diag_mode(device, diag_mode);
+				}
+			}
 		}
 
 		ImGui::End();
@@ -182,6 +189,7 @@ private:
 	DevCommodorePet *device;
 
 	UITree			pet_hardware;
+	bool			diag_mode = false;
 
 	constexpr static const char *title = "Device - Commodore PET 2001N";
 };

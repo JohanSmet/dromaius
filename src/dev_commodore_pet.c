@@ -122,6 +122,7 @@ enum ChipGlueLogic01SignalAssignment {
 	CHIP_GLUE_01_BPHI2,
 	CHIP_GLUE_01_CPHI2,
 	CHIP_GLUE_01_CS1,
+	CHIP_GLUE_01_DIAG,
 
 	CHIP_GLUE_01_PIN_COUNT
 };
@@ -164,6 +165,7 @@ static ChipGlueLogic *glue_logic_create_01(DevCommodorePet *device) {
 	GLUE_PIN(BPHI2,			CHIP_PIN_OUTPUT);
 	GLUE_PIN(CPHI2,			CHIP_PIN_OUTPUT);
 	GLUE_PIN(CS1,			CHIP_PIN_OUTPUT);
+	GLUE_PIN(DIAG,			CHIP_PIN_OUTPUT);
 
 	return chip;
 }
@@ -180,6 +182,11 @@ static void glue_logic_process_01(ChipGlueLogic *chip) {
 
 	SIGNAL_WRITE(RESET_BTN_B, !chip->device->in_reset);
 	chip->device->in_reset = false;
+
+	if (chip->device->diag_toggled) {
+		SIGNAL_WRITE(DIAG, !chip->device->diag_mode);
+		chip->device->diag_toggled = false;
+	}
 
 	// A3 (1, 2)
 	bool reset_b = SIGNAL_READ(RESET_B);
@@ -2189,6 +2196,9 @@ DevCommodorePet *create_pet_device(bool lite) {
 
 	device->simulator = simulator_create(6250);		// 6.25 ns - 160 Mhz
 
+	device->diag_mode = false;
+	device->diag_toggled = false;
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//
 	// signals
@@ -2823,6 +2833,15 @@ size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, SignalBreakpoi
 
 	*irq_signals = pet_irq;
 	return sizeof(pet_irq) / sizeof(pet_irq[0]);
+}
+
+void dev_commodore_pet_diag_mode(DevCommodorePet *device, bool in_diag) {
+	assert(device);
+
+	if (in_diag != device->diag_mode) {
+		device->diag_mode = in_diag;
+		device->diag_toggled = true;
+	}
 }
 
 bool dev_commodore_pet_load_prg(DevCommodorePet* device, const char* filename, bool use_prg_address) {
