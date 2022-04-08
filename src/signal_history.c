@@ -27,7 +27,7 @@ typedef struct SignalHistory_private {
 	mutex_t			mtx_work;
 	cond_t			cnd_work;
 
-	mutex_t			mtx_ui_access;
+	atomic_flag		lock_ui_access;
 } SignalHistory_private;
 
 #define PRIVATE(cpu)	((SignalHistory_private *) (cpu))
@@ -53,22 +53,37 @@ static void prepare_diagram_data(SignalHistoryDiagramData *data) {
 
 static int signal_history_processing_thread(SignalHistory *history) {
 
+	int32_t no_work_count = 0;
+
 	while (!PRIVATE(history)->thread_stop_request) {
-
-		mutex_lock(&PRIVATE(history)->mtx_work);
-
-		// wait for work
-		while (!PRIVATE(history)->thread_stop_request && PRIVATE(history)->first_out == atomic_load(&PRIVATE(history)->next_in)) {
-			cond_wait(&PRIVATE(history)->cnd_work, &PRIVATE(history)->mtx_work);
+		if (signal_history_process_incoming_single(history)) {
+			no_work_count = 0;
+		} else {
+			no_work_count += 1;
 		}
 
-		// execute all work
-		while (signal_history_process_incoming_single(history));
+		if (no_work_count > 1000) {
+			// to many sequential iterations without doing work, sleep
+			mutex_lock(&PRIVATE(history)->mtx_work);
 
-		mutex_unlock(&PRIVATE(history)->mtx_work);
+			// wait for work
+			while (!PRIVATE(history)->thread_stop_request && PRIVATE(history)->first_out == atomic_load(&PRIVATE(history)->next_in)) {
+				cond_wait(&PRIVATE(history)->cnd_work, &PRIVATE(history)->mtx_work);
+			}
+
+			mutex_unlock(&PRIVATE(history)->mtx_work);
+		}
 	}
 
 	return 0;
+}
+
+static inline void ui_acquire_lock(SignalHistory *history) {
+	while (atomic_flag_test_and_set_explicit(&PRIVATE(history)->lock_ui_access, memory_order_acquire));
+}
+
+static inline void ui_release_lock(SignalHistory *history) {
+	atomic_flag_clear_explicit(&PRIVATE(history)->lock_ui_access, memory_order_release);
 }
 
 //
@@ -100,7 +115,6 @@ SignalHistory *signal_history_create(size_t incoming_count, size_t signal_count,
 	// private variables
 	mutex_init_plain(&priv->mtx_work);
 	cond_init(&priv->cnd_work);
-	mutex_init_plain(&priv->mtx_ui_access);
 
 	return history;
 }
@@ -146,8 +160,6 @@ void signal_history_process_stop(SignalHistory *history) {
 	}
 }
 
-#include <stdio.h>
-
 bool signal_history_add(SignalHistory *history, int64_t time, uint64_t *signals_value, uint64_t *signals_changed, bool block) {
 	// runs on the simulator thread
 	assert(history);
@@ -183,7 +195,7 @@ void signal_history_diagram_data(struct SignalHistory *history, SignalHistoryDia
 	// clear any data that's already in there
 	prepare_diagram_data(diagram_data);
 
-	mutex_lock(&PRIVATE(history)->mtx_ui_access);
+	ui_acquire_lock(history);
 
 	// iterate signals
 	for (size_t idx = 0; idx < arrlenu(diagram_data->signals); ++idx) {
@@ -222,7 +234,7 @@ void signal_history_diagram_data(struct SignalHistory *history, SignalHistoryDia
 
 	arrpush(diagram_data->signal_start_offsets, arrlenu(diagram_data->samples_time));
 
-	mutex_unlock(&PRIVATE(history)->mtx_ui_access);
+	ui_release_lock(history);
 }
 
 void signal_history_diagram_release(SignalHistoryDiagramData *diagram_data) {
@@ -259,7 +271,7 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 	}
 
 	// don't let UI thread access data while it's being changed
-	mutex_lock(&PRIVATE(history)->mtx_ui_access);
+	ui_acquire_lock(history);
 
 	HistoryIncoming *in = &history->incoming[PRIVATE(history)->first_out];
 
@@ -273,7 +285,7 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 		}
 	}
 
+	ui_release_lock(history);
 	atomic_store(&PRIVATE(history)->first_out, next_index(history, PRIVATE(history)->first_out));
-	mutex_unlock(&PRIVATE(history)->mtx_ui_access);
 	return true;
 }
