@@ -278,7 +278,7 @@ endif()
 if (EMSCRIPTEN)
 	if (ENABLE_THREADING)
 		target_compile_options(${IMGUI_TARGET} PRIVATE -sUSE_PTHREADS=1)
-
+		target_compile_options(${LIB_TARGET} PRIVATE -sUSE_PTHREADS=1)
 		target_compile_options(${GUI_TARGET} PRIVATE -sUSE_PTHREADS=1)
 
 		target_link_libraries(${GUI_TARGET} PRIVATE
@@ -404,6 +404,7 @@ target_sources(${TEST_TARGET}
 )
 target_include_directories(${TEST_TARGET} PRIVATE libs src)
 target_link_libraries(${TEST_TARGET} PRIVATE ${LIB_TARGET})
+target_link_libraries(${TEST_TARGET} PRIVATE glfw)
 
 add_test(NAME unittests COMMAND ${TEST_TARGET} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
