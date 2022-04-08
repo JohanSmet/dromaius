@@ -8,6 +8,7 @@
 
 #include "dev_commodore_pet.h"
 #include "context.h"
+#include "signal_history.h"
 
 namespace {
 
@@ -28,7 +29,17 @@ inline double chrono_report() {
 int main(int argc, char *argv[]) {
 
 	// basic (read: stupid) command line argument handling
-	bool arg_lite = (argc == 2 && !strcmp(argv[1], "--lite"));
+	bool arg_lite = false;
+	bool arg_history = false;
+
+	for (int i = 1; i < argc; ++i) {
+		if (!strcmp(argv[i], "--lite")) {
+			arg_lite = true;
+		}
+		if (!strcmp(argv[i], "--history")) {
+			arg_history = true;
+		}
+	}
 
     std::printf("--- setting up Dromaius (%s PET)\n", (arg_lite) ? "lite" : "full");
     chrono_reset();
@@ -40,6 +51,11 @@ int main(int argc, char *argv[]) {
 	auto dms_ctx = dms_create_context();
 	assert(dms_ctx);
 	dms_set_device(dms_ctx, reinterpret_cast<Device *>(pet_device));
+
+	if (arg_history) {
+		std::printf("    enabling signal history storage\n");
+		signal_history_process_start(pet_device->simulator->signal_history);
+	}
 
     std::printf("+++ done (%f seconds)\n", chrono_report());
 
