@@ -24,6 +24,7 @@ extern MunitTest ram_8d16a_tests[];
 extern MunitTest rom_8d16a_tests[];
 extern MunitTest utils_tests[];
 extern MunitTest filt_6502_asm_tests[];
+extern MunitTest signal_history_tests[];
 
 static MunitSuite extern_suites[] = {
 	{	.prefix = "/signal",
@@ -142,6 +143,12 @@ static MunitSuite extern_suites[] = {
 	},
 	{	.prefix = "/filt_6502_asm",
 		.tests = filt_6502_asm_tests,
+		.suites = NULL,
+		.iterations = 1,
+		.options = MUNIT_SUITE_OPTION_NONE
+	},
+	{	.prefix = "/signal_history",
+		.tests = signal_history_tests,
 		.suites = NULL,
 		.iterations = 1,
 		.options = MUNIT_SUITE_OPTION_NONE

@@ -184,6 +184,8 @@ target_sources(${LIB_TARGET}
 		src/ram_8d_16a.h
 		src/rom_8d_16a.c
 		src/rom_8d_16a.h
+		src/signal_history.c
+		src/signal_history.h
 		src/signal_line.c
 		src/signal_line.h
 		src/signal_pool.c
@@ -402,6 +404,7 @@ target_sources(${TEST_TARGET}
 		src/test/test_ram_8d_16a.c
 		src/test/test_rom_8d_16a.c
 		src/test/test_signal_line.c
+		src/test/test_signal_history.c
 		src/test/test_simulator.c
 		src/test/test_utils.c
 		libs/munit/munit.c

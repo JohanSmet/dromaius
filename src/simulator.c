@@ -5,6 +5,7 @@
 #include "simulator.h"
 #include "chip.h"
 #include "signal_line.h"
+#include "signal_history.h"
 
 #if DMS_SIGNAL_TRACING
 #include "signal_dumptrace.h"
@@ -91,6 +92,11 @@ void simulator_destroy(Simulator *sim) {
 
 	arrfree(PRIVATE(sim)->chips);
 
+	if (sim->signal_history) {
+		signal_history_process_stop(sim->signal_history);
+		signal_history_destroy(sim->signal_history);
+	}
+
 	signal_pool_destroy(sim->signal_pool);
 	free(PRIVATE(sim));
 }
@@ -157,6 +163,8 @@ void simulator_device_complete(Simulator *sim) {
 			}
 		}
 	}
+
+	sim->signal_history = signal_history_create(32, sim->signal_pool->signals_count, 256);
 }
 
 void simulator_simulate_timestep(Simulator *sim) {
@@ -182,6 +190,10 @@ void simulator_simulate_timestep(Simulator *sim) {
 
 	// determine changed signals and dirty chips for next simulation step
 	PRIVATE(sim)->dirty_chips = signal_pool_cycle(sim->signal_pool);
+
+	if (sim->signal_history->capture_active) {
+		signal_history_add(sim->signal_history, sim->current_tick, sim->signal_pool->signals_value, sim->signal_pool->signals_changed, true);
+	}
 }
 
 uint64_t simulator_signal_writers(Simulator *sim, Signal signal) {

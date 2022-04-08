@@ -26,6 +26,9 @@ typedef struct Simulator {
 	// time keeping
 	int64_t			current_tick;
 	int64_t			tick_duration_ps;		// in pico-seconds
+
+	// signal history
+	struct SignalHistory *	signal_history;
 } Simulator;
 
 struct Chip;
