@@ -21,6 +21,7 @@
 #include "panel_input_pet.h"
 #include "panel_display_rgba.h"
 #include "panel_signals.h"
+#include "panel_logic_analyzer.h"
 #include "panel_datassette.h"
 #include "panel_disk_2031.h"
 
@@ -88,6 +89,10 @@ public:
 		cat_tools.add_leaf("Monitor")
 					.add_action("Open", [&]() {
 						ui_context->panel_add(panel_monitor_create(ui_context, {340, 310}));
+					});
+		cat_tools.add_leaf("Logic Analyzer")
+					.add_action("Open", [&]() {
+						ui_context->panel_add(panel_logic_analyzer_create(ui_context, {340, 310}));
 					});
 		cat_tools.add_leaf("Signal Debugger")
 					.add_action("Open", [&]() {
