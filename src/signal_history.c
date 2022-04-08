@@ -7,7 +7,17 @@
 #include "sys/threads.h"
 
 #include <stb/stb_ds.h>
+
+#ifdef DMS_GTKWAVE_EXPORT
+#include <gtkwave/lxt_write.h>
+#endif // DMS_GTKWAVE_EXPORT
+
 #include <stdatomic.h>
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// private types
+//
 
 typedef struct HistoryIncoming {
 	int64_t		time;
@@ -18,9 +28,11 @@ typedef struct HistoryIncoming {
 typedef struct SignalHistory_private {
 	SignalHistory	public;
 
+	// incoming queue control
 	atomic_uint		next_in;
 	atomic_uint		first_out;
 
+	// thread control
 	atomic_bool		thread_stop_request;
 	thread_t		thread;
 
@@ -28,9 +40,22 @@ typedef struct SignalHistory_private {
 	cond_t			cnd_work;
 
 	atomic_flag		lock_ui_access;
+
+	// gtkwave export
+	bool			gtkwave_enabled;
+	int64_t			timestep_duration_ps;
+
+	struct lt_trace	*	lxt;
+	struct lt_symbol ** lxt_symbols;
+
 } SignalHistory_private;
 
 #define PRIVATE(cpu)	((SignalHistory_private *) (cpu))
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// private functions
+//
 
 static inline unsigned int next_index(SignalHistory *history, unsigned int idx) {
 	return (idx + 1) % history->incoming_count;
@@ -86,11 +111,64 @@ static inline void ui_release_lock(SignalHistory *history) {
 	atomic_flag_clear_explicit(&PRIVATE(history)->lock_ui_access, memory_order_release);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// gtkwave export utility functions
+//
+
+#ifdef DMS_GTKWAVE_EXPORT
+
+static void gtkwave_lxt_open(SignalHistory *history, const char *filename) {
+
+	PRIVATE(history)->lxt = lt_init(filename);
+	assert(PRIVATE(history)->lxt);						// FIXME: decent error-handling
+
+	// map signals -> symbols
+	PRIVATE(history)->lxt_symbols = calloc(history->signal_count, sizeof(struct lt_symbol *));
+
+	// set dump timescale to picoseconds
+	lt_set_timescale(PRIVATE(history)->lxt, -12);
+}
+
+static void gtkwave_lxt_start(SignalHistory *history) {
+	ui_acquire_lock(history);
+	PRIVATE(history)->gtkwave_enabled = true;
+	ui_release_lock(history);
+}
+
+static void gtkwave_lxt_close(SignalHistory *history) {
+
+	ui_acquire_lock(history);
+	PRIVATE(history)->gtkwave_enabled = false;
+	ui_release_lock(history);
+
+	lt_close(PRIVATE(history)->lxt);
+	free(PRIVATE(history)->lxt_symbols);
+}
+
+static void gtkwave_enable_signal(SignalHistory *history, size_t signal_idx, const char *signal_name) {
+	PRIVATE(history)->lxt_symbols[signal_idx] = lt_symbol_add(PRIVATE(history)->lxt, signal_name, 0, 0, 0, LT_SYM_F_BITS);
+}
+
+
+static void gtkwave_mark_timestep(SignalHistory *history, int64_t time) {
+	lt_set_time64(PRIVATE(history)->lxt, (lxttime_t) (time * PRIVATE(history)->timestep_duration_ps));
+}
+
+static void gtkwave_trace_value(SignalHistory *history, size_t signal_idx, bool value) {
+	if (PRIVATE(history)->lxt_symbols[signal_idx]) {
+		lt_emit_value_int(PRIVATE(history)->lxt, PRIVATE(history)->lxt_symbols[signal_idx], 0, value);
+	}
+}
+
+#endif // DMS_GTKWAVE_EXPORT
+
+///////////////////////////////////////////////////////////////////////////////
 //
 // interface
 //
 
-SignalHistory *signal_history_create(size_t incoming_count, size_t signal_count, size_t sample_count) {
+SignalHistory *signal_history_create(size_t incoming_count, size_t signal_count, size_t sample_count, int64_t timestep_duration) {
 	SignalHistory_private *priv = (SignalHistory_private *) calloc(1, sizeof(SignalHistory_private));
 	SignalHistory *history = &priv->public;
 
@@ -111,6 +189,8 @@ SignalHistory *signal_history_create(size_t incoming_count, size_t signal_count,
 		history->signal_samples_head[si] = (size_t) -1;
 		history->signal_samples_tail[si] = (size_t) -1;
 	}
+
+	priv->timestep_duration_ps = timestep_duration;
 
 	// private variables
 	mutex_init_plain(&priv->mtx_work);
@@ -142,6 +222,12 @@ void signal_history_process_stop(SignalHistory *history) {
 	mutex_lock(&PRIVATE(history)->mtx_work);
 	PRIVATE(history)->thread_stop_request = true;
 	mutex_unlock(&PRIVATE(history)->mtx_work);
+
+#ifdef DMS_GTKWAVE_EXPORT
+	if (PRIVATE(history)->gtkwave_enabled) {
+		signal_history_gtkwave_disable(history);
+	}
+#endif // DMS_GTKWAVE_EXPORT
 
 	if (history->capture_active) {
 		cond_signal(&PRIVATE(history)->cnd_work);
@@ -259,6 +345,13 @@ void signal_history_store_data(SignalHistory *history, size_t signal, int64_t ti
 	if (history->signal_samples_head[signal] == history->signal_samples_tail[signal] || history->signal_samples_tail[signal] == (size_t) -1) {
 		history->signal_samples_tail[signal] = (history->signal_samples_tail[signal] + 1) % history->sample_count;
 	}
+
+	// gtkwave export
+#ifdef DMS_GTKWAVE_EXPORT
+	if (PRIVATE(history)->gtkwave_enabled) {
+		gtkwave_trace_value(history, signal, value);
+	}
+#endif // DMS_GTKWAVE_EXPORT
 }
 
 bool signal_history_process_incoming_single(SignalHistory *history) {
@@ -275,6 +368,12 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 
 	HistoryIncoming *in = &history->incoming[PRIVATE(history)->first_out];
 
+#ifdef DMS_GTKWAVE_EXPORT
+	if (PRIVATE(history)->gtkwave_enabled) {
+		gtkwave_mark_timestep(history, in->time);
+	}
+#endif // DMS_GTKWAVE_EXPORT
+
 	for (unsigned int blk = 0; blk < SIGNAL_BLOCKS; ++blk) {
 
 		for (uint64_t changed = in->signals_changed[blk]; changed; changed &= changed - 1) {
@@ -289,3 +388,24 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 	atomic_store(&PRIVATE(history)->first_out, next_index(history, PRIVATE(history)->first_out));
 	return true;
 }
+
+#ifdef DMS_GTKWAVE_EXPORT
+
+void signal_history_gtkwave_enable(SignalHistory *history, const char *filename, size_t count, Signal *signals, char **signal_names) {
+	assert(history);
+	gtkwave_lxt_open(history, filename);
+
+	for (size_t i = 0; i < count; ++i) {
+		size_t signal_idx = signal_array_subscript(signals[i]);
+		gtkwave_enable_signal(history, signal_idx, signal_names[signal_idx]);
+	}
+
+	gtkwave_lxt_start(history);
+}
+
+void signal_history_gtkwave_disable(SignalHistory *history) {
+	assert(history);
+	gtkwave_lxt_close(history);
+}
+
+#endif // DMS_GTKWAVE_EXPORT

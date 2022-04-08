@@ -34,17 +34,36 @@ public:
 
 			auto sim = ui_context->device->simulator;
 
-			// add new signal
+			// header
+
+			// >> enable history keeping
 			if (ImGui::Checkbox("Enable", &enable_history)) {
 				if (enable_history) {
-					signal_history_process_start(ui_context->device->simulator->signal_history);
+					signal_history_process_start(sim->signal_history);
 				} else {
-					signal_history_process_stop(ui_context->device->simulator->signal_history);
+					signal_history_process_stop(sim->signal_history);
+					enable_gtkwave = false;
 				}
 			}
 
 			ImGui::SameLine();
 
+			// >> enable GtkWave output
+#ifdef DMS_GTKWAVE_EXPORT
+			if (ImGui::Checkbox("GtkWave export", &enable_gtkwave)) {
+				if (enable_gtkwave) {
+					signal_history_gtkwave_enable(	sim->signal_history, "dromaius.lxt",
+													arrlenu(diagram_data.signals),
+													diagram_data.signals,
+													sim->signal_pool->signals_name);
+				} else {
+					signal_history_gtkwave_disable(sim->signal_history);
+				}
+			}
+#endif // DMS_GTKWAVE_EXPORT
+
+
+			// >> add new signal
 			if (ImGui::IsWindowFocused() && !ImGui::IsAnyItemActive() && !ImGui::IsMouseClicked(0)) {
 				ImGui::SetKeyboardFocusHere(0);
 			}
@@ -61,6 +80,7 @@ public:
 			}
 			ImGui::EndDisabled();
 
+			// divider between header and body
 			ImGui::Spacing();
 			ImGui::Separator();
 			ImGui::Spacing();
@@ -141,6 +161,9 @@ private:
 
 private:
 	bool valid_input_signal() {
+		if (enable_gtkwave) {
+			return false;
+		}
 		auto signal = signal_by_name(ui_context->device->simulator->signal_pool, input);
 		return signal_is_undefined(signal);
 	}
@@ -163,6 +186,7 @@ private:
 	std::string		title;
 
 	bool						enable_history = false;
+	bool						enable_gtkwave = false;
 	float						time_scale = 0;
 
 	std::vector<std::string>	signal_names;

@@ -5,10 +5,6 @@
 #include <dev_commodore_pet.h>
 #include <perif_pet_crt.h>
 
-#if DMS_SIGNAL_TRACING
-#include "signal_dumptrace.h"
-#endif
-
 #include "ui_context.h"
 #include "widgets.h"
 #include "imgui_ex.h"
@@ -109,10 +105,6 @@ public:
 
 		if (ImGui::Begin(title)) {
 
-			#if DMS_SIGNAL_TRACING
-				setup_signal_tracing();
-			#endif // DMS_SIGNAL_TRACING
-
 			pet_hardware.display();
 
 			if (ImGui::CollapsingHeader("Advanced")) {
@@ -124,69 +116,6 @@ public:
 
 		ImGui::End();
 	}
-
-private:
-
-#ifdef DMS_SIGNAL_TRACING
-	void setup_signal_tracing() {
-		if (device->simulator->signal_pool->trace) {
-			if (ImGui::Button("Stop trace")) {
-				signal_trace_close(device->simulator->signal_pool->trace);
-				device->simulator->signal_pool->trace = NULL;
-			}
-		} else {
-			if (ImGui::Button("Start trace")) {
-				device->simulator->signal_pool->trace = signal_trace_open("dromaius.lxt", device->simulator->signal_pool);
-				auto *trace = device->simulator->signal_pool->trace;
-
-				signal_trace_set_timestep_duration(trace, device->simulator->tick_duration_ps);
-
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_EOI_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_EOI_IN_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_EOI_OUT_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DAV_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DAV_IN_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DAV_OUT_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NRFD_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NRFD_IN_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NRFD_OUT_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NDAC_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NDAC_IN_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_NDAC_OUT_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_ATN_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_ATN_IN_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_ATN_OUT_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_IFC_B]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_SRQ_IN_B]);
-
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO0]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO1]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO2]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO3]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO4]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO5]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO6]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DIO7]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI0]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI1]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI2]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI3]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI4]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI5]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI6]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DI7]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO0]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO1]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO2]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO3]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO4]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO5]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO6]);
-				signal_trace_enable_signal(trace, device->signals[SIG_P2001N_DO7]);
-			}
-		}
-	}
-#endif // DMS_SIGNAL_TRACING
 
 private:
 	ImVec2			position;

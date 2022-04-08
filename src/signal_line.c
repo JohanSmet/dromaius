@@ -2,10 +2,6 @@
 
 #include "signal_line.h"
 
-#ifdef DMS_SIGNAL_TRACING
-	#include "signal_dumptrace.h"
-#endif
-
 #include <stb/stb_ds.h>
 
 #include <assert.h>

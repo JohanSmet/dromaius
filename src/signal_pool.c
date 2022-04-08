@@ -3,10 +3,6 @@
 #include "signal_pool.h"
 #include "signal_line.h"
 
-#if DMS_SIGNAL_TRACING
-#include "signal_dumptrace.h"
-#endif
-
 //
 // public functions
 //
@@ -75,10 +71,6 @@ uint64_t signal_pool_cycle(SignalPool *pool) {
 		for (uint64_t changed = pool->signals_changed[blk]; changed; changed &= changed - 1) {
 			int32_t signal_idx = bit_lowest_set(changed);
 			dirty_chips |= pool->dependent_components[(blk << 6) + signal_idx];
-
-			#if DMS_SIGNAL_TRACING
-				signal_trace_value(pool->trace, (Signal) {(uint16_t) signal_idx, (uint8_t) blk, 0});
-			#endif
 		}
 
 		// apply

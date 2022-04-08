@@ -4,7 +4,7 @@ project(dromaius)
 
 # options
 option (ENABLE_THREADING "Enable multithreading in the Dromaius context" ON)
-option (ENABLE_SIGNAL_TRACING "Enable dumping of signals to GTKWave" OFF)
+option (ENABLE_GTKWAVE_EXPORT "Enable dumping of signals to GTKWave" OFF)
 option (ENABLE_SIGNAL_STATISTICS "Print statistics of actual signal changes vs total writes to signals" OFF)
 
 # force C11 for all targets
@@ -109,7 +109,7 @@ target_include_directories(${IMGUI_TARGET} PRIVATE ${OPENGL_INCLUDE_DIR})
 target_link_libraries(${IMGUI_TARGET} PUBLIC glfw)
 target_link_libraries(${IMGUI_TARGET} PRIVATE ${OPENGL_LIBRARIES})
 
-if (ENABLE_SIGNAL_TRACING)
+if (ENABLE_GTKWAVE_EXPORT)
 	# external library - Zlib
 	find_package(ZLIB REQUIRED)
 
@@ -199,14 +199,10 @@ target_sources(${LIB_TARGET}
 		src/utils.h
 )
 
-if (ENABLE_SIGNAL_TRACING)
+if (ENABLE_GTKWAVE_EXPORT)
 	message(STATUS "Enabling signal tracing with GTKWave")
-	target_sources(${LIB_TARGET} PRIVATE
-		src/signal_dumptrace.c
-		src/signal_dumptrace.h
-	)
 	target_link_libraries(${LIB_TARGET} PRIVATE ZLIB::ZLIB BZip2::BZip2)
-	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_SIGNAL_TRACING)
+	target_compile_definitions(${LIB_TARGET} PUBLIC DMS_GTKWAVE_EXPORT)
 endif()
 
 if (ENABLE_SIGNAL_STATISTICS)

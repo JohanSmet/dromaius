@@ -39,7 +39,7 @@ typedef struct SignalHistoryDiagramData {
 struct SignalHistory;
 
 // interface
-struct SignalHistory *signal_history_create(size_t incoming_count, size_t signal_count, size_t sample_count);
+struct SignalHistory *signal_history_create(size_t incoming_count, size_t signal_count, size_t sample_count, int64_t timestep_duration);
 void signal_history_destroy(struct SignalHistory *history);
 
 // control history processing
@@ -52,6 +52,12 @@ bool signal_history_add(struct SignalHistory *history, int64_t time, uint64_t *s
 // signal_history_diagram_data: retrieve data to build an logic analyzer display in the UI
 void signal_history_diagram_data(SignalHistory *history, SignalHistoryDiagramData *diagram_data);
 void signal_history_diagram_release(SignalHistoryDiagramData *diagram_data);
+
+// gtkwave export
+#ifdef DMS_GTKWAVE_EXPORT
+void signal_history_gtkwave_enable(SignalHistory *history, const char *filename, size_t count, Signal *signals, char **signal_names);
+void signal_history_gtkwave_disable(SignalHistory *history);
+#endif // DMS_GTKWAVE_EXPORT
 
 // private interface -- exposed for unit tests
 bool signal_history_process_incoming_single(SignalHistory *history);

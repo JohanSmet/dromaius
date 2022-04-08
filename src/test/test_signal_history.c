@@ -6,7 +6,7 @@
 #include "signal_pool.h"
 
 static void *signal_history_setup(const MunitParameter params[], void *user_data) {
-	SignalHistory *history = signal_history_create(16, 4, 32);
+	SignalHistory *history = signal_history_create(16, 4, 32, 6125);
 	return history;
 }
 

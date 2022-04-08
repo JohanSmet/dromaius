@@ -44,9 +44,6 @@ typedef struct SignalPool {
 	char **			signals_name;										// names of the signal (id -> name)
 	SignalNameMap	*signal_names;										// hashmap name -> signal
 
-#ifdef DMS_SIGNAL_TRACING
-	struct SignalTrace *trace;
-#endif
 } SignalPool;
 
 // functions - signal pool
