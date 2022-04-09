@@ -4,6 +4,7 @@
 #include "signal_pool.h"
 #include "signal_line.h"
 
+#include "sys/atomics.h"
 #include "sys/threads.h"
 
 #include <stb/stb_ds.h>
@@ -11,8 +12,6 @@
 #ifdef DMS_GTKWAVE_EXPORT
 #include <gtkwave/lxt_write.h>
 #endif // DMS_GTKWAVE_EXPORT
-
-#include <stdatomic.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -29,17 +28,17 @@ typedef struct SignalHistory_private {
 	SignalHistory	public;
 
 	// incoming queue control
-	atomic_uint		next_in;
-	atomic_uint		first_out;
+	atomic_uint32_t	next_in;
+	atomic_uint32_t	first_out;
 
 	// thread control
-	atomic_bool		thread_stop_request;
+	bool			thread_stop_request;
 	thread_t		thread;
 
 	mutex_t			mtx_work;
 	cond_t			cnd_work;
 
-	atomic_flag		lock_ui_access;
+	flag_t			lock_ui_access;
 
 	// gtkwave export
 	bool			gtkwave_enabled;
@@ -92,7 +91,7 @@ static int signal_history_processing_thread(SignalHistory *history) {
 			mutex_lock(&PRIVATE(history)->mtx_work);
 
 			// wait for work
-			while (!PRIVATE(history)->thread_stop_request && PRIVATE(history)->first_out == atomic_load(&PRIVATE(history)->next_in)) {
+			while (!PRIVATE(history)->thread_stop_request && PRIVATE(history)->first_out == atomic_load_uint32(&PRIVATE(history)->next_in)) {
 				cond_wait(&PRIVATE(history)->cnd_work, &PRIVATE(history)->mtx_work);
 			}
 
@@ -101,14 +100,6 @@ static int signal_history_processing_thread(SignalHistory *history) {
 	}
 
 	return 0;
-}
-
-static inline void ui_acquire_lock(SignalHistory *history) {
-	while (atomic_flag_test_and_set_explicit(&PRIVATE(history)->lock_ui_access, memory_order_acquire));
-}
-
-static inline void ui_release_lock(SignalHistory *history) {
-	atomic_flag_clear_explicit(&PRIVATE(history)->lock_ui_access, memory_order_release);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -131,16 +122,16 @@ static void gtkwave_lxt_open(SignalHistory *history, const char *filename) {
 }
 
 static void gtkwave_lxt_start(SignalHistory *history) {
-	ui_acquire_lock(history);
+	flag_acquire_lock(&PRIVATE(history)->lock_ui_access);
 	PRIVATE(history)->gtkwave_enabled = true;
-	ui_release_lock(history);
+	flag_release_lock(&PRIVATE(history)->lock_ui_access);
 }
 
 static void gtkwave_lxt_close(SignalHistory *history) {
 
-	ui_acquire_lock(history);
+	flag_acquire_lock(&PRIVATE(history)->lock_ui_access);
 	PRIVATE(history)->gtkwave_enabled = false;
-	ui_release_lock(history);
+	flag_release_lock(&PRIVATE(history)->lock_ui_access);
 
 	lt_close(PRIVATE(history)->lxt);
 	free(PRIVATE(history)->lxt_symbols);
@@ -251,7 +242,7 @@ bool signal_history_add(SignalHistory *history, int64_t time, uint64_t *signals_
 	assert(history);
 
 	// don't let next_in index 'catch up' with first_out index
-	while (next_index(history, PRIVATE(history)->next_in) == atomic_load(&PRIVATE(history)->first_out)) {
+	while (next_index(history, PRIVATE(history)->next_in) == atomic_load_uint32(&PRIVATE(history)->first_out)) {
 		if (!block) {
 			return false;
 		}
@@ -266,7 +257,7 @@ bool signal_history_add(SignalHistory *history, int64_t time, uint64_t *signals_
 	memcpy(in->signals_changed, signals_changed, sizeof(uint64_t) * SIGNAL_BLOCKS);
 
 	// move pointer along -- there's only one thread writing to next_in
-	atomic_store(&PRIVATE(history)->next_in, next_index(history, PRIVATE(history)->next_in));
+	atomic_exchange_uint32(&PRIVATE(history)->next_in, next_index(history, PRIVATE(history)->next_in));
 
 	// kick worker thread awake if necessary
 	cond_signal(&PRIVATE(history)->cnd_work);
@@ -281,7 +272,7 @@ void signal_history_diagram_data(struct SignalHistory *history, SignalHistoryDia
 	// clear any data that's already in there
 	prepare_diagram_data(diagram_data);
 
-	ui_acquire_lock(history);
+	flag_acquire_lock(&PRIVATE(history)->lock_ui_access);
 
 	// iterate signals
 	for (size_t idx = 0; idx < arrlenu(diagram_data->signals); ++idx) {
@@ -320,7 +311,7 @@ void signal_history_diagram_data(struct SignalHistory *history, SignalHistoryDia
 
 	arrpush(diagram_data->signal_start_offsets, arrlenu(diagram_data->samples_time));
 
-	ui_release_lock(history);
+	flag_release_lock(&PRIVATE(history)->lock_ui_access);
 }
 
 void signal_history_diagram_release(SignalHistoryDiagramData *diagram_data) {
@@ -359,12 +350,12 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 	assert(history);
 
 	// check if there is work to do
-	if (PRIVATE(history)->first_out == atomic_load(&PRIVATE(history)->next_in)) {
+	if (PRIVATE(history)->first_out == atomic_load_uint32(&PRIVATE(history)->next_in)) {
 		return false;
 	}
 
 	// don't let UI thread access data while it's being changed
-	ui_acquire_lock(history);
+	flag_acquire_lock(&PRIVATE(history)->lock_ui_access);
 
 	HistoryIncoming *in = &history->incoming[PRIVATE(history)->first_out];
 
@@ -384,8 +375,8 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 		}
 	}
 
-	ui_release_lock(history);
-	atomic_store(&PRIVATE(history)->first_out, next_index(history, PRIVATE(history)->first_out));
+	flag_release_lock(&PRIVATE(history)->lock_ui_access);
+	atomic_exchange_uint32(&PRIVATE(history)->first_out, next_index(history, PRIVATE(history)->first_out));
 	return true;
 }
 

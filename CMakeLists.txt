@@ -127,6 +127,7 @@ set (LIB_TARGET dromaius)
 add_library(${LIB_TARGET} STATIC)
 target_sources(${LIB_TARGET}
 	PRIVATE
+		src/sys/atomics.h
 		src/sys/threads.c
 		src/sys/threads.h
 		src/chip.h
