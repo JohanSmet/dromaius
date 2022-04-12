@@ -378,6 +378,7 @@ target_sources(${TEST_TARGET}
 	PRIVATE
 		src/test/fixture_chip.c
 		src/test/fixture_chip.h
+		src/test/test_atomics.c
 		src/test/test_main.c
 		src/test/test_chip_6520.c
 		src/test/test_chip_6522.c
