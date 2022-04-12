@@ -446,14 +446,17 @@ size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, SignalBreakpoint
 	assert(device);
 	assert(irq_signals);
 
-	static SignalBreakpoint irqs[1] = {0};
+	static SignalBreakpoint irqs = {
+		.pos_edge = false,
+		.neg_edge = false
+	};
 
-	if (signal_is_undefined(irqs[0].signal)) {
-		irqs[0] = (SignalBreakpoint) {SIGNAL(CPU_IRQ_B), false, true};
+	if (signal_is_undefined(irqs.signal)) {
+		irqs = (SignalBreakpoint) {SIGNAL(CPU_IRQ_B), false, true};
 	}
 
-	*irq_signals = irqs;
-	return sizeof(irqs) / sizeof(irqs[0]);
+	*irq_signals = &irqs;
+	return 1;
 }
 
 void dev_minimal_6502_rom_from_file(DevMinimal6502 *device, const char *filename) {

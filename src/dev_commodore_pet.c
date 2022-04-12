@@ -2825,14 +2825,17 @@ size_t dev_commodore_pet_get_irq_signals(DevCommodorePet *device, SignalBreakpoi
 	assert(device);
 	assert(irq_signals);
 
-	static SignalBreakpoint pet_irq[1] = {0};
+	static SignalBreakpoint pet_irq = {
+		.pos_edge = false,
+		.neg_edge = false,
+	};
 
-	if (signal_is_undefined(pet_irq[0].signal)) {
-		pet_irq[0] = (SignalBreakpoint) {SIGNAL(IRQ_B), false, true};
+	if (signal_is_undefined(pet_irq.signal)) {
+		pet_irq = (SignalBreakpoint) {SIGNAL(IRQ_B), false, true};
 	}
 
-	*irq_signals = pet_irq;
-	return sizeof(pet_irq) / sizeof(pet_irq[0]);
+	*irq_signals = &pet_irq;
+	return 1;
 }
 
 void dev_commodore_pet_diag_mode(DevCommodorePet *device, bool in_diag) {
