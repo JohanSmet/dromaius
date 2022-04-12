@@ -76,7 +76,7 @@ static inline uint_least32_t atomic_exchange_uint32(volatile atomic_uint32_t *ob
 }
 
 static inline uint_least32_t atomic_load_uint32(volatile atomic_uint32_t *obj) {
-	return InterlockedExchange((volatile LONG *) obj, *obj);
+	return InterlockedOr((volatile LONG *) obj, 0);
 }
 
 #endif // DMS_ATOMICS_WIN32
