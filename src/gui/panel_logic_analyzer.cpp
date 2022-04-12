@@ -23,6 +23,7 @@ public:
 
 	void init() override {
 		time_scale = NS_TO_PS(1000) / (20.0f * (float) ui_context->device->simulator->tick_duration_ps);	// 20 pixels = 1 µs = 1000 ns == 1 MHz
+		enable_history = ui_context->device->simulator->signal_history->capture_active;
 	}
 
 	void display() override {
