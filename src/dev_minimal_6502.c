@@ -130,7 +130,7 @@ static void glue_logic_process(ChipGlueLogic *chip) {
 
 	// >> rom logic
 	//  - ce_b: assert when the top 2 bits of the address is set
-	SIGNAL_WRITE(ROM_CE_B, !(SIGNAL_READ(AB15) & SIGNAL_READ(AB14)));
+	SIGNAL_WRITE(ROM_CE_B, !(SIGNAL_READ(AB15) && SIGNAL_READ(AB14)));
 
 	// >> pia logic
 	//  - no peripheral connected, irq lines not connected

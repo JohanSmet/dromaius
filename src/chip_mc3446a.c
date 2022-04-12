@@ -103,7 +103,7 @@ void chip_mc3446a_process(ChipMC3446A *chip) {
 	}
 
 	// transceiver-D
-	if (!(SIGNAL_READ(DE_B) | SIGNAL_READ(DI))) {
+	if (!(SIGNAL_READ(DE_B) || SIGNAL_READ(DI))) {
 		SIGNAL_WRITE(DB, false);
 		SIGNAL_WRITE(DO, false);
 	} else {

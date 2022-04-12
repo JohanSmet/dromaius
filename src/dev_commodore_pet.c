@@ -424,20 +424,20 @@ static void glue_logic_process_06(ChipGlueLogic *chip) {
 	assert(chip);
 
 	// F1 (8,9,10)
-	SIGNAL_WRITE(RA1AND3, SIGNAL_READ(RA1) & SIGNAL_READ(RA3));
+	SIGNAL_WRITE(RA1AND3, SIGNAL_READ(RA1) && SIGNAL_READ(RA3));
 
 	// H10 (4,5,6)
-	SIGNAL_WRITE(RA4AND6, SIGNAL_READ(RA4) & SIGNAL_READ(RA6));
+	SIGNAL_WRITE(RA4AND6, SIGNAL_READ(RA4) && SIGNAL_READ(RA6));
 
 	// H10 (1,2,3)
-	SIGNAL_WRITE(RA5AND6_B, SIGNAL_READ(RA5) & SIGNAL_READ(RA6_B));
+	SIGNAL_WRITE(RA5AND6_B, SIGNAL_READ(RA5) && SIGNAL_READ(RA6_B));
 
 	// H10 (11,12,13)
-	bool video_on = SIGNAL_READ(H8Q) & SIGNAL_READ(H8Q2);
+	bool video_on = SIGNAL_READ(H8Q) && SIGNAL_READ(H8Q2);
 	SIGNAL_WRITE(VIDEO_ON, video_on);
 
 	// G10 (11,12,13)
-	bool vert_drive = !(SIGNAL_READ(H8Q2_B) & SIGNAL_READ(H8Q_B));
+	bool vert_drive = !(SIGNAL_READ(H8Q2_B) && SIGNAL_READ(H8Q_B));
 	SIGNAL_WRITE(VERT_DRIVE, vert_drive);
 
 	// H5 (1,2,3)
@@ -515,7 +515,7 @@ static void glue_logic_process_06_phases(ChipGlueLogic *chip) {
 	SIGNAL_WRITE(BPHI2G_B, !SIGNAL_READ(BPHI2G));
 
 	// G1 (8,9,10)
-	bool video_latch = (!SIGNAL_READ(BPHI2F) & SIGNAL_READ(BPHI2H));
+	bool video_latch = (!SIGNAL_READ(BPHI2F) && SIGNAL_READ(BPHI2H));
 	SIGNAL_WRITE(VIDEO_LATCH, video_latch);
 }
 
