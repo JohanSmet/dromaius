@@ -291,7 +291,6 @@ if (EMSCRIPTEN)
 	target_link_libraries(${GUI_TARGET} PRIVATE
 		"-s USE_GLFW=3"
 		"-s WASM=1"
-		"-s ASSERTIONS=2"
 		"-s USE_WEBGL2=1"
 		"-s FULL_ES3=1"
 		"--no-heap-copy"
@@ -307,6 +306,7 @@ if (EMSCRIPTEN)
 			"--exclude-file *.s"
 			"--exclude-file *.cfg"
 	)
+
 	install(FILES		${PROJECT_BINARY_DIR}/dromaius.data
 						${PROJECT_BINARY_DIR}/dromaius.js
 						${PROJECT_BINARY_DIR}/dromaius.wasm
@@ -407,6 +407,15 @@ target_sources(${TEST_TARGET}
 target_include_directories(${TEST_TARGET} PRIVATE libs src)
 target_link_libraries(${TEST_TARGET} PRIVATE ${LIB_TARGET})
 target_link_libraries(${TEST_TARGET} PRIVATE glfw)
+
+if (EMSCRIPTEN)
+	target_compile_options(${TEST_TARGET} PRIVATE -sUSE_PTHREADS=1)
+	target_link_libraries(${TEST_TARGET} PRIVATE
+		"-s USE_PTHREADS=1"
+		"-s PTHREAD_POOL_SIZE=20"
+		"-s INITIAL_MEMORY=80216064"
+	)
+endif()
 
 add_test(NAME unittests COMMAND ${TEST_TARGET} WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 
