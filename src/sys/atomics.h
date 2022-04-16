@@ -32,6 +32,9 @@
 typedef atomic_flag				flag_t;
 typedef atomic_uint_least32_t	atomic_uint32_t;
 
+
+#define FLAG_INIT	ATOMIC_FLAG_INIT
+
 static inline void flag_acquire_lock(volatile flag_t *flag) {
 	while (atomic_flag_test_and_set_explicit(flag, memory_order_acquire));
 }
@@ -62,6 +65,8 @@ static inline uint_least32_t atomic_load_uint32(volatile atomic_uint32_t *obj) {
 
 typedef LONG		flag_t;
 typedef DWORD		atomic_uint32_t;
+
+#define FLAG_INIT	0l
 
 static inline void flag_acquire_lock(volatile flag_t *flag) {
 	while (InterlockedExchangeAcquire(flag, 1) == 1);

@@ -13,7 +13,6 @@
 struct AtomicFlagData {
 	flag_t		lock;
 	volatile uint32_t	value;
-	uint32_t	increment;
 };
 
 static int thread_test_atomic_flag(struct AtomicFlagData *data) {
@@ -28,7 +27,7 @@ static int thread_test_atomic_flag(struct AtomicFlagData *data) {
 
 static MunitResult test_atomic_flag(const MunitParameter params[], void* user_data_or_fixture) {
 
-	struct AtomicFlagData test_data = {{0}, 0, 0};
+	struct AtomicFlagData test_data = {FLAG_INIT, 0};
 
 	thread_t threads[10] = {0};
 
