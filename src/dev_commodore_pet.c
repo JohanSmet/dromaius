@@ -22,6 +22,8 @@
 #include "perif_disk_2031.h"
 #include "stb/stb_ds.h"
 
+#include "signal_history_profiles.h"
+
 #include "ram_8d_16a.h"
 
 #include <assert.h>
@@ -2536,6 +2538,29 @@ DevCommodorePet *create_pet_device(bool lite) {
 
 	// let the simulator know no more chips will be added
 	simulator_device_complete(device->simulator);
+
+	// signal history - logic analyzer profiles
+	dev_commodore_pet_history_profiles(device, "PET", device->simulator->signal_history);
+	cpu_6502_signal_history_profiles(device->cpu, "CPU 6502", device->simulator->signal_history);
+
+	chip_6520_signal_history_profiles(device->pia_1, "PIA (IEEE-488)", device->simulator->signal_history);
+	chip_6520_signal_history_profiles(device->pia_2, "PIA (Keyboard)", device->simulator->signal_history);
+
+	chip_6522_signal_history_profiles(device->via, "VIA", device->simulator->signal_history);
+
+	chip_63xx_signal_history_profiles(device->roms[0], "BASIC ROM 1", device->simulator->signal_history);
+	chip_63xx_signal_history_profiles(device->roms[1], "BASIC ROM 2", device->simulator->signal_history);
+	chip_63xx_signal_history_profiles(device->roms[2], "BASIC ROM 3", device->simulator->signal_history);
+	chip_63xx_signal_history_profiles(device->roms[3], "EDITOR ROM",  device->simulator->signal_history);
+	chip_63xx_signal_history_profiles(device->roms[4], "KERNAL ROM",  device->simulator->signal_history);
+
+	if (!lite) {
+		chip_63xx_signal_history_profiles((Chip63xxRom *) simulator_chip_by_name(device->simulator, "F10"),
+											"CHAR ROM", device->simulator->signal_history);
+	}
+
+	perif_datassette_signal_history_profiles(device->datassette, "Datassette", device->simulator->signal_history);
+	perif_disk2031_signal_history_profiles(device->disk_2031, "Floppy Disk", device->simulator->signal_history);
 
 	return device;
 }

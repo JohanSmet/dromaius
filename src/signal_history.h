@@ -59,6 +59,15 @@ void signal_history_gtkwave_enable(SignalHistory *history, const char *filename,
 void signal_history_gtkwave_disable(SignalHistory *history);
 #endif // DMS_GTKWAVE_EXPORT
 
+// profiles
+uint32_t signal_history_profile_create(SignalHistory *history, const char *chip_name, const char *profile_name);
+void signal_history_profile_add_signal(SignalHistory *history, uint32_t profile, Signal signal, const char *alias);
+
+const char **signal_history_profile_names(SignalHistory *history);
+size_t signal_history_profile_count(SignalHistory *history);
+Signal *signal_history_profile_signals(SignalHistory *history, uint32_t profile);
+const char **signal_history_profile_signal_aliases(SignalHistory *history, uint32_t profile);
+
 // private interface -- exposed for unit tests
 bool signal_history_process_incoming_single(SignalHistory *history);
 

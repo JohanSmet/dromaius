@@ -8,6 +8,7 @@
 #include "sys/threads.h"
 
 #include <stb/stb_ds.h>
+#include <string.h>
 
 #ifdef DMS_GTKWAVE_EXPORT
 #include <gtkwave/lxt_write.h>
@@ -49,6 +50,11 @@ typedef struct SignalHistory_private {
 
 	struct lt_trace	*	lxt;
 	struct lt_symbol ** lxt_symbols;
+
+	// profiles
+	const char **		profile_names;				// dynamic array
+	Signal **			profile_signals;			// dynamic array
+	const char ***		profile_signal_aliases;		// dynamic array
 
 } SignalHistory_private;
 
@@ -380,6 +386,7 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 	}
 
 	PRIVATE(history)->force_capture = 0;
+
 	flag_release_lock(&PRIVATE(history)->lock_ui_access);
 	atomic_exchange_uint32(&PRIVATE(history)->first_out, next_index(history, PRIVATE(history)->first_out));
 	return true;
@@ -405,3 +412,52 @@ void signal_history_gtkwave_disable(SignalHistory *history) {
 }
 
 #endif // DMS_GTKWAVE_EXPORT
+
+uint32_t signal_history_profile_create(SignalHistory *history, const char *chip_name, const char *profile_name) {
+	assert(history);
+	assert(arrlen(PRIVATE(history)->profile_names) == arrlen(PRIVATE(history)->profile_signals));
+
+	// concatenate name
+	const char *separator = " - ";
+	size_t len = strlen(chip_name) + strlen(profile_name) + strlen(separator) + 1;
+	char *full_name = malloc(len);
+	strncpy(full_name, chip_name, len);
+	strncat(full_name, separator, len);
+	strncat(full_name, profile_name, len);
+
+	arrpush(PRIVATE(history)->profile_names, full_name);
+	arrpush(PRIVATE(history)->profile_signals, NULL);
+	arrpush(PRIVATE(history)->profile_signal_aliases, NULL);
+
+	return (uint32_t) (arrlen(PRIVATE(history)->profile_names) - 1);
+}
+
+void signal_history_profile_add_signal(SignalHistory *history, uint32_t profile, Signal signal, const char *alias) {
+	assert(history);
+	assert(profile < arrlen(PRIVATE(history)->profile_signals));
+
+	arrpush(PRIVATE(history)->profile_signals[profile], signal);
+	arrpush(PRIVATE(history)->profile_signal_aliases[profile], alias);
+}
+
+const char **signal_history_profile_names(SignalHistory *history) {
+	assert(history);
+	return PRIVATE(history)->profile_names;
+}
+
+size_t signal_history_profile_count(SignalHistory *history) {
+	assert(history);
+	return arrlenu(PRIVATE(history)->profile_names);
+}
+
+Signal *signal_history_profile_signals(SignalHistory *history, uint32_t profile) {
+	assert(history);
+	assert(profile < arrlen(PRIVATE(history)->profile_signals));
+	return PRIVATE(history)->profile_signals[profile];
+}
+
+const char **signal_history_profile_signal_aliases(SignalHistory *history, uint32_t profile) {
+	assert(history);
+	assert(profile < arrlen(PRIVATE(history)->profile_signals));
+	return PRIVATE(history)->profile_signal_aliases[profile];
+}

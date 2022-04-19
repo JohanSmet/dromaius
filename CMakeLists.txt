@@ -186,6 +186,8 @@ target_sources(${LIB_TARGET}
 		src/rom_8d_16a.h
 		src/signal_history.c
 		src/signal_history.h
+		src/signal_history_profiles.c
+		src/signal_history_profiles.h
 		src/signal_line.c
 		src/signal_line.h
 		src/signal_pool.c
