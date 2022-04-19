@@ -40,6 +40,9 @@ typedef struct SignalHistory_private {
 
 	flag_t			lock_ui_access;
 
+	// flag to force initial capture
+	uint64_t		force_capture;
+
 	// gtkwave export
 	bool			gtkwave_enabled;
 	int64_t			timestep_duration_ps;
@@ -203,6 +206,7 @@ void signal_history_process_start(SignalHistory *history) {
 	assert(history);
 
 	PRIVATE(history)->thread_stop_request = false;
+	PRIVATE(history)->force_capture = (uint64_t) -1;
 	history->capture_active = true;
 	thread_create_joinable(&PRIVATE(history)->thread, (thread_func_t) signal_history_processing_thread, PRIVATE(history));
 }
@@ -367,7 +371,7 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 
 	for (unsigned int blk = 0; blk < SIGNAL_BLOCKS; ++blk) {
 
-		for (uint64_t changed = in->signals_changed[blk]; changed; changed &= changed - 1) {
+		for (uint64_t changed = in->signals_changed[blk] | PRIVATE(history)->force_capture; changed; changed &= changed - 1) {
 			int32_t idx = bit_lowest_set(changed);
 			size_t signal = (blk << 6) + (size_t) idx;
 
@@ -375,6 +379,7 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 		}
 	}
 
+	PRIVATE(history)->force_capture = 0;
 	flag_release_lock(&PRIVATE(history)->lock_ui_access);
 	atomic_exchange_uint32(&PRIVATE(history)->first_out, next_index(history, PRIVATE(history)->first_out));
 	return true;
