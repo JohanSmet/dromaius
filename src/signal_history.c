@@ -421,7 +421,7 @@ uint32_t signal_history_profile_create(SignalHistory *history, const char *chip_
 	const char *separator = " - ";
 	size_t len = strlen(chip_name) + strlen(profile_name) + strlen(separator) + 1;
 	char *full_name = malloc(len);
-	strncpy(full_name, chip_name, len);
+	strcpy(full_name, chip_name);
 	strncat(full_name, separator, len);
 	strncat(full_name, profile_name, len);
 
