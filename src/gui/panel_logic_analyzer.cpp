@@ -133,6 +133,9 @@ public:
 			// >> fetch data
 			signal_history_diagram_data(ui_context->device->simulator->signal_history, &diagram_data);
 
+			// >> context menu
+			context_menu();
+
 			// >> display data
 			for (size_t si = 0; si < arrlenu(diagram_data.signals); ++si) {
 				draw_signal(si);
@@ -152,6 +155,7 @@ private:
 	static constexpr  auto COLOR_SIGNAL = IM_COL32(0, 175, 0, 255);
 	static constexpr  auto COLOR_TEXT = IM_COL32(80, 30, 80, 255);
 	static constexpr  auto COLOR_LABEL = IM_COL32(150, 150, 150, 200);
+	static constexpr  auto COLOR_HOVERED = IM_COL32(150, 150, 50, 200);
 	static constexpr ImU32 COLOR_BACKGROUND[2] = {IM_COL32(30, 30, 30, 128), IM_COL32(60, 60, 60, 128)};
 	static constexpr  auto COLOR_GUIDE = IM_COL32(255, 0, 0, 128);
 	static constexpr float TRUE_OFFSET = -20.0f;
@@ -192,10 +196,11 @@ private:
 		const ImVec2 label_pos = {origin.x + BORDER_WIDTH, signal_y - 20};
 		const float label_padding = 2.0f;
 		auto text_size = ImGui::CalcTextSize(label);
+		const bool is_hovered = (int) signal_idx == selected_signal;
 
 		draw_list->AddRectFilled({label_pos.x - label_padding, label_pos.y - label_padding},
 								 {label_pos.x + text_size.x + label_padding, label_pos.y + text_size.y + label_padding},
-								 COLOR_LABEL,
+								 (is_hovered) ? COLOR_HOVERED : COLOR_LABEL,
 								 4.0f);
 		draw_list->AddText(label_pos, COLOR_TEXT, label);
 	}
@@ -207,6 +212,38 @@ private:
 		auto mouse = ImGui::GetMousePos();
 
 		draw_list->AddLine({mouse.x, origin.y}, {mouse.x, origin.y + region.y}, COLOR_GUIDE);
+	}
+
+
+	void context_menu() {
+		if (!ImGui::IsPopupOpen("signal_context")) {
+			auto origin = ImGui::GetCursorScreenPos();
+			auto mouse = ImGui::GetMousePos();
+			selected_signal = (int) ((mouse.y - origin.y) / 40.0f);
+			if (selected_signal < 0 || (size_t) selected_signal >= signal_names.size()) {
+				selected_signal = -1;
+			}
+		}
+
+		if (selected_signal < 0) {
+			return;
+		}
+
+		if (ImGui::BeginPopupContextWindow("signal_context")) {
+			// remove signal
+			if (ImGui::MenuItem("Remove")) {
+				remove_signal(selected_signal);
+				selected_signal = -1;
+			}
+
+			// breakpoint
+			const char *bp_text = dms_breakpoint_signal_is_set(ui_context->dms_ctx, diagram_data.signals[selected_signal]) ?
+									"Disable breakpoint" : "Enable breakpoint";
+			if (ImGui::MenuItem(bp_text)) {
+				dms_toggle_signal_breakpoint(ui_context->dms_ctx, diagram_data.signals[selected_signal]);
+			}
+			ImGui::EndPopup();
+		}
 	}
 
 
@@ -252,6 +289,11 @@ private:
 		}
 	}
 
+	void remove_signal(ptrdiff_t index) {
+		arrdel(diagram_data.signals, (size_t) index);
+		signal_names.erase(signal_names.begin() + index);
+	}
+
 private:
 	ImVec2			position;
 	const ImVec2	size = {390, 400};
@@ -263,6 +305,8 @@ private:
 
 	int							time_base = 1;
 	float						time_scale = 0;
+
+	int							selected_signal = -1;
 
 	std::vector<std::string>	signal_names;
 	SignalHistoryDiagramData	diagram_data = {};
