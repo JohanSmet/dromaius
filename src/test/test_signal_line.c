@@ -374,10 +374,10 @@ static MunitResult test_signal_group_write(const MunitParameter params[], void* 
 	SignalPool *pool = (SignalPool *) user_data_or_fixture;
 
 	// setup
-	Signal prev = signal_create(pool);
+	signal_create(pool);
 	TEST_SIGNAL_ARRAY(sig_a, 8);
 	SignalGroup sg_a = signal_group_create_from_array(8, sig_a);
-	Signal next = signal_create(pool);
+	signal_create(pool);
 
 	// test pre-condition
 	munit_assert_uint64(pool->signals_value[0], ==, 0x0000000000000000);

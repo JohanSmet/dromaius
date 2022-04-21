@@ -420,6 +420,7 @@ void perif_fd2031_load_d64_from_memory(PerifDisk2031 *disk, const int8_t *data, 
 	// copy the data to a buffer that's owned by us
 	int8_t *raw = NULL;
 	arrsetlen(raw, data_len);
+	assert(raw);
 	dms_memcpy(raw, data, data_len);
 
 	img_d64_parse_memory(raw, &disk->d64_img);
