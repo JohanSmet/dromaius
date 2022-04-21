@@ -5,9 +5,7 @@
 #include "chip_oscillator.h"
 #include "simulator.h"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_OSCILLATOR_
 #define SIGNAL_OWNER		tmr
@@ -25,14 +23,14 @@ static void oscillator_destroy(Oscillator *tmr);
 static void oscillator_process(Oscillator *tmr);
 
 Oscillator *oscillator_create(int64_t frequency, Simulator *sim, OscillatorSignals signals) {
-	Oscillator *tmr = (Oscillator *) calloc(1, sizeof(Oscillator));
+	Oscillator *tmr = (Oscillator *) dms_calloc(1, sizeof(Oscillator));
 
 	CHIP_SET_FUNCTIONS(tmr, oscillator_process, oscillator_destroy);
 	CHIP_SET_VARIABLES(tmr, sim, tmr->signals, ChipOscillator_PinTypes, CHIP_OSCILLATOR_PIN_COUNT);
 
 	tmr->signal_pool = sim->signal_pool;
 
-	memcpy(tmr->signals, signals, sizeof(OscillatorSignals));
+	dms_memcpy(tmr->signals, signals, sizeof(OscillatorSignals));
 	SIGNAL_DEFINE_DEFAULT(CLK_OUT, false);
 
 	tmr->frequency = frequency;
@@ -45,7 +43,7 @@ Oscillator *oscillator_create(int64_t frequency, Simulator *sim, OscillatorSigna
 
 static void oscillator_destroy(Oscillator *tmr) {
 	assert(tmr);
-	free(tmr);
+	dms_free(tmr);
 }
 
 static void oscillator_process(Oscillator *tmr) {

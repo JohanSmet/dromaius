@@ -3,6 +3,7 @@
 #include "munit/munit.h"
 #include "chip_hd44780.h"
 #include "simulator.h"
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_HD44780_
 #define SIGNAL_OWNER		lcd
@@ -196,7 +197,7 @@ static MunitResult test_read_data_8b(const MunitParameter params[], void *user_d
 	ChipHd44780 *lcd = (ChipHd44780 *) user_data_or_fixture;
 
 	// setup test case
-	memcpy(lcd->ddram, " DROMAIUS", 9);
+	dms_memcpy(lcd->ddram, " DROMAIUS", 9);
 
 	munit_assert_uint8(lcd->reg_ac, ==, 0);
 
@@ -959,7 +960,7 @@ static MunitResult test_cgram_char_8b(const MunitParameter params[], void *user_
 										0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x00};
 
 	// init cgram
-	memcpy(lcd->cgram, test_data, 16);
+	dms_memcpy(lcd->cgram, test_data, 16);
 
 	// turn on display
 	lcd_write_cmd_8b(lcd, 0b00001100);
@@ -1114,7 +1115,7 @@ static MunitResult test_read_data_4b(const MunitParameter params[], void *user_d
 	ChipHd44780 *lcd = (ChipHd44780 *) user_data_or_fixture;
 
 	// setup test case
-	memcpy(lcd->ddram, " DROMAIUS", 9);
+	dms_memcpy(lcd->ddram, " DROMAIUS", 9);
 
 	munit_assert_uint8(lcd->reg_ac, ==, 0);
 

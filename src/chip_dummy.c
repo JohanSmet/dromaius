@@ -4,10 +4,7 @@
 
 #include "chip_dummy.h"
 #include "simulator.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_DUMMY_
 #define SIGNAL_OWNER		chip
@@ -41,14 +38,14 @@ static void chip_dummy_destroy(ChipDummy *chip);
 static void chip_dummy_process(ChipDummy *chip);
 
 ChipDummy *chip_dummy_create(Simulator *sim, Signal signals[CHIP_DUMMY_PIN_COUNT]) {
-	ChipDummy *chip = (ChipDummy *) calloc(1, sizeof(ChipDummy));
+	ChipDummy *chip = (ChipDummy *) dms_calloc(1, sizeof(ChipDummy));
 
 	CHIP_SET_FUNCTIONS(chip, chip_dummy_process, chip_dummy_destroy);
 	CHIP_SET_VARIABLES(chip, sim, chip->signals, ChipDummy_PinTypes, CHIP_DUMMY_PIN_COUNT);
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Signal) * CHIP_DUMMY_PIN_COUNT);
+	dms_memcpy(chip->signals, signals, sizeof(Signal) * CHIP_DUMMY_PIN_COUNT);
 	SIGNAL_DEFINE(I0);
 	SIGNAL_DEFINE(I1);
 	SIGNAL_DEFINE(I2);
@@ -72,7 +69,7 @@ ChipDummy *chip_dummy_create(Simulator *sim, Signal signals[CHIP_DUMMY_PIN_COUNT
 
 static void chip_dummy_destroy(ChipDummy *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_dummy_process(ChipDummy *chip) {

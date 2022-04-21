@@ -2,16 +2,14 @@
 
 #include "munit/munit.h"
 #include "dev_commodore_pet.h"
+
+#include "crt.h"
 #include "chip_ram_static.h"
 #include "chip_ram_dynamic.h"
 #include "chip_rom.h"
-
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
-
 #include "ram_8d_16a.h"
-
-#include <stdio.h>
 
 #define SIGNAL_PREFIX		SIG_P2001N_
 #define SIGNAL_OWNER		device
@@ -432,7 +430,7 @@ static MunitResult test_read_write_memory(const MunitParameter params[], void *u
 	// test main memory
 	device->write_memory(device, 0x3ff8, sizeof(src_buffer), src_buffer);
 
-	memset(dst_buffer, 0xaa, sizeof(dst_buffer));
+	dms_memset(dst_buffer, 0xaa, sizeof(dst_buffer));
 	device->read_memory(device, 0x3ff8, sizeof(dst_buffer), dst_buffer);
 
 	munit_assert_memory_equal(sizeof(src_buffer), src_buffer, dst_buffer);
@@ -440,7 +438,7 @@ static MunitResult test_read_write_memory(const MunitParameter params[], void *u
 	// test display memory
 	device->write_memory(device, 0x8008, sizeof(src_buffer), src_buffer);
 
-	memset(dst_buffer, 0xaa, sizeof(dst_buffer));
+	dms_memset(dst_buffer, 0xaa, sizeof(dst_buffer));
 	device->read_memory(device, 0x8008, sizeof(dst_buffer), dst_buffer);
 
 	munit_assert_memory_equal(sizeof(src_buffer), src_buffer, dst_buffer);

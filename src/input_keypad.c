@@ -4,10 +4,7 @@
 
 #include "input_keypad.h"
 #include "simulator.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_OWNER		keypad
 #define SIGNAL_PREFIX
@@ -50,17 +47,17 @@ InputKeypad *input_keypad_create(Simulator *sim,
 
 	assert((row_signals == NULL && col_signals == NULL) || (row_signals != NULL && col_signals != NULL));
 
-	InputKeypadPrivate *priv = calloc(1, sizeof(InputKeypadPrivate));
+	InputKeypadPrivate *priv = dms_calloc(1, sizeof(InputKeypadPrivate));
 	InputKeypad *keypad = &priv->intf;
-	keypad->signals = calloc(row_count + col_count, sizeof(Signal));
-	uint8_t *pin_types = calloc(row_count + col_count, sizeof(uint8_t));
+	keypad->signals = dms_calloc(row_count + col_count, sizeof(Signal));
+	uint8_t *pin_types = dms_calloc(row_count + col_count, sizeof(uint8_t));
 
 	CHIP_SET_FUNCTIONS(keypad, input_keypad_process, input_keypad_destroy);
 	CHIP_SET_VARIABLES(keypad, sim, keypad->signals, pin_types, (uint32_t) (row_count + col_count));
 
-	keypad->keys = (bool *) calloc(row_count * col_count, sizeof(bool));
-	priv->key_release_ticks = (int64_t *) calloc(row_count * col_count, sizeof(int64_t));
-	priv->keys_down = (size_t *) calloc(row_count * col_count, sizeof(size_t));
+	keypad->keys = (bool *) dms_calloc(row_count * col_count, sizeof(bool));
+	priv->key_release_ticks = (int64_t *) dms_calloc(row_count * col_count, sizeof(int64_t));
+	priv->keys_down = (size_t *) dms_calloc(row_count * col_count, sizeof(size_t));
 
 	keypad->signal_pool = sim->signal_pool;
 	keypad->active_high = active_high;
@@ -86,27 +83,28 @@ InputKeypad *input_keypad_create(Simulator *sim,
 		}
 	}
 	else {
-		memcpy(keypad->signals, row_signals, row_count * sizeof(Signal));
-		memcpy(keypad->signals + row_count, col_signals, col_count * sizeof(Signal));
+		dms_memcpy(keypad->signals, row_signals, row_count * sizeof(Signal));
+		dms_memcpy(keypad->signals + row_count, col_signals, col_count * sizeof(Signal));
 
 		keypad->sg_rows = signal_group_create_from_array(row_count, keypad->signals);
 		keypad->sg_cols = signal_group_create_from_array(col_count, keypad->signals + row_count);
 	}
 
 	// setup pin types
-	memset(pin_types, CHIP_PIN_INPUT | CHIP_PIN_TRIGGER, row_count);
-	memset(pin_types + row_count, CHIP_PIN_OUTPUT, col_count);
+	dms_memset(pin_types, CHIP_PIN_INPUT | CHIP_PIN_TRIGGER, row_count);
+	dms_memset(pin_types + row_count, CHIP_PIN_OUTPUT, col_count);
 
 	return keypad;
 }
 
 void input_keypad_destroy(InputKeypad *keypad) {
 	assert(keypad);
-	free(keypad->keys);
-	free(keypad->signals);
-	free(keypad->pin_types);
-	free(PRIVATE(keypad)->key_release_ticks);
-	free(PRIVATE(keypad));
+	dms_free(keypad->keys);
+	dms_free(keypad->signals);
+	dms_free(keypad->pin_types);
+	dms_free(PRIVATE(keypad)->key_release_ticks);
+	dms_free(PRIVATE(keypad)->keys_down);
+	dms_free(PRIVATE(keypad));
 }
 
 void input_keypad_process(InputKeypad *keypad) {

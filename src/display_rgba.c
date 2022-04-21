@@ -3,13 +3,10 @@
 // A RGBA pixel display implementation
 
 #include "display_rgba.h"
-
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
+#include "crt.h"
 
 DisplayRGBA *display_rgba_create(size_t width, size_t height) {
-	DisplayRGBA *display = malloc(sizeof(DisplayRGBA) + (width * height * sizeof(int32_t)));
+	DisplayRGBA *display = dms_malloc(sizeof(DisplayRGBA) + (width * height * sizeof(int32_t)));
 	display->width = width;
 	display->height = height;
 	return display;
@@ -17,10 +14,10 @@ DisplayRGBA *display_rgba_create(size_t width, size_t height) {
 
 void display_rgba_destroy(DisplayRGBA *display) {
 	assert(display);
-	free(display);
+	dms_free(display);
 }
 
 void display_rgba_clear(DisplayRGBA *display) {
 	assert(display);
-	memset(display->frame, 0, display->width * display->height * sizeof(int32_t));
+	dms_zero(display->frame, display->width * display->height * sizeof(int32_t));
 }

@@ -131,7 +131,7 @@ PanelChipHd44780 *panel_chip_hd44780_init(struct nk_context *nk_ctx, struct nk_v
 
 void panel_chip_hd44780_release(struct PanelChipHd44780 *pnl) {
 	assert(pnl);
-	free(pnl);
+	f ree(pnl);
 }
 
 void panel_chip_hd44780_display(struct PanelChipHd44780 *pnl) {

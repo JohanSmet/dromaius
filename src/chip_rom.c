@@ -5,9 +5,7 @@
 #include "chip_rom.h"
 #include "simulator.h"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_OWNER		chip
 
@@ -48,7 +46,7 @@ static void chip_6316_rom_process(Chip63xxRom *chip);
 
 Chip63xxRom *chip_6316_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
-	Chip63xxRom *chip = (Chip63xxRom *) calloc(1, sizeof(Chip63xxRom) + ROM_6316_DATA_SIZE);
+	Chip63xxRom *chip = (Chip63xxRom *) dms_calloc(1, sizeof(Chip63xxRom) + ROM_6316_DATA_SIZE);
 
 	CHIP_SET_FUNCTIONS(chip, chip_6316_rom_process, chip_63xx_rom_destroy);
 	CHIP_SET_VARIABLES(chip, sim, chip->signals, Chip6316Rom_PinTypes, CHIP_63XX_PIN_COUNT);
@@ -61,7 +59,7 @@ Chip63xxRom *chip_6316_rom_create(Simulator *sim, Chip63xxSignals signals) {
 	chip->sg_address = signal_group_create();
 	chip->sg_data = signal_group_create();
 
-	memcpy(chip->signals, signals, sizeof(Chip63xxSignals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip63xxSignals));
 	SIGNAL_DEFINE_GROUP(A0, address);
 	SIGNAL_DEFINE_GROUP(A1, address);
 	SIGNAL_DEFINE_GROUP(A2, address);
@@ -92,7 +90,7 @@ Chip63xxRom *chip_6316_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
 static void chip_63xx_rom_destroy(Chip63xxRom *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_6316_rom_process(Chip63xxRom *chip) {
@@ -159,7 +157,7 @@ static void chip_6332_rom_process(Chip63xxRom *chip);
 
 Chip63xxRom *chip_6332_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
-	Chip63xxRom *chip = (Chip63xxRom *) calloc(1, sizeof(Chip63xxRom) + ROM_6332_DATA_SIZE);
+	Chip63xxRom *chip = (Chip63xxRom *) dms_calloc(1, sizeof(Chip63xxRom) + ROM_6332_DATA_SIZE);
 
 	CHIP_SET_FUNCTIONS(chip, chip_6332_rom_process, chip_63xx_rom_destroy);
 	CHIP_SET_VARIABLES(chip, sim, chip->signals, Chip6332Rom_PinTypes, CHIP_63XX_PIN_COUNT);
@@ -173,7 +171,7 @@ Chip63xxRom *chip_6332_rom_create(Simulator *sim, Chip63xxSignals signals) {
 	chip->sg_address = signal_group_create();
 	chip->sg_data = signal_group_create();
 
-	memcpy(chip->signals, signals, sizeof(Chip63xxSignals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip63xxSignals));
 	SIGNAL_DEFINE_GROUP(A0, address);
 	SIGNAL_DEFINE_GROUP(A1, address);
 	SIGNAL_DEFINE_GROUP(A2, address);

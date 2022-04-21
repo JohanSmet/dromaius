@@ -4,10 +4,7 @@
 
 #include "rom_8d_16a.h"
 #include "simulator.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_ROM8D16A_
 #define SIGNAL_OWNER		rom
@@ -51,7 +48,7 @@ static void rom_8d16a_process(Rom8d16a *rom);
 Rom8d16a *rom_8d16a_create(size_t num_address_lines, Simulator *sim, Rom8d16aSignals signals) {
 
 	size_t data_size = (size_t) 1 << num_address_lines;
-	Rom8d16a *rom = (Rom8d16a *) calloc(1, sizeof(Rom8d16a) + data_size);
+	Rom8d16a *rom = (Rom8d16a *) dms_calloc(1, sizeof(Rom8d16a) + data_size);
 
 	CHIP_SET_FUNCTIONS(rom, rom_8d16a_process, rom_8d16a_destroy);
 	CHIP_SET_VARIABLES(rom, sim, rom->signals, Rom8d16a_PinTypes, CHIP_ROM8D16A_PIN_COUNT);
@@ -60,7 +57,7 @@ Rom8d16a *rom_8d16a_create(size_t num_address_lines, Simulator *sim, Rom8d16aSig
 	rom->data_size = data_size;
 	rom->output_delay = simulator_interval_to_tick_count(rom->simulator, NS_TO_PS(60));
 
-	memcpy(rom->signals, signals, sizeof(Rom8d16aSignals));
+	dms_memcpy(rom->signals, signals, sizeof(Rom8d16aSignals));
 
 	rom->sg_address = signal_group_create();
 	rom->sg_data = signal_group_create();
@@ -80,7 +77,7 @@ Rom8d16a *rom_8d16a_create(size_t num_address_lines, Simulator *sim, Rom8d16aSig
 
 static void rom_8d16a_destroy(Rom8d16a *rom) {
 	assert(rom);
-	free(rom);
+	dms_free(rom);
 }
 
 static void rom_8d16a_process(Rom8d16a *rom) {

@@ -2,6 +2,8 @@
 
 #include "munit/munit.h"
 #include "chip_mc3446a.h"
+
+#include "crt.h"
 #include "simulator.h"
 #include "fixture_chip.h"
 
@@ -9,7 +11,7 @@
 #define SIGNAL_OWNER		fixture->chip_tester
 static void chip_tester_destroy(Chip *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_tester_process(Chip *chip) {

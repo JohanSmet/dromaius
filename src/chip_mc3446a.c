@@ -5,9 +5,7 @@
 #include "chip_mc3446a.h"
 #include "simulator.h"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_MC3446A_
 #define SIGNAL_OWNER		chip
@@ -33,14 +31,14 @@ void chip_mc3446a_destroy(ChipMC3446A *chip);
 void chip_mc3446a_process(ChipMC3446A *chip);
 
 ChipMC3446A *chip_mc3446a_create(Simulator *sim, ChipMC3446ASignals signals) {
-	ChipMC3446A *chip = (ChipMC3446A *) calloc(1, sizeof(ChipMC3446A));
+	ChipMC3446A *chip = (ChipMC3446A *) dms_calloc(1, sizeof(ChipMC3446A));
 
 	CHIP_SET_FUNCTIONS(chip, chip_mc3446a_process, chip_mc3446a_destroy);
 	CHIP_SET_VARIABLES(chip, sim, chip->signals, ChipMC3446A_PinTypes, CHIP_MC3446A_PIN_COUNT);
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(ChipMC3446ASignals));
+	dms_memcpy(chip->signals, signals, sizeof(ChipMC3446ASignals));
 
 	SIGNAL_DEFINE(AO);
 	SIGNAL_DEFINE(AB);
@@ -67,7 +65,7 @@ ChipMC3446A *chip_mc3446a_create(Simulator *sim, ChipMC3446ASignals signals) {
 
 void chip_mc3446a_destroy(ChipMC3446A *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 void chip_mc3446a_process(ChipMC3446A *chip) {

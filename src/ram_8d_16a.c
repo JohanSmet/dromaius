@@ -4,10 +4,7 @@
 
 #include "ram_8d_16a.h"
 #include "simulator.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_RAM8D16A_
 #define SIGNAL_OWNER		ram
@@ -54,7 +51,7 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, Simulator *sim, Ram8d16aSi
 	assert(num_address_lines > 0 && num_address_lines <= 16);
 
 	size_t data_size = (size_t) 1 << num_address_lines;
-	Ram8d16a *ram = (Ram8d16a *) calloc(1, sizeof(Ram8d16a) + data_size);
+	Ram8d16a *ram = (Ram8d16a *) dms_calloc(1, sizeof(Ram8d16a) + data_size);
 
 	CHIP_SET_FUNCTIONS(ram, ram_8d16a_process, ram_8d16a_destroy);
 	CHIP_SET_VARIABLES(ram, sim, ram->signals, Ram8d16a_PinTypes, CHIP_RAM8D16A_PIN_COUNT);
@@ -62,7 +59,7 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, Simulator *sim, Ram8d16aSi
 	ram->signal_pool = sim->signal_pool;
 	ram->data_size = data_size;
 
-	memcpy(ram->signals, signals, sizeof(Ram8d16aSignals));
+	dms_memcpy(ram->signals, signals, sizeof(Ram8d16aSignals));
 
 	ram->sg_address = signal_group_create();
 	ram->sg_data = signal_group_create();
@@ -87,7 +84,7 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, Simulator *sim, Ram8d16aSi
 
 static void ram_8d16a_destroy(Ram8d16a *ram) {
 	assert(ram);
-	free(ram);
+	dms_free(ram);
 }
 
 static void ram_8d16a_process(Ram8d16a *ram) {

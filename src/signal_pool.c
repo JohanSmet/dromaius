@@ -2,6 +2,7 @@
 
 #include "signal_pool.h"
 #include "signal_line.h"
+#include "crt.h"
 
 //
 // public functions
@@ -9,7 +10,7 @@
 
 SignalPool *signal_pool_create(void) {
 
-	SignalPool *pool = (SignalPool *) calloc(1, sizeof(SignalPool));
+	SignalPool *pool = (SignalPool *) dms_calloc(1, sizeof(SignalPool));
 	sh_new_arena(pool->signal_names);
 
 	signal_pool_set_layer_count(pool, 1);
@@ -26,7 +27,7 @@ void signal_pool_destroy(SignalPool *pool) {
 	arrfree(pool->signals_name);
 	arrfree(pool->dependent_components);
 
-	free(pool);
+	dms_free(pool);
 }
 
 void signal_pool_set_layer_count(SignalPool *pool, uint8_t layer_count) {
@@ -44,7 +45,7 @@ uint64_t signal_pool_cycle(SignalPool *pool) {
 	assert(pool);
 
 	// initialize change tracking variables
-	memset(pool->signals_changed, 0, sizeof(uint64_t) * SIGNAL_BLOCKS);
+	dms_zero(pool->signals_changed, sizeof(uint64_t) * SIGNAL_BLOCKS);
 	uint64_t dirty_chips = 0;
 
 	// iterate of each block of signals that was changed

@@ -4,11 +4,10 @@
 
 #include "perif_disk_2031.h"
 #include "simulator.h"
+
+#include "crt.h"
 #include "utils.h"
 #include "img_d64.h"
-
-#include <assert.h>
-#include <stdlib.h>
 
 //#define DMS_LOG_TRACE
 #define LOG_SIMULATOR		disk->simulator
@@ -154,7 +153,7 @@ static void prv2031_handle_command_in(PerifDisk2031 *disk) {
 				disk->active_channel = address;
 				disk->comm_state = FD2031_COMM_OPENING;
 				disk->channels[disk->active_channel].open = true;
-				memset(disk->channels[disk->active_channel].name, '\0', 16);
+				dms_zero(disk->channels[disk->active_channel].name, 16);
 				disk->channels[disk->active_channel].name_len = 0;
 			}
 			break;
@@ -185,7 +184,7 @@ static void prv2031_reset(PerifDisk2031 *disk) {
 	disk->active_channel = 0;
 
 	for (size_t idx = 0; idx < FD2031_MAX_CHANNELS; ++idx) {
-		memset(disk->channels[idx].name, 0, 16);
+		dms_zero(disk->channels[idx].name, 16);
 		disk->channels[idx].name_len = 0;
 		disk->channels[idx].open = false;
 		disk->channels[idx].talk_data = NULL;
@@ -208,7 +207,7 @@ static inline void prv2031_change_bus_state(PerifDisk2031 *disk, PerifDisk2031Bu
 //
 
 PerifDisk2031 *perif_fd2031_create(Simulator *sim, PerifDisk2031Signals signals) {
-	PerifDisk2031 *disk = (PerifDisk2031 *) calloc(1, sizeof(PerifDisk2031));
+	PerifDisk2031 *disk = (PerifDisk2031 *) dms_calloc(1, sizeof(PerifDisk2031));
 
 	// disk
 	CHIP_SET_FUNCTIONS(disk, perif_fd2031_process, perif_fd2031_destroy);
@@ -216,7 +215,7 @@ PerifDisk2031 *perif_fd2031_create(Simulator *sim, PerifDisk2031Signals signals)
 
 	// signals
 	disk->signal_pool = sim->signal_pool;
-	memcpy(disk->signals, signals, sizeof(PerifDisk2031Signals));
+	dms_memcpy(disk->signals, signals, sizeof(PerifDisk2031Signals));
 
 	SIGNAL_DEFINE_DEFAULT(EOI_B, true);
 	SIGNAL_DEFINE_DEFAULT(DAV_B, true);
@@ -239,7 +238,7 @@ PerifDisk2031 *perif_fd2031_create(Simulator *sim, PerifDisk2031Signals signals)
 
 static void perif_fd2031_destroy(PerifDisk2031 *disk) {
 	assert(disk);
-	free(disk);
+	dms_free(disk);
 }
 
 static void perif_fd2031_process(PerifDisk2031 *disk) {
@@ -421,7 +420,7 @@ void perif_fd2031_load_d64_from_memory(PerifDisk2031 *disk, const int8_t *data, 
 	// copy the data to a buffer that's owned by us
 	int8_t *raw = NULL;
 	arrsetlen(raw, data_len);
-	memcpy(raw, data, data_len);
+	dms_memcpy(raw, data, data_len);
 
 	img_d64_parse_memory(raw, &disk->d64_img);
 }

@@ -1,6 +1,6 @@
 // gui/popup_file_selector.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 
-#include "popup_file_selector.h" 
+#include "popup_file_selector.h"
 #include "imgui_ex.h"
 #include "ui_context.h"
 
@@ -66,7 +66,7 @@ std::vector<std::string> PopupFileSelector::construct_directory_listing() {
 		}
 
 		// optionally check prefix
-		if (!prefix.empty() && strncmp(file.name, prefix.c_str(), prefix.size()) != 0) {
+		if (!prefix.empty() && prefix.compare(0, prefix.size(), file.name, prefix.size())) {
 			continue;
 		}
 

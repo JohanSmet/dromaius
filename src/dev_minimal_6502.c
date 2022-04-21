@@ -4,6 +4,7 @@
 
 #include "dev_minimal_6502.h"
 
+#include "crt.h"
 #include "utils.h"
 #include "stb/stb_ds.h"
 
@@ -15,9 +16,6 @@
 #include "input_keypad.h"
 #include "ram_8d_16a.h"
 #include "rom_8d_16a.h"
-
-#include <assert.h>
-#include <stdlib.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -80,7 +78,7 @@ static void glue_logic_destroy(ChipGlueLogic *chip);
 	++pin;
 
 static ChipGlueLogic *glue_logic_create(DevMinimal6502 *device) {
-	ChipGlueLogic *chip = (ChipGlueLogic *) calloc(1, sizeof(ChipGlueLogic));
+	ChipGlueLogic *chip = (ChipGlueLogic *) dms_calloc(1, sizeof(ChipGlueLogic));
 	chip->device = device;
 	chip->signal_pool = device->signal_pool;
 
@@ -109,7 +107,7 @@ static ChipGlueLogic *glue_logic_create(DevMinimal6502 *device) {
 
 static void glue_logic_destroy(ChipGlueLogic *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void glue_logic_process(ChipGlueLogic *chip) {
@@ -160,7 +158,7 @@ Cpu6502* dev_minimal_6502_get_cpu(DevMinimal6502 *device) {
 size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, SignalBreakpoint **irq_signals);
 
 DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
-	DevMinimal6502 *device = (DevMinimal6502 *) calloc(1, sizeof(DevMinimal6502));
+	DevMinimal6502 *device = (DevMinimal6502 *) dms_calloc(1, sizeof(DevMinimal6502));
 
 	device->get_cpu = (DEVICE_GET_CPU) dev_minimal_6502_get_cpu;
 	device->process = (DEVICE_PROCESS) device_process;
@@ -312,7 +310,7 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 	DEVICE_REGISTER_CHIP("ROM", device->rom);
 
 	if (rom_data) {
-		memcpy(device->rom->data_array, rom_data, arrlenu(rom_data));
+		dms_memcpy(device->rom->data_array, rom_data, arrlenu(rom_data));
 	}
 
 	// pia
@@ -373,7 +371,7 @@ void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	assert(device);
 
 	simulator_destroy(device->simulator);
-	free(device);
+	dms_free(device);
 }
 
 void dev_minimal_6502_reset(DevMinimal6502 *device) {
@@ -389,7 +387,7 @@ void dev_minimal_6502_read_memory(DevMinimal6502 *device, size_t start_address, 
 	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
 
 	if (start_address > 0xffff) {
-		memset(output, 0, size);
+		dms_memset(output, 0, size);
 		return;
 	}
 
@@ -409,13 +407,13 @@ void dev_minimal_6502_read_memory(DevMinimal6502 *device, size_t start_address, 
 
 		switch (region) {
 			case 0:				// RAM
-				memcpy(output + done, device->ram->data_array + region_offset, to_copy);
+				dms_memcpy(output + done, device->ram->data_array + region_offset, to_copy);
 				break;
 			case 1:				// I/O area + unused
-				memset(output + done, 0, to_copy);
+				dms_zero(output + done, to_copy);
 				break;
 			case 2:				// ROM
-				memcpy(output + done, device->rom->data_array + region_offset, to_copy);
+				dms_memcpy(output + done, device->rom->data_array + region_offset, to_copy);
 				break;
 		}
 
@@ -439,7 +437,7 @@ void dev_minimal_6502_write_memory(DevMinimal6502 *device, size_t start_address,
 		real_size -= start_address + size - 0x8000;
 	}
 
-	memcpy(device->ram->data_array + start_address, input, real_size);
+	dms_memcpy(device->ram->data_array + start_address, input, real_size);
 }
 
 size_t dev_minimal_6502_get_irq_signals(DevMinimal6502 *device, SignalBreakpoint **irq_signals) {

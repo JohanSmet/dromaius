@@ -5,11 +5,8 @@
 
 #include "context.h"
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "sys/threads.h"
-
+#include "crt.h"
 #include "utils.h"
 #include <stb/stb_ds.h>
 
@@ -94,7 +91,7 @@ static inline int breakpoint_index(DmsContext *dms, int64_t addr) {
 
 static inline int signal_breakpoint_index(DmsContext *dms, Signal signal) {
 	for (int i = 0; i < arrlen(dms->config_usr.signal_breakpoints); ++i) {
-		if (memcmp(&dms->config_usr.signal_breakpoints[i].signal, &signal, sizeof(signal)) == 0) {
+		if (dms_memcmp(&dms->config_usr.signal_breakpoints[i].signal, &signal, sizeof(signal)) == 0) {
 			return i;
 		}
 	}
@@ -163,11 +160,11 @@ static inline void context_update_config(DmsContext *dms) {
 		if (dms->config_usr.bp_updated) {
 			size_t len = arrlenu(dms->config_usr.signal_breakpoints);
 			arrsetlen(dms->config.signal_breakpoints, len);
-			memcpy(dms->config.signal_breakpoints, dms->config_usr.signal_breakpoints, sizeof(SignalBreakpoint) * len);
+			dms_memcpy(dms->config.signal_breakpoints, dms->config_usr.signal_breakpoints, sizeof(SignalBreakpoint) * len);
 
 			len = arrlenu(dms->config_usr.pc_breakpoints);
 			arrsetlen(dms->config.pc_breakpoints, len);
-			memcpy(dms->config.pc_breakpoints, dms->config_usr.pc_breakpoints, sizeof(int64_t) * len);
+			dms_memcpy(dms->config.pc_breakpoints, dms->config_usr.pc_breakpoints, sizeof(int64_t) * len);
 
 			dms->config_usr.bp_updated = false;
 		}
@@ -289,7 +286,7 @@ static inline void change_state(DmsContext *context, DMS_STATE new_state) {
 //
 
 DmsContext *dms_create_context() {
-	DmsContext *ctx = (DmsContext *) malloc(sizeof(DmsContext));
+	DmsContext *ctx = (DmsContext *) dms_malloc(sizeof(DmsContext));
 	ctx->simulator = NULL;
 	ctx->device = NULL;
 	ctx->usr_break_irq = false;
@@ -300,7 +297,7 @@ DmsContext *dms_create_context() {
 	ctx->config.pc_breakpoints = NULL;
 	ctx->config.signal_breakpoints = NULL;
 	ctx->config.bp_updated = false;
-	memcpy(&ctx->config_usr, &ctx->config, sizeof(ctx->config));
+	dms_memcpy(&ctx->config_usr, &ctx->config, sizeof(ctx->config));
 
 #ifndef DMS_NO_THREADING
 	mutex_init_plain(&ctx->mtx_wait);
@@ -314,7 +311,7 @@ DmsContext *dms_create_context() {
 void dms_release_context(DmsContext *dms) {
 	assert(dms);
 	stopwatch_destroy(dms->stopwatch);
-	free(dms);
+	dms_free(dms);
 }
 
 void dms_set_device(DmsContext *dms, Device *device) {
@@ -345,7 +342,7 @@ void dms_start_execution(DmsContext *dms) {
 
 	// initialize context configuration
 	dms->config.state = DS_WAIT;
-	memcpy(&dms->config_usr, &dms->config, sizeof(dms->config));
+	dms_memcpy(&dms->config_usr, &dms->config, sizeof(dms->config));
 
 	thread_create_joinable(&dms->thread, (thread_func_t) context_background_thread, dms);
 }

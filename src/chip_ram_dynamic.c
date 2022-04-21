@@ -5,9 +5,7 @@
 #include "chip_ram_dynamic.h"
 #include "simulator.h"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_4116_
 #define SIGNAL_OWNER		chip
@@ -54,7 +52,7 @@ void chip_8x4116_dram_destroy(Chip8x4116DRam *chip);
 void chip_8x4116_dram_process(Chip8x4116DRam *chip);
 
 Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals signals) {
-	Chip8x4116DRam *chip = (Chip8x4116DRam *) calloc(1, sizeof(Chip8x4116DRam));
+	Chip8x4116DRam *chip = (Chip8x4116DRam *) dms_calloc(1, sizeof(Chip8x4116DRam));
 
 	CHIP_SET_FUNCTIONS(chip, chip_8x4116_dram_process, chip_8x4116_dram_destroy);
 	CHIP_SET_VARIABLES(chip, sim, chip->signals, Chip8x4116DRam_PinTypes, CHIP_4116_PIN_COUNT);
@@ -62,7 +60,7 @@ Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals si
 	chip->signal_pool = sim->signal_pool;
 	chip->access_time = simulator_interval_to_tick_count(sim, NS_TO_PS(100));
 
-	memcpy(chip->signals, signals, sizeof(Chip8x4116DRamSignals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip8x4116DRamSignals));
 
 	chip->sg_address = signal_group_create();
 	chip->sg_din = signal_group_create();
@@ -89,7 +87,7 @@ Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals si
 
 void chip_8x4116_dram_destroy(Chip8x4116DRam *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 void chip_8x4116_dram_process(Chip8x4116DRam *chip) {

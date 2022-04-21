@@ -5,9 +5,7 @@
 #include "chip_ram_static.h"
 #include "simulator.h"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_6114_
 #define SIGNAL_OWNER		chip
@@ -40,13 +38,13 @@ static void chip_6114_sram_destroy(Chip6114SRam *chip);
 static void chip_6114_sram_process(Chip6114SRam *chip);
 
 Chip6114SRam *chip_6114_sram_create(Simulator *sim, Chip6114SRamSignals signals) {
-	Chip6114SRam *chip = (Chip6114SRam *) calloc(1, sizeof(Chip6114SRam));
+	Chip6114SRam *chip = (Chip6114SRam *) dms_calloc(1, sizeof(Chip6114SRam));
 
 	CHIP_SET_FUNCTIONS(chip, chip_6114_sram_process, chip_6114_sram_destroy);
 	CHIP_SET_VARIABLES(chip, sim, chip->signals, Chip6114SRam_PinTypes, CHIP_6114_PIN_COUNT);
 
 	chip->signal_pool = sim->signal_pool;
-	memcpy(chip->signals, signals, sizeof(Chip6114SRamSignals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip6114SRamSignals));
 
 	SIGNAL_DEFINE_GROUP(A0, address);
 	SIGNAL_DEFINE_GROUP(A1, address);
@@ -72,7 +70,7 @@ Chip6114SRam *chip_6114_sram_create(Simulator *sim, Chip6114SRamSignals signals)
 
 static void chip_6114_sram_destroy(Chip6114SRam *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_6114_sram_process(Chip6114SRam *chip) {

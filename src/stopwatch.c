@@ -3,10 +3,7 @@
 // wall-time interface
 
 #include "stopwatch.h"
-
-#include <assert.h>
-#include <string.h>
-#include <stdlib.h>
+#include "crt.h"
 
 #undef DMS_TIMER_WIN32
 #undef DMS_TIMER_POSIX
@@ -100,13 +97,13 @@ static inline void stopwatch_platform_sleep(int64_t interval_ps) {
 Stopwatch *stopwatch_create() {
 	stopwatch_init();
 
-	Stopwatch *stopwatch = (Stopwatch *) calloc(1, sizeof(Stopwatch));
+	Stopwatch *stopwatch = (Stopwatch *) dms_calloc(1, sizeof(Stopwatch));
 	return stopwatch;
 }
 
 void stopwatch_destroy(Stopwatch *stopwatch) {
 	assert(stopwatch);
-	free(stopwatch);
+	dms_free(stopwatch);
 }
 
 void stopwatch_start(Stopwatch *stopwatch) {

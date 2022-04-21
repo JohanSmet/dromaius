@@ -8,7 +8,6 @@
 #include "gui/ui_context.h"
 
 #include <argh/argh.h>
-#include <cstdlib>
 #include <cstdio>
 #include <memory>
 

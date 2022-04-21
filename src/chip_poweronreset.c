@@ -4,10 +4,7 @@
 
 #include "chip_poweronreset.h"
 #include "simulator.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_POR_
 #define SIGNAL_OWNER		por
@@ -26,13 +23,13 @@ static void poweronreset_destroy(PowerOnReset *por);
 static void poweronreset_process(PowerOnReset *por);
 
 PowerOnReset *poweronreset_create(int64_t duration_ps, Simulator *sim, PowerOnResetSignals signals) {
-	PowerOnReset *por = (PowerOnReset *) calloc(1, sizeof(PowerOnReset));
+	PowerOnReset *por = (PowerOnReset *) dms_calloc(1, sizeof(PowerOnReset));
 
 	CHIP_SET_FUNCTIONS(por, poweronreset_process, poweronreset_destroy);
 	CHIP_SET_VARIABLES(por, sim, por->signals, ChipPor_PinTypes, CHIP_POR_PIN_COUNT);
 
 	por->signal_pool = sim->signal_pool;
-	memcpy(por->signals, signals, sizeof(PowerOnResetSignals));
+	dms_memcpy(por->signals, signals, sizeof(PowerOnResetSignals));
 	SIGNAL_DEFINE(RESET_B);
 	SIGNAL_DEFINE_DEFAULT(TRIGGER_B, ACTLO_DEASSERT);
 
@@ -46,7 +43,7 @@ PowerOnReset *poweronreset_create(int64_t duration_ps, Simulator *sim, PowerOnRe
 
 static void poweronreset_destroy(PowerOnReset *por) {
 	assert(por);
-	free(por);
+	dms_free(por);
 }
 
 static void poweronreset_process(PowerOnReset *por) {

@@ -4,10 +4,7 @@
 
 #include "chip_hd44780.h"
 #include "simulator.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #include <stb/stb_ds.h>
 
@@ -214,8 +211,8 @@ static inline void execute_clear_display(ChipHd44780 *lcd) {
 	// - set DDRAM address 0 into the address counter
 	// - return display to original status if it was shifted
 	// - set I/D of entry mode to 1 (increment) / S doesn't change
-	memset(lcd->ddram, 0x20, DDRAM_SIZE);
-	memset(lcd->display_data, 0, arrlenu(lcd->display_data));
+	dms_memset(lcd->ddram, 0x20, DDRAM_SIZE);
+	dms_zero(lcd->display_data, arrlenu(lcd->display_data));
 	ddram_set_address(lcd, 0);
 	PRIVATE(lcd)->shift_delta = 0;
 	PRIVATE(lcd)->address_delta = 1;
@@ -350,7 +347,7 @@ static inline void draw_character(ChipHd44780 *lcd, uint8_t c, int x, int y) {
 
 static inline void refresh_screen(ChipHd44780 *lcd) {
 	if (!lcd->display_enabled) {
-		memset(lcd->display_data, 0, arrlenu(lcd->display_data));
+		dms_zero(lcd->display_data, arrlenu(lcd->display_data));
 		return;
 	}
 
@@ -443,7 +440,7 @@ static void chip_hd44780_destroy(ChipHd44780 *lcd);
 static void chip_hd44780_process(ChipHd44780 *lcd);
 
 ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
-	ChipHd44780_private *priv = (ChipHd44780_private *) calloc(1, sizeof(ChipHd44780_private));
+	ChipHd44780_private *priv = (ChipHd44780_private *) dms_calloc(1, sizeof(ChipHd44780_private));
 	ChipHd44780 *lcd = &priv->intf;
 
 	CHIP_SET_FUNCTIONS(lcd, chip_hd44780_process, chip_hd44780_destroy);
@@ -452,7 +449,7 @@ ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 	lcd->signal_pool = sim->signal_pool;
 	PRIVATE(lcd)->cursor_blink_cycles = simulator_interval_to_tick_count(lcd->simulator, CURSOR_BLINK_INTERVAL_PS);
 
-	memcpy(lcd->signals, signals, sizeof(ChipHd44780Signals));
+	dms_memcpy(lcd->signals, signals, sizeof(ChipHd44780Signals));
 
 	for (int i = 0; i < 4; ++i) {
 		SIGNAL_DEFINE_GROUP(DB0 + i, data);
@@ -480,7 +477,7 @@ ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 
 static void chip_hd44780_destroy(ChipHd44780 *lcd) {
 	assert(lcd);
-	free(PRIVATE(lcd));
+	dms_free(PRIVATE(lcd));
 }
 
 static void chip_hd44780_process(ChipHd44780 *lcd) {

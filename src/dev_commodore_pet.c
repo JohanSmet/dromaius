@@ -4,7 +4,9 @@
 
 #include "dev_commodore_pet.h"
 
+#include "crt.h"
 #include "utils.h"
+
 #include "chip.h"
 #include "chip_6520.h"
 #include "chip_6522.h"
@@ -26,8 +28,6 @@
 
 #include "ram_8d_16a.h"
 
-#include <assert.h>
-#include <stdlib.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -72,7 +72,7 @@ static ChipGlueLogic *glue_logic_create_07_lite(DevCommodorePet *device);
 static void glue_logic_process_07_lite(ChipGlueLogic *chip);
 
 static inline ChipGlueLogic *glue_logic_create(DevCommodorePet *device) {
-	ChipGlueLogic *chip = (ChipGlueLogic *) calloc(1, sizeof(ChipGlueLogic));
+	ChipGlueLogic *chip = (ChipGlueLogic *) dms_calloc(1, sizeof(ChipGlueLogic));
 	chip->device = device;
 	chip->signal_pool = device->signal_pool;
 	return chip;
@@ -80,7 +80,7 @@ static inline ChipGlueLogic *glue_logic_create(DevCommodorePet *device) {
 
 static void glue_logic_destroy(ChipGlueLogic *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 #define DEVICE_SIGNAL(sig)				\
@@ -801,7 +801,7 @@ static void lite_display_destroy(ChipLiteDisplay *chip);
 static void lite_display_process(ChipLiteDisplay *chip);
 
 static ChipLiteDisplay *lite_display_create(DevCommodorePet *device) {
-	ChipLiteDisplay *chip = (ChipLiteDisplay *) calloc(1, sizeof(ChipLiteDisplay));
+	ChipLiteDisplay *chip = (ChipLiteDisplay *) dms_calloc(1, sizeof(ChipLiteDisplay));
 	chip->device = device;
 	chip->signal_pool = device->signal_pool;
 	chip->vram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "VRAM");
@@ -821,7 +821,7 @@ static ChipLiteDisplay *lite_display_create(DevCommodorePet *device) {
 
 static void lite_display_destroy(ChipLiteDisplay *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 void pet_lite_fake_display(ChipLiteDisplay *chip) {
@@ -2185,7 +2185,7 @@ Cpu6502* dev_commodore_pet_get_cpu(DevCommodorePet *device) {
 }
 
 DevCommodorePet *create_pet_device(bool lite) {
-	DevCommodorePet *device = (DevCommodorePet *) calloc(1, sizeof(DevCommodorePet));
+	DevCommodorePet *device = (DevCommodorePet *) dms_calloc(1, sizeof(DevCommodorePet));
 
 	// interface
 	device->get_cpu = (DEVICE_GET_CPU) dev_commodore_pet_get_cpu;
@@ -2577,7 +2577,7 @@ void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	assert(device);
 
 	simulator_destroy(device->simulator);
-	free(device);
+	dms_free(device);
 }
 
 void dev_commodore_pet_process_clk1(DevCommodorePet *device) {
@@ -2602,7 +2602,7 @@ void dev_commodore_pet_read_memory(DevCommodorePet *device, size_t start_address
 	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
 
 	if (start_address > 0xffff) {
-		memset(output, 0, size);
+		dms_zero(output, size);
 		return;
 	}
 
@@ -2653,16 +2653,16 @@ void dev_commodore_pet_read_memory(DevCommodorePet *device, size_t start_address
 			}
 			case 3:				// unused space between video memory and first rom
 			case 8:				// I/O area (pia-1, pia-2, via)
-				memset(output + done, 0, to_copy);
+				dms_zero(output + done, to_copy);
 				break;
 			case 4:				// basic-rom 1
 			case 5:				// basic-rom 2
 			case 6:				// basic-rom 3
 			case 7:				// editor rom
-				memcpy(output + done, device->roms[region-4]->data_array + region_offset, to_copy);
+				dms_memcpy(output + done, device->roms[region-4]->data_array + region_offset, to_copy);
 				break;
 			case 9:				// kernal rom
-				memcpy(output + done, device->roms[4]->data_array + region_offset, to_copy);
+				dms_memcpy(output + done, device->roms[4]->data_array + region_offset, to_copy);
 				break;
 
 		}
@@ -2750,7 +2750,7 @@ void dev_commodore_pet_lite_read_memory(DevCommodorePet *device, size_t start_ad
 	static const int NUM_REGIONS = sizeof(REGION_START) / sizeof(REGION_START[0]);
 
 	if (start_address > 0xffff) {
-		memset(output, 0, size);
+		dms_zero(output, size);
 		return;
 	}
 
@@ -2771,26 +2771,26 @@ void dev_commodore_pet_lite_read_memory(DevCommodorePet *device, size_t start_ad
 		switch (region) {
 			case 0:	{			// RAM (0-32k)
 				Ram8d16a *ram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "RAM");
-				memcpy(output + done, ram->data_array + region_offset, to_copy);
+				dms_memcpy(output + done, ram->data_array + region_offset, to_copy);
 				break;
 			}
 			case 1:	{			// Screen RAM
 				Ram8d16a *vram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "VRAM");
-				memcpy(output + done, vram->data_array + region_offset, to_copy);
+				dms_memcpy(output + done, vram->data_array + region_offset, to_copy);
 				break;
 			}
 			case 2:				// unused space between video memory and first rom
 			case 7:				// I/O area (pia-1, pia-2, via)
-				memset(output + done, 0, to_copy);
+				dms_zero(output + done, to_copy);
 				break;
 			case 3:				// basic-rom 1
 			case 4:				// basic-rom 2
 			case 5:				// basic-rom 3
 			case 6:				// editor rom
-				memcpy(output + done, device->roms[region-3]->data_array + region_offset, to_copy);
+				dms_memcpy(output + done, device->roms[region-3]->data_array + region_offset, to_copy);
 				break;
 			case 8:				// kernal rom
-				memcpy(output + done, device->roms[4]->data_array + region_offset, to_copy);
+				dms_memcpy(output + done, device->roms[4]->data_array + region_offset, to_copy);
 				break;
 		}
 
@@ -2830,12 +2830,12 @@ void dev_commodore_pet_lite_write_memory(DevCommodorePet *device, size_t start_a
 		switch (region) {
 			case 0:	{			// RAM (0-32k)
 				Ram8d16a *ram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "RAM");
-				memcpy(ram->data_array + region_offset, input + done, to_copy);
+				dms_memcpy(ram->data_array + region_offset, input + done, to_copy);
 				break;
 			}
 			case 1:	{			// Screen RAM
 				Ram8d16a *vram = (Ram8d16a *) simulator_chip_by_name(device->simulator, "VRAM");
-				memcpy(vram->data_array + region_offset, input + done, to_copy);
+				dms_memcpy(vram->data_array + region_offset, input + done, to_copy);
 				break;
 			}
 		}

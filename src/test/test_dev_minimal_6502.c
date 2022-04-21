@@ -2,6 +2,7 @@
 #include "munit/munit.h"
 #include "dev_minimal_6502.h"
 
+#include "crt.h"
 #include "chip_6520.h"
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
@@ -145,7 +146,7 @@ static MunitResult test_read_write_memory(const MunitParameter params[], void *u
 	// test main memory
 	dev->write_memory(dev, 0x1000, sizeof(src_buffer), src_buffer);
 
-	memset(dst_buffer, 0xaa, sizeof(dst_buffer));
+	dms_memset(dst_buffer, 0xaa, sizeof(dst_buffer));
 	dev->read_memory(dev, 0x1000, sizeof(dst_buffer), dst_buffer);
 
 	munit_assert_memory_equal(sizeof(src_buffer), src_buffer, dst_buffer);

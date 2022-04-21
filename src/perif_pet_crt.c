@@ -4,11 +4,7 @@
 
 #include "perif_pet_crt.h"
 #include "simulator.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		PIN_PETCRT_
 #define SIGNAL_OWNER		crt
@@ -26,7 +22,7 @@ static void perif_pet_crt_destroy(PerifPetCrt *crt);
 static void perif_pet_crt_process(PerifPetCrt *crt);
 
 PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
-	PerifPetCrt *crt = (PerifPetCrt *) calloc(1, sizeof(PerifPetCrt));
+	PerifPetCrt *crt = (PerifPetCrt *) dms_calloc(1, sizeof(PerifPetCrt));
 
 	// chip
 	CHIP_SET_FUNCTIONS(crt, perif_pet_crt_process, perif_pet_crt_destroy);
@@ -34,7 +30,7 @@ PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
 
 	// signals
 	crt->signal_pool = sim->signal_pool;
-	memcpy(crt->signals, signals, sizeof(PerifPetCrtSignals));
+	dms_memcpy(crt->signals, signals, sizeof(PerifPetCrtSignals));
 	SIGNAL_DEFINE(VIDEO_IN);
 	SIGNAL_DEFINE(VERT_DRIVE_IN);
 	SIGNAL_DEFINE(HORZ_DRIVE_IN);
@@ -57,7 +53,7 @@ PerifPetCrt *perif_pet_crt_create(Simulator *sim, PerifPetCrtSignals signals) {
 static void perif_pet_crt_destroy(PerifPetCrt *crt) {
 	assert(crt);
 	display_rgba_destroy(crt->display);
-	free(crt);
+	dms_free(crt);
 }
 
 static void perif_pet_crt_process(PerifPetCrt *crt) {

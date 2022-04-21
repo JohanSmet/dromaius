@@ -4,11 +4,11 @@
 #include "signal_pool.h"
 #include "signal_line.h"
 
+#include "crt.h"
 #include "sys/atomics.h"
 #include "sys/threads.h"
 
 #include <stb/stb_ds.h>
-#include <string.h>
 
 #ifdef DMS_GTKWAVE_EXPORT
 #include <gtkwave/lxt_write.h>
@@ -124,7 +124,7 @@ static void gtkwave_lxt_open(SignalHistory *history, const char *filename) {
 	assert(PRIVATE(history)->lxt);						// FIXME: decent error-handling
 
 	// map signals -> symbols
-	PRIVATE(history)->lxt_symbols = calloc(history->signal_count, sizeof(struct lt_symbol *));
+	PRIVATE(history)->lxt_symbols = dms_calloc(history->signal_count, sizeof(struct lt_symbol *));
 
 	// set dump timescale to picoseconds
 	lt_set_timescale(PRIVATE(history)->lxt, -12);
@@ -143,7 +143,7 @@ static void gtkwave_lxt_close(SignalHistory *history) {
 	flag_release_lock(&PRIVATE(history)->lock_ui_access);
 
 	lt_close(PRIVATE(history)->lxt);
-	free(PRIVATE(history)->lxt_symbols);
+	dms_free(PRIVATE(history)->lxt_symbols);
 }
 
 static void gtkwave_enable_signal(SignalHistory *history, size_t signal_idx, const char *signal_name) {
@@ -169,20 +169,20 @@ static void gtkwave_trace_value(SignalHistory *history, size_t signal_idx, bool 
 //
 
 SignalHistory *signal_history_create(size_t incoming_count, size_t signal_count, size_t sample_count, int64_t timestep_duration) {
-	SignalHistory_private *priv = (SignalHistory_private *) calloc(1, sizeof(SignalHistory_private));
+	SignalHistory_private *priv = (SignalHistory_private *) dms_calloc(1, sizeof(SignalHistory_private));
 	SignalHistory *history = &priv->public;
 
 	history->incoming_count = (unsigned int) incoming_count;
-	history->incoming = (HistoryIncoming *) malloc(sizeof(HistoryIncoming) * incoming_count);
+	history->incoming = (HistoryIncoming *) dms_malloc(sizeof(HistoryIncoming) * incoming_count);
 
 	history->signal_count = signal_count;
 	history->sample_count = sample_count;
-	history->signal_samples_base = (size_t *) calloc(3 * signal_count, sizeof(size_t));
+	history->signal_samples_base = (size_t *) dms_calloc(3 * signal_count, sizeof(size_t));
 	history->signal_samples_head = history->signal_samples_base + signal_count;
 	history->signal_samples_tail = history->signal_samples_head + signal_count;
 
-	history->samples_time = (int64_t *) malloc(sizeof(int64_t) * signal_count * sample_count);
-	history->samples_value = (bool *) malloc(sizeof(bool) * signal_count * sample_count);
+	history->samples_time = (int64_t *) dms_malloc(sizeof(int64_t) * signal_count * sample_count);
+	history->samples_value = (bool *) dms_malloc(sizeof(bool) * signal_count * sample_count);
 
 	for (size_t si = 0; si < signal_count; ++si) {
 		history->signal_samples_base[si] = si * sample_count;
@@ -201,11 +201,11 @@ SignalHistory *signal_history_create(size_t incoming_count, size_t signal_count,
 
 void signal_history_destroy(SignalHistory *history) {
 	assert(history);
-	free(history->incoming);
-	free(history->signal_samples_base);
-	free(history->samples_time);
-	free(history->samples_value);
-	free(history);
+	dms_free(history->incoming);
+	dms_free(history->signal_samples_base);
+	dms_free(history->samples_time);
+	dms_free(history->samples_value);
+	dms_free(history);
 }
 
 void signal_history_process_start(SignalHistory *history) {
@@ -263,8 +263,8 @@ bool signal_history_add(SignalHistory *history, int64_t time, uint64_t *signals_
 	// copy values
 	HistoryIncoming *in = &history->incoming[PRIVATE(history)->next_in];
 	in->time = time;
-	memcpy(in->signals_value, signals_value, sizeof(uint64_t) * SIGNAL_BLOCKS);
-	memcpy(in->signals_changed, signals_changed, sizeof(uint64_t) * SIGNAL_BLOCKS);
+	dms_memcpy(in->signals_value, signals_value, sizeof(uint64_t) * SIGNAL_BLOCKS);
+	dms_memcpy(in->signals_changed, signals_changed, sizeof(uint64_t) * SIGNAL_BLOCKS);
 
 	// move pointer along -- there's only one thread writing to next_in
 	atomic_exchange_uint32(&PRIVATE(history)->next_in, next_index(history, PRIVATE(history)->next_in));
@@ -419,11 +419,11 @@ uint32_t signal_history_profile_create(SignalHistory *history, const char *chip_
 
 	// concatenate name
 	const char *separator = " - ";
-	size_t len = strlen(chip_name) + strlen(profile_name) + strlen(separator) + 1;
-	char *full_name = malloc(len);
-	strcpy(full_name, chip_name);
-	strncat(full_name, separator, len);
-	strncat(full_name, profile_name, len);
+	size_t len = dms_strlen(chip_name) + dms_strlen(profile_name) + dms_strlen(separator) + 1;
+	char *full_name = dms_malloc(len);
+	dms_strcpy(full_name, chip_name);
+	dms_strncat(full_name, separator, len);
+	dms_strncat(full_name, profile_name, len);
 
 	arrpush(PRIVATE(history)->profile_names, full_name);
 	arrpush(PRIVATE(history)->profile_signals, NULL);

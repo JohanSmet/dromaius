@@ -5,11 +5,8 @@
 #include "perif_datassette_1530.h"
 #include "simulator.h"
 
+#include "crt.h"
 #include "utils.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define SIGNAL_PREFIX		PIN_DS1530_
 #define SIGNAL_OWNER		datassette
@@ -48,7 +45,7 @@ static bool tap_parse_raw_buffer(TapData *tap) {
 	assert(tap->raw);
 
 	// check header signature
-	if (!strncmp((const char *) tap->raw, TAP_FILE_SIGNATURE, sizeof(TAP_FILE_SIGNATURE))) {
+	if (!dms_strncmp((const char *) tap->raw, TAP_FILE_SIGNATURE, sizeof(TAP_FILE_SIGNATURE))) {
 		return false;
 	}
 
@@ -89,7 +86,7 @@ static bool tap_new(const char *filename, TapData *tap) {
 
 	// header
 	tap->version = 0x01;
-	memcpy((char *) tap->raw, TAP_FILE_SIGNATURE, sizeof(TAP_FILE_SIGNATURE));
+	dms_memcpy((char *) tap->raw, TAP_FILE_SIGNATURE, sizeof(TAP_FILE_SIGNATURE));
 	tap->raw[0x0c] = (int8_t) tap->version;
 
 
@@ -109,7 +106,7 @@ static bool tap_save(TapData *tap) {
 static void tap_unload(TapData *tap) {
 	assert(tap);
 	arrfree(tap->raw);
-	free(tap->file_path);
+	dms_free(tap->file_path);
 	tap->raw = NULL;
 }
 
@@ -241,7 +238,7 @@ static void perif_datassette_destroy(PerifDatassette *datassette);
 static void perif_datassette_process(PerifDatassette *datassette);
 
 PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteSignals signals) {
-	PerifDatassette *datassette = (PerifDatassette *) calloc(1, sizeof(PerifDatassette));
+	PerifDatassette *datassette = (PerifDatassette *) dms_calloc(1, sizeof(PerifDatassette));
 
 	// chip
 	CHIP_SET_FUNCTIONS(datassette, perif_datassette_process, perif_datassette_destroy);
@@ -249,7 +246,7 @@ PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteS
 
 	// signals
 	datassette->signal_pool = sim->signal_pool;
-	memcpy(datassette->signals, signals, sizeof(PerifDatassetteSignals));
+	dms_memcpy(datassette->signals, signals, sizeof(PerifDatassetteSignals));
 
 	SIGNAL_DEFINE_DEFAULT(GND, false);
 	SIGNAL_DEFINE_DEFAULT(VCC, true);
@@ -269,7 +266,7 @@ PerifDatassette *perif_datassette_create(struct Simulator *sim, PerifDatassetteS
 
 static void perif_datassette_destroy(PerifDatassette *datassette) {
 	assert(datassette);
-	free(datassette);
+	dms_free(datassette);
 }
 
 static void perif_datassette_process(PerifDatassette *datassette) {
@@ -385,7 +382,7 @@ void perif_datassette_load_tap_from_memory(PerifDatassette *datassette, const in
 
 	// copy the data to a buffer owned by us
 	arrsetlen(datassette->tap.raw, data_len);
-	memcpy(datassette->tap.raw, data, data_len);
+	dms_memcpy(datassette->tap.raw, data, data_len);
 
 	// parse the tap data
 	if (tap_parse_raw_buffer(&datassette->tap)) {

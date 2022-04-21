@@ -1,13 +1,12 @@
 // utils.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
 #include "utils.h"
-#include "stb/stb_ds.h"
+#include "crt.h"
+
+#include <stb/stb_ds.h>
 #include <cute/cute_files.h>
 
-#include <assert.h>
 #include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
 #include <errno.h>
 
 size_t file_load_binary_fixed(const char *filename, uint8_t *buffer, size_t max_len) {
@@ -79,7 +78,7 @@ void dir_list_files(const char *path, const char *ext, const char *prefix, const
 		}
 
 		// optionally check prefix
-		if (prefix && strncmp(file.name, prefix, strlen(prefix)) != 0) {
+		if (prefix && dms_strncmp(file.name, prefix, dms_strlen(prefix)) != 0) {
 			continue;
 		}
 
@@ -92,7 +91,7 @@ char *arr__printf(char *array, const char *fmt, ...) {
 	size_t avail = arrcap(array) - arrlenu(array);
 
 	va_start(args, fmt);
-    int result = vsnprintf(array + arrlenu(array), avail, fmt, args);
+    int result = dms_vsnprintf(array + arrlenu(array), avail, fmt, args);
     va_end(args);
 
     assert(result >= 0);
@@ -104,7 +103,7 @@ char *arr__printf(char *array, const char *fmt, ...) {
 		avail = arrcap(array) - arrlenu(array);
 
 		va_start(args, fmt);
-		result = vsnprintf(array + arrlenu(array), avail, fmt, args);
+		result = dms_vsnprintf(array + arrlenu(array), avail, fmt, args);
 		va_end(args);
 
 		assert(result >= 0);

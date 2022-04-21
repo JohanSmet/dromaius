@@ -11,9 +11,7 @@
 #include "chip_6522.h"
 #include "simulator.h"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_PREFIX		CHIP_6522_
 #define SIGNAL_OWNER		via
@@ -703,14 +701,14 @@ static void chip_6522_destroy(Chip6522 *via);
 static void chip_6522_process(Chip6522 *via);
 
 Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
-	Chip6522_private *priv = (Chip6522_private *) calloc(1, sizeof(Chip6522_private));
+	Chip6522_private *priv = (Chip6522_private *) dms_calloc(1, sizeof(Chip6522_private));
 
 	Chip6522 *via = &priv->intf;
 	CHIP_SET_VARIABLES(via, sim, via->signals, Chip6522_PinTypes, CHIP_6522_PIN_COUNT);
 	CHIP_SET_FUNCTIONS(via, chip_6522_process, chip_6522_destroy);
 	via->signal_pool = sim->signal_pool;
 
-	memcpy(via->signals, signals, sizeof(Chip6522Signals));
+	dms_memcpy(via->signals, signals, sizeof(Chip6522Signals));
 	via->sg_port_a = signal_group_create();
 	via->sg_port_b = signal_group_create();
 	via->sg_data = signal_group_create();
@@ -751,7 +749,7 @@ Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
 
 static void chip_6522_destroy(Chip6522 *via) {
 	assert(via);
-	free(PRIVATE(via));
+	dms_free(PRIVATE(via));
 }
 
 static void chip_6522_process(Chip6522 *via) {

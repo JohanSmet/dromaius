@@ -4,6 +4,7 @@
 
 #include "simulator.h"
 #include "chip.h"
+#include "crt.h"
 #include "signal_line.h"
 #include "signal_history.h"
 
@@ -71,7 +72,7 @@ static inline void sim_process_sequential(Simulator_private *sim, uint64_t dirty
 //
 
 Simulator *simulator_create(int64_t tick_duration_ps) {
-	Simulator_private *priv_sim = (Simulator_private *) calloc(1, sizeof(Simulator_private));
+	Simulator_private *priv_sim = (Simulator_private *) dms_calloc(1, sizeof(Simulator_private));
 
 	PUBLIC(priv_sim)->signal_pool = signal_pool_create();
 	PUBLIC(priv_sim)->tick_duration_ps = tick_duration_ps;
@@ -94,7 +95,7 @@ void simulator_destroy(Simulator *sim) {
 	}
 
 	signal_pool_destroy(sim->signal_pool);
-	free(PRIVATE(sim));
+	dms_free(PRIVATE(sim));
 }
 
 Chip *simulator_register_chip(Simulator *sim, Chip *chip, const char *name) {
@@ -227,7 +228,7 @@ void simulator_schedule_event(Simulator *sim, int32_t chip_id, int64_t timestamp
 		PRIVATE(sim)->event_pool = event->next;
 		event->next = NULL;
 	} else {
-		event = (ChipEvent *) malloc(sizeof(ChipEvent));
+		event = (ChipEvent *) dms_malloc(sizeof(ChipEvent));
 	}
 
 	event->chip_id = chip_id;

@@ -1,12 +1,9 @@
 // signal_line.c - Johan Smet - BSD-3-Clause (see LICENSE)
 
 #include "signal_line.h"
+#include "crt.h"
 
 #include <stb/stb_ds.h>
-
-#include <assert.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 Signal signal_create(SignalPool *pool) {
 	assert(pool);
@@ -108,7 +105,7 @@ void signal_group_set_name(SignalPool *pool, SignalGroup sg, const char *group_n
 	// name individual signals
 	char sub_name[MAX_SIGNAL_NAME];
 	for (uint32_t i = 0; i < signal_group_size(sg); ++i) {
-		snprintf(sub_name, MAX_SIGNAL_NAME, signal_name, i + start_idx);
+		dms_snprintf(sub_name, MAX_SIGNAL_NAME, signal_name, i + start_idx);
 		shput(pool->signal_names, sub_name, *sg[i]);
 		pool->signals_name[signal_array_subscript(*sg[i])] = pool->signal_names[shlenu(pool->signal_names) - 1].key;
 	}

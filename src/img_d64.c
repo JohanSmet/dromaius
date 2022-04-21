@@ -4,6 +4,7 @@
 
 #include "img_d64.h"
 #include <stb/stb_ds.h>
+#include "crt.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -230,7 +231,7 @@ uint16_t img_d64_file_start_track_sector(DiskImageD64 *d64, uint8_t *name, size_
 	} else {
 		// floppy disk probably won't have so much file that a linear search is going to be a problem
 		for (size_t i = 0; i < arrlenu(d64->dir_entries); ++i) {
-			if (memcmp(d64->dir_entries[i]->name, name, name_len) == 0) {
+			if (dms_memcmp(d64->dir_entries[i]->name, name, name_len) == 0) {
 				entry = d64->dir_entries[i];
 				break;
 			}

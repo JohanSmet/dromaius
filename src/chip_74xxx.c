@@ -4,10 +4,7 @@
 
 #include "chip_74xxx.h"
 #include "simulator.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_OWNER		chip
 
@@ -43,12 +40,12 @@ static void chip_7400_nand_destroy(Chip7400Nand *chip);
 static void chip_7400_nand_process(Chip7400Nand *chip);
 
 Chip7400Nand *chip_7400_nand_create(Simulator *sim, Chip7400Signals signals) {
-	Chip7400Nand *chip = (Chip7400Nand *) calloc(1, sizeof(Chip7400Nand));
+	Chip7400Nand *chip = (Chip7400Nand *) dms_calloc(1, sizeof(Chip7400Nand));
 	CHIP_74XXX_SET_FUNCTIONS(chip_7400_nand);
 	CHIP_74XXX_SET_VARIABLES(Chip7400_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
-	memcpy(chip->signals, signals, sizeof(Chip7400Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip7400Signals));
 	SIGNAL_DEFINE(A1);
 	SIGNAL_DEFINE(B1);
 	SIGNAL_DEFINE(Y1);
@@ -67,7 +64,7 @@ Chip7400Nand *chip_7400_nand_create(Simulator *sim, Chip7400Signals signals) {
 
 static void chip_7400_nand_destroy(Chip7400Nand *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_7400_nand_process(Chip7400Nand *chip) {
@@ -107,12 +104,12 @@ static void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip);
 static void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip);
 
 Chip7474DFlipFlop *chip_7474_d_flipflop_create(Simulator *sim, Chip7474Signals signals) {
-	Chip7474DFlipFlop *chip = (Chip7474DFlipFlop *) calloc(1, sizeof(Chip7474DFlipFlop));
+	Chip7474DFlipFlop *chip = (Chip7474DFlipFlop *) dms_calloc(1, sizeof(Chip7474DFlipFlop));
 	CHIP_74XXX_SET_FUNCTIONS(chip_7474_d_flipflop);
 	CHIP_74XXX_SET_VARIABLES(Chip7474_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
-	memcpy(chip->signals, signals, sizeof(Chip7474Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip7474Signals));
 	SIGNAL_DEFINE_DEFAULT(CLR1_B, ACTLO_DEASSERT);
 	SIGNAL_DEFINE(D1);
 	SIGNAL_DEFINE(CLK1);
@@ -136,7 +133,7 @@ Chip7474DFlipFlop *chip_7474_d_flipflop_create(Simulator *sim, Chip7474Signals s
 
 static void chip_7474_d_flipflop_destroy(Chip7474DFlipFlop *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_7474_d_flipflop_process(Chip7474DFlipFlop *chip) {
@@ -218,13 +215,13 @@ static void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip);
 static void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip);
 
 Chip7493BinaryCounter *chip_7493_binary_counter_create(Simulator *sim, Chip7493Signals signals) {
-	Chip7493BinaryCounter *chip = (Chip7493BinaryCounter *) calloc(1, sizeof(Chip7493BinaryCounter));
+	Chip7493BinaryCounter *chip = (Chip7493BinaryCounter *) dms_calloc(1, sizeof(Chip7493BinaryCounter));
 	CHIP_74XXX_SET_FUNCTIONS(chip_7493_binary_counter);
 	CHIP_74XXX_SET_VARIABLES(Chip7493_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip7493Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip7493Signals));
 	SIGNAL_DEFINE(B_B);
 	SIGNAL_DEFINE_DEFAULT(R01, false);
 	SIGNAL_DEFINE_DEFAULT(R02, false);
@@ -239,7 +236,7 @@ Chip7493BinaryCounter *chip_7493_binary_counter_create(Simulator *sim, Chip7493S
 
 static void chip_7493_binary_counter_destroy(Chip7493BinaryCounter *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_7493_binary_counter_process(Chip7493BinaryCounter *chip) {
@@ -298,13 +295,13 @@ static void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip);
 static void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip);
 
 Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(Simulator *sim, Chip74107Signals signals) {
-	Chip74107JKFlipFlop *chip = (Chip74107JKFlipFlop *) calloc(1, sizeof(Chip74107JKFlipFlop));
+	Chip74107JKFlipFlop *chip = (Chip74107JKFlipFlop *) dms_calloc(1, sizeof(Chip74107JKFlipFlop));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74107_jk_flipflop);
 	CHIP_74XXX_SET_VARIABLES(Chip74107_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74107Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74107Signals));
 	SIGNAL_DEFINE(J1);
 	SIGNAL_DEFINE(Q1_B);
 	SIGNAL_DEFINE(Q1);
@@ -328,7 +325,7 @@ Chip74107JKFlipFlop *chip_74107_jk_flipflop_create(Simulator *sim, Chip74107Sign
 
 static void chip_74107_jk_flipflop_destroy(Chip74107JKFlipFlop *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74107_jk_flipflop_process(Chip74107JKFlipFlop *chip) {
@@ -403,14 +400,14 @@ typedef struct Chip74145BcdDecoder_private {
 } Chip74145BcdDecoder_private;
 
 Chip74145BcdDecoder *chip_74145_bcd_decoder_create(Simulator *sim, Chip74145Signals signals) {
-	Chip74145BcdDecoder_private *priv = (Chip74145BcdDecoder_private *) calloc(1, sizeof(Chip74145BcdDecoder_private));
+	Chip74145BcdDecoder_private *priv = (Chip74145BcdDecoder_private *) dms_calloc(1, sizeof(Chip74145BcdDecoder_private));
 	Chip74145BcdDecoder *chip = &priv->intf;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74145_bcd_decoder);
 	CHIP_74XXX_SET_VARIABLES(Chip74145_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74145Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74145Signals));
 	SIGNAL_DEFINE(Y0_B);
 	SIGNAL_DEFINE(Y1_B);
 	SIGNAL_DEFINE(Y2_B);
@@ -437,7 +434,7 @@ Chip74145BcdDecoder *chip_74145_bcd_decoder_create(Simulator *sim, Chip74145Sign
 
 static void chip_74145_bcd_decoder_destroy(Chip74145BcdDecoder *chip) {
 	assert((Chip74145BcdDecoder_private *) chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74145_bcd_decoder_process(Chip74145BcdDecoder *chip) {
@@ -490,13 +487,13 @@ static void chip_74153_multiplexer_process(Chip74153Multiplexer *chip);
 
 Chip74153Multiplexer *chip_74153_multiplexer_create(Simulator *sim, Chip74153Signals signals) {
 
-	Chip74153Multiplexer *chip = (Chip74153Multiplexer *) calloc(1, sizeof(Chip74153Multiplexer));
+	Chip74153Multiplexer *chip = (Chip74153Multiplexer *) dms_calloc(1, sizeof(Chip74153Multiplexer));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74153_multiplexer);
 	CHIP_74XXX_SET_VARIABLES(Chip74153_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74153Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74153Signals));
 	SIGNAL_DEFINE(G1);
 	SIGNAL_DEFINE(B);
 	SIGNAL_DEFINE(C13);
@@ -522,7 +519,7 @@ Chip74153Multiplexer *chip_74153_multiplexer_create(Simulator *sim, Chip74153Sig
 
 static void chip_74153_multiplexer_destroy(Chip74153Multiplexer *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74153_multiplexer_process(Chip74153Multiplexer *chip) {
@@ -575,14 +572,14 @@ typedef struct Chip74154Decoder_private {
 } Chip74154Decoder_private;
 
 Chip74154Decoder *chip_74154_decoder_create(Simulator *sim, Chip74154Signals signals) {
-	Chip74154Decoder_private *priv = (Chip74154Decoder_private *) calloc(1, sizeof(Chip74154Decoder_private));
+	Chip74154Decoder_private *priv = (Chip74154Decoder_private *) dms_calloc(1, sizeof(Chip74154Decoder_private));
 	Chip74154Decoder *chip = &priv->intf;
 	CHIP_74XXX_SET_FUNCTIONS(chip_74154_decoder);
 	CHIP_74XXX_SET_VARIABLES(Chip74154_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74154Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74154Signals));
 	SIGNAL_DEFINE(Y0_B);
 	SIGNAL_DEFINE(Y1_B);
 	SIGNAL_DEFINE(Y2_B);
@@ -620,7 +617,7 @@ Chip74154Decoder *chip_74154_decoder_create(Simulator *sim, Chip74154Signals sig
 
 static void chip_74154_decoder_destroy(Chip74154Decoder *chip) {
 	assert((Chip74154Decoder_private *) chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74154_decoder_process(Chip74154Decoder *chip) {
@@ -672,13 +669,13 @@ static void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip);
 static void chip_74157_multiplexer_process(Chip74157Multiplexer *chip);
 
 Chip74157Multiplexer *chip_74157_multiplexer_create(Simulator *sim, Chip74157Signals signals) {
-	Chip74157Multiplexer *chip = (Chip74157Multiplexer *) calloc(1, sizeof(Chip74157Multiplexer));
+	Chip74157Multiplexer *chip = (Chip74157Multiplexer *) dms_calloc(1, sizeof(Chip74157Multiplexer));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74157_multiplexer);
 	CHIP_74XXX_SET_VARIABLES(Chip74157_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74157Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74157Signals));
 	SIGNAL_DEFINE(SEL);
 	SIGNAL_DEFINE(I0A);
 	SIGNAL_DEFINE(I1A);
@@ -699,7 +696,7 @@ Chip74157Multiplexer *chip_74157_multiplexer_create(Simulator *sim, Chip74157Sig
 
 static void chip_74157_multiplexer_destroy(Chip74157Multiplexer *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74157_multiplexer_process(Chip74157Multiplexer *chip) {
@@ -741,13 +738,13 @@ static void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip);
 static void chip_74164_shift_register_process(Chip74164ShiftRegister *chip);
 
 Chip74164ShiftRegister *chip_74164_shift_register_create(Simulator *sim, Chip74164Signals signals) {
-	Chip74164ShiftRegister *chip = (Chip74164ShiftRegister *) calloc(1, sizeof(Chip74164ShiftRegister));
+	Chip74164ShiftRegister *chip = (Chip74164ShiftRegister *) dms_calloc(1, sizeof(Chip74164ShiftRegister));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74164_shift_register);
 	CHIP_74XXX_SET_VARIABLES(Chip74164_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74164Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74164Signals));
 	SIGNAL_DEFINE(A);
 	SIGNAL_DEFINE(B);
 	SIGNAL_DEFINE(QA);
@@ -766,7 +763,7 @@ Chip74164ShiftRegister *chip_74164_shift_register_create(Simulator *sim, Chip741
 
 static void chip_74164_shift_register_destroy(Chip74164ShiftRegister *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74164_shift_register_process(Chip74164ShiftRegister *chip) {
@@ -846,13 +843,13 @@ static void chip_74165_shift_register_process(Chip74165ShiftRegister *chip);
 
 Chip74165ShiftRegister *chip_74165_shift_register_create(Simulator *sim, Chip74165Signals signals) {
 
-	Chip74165ShiftRegister *chip = (Chip74165ShiftRegister *) calloc(1, sizeof(Chip74165ShiftRegister));
+	Chip74165ShiftRegister *chip = (Chip74165ShiftRegister *) dms_calloc(1, sizeof(Chip74165ShiftRegister));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74165_shift_register);
 	CHIP_74XXX_SET_VARIABLES(Chip74165_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74165Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74165Signals));
 	SIGNAL_DEFINE(SL);
 	SIGNAL_DEFINE(CLK);
 	SIGNAL_DEFINE(E);
@@ -873,7 +870,7 @@ Chip74165ShiftRegister *chip_74165_shift_register_create(Simulator *sim, Chip741
 
 static void chip_74165_shift_register_destroy(Chip74165ShiftRegister *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74165_shift_register_process(Chip74165ShiftRegister *chip) {
@@ -938,13 +935,13 @@ static void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip);
 static void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip);
 
 Chip74177BinaryCounter *chip_74177_binary_counter_create(Simulator *sim, Chip74177Signals signals) {
-	Chip74177BinaryCounter *chip = (Chip74177BinaryCounter *) calloc(1, sizeof(Chip74177BinaryCounter));
+	Chip74177BinaryCounter *chip = (Chip74177BinaryCounter *) dms_calloc(1, sizeof(Chip74177BinaryCounter));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74177_binary_counter);
 	CHIP_74XXX_SET_VARIABLES(Chip74177_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74177Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74177Signals));
 	SIGNAL_DEFINE_DEFAULT(LOAD_B, ACTLO_DEASSERT);
 	SIGNAL_DEFINE(QC);
 	SIGNAL_DEFINE(C);
@@ -963,7 +960,7 @@ Chip74177BinaryCounter *chip_74177_binary_counter_create(Simulator *sim, Chip741
 
 static void chip_74177_binary_counter_destroy(Chip74177BinaryCounter *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74177_binary_counter_process(Chip74177BinaryCounter *chip) {
@@ -1025,13 +1022,13 @@ static void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip);
 
 Chip74191BinaryCounter *chip_74191_binary_counter_create(Simulator *sim, Chip74191Signals signals) {
 
-	Chip74191BinaryCounter *chip = (Chip74191BinaryCounter *) calloc(1, sizeof(Chip74191BinaryCounter));
+	Chip74191BinaryCounter *chip = (Chip74191BinaryCounter *) dms_calloc(1, sizeof(Chip74191BinaryCounter));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74191_binary_counter);
 	CHIP_74XXX_SET_VARIABLES(Chip74191_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74191Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74191Signals));
 	SIGNAL_DEFINE(B);
 	SIGNAL_DEFINE(QB);
 	SIGNAL_DEFINE(QA);
@@ -1052,7 +1049,7 @@ Chip74191BinaryCounter *chip_74191_binary_counter_create(Simulator *sim, Chip741
 
 static void chip_74191_binary_counter_destroy(Chip74191BinaryCounter *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74191_binary_counter_process(Chip74191BinaryCounter *chip) {
@@ -1132,13 +1129,13 @@ static void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip);
 static void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip);
 
 Chip74244OctalBuffer *chip_74244_octal_buffer_create(Simulator *sim, Chip74244Signals signals) {
-	Chip74244OctalBuffer *chip = (Chip74244OctalBuffer *) calloc(1, sizeof(Chip74244OctalBuffer));
+	Chip74244OctalBuffer *chip = (Chip74244OctalBuffer *) dms_calloc(1, sizeof(Chip74244OctalBuffer));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74244_octal_buffer);
 	CHIP_74XXX_SET_VARIABLES(Chip74244_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74244Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74244Signals));
 	SIGNAL_DEFINE(G1_B);
 	SIGNAL_DEFINE(A11);
 	SIGNAL_DEFINE(Y24);
@@ -1163,7 +1160,7 @@ Chip74244OctalBuffer *chip_74244_octal_buffer_create(Simulator *sim, Chip74244Si
 
 static void chip_74244_octal_buffer_destroy(Chip74244OctalBuffer *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74244_octal_buffer_process(Chip74244OctalBuffer *chip) {
@@ -1227,13 +1224,13 @@ static void chip_74373_latch_destroy(Chip74373Latch *chip);
 static void chip_74373_latch_process(Chip74373Latch *chip);
 
 Chip74373Latch *chip_74373_latch_create(Simulator *sim, Chip74373Signals signals) {
-	Chip74373Latch *chip = (Chip74373Latch *) calloc(1, sizeof(Chip74373Latch));
+	Chip74373Latch *chip = (Chip74373Latch *) dms_calloc(1, sizeof(Chip74373Latch));
 	CHIP_74XXX_SET_FUNCTIONS(chip_74373_latch);
 	CHIP_74XXX_SET_VARIABLES(Chip74373_PinTypes)
 
 	chip->signal_pool = sim->signal_pool;
 
-	memcpy(chip->signals, signals, sizeof(Chip74373Signals));
+	dms_memcpy(chip->signals, signals, sizeof(Chip74373Signals));
 	SIGNAL_DEFINE(OC_B);
 	SIGNAL_DEFINE(Q1);
 	SIGNAL_DEFINE(D1);
@@ -1258,7 +1255,7 @@ Chip74373Latch *chip_74373_latch_create(Simulator *sim, Chip74373Signals signals
 
 static void chip_74373_latch_destroy(Chip74373Latch *chip) {
 	assert(chip);
-	free(chip);
+	dms_free(chip);
 }
 
 static void chip_74373_latch_process(Chip74373Latch *chip) {

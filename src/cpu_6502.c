@@ -5,10 +5,7 @@
 #include "cpu_6502.h"
 #include "cpu_6502_opcodes.h"
 #include "simulator.h"
-
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include "crt.h"
 
 #define SIGNAL_OWNER		cpu
 #define SIGNAL_PREFIX		PIN_6502_
@@ -2200,7 +2197,7 @@ static void cpu_6502_process(Cpu6502 *cpu);
 
 Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 
-	Cpu6502_private *priv = (Cpu6502_private *) calloc(1, sizeof(Cpu6502_private));
+	Cpu6502_private *priv = (Cpu6502_private *) dms_calloc(1, sizeof(Cpu6502_private));
 	Cpu6502 *cpu = &priv->intf;
 
 	CHIP_SET_FUNCTIONS(cpu, cpu_6502_process, cpu_6502_destroy);
@@ -2212,7 +2209,7 @@ Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 	cpu->irq_is_asserted = (CPU_IRQ_IS_ASSERTED) cpu_6502_irq_is_asserted;
 	cpu->program_counter = (CPU_PROGRAM_COUNTER) cpu_6502_program_counter;
 
-	memcpy(cpu->signals, signals, sizeof(Cpu6502Signals));
+	dms_memcpy(cpu->signals, signals, sizeof(Cpu6502Signals));
 
 	cpu->sg_address = signal_group_create();
 	cpu->sg_data = signal_group_create();
@@ -2264,7 +2261,7 @@ Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 
 static void cpu_6502_destroy(Cpu6502 *cpu) {
 	assert(cpu);
-	free((Cpu6502_private *) cpu);
+	dms_free((Cpu6502_private *) cpu);
 }
 
 static void cpu_6502_process(Cpu6502 *cpu) {

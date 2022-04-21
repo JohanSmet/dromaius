@@ -5,11 +5,7 @@
 #include "chip_6520.h"
 #include "simulator.h"
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "types.h"
+#include "crt.h"
 
 //#define DMS_LOG_TRACE
 #define LOG_SIMULATOR		pia->simulator
@@ -414,14 +410,14 @@ static void chip_6520_destroy(Chip6520 *pia);
 static void chip_6520_process(Chip6520 *pia);
 
 Chip6520 *chip_6520_create(Simulator *sim, Chip6520Signals signals) {
-	Chip6520_private *priv = (Chip6520_private *) calloc(1, sizeof(Chip6520_private));
+	Chip6520_private *priv = (Chip6520_private *) dms_calloc(1, sizeof(Chip6520_private));
 	Chip6520 *pia = &priv->intf;
 
 	CHIP_SET_FUNCTIONS(pia, chip_6520_process, chip_6520_destroy);
 	CHIP_SET_VARIABLES(pia, sim, pia->signals, Chip6520_PinTypes, CHIP_6520_PIN_COUNT);
 
 	pia->signal_pool = sim->signal_pool;
-	memcpy(pia->signals, signals, sizeof(Chip6520Signals));
+	dms_memcpy(pia->signals, signals, sizeof(Chip6520Signals));
 
 	pia->sg_port_a = signal_group_create();
 	pia->sg_port_b = signal_group_create();
@@ -462,7 +458,7 @@ Chip6520 *chip_6520_create(Simulator *sim, Chip6520Signals signals) {
 
 static void chip_6520_destroy(Chip6520 *pia) {
 	assert(pia);
-	free(PRIVATE(pia));
+	dms_free(PRIVATE(pia));
 }
 
 static void chip_6520_process(Chip6520 *pia) {

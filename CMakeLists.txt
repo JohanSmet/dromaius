@@ -153,6 +153,7 @@ target_sources(${LIB_TARGET}
 		src/chip_ram_static.h
 		src/chip_rom.c
 		src/chip_rom.h
+		src/crt.h
 		src/context.c
 		src/context.h
 		src/cpu.h

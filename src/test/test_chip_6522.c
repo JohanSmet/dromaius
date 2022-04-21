@@ -3,6 +3,7 @@
 #include "munit/munit.h"
 #include "chip_6522.h"
 #include "simulator.h"
+#include "crt.h"
 
 #include "stb/stb_ds.h"
 
@@ -121,7 +122,7 @@ typedef enum Chip6522_regs {
 static void *chip_6522_setup(const MunitParameter params[], void *user_data) {
 
 	// create test fixture
-	TestFixture6522 *fixture = (TestFixture6522 *) calloc(1, sizeof(TestFixture6522));
+	TestFixture6522 *fixture = (TestFixture6522 *) dms_calloc(1, sizeof(TestFixture6522));
 	fixture->simulator = simulator_create(NS_TO_PS(100));
 	signal_pool_set_layer_count(fixture->simulator->signal_pool, 2);
 
@@ -223,7 +224,7 @@ static void chip_6522_teardown(void *munit_fixture) {
 
 	simulator_destroy(fixture->simulator);
 	fixture->via->destroy(fixture->via);
-	free(fixture);
+	dms_free(fixture);
 }
 
 static inline void strobe_via(TestFixture6522 *fixture, bool strobe) {
