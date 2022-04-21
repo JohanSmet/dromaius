@@ -129,7 +129,7 @@ bool img_d64_parse_memory(int8_t *input, DiskImageD64 *d64) {
 	d64->free_sectors = 0;
 
 	for (size_t i = 0; i < sizeof(d64->bam->bam); i += 4) {
-		if (i != (size_t) (4 * (D64_DIRECTORY_TRACK - 1))) {
+		if (i != 4ul * (D64_DIRECTORY_TRACK - 1)) {
 			d64->free_sectors = (uint16_t) (d64->free_sectors + d64->bam->bam[i]);
 		}
 	}
