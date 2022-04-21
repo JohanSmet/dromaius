@@ -2616,7 +2616,7 @@ void dev_commodore_pet_read_memory(DevCommodorePet *device, size_t start_address
 	size_t done = 0;
 	size_t addr = start_address;
 
-	for (int region = sr; remain > 0 && addr <= 0xffff; ++region) {
+	for (int region = sr; remain > 0 && addr <= 0xffff && region < NUM_REGIONS; ++region) {
 		size_t region_offset = addr - REGION_START[region];
 		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
 
@@ -2696,7 +2696,7 @@ void dev_commodore_pet_write_memory(DevCommodorePet *device, size_t start_addres
 	size_t done = 0;
 	size_t addr = start_address;
 
-	for (int region = sr; remain > 0 && addr < 0x8800; ++region) {
+	for (int region = sr; remain > 0 && addr < 0x8800 && region < NUM_REGIONS; ++region) {
 		size_t region_offset = addr - REGION_START[region];
 		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
 
@@ -2764,7 +2764,7 @@ void dev_commodore_pet_lite_read_memory(DevCommodorePet *device, size_t start_ad
 	size_t done = 0;
 	size_t addr = start_address;
 
-	for (int region = sr; remain > 0 && addr <= 0xffff; ++region) {
+	for (int region = sr; remain > 0 && addr <= 0xffff && region < NUM_REGIONS; ++region) {
 		size_t region_offset = addr - REGION_START[region];
 		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
 
@@ -2823,7 +2823,7 @@ void dev_commodore_pet_lite_write_memory(DevCommodorePet *device, size_t start_a
 	size_t done = 0;
 	size_t addr = start_address;
 
-	for (int region = sr; remain > 0 && addr < 0x8800; ++region) {
+	for (int region = sr; remain > 0 && addr < 0x8800 && region < NUM_REGIONS; ++region) {
 		size_t region_offset = addr - REGION_START[region];
 		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
 

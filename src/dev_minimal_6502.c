@@ -401,7 +401,7 @@ void dev_minimal_6502_read_memory(DevMinimal6502 *device, size_t start_address, 
 	size_t done = 0;
 	size_t addr = start_address;
 
-	for (int region = sr; remain > 0 && addr <= 0xffff; ++region) {
+	for (int region = sr; remain > 0 && addr <= 0xffff && region < NUM_REGIONS; ++region) {
 		size_t region_offset = addr - REGION_START[region];
 		size_t to_copy = MIN(remain, REGION_SIZE[region] - region_offset);
 
