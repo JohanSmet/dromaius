@@ -34,6 +34,10 @@ static MunitResult test_reset(const MunitParameter params[], void *user_data_or_
 	por->process(por);
 	munit_assert_true(SIGNAL_READ_NEXT(RESET_B));
 
+	// cleanup
+	por->destroy(por);
+	simulator_destroy(sim);
+
 	return MUNIT_OK;
 }
 
@@ -77,6 +81,10 @@ static MunitResult test_trigger(const MunitParameter params[], void *user_data_o
 	sim->current_tick += 50;
 	por->process(por);
 	munit_assert_true(SIGNAL_READ_NEXT(RESET_B));
+
+	// cleanup
+	por->destroy(por);
+	simulator_destroy(sim);
 
 	return MUNIT_OK;
 }

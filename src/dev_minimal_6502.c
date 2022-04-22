@@ -107,6 +107,7 @@ static ChipGlueLogic *glue_logic_create(DevMinimal6502 *device) {
 
 static void glue_logic_destroy(ChipGlueLogic *chip) {
 	assert(chip);
+	signal_group_destroy(chip->sg_address);
 	dms_free(chip);
 }
 
@@ -369,6 +370,9 @@ DevMinimal6502 *dev_minimal_6502_create(const uint8_t *rom_data) {
 
 void dev_minimal_6502_destroy(DevMinimal6502 *device) {
 	assert(device);
+
+	signal_group_destroy(device->sg_address);
+	signal_group_destroy(device->sg_data);
 
 	simulator_destroy(device->simulator);
 	dms_free(device);

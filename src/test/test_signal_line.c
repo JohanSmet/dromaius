@@ -299,6 +299,9 @@ static MunitResult test_names(const MunitParameter params[], void* user_data_or_
 	munit_assert_string_equal(signal_get_name(pool, sig_multi[6]), "DB06");
 	munit_assert_string_equal(signal_get_name(pool, sig_multi[7]), "DB07");
 
+	// cleanup
+	signal_group_destroy(sg_multi);
+
 	return MUNIT_OK;
 }
 
@@ -353,6 +356,10 @@ static MunitResult test_fetch_by_name(const MunitParameter params[], void* user_
 	Signal unknown = signal_by_name(pool, "unknown");
 	munit_assert_true(signal_is_undefined(unknown));
 
+	// cleanup
+	signal_group_destroy(sg_byte);
+	signal_group_destroy(sg_word);
+
 	return MUNIT_OK;
 }
 
@@ -366,6 +373,9 @@ static MunitResult test_signal_group_read(const MunitParameter params[], void* u
 
 	// test
 	munit_assert_uint16(signal_group_read(pool, sg_a), ==, 0xaaaa);
+
+	// cleanup
+	signal_group_destroy(sg_a);
 
     return MUNIT_OK;
 }
@@ -393,6 +403,9 @@ static MunitResult test_signal_group_write(const MunitParameter params[], void* 
 	munit_assert_uint64(pool->signals_next_value[0][0], ==, 0x0000000000000028);
 	munit_assert_uint64(pool->signals_next_mask[0][0], ==, 0x00000000000003fc);
 
+	// cleanup
+	signal_group_destroy(sg_a);
+
     return MUNIT_OK;
 }
 
@@ -415,6 +428,9 @@ static MunitResult test_signal_group_write_masked(const MunitParameter params[],
 	signal_pool_cycle(pool);
 	munit_assert_uint16(signal_group_read(pool, sg_a), ==, 0xabc0);
 
+	// cleanup
+	signal_group_destroy(sg_a);
+
 	return MUNIT_OK;
 }
 
@@ -432,6 +448,9 @@ static MunitResult test_signal_group_read_next(const MunitParameter params[], vo
 
 	munit_assert_uint16(signal_group_read(pool, sg_a), ==, 0xaa55);
 	munit_assert_uint16(signal_group_read_next(pool, sg_a), ==, 0x55aa);
+
+	// cleanup
+	signal_group_destroy(sg_a);
 
     return MUNIT_OK;
 }
@@ -461,6 +480,9 @@ static MunitResult test_signal_group_defaults(const MunitParameter params[], voi
 	munit_assert_uint8(signal_group_read(pool, sg_a), ==, 0xa5);
 	munit_assert_uint8(signal_group_read(pool, sg_b), ==, 0x00);
 
+	// cleanup
+	signal_group_destroy(sg_a);
+	signal_group_destroy(sg_b);
 
 	return MUNIT_OK;
 }
@@ -505,6 +527,10 @@ static MunitResult test_signal_group_changed(const MunitParameter params[], void
 	signal_pool_cycle(pool);
 	munit_assert_false(signal_group_changed(pool, sg_a));
 	munit_assert_true(signal_group_changed(pool, sg_b));
+
+	// cleanup
+	signal_group_destroy(sg_a);
+	signal_group_destroy(sg_b);
 
 	return MUNIT_OK;
 }

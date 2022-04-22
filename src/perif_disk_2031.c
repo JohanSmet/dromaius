@@ -238,6 +238,7 @@ PerifDisk2031 *perif_fd2031_create(Simulator *sim, PerifDisk2031Signals signals)
 
 static void perif_fd2031_destroy(PerifDisk2031 *disk) {
 	assert(disk);
+	signal_group_destroy(disk->sg_dio);
 	dms_free(disk);
 }
 

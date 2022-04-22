@@ -749,6 +749,9 @@ Chip6522 *chip_6522_create(Simulator *sim, Chip6522Signals signals) {
 
 static void chip_6522_destroy(Chip6522 *via) {
 	assert(via);
+	signal_group_destroy(via->sg_port_a);
+	signal_group_destroy(via->sg_port_b);
+	signal_group_destroy(via->sg_data);
 	dms_free(PRIVATE(via));
 }
 

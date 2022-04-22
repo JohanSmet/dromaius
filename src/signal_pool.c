@@ -24,6 +24,7 @@ SignalPool *signal_pool_create(void) {
 void signal_pool_destroy(SignalPool *pool) {
 	assert(pool);
 
+	shfree(pool->signal_names);
 	arrfree(pool->signals_name);
 	arrfree(pool->dependent_components);
 

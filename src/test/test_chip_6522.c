@@ -224,6 +224,9 @@ static void chip_6522_teardown(void *munit_fixture) {
 
 	simulator_destroy(fixture->simulator);
 	fixture->via->destroy(fixture->via);
+	signal_group_destroy(fixture->sg_port_a);
+	signal_group_destroy(fixture->sg_port_b);
+	signal_group_destroy(fixture->sg_data);
 	dms_free(fixture);
 }
 

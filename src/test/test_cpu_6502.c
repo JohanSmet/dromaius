@@ -72,6 +72,7 @@ static void *cpu_6502_setup(const MunitParameter params[], void *user_data) {
 
 static void cpu_6502_teardown(void *fixture) {
 	Cpu6502 *cpu = (Cpu6502 *) fixture;
+	simulator_destroy(cpu->simulator);
 	cpu->destroy(cpu);
 }
 
@@ -106,6 +107,10 @@ MunitResult test_reset(const MunitParameter params[], void *user_data_or_fixture
 	// cpu should now read from address 0x0801
 	munit_assert_uint16(cpu->reg_pc, ==, 0x0801);
 	munit_assert_uint16(SIGNAL_GROUP_READ_NEXT_U16(address), ==, 0x0801);
+
+	// cleanup
+	simulator_destroy(cpu->simulator);
+	cpu->destroy(cpu);
 
 	return MUNIT_OK;
 }

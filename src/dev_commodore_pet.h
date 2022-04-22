@@ -440,6 +440,8 @@ typedef Signal DevCommodorePetSignals[SIG_P2001N_SIGNAL_COUNT];
 typedef struct DevCommodorePet {
 	DEVICE_DECLARE_FUNCTIONS
 
+	bool					is_lite;
+
 	// major components
 	struct Cpu6502 *		cpu;
 	struct Chip63xxRom *	roms[7];

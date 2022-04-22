@@ -99,6 +99,8 @@ InputKeypad *input_keypad_create(Simulator *sim,
 
 void input_keypad_destroy(InputKeypad *keypad) {
 	assert(keypad);
+	signal_group_destroy(keypad->sg_cols);
+	signal_group_destroy(keypad->sg_rows);
 	dms_free(keypad->keys);
 	dms_free(keypad->signals);
 	dms_free(keypad->pin_types);

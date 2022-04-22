@@ -70,6 +70,8 @@ Chip6114SRam *chip_6114_sram_create(Simulator *sim, Chip6114SRamSignals signals)
 
 static void chip_6114_sram_destroy(Chip6114SRam *chip) {
 	assert(chip);
+	signal_group_destroy(chip->sg_address);
+	signal_group_destroy(chip->sg_io);
 	dms_free(chip);
 }
 

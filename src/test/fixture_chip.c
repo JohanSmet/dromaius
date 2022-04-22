@@ -10,6 +10,8 @@
 
 static void chip_tester_destroy(Chip *chip) {
 	assert(chip);
+	dms_free(chip->pins);
+	dms_free(chip->pin_types);
 	dms_free(chip);
 }
 

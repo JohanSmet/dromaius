@@ -87,6 +87,9 @@ Chip8x4116DRam *chip_8x4116_dram_create(Simulator *sim, Chip8x4116DRamSignals si
 
 void chip_8x4116_dram_destroy(Chip8x4116DRam *chip) {
 	assert(chip);
+	signal_group_destroy(chip->sg_address);
+	signal_group_destroy(chip->sg_din);
+	signal_group_destroy(chip->sg_dout);
 	dms_free(chip);
 }
 

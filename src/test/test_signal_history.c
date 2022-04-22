@@ -181,6 +181,9 @@ static MunitResult test_diagram_data(const MunitParameter params[], void* user_d
 	munit_assert_int64(diagram_data.samples_time[start_1 + 10 ], ==, 75);
 	munit_assert_true(diagram_data.samples_value[start_1 + 10 ]);
 
+	// cleanup
+	signal_history_diagram_release(&diagram_data);
+
     return MUNIT_OK;
 }
 

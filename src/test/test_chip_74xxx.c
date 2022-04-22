@@ -642,7 +642,6 @@ static MunitResult test_74164_shift_register(const MunitParameter params[], void
 static MunitResult test_74165_shift_register(const MunitParameter params[], void *user_data_or_fixture) {
 
 	Chip74165ShiftRegister *chip = chip_74165_shift_register_create(simulator_create(NS_TO_PS(100)), (Chip74165Signals) {0});
-	chip->simulator = simulator_create(NS_TO_PS(100));
 
 	// init signals
 	SIGNAL_WRITE(CLK_INH, true);		// inhibit clock

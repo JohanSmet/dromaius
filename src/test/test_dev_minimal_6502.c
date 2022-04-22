@@ -73,6 +73,7 @@ static DevMinimal6502 *dev_minimal_6502_setup(int program) {
 	rom[0xffff - 0xC000] = 0xfe;		// IRQ vector - high
 
 	DevMinimal6502 *dev = dev_minimal_6502_create(rom);
+	arrfree(rom);
 	return dev;
 }
 

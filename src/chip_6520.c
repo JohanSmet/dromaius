@@ -458,6 +458,9 @@ Chip6520 *chip_6520_create(Simulator *sim, Chip6520Signals signals) {
 
 static void chip_6520_destroy(Chip6520 *pia) {
 	assert(pia);
+	signal_group_destroy(pia->sg_port_a);
+	signal_group_destroy(pia->sg_port_b);
+	signal_group_destroy(pia->sg_data);
 	dms_free(PRIVATE(pia));
 }
 

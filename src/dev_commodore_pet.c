@@ -2186,6 +2186,7 @@ Cpu6502* dev_commodore_pet_get_cpu(DevCommodorePet *device) {
 
 DevCommodorePet *create_pet_device(bool lite) {
 	DevCommodorePet *device = (DevCommodorePet *) dms_calloc(1, sizeof(DevCommodorePet));
+	device->is_lite = lite;
 
 	// interface
 	device->get_cpu = (DEVICE_GET_CPU) dev_commodore_pet_get_cpu;
@@ -2575,6 +2576,27 @@ DevCommodorePet *dev_commodore_pet_lite_create(void) {
 
 void dev_commodore_pet_destroy(DevCommodorePet *device) {
 	assert(device);
+
+	signal_group_destroy(device->sg_cpu_address);
+	signal_group_destroy(device->sg_cpu_data);
+	signal_group_destroy(device->sg_buf_address);
+	signal_group_destroy(device->sg_buf_data);
+	signal_group_destroy(device->sg_mem_sel);
+	signal_group_destroy(device->sg_ieee488_di);
+	signal_group_destroy(device->sg_ieee488_do);
+	signal_group_destroy(device->sg_pa);
+	signal_group_destroy(device->sg_keyboard_in);
+	signal_group_destroy(device->sg_keyboard_out);
+	signal_group_destroy(device->sg_ram_address);
+	signal_group_destroy(device->sg_ram_data);
+	signal_group_destroy(device->sg_vram_address);
+	signal_group_destroy(device->sg_vram_data);
+	signal_group_destroy(device->sg_latched_vram_data);
+	signal_group_destroy(device->sg_char_data);
+
+	if (device->is_lite) {
+		display_rgba_destroy(device->screen);
+	}
 
 	simulator_destroy(device->simulator);
 	dms_free(device);

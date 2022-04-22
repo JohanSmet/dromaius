@@ -66,6 +66,14 @@ static inline void sim_process_sequential(Simulator_private *sim, uint64_t dirty
 	}
 }
 
+static void simulator_free_event_list(ChipEvent *event) {
+	while (event) {
+		ChipEvent *next = event->next;
+		dms_free(event);
+		event = next;
+	}
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // interface functions
@@ -86,6 +94,9 @@ void simulator_destroy(Simulator *sim) {
 	for (int32_t id = 0; id < arrlen(PRIVATE(sim)->chips); ++id) {
 		PRIVATE(sim)->chips[id]->destroy(PRIVATE(sim)->chips[id]);
 	}
+
+	simulator_free_event_list(sim->event_schedule);
+	simulator_free_event_list(PRIVATE(sim)->event_pool);
 
 	arrfree(PRIVATE(sim)->chips);
 

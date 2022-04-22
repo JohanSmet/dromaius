@@ -171,6 +171,7 @@ static void *chip_hd44780_setup_4b(const MunitParameter params[], void *user_dat
 
 static void chip_hd44780_teardown(void *fixture) {
 	ChipHd44780 *lcd = (ChipHd44780 *) fixture;
+	simulator_destroy(lcd->simulator);
 	lcd->destroy(lcd);
 }
 

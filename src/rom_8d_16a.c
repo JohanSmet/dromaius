@@ -77,6 +77,8 @@ Rom8d16a *rom_8d16a_create(size_t num_address_lines, Simulator *sim, Rom8d16aSig
 
 static void rom_8d16a_destroy(Rom8d16a *rom) {
 	assert(rom);
+	signal_group_destroy(rom->sg_address);
+	signal_group_destroy(rom->sg_data);
 	dms_free(rom);
 }
 

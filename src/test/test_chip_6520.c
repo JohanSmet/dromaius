@@ -36,6 +36,7 @@ static void *chip_6520_setup(const MunitParameter params[], void *user_data) {
 
 static void chip_6520_teardown(void *fixture) {
 	Chip6520 *pia = (Chip6520 *) fixture;
+	simulator_destroy(pia->simulator);
 	pia->destroy(pia);
 }
 

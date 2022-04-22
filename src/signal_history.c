@@ -205,6 +205,17 @@ void signal_history_destroy(SignalHistory *history) {
 	dms_free(history->signal_samples_base);
 	dms_free(history->samples_time);
 	dms_free(history->samples_value);
+
+	for (size_t i = 0; i < arrlenu(PRIVATE(history)->profile_names); ++i) {
+		dms_free((char *) PRIVATE(history)->profile_names[i]);
+	}
+	for (size_t i = 0; i < arrlenu(PRIVATE(history)->profile_signals); ++i) {
+		arrfree(PRIVATE(history)->profile_signals[i]);
+		arrfree(PRIVATE(history)->profile_signal_aliases[i]);
+	}
+	arrfree(PRIVATE(history)->profile_names);
+	arrfree(PRIVATE(history)->profile_signals);
+	arrfree(PRIVATE(history)->profile_signal_aliases);
 	dms_free(history);
 }
 

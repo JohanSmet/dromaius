@@ -2261,6 +2261,8 @@ Cpu6502 *cpu_6502_create(Simulator *sim, Cpu6502Signals signals) {
 
 static void cpu_6502_destroy(Cpu6502 *cpu) {
 	assert(cpu);
+	signal_group_destroy(cpu->sg_address);
+	signal_group_destroy(cpu->sg_data);
 	dms_free((Cpu6502_private *) cpu);
 }
 

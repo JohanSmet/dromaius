@@ -118,6 +118,9 @@ MunitResult test_format(const MunitParameter params[], void* user_data_or_fixtur
 	munit_assert_string_equal(output, "801b: brk");
 	arrsetlen(output, 0);
 
+	// cleanup
+	arrfree(output);
+
     return MUNIT_OK;
 }
 
@@ -134,6 +137,9 @@ MunitResult test_incomplete(const MunitParameter params[], void* user_data_or_fi
 	munit_assert_size(index, >, 2);
 	munit_assert_not_null(output);
 	munit_assert_string_equal(output, "8000: sta (opcode incomplete)");
+
+	// cleanup
+	arrfree(output);
 
 	return MUNIT_OK;
 }

@@ -90,6 +90,10 @@ static inline SignalGroup signal_group_create_new(SignalPool *pool, size_t size,
 	return result;
 }
 
+static inline void signal_group_destroy(SignalGroup sg) {
+	arrfree(sg);
+}
+
 void signal_group_set_name(SignalPool *pool, SignalGroup sg, const char *group_name, const char *signal_name, uint32_t start_idx);
 
 static inline size_t signal_group_size(SignalGroup sg) {

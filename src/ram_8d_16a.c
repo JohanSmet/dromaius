@@ -84,6 +84,8 @@ Ram8d16a *ram_8d16a_create(uint8_t num_address_lines, Simulator *sim, Ram8d16aSi
 
 static void ram_8d16a_destroy(Ram8d16a *ram) {
 	assert(ram);
+	signal_group_destroy(ram->sg_address);
+	signal_group_destroy(ram->sg_data);
 	dms_free(ram);
 }
 

@@ -90,6 +90,8 @@ Chip63xxRom *chip_6316_rom_create(Simulator *sim, Chip63xxSignals signals) {
 
 static void chip_63xx_rom_destroy(Chip63xxRom *chip) {
 	assert(chip);
+	signal_group_destroy(chip->sg_address);
+	signal_group_destroy(chip->sg_data);
 	dms_free(chip);
 }
 

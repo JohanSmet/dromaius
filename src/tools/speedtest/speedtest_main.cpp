@@ -79,5 +79,7 @@ int main(int argc, char *argv[]) {
 	double speed = (1000000 * sim_time) / duration;
     std::printf("+++ done (%f seconds) sim-time = %f seconds (speed = %.2f hz, %.3f Mhz)\n", duration, sim_time, speed, speed / 1000000.0);
 
+	dev_commodore_pet_destroy(pet_device);
+	dms_release_context(dms_ctx);
     return 0;
 }

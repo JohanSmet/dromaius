@@ -477,6 +477,10 @@ ChipHd44780 *chip_hd44780_create(Simulator *sim, ChipHd44780Signals signals) {
 
 static void chip_hd44780_destroy(ChipHd44780 *lcd) {
 	assert(lcd);
+	arrfree(lcd->display_data);
+	signal_group_destroy(lcd->sg_data);
+	signal_group_destroy(lcd->sg_db0_3);
+	signal_group_destroy(lcd->sg_db4_7);
 	dms_free(PRIVATE(lcd));
 }
 

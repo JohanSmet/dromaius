@@ -27,6 +27,7 @@ MunitResult test_6114_read(const MunitParameter params[], void *user_data_or_fix
 		munit_assert_uint8(SIGNAL_GROUP_READ_NEXT_U8(io), ==, i & 0x0f);
 	}
 
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
 
 	return MUNIT_OK;
@@ -59,6 +60,7 @@ MunitResult test_6114_write(const MunitParameter params[], void *user_data_or_fi
 		munit_assert_uint8(chip->data_array[i], ==, i & 0x0f);
 	}
 
+	simulator_destroy(chip->simulator);
 	chip->destroy(chip);
 	return MUNIT_OK;
 }
