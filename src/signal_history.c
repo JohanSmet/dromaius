@@ -41,8 +41,7 @@ typedef struct SignalHistory_private {
 
 	flag_t			lock_ui_access;
 
-	// flag to force initial capture
-	uint64_t		force_capture;
+	bool			force_capture_all;
 
 	// gtkwave export
 	bool			gtkwave_enabled;
@@ -227,7 +226,7 @@ void signal_history_process_start(SignalHistory *history) {
 	assert(history);
 
 	PRIVATE(history)->thread_stop_request = false;
-	PRIVATE(history)->force_capture = (uint64_t) -1;
+	PRIVATE(history)->force_capture_all = true;
 	history->capture_active = true;
 	thread_create_joinable(&PRIVATE(history)->thread, (thread_func_t) signal_history_processing_thread, PRIVATE(history));
 }
@@ -279,7 +278,15 @@ bool signal_history_add(SignalHistory *history, int64_t time, uint64_t *signals_
 	HistoryIncoming *in = &history->incoming[PRIVATE(history)->next_in];
 	in->time = time;
 	dms_memcpy(in->signals_value, signals_value, sizeof(uint64_t) * SIGNAL_BLOCKS);
-	dms_memcpy(in->signals_changed, signals_changed, sizeof(uint64_t) * SIGNAL_BLOCKS);
+	if (!PRIVATE(history)->force_capture_all) {
+		dms_memcpy(in->signals_changed, signals_changed, sizeof(uint64_t) * SIGNAL_BLOCKS);
+	} else {
+		size_t signals_left = history->signal_count;
+		for (size_t i = 0; i < SIGNAL_BLOCKS; ++i, signals_left -= 64) {
+			in->signals_changed[i] = (signals_left > 64) ? (size_t) -1 : (1ull << signals_left) - 1;
+		}
+		PRIVATE(history)->force_capture_all = false;
+	}
 
 	// move pointer along -- there's only one thread writing to next_in
 	atomic_exchange_uint32(&PRIVATE(history)->next_in, next_index(history, PRIVATE(history)->next_in));
@@ -392,15 +399,12 @@ bool signal_history_process_incoming_single(SignalHistory *history) {
 
 	for (unsigned int blk = 0; blk < SIGNAL_BLOCKS; ++blk) {
 
-		for (uint64_t changed = in->signals_changed[blk] | PRIVATE(history)->force_capture; changed; changed &= changed - 1) {
+		for (uint64_t changed = in->signals_changed[blk]; changed; changed &= changed - 1) {
 			int32_t idx = bit_lowest_set(changed);
 			size_t signal = (blk << 6) + (size_t) idx;
-
 			signal_history_store_data(history, signal, in->time, FLAG_IS_SET(in->signals_value[blk], 1ull << idx));
 		}
 	}
-
-	PRIVATE(history)->force_capture = 0;
 
 	flag_release_lock(&PRIVATE(history)->lock_ui_access);
 	atomic_exchange_uint32(&PRIVATE(history)->first_out, next_index(history, PRIVATE(history)->first_out));
