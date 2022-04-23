@@ -70,7 +70,7 @@ static bool tap_load(const char *filename, TapData *tap) {
 	assert(tap);
 
 	// load file into memory
-	tap->file_path = strdup(filename);
+	tap->file_path = dms_strdup(filename);
 
 	if (!file_load_binary(filename, &tap->raw)) {
 		return false;
@@ -93,7 +93,7 @@ static bool tap_new(const char *filename, TapData *tap) {
 	tap->data    = (uint8_t *) (tap->raw + 0x14);
 	tap->current = tap->data;
 	tap->end	 = tap->current;
-	tap->file_path = strdup(filename);
+	tap->file_path = dms_strdup(filename);
 
 	return true;
 }

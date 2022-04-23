@@ -12,14 +12,14 @@
 size_t file_load_binary_fixed(const char *filename, uint8_t *buffer, size_t max_len) {
 	assert(filename);
 
-	FILE *fp = fopen(filename, "rb");
-	if (!fp) {
+	FILE* fp = NULL;
+	if (dms_fopen(fp, filename, "rb")) {
 		// FIXME: an error message would be nice
 		return 0;
 	}
 
-	size_t read = fread(buffer, 1, max_len, fp);
-	fclose(fp);
+	size_t read = dms_fread(buffer, 1, max_len, fp);
+	dms_fclose(fp);
 
 	return read;
 }
@@ -31,20 +31,19 @@ size_t file_load_binary(const char* filename, int8_t** buffer) {
 	assert(filename);
 	assert(buffer);
 
-	FILE* fp = fopen(filename, "rb");
-
-	if (!fp) {
+	FILE* fp = NULL;
+	if (dms_fopen(fp, filename, "rb")) {
 		// FIXME: an error message would be nice
 		return total_size;
 	}
 
-	while (!feof(fp)) {
+	while (!dms_feof(fp)) {
 		arrsetcap(*buffer, total_size + 2048);
-		size_t read = fread(*buffer + total_size, 1, BLOCK_SIZE, fp);
+		size_t read = dms_fread(*buffer + total_size, 1, BLOCK_SIZE, fp);
 		total_size += read;
 	}
 
-	fclose(fp);
+	dms_fclose(fp);
 
 	arrsetlen(*buffer, total_size);
 	return total_size;
@@ -52,14 +51,14 @@ size_t file_load_binary(const char* filename, int8_t** buffer) {
 
 bool file_save_binary(const char *filename, int8_t *data, size_t size) {
 
-	FILE *fp = fopen(filename, "wb");
-	if (!fp) {
+	FILE* fp = NULL;
+	if (dms_fopen(fp, filename, "wb")) {
 		// FIXME: an error message would be nice
 		return false;
 	}
 
-	size_t written = fwrite(data, 1, size, fp);
-	fclose(fp);
+	size_t written = dms_fwrite(data, 1, size, fp);
+	dms_fclose(fp);
 
 	return written == size;
 }
@@ -82,7 +81,8 @@ void dir_list_files(const char *path, const char *ext, const char *prefix, const
 			continue;
 		}
 
-		arrpush(*file_list, strdup(file.name));
+		char** list = (char **) *file_list;
+		arrpush(list, dms_strdup(file.name));
 	}
 }
 

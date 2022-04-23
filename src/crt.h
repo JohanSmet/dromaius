@@ -21,14 +21,41 @@
 #define dms_memcmp(ptr1,ptr2,num)	memcmp(ptr1, ptr2, num)
 
 // string
-#define	dms_strlen		strlen
-#define	dms_strcmp		strcmp
-#define dms_strcpy		strcpy
-#define dms_strncat		strncat
-#define	dms_strncmp		strncmp
+#ifdef PLATFORM_WINDOWS
+	#define	dms_strlen		strlen
+	#define	dms_strcmp		strcmp
+	#define dms_strlcpy(dst,src,dsize)	strcpy_s(dst,dsize,src)
+	#define dms_strdup		_strdup
+	#define dms_strlcat(dst,src,dsize)	strcat_s(dst,dsize,src)
+	#define	dms_strncmp		strncmp
+#else
+	#define	dms_strlen		strlen
+	#define	dms_strcmp		strcmp
+	#define dms_strlcpy(dst,src,dsize)	strcpy(dst,src)		/* FIXME */
+	#define dms_strdup		strdup
+	#define dms_strlcat(dst,src,dsize)	strcat(dst,src)		/* FIXME */
+	#define	dms_strncmp		strncmp
+#endif
 
 #define dms_snprintf	snprintf
 #define dms_vsnprintf	vsnprintf
+
+// file
+#ifdef PLATFORM_WINDOWS
+	#define dms_fopen(fp,name,mode)		fopen_s(&fp,name,mode)
+	#define dms_fclose					fclose
+	#define dms_fread					fread
+	#define dms_fwrite					fwrite
+	#define dms_feof					feof
+#else
+	#define dms_fopen(fp,name,mode)		((fp = fopen(name,mode)) == NULL)
+	#define dms_fclose					fclose
+	#define dms_fread					fread
+	#define dms_fwrite					fwrite
+	#define dms_feof					feof
+#endif
+
+
 
 
 
