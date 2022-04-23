@@ -286,7 +286,7 @@ static inline void change_state(DmsContext *context, DMS_STATE new_state) {
 //
 
 DmsContext *dms_create_context() {
-	DmsContext *ctx = (DmsContext *) dms_malloc(sizeof(DmsContext));
+	DmsContext *ctx = (DmsContext *) dms_calloc(1, sizeof(DmsContext));
 	ctx->simulator = NULL;
 	ctx->device = NULL;
 	ctx->usr_break_irq = false;

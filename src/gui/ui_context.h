@@ -19,8 +19,8 @@ public:
 	void switch_machine(MachineType machine);
 
 	// UI management
-	void setup_ui();
 	void setup_ui(struct GLFWwindow *window);
+	void shutdown_ui();
 	void draw_ui();
 
 	// panels

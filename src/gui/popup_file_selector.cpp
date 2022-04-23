@@ -73,6 +73,8 @@ std::vector<std::string> PopupFileSelector::construct_directory_listing() {
 		result.push_back(file.name);
 	}
 
+	cf_dir_close(&dir);
+
 	std::sort(begin(result), end(result));
 
 	return result;

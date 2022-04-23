@@ -208,6 +208,8 @@ int main(int argc, char **argv)
     }
 #endif
 
+	g_ui_context->shutdown_ui();
+
     // cleanup
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

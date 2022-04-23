@@ -287,7 +287,7 @@ private:
 
 	std::string					input_text;
 	std::string					send_text;
-	size_t						send_index;
+	size_t						send_index = 0;
 	int32_t						send_delay;
 };
 

@@ -25,6 +25,21 @@ namespace {
 
 void UIContext::switch_machine(MachineType machine) {
 
+	// close current UI
+	shutdown_ui();
+
+	// create new device
+	create_device(machine);
+}
+
+void UIContext::setup_ui(struct GLFWwindow *window) {
+	glfw_window = window;
+	switch_machine(config.machine_type);
+	panel_memory_load_fonts();
+}
+
+void UIContext::shutdown_ui() {
+
 #ifndef DMS_NO_THREADING
 	if (dms_ctx) {
 		dms_stop_execution(dms_ctx);
@@ -44,15 +59,6 @@ void UIContext::switch_machine(MachineType machine) {
 		// release context
 		dms_release_context(dms_ctx);
 	}
-
-	// create new device
-	create_device(machine);
-}
-
-void UIContext::setup_ui(struct GLFWwindow *window) {
-	glfw_window = window;
-	switch_machine(config.machine_type);
-	panel_memory_load_fonts();
 }
 
 void UIContext::draw_ui() {
