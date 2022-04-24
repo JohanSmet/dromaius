@@ -128,8 +128,10 @@ bool img_d64_parse_memory(int8_t *input, DiskImageD64 *d64) {
 	d64->bam = (D64Bam *) d64prv_pointer_to_track_sector(d64, D64_DIRECTORY_TRACK, 0);
 	d64->free_sectors = 0;
 
+	size_t dir_index = 4ul * (D64_DIRECTORY_TRACK - 1ul);
+
 	for (size_t i = 0; i < sizeof(d64->bam->bam); i += 4) {
-		if (i != 4ul * (D64_DIRECTORY_TRACK - 1)) {
+		if (i != dir_index) {
 			d64->free_sectors = (uint16_t) (d64->free_sectors + d64->bam->bam[i]);
 		}
 	}
