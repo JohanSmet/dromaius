@@ -6,49 +6,24 @@ env:
     BUILD_TYPE: Release
 
 jobs:
-    build_linux:
-        runs-on: ubuntu-latest
-
-        steps:
-            - uses: actions/checkout@v1
-              with:
-                submodules: true
-
-            - name: Install dependencies
-              run: |
-                sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
-                sudo apt-get update -y -qq
-                sudo apt-get install xorg-dev libgl1-mesa-dev
-
-            - name: Create build directory
-              run: cmake -E make_directory ${{runner.workspace}}/_build
-
-            - name: Run CMake
-              shell: bash
-              working-directory: ${{runner.workspace}}/_build
-              run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-
-            - name: Build
-              shell: bash
-              working-directory: ${{runner.workspace}}/_build
-              run: cmake --build . --config $BUILD_TYPE
-
-            - name: Test
-              shell: bash
-              working-directory: ${{runner.workspace}}/_build
-              run: ctest -C $BUILD_TYPE -V
-
     build_native:
         runs-on: ${{ matrix.os }}
 
         strategy:
             matrix:
-                os: [windows-latest, macOS-latest]
+                os: [windows-latest, ubuntu-latest, macOS-latest]
 
         steps:
             - uses: actions/checkout@v1
               with:
                 submodules: true
+
+            - name: Install dependencies (Linux)
+              run: |
+                sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe restricted multiverse"
+                sudo apt-get update -y -qq
+                sudo apt-get install xorg-dev libgl1-mesa-dev
+              if: matrix.os == 'ubuntu-latest'
 
             - name: Create build directory
               run: cmake -E make_directory ${{runner.workspace}}/_build
