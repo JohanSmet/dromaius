@@ -1,0 +1,41 @@
+name: Dromaius Deploy
+
+on:
+  push:
+    tags:
+      - 'release/**'
+
+jobs:
+  call_build:
+    uses: ./.github/workflows/cmake.yml
+
+  release_emscripten:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout GitHub Pages branch
+        uses: actions/checkout@v3
+        with:
+            ref: 'gh-pages'
+
+      - name: Remove previous release
+        shell: bash
+        working-directory: ${{runner.workspace}}/dromaius
+        run: |
+          rm -rf gui
+          rm -rf htmlview
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: dist_emscripten
+          path: ${{runner.workspace}}/dromaius
+
+      - name: Commit Release
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Release new version."
+
+    needs: call_build
+
+
