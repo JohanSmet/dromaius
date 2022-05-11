@@ -291,6 +291,13 @@ div#about .button, div#help .button {
 	margin: 10px;
 }
 
+.tab span {
+	line-height: 42px;	/* note: same height as tabbar */
+	vertical-align: middle;
+	margin-left: 5em;
+	font-weight: bold;
+}
+
 /* emscripten loader */
 div.emscripten {
 	text-align: center;

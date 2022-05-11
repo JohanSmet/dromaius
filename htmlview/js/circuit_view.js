@@ -23,6 +23,8 @@ export class CircuitView {
 	svg_pan_origin = null;
 	svg_pan_transform = null;
 
+	tabbar_title = null;
+
 	constructor(container, lite) {
 		var tabbar = $('<div/>').attr('class', 'tab');
 		container.append(tabbar);
@@ -32,6 +34,8 @@ export class CircuitView {
 		for (const sheet in SCHEMATIC_SHEETS) {
 			this.add_sheet(container, tabbar, SCHEMATIC_SHEETS[sheet].page, SCHEMATIC_SHEETS[sheet].title, lite);
 		}
+
+		this.tabbar_title = $('<span/>').appendTo(tabbar);
 	}
 
 	// private functions
@@ -79,6 +83,9 @@ export class CircuitView {
 		// keep reference to selected svg
 		this.svg_document = $('div' + obj_id + ' svg')[0];
 		this.svg_layer = null;
+
+		// set title
+		this.tabbar_title.text($(button).attr('title'));
 	}
 
 	on_wire_mouseover(signal) {
