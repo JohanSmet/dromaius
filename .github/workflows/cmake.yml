@@ -6,6 +6,7 @@ on:
       - '**.md'
       - 'docs/**'
       - 'runtime/**'
+  workflow_call:
 
 env:
     BUILD_TYPE: Release
