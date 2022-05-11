@@ -1,6 +1,11 @@
 name: Dromaius build
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'runtime/**'
 
 env:
     BUILD_TYPE: Release
