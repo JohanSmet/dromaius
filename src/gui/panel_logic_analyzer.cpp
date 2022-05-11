@@ -296,7 +296,7 @@ private:
 
 private:
 	ImVec2			position;
-	const ImVec2	size = {390, 400};
+	const ImVec2	size = {815, 400};
 	std::string		title;
 
 	bool						enable_history = false;
