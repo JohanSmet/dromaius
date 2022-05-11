@@ -7,6 +7,10 @@ on:
       - 'docs/**'
       - 'runtime/**'
       - '.github/workflows/deploy.yml'
+    branches:
+      - '**'
+    tags-ignore:
+      - 'release/*'
   workflow_call:
 
 env:
