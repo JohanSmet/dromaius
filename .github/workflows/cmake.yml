@@ -6,6 +6,7 @@ on:
       - '**.md'
       - 'docs/**'
       - 'runtime/**'
+      - '.github/workflows/deploy.yml'
   workflow_call:
 
 env:
