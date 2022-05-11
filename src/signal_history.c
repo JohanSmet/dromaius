@@ -283,7 +283,7 @@ bool signal_history_add(SignalHistory *history, int64_t time, uint64_t *signals_
 	} else {
 		size_t signals_left = history->signal_count;
 		for (size_t i = 0; i < SIGNAL_BLOCKS; ++i, signals_left -= 64) {
-			in->signals_changed[i] = (signals_left > 64) ? (size_t) -1 : (1ull << signals_left) - 1;
+			in->signals_changed[i] = (signals_left > 64) ? (uint64_t) -1 : (1ull << signals_left) - 1;
 		}
 		PRIVATE(history)->force_capture_all = false;
 	}
