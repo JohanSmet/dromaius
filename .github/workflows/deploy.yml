@@ -26,7 +26,7 @@ jobs:
           rm -rf htmlview
 
       - name: Download build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: dist_emscripten
           path: ${{runner.workspace}}/dromaius
